@@ -1,0 +1,1 @@
+<li data-full="{{ $node_path }}" data-id="{{ $node_id }}" data-title="{{ $node_title }}" data-jstree='{"disabled": {{ $is_disabled }}}'>{{ $node_title }}{!! $node_children !!}</li>

@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-uncss": "^0.6.1",
+    "gulp": "^3.8.8",
+    "gulp-css-rebase-urls": "0.0.5",
+    "laravel-elixir": "^2.0.0",
+    "laravel-elixir-uncss": "^2.2.0"
+  }
+}

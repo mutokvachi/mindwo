@@ -1,0 +1,21 @@
+/*
+Portāla galvenais CSS - definē globālos stilus elementien, kas tiek izmantoti visās (vai vairākās) lapās
+*/
+
+/* Iezīmes: sākums*/
+
+.article_item_row .a_tag {
+    margin-right: 6px;
+}
+
+a.a_tag {
+    white-space: nowrap;
+}
+
+/* Iezīmes: beigas*/
+
+/* IE9 placeholder fix: sākums */
+
+.placeholder { color: #aaa; }
+
+/* IE9 placeholder fix: beigas */

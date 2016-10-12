@@ -1,0 +1,534 @@
+{
+    "@timestamp": "20160224T091659,28Z",
+    "@toplevelentries": "5184",
+    "viewentry": [
+        {
+            "@position": "1",
+            "@unid": "8EF27AF858CA54E7C2257DB20027F150",
+            "@noteid": "3667AE",
+            "@siblings": "5184",
+            "entrydata": [
+                {
+                    "@columnnumber": "0",
+                    "@name": "$9",
+                    "datetime": {
+                        "0": "20141217"
+                    }
+                },
+                {
+                    "@columnnumber": "1",
+                    "@name": "$7",
+                    "textlist": {
+                        "text": [
+                            {
+                                "0": "Apakšstaciju dienests [203300]"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "@columnnumber": "2",
+                    "@name": "$8",
+                    "text": {
+                        "0": "VT-50/1-2189777"
+                    }
+                },
+                {
+                    "@columnnumber": "3",
+                    "@name": "$3",
+                    "text": {
+                        "0": "07.00"
+                    }
+                },
+                {
+                    "@columnnumber": "4",
+                    "@name": "DocName",
+                    "text": {
+                        "0": "LNr.273 RAA norādījumi!?!"
+                    }
+                },
+                {
+                    "@columnnumber": "5",
+                    "@name": "DocTypeNickName",
+                    "text": {
+                        "0": "Vadoši tehniskie materiāli"
+                    }
+                }
+            ]
+        },
+        {
+            "@position": "2",
+            "@unid": "626B2192763B3BFBC2257DAF004EA794",
+            "@noteid": "3666BA",
+            "@siblings": "5184",
+            "entrydata": [
+                {
+                    "@columnnumber": "0",
+                    "@name": "$9",
+                    "datetime": {
+                        "0": "20141216"
+                    }
+                },
+                {
+                    "@columnnumber": "1",
+                    "@name": "$7",
+                    "textlist": {
+                        "text": [
+                            {
+                                "0": "Releju dienests [203100]"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "@columnnumber": "2",
+                    "@name": "$8",
+                    "text": {
+                        "0": "VT-51/1-998"
+                    }
+                },
+                {
+                    "@columnnumber": "3",
+                    "@name": "$3",
+                    "text": {
+                        "0": "05.00"
+                    }
+                },
+                {
+                    "@columnnumber": "4",
+                    "@name": "DocName",
+                    "text": {
+                        "0": "A/ST 123 TNr.2 RAA iestatījumu karte"
+                    }
+                },
+                {
+                    "@columnnumber": "5",
+                    "@name": "DocTypeNickName",
+                    "text": {
+                        "0": "Vadoši tehniskie materiāli"
+                    }
+                }
+            ]
+        },
+        {
+            "@position": "3",
+            "@unid": "28C961A038C6F689C2257DA50038AC09",
+            "@noteid": "366086",
+            "@siblings": "5184",
+            "entrydata": [
+                {
+                    "@columnnumber": "0",
+                    "@name": "$9",
+                    "datetime": {
+                        "0": "20141216T125300,00+02"
+                    }
+                },
+                {
+                    "@columnnumber": "1",
+                    "@name": "$7",
+                    "textlist": {
+                        "text": [
+                            {
+                                "0": "Apakšstaciju dienests [203300]"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "@columnnumber": "2",
+                    "@name": "$8",
+                    "text": {
+                        "0": "VT-60-191"
+                    }
+                },
+                {
+                    "@columnnumber": "3",
+                    "@name": "$3",
+                    "text": {
+                        "0": "04.00"
+                    }
+                },
+                {
+                    "@columnnumber": "4",
+                    "@name": "DocName",
+                    "text": {
+                        "0": "Operatīvie norādījumi LNr.231 \n(A/ST Iļģuciems – A/ST Imanta) ekspluatācijai"
+                    }
+                },
+                {
+                    "@columnnumber": "5",
+                    "@name": "DocTypeNickName",
+                    "text": {
+                        "0": "Vadoši tehniskie materiāli"
+                    }
+                }
+            ]
+        },
+        {
+            "@position": "4",
+            "@unid": "06B470A8B41D20ECC2257DA50028E028",
+            "@noteid": "366022",
+            "@siblings": "5184",
+            "entrydata": [
+                {
+                    "@columnnumber": "0",
+                    "@name": "$9",
+                    "datetime": {
+                        "0": "20141212T085000,00+02"
+                    }
+                },
+                {
+                    "@columnnumber": "1",
+                    "@name": "$7",
+                    "textlist": {
+                        "text": [
+                            {
+                                "0": "Apakšstaciju dienests [203300]"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "@columnnumber": "2",
+                    "@name": "$8",
+                    "text": {
+                        "0": "VT-60-189"
+                    }
+                },
+                {
+                    "@columnnumber": "3",
+                    "@name": "$3",
+                    "text": {
+                        "0": "02.00"
+                    }
+                },
+                {
+                    "@columnnumber": "4",
+                    "@name": "DocName",
+                    "text": {
+                        "0": "Operatīvie norādījumi LNr.233 \n(A/ST Imanta – A/ST Bolderāja I, \nar nozari uz   A/ST Daugavgrīva) ekspluatācijai"
+                    }
+                },
+                {
+                    "@columnnumber": "5",
+                    "@name": "DocTypeNickName",
+                    "text": {
+                        "0": "Vadoši tehniskie materiāli"
+                    }
+                }
+            ]
+        },
+        {
+            "@position": "5",
+            "@unid": "8C64594739BADBD0C2257DA9003787BD",
+            "@noteid": "3665D2",
+            "@siblings": "5184",
+            "entrydata": [
+                {
+                    "@columnnumber": "0",
+                    "@name": "$9",
+                    "datetime": {
+                        "0": "20141210"
+                    }
+                },
+                {
+                    "@columnnumber": "1",
+                    "@name": "$7",
+                    "textlist": {
+                        "text": [
+                            {
+                                "0": "Apakšstaciju dienests [203300]"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "@columnnumber": "2",
+                    "@name": "$8",
+                    "text": {
+                        "0": "VT-50/1-746"
+                    }
+                },
+                {
+                    "@columnnumber": "3",
+                    "@name": "$3",
+                    "text": {
+                        "0": "08.00"
+                    }
+                },
+                {
+                    "@columnnumber": "4",
+                    "@name": "DocName",
+                    "text": {
+                        "0": "A/ST 130 110 kV kopņu RAA norādījumi"
+                    }
+                },
+                {
+                    "@columnnumber": "5",
+                    "@name": "DocTypeNickName",
+                    "text": {
+                        "0": "Vadoši tehniskie materiāli"
+                    }
+                }
+            ]
+        },
+        {
+            "@position": "6",
+            "@unid": "841827072C68E0E1C2257DA90022BA68",
+            "@noteid": "36641A",
+            "@siblings": "5184",
+            "entrydata": [
+                {
+                    "@columnnumber": "0",
+                    "@name": "$9",
+                    "datetime": {
+                        "0": "20141209"
+                    }
+                },
+                {
+                    "@columnnumber": "1",
+                    "@name": "$7",
+                    "textlist": {
+                        "text": [
+                            {
+                                "0": "Apakšstaciju dienests [203300]"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "@columnnumber": "2",
+                    "@name": "$8",
+                    "text": {
+                        "0": "VT-50/1-22"
+                    }
+                },
+                {
+                    "@columnnumber": "3",
+                    "@name": "$3",
+                    "text": {
+                        "0": "11.00"
+                    }
+                },
+                {
+                    "@columnnumber": "4",
+                    "@name": "DocName",
+                    "text": {
+                        "0": "110 kV, 330 kV tīklu un elektrostaciju automātiku saraksts"
+                    }
+                },
+                {
+                    "@columnnumber": "5",
+                    "@name": "DocTypeNickName",
+                    "text": {
+                        "0": "Vadoši tehniskie materiāli"
+                    }
+                }
+            ]
+        },
+        {
+            "@position": "7",
+            "@unid": "BC51136C1A12FAACC2257DA80031288A",
+            "@noteid": "36629A",
+            "@siblings": "5184",
+            "entrydata": [
+                {
+                    "@columnnumber": "0",
+                    "@name": "$9",
+                    "datetime": {
+                        "0": "20141209"
+                    }
+                },
+                {
+                    "@columnnumber": "1",
+                    "@name": "$7",
+                    "textlist": {
+                        "text": [
+                            {
+                                "0": "Apakšstaciju dienests [203300]"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "@columnnumber": "2",
+                    "@name": "$8",
+                    "text": {
+                        "0": "VT-50/1-756"
+                    }
+                },
+                {
+                    "@columnnumber": "3",
+                    "@name": "$3",
+                    "text": {
+                        "0": "03.00"
+                    }
+                },
+                {
+                    "@columnnumber": "4",
+                    "@name": "DocName",
+                    "text": {
+                        "0": "A/ST 193 110 kV kopņu RAA norādījumi"
+                    }
+                },
+                {
+                    "@columnnumber": "5",
+                    "@name": "DocTypeNickName",
+                    "text": {
+                        "0": "Vadoši tehniskie materiāli"
+                    }
+                }
+            ]
+        },
+        {
+            "@position": "8",
+            "@unid": "1EBF12960BF19F0FC2257DA900278FA3",
+            "@noteid": "36642A",
+            "@siblings": "5184",
+            "entrydata": [
+                {
+                    "@columnnumber": "0",
+                    "@name": "$9",
+                    "datetime": {
+                        "0": "20141209"
+                    }
+                },
+                {
+                    "@columnnumber": "1",
+                    "@name": "$7",
+                    "text": {
+                        "0": "Releju dienests [203100]"
+                    }
+                },
+                {
+                    "@columnnumber": "2",
+                    "@name": "$8",
+                    "text": {
+                        "0": "VT-51/1-1211"
+                    }
+                },
+                {
+                    "@columnnumber": "3",
+                    "@name": "$3",
+                    "text": {
+                        "0": "14.00"
+                    }
+                },
+                {
+                    "@columnnumber": "4",
+                    "@name": "DocName",
+                    "text": {
+                        "0": "A/ST 133 LNr.233 RAA iestatījumu karte"
+                    }
+                },
+                {
+                    "@columnnumber": "5",
+                    "@name": "DocTypeNickName",
+                    "text": {
+                        "0": "Vadoši tehniskie materiāli"
+                    }
+                }
+            ]
+        },
+        {
+            "@position": "9",
+            "@unid": "7E737B40B474129BC2257DA9002764DC",
+            "@noteid": "366422",
+            "@siblings": "5184",
+            "entrydata": [
+                {
+                    "@columnnumber": "0",
+                    "@name": "$9",
+                    "datetime": {
+                        "0": "20141209"
+                    }
+                },
+                {
+                    "@columnnumber": "1",
+                    "@name": "$7",
+                    "text": {
+                        "0": "Releju dienests [203100]"
+                    }
+                },
+                {
+                    "@columnnumber": "2",
+                    "@name": "$8",
+                    "text": {
+                        "0": "VT-51/1-1210"
+                    }
+                },
+                {
+                    "@columnnumber": "3",
+                    "@name": "$3",
+                    "text": {
+                        "0": "12.00"
+                    }
+                },
+                {
+                    "@columnnumber": "4",
+                    "@name": "DocName",
+                    "text": {
+                        "0": "A/ST 130 LNr.233 RAA iestatījumu karte"
+                    }
+                },
+                {
+                    "@columnnumber": "5",
+                    "@name": "DocTypeNickName",
+                    "text": {
+                        "0": "Vadoši tehniskie materiāli"
+                    }
+                }
+            ]
+        },
+        {
+            "@position": "10",
+            "@unid": "27DAE8B70CC87A25C2257DA5002EB6F0",
+            "@noteid": "366056",
+            "@siblings": "5184",
+            "entrydata": [
+                {
+                    "@columnnumber": "0",
+                    "@name": "$9",
+                    "datetime": {
+                        "0": "20141209"
+                    }
+                },
+                {
+                    "@columnnumber": "1",
+                    "@name": "$7",
+                    "text": {
+                        "0": "Releju dienests [203100]"
+                    }
+                },
+                {
+                    "@columnnumber": "2",
+                    "@name": "$8",
+                    "text": {
+                        "0": "VT-51/1-2618"
+                    }
+                },
+                {
+                    "@columnnumber": "3",
+                    "@name": "$3",
+                    "text": {
+                        "0": "02.00"
+                    }
+                },
+                {
+                    "@columnnumber": "4",
+                    "@name": "DocName",
+                    "text": {
+                        "0": "A/ST 120 LNr.225 RAA iestatījumu karte"
+                    }
+                },
+                {
+                    "@columnnumber": "5",
+                    "@name": "DocTypeNickName",
+                    "text": {
+                        "0": "Vadoši tehniskie materiāli"
+                    }
+                }
+            ]
+        }
+    ]
+}

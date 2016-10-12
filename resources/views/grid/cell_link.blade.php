@@ -1,0 +1,1 @@
+<a href="#" class='dx-grid-cmd-view' dx_item_id='{{ $item_id }}'>{!! $cell_value !!}</a>

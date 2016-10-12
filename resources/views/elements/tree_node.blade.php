@@ -1,0 +1,1 @@
+<li data-full="{{ $node_path }}" data-id="{{ $node_id }}">{{ $node_title }}{!! $node_children !!}</li>

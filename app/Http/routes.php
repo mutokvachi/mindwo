@@ -1,0 +1,137 @@
+<?php
+
+/**
+*
+* Maršruti
+*
+* Šeit tiek definēti portāla maršruti (routes)
+*/
+
+// Datu bāzes SQL pieprasīju auditācija, ja ir ieslēgts konfigurācijas parametrs
+if (Config::get('database.log', false)) {
+    
+    DB::listen(function ($query) {
+        // $query->sql
+        // $query->bindings
+        // $query->time
+        $data = compact('bindings', 'time', 'name');
+
+        // Format binding data for sql insertion
+        foreach ($query->bindings as $i => $binding) {
+            if ($binding instanceof \DateTime) {
+                $query->bindings[$i] = $binding->format('\'Y-m-d H:i:s\'');
+            } else if (is_string($binding)) {
+                $query->bindings[$i] = "'$binding'";
+            }
+        }
+
+        // Insert bindings into query
+        $sql = str_replace(array('%', '?'), array('%%', '%s'), $query->sql);
+        $sql = vsprintf($sql, $query->bindings);
+
+        Log::info("URL: " . Request::url() . " | SQL: " . $sql . " | TIME: " . $query->time);
+    });
+}
+
+/**
+ * Failu pārlūks - satura redaktora komponente
+ */
+Route::group(array('middleware' => 'auth'), function(){
+    Route::controller('filemanager', 'FilemanagerLaravelController'); 
+});
+
+// Attēli
+/*
+Route::get('/img/{file}',array('as'=>'img', 'uses' => 'ImageController@getOriginalFile'));
+Route::get('/img/avatar/{size_folder}/{file}',array('as'=>'img', 'uses' => 'ImageController@getAvatarFile'));
+Route::get('/formated_img/{size}/{file}', array('as'=>'img', 'uses' => 'ImageController@getImage'));
+Route::get('/formated_img_galery/{size}/{file}', array('as'=>'img', 'uses' => 'ImageController@getImageGalery'));
+Route::get('/text_img/{file}/{text}', array('as'=>'img', 'uses' => 'ImageController@getImageText'));
+*/
+
+// Speciālie PHP skripti, kas pievienoti SVS
+Route::post('/custom_php/{url}', array('as' => 'custom_php',  'middleware' => 'auth_ajax', 'uses'=>'CustomPHPController@executePHP'));
+Route::get('/custom_php/{url}', array('as' => 'custom_php',  'middleware' => 'auth', 'uses'=>'CustomPHPController@executePHP'));
+
+// Sistēmas struktūras objektu ģenerēšana un konfigurēšana
+Route::post('/structure/method/{method_name}', array('as' => 'structure_method',  'middleware' => 'auth_ajax', 'uses'=>'StructureController@doMethod'));
+Route::post('/structure/form/{method_name}', array('as' => 'structure_form',  'middleware' => 'auth_ajax', 'uses'=>'StructureController@getForm'));
+Route::get('/structure/doc_manual', array('as' => 'structure_manual',  'middleware' => 'auth', 'uses'=>'StructureController@generateManual'));
+Route::get('/structure/changes_sql', array('as' => 'structure_sql',  'middleware' => 'auth', 'uses'=>'StructureController@generateChangesSQL'));
+Route::get('/structure/doc_ppa', array('as' => 'structure_ppa',  'middleware' => 'auth', 'uses'=>'StructureController@generatePPA'));
+Route::get('/structure/doc_ppa_html', array('as' => 'structure_ppa_html',  'middleware' => 'auth', 'uses'=>'StructureController@generatePPAHtml'));
+
+// Raksti atbilstoši iezīmēm
+/*
+Route::get('/raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showTagArticles'));
+Route::post('/raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showTagArticles'));
+Route::get('/datu_avota_raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showSourceArticles'));
+Route::post('/datu_avota_raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showSourceArticles'));
+*/
+
+// Meklēšana (darbinieku, dokumentu, rakstu)
+Route::get('/search', array('as' => 'search', 'middleware' => 'auth', 'uses'=>'SearchController@search'));
+Route::post('/search', array('as' => 'search', 'middleware' => 'auth', 'uses'=>'SearchController@search'));
+Route::post('/ajax/departments', array('as' => 'get_departments', 'middleware' => 'auth_ajax', 'uses'=>'DepartmentsController@getDepartments'));
+Route::post('/ajax/employees', array('as' => 'get_employees', 'middleware' => 'auth_ajax', 'uses'=>'EmployeeController@searchAjaxEmployee'));
+
+// Bloku AJAX pieprasījumi
+//Route::post('/block_ajax', array('as' => 'block_ajax',  'middleware' => 'auth_ajax', 'uses'=>'BlockAjaxController@getData'));
+
+// Kalendāra ieraksti
+//Route::post('/event', array('as' => 'event',  'middleware' => 'auth_ajax', 'uses'=>'CalendarController@getEvent'));
+
+// Grids
+Route::post('/grid', array('as' => 'grid',  'middleware' => 'auth_ajax', 'uses'=>'GridController@getGrid'));
+Route::post('/delete_grid_items', array('as' => 'grid',  'middleware' => 'auth_ajax', 'uses'=>'GridController@deleteItems'));
+Route::get('/skats_{id}', array('as' => 'view',  'middleware' => 'auth', 'uses'=>'GridController@showViewPage'));
+Route::post('/excel', array('as' => 'excel',  'middleware' => 'auth_ajax', 'uses'=>'GridController@downloadExcel'));
+Route::post('/import_excel', array('as' => 'import_excel',  'middleware' => 'auth_ajax', 'uses'=>'ImportController@importExcel'));
+
+// SVS formas
+Route::post('/form', array('as' => 'form',  'middleware' => 'auth_ajax', 'uses'=>'FormController@getForm'));
+Route::post('/refresh_form', array('as' => 'refresh_form',  'middleware' => 'auth_ajax', 'uses'=>'FormController@refreshFormFields'));
+Route::post('/fill_autocompleate', array('as' => 'fill_autocompleate',  'middleware' => 'auth_ajax', 'uses'=>'FormController@getAutocompleateData'));
+Route::post('/load_binded_field', array('as' => 'load_binded_field',  'middleware' => 'auth_ajax', 'uses'=>'FormController@getBindedFieldData'));
+Route::post('/save_form', array('as' => 'save_form',  'middleware' => 'auth_ajax', 'uses'=>'FormController@saveForm'));
+Route::post('/delete_item', array('as' => 'delete_item',  'middleware' => 'auth_ajax', 'uses'=>'FormController@deleteItem'));
+Route::post('/generate_word', array('as' => 'generate_word',  'middleware' => 'auth_ajax', 'uses'=>'WordController@generateWord'));
+route::post('/register_document', array('as' => 'register_item',  'middleware' => 'auth_ajax', 'uses'=>'RegisterController@registerDocument'));
+
+// Startē procesu forsēti
+Route::get('/force_process/{id}', array('as' => 'force_process',  'middleware' => 'auth', 'uses'=>'ProcessController@forceProcess'));
+
+// Imitē REST servera atbildi
+Route::get('/rest_test/{readviewentries}/{outputformat}/{Start}/{Count}', array('as' => 'rest_test',  'middleware' => 'auth', 'uses'=>'ProcessController@testRESTResponse'));
+
+// Datnes
+Route::get('/download_file_{item_id}_{list_id}_{file_field_id}', array('as' => 'download_file',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getFile'));
+Route::get('/download_by_field_{item_id}_{list_id}_{field_name}', array('as' => 'download_file_field',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getFileByField'));
+
+// Darbplūsmas
+Route::post('/form_task', array('as' => 'task_form',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@getTaskForm'));
+Route::post('/task_yes', array('as' => 'task_yes',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@doYes'));
+Route::post('/task_no', array('as' => 'task_no',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@doNo'));
+Route::post('/workflow_init', array('as' => 'workflow_init',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@initWorkflow'));
+Route::post('/save_delegate', array('as' => 'save_delegate',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@saveDelegateTask'));
+Route::post('/workflow_custom_approve', array('as' => 'workflow_custom_approve',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@getCustomApprove'));
+Route::post('/workflow_find_approver', array('as' => 'workflow_find_approver',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@getAutocompleateApprovers'));
+Route::post('/send_info_task', array('as' => 'send_info_task',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@sendInfoTask'));
+
+// Lietotāji - autorizācija, atslēgšanās
+Route::post('/login', 'UserController@loginUser');
+Route::get('/login', array('as' => 'login','uses'=>'UserController@showIndex'));
+Route::get('/logout', array('as' => 'logout','uses'=>'UserController@logOut'));
+Route::post('/ajax/change_password', array('as' => 'change_password', 'middleware' => 'auth_ajax', 'uses'=>'UserController@changePassw'));
+Route::post('/ajax/form_password', array('as' => 'change_password', 'middleware' => 'auth_ajax', 'uses'=>'UserController@formPassw'));
+Route::post('/relogin', 'UserController@reLoginUser');
+
+// Lapas
+/*
+Route::get('/{id}/{item}', array('as' => 'page',  'middleware' => 'auth', 'uses'=>'PagesController@showPageItem'));
+Route::get('/{id}', array('as' => 'page',  'middleware' => 'auth', 'uses'=>'PagesController@showPage'));
+Route::post('/{id}', array('as' => 'page',  'middleware' => 'auth', 'uses'=>'PagesController@showPage'));
+
+// Noklusētā lapa
+Route::get('/', array('as' => 'home', 'middleware' => 'auth', 'uses'=>'PagesController@showRoot'));
+*/

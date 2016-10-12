@@ -1,0 +1,1 @@
+<a href = 'JavaScript: download_file({{ $item_id }}, {{ $list_id }}, {{ $field_id }});'><i class='glyphicon glyphicon-file'></i> {{ $cell_value }}</a>

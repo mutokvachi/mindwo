@@ -1,0 +1,2 @@
+<input {{ ($is_disabled) ? 'disabled' : '' }} type='radio' {{ $sel_yes }} name='{{ $item_field }}' value='1'>{{ trans('fields.yes') }} <input {{ ($is_disabled) ? 'disabled' : '' }} type='radio' {{ $sel_no }} name='{{ $item_field }}' value='0'>{{ trans('fields.no') }}
+<span class="glyphicon form-control-feedback" aria-hidden="true"></span>

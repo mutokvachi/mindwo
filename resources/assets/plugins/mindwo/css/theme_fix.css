@@ -1,0 +1,211 @@
+
+/* Header */
+.page-header.navbar .page-logo
+{
+    background-color: #8cc63e;
+}
+
+.page-sidebar .page-sidebar-menu>li.active.open>a>i, 
+.page-sidebar .page-sidebar-menu>li.active>a>i, 
+.page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu>li.active.open>a>i, 
+.page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .page-sidebar-menu>li.active>a>i
+{
+    color: #8cc63e;
+}
+
+.page-header.navbar .top-menu .navbar-nav>li.dropdown .dropdown-toggle:hover
+{
+    color: #fff;
+    background-color: #8CC63E;
+}
+
+.page-header.navbar .top-menu .navbar-nav>li.dropdown .dropdown-toggle:hover>i
+{
+    color: #fff;
+}
+
+.page-header.navbar .top-menu .navbar-nav>li.dropdown-language>.dropdown-toggle>.langname, 
+.page-header.navbar .top-menu .navbar-nav>li.dropdown-user>.dropdown-toggle>.username, 
+.page-header.navbar .top-menu .navbar-nav>li.dropdown-user>.dropdown-toggle>i 
+{
+    color: #fff;
+}
+
+.page-header.navbar .top-menu .navbar-nav>li.dropdown.open .dropdown-toggle {
+    background-color: #8CC63E;
+}
+
+#meteo {
+    margin-left: 15px;
+}
+
+#meteo .dropdown-menu-list
+{
+    width: auto;
+    height: 250px;
+    overflow: hidden;
+}
+
+#meteo .dropdown-menu-list .details .label
+{
+    padding: 4px !important;
+}
+
+#meteo .weather-temp 
+{
+    font-size: 26px;
+    color: #fff;
+}
+
+.page-header.navbar .top-menu .navbar-nav > li.dropdown > .dropdown-toggle > .badge.badge-station
+{
+    top: 4px;
+    right: -26px;
+}
+
+@media (max-width: 767px)
+{
+    .page-header.navbar {
+        background: #8cc63e;
+    }
+}
+
+/* General */
+
+.modal-body
+{
+    padding-right: 40px;
+}
+
+.modal-header 
+{
+    padding: 10px 10px;
+}
+
+.modal-title 
+{
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.modal-header .close
+{
+    background-image : none!important;
+    text-indent: 0;
+    margin-top: 0;
+    margin-right: 0;
+    width: auto;
+    height: auto;
+}
+
+.dx_form_btns_left button {
+    margin-left: 5px;
+}
+
+.showhide 
+{
+    color: #95A5A6;
+}
+
+.portlet {
+    box-shadow: 0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.18);
+}
+
+.portlet>.portlet-title>.tools
+{
+    padding: 10px 0 8px;
+}
+
+.panel-system .panel-title a:hover 
+{
+    color: inherit;
+}
+
+.panel-system .panel-heading.bg-green-soft .panel-title a:hover 
+{
+    background-color: #88ba21;
+}
+
+.clsDatePicker {
+    z-index: 100000;
+}
+
+.colorpicker .dropdown-menu {
+    z-index: 100000;
+}
+
+.form-control-feedback
+{
+    margin-top: 10px;
+}
+
+@media (max-width: 480px)
+{
+    .page-header.navbar .top-menu .navbar-nav>li.dropdown-user .dropdown-toggle 
+    {
+        background-color: transparent;
+    } 
+
+    .page-header.navbar .top-menu 
+    {
+        background-color: transparent;
+        clear: none;
+    }                
+}
+
+h1, h2
+{
+    margin-top: 0px;    
+}
+
+.dx_progress, .dx_copyright {
+    color: #b4bcc8;
+}
+
+.dx_logo_link:hover {
+    color: #b4bcc8;
+}
+
+.ui-draggable-handle {
+    cursor: move;
+}
+
+.btn-primary {
+    background-color: #4B77BE;
+}
+
+.page-header.navbar .page-top {
+    background: #2D5F8B;
+}
+
+.portlet {
+    background-color: white;
+    padding: 20px;  
+}
+
+.dx-portlet-collapsed .portlet-title {
+  border-bottom: none;
+  margin-bottom: 0px;
+}
+
+.publish-time {
+    font-size: 13px;
+}
+
+.cbp-l-grid-projects-title {
+    font-size: 12px;
+}
+
+.truncate {        
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.select2-chosen {
+    max-width: 420px;
+}
+
+.modal .modal-body {
+    background-color: #eeeeee!important;
+}

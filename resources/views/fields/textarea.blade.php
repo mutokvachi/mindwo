@@ -1,0 +1,2 @@
+<textarea {{ ($is_disabled) ? 'disabled' : '' }} class='form-control' id='{{ $frm_uniq_id }}_{{ $item_field }}' name='{{ $item_field }}' rows='4' maxlength='{{ $max_lenght }}'>{{ $item_value }}</textarea>
+<span class="glyphicon form-control-feedback" aria-hidden="true"></span>

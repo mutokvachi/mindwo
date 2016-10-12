@@ -1,0 +1,14 @@
+.dx-grid-outer-div
+{
+    min-height: 250px;
+}
+
+.dx-grid-outer-div div.checker
+{
+    margin-top: 0px!important;
+}
+
+.dx-marked-count-lbl
+{
+    font-weight: bold;
+}

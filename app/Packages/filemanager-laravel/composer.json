@@ -1,0 +1,17 @@
+{
+    "name": "pqb/filemanager-laravel",
+    "description": "Filemanager for Laravel",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Guillermo M.",
+            "email": "guille_55_88@hotmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "illuminate/support": "5.0.*|5.1.*|5.2.*",
+        "intervention/image": "2.*"
+    },
+    "minimum-stability": "stable"
+}

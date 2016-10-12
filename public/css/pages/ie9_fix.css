@@ -1,0 +1,7 @@
+.ie9-fix-placeholders {
+    display: none;
+}
+
+.ie9 .ie9-fix-placeholders {
+    display: block;
+}
