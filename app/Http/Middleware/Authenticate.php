@@ -4,8 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Auth;
-use Config;
-use App\Http\Controllers\BoxController;
 use App\Libraries\Helper;
 
 class Authenticate
@@ -30,11 +28,8 @@ class Authenticate
         set_default_view_params();
         set_cms_view_params();
         
-        $sliderMenu = BoxController::generateSlideMenu();
-        view()->share('slidable_htm', $sliderMenu);    
-        view()->share('breadcrumb', Helper::getBreadcrumb($request->url()));
-        view()->share('is_slidable_menu', Config::get('dx.is_slidable_menu'));
-
+        Helper::setBreadcrumbViewGlobals();
+        
         return $next($request);
     }
 }
