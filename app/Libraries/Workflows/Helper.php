@@ -114,8 +114,9 @@ namespace App\Libraries\Workflows
                     ->where('item_id', '=', $item_id)
                     ->where('task_type_id', '!=', \App\Http\Controllers\TasksController::TASK_TYPE_INFO)
                     ->whereNull('task_closed_time')
+                    ->whereNull('parent_task_id')
                     ->first();
-        }
+        }               
         
          /**
          * Pārbauda, vai darbplūsmas solī iestatītais lauks satur informāciju par darbinieku
