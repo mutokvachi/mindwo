@@ -30,19 +30,16 @@ namespace App\Libraries
             if(!Schema::hasColumn($doc_table, 'dx_item_status_id')) {
                 return true; // reģistra tabulā nav lauks dx_item_status_id, bez kura nav iespējamas darbplūsmas, tāpēc ierakstu var rediģēt
             }
+            
+            if (Rights::isEditTaskRights($list_id, $item_id)) {
+                return true; // user have active task for editing this item
+            }
                     
             $cur_task = Workflows\Helper::getCurrentTask($list_id, $item_id);
 
             if ($cur_task)
             {
-                if ($cur_task->task_type_id == \App\Http\Controllers\TasksController::TASK_TYPE_FILL_ACCEPT && Auth::user()->id == $cur_task->task_employee_id)
-                {
-                    return true; // workflow is running and current user have doc edit task
-                }
-                else
-                {
-                    return false; // workflow is running and current uses does not have edit task                        
-                }
+                return false; // workflow is running and current uses does not have edit task
             }
 
             $item_data = DB::table($doc_table)
@@ -58,6 +55,24 @@ namespace App\Libraries
             {
                 return true;
             }
+        }
+        
+        /**
+         * Checks if user have accept and fill active task (if user can edit document)
+         * @param integer $list_id Register ID
+         * @param integer $item_id Item ID
+         * @return boolean TRUE - user can edit document, FALSE - user can't edit document
+         */
+        public static function isEditTaskRights($list_id, $item_id) {
+            $task_row = DB::table('dx_tasks')
+                        ->where('list_id', '=', $list_id)
+                        ->where('item_id', '=', $item_id)
+                        ->where('task_type_id', '=', \App\Http\Controllers\TasksController::TASK_TYPE_FILL_ACCEPT)
+                        ->whereNull('task_closed_time')
+                        ->where('task_employee_id', '=', Auth::user()->id)
+                        ->first();
+
+            return ($task_row) ? true : false;
         }
         
         public static function getRightsOnList($list_id)

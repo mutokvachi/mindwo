@@ -406,18 +406,30 @@ function reload_edited_form(ajax_url, item_id, list_id, rel_field_id, rel_field_
     
     var request = new FormAjaxRequest (ajax_url, "", grid_htm_id, formData);
     
-    request.progress_info = "Ielādē datus. Lūdzu, uzgaidiet...";
+    request.progress_info = "";
     request.callback = function(data) {
         show_form_splash();
-        var find = data["frm_uniq_id"];
-        var re = new RegExp(find, 'g');
+        
+        var new_form_guid = data["frm_uniq_id"];
+        var re = new RegExp(new_form_guid, 'g');
         var htm = data['html'].replace(re, old_form_htm_id);
-
+        
         var height_content  = $("#list_item_view_form_" + old_form_htm_id).find(".modal-body").height();
                 
         unregister_form("list_item_view_form_" + old_form_htm_id);
-        
         $("#list_item_view_form_" + old_form_htm_id).find(".modal-content").html(htm);
+        
+        if (get_last_form_id() != ("list_item_view_form_" + old_form_htm_id)) {
+            var dom = $(htm);
+            dom.find("script").each(function() {
+                $.globalEval(this.text || this.textContent || this.innerHTML || '');
+            });
+
+            dom.filter('script').each(function(){           
+                $.globalEval(this.text || this.textContent || this.innerHTML || '');
+            });
+        }
+        
         if (height_content > 500)
         {
             var tool_height = $("#top_toolbar_list_item_view_form_" + old_form_htm_id).height();
