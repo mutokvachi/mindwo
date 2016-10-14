@@ -4,8 +4,10 @@ namespace App\Libraries
 {
     use DB;
     use App\Exceptions;
-    use Log;
-    
+    use Request;
+    use Config;
+    use App\Http\Controllers\BoxController;
+   
     /**
      * Palīgfunkciju klase
      */
@@ -35,6 +37,26 @@ namespace App\Libraries
                     throw $e;
                 }
             }
+        }
+        
+        /**
+         * Check if config option is set on for slidable menu. 
+         * If set, then sets global views parameters regarding slidable menu
+         * 
+         * @return void
+         */
+        public static function setBreadcrumbViewGlobals() {
+            
+            $is_slidable_menu = Config::get('dx.is_slidable_menu', false);
+            
+            if (!$is_slidable_menu) {
+                return;
+            }
+            
+            $sliderMenu = BoxController::generateSlideMenu();
+            view()->share('slidable_htm', $sliderMenu);    
+            view()->share('breadcrumb', Helper::getBreadcrumb(Request::url()));
+            view()->share('is_slidable_menu', $is_slidable_menu);
         }
         
         /**

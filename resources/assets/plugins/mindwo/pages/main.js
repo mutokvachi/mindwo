@@ -580,6 +580,30 @@ var PageMain = function()
     };
     
     /**
+     * Fix slider/menu issue (metronic theme hack)
+     * 
+     * @returns {undefined}
+     */
+    var reset_margin = function() {
+        $('#td_data').css('margin-left', 0);
+        //$('#td_data').css('background', 'rgba(224,234,255,0.95)');
+        var page_width = $('.page-bar').width();
+        var min_h = $('#slide-page-holder').height();
+        var page_header_h = $('.page-header').height();
+
+        $('#slides-container div.row').each(function() {
+            var h = $(this).height();
+            if (h > min_h) {
+                min_h = h;
+            }
+        });
+
+        // -20 because of .page-bar padding
+        $('#slide-page-holder').width(page_width - 20);
+        $('#td_data').css('min-height', min_h + page_header_h);
+    };
+    
+    /**
      * Inicializē galvenās lapas JavaScript funkcionalitāti.
      * Izpildās, kamēr vēl nav visa lapa līdz galam ielādēta.
      * 
@@ -620,6 +644,11 @@ var PageMain = function()
         initPageSize();
         
         setActiveMenu();
+        
+        if (dx_is_slider == 1) {
+            reset_margin();        
+            addResizeCallback(reset_margin);
+        }
     };
 
     /**
