@@ -11,6 +11,8 @@ return [
     |
     */
 
+    'data' => 'Dati',
+    'data_hint' => 'Darbības ar datiem',
     'reload' => 'Pārlādēt',
     'new'     => 'Jauns',    
     'excel'     => 'Uz Excel',

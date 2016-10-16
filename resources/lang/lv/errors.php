@@ -55,4 +55,6 @@ return [
     'no_rights_to_insert_imp' => "Jums nav jauna ieraksta veidošanas tiesības reģistrā '%s'!", 
     
     'excel_dependent' => 'Dažas Excel rindas netika importētas, jo nevar uzstādīt atbilstības savstarpēji atkarīgiem ierakstiem. Neimportēto Excel rindu numuri: ',
+    
+    'first_save_for_related' => 'Vispirms saglabājiet formu un tad veiciet saistīto datu ielādēšanu!',
 ];

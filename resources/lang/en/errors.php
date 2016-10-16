@@ -57,4 +57,6 @@ return [
     'no_rights_to_insert_imp' => "You have no rights to insert a new entry in the register '%s'!", 
     
     'excel_dependent' => 'Some rows were not imported because of dependency issue! The skipped Excel row numbers: ',
+    
+    'first_save_for_related' => 'First save the record and then operate with the related items!',
 ];

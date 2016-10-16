@@ -171,7 +171,7 @@ function reload_tab_grid(grid_id)
 		
 		if (rel_field_value == 0)
 		{
-			notify_err("Vispirms saglabājiet formu un tad veiciet saistīto datu ielādēšanu!");
+			notify_err(Lang.get('errors.first_save_for_related'));
 			return;
 		}
 

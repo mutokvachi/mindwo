@@ -32,11 +32,19 @@
                     <input type=hidden name=filter_data id="filter_data_{{ $grid_id }}" value="{{ $filter_data }}">
                     <div class='row'>
                         <div class='col-lg-6'>
-                            <button class='btn btn-white' type='button' id="{{ $menu_id }}_refresh" dx_attr="refresh"><i class='fa fa-refresh'></i>&nbsp;{{ trans('grid.reload') }}</button>
-                            <button class='btn btn-white' type='button' id="{{ $menu_id }}_excel" title='{{ trans('grid.excel_hint') }}'><i class='fa fa-file-excel-o'></i>&nbsp;{{ trans('grid.excel') }}</button>
-
-                            @if ($show_new_button)                                
-                                <button class='btn btn-white' type='button' id="{{ $menu_id }}_import"><i class="fa fa-upload"></i>&nbsp;{{ trans('grid.import') }}</button>
+                            <div class='btn-group dx-grid-butons'>
+                                <button  type='button' class='btn btn-white dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' title="{{ trans('grid.data_hint') }}">
+                                    {{trans('grid.data') }} <i class='fa fa-caret-down'></i>
+                                </button>
+                                <ul class='dropdown-menu pull-right'>
+                                    <li><a href='javascript:;' id="{{ $menu_id }}_refresh" dx_attr="refresh"><i class='fa fa-refresh'></i>&nbsp;{{ trans('grid.reload') }}</a></li>
+                                    <li><a href='javascript:;' id="{{ $menu_id }}_excel" title='{{ trans('grid.excel_hint') }}'><i class='fa fa-file-excel-o'></i>&nbsp;{{ trans('grid.excel') }}</a></li>
+                                    @if ($show_new_button)
+                                        <li><a href='javascript:;' id="{{ $menu_id }}_import"><i class="fa fa-upload"></i>&nbsp;{{ trans('grid.import') }}</a></li>
+                                    @endif
+                                </ul>
+                            </div>
+                            @if ($show_new_button)
                                 <button class='btn btn-primary' type='button' id="{{ $menu_id }}_new">{{ trans('grid.new') }}</button>
                             @endif
                             
