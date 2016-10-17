@@ -13486,7 +13486,7 @@ function refresh_form_fields(edit_form_htm_id, form_htm_id, item_id, list_id, re
              {
                 notify_err(escapeHtml(err));
              }
-             debug_log("refresh_form_fields - lets hide splash");
+             
              hide_form_splash(1);
              hide_page_splash(1);
         },
@@ -13599,7 +13599,7 @@ function save_list_item(post_form_htm_id, grid_htm_id, list_id, rel_field_id, re
     
     var request = new FormAjaxRequest ("save_form", post_form_htm_id, grid_htm_id, formData);
     
-    request.progress_info = "Saglabā datus. Lūdzu, uzgaidiet...";
+    request.progress_info = "";
     request.callback = function(data) {
         
         show_form_splash();
@@ -13956,25 +13956,24 @@ function generate_word(item_id, list_id, grid_htm_id, form_htm_id)
  * @returns {undefined}
  */
 function FileManager(field_name, url, type, win) { 
-        // from http://andylangton.co.uk/blog/development/get-viewport-size-width-and-height-javascript
-        var w = window,
-        d = document,
-        e = d.documentElement,
-        g = d.getElementsByTagName('body')[0],
-        x = w.innerWidth || e.clientWidth || g.clientWidth,
-        y = w.innerHeight|| e.clientHeight|| g.clientHeight;
-    // Url absolute
-    // var cmsURL = 'http://localhost/filemanager/show?&field_name='+field_name+'&lang='+tinymce.settings.language;
-    // var cmsURL = 'http://localhost/otherfolder/filemanager/show?&field_name='+field_name+'&lang='+tinymce.settings.language;
-    var cmsURL = DX_CORE.site_url+'filemanager/show?&field_name='+field_name+'&lang='+tinymce.settings.language;
-
+    
+    // from http://andylangton.co.uk/blog/development/get-viewport-size-width-and-height-javascript
+    var w = window,
+    d = document,
+    e = d.documentElement,
+    g = d.getElementsByTagName('body')[0],
+    x = w.innerWidth || e.clientWidth || g.clientWidth,
+    y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+    
+    var cmsURL = DX_CORE.site_url+'filemanager/show?&field_name='+field_name+'&langCode='+tinymce.settings.language;
+    
     if(type == 'image') {           
         cmsURL = cmsURL + "&type=images";
     }
 
     tinyMCE.activeEditor.windowManager.open({
         file : cmsURL,
-        title : 'Datņu pārvaldība',
+        title : Lang.get('fields.file_browser_title'),
         width : x * 0.8,
         height : y * 0.8,
         resizable : "yes",
@@ -13989,7 +13988,7 @@ function init_textarea(htm_id)
         var config = {
 	    mode : "exact",
 	    height : 208,
-	    language : 'lv',
+	    language : Lang.getLocale(),
 	    plugins: [
 	        "advlist autolink lists link image charmap print preview anchor colorpicker hr",
 	        "searchreplace visualblocks code fullscreen",
@@ -14264,12 +14263,7 @@ function load_tab_grid(tab_id, list_id, view_id, rel_field_id, rel_field_value, 
 }
 
 function post_grid_ajax(formData, grid_data_htm_id, form_htm_id, is_scroll)
-{
-    
-    //$("#" + grid_data_htm_id).html("<img src='" + DX_CORE.progress_gif_url + "' alt='Datu ielāde' title='Datu ielāde' /> <span style='font-size: 12px; color: silver;'>Datu ielāde... Lūdzu, uzgaidiet...</span>");
-    //show_page_splash();
-    //show_form_splash();
-    
+{    
     $.ajax({ 
        type: 'POST',
        url: DX_CORE.site_url  + "grid",
@@ -14298,11 +14292,8 @@ function post_grid_ajax(formData, grid_data_htm_id, form_htm_id, is_scroll)
                 }
             }
             catch (err)
-            {
-                //$("#" + grid_data_htm_id).html("");
-                
-                notify_err(escapeHtml(err));
-                
+            {                
+                notify_err(escapeHtml(err));                
             }
             hide_page_splash();
             hide_form_splash();
@@ -14312,7 +14303,6 @@ function post_grid_ajax(formData, grid_data_htm_id, form_htm_id, is_scroll)
             show_page_splash();
        },
        complete: function () {
-           debug_log("Grid AJAX compleate - hiding splashes"); 
            hide_form_splash();
            hide_page_splash(); 
        },
@@ -14639,19 +14629,25 @@ var BlockViews = function()
     };
 
     /**
-     * Nodrošina tabulārā saraksta eksportu uz Excel lejuplādējamu datni uz pogas "Uz Excel" nospiešanu
+     * Exports grid data to the Excel
      * 
-     * @param {string} menu_id            Tabulārā saraksta augšējās rīkjoslas izvēlnes HTML elementa ID
-     * @param {integer} view_id           Reģistra skata ID no tabulas dx_views
-     * @param {integer} rel_field_id      Saistītā ieraksta lauka ID no datu bāzes tabulas dx_lists_fields
-     * @param {integer} rel_field_value   Saistīta ieraksta lauka vērtība
+     * @param {string} menu_id            Grid's menu HTML element ID
+     * @param {integer} view_id           View ID from the table dx_views
+     * @param {integer} rel_field_id      Related field ID (by which grid is binded)
+     * @param {integer} rel_field_value   Related field value
+     * @param {string} form_htm_id        Form's HTML ID
      
      * @returns {undefined}
      */
-    var handleBtnExcel = function(menu_id, view_id, rel_field_id, rel_field_value)
+    var handleBtnExcel = function(menu_id, view_id, rel_field_id, rel_field_value, form_htm_id)
     {
         $('#' + menu_id + '_excel').button().click(function(event) {
             event.preventDefault();
+            
+            if (!isRelatedItemSaved(rel_field_id, rel_field_value, form_htm_id)) {
+                return;
+            }
+            
             download_excel(view_id, rel_field_id, rel_field_value);
         });
     };
@@ -14660,19 +14656,50 @@ var BlockViews = function()
      * Opens data import form
      * 
      * @param {string} menu_id Menu item HTML id
-     * @param {integer} list_id List ID
+     * @param {integer} rel_field_id Related field ID (by which grid is binded)
+     * @param {integer} rel_field_value Related field value
+     * @param {string} form_htm_id Form's HTML ID
      * @returns {undefined}
      */
-    var handleBtnImport = function(menu_id)
+    var handleBtnImport = function(menu_id, rel_field_id, rel_field_value, form_htm_id)
     {
         $('#' + menu_id + '_import').button().click(function(event) {
             event.preventDefault();
+            
+            if (!isRelatedItemSaved(rel_field_id, rel_field_value, form_htm_id)) {
+                return;
+            }
             
             var import_frm = $("#form_import_" + menu_id);
             
             import_frm.modal('show');
             
         });
+    };
+    
+    /**
+     * Checks if form is saved (item have an ID)
+     * This check must be done for forms, where an subgrid is included
+     * 
+     * @param {integer} rel_field_id Related field ID (by which grid is binded)
+     * @param {integer} rel_field_value Related field value
+     * @param {string} form_htm_id Form's HTML ID
+     * @returns {Boolean} True - if everything ok, False - if form must be saved before
+     */
+    var isRelatedItemSaved = function(rel_field_id, rel_field_value, form_htm_id) {
+       		
+	if (rel_field_id > 0 && rel_field_value == 0)
+	{
+            rel_field_value = $( "#" + form_htm_id  +" input[name='item_id']").val();
+
+            if (rel_field_value == 0)
+            {
+                notify_err(Lang.get('errors.first_save_for_related'));
+                return false;
+            }
+	}
+        
+        return true;
     };
     
     /**
@@ -14697,9 +14724,7 @@ var BlockViews = function()
                 return;
             }
             
-            var ext = file_name.split('.').pop().toLowerCase();   //Check file extension if valid or expected
-            if ($.inArray(ext, ['xlsx']) == -1 && $.inArray(ext, ['xls']) == -1 && $.inArray(ext, ['csv']) == -1) {
-                notify_err(import_frm.attr("data-trans-invalid-file-format"));
+            if (!isOkImportFileExt(import_frm, file_name)) {
                 return;
             }
             
@@ -14738,6 +14763,33 @@ var BlockViews = function()
         });
     };
     
+    /**
+     * Validated uploaded file extension - is it supported
+     * 
+     * @param {object} import_form Importing HTML form's element
+     * @param {string} file_name File name
+     * @returns {Boolean}   True - if extension is valid, False - if invalid
+     */
+    var isOkImportFileExt = function(import_frm, file_name) {
+        var ext = file_name.split('.').pop().toLowerCase();   //Check file extension if valid or expected
+        
+        var valid_ext = ['xlsx', 'xls', 'csv', 'zip'];
+        
+        if ($.inArray(ext, valid_ext) == -1) {
+            notify_err(import_frm.attr("data-trans-invalid-file-format"));
+            return false;
+        }
+        
+        return true;
+    };
+    
+    /**
+     * Prepares/set importing error message - there can be several errors in 1 response, we need to concatenate them
+     * 
+     * @param {JSON} data           AJAX JSON response object
+     * @param {object} import_frm   HTML element ID for import form
+     * @returns {undefined}
+     */
     var prepareErrors = function(data, import_frm) {
         var err_arr = [];
                 
@@ -15014,9 +15066,9 @@ var BlockViews = function()
             handleView(menu_id, tab_id, list_id, rel_field_id, rel_field_value, form_htm_id);
             handleBtnNew(grid_id, menu_id, list_id, rel_field_id, rel_field_value, form_htm_id);
             handleBtnRefresh(menu_id, grid_id, tab_id);
-            handleBtnExcel(menu_id, view_id, rel_field_id, rel_field_value);
+            handleBtnExcel(menu_id, view_id, rel_field_id, rel_field_value, form_htm_id);
             handleRegisterSettings($(this), grid_id, list_id);
-            handleBtnImport(menu_id);
+            handleBtnImport(menu_id, rel_field_id, rel_field_value, form_htm_id);
             handleBtnStartImport(menu_id);
             
             // Saraksta kolonnu funkcionalitāte

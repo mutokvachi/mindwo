@@ -9,7 +9,7 @@ namespace App\Libraries\FieldsImport
     class FieldImportFactory
     {
 
-        public static function build_field($excel_value, $fld)
+        public static function build_field($excel_value, $fld, $tmp_dir)
         {
             $class = "App\\Libraries\\FieldsImport\\FieldImport_" . $fld->type_sys_name;
 
@@ -17,7 +17,7 @@ namespace App\Libraries\FieldsImport
                 $class = "App\\Libraries\\FieldsImport\\FieldImport_default";
             }
 
-            return new $class($excel_value, $fld);
+            return new $class($excel_value, $fld, $tmp_dir);
         }
 
     }

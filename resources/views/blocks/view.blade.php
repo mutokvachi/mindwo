@@ -36,7 +36,7 @@
                                 <button  type='button' class='btn btn-white dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' title="{{ trans('grid.data_hint') }}">
                                     {{trans('grid.data') }} <i class='fa fa-caret-down'></i>
                                 </button>
-                                <ul class='dropdown-menu pull-right'>
+                                <ul class='dropdown-menu pull-left'>
                                     <li><a href='javascript:;' id="{{ $menu_id }}_refresh" dx_attr="refresh"><i class='fa fa-refresh'></i>&nbsp;{{ trans('grid.reload') }}</a></li>
                                     <li><a href='javascript:;' id="{{ $menu_id }}_excel" title='{{ trans('grid.excel_hint') }}'><i class='fa fa-file-excel-o'></i>&nbsp;{{ trans('grid.excel') }}</a></li>
                                     @if ($show_new_button)

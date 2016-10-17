@@ -86,7 +86,7 @@ Route::post('/grid', array('as' => 'grid',  'middleware' => 'auth_ajax', 'uses'=
 Route::post('/delete_grid_items', array('as' => 'grid',  'middleware' => 'auth_ajax', 'uses'=>'GridController@deleteItems'));
 Route::get('/skats_{id}', array('as' => 'view',  'middleware' => 'auth', 'uses'=>'GridController@showViewPage'));
 Route::post('/excel', array('as' => 'excel',  'middleware' => 'auth_ajax', 'uses'=>'GridController@downloadExcel'));
-Route::post('/import_excel', array('as' => 'import_excel',  'middleware' => 'auth_ajax', 'uses'=>'ImportController@importExcel'));
+Route::post('/import_excel', array('as' => 'import_data',  'middleware' => 'auth_ajax', 'uses'=>'ImportController@importData'));
 
 // SVS formas
 Route::post('/form', array('as' => 'form',  'middleware' => 'auth_ajax', 'uses'=>'FormController@getForm'));

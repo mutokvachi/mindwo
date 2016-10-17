@@ -77,12 +77,7 @@ function load_tab_grid(tab_id, list_id, view_id, rel_field_id, rel_field_value, 
 }
 
 function post_grid_ajax(formData, grid_data_htm_id, form_htm_id, is_scroll)
-{
-    
-    //$("#" + grid_data_htm_id).html("<img src='" + DX_CORE.progress_gif_url + "' alt='Datu ielāde' title='Datu ielāde' /> <span style='font-size: 12px; color: silver;'>Datu ielāde... Lūdzu, uzgaidiet...</span>");
-    //show_page_splash();
-    //show_form_splash();
-    
+{    
     $.ajax({ 
        type: 'POST',
        url: DX_CORE.site_url  + "grid",
@@ -111,11 +106,8 @@ function post_grid_ajax(formData, grid_data_htm_id, form_htm_id, is_scroll)
                 }
             }
             catch (err)
-            {
-                //$("#" + grid_data_htm_id).html("");
-                
-                notify_err(escapeHtml(err));
-                
+            {                
+                notify_err(escapeHtml(err));                
             }
             hide_page_splash();
             hide_form_splash();
@@ -125,7 +117,6 @@ function post_grid_ajax(formData, grid_data_htm_id, form_htm_id, is_scroll)
             show_page_splash();
        },
        complete: function () {
-           debug_log("Grid AJAX compleate - hiding splashes"); 
            hide_form_splash();
            hide_page_splash(); 
        },

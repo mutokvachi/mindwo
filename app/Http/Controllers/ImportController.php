@@ -26,15 +26,10 @@ class ImportController extends Controller
     const FILE_FIELD_NAME = "import_file";
 
     /**
-     * Supported import file extensions
-     */
-    private $suported_ext = ["xlsx", "xls", "csv"];
-
-    /**
      * Supported field types. ID's from table dx_field_types
      * @var type 
      */
-    private $supported_fields = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 16, 17, 18];
+    private $supported_fields = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18];
 
     /**
      * Register ID
@@ -105,12 +100,6 @@ class ImportController extends Controller
     private $row_nr = 0;
     
     /**
-     * Imports data from uploaded Excel in the provided register
-     * 
-     * @param \Illuminate\Http\Request $request
-     */
-    
-    /**
      * Array for holding rows which depends on the same Excel data.
      * For example, employee depends on manager - manager must be imported first.
      * 
@@ -119,12 +108,19 @@ class ImportController extends Controller
     private $dep_arr = [];
     
     /**
-     * Imports uploaded Excel file data into database
+     * File importing object
+     * 
+     * @var object
+     */
+    private $file_import = null;
+    
+    /**
+     * Imports uploaded file data into database
      * 
      * @param \Illuminate\Http\Request $request
      * @return type
      */
-    public function importExcel(Request $request)
+    public function importData(Request $request)
     {
         $this->validate($request, [
             'list_id' => 'required|integer|exists:dx_lists,id'
@@ -137,23 +133,12 @@ class ImportController extends Controller
         
         //validate file
         if (!$request->hasFile(self::FILE_FIELD_NAME)) {
-            //ToDo: throw exception
+            throw new Exceptions\DXCustomException(trans("errors.import_file_not_provided"));
         }
-
-        //set file object and file name
-        $file = $request->file(self::FILE_FIELD_NAME);
-        $file_name = $file->getClientOriginalName();
-
-        //validate file extension
-        $this->validateFileExtension($file_name);
-
-        //create tmp dir
-        $tmp_dir = $this->getTmpDir();
-
-        //save uploaded file in tmp dir
-        $file->move($tmp_dir, $file_name);
-
-        //ToDo: save uploaded file in import log table
+        
+        // prepared uploaded data (unzips or converts to CSV if needed)
+        $this->file_import = \App\Libraries\FilesImport\FileImportFactory::build_file($request->file(self::FILE_FIELD_NAME));              
+        
         //Load list fields
         $this->getListFields();
 
@@ -161,19 +146,12 @@ class ImportController extends Controller
         $this->list_object = \App\Libraries\DBHelper::getListObject($this->list_id);
 
         //Sets current time for audit info
-        $this->time_now = date('Y-n-d H:i:s');
-        
-        // Convert to CSV        
-        Excel::load($tmp_dir . DIRECTORY_SEPARATOR . $file_name, function($reader){
-        })->store('csv', $tmp_dir)->save();
-        
-        $csv_file = pathinfo($file_name, PATHINFO_FILENAME) . ".csv";
+        $this->time_now = date('Y-n-d H:i:s');                
                
         //Import data from CSV file
-        $this->importCSVData($tmp_dir . DIRECTORY_SEPARATOR . $csv_file);
+        $this->importCSVData($this->file_import->tmp_dir . DIRECTORY_SEPARATOR . $this->file_import->csv_file);
 
-        //Delete tmp folder
-        File::deleteDirectory($tmp_dir);
+        $this->cleanFiles();
         
         return response()->json([
             'success' => 1, 
@@ -182,6 +160,22 @@ class ImportController extends Controller
             'duplicate' => $this->duplicate,
             'dependency' => $this->dependency
         ]);
+    }
+    
+    /**
+     * Delete tmp folder and tmp files
+     */
+    private function cleanFiles() {
+        
+        File::deleteDirectory($this->file_import->tmp_dir);
+        
+        $files = File::allFiles(storage_path() . DIRECTORY_SEPARATOR . 'exports');
+        foreach ($files as $file)
+        {
+            if ($file != '.gitignore') {
+                File::delete($file);
+            }
+        }
     }
 
     /**
@@ -266,6 +260,9 @@ class ImportController extends Controller
         return $this->importDependentData();
     }
 
+    /**
+     * Save parsed row in database
+     */
     private function saveData() {
         $this->addHistory();
 
@@ -330,7 +327,7 @@ class ImportController extends Controller
             return;
         }
 
-        $fld_save = FieldsImport\FieldImportFactory::build_field($val, $fld);
+        $fld_save = FieldsImport\FieldImportFactory::build_field($val, $fld, $this->file_import->tmp_dir);
 
         $this->save_arr = array_merge($this->save_arr, $fld_save->getVal());
     }
@@ -353,7 +350,8 @@ class ImportController extends Controller
                         'lf.rel_list_id',
                         'lf_rel.db_name as rel_field_name',
                         'o_rel.db_name as rel_table_name',
-                        'o_rel.is_history_logic as rel_table_is_history_logic'
+                        'o_rel.is_history_logic as rel_table_is_history_logic',
+                        'lf.is_public_file'
                         )
                 ->leftJoin('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
                 ->leftJoin('dx_lists_fields as lf_rel', 'lf.rel_display_field_id', '=', 'lf_rel.id')
@@ -476,48 +474,4 @@ class ImportController extends Controller
             }
         }
     }
-
-    /**
-     * Created temporary folder where uploaded Excel file will be stored
-     * @return string Temporary folder - full path
-     * 
-     * @throws Exceptions\DXCustomException
-     */
-    private function getTmpDir()
-    {
-        $tmp_dir = base_path() . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . "tmp" . DIRECTORY_SEPARATOR . 'import_data_' . date('Y_n_d_H_i_s');
-
-        try {
-            if (!File::makeDirectory($tmp_dir)) {
-                throw new Exceptions\DXCustomException(sprintf(trans('errors.cant_create_folder'), $tmp_dir));
-            }
-        }
-        catch (\Exception $e) {
-            Log::info("Kataloga veidošanas kļūda: " . $e->getMessage());
-            throw new Exceptions\DXCustomException(sprintf(trans('errors.cant_create_folder'), $tmp_dir));
-        }
-
-        return $tmp_dir;
-    }
-
-    /**
-     * Validated the extension of uloaded file
-     * 
-     * @param string $file_name Uploaded file name
-     * 
-     * @throws Exceptions\DXCustomException
-     */
-    private function validateFileExtension($file_name)
-    {
-        $extention = File::extension($file_name);
-
-        foreach ($this->suported_ext as $ext) {
-            if ($ext == $extention) {
-                return;
-            }
-        }
-
-        throw new Exceptions\DXCustomException(sprintf(trans('errors.unsuported_file_extension'), $extention, $file_name));
-    }
-
 }

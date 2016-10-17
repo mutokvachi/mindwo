@@ -46,8 +46,8 @@ return [
     'lbl_file' => 'Excel datne',
     'import_hint' => 'Augšupielādējiet Excel datni, kurā kolonnu nosaukumi sakrīt ar reģistra datu ievades formas lauku nosaukumiem. Kolonnas, kuru nosaukumiem nebūs precīza atbilstība, netiks importētas.',
     'file_hint' => 'Datnei jābūt XLSX vai XLS formātā.',
-    'invalid_file' => 'Datus nevar importēt! Lūdzu, norādiet korektu importējamo Excel datni.',
-    'invalid_file_format' => "Datus nevar importēt! Lūdzu, norādiet importējamo Excel datni formātā *.xlsx vai *.xls.",
+    'invalid_file' => 'Datus nevar importēt! Lūdzu, norādiet korektu importējamo datni.',
+    'invalid_file_format' => "Datus nevar importēt! Lūdzu, norādiet importējamo datni *.xlsx, *.xls, *.csv vai *.zip formātā.",
     'success' => "Datu imports pabeigts! Importēto ierakstu skaits: ",
     'ignored_columns' => 'Uzmanbu! Prbaudiet kolonnu nosaukumus Excel datnē.<br/><br/>Netika importēti dati no sekojošām Excel kolonnām: ',
     
