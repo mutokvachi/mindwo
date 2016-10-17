@@ -33,4 +33,7 @@ return [
     'edit_value' => 'Labot izvēlēto vērtību. Uzmanību: izmaiņas attieksies arī uz citiem ierakstiem, kuros izmantota attiecīgā vērtība!',
     'must_choose' => 'Lūdzu, norādiet, kura izkrītošās izvēlnes vērtība tiks labota!',
     
+    // File
+    'file_browser_title' => 'Datņu pārvaldība',
+    
 ];

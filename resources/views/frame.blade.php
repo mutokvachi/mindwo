@@ -299,6 +299,12 @@
             <script src="{{Request::root()}}/metronic/global/plugins/excanvas.min.js"></script> 
         <![endif]-->
 
+        <script src="{{Request::root()}}/{{ getIncludeVersion('js/lang.js') }}" type='text/javascript'></script>
+        
+        <script type='text/javascript'>
+            Lang.setLocale('{{ App::getLocale() }}');
+        </script>
+        
         <script src = "{{ elixir('js/elix_plugins.js') }}" type='text/javascript'></script>
 
         @yield('main_custom_javascripts')

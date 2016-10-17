@@ -7,7 +7,9 @@ return [
     | Lists labels
     |--------------------------------------------------------------------------
     */
-
+    
+    'data' => 'Data',
+    'data_hint' => 'Operations with data',
     'reload' => 'Reload',
     'new'     => 'New',    
     'excel'     => 'To Excel',

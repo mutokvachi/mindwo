@@ -36,6 +36,13 @@ namespace App\Libraries\FieldsImport
         public $excel_value = null;
 
         /**
+         * Directory full path (without slash) where uploaded data file is stored on the server
+         * 
+         * @var string
+         */
+        public $tmp_dir = "";
+        
+        /**
          * Prepares field value
          */
         abstract protected function prepareVal();
@@ -57,11 +64,12 @@ namespace App\Libraries\FieldsImport
          * @param  object $fld Field object
          * @return void
          */
-        public function __construct($excel_value, $fld)
+        public function __construct($excel_value, $fld, $tmp_dir)
         {
             $this->excel_value = $excel_value;
             $this->fld = $fld;
-
+            $this->tmp_dir = $tmp_dir;
+            
             $this->prepareVal();
 
             $this->checkRequired();
