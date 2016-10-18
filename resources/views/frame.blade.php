@@ -111,7 +111,7 @@
             <div class="page-header-inner container">
 
                 <div class="page-logo">
-                    <a href="/">
+                    <a href="/" style="text-decoration: none;">
                          @if (trans('index.logo'))
                             <img src="{{Request::root()}}/{{ trans('index.logo_small') }}" alt="LOGO" class="logo-default" />
                         @else
