@@ -112,7 +112,11 @@
 
                 <div class="page-logo">
                     <a href="/">
-                        <img src="{{Request::root()}}/assets/global/logo/logo-default.png" alt="logo" class="logo-default">
+                         @if (trans('index.logo'))
+                            <img src="{{Request::root()}}/{{ trans('index.logo_small') }}" alt="LOGO" class="logo-default" />
+                        @else
+                            <div style="font-size: 28px; color: white; text-transform: uppercase; padding-top: 14px;">{{ trans('index.logo_txt') }}</div>
+                        @endif
                     </a>
                     <div class="menu-toggler sidebar-toggler" dx_attr=""></div>
                 </div>
