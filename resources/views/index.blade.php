@@ -37,7 +37,11 @@
 
         <div class="text-center" style="max-width: 300px; width: 300px; margin: 0 auto; margin-top: 100px;">       
             <div>
-                <img src="{{ trans('index.logo') }}" alt="LOGO" />
+                @if (trans('index.logo'))
+                    <img src="{{ trans('index.logo') }}" alt="LOGO" />
+                @else
+                    <span style="font-size: 48px; color: #2e6da4; text-transform: uppercase;">{{ trans('index.logo_txt') }}</span>
+                @endif
             </div>
             <h3>{{ trans("index.hello_title") }}</h3>
             <p>{{ trans("index.about_title") }}</p>
