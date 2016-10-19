@@ -306,7 +306,7 @@ class UserController extends Controller
         $this->checkAttempts($user_row);
 
         $ad = new \App\Libraries\Auth\OpenLDAP();
-        $is_auth_success = $ad->auth($user_name, $user_password);
+        $is_auth_success = $ad->auth($user_row, $user_name, $user_password);
 
         $this->registerFailedAuth($user_row, $is_auth_success);
 

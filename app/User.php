@@ -11,7 +11,17 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 class User extends Model implements AuthenticatableContract, CanResetPasswordContract
 {
     use Authenticatable, CanResetPassword;
-
+    
+    /**
+     * Changes default column name for column updated_at 
+     */
+    const UPDATED_AT = 'modified_time';
+    
+    /**
+     * Changes default column name for column created_at 
+     */
+    const CREATED_AT = 'created_time';
+    
     /**
      * The database table used by the model.
      *

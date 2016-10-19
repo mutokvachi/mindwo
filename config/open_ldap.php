@@ -8,6 +8,10 @@ return [
     
     'port' => env('OPENLDAP_PORT', 636),
     
+    'account_prefix' => env('OPENLDAP_ACCOUNT_PREFIX', 'mail='),
+    
+    'account_suffix' => env('OPENLDAP_ACCOUNT_SUFFIX', ',ou=Users,domainName=test.com,o=domains,dc=9009,dc=in'),
+    
     /**
      * 
      */
