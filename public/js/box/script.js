@@ -3,10 +3,10 @@ var box = window.box = {
     activeSlide: 'page-holder',
     dashboardReload: 0,
     nextSlide: function (next, dir) {
-        if (next === box.activeSlide) {
+        if (next == box.activeSlide) {
             return false;
         }
-
+        
         var dirHide = "left",
             dirShow = "right";
         if (dir === "prev") {
