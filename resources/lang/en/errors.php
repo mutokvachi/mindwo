@@ -21,6 +21,8 @@ return [
     // 1. %s - attempts count, 2. %s - seconds need to wait till unblock
     'login_attempts_warning_seconds' => 'Invalid password was entered more than %s times in a row! The user is temporarily blocked. Perform re-authorization in %s minutes.',
     
+    'missing_auth_method' => 'No authentication methods are specified in the system. Authentication is closed.',
+    
     // Grid errors
     
     // %s - date format
