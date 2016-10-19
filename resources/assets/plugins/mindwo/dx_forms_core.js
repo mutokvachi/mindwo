@@ -364,7 +364,7 @@ function refresh_form_fields(edit_form_htm_id, form_htm_id, item_id, list_id, re
              {
                 notify_err(escapeHtml(err));
              }
-             debug_log("refresh_form_fields - lets hide splash");
+             
              hide_form_splash(1);
              hide_page_splash(1);
         },
@@ -406,18 +406,30 @@ function reload_edited_form(ajax_url, item_id, list_id, rel_field_id, rel_field_
     
     var request = new FormAjaxRequest (ajax_url, "", grid_htm_id, formData);
     
-    request.progress_info = "Ielādē datus. Lūdzu, uzgaidiet...";
+    request.progress_info = "";
     request.callback = function(data) {
         show_form_splash();
-        var find = data["frm_uniq_id"];
-        var re = new RegExp(find, 'g');
+        
+        var new_form_guid = data["frm_uniq_id"];
+        var re = new RegExp(new_form_guid, 'g');
         var htm = data['html'].replace(re, old_form_htm_id);
-
+        
         var height_content  = $("#list_item_view_form_" + old_form_htm_id).find(".modal-body").height();
                 
         unregister_form("list_item_view_form_" + old_form_htm_id);
-        
         $("#list_item_view_form_" + old_form_htm_id).find(".modal-content").html(htm);
+        
+        if (get_last_form_id() != ("list_item_view_form_" + old_form_htm_id)) {
+            var dom = $(htm);
+            dom.find("script").each(function() {
+                $.globalEval(this.text || this.textContent || this.innerHTML || '');
+            });
+
+            dom.filter('script').each(function(){           
+                $.globalEval(this.text || this.textContent || this.innerHTML || '');
+            });
+        }
+        
         if (height_content > 500)
         {
             var tool_height = $("#top_toolbar_list_item_view_form_" + old_form_htm_id).height();
@@ -465,7 +477,7 @@ function save_list_item(post_form_htm_id, grid_htm_id, list_id, rel_field_id, re
     
     var request = new FormAjaxRequest ("save_form", post_form_htm_id, grid_htm_id, formData);
     
-    request.progress_info = "Saglabā datus. Lūdzu, uzgaidiet...";
+    request.progress_info = "";
     request.callback = function(data) {
         
         show_form_splash();
@@ -822,25 +834,24 @@ function generate_word(item_id, list_id, grid_htm_id, form_htm_id)
  * @returns {undefined}
  */
 function FileManager(field_name, url, type, win) { 
-        // from http://andylangton.co.uk/blog/development/get-viewport-size-width-and-height-javascript
-        var w = window,
-        d = document,
-        e = d.documentElement,
-        g = d.getElementsByTagName('body')[0],
-        x = w.innerWidth || e.clientWidth || g.clientWidth,
-        y = w.innerHeight|| e.clientHeight|| g.clientHeight;
-    // Url absolute
-    // var cmsURL = 'http://localhost/filemanager/show?&field_name='+field_name+'&lang='+tinymce.settings.language;
-    // var cmsURL = 'http://localhost/otherfolder/filemanager/show?&field_name='+field_name+'&lang='+tinymce.settings.language;
-    var cmsURL = DX_CORE.site_url+'filemanager/show?&field_name='+field_name+'&lang='+tinymce.settings.language;
-
+    
+    // from http://andylangton.co.uk/blog/development/get-viewport-size-width-and-height-javascript
+    var w = window,
+    d = document,
+    e = d.documentElement,
+    g = d.getElementsByTagName('body')[0],
+    x = w.innerWidth || e.clientWidth || g.clientWidth,
+    y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+    
+    var cmsURL = DX_CORE.site_url+'filemanager/show?&field_name='+field_name+'&langCode='+tinymce.settings.language;
+    
     if(type == 'image') {           
         cmsURL = cmsURL + "&type=images";
     }
 
     tinyMCE.activeEditor.windowManager.open({
         file : cmsURL,
-        title : 'Datņu pārvaldība',
+        title : Lang.get('fields.file_browser_title'),
         width : x * 0.8,
         height : y * 0.8,
         resizable : "yes",
@@ -855,7 +866,7 @@ function init_textarea(htm_id)
         var config = {
 	    mode : "exact",
 	    height : 208,
-	    language : 'lv',
+	    language : Lang.getLocale(),
 	    plugins: [
 	        "advlist autolink lists link image charmap print preview anchor colorpicker hr",
 	        "searchreplace visualblocks code fullscreen",

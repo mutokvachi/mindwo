@@ -254,10 +254,11 @@ class FormController extends Controller
         $this->checkSaveRights($form_id, $item_id);
 
         $save_obj = new FormSave($request);
-
-        if ($save_obj->item_id > 0 && strlen($request->input("call_field_type")) > 0 && strlen($save_obj->call_field_type) == 0) {
+        
+        if ($save_obj->item_id > 0 && strlen($request->input("call_field_type", "")) > 0 && strlen($save_obj->call_field_type) == 0) {
             // Lookup field was not updated because it is updated in db by trigger
             // So, let's select updated value from db
+            
             $fld = DB::table('dx_lists_fields')->where('id', '=', $request->input("call_field_id"))->first();
             $table = Workflows\Helper::getListTableName($fld->list_id);
             
@@ -266,8 +267,6 @@ class FormController extends Controller
             $save_obj->call_field_type = $request->input('call_field_type');
             $save_obj->call_field_id = $request->input('call_field_id');
             $save_obj->call_field_value = $data->txt;
-            
-            Log::info ("NAV UPD!");
         }
         
         return response()->json([

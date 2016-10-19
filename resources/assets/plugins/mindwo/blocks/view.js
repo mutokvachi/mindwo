@@ -235,19 +235,25 @@ var BlockViews = function()
     };
 
     /**
-     * Nodrošina tabulārā saraksta eksportu uz Excel lejuplādējamu datni uz pogas "Uz Excel" nospiešanu
+     * Exports grid data to the Excel
      * 
-     * @param {string} menu_id            Tabulārā saraksta augšējās rīkjoslas izvēlnes HTML elementa ID
-     * @param {integer} view_id           Reģistra skata ID no tabulas dx_views
-     * @param {integer} rel_field_id      Saistītā ieraksta lauka ID no datu bāzes tabulas dx_lists_fields
-     * @param {integer} rel_field_value   Saistīta ieraksta lauka vērtība
+     * @param {string} menu_id            Grid's menu HTML element ID
+     * @param {integer} view_id           View ID from the table dx_views
+     * @param {integer} rel_field_id      Related field ID (by which grid is binded)
+     * @param {integer} rel_field_value   Related field value
+     * @param {string} form_htm_id        Form's HTML ID
      
      * @returns {undefined}
      */
-    var handleBtnExcel = function(menu_id, view_id, rel_field_id, rel_field_value)
+    var handleBtnExcel = function(menu_id, view_id, rel_field_id, rel_field_value, form_htm_id)
     {
         $('#' + menu_id + '_excel').button().click(function(event) {
             event.preventDefault();
+            
+            if (!isRelatedItemSaved(rel_field_id, rel_field_value, form_htm_id)) {
+                return;
+            }
+            
             download_excel(view_id, rel_field_id, rel_field_value);
         });
     };
@@ -256,19 +262,50 @@ var BlockViews = function()
      * Opens data import form
      * 
      * @param {string} menu_id Menu item HTML id
-     * @param {integer} list_id List ID
+     * @param {integer} rel_field_id Related field ID (by which grid is binded)
+     * @param {integer} rel_field_value Related field value
+     * @param {string} form_htm_id Form's HTML ID
      * @returns {undefined}
      */
-    var handleBtnImport = function(menu_id)
+    var handleBtnImport = function(menu_id, rel_field_id, rel_field_value, form_htm_id)
     {
         $('#' + menu_id + '_import').button().click(function(event) {
             event.preventDefault();
+            
+            if (!isRelatedItemSaved(rel_field_id, rel_field_value, form_htm_id)) {
+                return;
+            }
             
             var import_frm = $("#form_import_" + menu_id);
             
             import_frm.modal('show');
             
         });
+    };
+    
+    /**
+     * Checks if form is saved (item have an ID)
+     * This check must be done for forms, where an subgrid is included
+     * 
+     * @param {integer} rel_field_id Related field ID (by which grid is binded)
+     * @param {integer} rel_field_value Related field value
+     * @param {string} form_htm_id Form's HTML ID
+     * @returns {Boolean} True - if everything ok, False - if form must be saved before
+     */
+    var isRelatedItemSaved = function(rel_field_id, rel_field_value, form_htm_id) {
+       		
+	if (rel_field_id > 0 && rel_field_value == 0)
+	{
+            rel_field_value = $( "#" + form_htm_id  +" input[name='item_id']").val();
+
+            if (rel_field_value == 0)
+            {
+                notify_err(Lang.get('errors.first_save_for_related'));
+                return false;
+            }
+	}
+        
+        return true;
     };
     
     /**
@@ -293,9 +330,7 @@ var BlockViews = function()
                 return;
             }
             
-            var ext = file_name.split('.').pop().toLowerCase();   //Check file extension if valid or expected
-            if ($.inArray(ext, ['xlsx']) == -1 && $.inArray(ext, ['xls']) == -1 && $.inArray(ext, ['csv']) == -1) {
-                notify_err(import_frm.attr("data-trans-invalid-file-format"));
+            if (!isOkImportFileExt(import_frm, file_name)) {
                 return;
             }
             
@@ -334,6 +369,33 @@ var BlockViews = function()
         });
     };
     
+    /**
+     * Validated uploaded file extension - is it supported
+     * 
+     * @param {object} import_form Importing HTML form's element
+     * @param {string} file_name File name
+     * @returns {Boolean}   True - if extension is valid, False - if invalid
+     */
+    var isOkImportFileExt = function(import_frm, file_name) {
+        var ext = file_name.split('.').pop().toLowerCase();   //Check file extension if valid or expected
+        
+        var valid_ext = ['xlsx', 'xls', 'csv', 'zip'];
+        
+        if ($.inArray(ext, valid_ext) == -1) {
+            notify_err(import_frm.attr("data-trans-invalid-file-format"));
+            return false;
+        }
+        
+        return true;
+    };
+    
+    /**
+     * Prepares/set importing error message - there can be several errors in 1 response, we need to concatenate them
+     * 
+     * @param {JSON} data           AJAX JSON response object
+     * @param {object} import_frm   HTML element ID for import form
+     * @returns {undefined}
+     */
     var prepareErrors = function(data, import_frm) {
         var err_arr = [];
                 
@@ -610,9 +672,9 @@ var BlockViews = function()
             handleView(menu_id, tab_id, list_id, rel_field_id, rel_field_value, form_htm_id);
             handleBtnNew(grid_id, menu_id, list_id, rel_field_id, rel_field_value, form_htm_id);
             handleBtnRefresh(menu_id, grid_id, tab_id);
-            handleBtnExcel(menu_id, view_id, rel_field_id, rel_field_value);
+            handleBtnExcel(menu_id, view_id, rel_field_id, rel_field_value, form_htm_id);
             handleRegisterSettings($(this), grid_id, list_id);
-            handleBtnImport(menu_id);
+            handleBtnImport(menu_id, rel_field_id, rel_field_value, form_htm_id);
             handleBtnStartImport(menu_id);
             
             // Saraksta kolonnu funkcionalitāte
