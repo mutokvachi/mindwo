@@ -32,7 +32,7 @@ class PublicAccess
         $sliderMenu = BoxController::generateSlideMenu();
         view()->share('slidable_htm', $sliderMenu);    
         view()->share('breadcrumb', Helper::getBreadcrumb($request->url()));
-        view()->share('is_slidable_menu', Config::get('dx.is_slidable_menu'));
+        view()->share('is_slidable_menu', Config::get('dx.is_slidable_menu', false));
         
         return $next($request);
     }

@@ -63,7 +63,7 @@
             "php artisan clear-compiled"
         ],
         "post-update-cmd": [
-            "git -C vendor\\mindwo\\pages pull origin master",
+            "git -C vendor/mindwo/pages pull origin master",
             "php artisan vendor:publish --tag=setup --force",
             "Illuminate\\Foundation\\ComposerScripts::postUpdate",
             "php artisan optimize"
