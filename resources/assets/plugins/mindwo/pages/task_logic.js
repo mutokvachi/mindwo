@@ -175,7 +175,7 @@ var TaskLogic = function()
      */
     var handleOpenItemBtnClick = function(frm){       
         frm.find('.dx-cms-task-btn-open-item').click(function(){
-            rel_new_form(frm.attr('dx_form_url'), frm.attr('dx_rel_list_id'), frm.attr('dx_item_id'), frm.attr('dx_rel_field_id'), 'list_item_view_form_' + frm.attr('dx_frm_uniq_id'), null);
+            rel_new_form(frm.attr('dx_form_url'), frm.attr('dx_rel_list_id'), frm.attr('dx_item_id'), frm.attr('dx_rel_field_id'), 'list_item_view_form_' + frm.attr('dx_frm_uniq_id'), "");
         });  
     };
     

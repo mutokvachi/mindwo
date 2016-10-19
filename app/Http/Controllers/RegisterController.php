@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use DB;
 use App\Exceptions;
+use App\Libraries\Rights;
 
 /**
  * Reģistru kontrolieris
@@ -141,19 +142,22 @@ class RegisterController extends Controller
      */
     private function checkRights()
     {
-
-        $right = \mindwo\pages\Rights::getRightsOnList($this->list_id);
+        if (Rights::isEditTaskRights($this->list_id, $this->item_id)) {
+            return; // user have rights to edit
+        }
+        
+        $right = Rights::getRightsOnList($this->list_id);
 
         if ($right == null || !$right->is_edit_rights) {
             throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību šajā reģistrā!");
         }
 
-        $is_item_editable_wf = \mindwo\pages\Rights::getIsEditRightsOnItem($this->list_id, $this->item_id); // Pārbauda vai nav darplūsmā un nav pabeigts
+        $is_item_editable_wf = Rights::getIsEditRightsOnItem($this->list_id, $this->item_id); // Check if not in workflow and not status finished
 
         if (!$is_item_editable_wf) {
             throw new Exceptions\DXCustomException("Ierakstu nav iespējams rediģēt, jo tas atrodas darbplūsmā!");
         }
-    }
+    }    
 
     /**
      * Ģenerē reģistrācijas numuru izmantotjot reģistram piesaistīto numeratoru

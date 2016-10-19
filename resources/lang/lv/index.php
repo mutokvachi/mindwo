@@ -10,6 +10,10 @@ return [
 
     'logo' => 'assets/global/logo/medus_logo_big.png',
     
+    'logo_small' => 'assets/global/logo/logo-default.png',
+    
+    'logo_txt' => '',
+    
     'site_title' => 'MEDUS :: SVS',
     
     'hello_title' => 'Sveicināti MEDUS SVS vietnē!',

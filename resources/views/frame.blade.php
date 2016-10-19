@@ -111,8 +111,12 @@
             <div class="page-header-inner container">
 
                 <div class="page-logo">
-                    <a href="/">
-                        <img src="{{Request::root()}}/assets/global/logo/logo-default.png" alt="logo" class="logo-default">
+                    <a href="/" style="text-decoration: none;">
+                         @if (trans('index.logo'))
+                            <img src="{{Request::root()}}/{{ trans('index.logo_small') }}" alt="LOGO" class="logo-default" />
+                        @else
+                            <div style="font-size: 28px; color: white; text-transform: uppercase; padding-top: 14px;">{{ trans('index.logo_txt') }}</div>
+                        @endif
                     </a>
                     <div class="menu-toggler sidebar-toggler" dx_attr=""></div>
                 </div>
@@ -299,6 +303,12 @@
             <script src="{{Request::root()}}/metronic/global/plugins/excanvas.min.js"></script> 
         <![endif]-->
 
+        <script src="{{Request::root()}}/{{ getIncludeVersion('js/lang.js') }}" type='text/javascript'></script>
+        
+        <script type='text/javascript'>
+            Lang.setLocale('{{ App::getLocale() }}');
+        </script>
+        
         <script src = "{{ elixir('js/elix_plugins.js') }}" type='text/javascript'></script>
 
         @yield('main_custom_javascripts')

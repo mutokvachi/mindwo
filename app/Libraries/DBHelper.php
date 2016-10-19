@@ -50,6 +50,11 @@ namespace App\Libraries
         const FIELD_TYPE_DATE = 9;
 
         /**
+         * Register field type - file (from table dx_field_types)
+         */
+        const FIELD_TYPE_FILE = 12;
+        
+        /**
          * Returns object row by list_id
          * 
          * @param integer $list_id Registera ID
@@ -103,6 +108,34 @@ namespace App\Libraries
             ]);
         }
         
+        /**
+         * Appends a new field to the form at the end
+         * @param integer $list_id Register ID
+         * @param integer $fld_id Field ID
+         */
+        public static function addFieldToFormTab($list_id, $fld_id, $tab_title, $order_index)
+        {
+            $form = DB::table('dx_forms')->where('list_id', '=', $list_id)->first();
+            
+            $tab = DB::table('dx_forms_tabs')->where('form_id', '=', $form->id)->where('title', '=', $tab_title)->first();
+            
+            if (!$tab) {
+                return;
+            }
+            
+            if ($order_index == 0) {
+                $order_index = (DB::table('dx_forms_fields')->where('form_id', '=', $form->id)->max('order_index') + 10);
+            }
+            
+            DB::table('dx_forms_fields')->insert([
+                'list_id' => $list_id,
+                'form_id' => $form->id,
+                'field_id' => $fld_id,
+                'tab_id' => $tab->id,
+                'order_index' => $order_index
+            ]);
+        }
+        
          /**
          * Appends a new field to the view at the end
          * @param integer $list_id Register ID
@@ -122,14 +155,19 @@ namespace App\Libraries
         /**
          * Drops field from CMS structure and db
          * 
-         * @param string $table_name Name of db table
+         * @param mixed $table_name Name of db table or list_id
          * @param string  $field_name Field name
          */
         public static function dropField($table_name, $field_name)
         {
 
             DBHelper::removeFieldCMS($table_name, $field_name);
-
+            
+            if (is_numeric($table_name)) {
+                $obj = DBHelper::getListObject($table_name);
+                $table_name = $obj->db_name;
+            }
+            
             Schema::table($table_name, function (Blueprint $table) use ($field_name)
             {
                 $table->dropColumn([$field_name]);
@@ -157,15 +195,24 @@ namespace App\Libraries
         /**
          * Removes field from CMS structure
          * 
-         * @param string $table_name Table name
+         * @param mixed $table_name Table name or list_id
          * @param string $field_name Field name
          */
         public static function removeFieldCMS($table_name, $field_name)
         {
-            $list = DBHelper::getListByTable($table_name);
-
+            if (is_numeric($table_name)) {
+                $list = DB::table('dx_lists')->where('id', '=', $table_name)->first();
+            }
+            else {
+                $list = DBHelper::getListByTable($table_name);
+            }
+            
             $fld = DB::table('dx_lists_fields')->where('list_id', '=', $list->id)->where('db_name', '=', $field_name)->first();
-
+            
+            if (!$fld) {
+                return;
+            }
+            
             DB::transaction(function () use ($fld)
             {
                 DB::table('dx_views_fields')->where('field_id', '=', $fld->id)->delete();

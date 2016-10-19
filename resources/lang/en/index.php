@@ -8,11 +8,15 @@
 
 return [
 
-    'logo' => 'assets/global/logo/bitfury_logo.png',
+    'logo' => '',
     
-    'site_title' => 'BITFURY :: Login',
+    'logo_small' => '',
     
-    'hello_title' => 'Welcome to the BitFury team site!',
+    'logo_txt' => 'Mindwo',
+    
+    'site_title' => 'MINDWO :: Login',
+    
+    'hello_title' => 'Welcome to the Mindwo team site!',
     
     'about_title' => 'This site is available only for authorized users.',
     

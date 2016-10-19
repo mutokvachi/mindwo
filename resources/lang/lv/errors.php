@@ -57,4 +57,18 @@ return [
     'no_rights_to_insert_imp' => "Jums nav jauna ieraksta veidošanas tiesības reģistrā '%s'!", 
     
     'excel_dependent' => 'Dažas Excel rindas netika importētas, jo nevar uzstādīt atbilstības savstarpēji atkarīgiem ierakstiem. Neimportēto Excel rindu numuri: ',
+    
+    'first_save_for_related' => 'Vispirms saglabājiet formu un tad veiciet saistīto datu ielādēšanu!',
+    
+    'import_file_not_provided' => 'Nav norādīta importējamā datne!',
+    
+    'import_zip_not_correct' => "Nav iespējams apstrādāt augšupielādēto ZIP datni '%s'!",
+    
+    'import_zip_no_data' => "ZIP arhīvā '%s' nav neviena Excel vai CSV datne ar importējamajiem datiem un nosaukumu atbilstoši arhīva datnei!",
+    
+    'import_zip_several_data' => "ZIP arhīvā ir vairāk kā viena datu datne! Nav iespējams noteikt, vai datus importēt no datnes '%s' vai no datnes '%s'.",
+    
+    'import_zip_file_not_exists' => "ZIP arhīvā nav atrodama datne '%s'!",
+    
+    'import_zip_file_cant_copy' => "Nav iespējams kopēt datni '%s' uz katalogu '%s'!",
 ];
