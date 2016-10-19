@@ -51,7 +51,7 @@ elixir(function(mix) {
         'jquery-nestable/jquery.nestable.css', // ok
         'mindwo/css/view.css' // ok
     ], 'public/css/elix_view.css', 'resources/assets/plugins');
-                
+              
     // Core scripts for main blade view - will be included in all pages
     mix.scripts([
         'jquery.min.js', 
