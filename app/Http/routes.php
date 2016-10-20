@@ -126,6 +126,11 @@ Route::post('/ajax/change_password', array('as' => 'change_password', 'middlewar
 Route::post('/ajax/form_password', array('as' => 'change_password', 'middleware' => 'auth_ajax', 'uses'=>'UserController@formPassw'));
 Route::post('/relogin', 'UserController@reLoginUser');
 
+// Route group for employee profile
+Route::group(['middleware' => 'auth', 'prefix' => 'employee'], function() {
+	Route::get('profile/{id?}', 'EmplProfileController@show')->name('profile');
+});
+
 // Lapas
 /*
 Route::get('/{id}/{item}', array('as' => 'page',  'middleware' => 'auth', 'uses'=>'PagesController@showPageItem'));

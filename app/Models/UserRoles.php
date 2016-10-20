@@ -16,6 +16,11 @@ class UserRoles extends Model
 	 */
 	public $timestamps = false;
 	
+	/**
+	 * Relation to user model
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 */
 	public function user()
 	{
 		return $this->belongsTo('App\User', 'id', 'user_id');

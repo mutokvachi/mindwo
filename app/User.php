@@ -36,7 +36,37 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	public $timestamps = false;
 	
 	/**
-	 * Relationship to user roles
+	 * Relation to country
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function country()
+	{
+		return $this->hasOne('App\Models\Country', 'id', 'country_id');
+	}
+	
+	/**
+	 * Relation to department
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function department()
+	{
+		return $this->hasOne('App\Models\Department', 'id', 'department_id');
+	}
+	
+	/**
+	 * Relation to manager
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function manager()
+	{
+		return $this->hasOne('App\User', 'id', 'manager_id');
+	}
+	
+	/**
+	 * Relation to user roles
 	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
 	 */
@@ -46,34 +76,67 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	}
 	
 	/**
-	 * Relationship to country
+	 * Relation to team
 	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
 	 */
-	public function country()
+	public function team()
 	{
-		return $this->hasOne('App\Models\Country', 'id', 'country_id');
+		return $this->hasOne('App\Models\Team', 'id', 'team_id');
 	}
 	
-	public function team()
+	/**
+	 * Relation to team members
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function team_members()
 	{
 		return $this->hasMany('App\User', 'team_id', 'team_id');
 	}
 	
 	/**
-	 * Get URL of user's avatar
+	 * Get an URL of user's avatar
 	 *
 	 * @return \Illuminate\Contracts\Routing\UrlGenerator|string
 	 */
 	public function getAvatar()
 	{
-		$file = "formated_img/small_avatar/{$this->picture_guid}";
+		$thumb_path = 'formated_img/small_avatar/';
+		$thumb = $thumb_path.$this->picture_guid;
 		
-		return file_exists(public_path($file)) ? url($file) : get_portal_config('EMPLOYEE_AVATAR');
+		return is_file(public_path($thumb)) ? url($thumb) : url($thumb_path.get_portal_config('EMPLOYEE_AVATAR'));
 	}
 	
-	public function isAvailable()
+	public function getAvailability()
 	{
+		if($this->termination_date)
+		{
+			$result = [
+				'button' => 'Left',
+				'class' => 'grey',
+				'title' => 'Employee has left'
+			];
+		}
 		
+		elseif($this->join_date && !$this->termination_date)
+		{
+			$result = [
+				'button' => 'Active',
+				'class' => 'green-jungle',
+				'title' => 'Employee is at work'
+			];
+		}
+		
+		else
+		{
+			$result = [
+				'button' => 'Potential',
+				'class' => 'yellow-lemon',
+				'title' => 'The person is in process of hiring'
+			];
+		}
+		
+		return $result;
 	}
 }

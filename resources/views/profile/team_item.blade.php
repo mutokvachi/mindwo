@@ -2,7 +2,7 @@
   <div class="item-head">
     <div class="item-details">
       <img class="item-pic" src="{{ $item->getAvatar() }}">
-      <a href="" class="item-name primary-link">{{ $item->display_name }}</a>
+      <a href="{{ route('profile', ['id' => $item->id]) }}" class="item-name primary-link">{{ $item->display_name }}</a>
       <span class="item-label">{{ $item->position_title }}</span>
     </div>
   </div>
