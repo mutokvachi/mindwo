@@ -1,52 +1,31 @@
 <?php
 
+/**
+ * Contains configuration data for connecting and using Open LDAP
+ */
 return [    
-    /*
-    |--------------------------------------------------------------------------
-    | Domēna vārds
-    |--------------------------------------------------------------------------
-    |
-    | Aktīvās direktorijas domēns
-    */   
-    
+    /**
+     * Account suffix which is added to login when authenticating
+     */
     'account_suffix' => '@gatech.edu',
     
-    /*
-    |--------------------------------------------------------------------------
-    | Domēna kontrolieris
-    |--------------------------------------------------------------------------
-    |
-    | Aktīvās direktorijas domēna kontrolieris
-    */   
-    
+    /**
+     * Active directory domain controller
+     */      
     'domain_controller' => 'whitepages.gatech.edu',
     
-    /*
-    |--------------------------------------------------------------------------
-    | DN
-    |--------------------------------------------------------------------------
-    |
-    */   
-    
+    /**
+     * Root DN
+     */     
     'base_dn' => 'dc=whitepages,dc=gatech,dc=edu',
     
-    /*
-    |--------------------------------------------------------------------------
-    | Administratora lietotāja vārds
-    |--------------------------------------------------------------------------
-    |
-    | Jānorāda lietotāja vārds ar Aktīvās Direktorijas administratora tiesībām
-    */   
-    
+    /**
+     * Active Directory's admin's user name
+     */
     'admin_username' => '',
     
-    /*
-    |--------------------------------------------------------------------------
-    | Administratora lietotāja parole
-    |--------------------------------------------------------------------------
-    |
-    | Jānorāda administratora lietotāja parole
-    */   
-    
+    /**
+     * Active Directory's admin's password
+     */     
     'admin_password' => '',
 ];

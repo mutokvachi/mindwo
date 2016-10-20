@@ -23,7 +23,7 @@ class UserController extends Controller
      * @var integer
      */
     private $try_limit = 3;
-    
+
     /**
      * Minutes how long authorization is blocked after try limit has been reached
      * @var integer 
@@ -35,14 +35,14 @@ class UserController extends Controller
      * 
      * @var boolean 
      */
-    private $is_user_to_block = 0;    
-    
+    private $is_user_to_block = 0;
+
     /**
      * If Active Directory or OpenLDAP authentication succeed but user doesn't exist then if this option is true, new user will be created
      * @var boolean 
      */
     private $create_user_if_not_exist = true;
-    
+
     /**
      * Initiate controller 
      */
@@ -69,20 +69,20 @@ class UserController extends Controller
         $pass = $request->input('password');
 
         $this->try_limit = Config::get('auth.try_count');
-        $this->temp_block_minutes = Config::get('auth.temp_block_minutes');        
-        
+        $this->temp_block_minutes = Config::get('auth.temp_block_minutes');
+
         try {
             $this->authenticateUser($user_name, $pass);
-            
-            if(!Auth::user()){
+
+            if (!Auth::user()) {
                 throw new Exceptions\DXCustomException(trans('errors.wrong_user_or_password'));
             }
-            
+
             if (Auth::user()->is_blocked) {
                 Auth::logout();
                 throw new Exceptions\DXCustomException(trans('errors.user_is_blocked'));
             }
-            
+
             $this->updateAttempts(Auth::user()->id, 0);
 
             DB::table('in_portal_log')->insert([['log_time' => date('Y-n-d H:i'), 'url' => 'login', 'user_id' => Auth::user()->id]]);
@@ -123,8 +123,8 @@ class UserController extends Controller
 
         try {
             $this->authenticateUser($user_name, $pass);
-            
-            if(!Auth::user()){
+
+            if (!Auth::user()) {
                 throw new Exceptions\DXCustomException(trans('errors.wrong_user_or_password'));
             }
 
@@ -230,21 +230,25 @@ class UserController extends Controller
         }
 
         $auth_succ = false;
-        
+
         // Iterates through authentication methods
         foreach ($auth_types as $auth_type) {
             $type = strtoupper($auth_type);
-            
-            switch ($type) {
-                case 'DAFAULT':
-                    $auth_succ = $this->authenticateDefault($user_name, $password);
-                    break;
-                case 'AD':
-                    $auth_succ = $this->authenticateAD($user_name, $password);
-                    break;
-                case 'OPENLDAP':
-                    $auth_succ = $this->authenticateOpenLDAP($user_name, $password);
-                    break;
+
+            try {
+                switch ($type) {
+                    case 'DAFAULT':
+                        $auth_succ = $this->authenticateDefault($user_name, $password);
+                        break;
+                    case 'AD':
+                        $auth_succ = $this->authenticateAD($user_name, $password);
+                        break;
+                    case 'OPENLDAP':
+                        $auth_succ = $this->authenticateOpenLDAP($user_name, $password);
+                        break;
+                }
+            } catch (\Exception $e) {
+                
             }
 
             // If user is authenticated then quites loop
@@ -289,10 +293,10 @@ class UserController extends Controller
         $is_auth_success = $ad->auth($user_row, $user_name, $user_password);
 
         $this->registerFailedAuth($user_row, $is_auth_success);
-        
-        return $is_auth_success; 
+
+        return $is_auth_success;
     }
-    
+
     /**
      * Authenticate user using OpenLDAP
      * @param type $user_name users login name
@@ -301,7 +305,7 @@ class UserController extends Controller
      */
     private function authenticateOpenLDAP($user_name, $user_password)
     {
-        $user_row = $this->getUserByLogin('ad_login', $user_name);
+        $user_row = $this->getUserByLogin('email', $user_name);
 
         $this->checkAttempts($user_row);
 
@@ -310,7 +314,7 @@ class UserController extends Controller
 
         $this->registerFailedAuth($user_row, $is_auth_success);
 
-        return $is_auth_success; 
+        return $is_auth_success;
     }
 
     /**
@@ -321,7 +325,7 @@ class UserController extends Controller
      */
     private function authenticateDefault($user_name, $password)
     {
-        $user_row = $this->getUserByLogin('login_name', $user_name);
+        $user_row = $this->getUserByLogin('email', $user_name);
         $this->checkAttempts($user_row);
 
         $is_auth_success = Auth::attempt(['login_name' => $user_name, 'password' => $password]);
@@ -355,10 +359,10 @@ class UserController extends Controller
      */
     private function checkAttempts($user_row)
     {
-        if(!$user_row){
+        if (!$user_row) {
             return;
         }
-        
+
         if ($user_row->is_blocked) {
             throw new Exceptions\DXCustomException(trans('errors.user_is_blocked'));
         }
@@ -396,7 +400,7 @@ class UserController extends Controller
         $user_row = DB::table('dx_users')->where($login_field, '=', $login_name)->first();
 
         if (!$user_row && !$this->create_user_if_not_exist) {
-           throw new Exceptions\DXCustomException(trans('errors.wrong_user_or_password'));
+            throw new Exceptions\DXCustomException(trans('errors.wrong_user_or_password'));
         }
 
         return $user_row;

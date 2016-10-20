@@ -4,19 +4,47 @@ namespace App\Libraries\Auth;
 
 use Config;
 use Log;
-use Auth;
+use \App\Libraries\Auth\AuthHelper;
 
 /**
  * Authenticate user using OpenLDAP
  */
 class OpenLDAP
 {
-
+    /**
+     * Open LDAP host address
+     * @var string 
+     */
     protected $ldap_host;
+    
+    /**
+     * Oppen LDAP connection port
+     * @var string 
+     */
     protected $ldap_port;
+    
+    /**
+     * Open LDAP root DN
+     * @var string 
+     */
     protected $ldap_root_dn;
+    
+    /**
+     * Open LDAP password for accessing root DN
+     * @var string 
+     */
     protected $ldap_root_password;
+    
+    /**
+     * Open LDAP Accoutn prefix which is added in the front of given user name. This is used when authenticating user.
+     * @var string 
+     */
     protected $ldap_account_prefix;
+    
+    /**
+     * Open LDAP Accoutn suffix which is added in the end of given user name. This is used when authenticating user. 
+     * @var string 
+     */
     protected $ldap_account_suffix;
 
     /**
@@ -57,23 +85,31 @@ class OpenLDAP
 
         // Bind to LDAP server
         if (ldap_bind($conn, $user_dn, $user_password)) {
-            return $this->validateUser($conn, $user_row, $user_dn, $user_name);
+            return $this->prepareAuthorization($conn, $user_row, $user_dn, $user_name);
         } else {
             return false;
         }
-
-
-
-        /*
-          list_users();
-          echo "\n";
-          check_password($test_email, $test_password); */
     }
-
-    private function validateUser($conn, $user_row, $user_dn, $user_name)
+    
+    /**
+     * Check if user got authenticated and then authorize user. 
+     * Creates new user if user doesn't exist and if it is allowed to create user from LDAP user
+     * @param object $conn LDAP connection
+     * @param \App\User $user_row Users data row to check if user exists
+     * @param string $user_dn Users DN path
+     * @param string $user_name Users login name which is his password
+     * @return boolean Returns status if user has been authenticated
+     */
+    private function prepareAuthorization($conn, $user_row, $user_dn, $user_name)
     {
         if ($user_row) {
+            AuthHelper::authorizeUser($user_row);
+
             return true;
+        }
+
+        if (!Config::get('auth.create_user_if_not_exist')) {
+            return false;
         }
 
         $query = ldap_search(
@@ -92,87 +128,11 @@ class OpenLDAP
         $user_first_name = $result[0]['givenname'][0];
         $user_last_name = $result[0]['sn'][0];
         $user_position_title = $result[0]['title'][0];
+        
+        $user = AuthHelper::getUser($user_email, $user_first_name, $user_last_name, $user_position_title);
 
-        $user = \App\User::where('email', '=', $user_email)->first();
-
-        if (!$user) {
-            $user = new \App\User();
-        }
-
-        $user->email = $user_email;
-        $user->login_name = $user_email;
-        $user->first_name = $user_first_name;
-        $user->last_name = $user_last_name;
-        $user->position_title = $user_position_title;
-
-        $user->save();
-
-        if (Auth::user()) {
-            Auth::logout();
-        }
-
-        Auth::login($user);
+        AuthHelper::authorizeUser($user);
 
         return true;
-    }
-
-    // List all users with email address specified
-    function list_users()
-    {
-        global $conn, $config;
-
-        echo "Listing all users having email:\n";
-        $query = ldap_search($conn, $config['usersDN'], "(mail=*)");
-        $result = ldap_get_entries($conn, $query);
-
-        for ($i = 0; $i < $result['count']; $i++) {
-            echo "dn: {$result[$i]['dn']}, mail: {$result[$i]['mail'][0]}";
-            echo "\n";
-        }
-    }
-
-    function check_password($mail, $password)
-    {
-        global $conn, $config;
-
-        echo "Verifying user's password ($mail, $password):\n";
-
-        // Retrieving user data
-        $query = ldap_search(
-                $conn, $config['usersDN'], // DN for user accounts
-                "(mail=$mail)", // filter query
-                ['mail', 'userpassword'] // attributes to return
-        );
-        $result = ldap_get_entries($conn, $query);
-
-        if (!$result['count']) {
-            echo "No such user\n";
-            return false;
-        }
-
-        echo "Found user with email $mail\n";
-
-        $hash = $result[0]['userpassword'][0];
-
-        echo "Password hash from LDAP: $hash\n";
-
-        // Extracting salt from hash
-        $salt = substr(base64_decode(substr($hash, 6)), 20);
-
-        // Encrypting password
-        $encPassword = '{SSHA}' . base64_encode(sha1($password . $salt, true) . $salt);
-
-        echo "Our encrypted password: $encPassword\n";
-
-        // Comparing our encrypted password to hash from LDAP
-        if ($hash != $encPassword) {
-            echo "No such email/password combination\n";
-            return false;
-        }
-
-        echo "Email and password are OK\n";
-        return true;
-
-        // Now you can authorize user as usual
     }
 }

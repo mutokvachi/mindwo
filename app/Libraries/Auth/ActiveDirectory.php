@@ -31,10 +31,35 @@ class ActiveDirectory
         $ad = new Adldap($config);
 
         if ($ad->authenticate($user_name, $user_password)) {
-            Auth::loginUsingId($user_row->id);
-            return true;
+            return $this->prepareAuthorization($user_row, $user_name);
         }
 
         return false;
+    }
+    
+    /**
+     * Check if user got authenticated and then authorize user. 
+     * Creates new user if user doesn't exist and if it is allowed to create user from LDAP user
+     * @param \App\User $user_row Users data row to check if user exists
+     * @param string $user_name Users login name which is his password
+     * @return boolean Returns status if user has been authenticated
+     */
+    private function prepareAuthorization($user_row, $user_name)
+    {
+        if ($user_row) {
+            AuthHelper::authorizeUser($user_row);
+
+            return true;
+        }
+
+        if (!Config::get('auth.create_user_if_not_exist')) {
+            return false;
+        }
+
+        $user = AuthHelper::getUser($user_name, '', '', '');
+
+        AuthHelper::authorizeUser($user);
+
+        return true;
     }
 }
