@@ -10,7 +10,7 @@ return [
 
     'logo' => 'assets/global/logo/medus_logo_big.png',
     
-    'logo_small' => 'assets/global/logo/logo-default.png',
+    'logo_small' => 'assets/global/logo/medus_black.png',
     
     'logo_txt' => '',
     

@@ -59,6 +59,11 @@ gulp.task('mix_all', function() {
             'jquery-nestable/jquery.nestable.css', // ok
             'mindwo/css/view.css' // ok
         ], 'public/css/elix_view.css', 'resources/assets/plugins');
+        
+        // horizontal menu UI styles                
+        mix.less([
+            'horizontal_menu.less'
+        ], 'public/css/elix_mindwo_horizontal.css');
 
         // Core scripts for main blade view - will be included in all pages
         mix.scripts([
@@ -68,9 +73,7 @@ gulp.task('mix_all', function() {
             'bootstrap-hover-dropdown/bootstrap-hover-dropdown.js',
             'jquery-slimscroll/jquery.slimscroll.js',
             'metronic/jquery.blockui.min.js',
-            //'uniform/jquery.uniform.js',
             'bootstrap-switch/js/bootstrap-switch.js',
-            //'icheck/icheck.js',
             'gritter/jquery.gritter.min.js',
             'toastr/toastr.js',
             'bootstrap-modal/js/bootstrap-modalmanager.js',
@@ -131,7 +134,16 @@ gulp.task('mix_all', function() {
         ], 'public/js/elix_employees.js', 'resources/assets/plugins');
 
         // Minify all scripts
-        mix.version(['js/elix_userlinks.js', 'js/elix_plugins.js', 'js/elix_view.js', 'js/elix_employees.js', 'css/elix_plugins.css', 'css/elix_mindwo.css', 'css/elix_view.css']);
+        mix.version([
+            'js/elix_userlinks.js', 
+            'js/elix_plugins.js', 
+            'js/elix_view.js', 
+            'js/elix_employees.js', 
+            'css/elix_plugins.css', 
+            'css/elix_mindwo.css', 
+            'css/elix_view.css',
+            'css/elix_mindwo_horizontal.css'
+        ]);
     });
 });
 
