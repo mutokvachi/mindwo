@@ -8,9 +8,7 @@ use App\Exceptions;
 use Auth;
 use DB;
 use Config;
-use Adldap\Adldap;
 use Hash;
-use Log;
 
 /**
  * User authorization controller. 
@@ -18,6 +16,13 @@ use Log;
  */
 class UserController extends Controller
 {
+
+    /**
+     * Possible authentication types
+     * @var array 
+     */
+    private $auth_types = array('DEFAULT', 'AD', 'OPENLDAP');
+
     /**
      * Allowed try limit for authorization 
      * @var integer
@@ -222,7 +227,8 @@ class UserController extends Controller
      */
     private function authenticateUser($user_name, $password)
     {
-        $auth_types = Config::get('auth.type');
+        // Retrieve used authentication types from configuration
+        $auth_types = explode(';', Config::get('auth.type'));
 
         // Checks if any auth method is specified
         if ($auth_types < 1) {
@@ -236,16 +242,12 @@ class UserController extends Controller
             $type = strtoupper($auth_type);
 
             try {
-                switch ($type) {
-                    case 'DAFAULT':
-                        $auth_succ = $this->authenticateDefault($user_name, $password);
-                        break;
-                    case 'AD':
-                        $auth_succ = $this->authenticateAD($user_name, $password);
-                        break;
-                    case 'OPENLDAP':
-                        $auth_succ = $this->authenticateOpenLDAP($user_name, $password);
-                        break;
+                // Check if specified authentication type exists
+                if (in_array($type, $this->auth_types)) {
+                    $function_name = 'authenticate' . $type;
+
+                    // Execute authentication process
+                    $auth_succ = $this->{$function_name}($user_name, $password);
                 }
             } catch (\Exception $e) {
                 
@@ -286,7 +288,7 @@ class UserController extends Controller
      */
     private function authenticateAD($user_name, $user_password)
     {
-        $user_row = $this->getUserByLogin('ad_login', $user_name);
+        $user_row = $this->getUserByLogin('email', $user_name);
         $this->checkAttempts($user_row);
 
         $ad = new \App\Libraries\Auth\ActiveDirectory();
@@ -303,7 +305,7 @@ class UserController extends Controller
      * @param type $user_password User password
      * @return boolean Result if authentication succeeded
      */
-    private function authenticateOpenLDAP($user_name, $user_password)
+    private function authenticateOPENLDAP($user_name, $user_password)
     {
         $user_row = $this->getUserByLogin('email', $user_name);
 
@@ -323,9 +325,9 @@ class UserController extends Controller
      * @param type $password User password
      * @return boolean Result if authentication succeeded
      */
-    private function authenticateDefault($user_name, $password)
+    private function authenticateDEFAULT($user_name, $password)
     {
-        $user_row = $this->getUserByLogin('email', $user_name);
+        $user_row = $this->getUserByLogin('login_name', $user_name);
         $this->checkAttempts($user_row);
 
         $is_auth_success = Auth::attempt(['login_name' => $user_name, 'password' => $password]);
@@ -397,7 +399,7 @@ class UserController extends Controller
      */
     private function getUserByLogin($login_field, $login_name)
     {
-        $user_row = DB::table('dx_users')->where($login_field, '=', $login_name)->first();
+        $user_row = \App\User::where($login_field, '=', $login_name)->first();
 
         if (!$user_row && !$this->create_user_if_not_exist) {
             throw new Exceptions\DXCustomException(trans('errors.wrong_user_or_password'));

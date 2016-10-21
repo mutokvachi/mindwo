@@ -3,6 +3,7 @@
 namespace App\Libraries\Auth;
 
 use Config;
+use Adldap\Adldap;
 
 /**
  * Authenticate user using Active Directory

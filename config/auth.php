@@ -124,9 +124,10 @@ return [
     /**
      * Authentication types 
      * Avaialable options - 'OPENLDAP', 'DEFAULT', 'AD'
+     * Each type must be seperated with ';'
      * Authentication is attempted in specified order.
      */
-    'type' => ['OPENLDAP', 'DEFAULT'],
+    'type' => 'OPENLDAP;DEFAULT',
     
     /**
      * If Active Directory or OpenLDAP authentication succeed but user doesn't exist then if this option is true, new user will be created
