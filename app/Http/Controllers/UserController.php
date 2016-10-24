@@ -16,7 +16,6 @@ use Hash;
  */
 class UserController extends Controller
 {
-
     /**
      * Possible authentication types
      * @var array 

@@ -16,31 +16,31 @@ class OpenLDAP
      * @var string 
      */
     protected $ldap_host;
-    
+
     /**
      * Oppen LDAP connection port
      * @var string 
      */
     protected $ldap_port;
-    
+
     /**
      * Open LDAP root DN
      * @var string 
      */
     protected $ldap_root_dn;
-    
+
     /**
      * Open LDAP password for accessing root DN
      * @var string 
      */
     protected $ldap_root_password;
-    
+
     /**
      * Open LDAP Accoutn prefix which is added in the front of given user name. This is used when authenticating user.
      * @var string 
      */
     protected $ldap_account_prefix;
-    
+
     /**
      * Open LDAP Accoutn suffix which is added in the end of given user name. This is used when authenticating user. 
      * @var string 
@@ -69,6 +69,10 @@ class OpenLDAP
      */
     public function auth($user_row, $user_name, $user_password)
     {
+        if(empty($user_name) || empty($user_password)){
+            return false;
+        } 
+        
         // Establishing connection to LDAP server
         $conn = ldap_connect($this->ldap_host, $this->ldap_port);
 
@@ -90,7 +94,7 @@ class OpenLDAP
             return false;
         }
     }
-    
+
     /**
      * Check if user got authenticated and then authorize user. 
      * Creates new user if user doesn't exist and if it is allowed to create user from LDAP user
@@ -128,7 +132,7 @@ class OpenLDAP
         $user_first_name = $result[0]['givenname'][0];
         $user_last_name = $result[0]['sn'][0];
         $user_position_title = $result[0]['title'][0];
-        
+
         $user = AuthHelper::getUser($user_email, $user_first_name, $user_last_name, $user_position_title);
 
         AuthHelper::authorizeUser($user);

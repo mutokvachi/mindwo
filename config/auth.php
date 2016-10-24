@@ -112,10 +112,10 @@ return [
     
     /*
     |--------------------------------------------------------------------------
-    | Pagaidu konta bloķēšanas ilgums minūtēs
+    | Temporary account blocking in minutes
     |--------------------------------------------------------------------------
     |
-    | Pārsniedzot nepareizi ievadīto paroļu limitu, konts tiek uz laiku bloķēts - minūtes norāda ar šo parametru
+    | If user exceedes allowed authentication tries, then block account for specified time
     |
     */  
     
@@ -124,13 +124,13 @@ return [
     /**
      * Authentication types 
      * Avaialable options - 'OPENLDAP', 'DEFAULT', 'AD'
-     * Each type must be seperated with ';'
+     * Each type must be seperated with ';'. Example 'OPENLDAP;DEFAULT'
      * Authentication is attempted in specified order.
      */
-    'type' => 'OPENLDAP;DEFAULT',
+    'type' => env('AUTH_TYPE', 'DEFAULT'),
     
     /**
      * If Active Directory or OpenLDAP authentication succeed but user doesn't exist then if this option is true, new user will be created
      */
-    'create_user_if_not_exist' => true
+    'create_user_if_not_exist' => env('AUTH_CREATE_USER_IF_NOT_EXIST', true)
 ];

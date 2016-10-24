@@ -20,7 +20,13 @@ class ActiveDirectory
      * @return boolean Result if authentication succeeded
      */
     public function auth($user_row, $user_name, $user_password)
-    {
+    {        
+        if(empty($user_name) || empty($user_password)){
+            return false;
+        } 
+        
+        return false;
+        
         $config = array(
             'account_suffix' => Config::get('ldap.account_suffix'),
             'domain_controllers' => array(Config::get('ldap.domain_controller')),
@@ -29,15 +35,17 @@ class ActiveDirectory
             'admin_password' => Config::get('ldap.admin_password'),
         );
 
-        $ad = new Adldap($config);
+        $provider = new \Adldap\Connections\Provider($config);
 
-        if ($ad->authenticate($user_name, $user_password)) {
+        if ($provider->auth()->bind($user_name, $user_password)) {
+            // Credentials were correct.
             return $this->prepareAuthorization($user_row, $user_name);
+        } else {
+            // Credentials were incorrect.
+            return false;
         }
-
-        return false;
     }
-    
+
     /**
      * Check if user got authenticated and then authorize user. 
      * Creates new user if user doesn't exist and if it is allowed to create user from LDAP user
