@@ -1,7 +1,121 @@
 @extends('frame')
 
+@section('main_custom_css')
+  <style type="text/css">
+    .freeform .inline .form-control {
+      display: inline-block;
+      width: auto;
+    }
+    .freeform .inline .input-group {
+      display: inline-block;
+      width: auto !important;
+    }
+    .freeform .inline .input-group-btn {
+      display: inline-block;
+      width: auto !important;
+    }
+  </style>
+@endsection
+
+@section('main_custom_javascripts')
+  <script>
+    $.fn.FreeForm = function(root)
+    {
+      return this.each(function(){
+        new $.FreeForm(this);
+      });
+    };
+    
+    $.FreeForm = function(root)
+    {
+      $.data(root, 'FreeForm', this);
+      var self = this;
+      this.root = $(root);
+      this.fields = $('[data-name]', this.root);
+      this.editButton = $('.dx-edit-general', this.root);
+      this.saveButton = $('.dx-save-general', this.root);
+      this.cancelButton = $('.dx-cancel-general', this.root);
+      this.editButton.click(function() {
+        self.edit();
+      });
+      this.saveButton.click(function() {
+        self.save();
+      });
+      this.cancelButton.click(function() {
+        self.cancel();
+      });
+    };
+    
+    $.extend($.FreeForm.prototype, {
+      show: function() {
+        
+      },
+      
+      edit: function() {
+        var self = this;
+        var request = {
+          model: this.root.data('model'),
+          item_id: this.root.data('item_id'),
+          list_id: this.root.data('list_id'),
+          fields: []
+        };
+        this.fields.each(function() {
+          request.fields.push({
+            name: $(this).data('name'),
+            type: $(this).data('type')
+          });
+        });
+  
+        $.ajax({
+          type: 'POST',
+          url: DX_CORE.site_url + 'freeform/' + request.id + '/edit',
+          dataType: 'json',
+          data: request,
+          success: function(data)
+          {
+            self.editButton.hide();
+            self.saveButton.show();
+            self.cancelButton.show();
+            for(var i = 0; i < data.fields.length; i++)
+            {
+              var name = data.fields[i].name;
+              var input = data.fields[i].input;
+              var elem = $('[data-name="' + name + '"]', self.root);
+              if(elem.length)
+                elem.html(input);
+            }
+          },
+          error: function(jqXHR, textStatus, errorThrown)
+          {
+            console.log(textStatus);
+            console.log(jqXHR);
+          }
+        });
+      },
+      
+      save: function() {
+        this.editButton.show();
+        this.saveButton.hide();
+        this.cancelButton.hide();
+        this.show();
+      },
+      
+      cancel: function() {
+        this.editButton.show();
+        this.saveButton.hide();
+        this.cancelButton.hide();
+        this.show();
+      }
+    });
+    
+    $(document).ready(function() {
+      $('[data-freeform]').FreeForm();
+    });
+  </script>
+@endsection
+
 @section('main_content')
-<div class="portlet light dx-employee-profile">
+<div class="portlet light dx-employee-profile freeform" data-freeform="true" data-model="App\User" data-item_id="{{ $employee->id }}" data-list_id="{{ Config::get('dx.employee_list_id') }}">
   <div class="portlet-title">
     <div class="caption">
       <i class="fa fa-user"></i>
@@ -9,12 +123,14 @@
       <span class="caption-helper">{{ $is_my_profile ? "" : "profile" }}</span>
     </div>
     <div class="actions">
-      {{--
-      @if($is_empl_edit_rights && 1 == 2)
-        <a href="javascript:;" class="btn btn-circle btn-default dx-edit-general" dx_employee_id="{{ $employee->id }}" dx_list_id="{{ $empl_list_id }}">
+      @if($employee->id == Auth::user()->id || Auth::user()->id == 1)
+        <a href="javascript:;" class="btn btn-circle btn-default dx-edit-general">
           <i class="fa fa-pencil"></i> Edit </a>
+        <a href="javascript:;" class="btn btn-circle btn-default dx-save-general" style="display: none">
+          <i class="fa fa-floppy-o"></i> Save </a>
+        <a href="javascript:;" class="btn btn-circle btn-default dx-cancel-general" style="display: none">
+          <i class="fa fa-times"></i> Cancel </a>
       @endif
-      --}}
     </div>
   </div>
   <div class="portlet-body">
@@ -27,19 +143,19 @@
           <div class="col-xs-12 col-sm-9 col-md-9">
             <div class="employee-details-1">
               <a href="javascript:;" class="btn btn-circle btn-default {{ $avail['class'] }} pull-right" title="{{ $avail['title'] }}"> {{ $avail['button'] }} </a>
-              <h4>{{ $employee->display_name }}</h4>
-              <a href="#" class="dx_position_link"> {{ $employee->position_title }}</a><br>
-              <a href="#" class="small dx_department_link">{{ $employee->department_title }}</a><br><br>
+              <h4><span data-name="first_name" class="inline">{{ $employee->first_name }}</span> <span data-name="last_name" class="inline">{{ $employee->last_name }}</span></h4>
+              <span data-name="position_title"><a href="#" class="dx_position_link"> {{ $employee->position_title }}</a></span><br>
+              <span data-name="department_id"><a href="#" class="small dx_department_link">{{ $employee->department->title }}</a></span><br><br>
               <div class="text-left">
-                <a href="mailto:{{ $employee->email }}">{{ $employee->email }}</a><br>
-                {{ $employee->phone }}<br><br>
+                <span data-name="email" class="inline"><a href="mailto:{{ $employee->email }}">{{ $employee->email }}</a></span><br>
+                <span data-name="phone" class="inline">{{ $employee->phone }}</span><br><br>
                 <p style="margin-bottom: 0px;">
                   @if($employee->country && $employee->country->flag_file_guid)
                     <img src="{{ $employee->country->getFlag() }}" title="{{ $employee->country->flag_file_name }}" style="margin-top: 1px;"/>
                   @else
                     <img src="/assets/global/flags/en.png" title="English" style="margin-top: 1px;"/>
                   @endif
-                  <span title="Employee location" class="pull-right"><i class="fa fa-map-marker"></i> {{ $employee->location_city }}, {{ $employee->country ? $employee->country->title : 'N/A' }}</span>
+                  <span title="Employee location" class="pull-right"><i class="fa fa-map-marker"></i> <span data-name="location_city" class="inline">{{ $employee->location_city }}</span>, <span data-name="country_id" class="inline">{{ $employee->country ? $employee->country->title : 'N/A' }}</span></span>
                 </p>
               </div>
             </div>
@@ -49,7 +165,7 @@
     </div>
     
     <h3>About</h3>
-    <p>{{ $employee->description }}</p>
+    <p data-name="description" data-type="text">{{ $employee->description }}</p>
     
     <h3>Stats</h3>
     <div class="tiles" style="margin-bottom: 20px">

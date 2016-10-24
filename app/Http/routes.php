@@ -131,6 +131,10 @@ Route::group(['middleware' => 'auth', 'prefix' => 'employee'], function() {
 	Route::get('profile/{id?}', 'EmplProfileController@show')->name('profile');
 });
 
+Route::group(['middleware' => 'auth_ajax', 'prefix' => 'freeform'], function() {
+	Route::post('{id}/edit', 'FreeFormController@edit');
+});
+
 // Lapas
 /*
 Route::get('/{id}/{item}', array('as' => 'page',  'middleware' => 'auth', 'uses'=>'PagesController@showPageItem'));
