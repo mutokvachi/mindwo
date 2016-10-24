@@ -185,6 +185,11 @@ return [
          * Nodrošina PDF ģenerēšanu no skata
          */
         Barryvdh\Snappy\ServiceProvider::class,
+        
+        /**
+         * JavaScript localization https://github.com/rmariuzzo/Laravel-JS-Localization
+         */
+       // Mariuzzo\LaravelJsLocalization\LaravelJsLocalizationServiceProvider::class,
     ],
 
     /*
