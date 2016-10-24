@@ -21,6 +21,8 @@ return [
     // 1. %s - attempts count, 2. %s - seconds need to wait till unblock
     'login_attempts_warning_seconds' => 'Parole tika nepareizi ievadīta vairāk kā %c reizes pēc kārtas! Lietotājs ir uz laiku bloķēts. Atkārtojiet autorizāciju pēc %s sekundēm.',
     
+    'missing_auth_method' => 'Sistēmā nav norādīta neviena autentifikācijas metode. Autentifikācija ir slēgta.',
+    
     // Grid errors
     
     // %s - date format
