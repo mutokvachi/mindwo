@@ -39,6 +39,7 @@
 
         @yield('main_custom_css')
         
+        <!-- INCLUDE SLIDER NEEDED STYLE -->
         @if (isset($is_slidable_menu) && $is_slidable_menu)
             @include('box.box_css')
         @endif
@@ -271,7 +272,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="slide-page-holder">
+                        <div id="slide-<?= (count($breadcrumb) > 0) ? $breadcrumb[count($breadcrumb)-1]['id'] : 'page-holder';?>" class="slide-page-holder">
                             <div style="position: relative;">
                                 @yield('main_content')
                             </div>
@@ -322,12 +323,18 @@
         <script>
             {!! get_portal_config('SCRIPT_JS') !!}
         </script>
-        
         @if (isset($is_slidable_menu) && $is_slidable_menu)
+        
             <script type='text/javascript' src="{!! asset('js/box/script.js') !!}"></script>
             <script>            
                 box.icon = $('<i class="fa fa-angle-double-right"></i>');
                 box.dashboardReload = {{ (count($breadcrumb) > 0) ? 1 : 0}};
+                
+                <?php
+                if (count($breadcrumb) > 0) {
+                    echo 'box.activeSlide='.$breadcrumb[count($breadcrumb)-1]['id'];
+                }
+                ?>
             </script>    
         @endif
     </body>
