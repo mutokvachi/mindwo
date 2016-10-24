@@ -1,63 +1,31 @@
 <?php
 
-return [
+/**
+ * Contains configuration data for connecting and using Open LDAP
+ */
+return [    
+    /**
+     * Account suffix which is added to login when authenticating
+     */
+    'account_suffix' => env('AD_ACCOUNT_SUFFIX', ''),
     
-    /*
-    |--------------------------------------------------------------------------
-    | Aktīvās direktorijas (LDAP) konfigurācija
-    |--------------------------------------------------------------------------
-    |
-    | Parametrs ieslēdz/izslēdz LDAP autorizācijas mehānismu
-    */
+    /**
+     * Active directory domain controller
+     */      
+    'domain_controller' => env('AD_DOMAIN_CONTROLLER', 'whitepages.gatech.edu'),
     
-    'use_ldap_auth' => false,
+    /**
+     * Root DN
+     */     
+    'base_dn' => env('AD_BASE_DN', 'dc=whitepages,dc=gatech,dc=edu'),
     
-    /*
-    |--------------------------------------------------------------------------
-    | Domēna vārds
-    |--------------------------------------------------------------------------
-    |
-    | Aktīvās direktorijas domēns
-    */   
+    /**
+     * Active Directory's admin's user name
+     */
+    'admin_username' => env('AD_ADMIN_USERNAME', ''),
     
-    'account_suffix' => '@gatech.edu',
-    
-    /*
-    |--------------------------------------------------------------------------
-    | Domēna kontrolieris
-    |--------------------------------------------------------------------------
-    |
-    | Aktīvās direktorijas domēna kontrolieris
-    */   
-    
-    'domain_controller' => 'whitepages.gatech.edu',
-    
-    /*
-    |--------------------------------------------------------------------------
-    | DN
-    |--------------------------------------------------------------------------
-    |
-    */   
-    
-    'base_dn' => 'dc=whitepages,dc=gatech,dc=edu',
-    
-    /*
-    |--------------------------------------------------------------------------
-    | Administratora lietotāja vārds
-    |--------------------------------------------------------------------------
-    |
-    | Jānorāda lietotāja vārds ar Aktīvās Direktorijas administratora tiesībām
-    */   
-    
-    'admin_username' => '',
-    
-    /*
-    |--------------------------------------------------------------------------
-    | Administratora lietotāja parole
-    |--------------------------------------------------------------------------
-    |
-    | Jānorāda administratora lietotāja parole
-    */   
-    
-    'admin_password' => '',
+    /**
+     * Active Directory's admin's password
+     */     
+    'admin_password' => env('AD_ADMIN_PASSWORD', ''),
 ];
