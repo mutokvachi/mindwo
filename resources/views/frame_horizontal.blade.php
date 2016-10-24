@@ -134,19 +134,11 @@
                         <span class="username username-hide-on-mobile"> {{ Auth::user()->display_name }} </span>
                         <i class="fa fa-angle-down"></i>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-default">
+                    <ul class="dropdown-menu dropdown-menu-default">                        
                         <li>
-                            <a href="#" title="Mainīt lapas izmēru" id='btnScreen'>
-                                <i class="icon-size-fullscreen"></i> Lapa pa visu ekrānu </a>
-                        </li>
-                        <li>
-                            <a href="#" title="Paroles maiņa" class="dx-user-change-passw-link">
-                                <i class="icon-key"></i> Paroles maiņa </a>
-                        </li>
-                        <li>
-                            <a href="{{Request::root()}}/logout" title="Iziet">
-                                <i class="fa fa-sign-out"></i> Iziet </a>
-                        </li>
+                            <a href="javascript:;" title="{{ trans("frame.password_change") }}" class="dx-user-change-passw-link">
+                                <i class="fa fa-key"></i> {{ trans("frame.password_change") }} </a>
+                        </li>                       
                     </ul>
                 </li>
                 <!-- END USER LOGIN DROPDOWN -->
@@ -171,8 +163,14 @@
                 @endif
 
                 <li class="dropdown">
-                    <a href="{{Request::root()}}/structure/doc_manual" title="Lietotāja rokasgrāmata" class="dropdown-toggle">
+                    <a href="{{Request::root()}}/structure/doc_manual" title="{{ trans("frame.user_manual") }}" class="dropdown-toggle top-link">
                         <i class="fa fa-question-circle"></i>                                
+                    </a>
+                </li>
+                
+                <li class="dropdown">
+                    <a href="{{Request::root()}}/logout" title="{{ trans("frame.logout") }}" class="top-link">
+                        <i class="fa fa-sign-out"></i> {{ trans("frame.logout") }} 
                     </a>
                 </li>
 
@@ -228,6 +226,7 @@
     </script>
 
     <script src = "{{ elixir('js/elix_plugins.js') }}" type='text/javascript'></script>
+    <script src = "{{ elixir('js/elix_mindwo_horizontal_menu.js') }}" type='text/javascript'></script>
 
     @yield('main_custom_javascripts')
 
