@@ -361,24 +361,55 @@ class FormController extends Controller
                 throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību šajā reģistrā!");
             }
             
-            // var vismaz skatīties ieraksta kartiņu            
+            // var vismaz skatīties ieraksta kartiņu
+            
+            // Pārbauda vai var rediģēt
             if ($this->isRelatedEditableTask($list_id, $item_id)) {
                 $this->is_disabled = 0; // var rediģēt ierakstu
             }
+            else {
+                $this->form_is_edit_mode = 0; // read only
+            }
         }
         else {
-            if ($item_id == 0 && $right->is_new_rights == 0) {
-                throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību veidot jaunu ierakstu šajā reģistrā!");
+            if ($item_id == 0) {
+                if ($right->is_new_rights == 0) {           
+                    throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību veidot jaunu ierakstu šajā reģistrā!");
+                }
             }
+            else {
+                if (Rights::isEditTaskRights($list_id, $item_id)) {
+                    // Employee have task to edit this document
+                    $this->is_edit_rights = 1;
+                    $this->is_delete_rights = 0; // because document is in workflow, so cant delete it
+                }
+                else {
+                    $is_item_editable_wf = Rights::getIsEditRightsOnItem($list_id, $item_id); // Check if not in workflow and not status finished
 
-            $this->is_delete_rights = $right->is_delete_rights;
-            $this->is_edit_rights = $right->is_edit_rights;
+                    if (!$is_item_editable_wf) {
+                        // Workflow is in process or finished - user does not have rights to edit/delete
+                        $this->is_edit_rights = 0;
+                        $this->is_delete_rights = 0;
+                        $this->form_is_edit_mode = 0;
+                    }
+                    else {
+                        // set rights acording to register role
+                        $this->is_delete_rights = $right->is_delete_rights;
+                        $this->is_edit_rights = $right->is_edit_rights;
+                    }
+                }
+                
+            }            
 
             if ($right->is_edit_rights) {
                 $this->is_disabled = 0; // var rediģēt, pēc noklusēšanas ir ka nevar
             }
+            
+            if (!$right->is_edit_rights && !$right->is_new_rights) {
+                $this->form_is_edit_mode = 0; // readonly
+            }
         }
-
+        
         $this->setFormEditMode($item_id);
     }       
     
@@ -467,20 +498,7 @@ class FormController extends Controller
     {
         $tbl = FormSave::getFormTable($form_id);
 
-        $right = Rights::getRightsOnList($tbl->list_id);
-
-        if ($right == null) {
-            throw new Exceptions\DXCustomException(trans('errors.no_rights_on_register'));
-        }
-        else {
-            if ($item_id > 0 && $right->is_edit_rights == 0) {
-                throw new Exceptions\DXCustomException(trans('errors.no_rights_to_edit'));
-            }
-
-            if ($item_id == 0 && $right->is_new_rights == 0) {
-                throw new Exceptions\DXCustomException(trans('errors.no_rights_to_insert'));
-            }
-        }
+        Rights::checkListItemEditRights($tbl->list_id, $item_id);
     }
 
     /**

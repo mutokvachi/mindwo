@@ -62,7 +62,9 @@ gulp.task('mix_all', function() {
         
         // horizontal menu UI styles                
         mix.less([
-            'horizontal_menu.less'
+            'horizontal_ui.less',
+            'bootstrap_menu.less',
+            'multilevel_menu.less'
         ], 'public/css/elix_mindwo_horizontal.css');
 
         // Scripts for horizontal menu UI

@@ -169,7 +169,7 @@
                                 </a>
                                 <ul class="dropdown-menu extended tasks">
                                     <li class="external">
-                                        <h3>{{ trans("frame.tasks") }}
+                                        <h3>{{ trans("frame.tasks") }}:
                                             <span class="bold">{{ $user_tasks_count }}</span></h3>
                                         <a href="{{Request::root()}}/skats_aktualie_uzdevumi">{{ trans("frame.open") }}</a>
                                     </li>                                

@@ -46,14 +46,41 @@ var HMenuUI = function()
     };
     
     /**
+     * Repositionate page content and employees search pane
+     * 
+     * @returns {undefined}
+     */
+    var setContentMargin = function() {
+        
+        var menu_w = $(".navbar-fixed-top").outerWidth() - $("#dx-search-box-top-li").outerWidth()-40;
+        
+        $(".dx-main-menu").css("max-width", menu_w + "px");
+        
+        var height = $(".navbar-fixed-top").outerHeight() + "px";
+        
+        $(".dx-page-container").css("margin-top", height);
+        
+        $(".dx-employees-quick").css("top", height, "important");
+        
+    };
+    
+    var hideErrorImages = function() {
+        $("img").error(function () { 
+            $(this).hide();
+            setContentMargin();
+        });  
+    };
+    
+    /**
      * Inits horizontal menu page UI
      * 
      * @returns {undefined}
      */
     var initUI = function() {
-        
-       setActiveMenu();        
-        
+       hideErrorImages(); 
+       setActiveMenu();
+       setContentMargin();
+       PageMain.addResizeCallback(setContentMargin); 
     };
 
     return {

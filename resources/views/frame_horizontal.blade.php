@@ -124,7 +124,7 @@
                 @endif
         </div>
         <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
+          <ul class="nav navbar-nav navbar-right dx-top-right-menu">
             @if (Auth::check() && Auth::user()->id != Config::get('dx.public_user_id',0))
 
                 <!-- BEGIN USER LOGIN DROPDOWN -->
@@ -136,8 +136,8 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-default">                        
                         <li>
-                            <a href="javascript:;" title="{{ trans("frame.password_change") }}" class="dx-user-change-passw-link">
-                                <i class="fa fa-key"></i> {{ trans("frame.password_change") }} </a>
+                            <a href="javascript:;" class="dx-user-change-passw-link">
+                                <i class="fa fa-key dx-user-menu"></i> {{ trans("frame.password_change") }} </a>
                         </li>                       
                     </ul>
                 </li>
@@ -146,18 +146,11 @@
 
                @if ($user_tasks_count > 0)
                     <!-- BEGIN TODO DROPDOWN -->
-                    <li class="dropdown dropdown-extended dropdown-tasks hidden-xs hidden-sm" id="dx_tasks_count_li">
-                        <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                    <li class="dropdown" id="dx_tasks_count_li">
+                        <a href="{{Request::root()}}/skats_aktualie_uzdevumi" class="dropdown-toggle top-link" title="{{ trans("frame.tasks") }}">
                             <i class="fa fa-calendar"></i>
-                            <span class="badge badge-default" id="dx_tasks_count_badge"> {{ $user_tasks_count }} </span>
+                            <div class="badge bg-red-soft" id="dx_tasks_count_badge"> {{ $user_tasks_count }} </div>
                         </a>
-                        <ul class="dropdown-menu extended tasks">
-                            <li class="external">
-                                <h3>{{ trans("frame.tasks") }}
-                                    <span class="bold">{{ $user_tasks_count }}</span></h3>
-                                <a href="{{Request::root()}}/skats_aktualie_uzdevumi">{{ trans("frame.open") }}</a>
-                            </li>                                
-                        </ul>
                     </li>
                     <!-- END TODO DROPDOWN -->
                 @endif
@@ -170,7 +163,7 @@
                 
                 <li class="dropdown">
                     <a href="{{Request::root()}}/logout" title="{{ trans("frame.logout") }}" class="top-link">
-                        <i class="fa fa-sign-out"></i> {{ trans("frame.logout") }} 
+                        <i class="fa fa-sign-out"></i> 
                     </a>
                 </li>
 
@@ -180,7 +173,7 @@
       </div>
       <div class="container-fluid" style='background-color: #2D5F8B;'>
           <nav class="navbar navbar-default" role="navigation">
-            <ul class="nav navbar-nav">
+            <ul class="nav navbar-nav dx-main-menu">
                 {!! $menu_htm !!}
             </ul>
             <ul class="nav navbar-nav pull-right">
