@@ -189,7 +189,7 @@ return [
         /**
          * JavaScript localization https://github.com/rmariuzzo/Laravel-JS-Localization
          */
-       // Mariuzzo\LaravelJsLocalization\LaravelJsLocalizationServiceProvider::class,
+        Mariuzzo\LaravelJsLocalization\LaravelJsLocalizationServiceProvider::class,
     ],
 
     /*
