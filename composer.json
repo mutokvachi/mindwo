@@ -57,6 +57,7 @@
     },
     "scripts": {
         "post-install-cmd": [
+            "php -r \"copy('config/app.example.php', 'config/app.php');\"",
             "php artisan clear-compiled",
             "php artisan optimize"
         ],
@@ -64,6 +65,7 @@
             "php artisan clear-compiled"
         ],
         "post-update-cmd": [
+            "php -r \"copy('config/app.example.php', 'config/app.php');\"",
             "git -C vendor/mindwo/pages pull origin master",
             "php artisan vendor:publish --tag=setup --force",
             "Illuminate\\Foundation\\ComposerScripts::postUpdate",

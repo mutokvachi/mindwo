@@ -164,6 +164,32 @@ return [
         App\Providers\AppServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        
+        /**
+         * Database backup service provider
+         */
+        Spatie\Backup\BackupServiceProvider::class,
+        
+        /**
+         * Universal component for portal and cms common functionality
+         */
+        mindwo\pages\ServiceProviders\PagesServiceProvider::class,
+        mindwo\pages\ServiceProviders\HelpersServiceProvider::class,
+        
+        /**
+         * File browser
+         */
+        Pqb\FilemanagerLaravel\FilemanagerLaravelServiceProvider::class,
+        
+        /**
+         * PDF generator service provider
+         */
+        Barryvdh\Snappy\ServiceProvider::class,
+        
+        /**
+         * JavaScript localization https://github.com/rmariuzzo/Laravel-JS-Localization
+         */
+        Mariuzzo\LaravelJsLocalization\LaravelJsLocalizationServiceProvider::class,
     ],
 
     /*
@@ -210,7 +236,11 @@ return [
         'Storage'   => Illuminate\Support\Facades\Storage::class,
         'URL'       => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
-        'View'      => Illuminate\Support\Facades\View::class
+        'View'      => Illuminate\Support\Facades\View::class,
+        'Image'     => 'mindwo\pages\Facades\Image',
+        'Excel'     => 'Maatwebsite\Excel\Facades\Excel',
+        'Image'     => 'mindwo\pages\Facades\Image',
+        'FilemanagerLaravel' => 'Pqb\FilemanagerLaravel\Facades\FilemanagerLaravel',
     ],
 
 ];
