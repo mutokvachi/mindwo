@@ -1,6 +1,10 @@
 @extends('frame')
 
 @section('main_custom_css')
+  <link href="{{Request::root()}}/plugins/tree/themes/default/style.min.css" rel="stylesheet" />
+  <link href="{{Request::root()}}/metronic/global/plugins/bootstrap-colorpicker/css/colorpicker.css" rel="stylesheet" type="text/css" />
+  <link href="{{Request::root()}}/plugins/select2/select2.css" rel="stylesheet" />
+  <link href= "{{ elixir('css/elix_view.css') }}" rel="stylesheet" />
   <style type="text/css">
     .freeform .inline .form-control {
       display: inline-block;
@@ -18,23 +22,41 @@
 @endsection
 
 @section('main_custom_javascripts')
+  <script src='{{Request::root()}}/{{ getIncludeVersion('plugins/tinymce/tinymce.min.js') }}' type='text/javascript'></script>
+  <script src="{{ elixir('js/elix_view.js') }}" type='text/javascript'></script>
   <script>
+    /**
+     * FreeForm - a jQuery plugin for working with arbitrary forms
+     *
+     * @param root
+     * @returns {*}
+     * @constructor
+    */
     $.fn.FreeForm = function(root)
     {
       return this.each(function(){
         new $.FreeForm(this);
       });
     };
-    
+
+    /**
+     * FreeForm constructor
+     *
+     * @param root
+     * @constructor
+    */
     $.FreeForm = function(root)
     {
       $.data(root, 'FreeForm', this);
       var self = this;
       this.root = $(root);
       this.fields = $('[data-name]', this.root);
+      this.originalData = {};
       this.editButton = $('.dx-edit-general', this.root);
       this.saveButton = $('.dx-save-general', this.root);
       this.cancelButton = $('.dx-cancel-general', this.root);
+      
+      // Bind callbacks to buttons
       this.editButton.click(function() {
         self.edit();
       });
@@ -45,30 +67,37 @@
         self.cancel();
       });
     };
-    
+
+    /**
+     * FreeForm methods
+     */
     $.extend($.FreeForm.prototype, {
-      show: function() {
-        
-      },
-      
+      /**
+       * Replace HTML with form input fields
+       */
       edit: function() {
         var self = this;
+        
+        // a structure for JSON request
         var request = {
           model: this.root.data('model'),
           item_id: this.root.data('item_id'),
           list_id: this.root.data('list_id'),
           fields: []
         };
+        
+        // collect names of input fields marked with data-name attribute
         this.fields.each(function() {
+          self.originalData[$(this).data('name')] = $(this).html();
           request.fields.push({
-            name: $(this).data('name'),
-            type: $(this).data('type')
+            name: $(this).data('name')
           });
         });
   
+        // perform a request to the server
         $.ajax({
           type: 'POST',
-          url: DX_CORE.site_url + 'freeform/' + request.id + '/edit',
+          url: DX_CORE.site_url + 'freeform/' + request.item_id + '/edit',
           dataType: 'json',
           data: request,
           success: function(data)
@@ -76,6 +105,8 @@
             self.editButton.hide();
             self.saveButton.show();
             self.cancelButton.show();
+            
+            // replace original html content of marked elements with input fields
             for(var i = 0; i < data.fields.length; i++)
             {
               var name = data.fields[i].name;
@@ -93,18 +124,69 @@
         });
       },
       
+      /**
+       * Submit input field values to the server
+       */
       save: function() {
-        this.editButton.show();
-        this.saveButton.hide();
-        this.cancelButton.hide();
-        this.show();
+        var self = this;
+        
+        // JSON structure
+        var request = {
+          model: this.root.data('model'),
+          item_id: this.root.data('item_id'),
+          list_id: this.root.data('list_id'),
+          fields: []
+        };
+        
+        // collect values of input fields
+        this.fields.each(function() {
+          request.fields.push({
+            name: $(this).data('name'),
+            data: $(this).find('[name]').val()
+          });
+        });
+        
+        // submit a request
+        $.ajax({
+          type: 'POST',
+          url: DX_CORE.site_url + 'freeform/' + request.item_id + '?_method=PUT',
+          dataType: 'json',
+          data: request,
+          success: function(data)
+          {
+            self.editButton.show();
+            self.saveButton.hide();
+            self.cancelButton.hide();
+            
+            // replace input fields with html data from server response
+            for(var i = 0; i < data.fields.length; i++)
+            {
+              var name = data.fields[i].name;
+              var html = data.fields[i].html;
+              var elem = $('[data-name="' + name + '"]', self.root);
+              if(elem.length)
+                elem.html(html);
+            }
+          },
+          error: function(jqXHR, textStatus, errorThrown)
+          {
+            console.log(textStatus);
+            console.log(jqXHR);
+          }
+        });
       },
-      
+  
+      /**
+       * Remove input fields and display original HTML
+       */
       cancel: function() {
+        var self = this;
         this.editButton.show();
         this.saveButton.hide();
         this.cancelButton.hide();
-        this.show();
+        this.fields.each(function() {
+          $(this).html(self.originalData[$(this).data('name')]);
+        });
       }
     });
     
@@ -143,19 +225,19 @@
           <div class="col-xs-12 col-sm-9 col-md-9">
             <div class="employee-details-1">
               <a href="javascript:;" class="btn btn-circle btn-default {{ $avail['class'] }} pull-right" title="{{ $avail['title'] }}"> {{ $avail['button'] }} </a>
-              <h4><span data-name="first_name" class="inline">{{ $employee->first_name }}</span> <span data-name="last_name" class="inline">{{ $employee->last_name }}</span></h4>
-              <span data-name="position_title"><a href="#" class="dx_position_link"> {{ $employee->position_title }}</a></span><br>
-              <span data-name="department_id"><a href="#" class="small dx_department_link">{{ $employee->department->title }}</a></span><br><br>
+              <h4><span class="inline" data-name="first_name">{{ $employee->first_name }}</span> <span class="inline" data-name="last_name">{{ $employee->last_name }}</span></h4>
+              <span><a href="#" class="dx_position_link"> {{ $employee->position_title }}</a></span><br>
+              <span><a href="#" class="small dx_department_link">{{ $employee->department->title }}</a></span><br><br>
               <div class="text-left">
-                <span data-name="email" class="inline"><a href="mailto:{{ $employee->email }}">{{ $employee->email }}</a></span><br>
-                <span data-name="phone" class="inline">{{ $employee->phone }}</span><br><br>
+                <span><a href="mailto:{{ $employee->email }}">{{ $employee->email }}</a></span><br>
+                <span>{{ $employee->phone }}</span><br><br>
                 <p style="margin-bottom: 0px;">
                   @if($employee->country && $employee->country->flag_file_guid)
                     <img src="{{ $employee->country->getFlag() }}" title="{{ $employee->country->flag_file_name }}" style="margin-top: 1px;"/>
                   @else
                     <img src="/assets/global/flags/en.png" title="English" style="margin-top: 1px;"/>
                   @endif
-                  <span title="Employee location" class="pull-right"><i class="fa fa-map-marker"></i> <span data-name="location_city" class="inline">{{ $employee->location_city }}</span>, <span data-name="country_id" class="inline">{{ $employee->country ? $employee->country->title : 'N/A' }}</span></span>
+                  <span title="Employee location" class="pull-right"><i class="fa fa-map-marker"></i> <span>{{ $employee->location_city }}</span>, <span>{{ $employee->country ? $employee->country->title : 'N/A' }}</span></span>
                 </p>
               </div>
             </div>

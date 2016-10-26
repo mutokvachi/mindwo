@@ -127,7 +127,42 @@ class FreeFormController extends FormController
 	 */
 	public function update(Request $request, $id)
 	{
-		//
+		$result = [];
+		
+		$class = $request->input('model');
+		$model = $class::find($id);
+		$item_id = $request->input('item_id');
+		$list_id = $request->input('list_id');
+		$params = $this->getFormParams($list_id);
+		$this->setFormsRightsMode($list_id, $item_id);
+		$fields = $this->getFormFields($params);
+		
+		$fieldset = [];
+		
+		foreach($request->input('fields') as $f)
+		{
+			$fieldset[$f['name']] = $f['data'];
+		}
+		
+		foreach($fields as $row)
+		{
+			if(!in_array($row->db_name, array_keys($fieldset)))
+			{
+				continue;
+			}
+			
+			$name = $row->db_name;
+			$model->$name = $fieldset[$name];
+			
+			$result['fields'][] = [
+				'name' => $name,
+				'html' => $model->$name
+			];
+		}
+		
+		$model->save();
+		
+		return response($result);
 	}
 	
 	/**

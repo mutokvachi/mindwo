@@ -133,6 +133,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'employee'], function() {
 
 Route::group(['middleware' => 'auth_ajax', 'prefix' => 'freeform'], function() {
 	Route::post('{id}/edit', 'FreeFormController@edit');
+	Route::put('{id}', 'FreeFormController@update');
 });
 
 // Lapas
