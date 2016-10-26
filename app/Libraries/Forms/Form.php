@@ -2,100 +2,259 @@
 
 namespace App\Libraries\Forms;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Exceptions;
+use App\Libraries\Rights;
+use App\Libraries\FormField;
+use App\Libraries\Workflows;
+use Webpatser\Uuid\Uuid;
+use PDO;
 
 class Form
 {
-	protected $listId, $params;
+	public $tabList = [];
+	public $disabled = false;
+	public $editMode = false;
+	protected $listId;
+	protected $itemId;
+	protected $formUid;
+	protected $tabUid;
+	protected $params;
+	protected $formFields;
+	protected $itemData;
+	protected $editable;
+	protected $canEdit;
+	protected $canDelete;
+	protected $tabsData;
 	
-	public function __construct($listId)
+	public function __construct($listId, $itemId = null)
 	{
 		$this->listId = $listId;
+		$this->itemId = $itemId;
+		$this->formUid = Uuid::generate(4);
+		$this->tabUid = Uuid::generate(4);
 		$this->params = $this->getFormParams();
+		$this->formFields = $this->getFormFields();
+		$this->editable = Rights::getIsEditRightsOnItem($this->listId, $this->itemId);
+		
+		if($this->itemId)
+		{
+			$this->itemData = $this->getFormItemDataRow();
+		}
+	}
+	
+	static public function create($listId, $itemId)
+	{
+		return new self($listId, $itemId);
 	}
 	
 	public function render()
 	{
+		$result = view('elements.form', [
+			'frm_uniq_id' => $this->formUid,
+			'form_title' => $this->params->form_title,
+			'fields_htm' => $this->renderFields(),
+			'tab_id' => $this->tabUid,
+			'tabs_htm' => $this->renderTabs(),
+			'form_id' => $this->params->form_id,
+			'grid_htm_id' => '',
+			'list_id' => $this->listId,
+			'item_id' => $this->itemId,
+			'parent_field_id' => 0,
+			'parent_item_id' => 0,
+			'is_multi_registers' => $this->params->is_multi_registers,
+			'js_code' => DB::table('dx_forms_js')->where('form_id', '=', $this->params->form_id)->get(),
+			
+			// Formai norādītie JavaScript
+			'js_form_id' => str_replace("-", "_", $this->formUid), // Formas GUID bez svītriņām, izmantojams JavaScript funkcijās kā mainīgais
+			
+			// if form is related to lookup or dropdown field from parent form
+			'call_field_htm_id' => '',
+			'call_field_type' => '',
+			'call_field_id' => 0,
+			
+			'parent_form_htm_id' => '',
+			
+			'form_badge' => '',
+			'is_form_reloaded' => 1,
+			'form_width' => $this->params->width,
+			
+			// Pogu pieejamība un rediģēšanas režīms
+			'form_is_edit_mode' => $this->editMode,
+			'is_disabled' => $this->disabled,
+			'is_edit_rights' => $this->canEdit,
+			'is_delete_rights' => $this->canDelete,
+			'is_info_tasks_rights' => false, // ($table_name == "dx_doc"),
+			'workflow_btn' => 0, // $this->isWorkflowInit($this->listId, $this->itemId), // Uzstāda pazīmi, vai redzama darbplūsmu poga
+			'is_custom_approve' => 0, // ($this->workflow && $this->workflow->is_custom_approve) ? 1 : 0,
+			'is_editable_wf' => $this->editable,
+			'is_word_generation_btn' => 0, // $this->getWordGenerBtn($list_id),
+			'info_tasks' => [],
+		])->render();
 		
+		return $result;
 	}
 	
-	protected function getFormFieldsHTML($frm_uniq_id, $list_id, $item_id, $parent_item_id, $parent_field_id, $params)
+	protected function renderFields()
 	{
-		$row_data = null;
+		$result = '';
 		
-		if($item_id > 0)
+		foreach($this->formFields as $row)
 		{
-			$row_data = $this->getFormItemDataRow($list_id, $item_id, $params);
-		}
-		
-		$fields = $this->getFormFields($params);
-		
-		$fields_htm = "";
-		
-		$binded_field_id = 0;
-		$binded_rel_field_id = 0;
-		$binded_rel_field_value = 0;
-		
-		foreach($fields as $row)
-		{
-			if($row->db_name == "id" && $item_id == 0)
+			// skip ID field for new item form
+			if($row->db_name == "id" && !$this->itemId)
 			{
-				// skip ID field for new item form
 				continue;
 			}
 			
-			$fld_obj = new FormField($row, $list_id, $item_id, $parent_item_id, $parent_field_id, $row_data,
-				$frm_uniq_id);
-			$fld_obj->is_disabled_mode = $this->is_disabled;
-			
-			$fld_obj->binded_field_id = $binded_field_id;
-			$fld_obj->binded_rel_field_id = $binded_rel_field_id;
-			$fld_obj->binded_rel_field_value = $binded_rel_field_value;
-			
-			$fld_obj->is_editable_wf = $this->is_editable_wf;
+			$field = new FormField($row, $this->listId, $this->itemId, 0, 0, $this->itemData, $this->formUid);
+			$field->is_disabled_mode = $this->disabled;
+			$field->is_editable_wf = $this->editable;
 			
 			if($row->tab_id)
 			{
-				if(!isset($this->arr_data_tabs[$row->tab_id]))
+				if(!isset($this->tabsData[$row->tab_id]))
 				{
-					$this->arr_data_tabs[$row->tab_id] = "";
+					$this->tabsData[$row->tab_id] = '';
 				}
-				$this->arr_data_tabs[$row->tab_id] .= $fld_obj->get_field_htm();
+				
+				$this->tabsData[$row->tab_id] .= $field->get_field_htm();
 			}
 			else
 			{
-				$fields_htm .= $fld_obj->get_field_htm();
+				$result .= $field->get_field_htm();
 			}
-			
-			$binded_field_id = $fld_obj->binded_field_id;
-			$binded_rel_field_id = $fld_obj->binded_rel_field_id;
-			$binded_rel_field_value = $fld_obj->binded_rel_field_value;
 		}
 		
-		return $fields_htm;
+		return $result;
 	}
 	
-	protected function getFormItemDataRow($list_id, $item_id, $params)
+	protected function renderTabs()
 	{
-		$fields_rows = $this->getFormSQLFields($list_id);
+		$result = "";
+		
+		$tabs = $this->getFormTabs();
+		
+		if(count($tabs))
+		{
+			foreach($tabs as $tab)
+			{
+				$tab->data_htm = "";
+				if($tab->is_custom_data && isset($this->tabsData[$tab->id]))
+				{
+					$tab->data_htm = $this->tabsData[$tab->id];
+				}
+			}
+			
+			$view_type = ($this->params->is_vertical_tabs) ? "elements.tabs_vert" : "elements.tabs";
+			
+			$result = view($view_type, [
+				'tab_id' => $this->tabUid,
+				'tabs_items' => $tabs,
+				'frm_uniq_id' => $this->formUid,
+				'item_id' => $this->itemId
+			])->render();
+		}
+		
+		return $result;
+	}
+	
+	protected function getFormItemDataRow()
+	{
+		$fields_rows = $this->getFormSQLFields();
 		
 		if(count($fields_rows) == 0)
 		{
-			throw new Exceptions\DXCustomException("Reģistrs ar ID " . $list_id . " nav atrasts!");
+			throw new Exceptions\DXCustomException("Reģistrs ar ID " . $this->listId . " nav atrasts!");
 		}
 		
 		DB::setFetchMode(PDO::FETCH_ASSOC); // We need to get values dynamicly
 		
-		$rows = $this->getFormItemRows($fields_rows, $params, $item_id);
+		$rows = $this->getFormItemRows($fields_rows);
 		
 		DB::setFetchMode(PDO::FETCH_CLASS); // Set back default fetch mode
 		
 		if(count($rows) == 0)
 		{
-			throw new Exceptions\DXCustomException("Reģistra ar ID " . $list_id . " ieraksts ar ID " . $item_id . " nav atrasts!");
+			throw new Exceptions\DXCustomException("Reģistra ar ID " . $this->listId . " ieraksts ar ID " . $this->itemId . " nav atrasts!");
 		}
 		
 		return $rows[0];
+	}
+	
+	protected function getFormItemRows($fields_rows)
+	{
+		$arr_flds = array();
+		
+		foreach($fields_rows as $row)
+		{
+			if($row->sys_name == "datetime")
+			{
+				array_push($arr_flds,
+					DB::raw("DATE_FORMAT(" . $row->db_name . ",'%d.%m.%Y %H:%i') as " . $row->db_name));
+			}
+			else
+			{
+				if($row->sys_name == "date")
+				{
+					array_push($arr_flds, DB::raw("DATE_FORMAT(" . $row->db_name . ",'%d.%m.%Y') as " . $row->db_name));
+				}
+				else
+				{
+					if($row->sys_name == "file")
+					{
+						array_push($arr_flds, $row->db_name);
+						array_push($arr_flds, str_replace("_name", "_guid", $row->db_name));
+					}
+					else
+					{
+						array_push($arr_flds, $row->db_name);
+					}
+				}
+			}
+		}
+		
+		return DB::table($this->params->list_obj_db_name)
+			->select($arr_flds)
+			->where('id', '=', $this->itemId)
+			->get();
+	}
+	
+	protected function setFormsRightsMode()
+	{
+		$right = Rights::getRightsOnList($this->listId);
+		
+		if($right == null)
+		{
+			if($this->itemId == 0 || !Workflows\Helper::isRelatedTask($this->listId, $this->itemId))
+			{
+				throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību šajā reģistrā!");
+			}
+			
+			// var vismaz skatīties ieraksta kartiņu
+			if($this->isRelatedEditableTask($list_id, $item_id))
+			{
+				$this->disabled = 0; // var rediģēt ierakstu
+			}
+		}
+		else
+		{
+			if($this->itemId == 0 && $right->is_new_rights == 0)
+			{
+				throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību veidot jaunu ierakstu šajā reģistrā!");
+			}
+			
+			$this->canDelete = $right->is_delete_rights;
+			$this->canEdit = $right->is_edit_rights;
+			
+			if($right->is_edit_rights)
+			{
+				$this->disabled = 0; // var rediģēt, pēc noklusēšanas ir ka nevar
+			}
+		}
+		
+		$this->setFormEditMode($item_id);
 	}
 	
 	protected function getFormFields()
@@ -160,6 +319,35 @@ class Form
 		}
 		
 		return $fields;
+	}
+	
+	protected function getFormTabs()
+	{
+		$sql = "
+			SELECT 
+				* 
+			FROM 
+				dx_forms_tabs 
+			WHERE 
+				form_id = :form_id 
+				AND (
+						grid_list_id is null 
+					OR  grid_list_id in 
+						(
+						select distinct 
+							rl.list_id 
+						from 
+							dx_users_roles ur 
+							inner join dx_roles_lists rl on ur.role_id = rl.role_id 
+						where 
+							ur.user_id = :user_id
+						)
+					) 
+			ORDER BY 
+				order_index
+			";
+		
+		return DB::select($sql, array("form_id" => $this->params->form_id, 'user_id' => Auth::user()->id));
 	}
 	
 	protected function getFormParams()
