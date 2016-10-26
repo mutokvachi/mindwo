@@ -13,7 +13,8 @@ var reLogin = window.reLogin = {
         var request = new FormAjaxRequest(ajax_url, "", "", formData);
 
         request.callback = function (result) {
-            notify_info(DX_CORE.trans_data_saved);
+            var successMsg = reLogin.auth_popup.attr('data-success');
+            notify_info(successMsg);
             $("#popup_authorization").modal("hide");
             reLogin.updateToken(result.token);
         };
@@ -75,12 +76,14 @@ var reLogin = window.reLogin = {
 
     // Define overriding method.
     jQuery.ajax = function (data) {
+        
         // Execute the original method.
         var callMethod = originalPostMethod.apply(this, arguments);
 
-        callMethod.error(function (result) {
+        callMethod.error(function (result) {            
             // Check for 401 (Unautorized) status
             if (result.status === 401) {
+                //console.log(result);
                 reLoginModal.modal("show");
             }
         });

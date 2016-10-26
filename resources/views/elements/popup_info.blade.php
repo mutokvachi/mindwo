@@ -18,7 +18,7 @@
 </div>
 
 
-<div class="modal fade" aria-hidden="true" id="popup_authorization" role="dialog" aria-hidden="true" data-backdrop="static" style="z-index: 999999;">
+<div class="modal fade" aria-hidden="true" id="popup_authorization" role="dialog" aria-hidden="true" data-backdrop="static" data-success="{{ trans("relogin_form.success_msg") }}" data-error="{{ trans("relogin_form.error_msg") }}" style="z-index: 999999;">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
             @include('elements.form_header',['form_title' => trans("relogin_form.form_title"), 'badge' => ''])
@@ -28,7 +28,7 @@
                     <div class="col-md-12">
                         <div class="portlet" style="margin-bottom: 0px;">
                             <div class="portlet-body form">
-                                <div class="note note-success">
+                                <div class="note note-danger" style="border-left: 5px solid #f0868e">
                                     <p>{{ trans("relogin_form.info") }}</p>
                                 </div>
                                 <form id="reLoginForm">
