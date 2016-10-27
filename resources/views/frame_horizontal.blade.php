@@ -123,12 +123,12 @@
                 </a>
                 @endif
         </div>
-        <div id="navbar" class="navbar-collapse collapse">
+        <div>
           <ul class="nav navbar-nav navbar-right dx-top-right-menu">
             @if (Auth::check() && Auth::user()->id != Config::get('dx.public_user_id',0))
 
                 <!-- BEGIN USER LOGIN DROPDOWN -->
-                <li class="dropdown dropdown-user" style="padding: 0 0px; margin-left: 26px;">
+                <li class="dropdown dropdown-user" style="padding: 0 0px;">
                     <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
                         <img src="{{Request::root()}}/formated_img/small_avatar/{{ (Auth::user()->picture_guid) ? Auth::user()->picture_guid : get_portal_config('EMPLOYEE_AVATAR') }}" class="img-circle" alt="{{ Auth::user()->display_name }}" style="width: 24px;"/>
                         <span class="username username-hide-on-mobile"> {{ Auth::user()->display_name }} </span>
@@ -172,7 +172,7 @@
         </div>
       </div>
       <div class="container-fluid" style='background-color: #2D5F8B;'>
-          <nav class="navbar navbar-default" role="navigation">
+          <nav id="navbar" class="navbar navbar-default navbar-collapse collapse" role="navigation">
             <ul class="nav navbar-nav dx-main-menu">
                 {!! $menu_htm !!}
             </ul>

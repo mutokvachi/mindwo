@@ -2,6 +2,8 @@
 Horizontal menu UI
 */
 
+@import "menu_colors.less";
+
 /*!
 * IE10 viewport hack for Surface/desktop Windows 8 bug
 * Copyright 2014-2015 Twitter, Inc.
@@ -39,7 +41,7 @@ body {
 }
 
 // Adjust TOP links height
-#navbar a.top-link {
+.navbar-fixed-top a.top-link {
     min-height: 54px;
     padding-top: 18px;
 }
@@ -136,4 +138,13 @@ body {
 /*remove double scrollbar*/
 .modal.fade {
     overflow: hidden!important;
+}
+
+// Menu toggle button
+button.navbar-toggle {
+    background-color: @bgDefault!important;
+}
+
+button.navbar-toggle span.icon-bar {
+    background-color: @colDefault!important;
 }
