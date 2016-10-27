@@ -26,8 +26,6 @@ return [
     
     'placeholder_password' => 'Parole',
     
-    'password_data_error' => 'Parolei jābūt vismaz 8 simboliem',
-    
     'login' => 'Autorizēties',
     
     'version' => 'Versija 3.0, &copy; 2012 - 2016',

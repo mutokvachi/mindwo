@@ -62,9 +62,9 @@ class OpenLDAP
 
     /**
      * Authenticate user using OpenLDAP
-     * @param type $user_row Data row containign users data
-     * @param type $user_name users login name
-     * @param type $user_password User password
+     * @param \App\User $user_row Data row containign users data
+     * @param string $user_name users login name
+     * @param string $user_password User password
      * @return boolean Result if authentication succeeded
      */
     public function auth($user_row, $user_name, $user_password)
@@ -73,7 +73,6 @@ class OpenLDAP
             return false;
         } 
         
-        // Establishing connection to LDAP server
         $conn = ldap_connect($this->ldap_host, $this->ldap_port);
 
         // PHP Fatal error here means that you need to install php-ldap extension
@@ -82,12 +81,10 @@ class OpenLDAP
             return false;
         }
 
-        // Setting protocol version
         ldap_set_option($conn, LDAP_OPT_PROTOCOL_VERSION, 3);
 
         $user_dn = $this->ldap_account_prefix . $user_name . $this->ldap_account_suffix;
 
-        // Bind to LDAP server
         if (ldap_bind($conn, $user_dn, $user_password)) {
             return $this->prepareAuthorization($conn, $user_row, $user_dn, $user_name);
         } else {

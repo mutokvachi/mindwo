@@ -7,7 +7,7 @@ return [
     /**
      * Open LDAP host address
      */
-    'host' => env('OPENLDAP_HOST', 'ldaps://test.test.com'),
+    'host' => env('OPENLDAP_HOST', 'ldaps://example.com'),
     
     /**
      * Oppen LDAP connection port
@@ -22,7 +22,7 @@ return [
     /**
      * Accoutn suffix which is added in the end of given user name. This is used when authenticating user. 
      */
-    'account_suffix' => env('OPENLDAP_ACCOUNT_SUFFIX', ',ou=Users,domainName=test.com,o=domains,dc=9009,dc=in'),
+    'account_suffix' => env('OPENLDAP_ACCOUNT_SUFFIX', ',ou=Users,domainName=example.com,o=domains,dc=9009,dc=in'),
     
     /**
      * Root DN
