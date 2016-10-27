@@ -21,9 +21,9 @@
         <div class="input-group-btn">
             <button id="search_dropd" type="button" class="btn btn-default dropdown-toggle green-soft" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><b id="search_title">{{ trans("search_top.employees") }}</b> <span class="caret"></span></button>
           <ul class="dropdown-menu">
-            <!--<li class="searchTypeItem"><a href="#">{{ trans("search_top.documents") }}</a></li>-->
+            <li class="searchTypeItem"><a href="#">{{ trans("search_top.documents") }}</a></li>
             <li class="searchTypeItem"><a href="#">{{ trans("search_top.employees") }}</a></li>            
-            <!--<li class="searchTypeItem"><a href="#">{{ trans("search_top.news") }}</a></li>-->
+            <li class="searchTypeItem"><a href="#">{{ trans("search_top.news") }}</a></li>
           </ul>
         </div>
         

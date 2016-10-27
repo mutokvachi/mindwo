@@ -103,7 +103,7 @@ body {
   padding-top: 20px;
 }
 .dx-block-container-view {
-  margin-top: 20px;
+  margin-top: 0px;
 }
 .dx-top-right-menu li.dropdown i:not(.dx-user-menu) {
   color: #e4e4e4;

@@ -2,9 +2,6 @@
 /node_modules
 /nbproject
 /logs
-/config/dx.php
-/config/assets.php
-/config/database.php
 .env
 *.idea
 *.zip

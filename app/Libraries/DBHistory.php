@@ -7,7 +7,7 @@ namespace App\Libraries
     use PDO;
     use Auth;
     use \App\Exceptions;
-    
+    use Log;
     class DBHistory
     {
         /**
@@ -238,11 +238,14 @@ namespace App\Libraries
          */
         private function compareFieldVal($field, $current_arr)
         {
-            if (!isset($this->data_arr[":" . $field->db_name])) {
+            Log::info("FLD: " . $field->db_name);
+            if (!array_key_exists(":" . $field->db_name, $this->data_arr)) {
+                Log::info("NOT set");
                 return; // Lauks nav iekļauts formas datos, nav izmaiņu ko salīdzināt
             }
             
             if ($this->data_arr[":" . $field->db_name] == $current_arr[$field->db_name]) {
+                Log::info("not changed | " . $this->data_arr[":" . $field->db_name] . " | "  . $current_arr[$field->db_name]);
                 return; // Lauka vērtība nav mainīta
             }
 
