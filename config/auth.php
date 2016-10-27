@@ -99,11 +99,12 @@ return [
         
     /*
     |--------------------------------------------------------------------------
-    | Neveiksmīgo paroļu ievades mēģinājumu skaits
+    | Allowed incorrect password attempt count
     |--------------------------------------------------------------------------
     |
-    | Norāda, cik reizes atļauts nepareizi ievadīt paroli. Pārsniedzot limitu, konts tiek bloķēts (minūtes atkarīgas no parametra temp_block_minutes)
-    | Pēc atbloķēšanas atkal ievadot nepareizu paroli, konts tiek neatgriezeniski bloķēts
+    | Determines how many times it is allowed to input wrong password.
+    | If limit is reached then user accoutn is blocked for specified time (parameter "temp_block_minutes")
+    | After account is unblocked  Pēc atbloķēšanas atkal ievadot nepareizu paroli, konts tiek neatgriezeniski bloķēts
     |
     */
     
@@ -111,13 +112,25 @@ return [
     
     /*
     |--------------------------------------------------------------------------
-    | Pagaidu konta bloķēšanas ilgums minūtēs
+    | Temporary account blocking in minutes
     |--------------------------------------------------------------------------
     |
-    | Pārsniedzot nepareizi ievadīto paroļu limitu, konts tiek uz laiku bloķēts - minūtes norāda ar šo parametru
+    | If user exceedes allowed authentication tries, then block account for specified time
     |
     */  
     
     'temp_block_minutes' => 5,
 
+    /**
+     * Authentication types 
+     * Avaialable options - 'OPENLDAP', 'DEFAULT', 'AD'
+     * Each type must be seperated with ';'. Example 'OPENLDAP;DEFAULT'
+     * Authentication is attempted in specified order.
+     */
+    'type' => env('AUTH_TYPE', 'DEFAULT'),
+    
+    /**
+     * If Active Directory or OpenLDAP authentication succeed but user doesn't exist then if this option is true, new user will be created
+     */
+    'create_user_if_not_exist' => env('AUTH_CREATE_USER_IF_NOT_EXIST', true)
 ];
