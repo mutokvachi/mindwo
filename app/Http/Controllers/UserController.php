@@ -329,11 +329,6 @@ class UserController extends Controller
      */
     private function authenticateDEFAULT(Request $request, $user_name, $password)
     {
-        $this->validate($request, [
-            'user_name' => 'required|min:3',
-            'password' => 'required|min:8'
-        ]);
-        
         $user_row = $this->getUserByLogin('login_name', $user_name);
         $this->checkAttempts($user_row);
 

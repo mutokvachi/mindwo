@@ -11,41 +11,42 @@ use \App\Libraries\Auth\AuthHelper;
  */
 class OpenLDAP
 {
+
     /**
-     * Open LDAP host address
+     * OpenLDAP host address
      * @var string 
      */
     protected $ldap_host;
 
     /**
-     * Oppen LDAP connection port
+     * OppenLDAP connection port
      * @var string 
      */
     protected $ldap_port;
 
     /**
-     * Open LDAP root DN
+     * OpenLDAP root DN
      * @var string 
      */
     protected $ldap_root_dn;
 
     /**
-     * Open LDAP password for accessing root DN
+     * OpenLDAP password for accessing root DN
      * @var string 
      */
     protected $ldap_root_password;
 
     /**
-     * Open LDAP Accoutn prefix which is added in the front of given user name. This is used when authenticating user.
+     * OpenLDAP's DN which is used to search for users. This is used when authenticating user. 
      * @var string 
      */
-    protected $ldap_account_prefix;
-
+    protected $ldap_search_dn;
+    
     /**
-     * Open LDAP Accoutn suffix which is added in the end of given user name. This is used when authenticating user. 
+     * OpenLDAP's filter which is used when system tries to find user's data (DN + information) for authentication
      * @var string 
      */
-    protected $ldap_account_suffix;
+    protected $ldap_search_filter;
 
     /**
      * Initiate class and retrieves requiered connection information from configuration files
@@ -56,8 +57,8 @@ class OpenLDAP
         $this->ldap_port = Config::get('open_ldap.port');
         $this->ldap_root_dn = Config::get('open_ldap.root_dn');
         $this->ldap_root_password = Config::get('open_ldap.root_password');
-        $this->ldap_account_prefix = Config::get('open_ldap.account_prefix');
-        $this->ldap_account_suffix = Config::get('open_ldap.account_suffix');
+        $this->ldap_search_dn = Config::get('open_ldap.search_dn');
+        $this->ldap_search_path = Config::get('open_ldap.search_path');
     }
 
     /**
@@ -69,39 +70,38 @@ class OpenLDAP
      */
     public function auth($user_row, $user_name, $user_password)
     {
-        if(empty($user_name) || empty($user_password)){
+        if (empty($user_name) || empty($user_password)) {
             return false;
-        } 
-        
+        }
+
         $conn = ldap_connect($this->ldap_host, $this->ldap_port);
 
         // PHP Fatal error here means that you need to install php-ldap extension
         // Invalid credentials
         if (!$conn) {
+            Log::error('Incorrect connection data for OpenLDAP');
             return false;
         }
 
         ldap_set_option($conn, LDAP_OPT_PROTOCOL_VERSION, 3);
 
-        $user_dn = $this->ldap_account_prefix . $user_name . $this->ldap_account_suffix;
-
-        if (ldap_bind($conn, $user_dn, $user_password)) {
-            return $this->prepareAuthorization($conn, $user_row, $user_dn, $user_name);
+        // First try to bind to OpenLDAP using root DN. Root bind will be used to find user's DN
+        if (ldap_bind($conn, $this->ldap_root_dn, $this->ldap_root_password)) {
+            return $this->authenticateLDAP($conn, $user_row, $user_name, $user_password);
         } else {
+            Log::error('Bind failed for OpenLDAP. Incorrect root DN username or password.');
             return false;
         }
     }
 
     /**
-     * Check if user got authenticated and then authorize user. 
+     * If user got authenticated then authorize user. 
      * Creates new user if user doesn't exist and if it is allowed to create user from LDAP user
-     * @param object $conn LDAP connection
      * @param \App\User $user_row Users data row to check if user exists
-     * @param string $user_dn Users DN path
-     * @param string $user_name Users login name which is his password
+     * @param array $user_ldap_data Users datat which are retrieved from LDAP
      * @return boolean Returns status if user has been authenticated
      */
-    private function prepareAuthorization($conn, $user_row, $user_dn, $user_name)
+    private function prepareAuthorization($user_row, $user_ldap_data)
     {
         if ($user_row) {
             AuthHelper::authorizeUser($user_row);
@@ -113,10 +113,33 @@ class OpenLDAP
             return false;
         }
 
+        $user_email = $user_ldap_data[0]['mail'][0];
+        $user_first_name = $user_ldap_data[0]['givenname'][0];
+        $user_last_name = $user_ldap_data[0]['sn'][0];
+        $user_position_title = $user_ldap_data[0]['title'][0];
+
+        $user = AuthHelper::getUser($user_email, $user_first_name, $user_last_name, $user_position_title);
+
+        AuthHelper::authorizeUser($user);
+
+        return true;
+    }
+
+    /**
+     * Try to authenticate user using OpenLDAP
+     * @param object $conn OpenLDAP connection
+     * @param \App\User $user_row Users data row to check if user exists
+     * @param string $user_name users login name
+     * @param string $user_password User password
+     * @return boolean Returns true if user authenticated and successfully authorized
+     */
+    function authenticateLDAP($conn, $user_row, $user_name, $user_password)
+    {
+        // Retrieving user data and appropriate user's DN which will be used to bind user
         $query = ldap_search(
-                $conn, $user_dn, // DN for user accounts
-                "(mail=$user_name)", // filter query
-                ['mail', 'givenname', 'sn', 'title'] // attributes to return
+                $conn, $this->ldap_search_dn, // DN for user accounts
+                "(mail=$user_name)" . $this->ldap_search_path, // filter query
+                ['uid', 'mail', 'userpassword', 'givenname', 'sn', 'title'] // attributes to return
         );
 
         $result = ldap_get_entries($conn, $query);
@@ -125,15 +148,15 @@ class OpenLDAP
             return false;
         }
 
-        $user_email = $result[0]['mail'][0];
-        $user_first_name = $result[0]['givenname'][0];
-        $user_last_name = $result[0]['sn'][0];
-        $user_position_title = $result[0]['title'][0];
+        // Retrieved users DN which is used for binding
+        $user_dn = $result[0]['dn'];
 
-        $user = AuthHelper::getUser($user_email, $user_first_name, $user_last_name, $user_position_title);
-
-        AuthHelper::authorizeUser($user);
-
-        return true;
+        // If bind doesn't succceed then authentication failed
+        if (ldap_bind($conn, $user_dn, $user_password)) {
+            // After authentication it is needed to check if such user exists in system and authorize user 
+            return $this->prepareAuthorization($user_row, $result);
+        } else {
+            return false;
+        }
     }
 }
