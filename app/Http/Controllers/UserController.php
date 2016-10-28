@@ -58,15 +58,14 @@ class UserController extends Controller
     /**
      * Attempts to authorize user into system
      * 
-     * @param string $user_name Users login name
-     * @param string $user_passw Users password
+     * @param \Illuminate\Http\Request $request Request object
      * @return Response If succes then opens default page, else error page will be opened
      */
     public function loginUser(Request $request)
     {
         $this->validate($request, [
-            'user_name' => 'required|min:3',
-            'password' => 'required|min:8'
+            'user_name' => 'required',
+            'password' => 'required'
         ]);
 
         $user_name = $request->input('user_name');
@@ -76,7 +75,7 @@ class UserController extends Controller
         $this->temp_block_minutes = Config::get('auth.temp_block_minutes');
 
         try {
-            $this->authenticateUser($user_name, $pass);
+            $this->authenticateUser($request, $user_name, $pass);
 
             if (!Auth::user()) {
                 throw new Exceptions\DXCustomException(trans('errors.wrong_user_or_password'));
@@ -115,8 +114,8 @@ class UserController extends Controller
         $result = array('success' => 0);
 
         $this->validate($request, [
-            'user_name' => 'required|min:3',
-            'password' => 'required|min:8'
+            'user_name' => 'required',
+            'password' => 'required'
         ]);
 
         $user_name = $request->input('user_name');
@@ -126,7 +125,7 @@ class UserController extends Controller
         $this->temp_block_minutes = Config::get('auth.temp_block_minutes');
 
         try {
-            $this->authenticateUser($user_name, $pass);
+            $this->authenticateUser($request, $user_name, $pass);
 
             if (!Auth::user()) {
                 throw new Exceptions\DXCustomException(trans('errors.wrong_user_or_password'));
@@ -219,12 +218,13 @@ class UserController extends Controller
     /**
      * Authenticates user in system.
      * 
+     * @param \Illuminate\Http\Request $request Request object
      * @param string $user_name Users login name
      * @param string $password Users password
      * @return void
      * @throws Exceptions\DXCustomException Error message
      */
-    private function authenticateUser($user_name, $password)
+    private function authenticateUser(Request $request, $user_name, $password)
     {
         // Retrieve used authentication types from configuration
         $auth_types = explode(';', Config::get('auth.type'));
@@ -246,7 +246,7 @@ class UserController extends Controller
                     $function_name = 'authenticate' . $type;
 
                     // Execute authentication process
-                    $auth_succ = $this->{$function_name}($user_name, $password);
+                    $auth_succ = $this->{$function_name}($request, $user_name, $password);
                 }
             } catch (\Exception $e) {
                 
@@ -281,11 +281,12 @@ class UserController extends Controller
 
     /**
      * Authenticate user useing Active Directory
+     * @param \Illuminate\Http\Request $request Request object
      * @param type $user_name users login name
      * @param type $user_password User password
      * @return boolean Result if authentication succeeded
      */
-    private function authenticateAD($user_name, $user_password)
+    private function authenticateAD(Request $request, $user_name, $user_password)
     {
         $user_row = $this->getUserByLogin('email', $user_name);
         $this->checkAttempts($user_row);
@@ -300,11 +301,12 @@ class UserController extends Controller
 
     /**
      * Authenticate user using OpenLDAP
+     * @param \Illuminate\Http\Request $request Request object
      * @param type $user_name users login name
      * @param type $user_password User password
      * @return boolean Result if authentication succeeded
      */
-    private function authenticateOPENLDAP($user_name, $user_password)
+    private function authenticateOPENLDAP(Request $request, $user_name, $user_password)
     {
         $user_row = $this->getUserByLogin('email', $user_name);
 
@@ -320,11 +322,12 @@ class UserController extends Controller
 
     /**
      * Authenticate user using default authroization system
+     * @param \Illuminate\Http\Request $request Request object
      * @param type $user_name users login name
      * @param type $password User password
      * @return boolean Result if authentication succeeded
      */
-    private function authenticateDEFAULT($user_name, $password)
+    private function authenticateDEFAULT(Request $request, $user_name, $password)
     {
         $user_row = $this->getUserByLogin('login_name', $user_name);
         $this->checkAttempts($user_row);
