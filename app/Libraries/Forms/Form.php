@@ -26,7 +26,9 @@ class Form
 	protected $editable;
 	protected $canEdit;
 	protected $canDelete;
-	protected $tabsData;
+	protected $tabsData = [];
+	protected $allTabs = [];
+	protected $visibleTabs = [];
 	
 	public function __construct($listId, $itemId = null)
 	{
@@ -36,6 +38,7 @@ class Form
 		$this->tabUid = Uuid::generate(4);
 		$this->params = $this->getFormParams();
 		$this->formFields = $this->getFormFields();
+		$this->allTabs = $this->getFormTabs();
 		$this->editable = Rights::getIsEditRightsOnItem($this->listId, $this->itemId);
 		
 		if($this->itemId)
@@ -49,57 +52,47 @@ class Form
 		return new self($listId, $itemId);
 	}
 	
-	public function render()
+	public function renderTabButtons()
 	{
-		$result = view('elements.form', [
-			'frm_uniq_id' => $this->formUid,
-			'form_title' => $this->params->form_title,
-			'fields_htm' => $this->renderFields(),
-			'tab_id' => $this->tabUid,
-			'tabs_htm' => $this->renderTabs(),
-			'form_id' => $this->params->form_id,
-			'grid_htm_id' => '',
-			'list_id' => $this->listId,
-			'item_id' => $this->itemId,
-			'parent_field_id' => 0,
-			'parent_item_id' => 0,
-			'is_multi_registers' => $this->params->is_multi_registers,
-			'js_code' => DB::table('dx_forms_js')->where('form_id', '=', $this->params->form_id)->get(),
-			
-			// Formai norādītie JavaScript
-			'js_form_id' => str_replace("-", "_", $this->formUid), // Formas GUID bez svītriņām, izmantojams JavaScript funkcijās kā mainīgais
-			
-			// if form is related to lookup or dropdown field from parent form
-			'call_field_htm_id' => '',
-			'call_field_type' => '',
-			'call_field_id' => 0,
-			
-			'parent_form_htm_id' => '',
-			
-			'form_badge' => '',
-			'is_form_reloaded' => 1,
-			'form_width' => $this->params->width,
-			
-			// Pogu pieejamība un rediģēšanas režīms
-			'form_is_edit_mode' => $this->editMode,
-			'is_disabled' => $this->disabled,
-			'is_edit_rights' => $this->canEdit,
-			'is_delete_rights' => $this->canDelete,
-			'is_info_tasks_rights' => false, // ($table_name == "dx_doc"),
-			'workflow_btn' => 0, // $this->isWorkflowInit($this->listId, $this->itemId), // Uzstāda pazīmi, vai redzama darbplūsmu poga
-			'is_custom_approve' => 0, // ($this->workflow && $this->workflow->is_custom_approve) ? 1 : 0,
-			'is_editable_wf' => $this->editable,
-			'is_word_generation_btn' => 0, // $this->getWordGenerBtn($list_id),
-			'info_tasks' => [],
+		$result = view('forms.tab_buttons', [
+			'itemId' => $this->itemId,
+			'formUid' => $this->formUid,
+			'tabId' => $this->tabUid,
+			'tabs' => $this->getVisibleTabs(),
 		])->render();
 		
 		return $result;
 	}
 	
-	protected function renderFields()
+	public function renderTabContents()
 	{
-		$result = '';
+		$result = view('forms.tab_contents', [
+			'itemId' => $this->itemId,
+			'formUid' => $this->formUid,
+			'tabId' => $this->tabUid,
+			'tabs' => $this->getVisibleTabs(),
+		])->render();
 		
+		return $result;
+	}
+	
+	protected function getVisibleTabs()
+	{
+		if(!empty($this->visibleTabs))
+			return $this->visibleTabs;
+		
+		foreach($this->allTabs as $tab)
+		{
+			// Skip tabs that are not listed in tabList array
+			if(!empty($this->tabList) && !in_array($tab->title, $this->tabList))
+				continue;
+			
+			$tab->data_htm = '';
+			
+			$this->visibleTabs[$tab->id] = $tab;
+		}
+		
+		// Loop over all fields and distribute them to according tabs
 		foreach($this->formFields as $row)
 		{
 			// skip ID field for new item form
@@ -112,52 +105,16 @@ class Form
 			$field->is_disabled_mode = $this->disabled;
 			$field->is_editable_wf = $this->editable;
 			
-			if($row->tab_id)
-			{
-				if(!isset($this->tabsData[$row->tab_id]))
-				{
-					$this->tabsData[$row->tab_id] = '';
-				}
-				
-				$this->tabsData[$row->tab_id] .= $field->get_field_htm();
-			}
-			else
-			{
-				$result .= $field->get_field_htm();
-			}
+			if(!$row->tab_id)
+				continue;
+			
+			if(!isset($this->visibleTabs[$row->tab_id]))
+				continue;
+			
+			$this->visibleTabs[$row->tab_id]->data_htm .= $field->get_field_htm();
 		}
 		
-		return $result;
-	}
-	
-	protected function renderTabs()
-	{
-		$result = "";
-		
-		$tabs = $this->getFormTabs();
-		
-		if(count($tabs))
-		{
-			foreach($tabs as $tab)
-			{
-				$tab->data_htm = "";
-				if($tab->is_custom_data && isset($this->tabsData[$tab->id]))
-				{
-					$tab->data_htm = $this->tabsData[$tab->id];
-				}
-			}
-			
-			$view_type = ($this->params->is_vertical_tabs) ? "elements.tabs_vert" : "elements.tabs";
-			
-			$result = view($view_type, [
-				'tab_id' => $this->tabUid,
-				'tabs_items' => $tabs,
-				'frm_uniq_id' => $this->formUid,
-				'item_id' => $this->itemId
-			])->render();
-		}
-		
-		return $result;
+		return $this->visibleTabs;
 	}
 	
 	protected function getFormItemDataRow()

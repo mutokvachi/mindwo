@@ -61,7 +61,7 @@
           <div class="col-xs-12 col-sm-9 col-md-9">
             <div class="employee-details-1">
               <a href="javascript:;" class="btn btn-circle btn-default {{ $avail['class'] }} pull-right" title="{{ $avail['title'] }}"> {{ $avail['button'] }} </a>
-              <h4><span class="inline" data-name="first_name">{{ $employee->first_name }}</span> <span class="inline" data-name="last_name">{{ $employee->last_name }}</span></h4>
+              <h4><span>{{ $employee->first_name }}</span> <span>{{ $employee->last_name }}</span></h4>
               <span><a href="#" class="dx_position_link"> {{ $employee->position_title }}</a></span><br>
               <span><a href="#" class="small dx_department_link">{{ $employee->department->title }}</a></span><br><br>
               <div class="text-left">
@@ -139,14 +139,19 @@
       
       @endif
     </div>
-    {!! \App\Libraries\Forms\Form::create(Config::get('dx.employee_list_id'), $employee->id)->render() !!}
     <div class="tabbable-line">
       <ul class="nav nav-tabs">
+        @if(!$is_my_profile && (Auth::user()->id == 1))
+          {!! $form->renderTabButtons() !!}
+        @endif
         @section('profile_tabs')
         @show
       </ul>
     </div>
-    <div class="tab-content">
+    <div class="tab-content" style="padding-top: 20px;">
+      @if(!$is_my_profile && (Auth::user()->id == 1))
+        {!! $form->renderTabContents() !!}
+      @endif
       @section('profile_tabs_content')
       @show
     </div>

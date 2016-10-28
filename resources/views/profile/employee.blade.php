@@ -10,7 +10,7 @@
     </li>
   @endif
   
-  <li class="{{ $is_my_profile ? "" : "active" }}">
+  <li class="{{ !$is_my_profile && !(Auth::user()->id == 1)  ? "active" : '' }}">
     <a href="#tab_team" data-toggle="tab" aria-expanded="false"> Team </a>
   </li>
   <li class="">
@@ -37,7 +37,7 @@
     </div>
   @endif
   
-  <div class="tab-pane fade {{ $is_my_profile ? "" : " active in" }}" id="tab_team">
+  <div class="tab-pane fade {{ !$is_my_profile && !(Auth::user()->id == 1)  ? "active in" : '' }}" id="tab_team">
     @include('profile.team')
   </div>
   <div class="tab-pane fade" id="tab_achievements">
