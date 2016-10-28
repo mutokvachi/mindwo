@@ -19,6 +19,11 @@ a.a_tag {
 .placeholder { color: #aaa; }
 
 /* IE9 placeholder fix: beigas */
+
+/*remove double scrollbar*/
+.modal.fade {
+    overflow: hidden!important;
+}
 .ie9-fix-placeholders {
     display: none;
 }

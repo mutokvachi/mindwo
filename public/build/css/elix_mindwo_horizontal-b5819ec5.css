@@ -120,10 +120,6 @@ body {
   top: 0px;
   left: 300px;
 }
-/*remove double scrollbar*/
-.modal.fade {
-  overflow: hidden!important;
-}
 button.navbar-toggle {
   background-color: #2d5f8b !important;
 }

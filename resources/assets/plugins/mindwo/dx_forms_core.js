@@ -320,7 +320,7 @@ function refresh_form_fields(edit_form_htm_id, form_htm_id, item_id, list_id, re
         dataType: "json",
         async:true,
         success : function(data) {
-            debug_log("refresh_form_fields - AJAX received");
+            
             try
              {
                  var myData = data;
@@ -415,7 +415,7 @@ function reload_edited_form(ajax_url, item_id, list_id, rel_field_id, rel_field_
         var htm = data['html'].replace(re, old_form_htm_id);
         
         var height_content  = $("#list_item_view_form_" + old_form_htm_id).find(".modal-body").height();
-                
+            
         unregister_form("list_item_view_form_" + old_form_htm_id);
         $("#list_item_view_form_" + old_form_htm_id).find(".modal-content").html(htm);
         
@@ -430,13 +430,10 @@ function reload_edited_form(ajax_url, item_id, list_id, rel_field_id, rel_field_
             });
         }
         
-        if (height_content > 500)
-        {
-            var tool_height = $("#top_toolbar_list_item_view_form_" + old_form_htm_id).height();
+        var tool_height = $("#top_toolbar_list_item_view_form_" + old_form_htm_id).height();
 
-            $("#list_item_view_form_" + old_form_htm_id).find(".modal-body").height(height_content - tool_height-21);
-        }
-        
+        $("#list_item_view_form_" + old_form_htm_id).find(".modal-body").height(height_content - tool_height-21);
+                
         var height = $(window).height()*DX_CORE.form_height_ratio;
         var form_body = $("#list_item_view_form_" + old_form_htm_id).find(".modal-body");
         

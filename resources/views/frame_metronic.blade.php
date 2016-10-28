@@ -113,7 +113,7 @@
                 <div class="page-logo">
                     <a href="/" style="text-decoration: none;">
                          @if (trans('index.logo'))
-                            <img src="{{Request::root()}}/{{ trans('index.logo_small') }}" alt="LOGO" class="logo-default" />
+                            <img src="{{Request::root()}}/{{ trans('index.logo_small') }}" alt="LOGO" class="logo-default" style="margin-top: 8px;"/>
                         @else
                             <div style="font-size: 28px; color: white; text-transform: uppercase; padding-top: 14px;">{{ trans('index.logo_txt') }}</div>
                         @endif

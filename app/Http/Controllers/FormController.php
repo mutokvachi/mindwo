@@ -88,9 +88,10 @@ class FormController extends Controller
         // Must have parameters for form loading
         $item_id = $request->input('item_id', 0); // if 0 then new item creation form will be provided otherwise editing form
         $list_id = $request->input('list_id', 0);
-
+        
         $this->form_is_edit_mode = $request->input('form_is_edit_mode', 0);
-
+        Log::info("INIT EDIT MODE: " . $this->form_is_edit_mode);
+        
         $parent_item_id = $request->input('parent_item_id', 0);
         $parent_field_id = $request->input('parent_field_id', 0);
 
@@ -174,7 +175,7 @@ class FormController extends Controller
             'is_word_generation_btn' => $this->getWordGenerBtn($list_id),
             'info_tasks' => $info_tasks,            
         ])->render();
-
+        Log::info("is disable: " . $this->is_disabled);
         return response()->json(['success' => 1, 'frm_uniq_id' => "" . $frm_uniq_id, 'html' => $form_htm]);
     }
 
@@ -357,6 +358,7 @@ class FormController extends Controller
         $right = Rights::getRightsOnList($list_id);
 
         if ($right == null) {
+            Log::info("RIGHTS1");
             if ($item_id == 0 || !Workflows\Helper::isRelatedTask($list_id, $item_id)) {
                 throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību šajā reģistrā!");
             }
@@ -372,18 +374,22 @@ class FormController extends Controller
             }
         }
         else {
+            Log::info("RIGHTS0");
             if ($item_id == 0) {
                 if ($right->is_new_rights == 0) {           
                     throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību veidot jaunu ierakstu šajā reģistrā!");
                 }
+                $this->is_disabled = 0; // var rediģēt, pēc noklusēšanas ir ka nevar
             }
             else {
                 if (Rights::isEditTaskRights($list_id, $item_id)) {
                     // Employee have task to edit this document
+                    Log::info("RIGHTS1");
                     $this->is_edit_rights = 1;
                     $this->is_delete_rights = 0; // because document is in workflow, so cant delete it
                 }
                 else {
+                    Log::info("RIGHTS2");
                     $is_item_editable_wf = Rights::getIsEditRightsOnItem($list_id, $item_id); // Check if not in workflow and not status finished
 
                     if (!$is_item_editable_wf) {
@@ -401,11 +407,11 @@ class FormController extends Controller
                 
             }            
 
-            if ($right->is_edit_rights) {
+            if ($this->is_edit_rights ) {
                 $this->is_disabled = 0; // var rediģēt, pēc noklusēšanas ir ka nevar
             }
-            
-            if (!$right->is_edit_rights && !$right->is_new_rights) {
+            Log::info("EDIT mode: " . $this->form_is_edit_mode);
+            if (!$this->is_edit_rights && !$right->is_new_rights) {
                 $this->form_is_edit_mode = 0; // readonly
             }
         }
@@ -448,6 +454,7 @@ class FormController extends Controller
         else {
             $this->form_is_edit_mode = 1;
         }
+        Log::info("FINAL EDIT mode: " . $this->form_is_edit_mode);
     }
 
     /**
