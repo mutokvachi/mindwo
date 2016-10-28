@@ -26,8 +26,6 @@ return [
     
     'placeholder_password' => 'Password',
     
-    'password_data_error' => 'Password must contain at least 8 symbols',
-    
     'login' => 'Login',
     
     'version' => 'Version 4.0, &copy; 2016',
