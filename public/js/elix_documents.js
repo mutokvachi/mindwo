@@ -172,3 +172,4 @@ var PageDocuments = function()
 $(document).ready(function() {
     PageDocuments.init();
 });
+//# sourceMappingURL=elix_documents.js.map

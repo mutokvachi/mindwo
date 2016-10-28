@@ -73,6 +73,12 @@ gulp.task('mix_all', function() {
         ],
         'public/js/elix_mindwo_horizontal_menu.js', 'resources/assets/plugins');
         
+        // Scripts for documents search page
+        mix.scripts([
+            'mindwo/pages/documents.js'
+        ],
+        'public/js/elix_documents.js', 'resources/assets/plugins');
+        
         // Core scripts for main blade view - will be included in all pages
         mix.scripts([
             'jquery.min.js', 
@@ -151,7 +157,8 @@ gulp.task('mix_all', function() {
             'css/elix_mindwo.css', 
             'css/elix_view.css',
             'css/elix_mindwo_horizontal.css',
-            'js/elix_mindwo_horizontal_menu.js'
+            'js/elix_mindwo_horizontal_menu.js',
+            'js/elix_documents.js'
         ]);
     });
 });

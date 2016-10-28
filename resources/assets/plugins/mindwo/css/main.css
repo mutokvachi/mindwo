@@ -24,3 +24,9 @@ a.a_tag {
 .modal.fade {
     overflow: hidden!important;
 }
+
+/* Fix checkbox appearance issue*/
+div.checkbox input.i-checks {
+    position: relative;
+    margin-left: 0px;
+}
