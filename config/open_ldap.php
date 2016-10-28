@@ -17,7 +17,7 @@ return [
     /**
      * OpenLDAP's DN which is used to search for users. This is used when authenticating user. 
      */
-    'search_dn' => env('OPENLDAP_SEARCH_DN', 'ou=Users,domainName=example.com,o=domains,dc=9009,dc=in'),
+    'search_dn' => env('OPENLDAP_SEARCH_DN', 'ou=Users,domainName=example.com,o=domains,dc=example,dc=com'),
     
     /**
      * OpenLDAP's filter which is used when system tries to find user's data (DN + information) for authentication
@@ -27,7 +27,7 @@ return [
     /**
      * Root DN
      */
-    'root_dn' => env('OPENLDAP_ROOT_DN', 'cn=Manager,dc=9009,dc=in'),
+    'root_dn' => env('OPENLDAP_ROOT_DN', 'cn=Manager,dc=example,dc=com'),
     
     /**
      * Password for accessing root DN

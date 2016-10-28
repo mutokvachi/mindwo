@@ -12,12 +12,12 @@ return [
     /**
      * Active directory domain controller
      */      
-    'domain_controller' => env('AD_DOMAIN_CONTROLLER', 'whitepages.gatech.edu'),
+    'domain_controller' => env('AD_DOMAIN_CONTROLLER', 'example.com'),
     
     /**
      * Root DN
      */     
-    'base_dn' => env('AD_BASE_DN', 'dc=whitepages,dc=gatech,dc=edu'),
+    'base_dn' => env('AD_BASE_DN', 'dc=example,dc=com'),
     
     /**
      * Active Directory's admin's user name
