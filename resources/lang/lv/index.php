@@ -7,11 +7,7 @@
 */
 
 return [
-
-    'logo' => 'assets/global/logo/medus_logo_big.png',
-    
-    'logo_small' => env('APP_SMALL_LOGO','assets/global/logo/logo-default.png'),
-    
+        
     'logo_txt' => '',
     
     'site_title' => 'MEDUS :: SVS',

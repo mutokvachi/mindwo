@@ -249,4 +249,14 @@ return [
     |   2) Meu on the top side - horizontal - set true
     */
     'is_horizontal_menu' => true,
+    
+    /*
+    |--------------------------------------------------------------------------
+    | UI setting for logo (not in login page but at the top left corner)
+    |--------------------------------------------------------------------------
+    |
+    | Logo can be text or img. Textual setting is set in /resources/lang/en/index.php in parameter "logo_txt".
+    | If it is set logo_txt then this setting "logo_small" will be ignored.
+    */
+    'logo_small' => env('APP_SMALL_LOGO','assets/global/logo/logo-default.png'),
 ];

@@ -113,9 +113,9 @@
             <span class="icon-bar"></span>
           </button>
             
-                @if (trans('index.logo'))
+                @if (!trans('index.logo_txt'))
                 <a href="/">
-                    <img src="{{Request::root()}}/{{ trans('index.logo_small') }}" alt="LOGO" class="logo-default" />
+                    <img src="{{Request::root()}}/{{ Config::get('dx.logo_small', 'assets/global/logo/medus_black.png') }}" alt="LOGO" class="logo-default" />
                 </a>
                 @else
                 <a class="navbar-brand" href="/" style="text-decoration: none;">
