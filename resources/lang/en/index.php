@@ -10,7 +10,7 @@ return [
 
     'logo' => '',
     
-    'logo_small' => '',
+    'logo_small' => env('APP_SMALL_LOGO',''),
     
     'logo_txt' => 'Mindwo',
     
