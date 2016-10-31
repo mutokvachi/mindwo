@@ -1,33 +1,33 @@
 <?php
 
 /**
- * Contains configuration data for connecting and using Open LDAP
+ * Contains configuration data for connecting and using OpenLDAP
  */
 return [    
     /**
-     * Open LDAP host address
+     * OpenLDAP host address
      */
-    'host' => env('OPENLDAP_HOST', 'ldaps://test.test.com'),
+    'host' => env('OPENLDAP_HOST', 'ldaps://example.com'),
     
     /**
-     * Oppen LDAP connection port
+     * OppenLDAP connection port
      */
     'port' => env('OPENLDAP_PORT', 636),
     
     /**
-     * Accoutn prefix which is added in the front of given user name. This is used when authenticating user.
+     * OpenLDAP's DN which is used to search for users. This is used when authenticating user. 
      */
-    'account_prefix' => env('OPENLDAP_ACCOUNT_PREFIX', 'mail='),
+    'search_dn' => env('OPENLDAP_SEARCH_DN', 'ou=Users,domainName=example.com,o=domains,dc=example,dc=com'),
     
     /**
-     * Accoutn suffix which is added in the end of given user name. This is used when authenticating user. 
+     * OpenLDAP's filter which is used when system tries to find user's data (DN + information) for authentication
      */
-    'account_suffix' => env('OPENLDAP_ACCOUNT_SUFFIX', ',ou=Users,domainName=test.com,o=domains,dc=9009,dc=in'),
+    'search_filter' => env('OPENLDAP_SEARCH_FILTER', '(accountStatus=active)'),
     
     /**
      * Root DN
      */
-    'root_dn' => env('OPENLDAP_ROOT_DN', 'cn=Manager,dc=9009,dc=in'),
+    'root_dn' => env('OPENLDAP_ROOT_DN', 'cn=Manager,dc=example,dc=com'),
     
     /**
      * Password for accessing root DN

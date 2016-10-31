@@ -48,11 +48,11 @@
             
             <form name="frmLogin" id="frmLogin" method="post" action="{{Request::root()}}/login">
                 <div class="form-group has-feedback">
-                    <input type="text" class="form-control" placeholder="{{ trans("index.placeholder_user_name") }}" name="user_name" id ="user_name" required maxlength='100' data-minlength="3" data-error="{{ trans("index.user_name_data_error") }}">
+                    <input type="text" class="form-control" placeholder="{{ trans("index.placeholder_user_name") }}" name="user_name" id ="user_name" required maxlength='100'>
                     <div class="help-block with-errors"></div>
                 </div>
                 <div class="form-group has-feedback">
-                    <input type="password" class="form-control" placeholder="{{ trans("index.placeholder_password") }}" name="password" id="password" required maxlength='100' data-minlength="8" data-error="{{ trans("index.password_data_error") }}">
+                    <input type="password" class="form-control" placeholder="{{ trans("index.placeholder_password") }}" name="password" id="password" required maxlength='100'>
                     <div class="help-block with-errors"></div>
                 </div>
                 <input type="hidden" name="_token" value="{{ csrf_token() }}"> 

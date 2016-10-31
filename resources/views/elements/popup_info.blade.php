@@ -34,12 +34,12 @@
                                 <form id="reLoginForm">
                                     <div class="form-group">
                                         <label class="control-label" for="relogin_user_name">{{ trans('relogin_form.user_name') }}</label>
-                                        <input id="relogin_user_name" type="text" class="form-control" name="user_name" placeholder="{{ trans('index.placeholder_user_name') }}" required maxlength="100" data-minlength="3" data-error="{{ trans('index.user_name_data_error') }}">
+                                        <input id="relogin_user_name" type="text" class="form-control" name="user_name" placeholder="{{ trans('index.placeholder_user_name') }}" required maxlength="100">
                                         <div class="help-block with-errors"></div>
                                     </div>
                                     <div class="form-group">
                                         <label class="control-label" for="relogin_password">{{ trans('relogin_form.password') }}</label>
-                                        <input id="relogin_password" type="password" class="form-control" name="password" placeholder="{{ trans('index.placeholder_password') }}" required maxlength="100" data-minlength="8" data-error="{{ trans('index.password_data_error') }}">
+                                        <input id="relogin_password" type="password" class="form-control" name="password" placeholder="{{ trans('index.placeholder_password') }}" required maxlength="100">
                                         <div class="help-block with-errors"></div>
                                     </div>
                                     <div class="form-group">

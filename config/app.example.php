@@ -166,23 +166,23 @@ return [
         App\Providers\RouteServiceProvider::class,
         
         /**
-         * Datu un datu bāzes kopiju veidošanas pakotne
+         * Database backup service provider
          */
         Spatie\Backup\BackupServiceProvider::class,
         
         /**
-         * Universālā komponente portāla un cms kopīgajām funkcijām (lapu attēlošana, kļūdu apstrāde, helperi u.c.)
+         * Universal component for portal and cms common functionality
          */
         mindwo\pages\ServiceProviders\PagesServiceProvider::class,
         mindwo\pages\ServiceProviders\HelpersServiceProvider::class,
         
         /**
-         * Failu pārlūks
+         * File browser
          */
         Pqb\FilemanagerLaravel\FilemanagerLaravelServiceProvider::class,
         
         /**
-         * Nodrošina PDF ģenerēšanu no skata
+         * PDF generator service provider
          */
         Barryvdh\Snappy\ServiceProvider::class,
         
