@@ -23,6 +23,8 @@ return [
     'btn_cancel' => 'Atcelt',
     'err_value_not_set' => 'Nav norādīta vērtība!',
     'badge_edit' => 'Rediģēšana',
-    'badge_new' => 'Jauns'
+    'badge_new' => 'Jauns',
+    
+    'lbl_full_screen' => 'Atvērt pilnekrāna režīmā',
     
 ];

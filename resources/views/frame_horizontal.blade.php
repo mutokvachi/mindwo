@@ -94,116 +94,115 @@
           trans_tree_choose = "{{ trans('fields.tree_choose') }}"
           trans_passw_form_title = "{{ trans('password_form.form_title') }}"
     >
+    <div class="dx-wrap">
+        <!-- Simple splash screen-->    
+        <div class="splash">
+            <div class="color-line"></div>
+            <div class="splash-title">
+                <h1>{{ $portal_name }}</h1><p>{{ trans("frame.data_loading") }}</p><img src="{{Request::root()}}/assets/global/progress/loading-bars.svg" width="64" height="64" />
+            </div>
+        </div> 
 
-    <!-- Simple splash screen-->    
-    <div class="splash">
-        <div class="color-line"></div>
-        <div class="splash-title">
-            <h1>{{ $portal_name }}</h1><p>{{ trans("frame.data_loading") }}</p><img src="{{Request::root()}}/assets/global/progress/loading-bars.svg" width="64" height="64" />
-        </div>
-    </div> 
-      
-    <nav class="navbar navbar-fixed-top">
-      <div class="container-fluid" style='background-color: white;'>
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-            
-                @if (!trans('index.logo_txt'))
-                <a href="/">
-                    <img src="{{Request::root()}}/{{ Config::get('dx.logo_small', 'assets/global/logo/medus_black.png') }}" alt="LOGO" class="logo-default" />
-                </a>
-                @else
-                <a class="navbar-brand" href="/" style="text-decoration: none;">
-                    <div style="font-size: 28px; color: #213f5a; text-transform: uppercase; padding-top: 4px;">{{ trans('index.logo_txt') }}</div>
-                </a>
-                @endif
-        </div>
-        <div>
-          <ul class="nav navbar-nav navbar-right dx-top-right-menu">
-            @if (Auth::check() && Auth::user()->id != Config::get('dx.public_user_id',0))
+        <div class="container-fluid" style='background-color: white;'>
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
 
-                <!-- BEGIN USER LOGIN DROPDOWN -->
-                <li class="dropdown dropdown-user" style="padding: 0 0px;">
-                    <a href="javascript:;" class="dropdown-toggle top-link" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-                        <img src="{{Request::root()}}/formated_img/small_avatar/{{ (Auth::user()->picture_guid) ? Auth::user()->picture_guid : get_portal_config('EMPLOYEE_AVATAR') }}" class="img-circle" alt="{{ Auth::user()->display_name }}" style="width: 20px;"/>
-                        <span class="username username-hide-on-mobile"> {{ Auth::user()->display_name }} </span>
-                        <i class="fa fa-angle-down"></i>
+                    @if (!trans('index.logo_txt'))
+                    <a href="/">
+                        <img src="{{Request::root()}}/{{ Config::get('dx.logo_small', 'assets/global/logo/medus_black.png') }}" alt="LOGO" class="logo-default" />
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-default">                        
-                        <li>
-                            <a href="javascript:;" class="dx-user-change-passw-link">
-                                <i class="fa fa-key dx-user-menu"></i> {{ trans("frame.password_change") }} </a>
-                        </li>                       
-                    </ul>
-                </li>
-                <!-- END USER LOGIN DROPDOWN -->
+                    @else
+                    <a class="navbar-brand" href="/" style="text-decoration: none;">
+                        <div style="font-size: 28px; color: #213f5a; text-transform: uppercase; padding-top: 4px;">{{ trans('index.logo_txt') }}</div>
+                    </a>
+                    @endif
+            </div>
+            <div>
+              <ul class="nav navbar-nav navbar-right dx-top-right-menu">
+                @if (Auth::check() && Auth::user()->id != Config::get('dx.public_user_id',0))
+
+                    <!-- BEGIN USER LOGIN DROPDOWN -->
+                    <li class="dropdown dropdown-user" style="padding: 0 0px;">
+                        <a href="javascript:;" class="dropdown-toggle top-link" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                            <img src="{{Request::root()}}/formated_img/small_avatar/{{ (Auth::user()->picture_guid) ? Auth::user()->picture_guid : get_portal_config('EMPLOYEE_AVATAR') }}" class="img-circle" alt="{{ Auth::user()->display_name }}" style="width: 20px;"/>
+                            <span class="username username-hide-on-mobile"> {{ Auth::user()->display_name }} </span>
+                            <i class="fa fa-angle-down"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-default">                        
+                            <li>
+                                <a href="javascript:;" class="dx-user-change-passw-link">
+                                    <i class="fa fa-key dx-user-menu"></i> {{ trans("frame.password_change") }} </a>
+                            </li>                       
+                        </ul>
+                    </li>
+                    <!-- END USER LOGIN DROPDOWN -->
 
 
-               @if ($user_tasks_count > 0)
-                    <!-- BEGIN TODO DROPDOWN -->
-                    <li class="dropdown" id="dx_tasks_count_li">
-                        <a href="{{Request::root()}}/skats_aktualie_uzdevumi" class="dropdown-toggle top-link" title="{{ trans("frame.tasks") }}">
-                            <i class="fa fa-calendar"></i>
-                            <div class="badge bg-red-soft" id="dx_tasks_count_badge"> {{ $user_tasks_count }} </div>
+                   @if ($user_tasks_count > 0)
+                        <!-- BEGIN TODO DROPDOWN -->
+                        <li class="dropdown" id="dx_tasks_count_li">
+                            <a href="{{Request::root()}}/skats_aktualie_uzdevumi" class="dropdown-toggle top-link" title="{{ trans("frame.tasks") }}">
+                                <i class="fa fa-calendar"></i>
+                                <div class="badge bg-red-soft" id="dx_tasks_count_badge"> {{ $user_tasks_count }} </div>
+                            </a>
+                        </li>
+                        <!-- END TODO DROPDOWN -->
+                    @endif
+
+                    <li class="dropdown">
+                        <a href="{{Request::root()}}/structure/doc_manual" title="{{ trans("frame.user_manual") }}" class="dropdown-toggle top-link">
+                            <i class="fa fa-question-circle"></i>                                
                         </a>
                     </li>
-                    <!-- END TODO DROPDOWN -->
+
+                    <li class="dropdown">
+                        <a href="{{Request::root()}}/logout" title="{{ trans("frame.logout") }}" class="top-link">
+                            <i class="fa fa-sign-out"></i> 
+                        </a>
+                    </li>
+
                 @endif
-
-                <li class="dropdown">
-                    <a href="{{Request::root()}}/structure/doc_manual" title="{{ trans("frame.user_manual") }}" class="dropdown-toggle top-link">
-                        <i class="fa fa-question-circle"></i>                                
-                    </a>
-                </li>
-                
-                <li class="dropdown">
-                    <a href="{{Request::root()}}/logout" title="{{ trans("frame.logout") }}" class="top-link">
-                        <i class="fa fa-sign-out"></i> 
-                    </a>
-                </li>
-
-            @endif
-          </ul>          
-        </div>
-      </div>
-      <div class="container-fluid" style='background-color: #2D5F8B;'>
-          <nav id="navbar" class="navbar navbar-default navbar-collapse collapse" role="navigation">
-            <ul class="nav navbar-nav dx-main-menu">
-                {!! $menu_htm !!}
-            </ul>
-            <ul class="nav navbar-nav pull-right">
-
-                <!-- BEGIN SEARCH BOX -->
-                <li id="dx-search-box-top-li" style="margin-top: -9px;">
-                    @include('static_blocks.search_top')
-                </li>
-                <!-- END SEARCH BOX -->
-
-            </ul>
-          </nav>
-      </div>
-    </nav>
-
-    <div class="container-fluid dx-page-container">
-        <div class="page-content" id="td_data">
-          <div id="dx-search-box-in-page">                        
+              </ul>          
+            </div>
           </div>
-          @yield('main_content')
+
+        <nav class="navbar dx-top-menu dx-nonfixed-top">
+          <div class="container-fluid" style='background-color: #2D5F8B;'>
+              <nav id="navbar" class="navbar navbar-default navbar-collapse collapse" role="navigation">
+                <ul class="nav navbar-nav dx-main-menu">
+                    {!! $menu_htm !!}
+                </ul>
+                <ul class="nav navbar-nav pull-right">
+
+                    <!-- BEGIN SEARCH BOX -->
+                    <li id="dx-search-box-top-li" style="margin-top: -9px;">
+                        @include('static_blocks.search_top')
+                    </li>
+                    <!-- END SEARCH BOX -->
+
+                </ul>
+              </nav>
+          </div>
+        </nav>
+
+        <div class="container-fluid dx-page-container">
+            <div class="page-content" id="td_data">          
+              @yield('main_content')
+            </div>
         </div>
-    </div>
-      
-    <!-- Scroll to top -->
-    <div class="btn yellow-gold scroll-to-top">
-        <i class="fa fa-lg fa-arrow-up"></i>
-    </div>
 
-    @include('elements.popup_info')
+        <!-- Scroll to top -->
+        <div class="btn yellow-gold scroll-to-top">
+            <i class="fa fa-lg fa-arrow-up"></i>
+        </div>
 
+        @include('elements.popup_info')
+    </div>
     <script>
         dx_is_slider = {{ ((isset($is_slidable_menu) && $is_slidable_menu)) ? "1" : "0" }};
     </script>

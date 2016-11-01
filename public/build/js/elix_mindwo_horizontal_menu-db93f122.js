@@ -71,6 +71,24 @@ var HMenuUI = function()
         });  
     };
     
+    var handleScroll = function () {
+        
+        $(document).scroll(function() {
+            var top = $(window).scrollTop();
+            if (top > 50) {
+                $(".dx-top-menu").removeClass("dx-nonfixed-top").addClass("navbar-fixed-top");
+                $(".dx-page-container").css('margin-top', '50px');
+                $(".dx-form-header").addClass("dx-nonfixed-header");
+            } else {
+                $(".dx-top-menu").removeClass("navbar-fixed-top").addClass("dx-nonfixed-top");
+                $(".dx-page-container").css('margin-top', '0px');
+                $(".dx-form-header").removeClass("dx-nonfixed-header");
+            }
+            console.log(top);
+        });
+    };
+    
+    
     /**
      * Inits horizontal menu page UI
      * 
@@ -80,6 +98,7 @@ var HMenuUI = function()
        hideErrorImages(); 
        setActiveMenu();
        setContentMargin();
+       handleScroll();
        PageMain.addResizeCallback(setContentMargin); 
     };
 

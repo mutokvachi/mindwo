@@ -117,7 +117,8 @@ namespace App\Libraries
                         'is_required' => $this->fld_attr->is_required,
                         'hint' => $this->fld_attr->hint,
                         'fld_name' => $this->fld_attr->db_name,
-                        'group_label' => $this->fld_attr->group_label
+                        'group_label' => $this->fld_attr->group_label,
+                        'frm_uniq_id' => $this->frm_uniq_id
                     ]);
                 }
                 else {

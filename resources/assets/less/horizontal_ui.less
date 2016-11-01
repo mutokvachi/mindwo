@@ -41,7 +41,7 @@ body {
 }
 
 // Adjust TOP links height
-.navbar-fixed-top a.top-link {
+a.top-link {
     min-height: 54px;
     padding-top: 18px;
 }
@@ -106,7 +106,7 @@ body {
 }
 
 .dx-page-container {
-    padding-top: 20px;
+    padding: 0px;
 }
 
 .dx-block-container-view {
@@ -142,4 +142,45 @@ button.navbar-toggle {
 
 button.navbar-toggle span.icon-bar {
     background-color: @colDefault!important;
+}
+
+.portlet {
+    padding: 20px!important;
+    margin-bottom: 0px!important;
+}
+
+// Fix for grid paginator - so when scroll down then button "up" wont overlap
+.dx-paginator-butons {
+    margin-right: 50px;
+}
+
+.dx-form-fullscreen .dx-form-field-line {
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+.navbar-fixed-top .container-fluid {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.dx-nonfixed-top .container-fluid {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.dx-nonfixed-top {
+    margin-bottom: 0px!important;
+}
+
+.dx-top-menu {
+    border: 0px none!important;
+}
+
+.dx-form-header.dx-nonfixed-header {
+    position: fixed;
+    left: 0px;
+    right: 0px;
+    top: 50px;
+    z-index: 2400;
 }

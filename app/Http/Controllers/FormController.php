@@ -90,8 +90,7 @@ class FormController extends Controller
         $list_id = $request->input('list_id', 0);
         
         $this->form_is_edit_mode = $request->input('form_is_edit_mode', 0);
-        Log::info("INIT EDIT MODE: " . $this->form_is_edit_mode);
-        
+                
         $parent_item_id = $request->input('parent_item_id', 0);
         $parent_field_id = $request->input('parent_field_id', 0);
 
@@ -138,7 +137,9 @@ class FormController extends Controller
             $info_tasks = array_filter($info_tasks, function($value) { return strlen($value->display_name) > 0; });
         }
         
-        $form_htm = view('elements.form', [
+        $form_blade = ($params->is_full_screen_mode) ? "form_full" : "form";
+                
+        $form_htm = view('elements.' . $form_blade, [
             'frm_uniq_id' => $frm_uniq_id,
             'form_title' => $params->form_title,
             'fields_htm' => $fields_htm,
@@ -173,10 +174,10 @@ class FormController extends Controller
             'is_custom_approve' => ($this->workflow && $this->workflow->is_custom_approve) ? 1 : 0,
             'is_editable_wf' => $this->is_editable_wf,
             'is_word_generation_btn' => $this->getWordGenerBtn($list_id),
-            'info_tasks' => $info_tasks,            
+            'info_tasks' => $info_tasks
         ])->render();
-        Log::info("is disable: " . $this->is_disabled);
-        return response()->json(['success' => 1, 'frm_uniq_id' => "" . $frm_uniq_id, 'html' => $form_htm]);
+        
+        return response()->json(['success' => 1, 'frm_uniq_id' => "" . $frm_uniq_id, 'html' => $form_htm, 'is_fullscreen' => $params->is_full_screen_mode]);
     }
 
     /**
@@ -210,7 +211,7 @@ class FormController extends Controller
 
         $fields_htm = $this->getFormFieldsHTML($frm_uniq_id, $list_id, $item_id, $parent_item_id, $parent_field_id, $params);
 
-        return response()->json(['success' => 1, 'html' => $fields_htm, 'tabs' => $this->arr_data_tabs]);
+        return response()->json(['success' => 1, 'html' => $fields_htm, 'tabs' => $this->arr_data_tabs, 'is_fullscreen' => $params->is_full_screen_mode]);
     }
 
     /**
@@ -358,7 +359,7 @@ class FormController extends Controller
         $right = Rights::getRightsOnList($list_id);
 
         if ($right == null) {
-            Log::info("RIGHTS1");
+            
             if ($item_id == 0 || !Workflows\Helper::isRelatedTask($list_id, $item_id)) {
                 throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību šajā reģistrā!");
             }
@@ -374,7 +375,7 @@ class FormController extends Controller
             }
         }
         else {
-            Log::info("RIGHTS0");
+            
             if ($item_id == 0) {
                 if ($right->is_new_rights == 0) {           
                     throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību veidot jaunu ierakstu šajā reģistrā!");
@@ -384,12 +385,12 @@ class FormController extends Controller
             else {
                 if (Rights::isEditTaskRights($list_id, $item_id)) {
                     // Employee have task to edit this document
-                    Log::info("RIGHTS1");
+                    
                     $this->is_edit_rights = 1;
                     $this->is_delete_rights = 0; // because document is in workflow, so cant delete it
                 }
                 else {
-                    Log::info("RIGHTS2");
+                    
                     $is_item_editable_wf = Rights::getIsEditRightsOnItem($list_id, $item_id); // Check if not in workflow and not status finished
 
                     if (!$is_item_editable_wf) {
@@ -410,7 +411,7 @@ class FormController extends Controller
             if ($this->is_edit_rights ) {
                 $this->is_disabled = 0; // var rediģēt, pēc noklusēšanas ir ka nevar
             }
-            Log::info("EDIT mode: " . $this->form_is_edit_mode);
+            
             if (!$this->is_edit_rights && !$right->is_new_rights) {
                 $this->form_is_edit_mode = 0; // readonly
             }
@@ -454,7 +455,6 @@ class FormController extends Controller
         else {
             $this->form_is_edit_mode = 1;
         }
-        Log::info("FINAL EDIT mode: " . $this->form_is_edit_mode);
     }
 
     /**
@@ -865,7 +865,8 @@ class FormController extends Controller
 		f.zones_count,
 		o.is_multi_registers,
 		f.width,
-                f.is_vertical_tabs
+                f.is_vertical_tabs,
+                f.is_full_screen_mode
 	FROM
 		dx_lists l
 		inner join dx_objects o on l.object_id = o.id
