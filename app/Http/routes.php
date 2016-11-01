@@ -75,6 +75,12 @@ Route::post('/search', array('as' => 'search', 'middleware' => 'auth', 'uses'=>'
 Route::post('/ajax/departments', array('as' => 'get_departments', 'middleware' => 'auth_ajax', 'uses'=>'DepartmentsController@getDepartments'));
 Route::post('/ajax/employees', array('as' => 'get_employees', 'middleware' => 'auth_ajax', 'uses'=>'EmployeeController@searchAjaxEmployee'));
 
+Route::group(['prefix' => 'employee', 'namespace' => 'Employee'], function () {
+    Route::get('/get/personal_docs_by_country/{country_id}', array('as' => 'search', 'middleware' => 'auth', 'uses'=>'EmployeePersonalDocController@getPersonalDocsByCountry'));
+});
+
+Route::get('/emp_docs_test', array('as' => 'search', 'middleware' => 'auth', 'uses'=>'Employee\EmployeePersonalDocController@testView'));
+
 // Bloku AJAX pieprasījumi
 //Route::post('/block_ajax', array('as' => 'block_ajax',  'middleware' => 'auth_ajax', 'uses'=>'BlockAjaxController@getData'));
 

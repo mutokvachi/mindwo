@@ -33,4 +33,13 @@ return [
     'lbl_count' => 'Record count:',
     'lbl_nothing_found' => 'No record found by provided search criteria.',
     
+    'personal_docs' => [
+        'new_doc' => 'New document',
+        'delete_doc' => 'Delete document',
+        'country' => 'Country',
+        'personal_doc_type' => 'Document type',
+        'valid_to' => 'Valid to',
+        'publisher' => 'Publisher',
+        'file' => 'File',
+    ],    
 ];

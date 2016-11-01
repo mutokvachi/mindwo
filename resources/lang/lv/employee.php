@@ -32,5 +32,14 @@ return [
     'lbl_search_placeholder' => 'Meklēšanas kritērijs',
     'lbl_count' => 'Ierakstu skaits:',
     'lbl_nothing_found' => 'Nav atrasts neviens atbilstošs ieraksts.', 
-    
+  
+    'personal_docs' => [
+        'new_doc' => 'Jauns dokuments',
+        'delete_doc' => 'Dzēst dokumentu',
+        'country' => 'Valsts',
+        'personal_doc_type' => 'Dokumenta tips',
+        'valid_to' => 'Derīgs līdz',
+        'publisher' => 'Izdevējs',
+        'file' => 'Datne',
+    ],    
 ];
