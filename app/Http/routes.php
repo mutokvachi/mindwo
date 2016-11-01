@@ -136,6 +136,11 @@ Route::group(['middleware' => 'auth_ajax', 'prefix' => 'freeform'], function() {
 	Route::put('{id}', 'FreeFormController@update');
 });
 
+Route::group(['middleware' => 'auth_ajax', 'prefix' => 'inlineform'], function() {
+	Route::post('{id}/edit', 'InlineFormController@edit');
+	Route::put('{id}', 'InlineFormController@update');
+});
+
 // Lapas
 /*
 Route::get('/{id}/{item}', array('as' => 'page',  'middleware' => 'auth', 'uses'=>'PagesController@showPageItem'));

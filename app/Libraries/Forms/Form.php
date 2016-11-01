@@ -16,11 +16,11 @@ class Form
 	public $tabList = [];
 	public $disabled = false;
 	public $editMode = false;
+	public $params;
 	protected $listId;
 	protected $itemId;
 	protected $formUid;
 	protected $tabUid;
-	protected $params;
 	protected $formFields;
 	protected $itemData;
 	protected $editable;
@@ -56,6 +56,7 @@ class Form
 	{
 		$result = view('forms.tab_buttons', [
 			'itemId' => $this->itemId,
+			'formId' => $this->params->form_id,
 			'formUid' => $this->formUid,
 			'tabId' => $this->tabUid,
 			'tabs' => $this->getVisibleTabs(),
@@ -68,6 +69,7 @@ class Form
 	{
 		$result = view('forms.tab_contents', [
 			'itemId' => $this->itemId,
+			'formId' => $this->params->form_id,
 			'formUid' => $this->formUid,
 			'tabId' => $this->tabUid,
 			'tabs' => $this->getVisibleTabs(),
@@ -76,6 +78,22 @@ class Form
 		return $result;
 	}
 	
+	public function renderScripts()
+	{
+		
+	}
+	
+	/**
+	 * Get visible tabs and populate them with form fields html.
+	 *
+	 * The names of visible tabs must be listed in $this->tabList[] array before calling this function:
+	 *
+	 * ```php
+	 * $this->tabList = ['General', 'Personal details', 'Work details'];
+	 * ```
+	 *
+	 * @return array Array with data of tabs
+	 */
 	protected function getVisibleTabs()
 	{
 		if(!empty($this->visibleTabs))

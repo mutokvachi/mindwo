@@ -464,7 +464,7 @@ class FormController extends Controller
      * @param integer $item_id  Ieraksta ID
      * @throws Exceptions\DXCustomException
      */
-    private function checkSaveRights($form_id, $item_id)
+    protected function checkSaveRights($form_id, $item_id)
     {
         $tbl = FormSave::getFormTable($form_id);
 

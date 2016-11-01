@@ -76,12 +76,12 @@ class FreeFormController extends FormController
 	public function edit($id, Request $request)
 	{
 		$result = [];
+		$item_id = $request->input('item_id');
+		$list_id = $request->input('list_id');
 		$class = $request->input('model');
 		$model = $class::find($id);
 		
-		$item_id = $request->input('item_id');
-		$list_id = $request->input('list_id');
-		$this->form_is_edit_mode = true;
+		$this->form_is_edit_mode = false;
 		$parent_item_id = 0;
 		$parent_field_id = 0;
 		$params = $this->getFormParams($list_id);

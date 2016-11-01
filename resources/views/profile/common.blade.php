@@ -26,14 +26,172 @@
   <script src="{{ elixir('js/elix_view.js') }}" type='text/javascript'></script>
   <script src="{{ elixir('js/elix_freeform.js') }}" type='text/javascript'></script>
   <script>
+    /**
+     * InlineForm - a jQuery plugin that provides a way to work with AJAX form embedded into a page
+     *
+     * @param root
+     * @returns {*}
+     * @constructor
+    */
+    $.fn.InlineForm = function(root)
+    {
+      return this.each(function(){
+        new $.InlineForm(this);
+      });
+    };
+    /**
+     * InlineForm constructor
+     *
+     * @param root
+     * @constructor
+    */
+    $.InlineForm = function(root)
+    {
+      $.data(root, 'InlineForm', this);
+      var self = this;
+      this.root = $(root);
+      this.tabs = $('.tab-pane', this.root);
+      this.originalTabs = {};
+      this.editButton = $('.dx-edit-profile', this.root);
+      this.saveButton = $('.dx-save-profile', this.root);
+      this.cancelButton = $('.dx-cancel-profile', this.root);
+    
+      // Bind callbacks to buttons
+      this.editButton.click(function() {
+        self.edit();
+      });
+      this.saveButton.click(function() {
+        self.save();
+      });
+      this.cancelButton.click(function() {
+        self.cancel();
+      });
+    };
+  
+    /**
+     * InlineForm methods
+     */
+    $.extend($.InlineForm.prototype, {
+      /**
+       * Replace HTML with form input fields
+       */
+      edit: function() {
+        var self = this;
+      
+        // a structure for JSON request
+        var request = {
+          listId: this.root.data('list_id'),
+          tabList: []
+        };
+      
+        this.tabs.each(function() {
+          self.originalTabs[$(this).data('tabTitle')] = $(this).html();
+        });
+      
+        // perform a request to the server
+        $.ajax({
+          type: 'POST',
+          url: DX_CORE.site_url + 'inlineform/' + this.root.data('item_id') + '/edit',
+          dataType: 'json',
+          data: request,
+          success: function(data)
+          {
+            self.editButton.hide();
+            self.saveButton.show();
+            self.cancelButton.show();
+            
+            var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane');
+          
+            // replace original html content of marked elements with input fields
+            for(var i = 0; i < tabs.length; i++)
+            {
+              var tab = $(tabs[i]);
+              var elem = $('[data-tab-title="' + tab.data('tabTitle') + '"]', self.root);
+              if(elem.length)
+                elem.html(tab.html());
+            }
+          },
+          error: function(jqXHR, textStatus, errorThrown)
+          {
+            console.log(textStatus);
+            console.log(jqXHR);
+          }
+        });
+      },
+    
+      /**
+       * Submit input field values to the server
+       */
+      save: function() {
+        var self = this;
+  
+        var formData = process_data_fields(this.root.attr('id'));
+        
+        formData.append('item_id', this.root.data('item_id'));
+        formData.append('list_id', this.root.data('list_id'));
+        formData.append('edit_form_id', this.root.data('form_id'));
+  
+        // submit a request
+        $.ajax({
+          type: 'POST',
+          url: DX_CORE.site_url + 'inlineform/' + this.root.data('item_id') + '?_method=PUT',
+          dataType: 'json',
+          processData: false,
+          contentType: false,
+          data: formData,
+          success: function(data)
+          {
+            self.editButton.show();
+            self.saveButton.hide();
+            self.cancelButton.hide();
+  
+            var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane');
+  
+            // replace original html content of marked elements with input fields
+            for(var i = 0; i < tabs.length; i++)
+            {
+              var tab = $(tabs[i]);
+              var elem = $('[data-tab-title="' + tab.data('tabTitle') + '"]', self.root);
+              if(elem.length)
+                elem.html(tab.html());
+            }
+          },
+          error: function(jqXHR, textStatus, errorThrown)
+          {
+            console.log(textStatus);
+            console.log(jqXHR);
+          }
+        });
+      },
+    
+      /**
+       * Remove input fields and display original HTML
+       */
+      cancel: function() {
+        this.editButton.show();
+        this.saveButton.hide();
+        this.cancelButton.hide();
+        for(var k in this.originalTabs)
+        {
+          this.tabs.filter('[data-tab-title="' + k + '"]').html(this.originalTabs[k]);
+        }
+      }
+    });
     $(document).ready(function() {
-      $('[data-freeform]').FreeForm();
+      $('.freeform').FreeForm();
+      $('.freeform').InlineForm();
     });
   </script>
 @endsection
 
 @section('main_content')
-<div class="portlet light dx-employee-profile freeform" data-freeform="true" data-model="App\User" data-item_id="{{ $employee->id }}" data-list_id="{{ Config::get('dx.employee_list_id') }}">
+<div id="form_{{ Webpatser\Uuid\Uuid::generate(4) }}"
+  class="portlet light dx-employee-profile freeform"
+  data-freeform="true"
+  data-model="App\User"
+  data-form_id="{{ $form->params->form_id }}"
+  data-item_id="{{ $employee->id }}"
+  data-list_id="{{ Config::get('dx.employee_list_id') }}">
   <div class="portlet-title">
     <div class="caption">
       <i class="fa fa-user"></i>
@@ -137,6 +295,16 @@
           </div>
         </div>
       
+      @endif
+    </div>
+    <div class="actions" style="text-align: right">
+      @if(Auth::user()->id == 1)
+        <a href="javascript:;" class="btn btn-circle btn-default dx-edit-profile">
+          <i class="fa fa-pencil"></i> Edit </a>
+        <a href="javascript:;" class="btn btn-circle btn-default dx-save-profile" style="display: none">
+          <i class="fa fa-floppy-o"></i> Save </a>
+        <a href="javascript:;" class="btn btn-circle btn-default dx-cancel-profile" style="display: none">
+          <i class="fa fa-times"></i> Cancel </a>
       @endif
     </div>
     <div class="tabbable-line">

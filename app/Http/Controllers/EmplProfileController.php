@@ -30,4 +30,15 @@ class EmplProfileController extends Controller
 			'is_my_profile' => $id == Auth::user()->id,
 		]);
 	}
+	
+	public function edit($id, Request $request)
+	{
+		$employee = App\User::find($id);
+		
+	}
+	
+	public function update(Request $request, $id)
+	{
+		
+	}
 }
