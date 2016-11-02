@@ -25,16 +25,16 @@ class EmployeePersonalDocController extends Controller
         return json_encode($country->personalDocs()->get());
     }
 
-    public function getEmployeeDocs($employee_id)
+    public function getEmployeeDocs($user_id)
     {
-        $employee = \App\Models\Employee::find($employee_id);
+        $user = \App\User::find($user_id);
 
-        if (!$employee) {
+        if (!$user) {
             return null;
         }
 
-        $docs = $employee->employeePersonalDocs()->with('personalDocument')->get();
-        
+        $docs = $user->employeePersonalDocs()->with('personalDocument')->get();
+
         return json_encode($docs);
     }
 
@@ -42,12 +42,12 @@ class EmployeePersonalDocController extends Controller
     {
         $data = json_decode($request->input('data'), true);
 
-        $employee_id = $data['employee_id'];
+        $user_id = $data['user_id'];
         $input_rows = $data['rows'];
 
-        $employee = \App\Models\Employee::find($employee_id);
+        $user = \App\User::find($user_id);
 
-        if (!$employee) {
+        if (!$user) {
             return '0';
         }
 
@@ -73,17 +73,26 @@ class EmployeePersonalDocController extends Controller
                 $emp_pers_doc = new \App\Models\Employee\EmployeePersonalDocument();
             }
 
-            $this->saveEmpPersDoc($employee_id, $emp_pers_doc, $input_row);
+            $this->saveEmpPersDoc($user_id, $emp_pers_doc, $input_row);
         }
 
         return '1';
     }
 
-    private function saveEmpPersDoc($employee_id, $emp_pers_doc, $input_row)
+    private function saveEmpPersDoc($user_id, $emp_pers_doc, $input_row)
     {
-        $emp_pers_doc->employee_id = (int) $employee_id;
+        $emp_pers_doc->user_id = (int) $user_id;
         $emp_pers_doc->doc_id = (int) $input_row['document_type'];
         $emp_pers_doc->publisher = $input_row['publisher'];
+        $emp_pers_doc->doc_nr = $input_row['doc_nr'];
+
+        $valid_to = check_date($input_row['valid_to'], config('dx.date_format'));
+
+        if (strlen($valid_to) == 0) {
+            $valid_to = null;
+        }
+
+        $emp_pers_doc->valid_to = $valid_to;
 
         $emp_pers_doc->save();
     }

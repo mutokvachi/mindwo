@@ -28,13 +28,4 @@ class Employee extends Model
     {
         return $this->belongsTo('App\Models\Department');
     }
-    
-    /**
-     * List of employee's personal documents
-     * @return App\Employee\EmployeePersonalDocument
-     */
-    public function employeePersonalDocs()
-    {        
-        return $this->hasMany('\App\Models\Employee\EmployeePersonalDocument', 'employee_id');
-    }
 }

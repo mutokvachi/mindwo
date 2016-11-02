@@ -4,7 +4,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 /**
- * Creates database structure for employee's personal documents
+ * Creates database structure for user's personal documents
  */
 class CreateEmployeeDocs extends Migration
 {
@@ -14,7 +14,7 @@ class CreateEmployeeDocs extends Migration
      * @return void
      */
     public function up()
-    {        
+    {      
         Schema::create('in_personal_docs', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
@@ -32,14 +32,15 @@ class CreateEmployeeDocs extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');
             
+            $table->string('doc_nr', 500)->nullable()->comment = "Document's number";
             $table->date('valid_to')->nullable()->comment = "Valid to";
             $table->string('publisher', 500)->nullable()->comment = "Document's publisher";
             $table->string('file_name', 500)->nullable()->comment = "Files's name";
             $table->string('file_guid', 50)->nullable()->comment = "File's unique identifier";
             
-            $table->integer('employee_id')->nullable()->unsigned()->comment = "Employee";            
-            $table->index('employee_id');            
-            $table->foreign('employee_id')->references('id')->on('in_employees')->onDelete('cascade');
+            $table->integer('user_id')->nullable()->comment = "User";            
+            $table->index('user_id');            
+            $table->foreign('user_id')->references('id')->on('dx_users')->onDelete('cascade');
             
             $table->integer('doc_id')->nullable()->unsigned()->comment = "Personal document";            
             $table->index('doc_id');            

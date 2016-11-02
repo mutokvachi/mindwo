@@ -70,4 +70,13 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     {
         return $this->belongsToMany('App\Models\System\Role', 'dx_users_roles');
     }
+    
+    /**
+     * List of users's personal documents
+     * @return App\Employee\EmployeePersonalDocument
+     */
+    public function employeePersonalDocs()
+    {        
+        return $this->hasMany('\App\Models\Employee\EmployeePersonalDocument', 'user_id');
+    }
 }

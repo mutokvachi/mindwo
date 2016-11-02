@@ -35,10 +35,11 @@ return [
   
     'personal_docs' => [
         'new_doc' => 'Jauns dokuments',
-        'delete_doc' => 'Dzēst dokumentu',
+        'clear_doc' => 'Notīrīt',
         'save_docs' => 'Saglabāt dokumentus',
         'country' => 'Valsts',
         'personal_doc_type' => 'Dokumenta tips',
+        'doc_nr' => 'Dokumenta numurs',
         'valid_to' => 'Derīgs līdz',
         'publisher' => 'Izdevējs',
         'file' => 'Datne',

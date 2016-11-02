@@ -35,10 +35,11 @@ return [
     
     'personal_docs' => [
         'new_doc' => 'New document',
-        'delete_doc' => 'Delete document',
+        'clear_doc' => 'Clear',
         'save_docs' => 'Save documents',
         'country' => 'Country',
         'personal_doc_type' => 'Document type',
+        'doc_nr' => 'Document number',
         'valid_to' => 'Valid to',
         'publisher' => 'Publisher',
         'file' => 'File',
