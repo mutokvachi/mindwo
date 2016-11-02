@@ -1,12 +1,19 @@
 @if ($is_form_reloaded === 0)
-<div id='list_item_view_form_{{ $frm_uniq_id }}'>
+<div id='list_item_view_form_{{ $frm_uniq_id }}' class="dx-form-fullscreen-frame">
 
 
     <div>
         <div>
 @endif
-            @include('elements.form_header',['form_title' => $form_title, 'badge' => $form_badge])
-
+                <div class='modal-header dx-form-header' style='background-color: #31708f;'>					
+                    <button type='button' class='close dx-form-close-btn' title="{{ trans('form.btn_close') }}"><i class='fa fa-times' style="color: white"></i></button>
+                    <h4 class='modal-title' style="color: white;">
+                        {{ $form_title }}
+                        @if ($form_badge)
+                            &nbsp;<span class='badge'>{{ $form_badge }}</span>
+                        @endif
+                    </h4>
+                </div>
            
                 <div style='background-color: #EEEEEE; border-bottom: 1px solid #c1c1c1;' id="top_toolbar_list_item_view_form_{{ $frm_uniq_id }}">
                     <div class="dx_form_btns_left">
@@ -80,7 +87,7 @@
                     <button  type='button' class='btn btn-primary' id='btn_save_{{ $frm_uniq_id }}'>{{ trans('form.btn_save') }}</button>
                 @endif
 
-                <button type='button' class='btn btn-white' data-dismiss='modal'>{!! ($form_is_edit_mode == 0) ? "<i class='fa fa-sign-out'></i>" . trans('form.btn_close') : "<i class='fa fa-undo'></i> " . trans('form.btn_cancel') !!}</button>
+                <button type='button' class='btn btn-white dx-form-close-btn'>{!! ($form_is_edit_mode == 0) ? "<i class='fa fa-sign-out'></i>" . trans('form.btn_close') : "<i class='fa fa-undo'></i> " . trans('form.btn_cancel') !!}</button>
             </div>
 
             @include('elements.form_custom_js', ['js_code'=>$js_code, 'frm_uniq_id'=>$frm_uniq_id, 'js_form_id' => $js_form_id])

@@ -110,8 +110,9 @@ function view_list_item(ajax_url, item_id, list_id, rel_field_id, rel_field_valu
             if (data['success'] == 1)
             {                  
                 if (data['is_fullscreen']) {
-                    $("#td_data").children().hide();
-                    $("#td_data").append(data['html']);
+                    $("#td_data").hide();
+                    $("#td_form_data").html(data['html']);
+                    HFormUI.init(grid_htm_id);
                 }
                 else {
                     $( "body" ).append(data['html']);

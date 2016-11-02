@@ -137,7 +137,7 @@ class FormController extends Controller
             $info_tasks = array_filter($info_tasks, function($value) { return strlen($value->display_name) > 0; });
         }
         
-        $form_blade = ($params->is_full_screen_mode) ? "form_full" : "form";
+        $form_blade = ($params->is_full_screen_mode && $parent_item_id == 0) ? "form_full" : "form";
                 
         $form_htm = view('elements.' . $form_blade, [
             'frm_uniq_id' => $frm_uniq_id,

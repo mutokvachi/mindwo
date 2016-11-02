@@ -11,9 +11,9 @@ var HMenuUI = function()
      * @returns {undefined}
      */
     var setActiveMenu = function() {      
-        $(".navbar-fixed-top .navbar-default li").removeClass("active");
+        $(".dx-main-menu li").removeClass("active");
 
-        var active_item = $('.navbar-fixed-top .navbar-default li a[href="' + window.location.href + '"]');
+        var active_item = $('.dx-main-menu li a[href="' + window.location.href + '"]');
         
         if (active_item.length == 0) {
             return; // nav ielādēta lapa no menu
@@ -64,6 +64,10 @@ var HMenuUI = function()
         
     };
     
+    /**
+     * Hide images not loaded
+     * @returns {undefined}
+     */
     var hideErrorImages = function() {
         $("img").error(function () { 
             $(this).hide();
@@ -71,6 +75,10 @@ var HMenuUI = function()
         });  
     };
     
+    /**
+     * Stick menu on scrolling
+     * @returns {undefined}
+     */
     var handleScroll = function () {
         
         $(document).scroll(function() {
@@ -84,7 +92,6 @@ var HMenuUI = function()
                 $(".dx-page-container").css('margin-top', '0px');
                 $(".dx-form-header").removeClass("dx-nonfixed-header");
             }
-            console.log(top);
         });
     };
     
@@ -112,4 +119,34 @@ var HMenuUI = function()
 $(document).ready(function() {
     HMenuUI.init();
 });
+/**
+ * JavaScript logic for horizontal menu forms UI
+ * 
+ * @type _L4.Anonym$0|Function
+ */
+var HFormUI = function()
+{ 
+    var handleFormClose = function(grid_id) {
+        $(".dx-form-fullscreen-frame .dx-form-close-btn").click(function() {
+            $("#td_form_data").html("");
+            $("#td_data").show();
+            stop_executing(grid_id);
+        });
+    };
+    
+    /**
+     * Inits horizontal menu page UI
+     * 
+     * @returns {undefined}
+     */
+    var initUI = function(grid_id) {       
+       handleFormClose(grid_id);
+    };
+
+    return {
+        init: function(grid_id) {
+            initUI(grid_id);
+        }
+    };
+}();
 //# sourceMappingURL=elix_mindwo_horizontal_menu.js.map

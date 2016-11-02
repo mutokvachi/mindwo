@@ -172,7 +172,7 @@
           </div>
 
         <nav class="navbar dx-top-menu dx-nonfixed-top">
-          <div class="container-fluid" style='background-color: #2D5F8B;'>
+          <div class="container-fluid" style='background-color: #3e7c99;'>
               <nav id="navbar" class="navbar navbar-default navbar-collapse collapse" role="navigation">
                 <ul class="nav navbar-nav dx-main-menu">
                     {!! $menu_htm !!}
@@ -193,6 +193,8 @@
         <div class="container-fluid dx-page-container">
             <div class="page-content" id="td_data">          
               @yield('main_content')
+            </div>
+            <div id="td_form_data">                
             </div>
         </div>
 

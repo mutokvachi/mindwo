@@ -8,7 +8,7 @@
 
 return [
     
-    'logo_txt' => 'Mindwo',
+    'logo_txt' => '',
     
     'site_title' => 'MINDWO :: Login',
     

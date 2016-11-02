@@ -69,7 +69,8 @@ gulp.task('mix_all', function() {
 
         // Scripts for horizontal menu UI
         mix.scripts([
-            'mindwo/pages/horizontal_menu.js'
+            'mindwo/pages/horizontal_menu.js',
+            'mindwo/pages/horizontal_form_ui.js'
         ],
         'public/js/elix_mindwo_horizontal_menu.js', 'resources/assets/plugins');
         

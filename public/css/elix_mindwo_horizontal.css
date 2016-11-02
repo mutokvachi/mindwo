@@ -121,7 +121,7 @@ a.top-link {
   left: 300px;
 }
 button.navbar-toggle {
-  background-color: #2d5f8b !important;
+  background-color: #3e7c99 !important;
 }
 button.navbar-toggle span.icon-bar {
   background-color: #ecf0f1 !important;
@@ -163,8 +163,8 @@ button.navbar-toggle span.icon-bar {
 Colors for horizontal menu UI
 */
 .navbar-default {
-  background-color: #2d5f8b;
-  border-color: #2d5f8b;
+  background-color: #3e7c99;
+  border-color: #3e7c99;
   margin-bottom: 0px;
 }
 .navbar-default .navbar-brand {
@@ -188,20 +188,20 @@ Colors for horizontal menu UI
 .navbar-default .navbar-nav > .active > a:hover,
 .navbar-default .navbar-nav > .active > a:focus {
   color: #ffffff;
-  background-color: #213f5a;
+  background-color: #1a4d65;
 }
 .navbar-default .navbar-nav > .open > a,
 .navbar-default .navbar-nav > .open > a:hover,
 .navbar-default .navbar-nav > .open > a:focus {
   color: #ffffff;
-  background-color: #213f5a;
+  background-color: #1a4d65;
 }
 .navbar-default .navbar-toggle {
-  border-color: #213f5a;
+  border-color: #1a4d65;
 }
 .navbar-default .navbar-toggle:hover,
 .navbar-default .navbar-toggle:focus {
-  background-color: #213f5a;
+  background-color: #1a4d65;
 }
 .navbar-default .navbar-toggle .icon-bar {
   background-color: #ecf0f1;
@@ -228,7 +228,7 @@ Colors for horizontal menu UI
   .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
   .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
     color: #ffffff;
-    background-color: #213f5a;
+    background-color: #1a4d65;
   }
 }
 
