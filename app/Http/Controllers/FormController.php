@@ -52,13 +52,13 @@ class FormController extends Controller
      * 
      * @var boolean
      */
-    private $is_editable_wf = true;
+    protected $is_editable_wf = true;
     
     /**
      * Pazīme, vai forma pieļauj rediģēšanu ( 0 - jā, 1 - nē)
      * @var integer 
      */
-    private $form_is_edit_mode = 0;
+    protected $form_is_edit_mode = 0;
 
     /**
      * Formai definētā aktuālā darbplūsma - no tabulas dx_workflows_def
@@ -354,7 +354,7 @@ class FormController extends Controller
      * @param integer $item_id  Ieraksta ID
      * @throws Exceptions\DXCustomException
      */
-    private function setFormsRightsMode($list_id, $item_id)
+    protected function setFormsRightsMode($list_id, $item_id)
     {
         $right = Rights::getRightsOnList($list_id);
 
@@ -501,7 +501,7 @@ class FormController extends Controller
      * @param integer $item_id  Ieraksta ID
      * @throws Exceptions\DXCustomException
      */
-    private function checkSaveRights($form_id, $item_id)
+    protected function checkSaveRights($form_id, $item_id)
     {
         $tbl = FormSave::getFormTable($form_id);
 
@@ -637,7 +637,7 @@ class FormController extends Controller
      * @param   int     $is_disabled        Pazīme, vai forma jāattelo skatīšanās režīmā ( 0 - skatīšanās, 1 - rediģēšanas)
      * @return string Formas lauku HTML
      */
-    private function getFormFieldsHTML($frm_uniq_id, $list_id, $item_id, $parent_item_id, $parent_field_id, $params)
+    protected function getFormFieldsHTML($frm_uniq_id, $list_id, $item_id, $parent_item_id, $parent_field_id, $params)
     {
         $row_data = null;
 
@@ -692,7 +692,7 @@ class FormController extends Controller
      * @param  Array  $params Formas parametru masīvs
      * @return Object  Masīvs ar formas lauku objektiem
      */
-    private function getFormFields($params)
+    protected function getFormFields($params)
     {
         $sql = "
 	SELECT
@@ -762,7 +762,7 @@ class FormController extends Controller
      * @param  integer  $item_id Ieraksta ID
      * @return Array  Masīvs ar ieraksta lauku vērtībām
      */
-    private function getFormItemDataRow($list_id, $item_id, $params)
+    protected function getFormItemDataRow($list_id, $item_id, $params)
     {
         $fields_rows = $this->getFormSQLFields($list_id);
 
@@ -855,7 +855,7 @@ class FormController extends Controller
      * @param  integer  $list_id Reģistra ID
      * @return Object Formas parametri
      */
-    private function getFormParams($list_id)
+    protected function getFormParams($list_id)
     {
         $sql = "
 	SELECT

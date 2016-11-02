@@ -45,29 +45,111 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @var array
      */
     protected $hidden = ['password', 'remember_token'];
-    
-    /**
-     * The "booting" method of the model.
-     *
-     * @return void
-     */
-    protected static function boot()
-    {
-        parent::boot();
-        
-        // Add default user roles
-        User::created(function ($user) {
-            $roles = \App\Models\System\Role::where('is_default', true)->get();
-            
-            $user->roles()->attach($roles); 
-        });
-    }
-    
-    /**
-     * Get the comments for the blog post.
-     */
-    public function roles()
-    {
-        return $this->belongsToMany('App\Models\System\Role', 'dx_users_roles');
-    }
+	
+	public $timestamps = false;
+	
+	/**
+	 * Relation to country
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function country()
+	{
+		return $this->hasOne('App\Models\Country', 'id', 'country_id');
+	}
+	
+	/**
+	 * Relation to department
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function department()
+	{
+		return $this->hasOne('App\Models\Department', 'id', 'department_id');
+	}
+	
+	/**
+	 * Relation to manager
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function manager()
+	{
+		return $this->hasOne('App\User', 'id', 'manager_id');
+	}
+	
+	/**
+	 * Relation to user roles
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function roles()
+	{
+		return $this->hasMany('App\Models\UserRoles', 'user_id', 'id');
+	}
+	
+	/**
+	 * Relation to team
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function team()
+	{
+		return $this->hasOne('App\Models\Team', 'id', 'team_id');
+	}
+	
+	/**
+	 * Relation to team members
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function team_members()
+	{
+		return $this->hasMany('App\User', 'team_id', 'team_id');
+	}
+	
+	/**
+	 * Get an URL of user's avatar
+	 *
+	 * @return \Illuminate\Contracts\Routing\UrlGenerator|string
+	 */
+	public function getAvatar()
+	{
+		$thumb_path = 'formated_img/small_avatar/';
+		$thumb = $thumb_path.$this->picture_guid;
+		
+		return is_file(public_path($thumb)) ? url($thumb) : url($thumb_path.get_portal_config('EMPLOYEE_AVATAR'));
+	}
+	
+	public function getAvailability()
+	{
+		if($this->termination_date)
+		{
+			$result = [
+				'button' => 'Left',
+				'class' => 'grey',
+				'title' => 'Employee has left'
+			];
+		}
+		
+		elseif($this->join_date && !$this->termination_date)
+		{
+			$result = [
+				'button' => 'Active',
+				'class' => 'green-jungle',
+				'title' => 'Employee is at work'
+			];
+		}
+		
+		else
+		{
+			$result = [
+				'button' => 'Potential',
+				'class' => 'yellow-lemon',
+				'title' => 'The person is in process of hiring'
+			];
+		}
+		
+		return $result;
+	}
 }
