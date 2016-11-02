@@ -36,6 +36,7 @@ return [
     'personal_docs' => [
         'new_doc' => 'Jauns dokuments',
         'delete_doc' => 'Dzēst dokumentu',
+        'save_docs' => 'Saglabāt dokumentus',
         'country' => 'Valsts',
         'personal_doc_type' => 'Dokumenta tips',
         'valid_to' => 'Derīgs līdz',

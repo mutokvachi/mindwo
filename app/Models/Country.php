@@ -23,8 +23,8 @@ class Country extends Model
      * List of employee's personal documents in given country
      * @return App\Employee\PersonalDocument
      */
-    public function employeePersonalDocs()
-    {
-        return $this->hasMany('\App\Models\Employee\PersonalDocument', 'country_id');
+    public function personalDocs()
+    {        
+        return $this->belongsToMany('\App\Models\Employee\PersonalDocument', 'in_personal_docs_countries', 'country_id', 'doc_id');
     }
 }

@@ -36,6 +36,7 @@ return [
     'personal_docs' => [
         'new_doc' => 'New document',
         'delete_doc' => 'Delete document',
+        'save_docs' => 'Save documents',
         'country' => 'Country',
         'personal_doc_type' => 'Document type',
         'valid_to' => 'Valid to',

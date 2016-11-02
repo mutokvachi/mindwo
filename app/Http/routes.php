@@ -1,15 +1,15 @@
 <?php
 
 /**
-*
-* Maršruti
-*
-* Šeit tiek definēti portāla maršruti (routes)
-*/
+ *
+ * Maršruti
+ *
+ * Šeit tiek definēti portāla maršruti (routes)
+ */
 
 // Datu bāzes SQL pieprasīju auditācija, ja ir ieslēgts konfigurācijas parametrs
 if (Config::get('database.log', false)) {
-    
+
     DB::listen(function ($query) {
         // $query->sql
         // $query->bindings
@@ -37,17 +37,17 @@ if (Config::get('database.log', false)) {
  * Failu pārlūks - satura redaktora komponente
  */
 Route::group(array('middleware' => 'auth'), function(){
-    Route::controller('filemanager', 'FilemanagerLaravelController'); 
+    Route::controller('filemanager', 'FilemanagerLaravelController');
 });
 
 // Attēli
 /*
-Route::get('/img/{file}',array('as'=>'img', 'uses' => 'ImageController@getOriginalFile'));
-Route::get('/img/avatar/{size_folder}/{file}',array('as'=>'img', 'uses' => 'ImageController@getAvatarFile'));
-Route::get('/formated_img/{size}/{file}', array('as'=>'img', 'uses' => 'ImageController@getImage'));
-Route::get('/formated_img_galery/{size}/{file}', array('as'=>'img', 'uses' => 'ImageController@getImageGalery'));
-Route::get('/text_img/{file}/{text}', array('as'=>'img', 'uses' => 'ImageController@getImageText'));
-*/
+  Route::get('/img/{file}',array('as'=>'img', 'uses' => 'ImageController@getOriginalFile'));
+  Route::get('/img/avatar/{size_folder}/{file}',array('as'=>'img', 'uses' => 'ImageController@getAvatarFile'));
+  Route::get('/formated_img/{size}/{file}', array('as'=>'img', 'uses' => 'ImageController@getImage'));
+  Route::get('/formated_img_galery/{size}/{file}', array('as'=>'img', 'uses' => 'ImageController@getImageGalery'));
+  Route::get('/text_img/{file}/{text}', array('as'=>'img', 'uses' => 'ImageController@getImageText'));
+ */
 
 // Speciālie PHP skripti, kas pievienoti SVS
 Route::post('/custom_php/{url}', array('as' => 'custom_php',  'middleware' => 'auth_ajax', 'uses'=>'CustomPHPController@executePHP'));
@@ -63,11 +63,11 @@ Route::get('/structure/doc_ppa_html', array('as' => 'structure_ppa_html',  'midd
 
 // Raksti atbilstoši iezīmēm
 /*
-Route::get('/raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showTagArticles'));
-Route::post('/raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showTagArticles'));
-Route::get('/datu_avota_raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showSourceArticles'));
-Route::post('/datu_avota_raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showSourceArticles'));
-*/
+  Route::get('/raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showTagArticles'));
+  Route::post('/raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showTagArticles'));
+  Route::get('/datu_avota_raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showSourceArticles'));
+  Route::post('/datu_avota_raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showSourceArticles'));
+ */
 
 // Meklēšana (darbinieku, dokumentu, rakstu)
 Route::get('/search', array('as' => 'search', 'middleware' => 'auth', 'uses'=>'SearchController@search'));
@@ -76,10 +76,14 @@ Route::post('/ajax/departments', array('as' => 'get_departments', 'middleware' =
 Route::post('/ajax/employees', array('as' => 'get_employees', 'middleware' => 'auth_ajax', 'uses'=>'EmployeeController@searchAjaxEmployee'));
 
 Route::group(['prefix' => 'employee', 'namespace' => 'Employee'], function () {
-    Route::get('/get/personal_docs_by_country/{country_id}', array('as' => 'search', 'middleware' => 'auth', 'uses'=>'EmployeePersonalDocController@getPersonalDocsByCountry'));
+    Route::group(['prefix' => 'personal_docs'], function () {
+        Route::get('/get/employee_docs/{employee_id}', array('middleware' => 'auth', 'uses' => 'EmployeePersonalDocController@getEmployeeDocs'));
+        Route::get('/get/docs_by_country/{country_id}', array('middleware' => 'auth', 'uses' => 'EmployeePersonalDocController@getPersonalDocsByCountry'));
+        Route::post('/save', array('middleware' => 'auth', 'uses' => 'EmployeePersonalDocController@save'));
+    });
 });
 
-Route::get('/emp_docs_test', array('as' => 'search', 'middleware' => 'auth', 'uses'=>'Employee\EmployeePersonalDocController@testView'));
+Route::get('/emp_docs_test', array('as' => 'search', 'middleware' => 'auth', 'uses' => 'Employee\EmployeePersonalDocController@testView'));
 
 // Bloku AJAX pieprasījumi
 //Route::post('/block_ajax', array('as' => 'block_ajax',  'middleware' => 'auth_ajax', 'uses'=>'BlockAjaxController@getData'));
