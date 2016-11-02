@@ -50,7 +50,7 @@ $.extend($.FreeForm.prototype, {
 	 */
 	edit: function() {
 		var self = this;
-		
+		show_page_splash(1);
 		// a structure for JSON request
 		var request = {
 			model: this.root.data('model'),
@@ -75,7 +75,13 @@ $.extend($.FreeForm.prototype, {
 			data: request,
 			success: function(data)
 			{
-				self.editButton.hide();
+				if (typeof data.success != "undefined" && data.success == 0) {
+                                    notify_err(data.error);
+                                    hide_page_splash(1);
+                                    return;
+                                }
+                                
+                                self.editButton.hide();
 				self.saveButton.show();
 				self.cancelButton.show();
 				
@@ -88,11 +94,13 @@ $.extend($.FreeForm.prototype, {
 					if(elem.length)
 						elem.html(input);
 				}
+                                hide_page_splash(1);
 			},
 			error: function(jqXHR, textStatus, errorThrown)
 			{
 				console.log(textStatus);
 				console.log(jqXHR);
+                                hide_page_splash(1);
 			}
 		});
 	},
@@ -102,7 +110,8 @@ $.extend($.FreeForm.prototype, {
 	 */
 	save: function() {
 		var self = this;
-		
+		show_page_splash(1);
+                
 		// JSON structure
 		var request = {
 			model: this.root.data('model'),
@@ -127,7 +136,13 @@ $.extend($.FreeForm.prototype, {
 			data: request,
 			success: function(data)
 			{
-				self.editButton.show();
+				if (typeof data.success != "undefined" && data.success == 0) {
+                                    notify_err(data.error);
+                                    hide_page_splash(1);
+                                    return;
+                                }
+                                
+                                self.editButton.show();
 				self.saveButton.hide();
 				self.cancelButton.hide();
 				
@@ -140,11 +155,13 @@ $.extend($.FreeForm.prototype, {
 					if(elem.length)
 						elem.html(html);
 				}
+                                hide_page_splash(1);
 			},
 			error: function(jqXHR, textStatus, errorThrown)
 			{
 				console.log(textStatus);
 				console.log(jqXHR);
+                                hide_page_splash(1);
 			}
 		});
 	},

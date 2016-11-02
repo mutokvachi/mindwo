@@ -191,7 +191,7 @@
         </nav>
 
         <div class="container-fluid dx-page-container">
-            <div class="page-content" id="td_data">          
+            <div class="page-content" id="td_data" style="padding: 15px;">          
               @yield('main_content')
             </div>
             <div id="td_form_data">                

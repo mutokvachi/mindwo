@@ -254,6 +254,8 @@ var PageMain = function()
      */
     var initCoreParams = function() {
         DX_CORE.site_url = page_elem.attr("dx_root_url");
+        App.setAssetsPath(DX_CORE.site_url + "assets/");
+        
         DX_CORE.site_public_url = page_elem.attr("dx_public_root_url");
         DX_CORE.progress_gif_url = DX_CORE.site_url + "assets/global/progress/loading.gif";
         DX_CORE.valid_elements = page_elem.attr("dx_valid_html_elements");

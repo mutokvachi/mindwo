@@ -100,7 +100,7 @@ a.top-link {
   margin-top: 0;
 }
 .dx-page-container {
-  padding: 0px;
+  padding: 20px;
 }
 .dx-block-container-view {
   margin-top: 0px;
@@ -157,6 +157,10 @@ button.navbar-toggle span.icon-bar {
   right: 0px;
   top: 50px;
   z-index: 2400;
+}
+.page-content .row {
+  margin-left: 0px!important;
+  margin-right: 0px!important;
 }
 
 /*
