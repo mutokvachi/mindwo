@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\Http\Requests;
 use Webpatser\Uuid\Uuid;
 use App\Libraries\FormField;
-use App\Libraries\FormSave;
-use App\Libraries\Rights;
+use Auth;
+use Config;
+use App\Exceptions;
 
 /**
  * Class FreeFormController
@@ -85,9 +85,9 @@ class FreeFormController extends FormController
 		$parent_item_id = 0;
 		$parent_field_id = 0;
 		$params = $this->getFormParams($list_id);
-		$this->setFormsRightsMode($list_id, $item_id);
+		$this->checkUserRights($list_id, $item_id);
 		$frm_uniq_id = Uuid::generate(4);
-		$this->is_editable_wf = Rights::getIsEditRightsOnItem($list_id, $item_id);
+		$this->is_editable_wf = true; // we wont check workflow status here
 		$row_data = $this->getFormItemDataRow($list_id, $item_id, $params);
 		$fields = $this->getFormFields($params);
 		
@@ -134,7 +134,8 @@ class FreeFormController extends FormController
 		$item_id = $request->input('item_id');
 		$list_id = $request->input('list_id');
 		$params = $this->getFormParams($list_id);
-		$this->setFormsRightsMode($list_id, $item_id);
+		$this->checkUserRights($list_id, $item_id);
+                $this->is_editable_wf = true; // we wont check workflow status here
 		$fields = $this->getFormFields($params);
 		
 		$fieldset = [];
@@ -175,4 +176,22 @@ class FreeFormController extends FormController
 	{
 		// not needed at now
 	}
+        
+        /**
+         * Checks if user have rights to edit - user can edit only his own profile
+         * 
+         * @param integer $list_id List ID (must be dx_users list)
+         * @param integer $item_id User ID         
+         * @throws Exceptions\DXCustomException
+         */
+        private function checkUserRights($list_id, $item_id) {
+            
+            if (Auth::user()->id != $item_id || $list_id != Config::get('dx.employee_list_id')) {
+                throw new Exceptions\DXCustomException(trans('empl_profile.err_no_edit_rights'));
+            }
+            
+            $this->form_is_edit_mode = 1;
+            $this->is_disabled = 0;
+            $this->is_edit_rights = 1;
+        }
 }

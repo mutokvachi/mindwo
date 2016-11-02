@@ -31,7 +31,7 @@ class FormController extends Controller
      * 
      * @var integer
      */
-    private $is_disabled = 1;
+    protected $is_disabled = 1;
 
     /**
      * Pazīme, vai forma pieļauj dzēšanu (0 - nav, 1 - ir)

@@ -171,7 +171,7 @@ class EmployeeController extends Controller
             'source_id_pg' => $this->source_id_pg,
             'department_pg' => $this->department_pg,
             'is_from_link' => $this->is_from_link,
-            'profile_url' => (($is_list_rights) ? '' : Config::get('dx.employee_profile_page_url')),
+            'profile_url' => Config::get('dx.employee_profile_page_url'),
             'is_list_rights' => $is_list_rights
         ]);
     }
@@ -212,7 +212,7 @@ class EmployeeController extends Controller
             'click2call_url' => get_portal_config('CLICK2CALL_URL'),
             'fixed_phone_part' => get_portal_config('CLICK2CALL_INNER_PHONE'),
             'no_source_icon' => true,
-            'profile_url' => (($is_list_rights) ? '' : Config::get('dx.employee_profile_page_url')),
+            'profile_url' => Config::get('dx.employee_profile_page_url'),
             'is_list_rights' => $is_list_rights
         ])->render();
 

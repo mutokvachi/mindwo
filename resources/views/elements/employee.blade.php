@@ -73,7 +73,11 @@
         </div>
         @if ($profile_url || $is_list_rights)
             <div>
-                <a class="btn btn-primary pull-right btn-sm dx-open-profile"  href='JavaScript:;' data-empl-id = "{{ $item->id }}">
+                @if ($profile_url)
+                    <a class="btn btn-primary pull-right btn-sm"  href='{{Request::root()}}{{ $profile_url}}{{ $item->id }}'>
+                @else
+                    <a class="btn btn-primary pull-right btn-sm dx-open-profile"  href='JavaScript:;' data-empl-id = "{{ $item->id }}">
+                @endif
                     <i class="fa fa-user"></i> {{ trans('employee.lbl_open_profile') }} 
                 </a>
             </div>

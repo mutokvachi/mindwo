@@ -221,9 +221,10 @@ return [
     | Employee profile page URL
     |--------------------------------------------------------------------------
     |
-    | Public employee profile widget is placed in an Mindwo page as widget.
-    | Here we need to provide relative path to page.
-    | If not provided, then profiles functionality will be dissabled
+    | Here we need to provide relative path to employee profile route.
+    | Blade view will add employee ID at the end of this route.
+    | If not provided, then if user have rights on employee list - will open CMS form. If no rights - profile opening wont be possible.
+    | Must start and end with slashes for example /employee/profile/
     | 
     */
     'employee_profile_page_url' => '',
