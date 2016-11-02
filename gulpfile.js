@@ -147,13 +147,19 @@ gulp.task('mix_all', function() {
             'mindwo/pages/search_tools.js',
             'mindwo/pages/employees.js'
         ], 'public/js/elix_employees.js', 'resources/assets/plugins');
-
+        
+        // Scripts for employee profile
+        mix.scripts([
+           'mindwo/pages/freeform.js'
+        ], 'public/js/elix_freeform.js', 'resources/assets/plugins');
+    
         // Minify all scripts
         mix.version([
             'js/elix_userlinks.js', 
             'js/elix_plugins.js', 
             'js/elix_view.js', 
             'js/elix_employees.js', 
+            'js/elix_freeform.js',
             'css/elix_plugins.css', 
             'css/elix_mindwo.css', 
             'css/elix_view.css',

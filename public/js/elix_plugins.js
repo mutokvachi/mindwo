@@ -6197,10 +6197,6 @@ function stop_executing_forced(guid) {
  */
 function show_dx_progres(txt) 
 {
-<<<<<<< HEAD
-=======
-    debug_log("Show dx progress");
->>>>>>> 164ca786a8ebd7d8f29efad1c324ad1191360798
     show_page_splash();
 }
 
@@ -6211,10 +6207,6 @@ function show_dx_progres(txt)
  */
 function hide_dx_progres() 
 {
-<<<<<<< HEAD
-=======
-    debug_log("Hide dx progress");
->>>>>>> 164ca786a8ebd7d8f29efad1c324ad1191360798
     hide_page_splash();
 }
 
@@ -6467,14 +6459,8 @@ function show_page_splash(is_lock)
     
     if (is_lock == 1) {
         is_splash_lock = 1;
-<<<<<<< HEAD
     }    
     
-=======
-    }
-    
-    debug_log("Show page splash. is_splash_lock = " + is_splash_lock);
->>>>>>> 164ca786a8ebd7d8f29efad1c324ad1191360798
     if ( App ) {
         App.blockUI({message: DX_CORE.trans_please_wait, boxed: true});
     }
@@ -6496,10 +6482,6 @@ function hide_page_splash(is_unlock)
         is_splash_lock = 0;
     }
     
-<<<<<<< HEAD
-=======
-    debug_log("Hide page splash. is_splash_lock = " + is_splash_lock);
->>>>>>> 164ca786a8ebd7d8f29efad1c324ad1191360798
     if ( App ) {
         App.unblockUI();
     }
@@ -6519,12 +6501,7 @@ function show_form_splash(is_lock)
     if (is_lock == 1) {
         is_splash_lock = 1;
     }
-<<<<<<< HEAD
         
-=======
-    
-    debug_log("Show form splash");
->>>>>>> 164ca786a8ebd7d8f29efad1c324ad1191360798
     if ( App ) {
         App.blockUI({
             target: '.modal-content',
@@ -6549,12 +6526,7 @@ function hide_form_splash(is_unlock)
     if (is_unlock == 1) {
         is_splash_lock = 0;
     }
-<<<<<<< HEAD
         
-=======
-    
-    debug_log("Hide form splash");
->>>>>>> 164ca786a8ebd7d8f29efad1c324ad1191360798
     if ( App ) {
         App.unblockUI('.modal-content');
     }
@@ -7439,7 +7411,6 @@ var PageMain = function()
     };
     
     /**
-<<<<<<< HEAD
      * Fix slider/menu issue (metronic theme hack)
      * 
      * @returns {undefined}
@@ -7464,8 +7435,6 @@ var PageMain = function()
     };
     
     /**
-=======
->>>>>>> 164ca786a8ebd7d8f29efad1c324ad1191360798
      * Inicializē galvenās lapas JavaScript funkcionalitāti.
      * Izpildās, kamēr vēl nav visa lapa līdz galam ielādēta.
      * 
@@ -7506,14 +7475,11 @@ var PageMain = function()
         initPageSize();
         
         setActiveMenu();
-<<<<<<< HEAD
         
         if (dx_is_slider == 1) {
             reset_margin();        
             addResizeCallback(reset_margin);
         }
-=======
->>>>>>> 164ca786a8ebd7d8f29efad1c324ad1191360798
     };
 
     /**

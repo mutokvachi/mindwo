@@ -221,7 +221,9 @@
               <a href="javascript:;" class="btn btn-circle btn-default {{ $avail['class'] }} pull-right" title="{{ $avail['title'] }}"> {{ $avail['button'] }} </a>
               <h4><span>{{ $employee->first_name }}</span> <span>{{ $employee->last_name }}</span></h4>
               <span><a href="#" class="dx_position_link"> {{ $employee->position_title }}</a></span><br>
+              @if ($employee->department)
               <span><a href="#" class="small dx_department_link">{{ $employee->department->title }}</a></span><br><br>
+              @endif
               <div class="text-left">
                 <span><a href="mailto:{{ $employee->email }}">{{ $employee->email }}</a></span><br>
                 <span>{{ $employee->phone }}</span><br><br>
