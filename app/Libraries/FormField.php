@@ -117,7 +117,8 @@ namespace App\Libraries
                         'is_required' => $this->fld_attr->is_required,
                         'hint' => $this->fld_attr->hint,
                         'fld_name' => $this->fld_attr->db_name,
-                        'group_label' => $this->fld_attr->group_label
+                        'group_label' => $this->fld_attr->group_label,
+                        'frm_uniq_id' => $this->frm_uniq_id
                     ]);
                 }
                 else {
@@ -138,7 +139,65 @@ namespace App\Libraries
                 ]);
             }
         }
-        
+	
+		public function get_field_input_htm()
+		{
+			if ($this->parent_item_id > 0 && $this->fld_attr->field_id == $this->parent_field_id)
+			{
+				// Form is opened from sub-grid
+				// We dont show related form's element
+				//$this->is_hidden_field = 1;
+				$this->fld_attr->is_readonly = 1;
+				$this->is_hidden_field = 0;
+			}
+		
+			if ($this->is_hidden_field == 0)
+			{
+				$fld_height = $this->fld_attr->height_px + 10;
+			
+				$field_htm = FieldsHtm\FieldHtmFactory::build_field($this->fld_attr, $this->item_id, $this->item_value, $this->list_id, $this->frm_uniq_id, $this->is_disabled_mode);
+			
+				if (property_exists($field_htm, "binded_field_id") && $this->binded_field_id > 0) {
+					$field_htm->binded_field_id = $this->binded_field_id;
+					$field_htm->binded_rel_field_id = $this->binded_rel_field_id;
+					$field_htm->binded_rel_field_value = $this->binded_rel_field_value;
+				}
+			
+				if (property_exists($field_htm, "value_guid")) {
+					$field_htm->value_guid = $this->data_row[str_replace('_name', '_guid', $this->fld_attr->db_name)];
+				}
+			
+				$htm = $field_htm->getHtm();
+			
+				// šim vienmēr jāizpildās pēc getHtm metodes, jo tajā metodē uzstāda papildus parametrus
+				if (property_exists($field_htm, "binded_field_id") && $this->binded_field_id == 0) {
+					$this->binded_field_id = $field_htm->binded_field_id;
+					$this->binded_rel_field_id = $field_htm->binded_rel_field_id;
+					$this->binded_rel_field_value = $field_htm->binded_rel_field_value;
+				}
+			
+				if (strlen($htm) > 0) {
+					return $htm;
+				}
+				else {
+					return "";
+				}
+			}
+			else
+			{
+				if (strlen($this->fld_attr->default_value) > 0 && $this->item_id == 0)
+				{
+					$this->item_value = $this->fld_attr->default_value;
+				}
+			
+				return view('fields.hidden', [
+					'frm_uniq_id' => $this->frm_uniq_id,
+					'item_field' => $this->item_field,
+					'item_value' => $this->item_value
+				]);
+			}
+		}
+
         private function get_visible_field_value_htm()
         { 
             switch ($this->fld_attr->type_sys_name) {

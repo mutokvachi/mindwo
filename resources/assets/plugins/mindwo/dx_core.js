@@ -179,7 +179,6 @@ function stop_executing_forced(guid) {
  */
 function show_dx_progres(txt) 
 {
-    debug_log("Show dx progress");
     show_page_splash();
 }
 
@@ -190,7 +189,6 @@ function show_dx_progres(txt)
  */
 function hide_dx_progres() 
 {
-    debug_log("Hide dx progress");
     hide_page_splash();
 }
 
@@ -443,9 +441,8 @@ function show_page_splash(is_lock)
     
     if (is_lock == 1) {
         is_splash_lock = 1;
-    }
+    }    
     
-    debug_log("Show page splash. is_splash_lock = " + is_splash_lock);
     if ( App ) {
         App.blockUI({message: DX_CORE.trans_please_wait, boxed: true});
     }
@@ -467,7 +464,6 @@ function hide_page_splash(is_unlock)
         is_splash_lock = 0;
     }
     
-    debug_log("Hide page splash. is_splash_lock = " + is_splash_lock);
     if ( App ) {
         App.unblockUI();
     }
@@ -487,8 +483,7 @@ function show_form_splash(is_lock)
     if (is_lock == 1) {
         is_splash_lock = 1;
     }
-    
-    debug_log("Show form splash");
+        
     if ( App ) {
         App.blockUI({
             target: '.modal-content',
@@ -513,8 +508,7 @@ function hide_form_splash(is_unlock)
     if (is_unlock == 1) {
         is_splash_lock = 0;
     }
-    
-    debug_log("Hide form splash");
+        
     if ( App ) {
         App.unblockUI('.modal-content');
     }

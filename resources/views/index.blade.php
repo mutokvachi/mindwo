@@ -37,8 +37,8 @@
 
         <div class="text-center" style="max-width: 300px; width: 300px; margin: 0 auto; margin-top: 100px;">       
             <div>
-                @if (trans('index.logo'))
-                    <img src="{{ trans('index.logo') }}" alt="LOGO" />
+                @if (!trans('index.logo_txt'))
+                    <img src="{{ Config::get('dx.logo_big') }}" alt="LOGO" />
                 @else
                     <span style="font-size: 48px; color: #2e6da4; text-transform: uppercase;">{{ trans('index.logo_txt') }}</span>
                 @endif

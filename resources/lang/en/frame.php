@@ -17,7 +17,7 @@ return [
     'logout' => 'Logout',
     
     // Other TOP menu
-    'tasks' => 'Tasks:',
+    'tasks' => 'Tasks',
     'user_manual' => 'User guide',
     'open' => 'Open',
     

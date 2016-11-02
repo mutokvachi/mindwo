@@ -126,14 +126,14 @@ var PageDocuments = function()
             el_date_to: "pick_date_to",
             page_selector: ".dx-documents-page",
             form_selector: ".search-tools-form",
-            arr_ranges: {
-                    'Šodien': [moment(), moment()],
-                    'Vakar': [moment().subtract('days', 1), moment().subtract('days', 1)],
-                    'Pirms 7 dienām': [moment().subtract('days', 6), moment()],                    
-                    'Šis mēnesis': [moment().startOf('month'), moment().endOf('month')],
-                    'Iepriekšējais mēnesis': [moment().subtract('month', 1).startOf('month'), moment().subtract('month', 1).endOf('month')]
-                }
+            arr_ranges: {}
         };
+        
+        arr_date_param["arr_ranges"][Lang.get('date_range.flt_today')] = [moment(), moment()];
+        arr_date_param["arr_ranges"][Lang.get('date_range.flt_yesterday')] = [moment().subtract('days', 1), moment().subtract('days', 1)];
+        arr_date_param["arr_ranges"][Lang.get('date_range.flt_7')] = [moment().subtract('days', 6), moment()];
+        arr_date_param["arr_ranges"][Lang.get('date_range.flt_thism')] = [moment().startOf('month'), moment().endOf('month')];
+        arr_date_param["arr_ranges"][Lang.get('date_range.flt_prevm')] = [moment().subtract('month', 1).startOf('month'), moment().subtract('month', 1).endOf('month')];
         
         DateRange.init(arr_date_param, clearLinkShowHide);
     }

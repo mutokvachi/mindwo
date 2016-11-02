@@ -9,10 +9,10 @@
 <div id="{{ $form_guid }}">
     <form class="form-horizontal" id='item_edit_form_{{ $form_guid }}' method='POST' data-toggle="validator">
         <div>
-            @include('fields.visible', ['fld_name' => '', 'group_label' => '', 'label_title' => 'Reģistra nosaukums', 'is_required' => 1, 'hint' => 'Nosaukums tiks parādīts virs tabulārā saraksta. Jāraksta daudzskaitlī.', 'item_htm' => '<input class="form-control" type=text name = "register_title"  maxlength="500" value = "" required /><span class="glyphicon form-control-feedback" aria-hidden="true"></span>'])
+            @include('fields.visible', ['frm_uniq_id'=>'gener_reg', 'fld_name' => '', 'group_label' => '', 'label_title' => 'Reģistra nosaukums', 'is_required' => 1, 'hint' => 'Nosaukums tiks parādīts virs tabulārā saraksta. Jāraksta daudzskaitlī.', 'item_htm' => '<input class="form-control" type=text name = "register_title"  maxlength="500" value = "" required /><span class="glyphicon form-control-feedback" aria-hidden="true"></span>'])
         </div>
         <div>
-            @include('fields.visible', ['fld_name' => '', 'group_label' => '', 'label_title' => 'Formas nosaukums', 'is_required' => 1, 'hint' => 'Formas nosaukums jāraksta vienskaitlī.', 'item_htm' => '<input class="form-control" type=text name = "form_title"  maxlength="100" value = "" required /><span class="glyphicon form-control-feedback" aria-hidden="true"></span>'])
+            @include('fields.visible', ['frm_uniq_id'=>'gener_reg', 'fld_name' => '', 'group_label' => '', 'label_title' => 'Formas nosaukums', 'is_required' => 1, 'hint' => 'Formas nosaukums jāraksta vienskaitlī.', 'item_htm' => '<input class="form-control" type=text name = "form_title"  maxlength="100" value = "" required /><span class="glyphicon form-control-feedback" aria-hidden="true"></span>'])
         </div>
         <div>
             <div class="col-lg-4">

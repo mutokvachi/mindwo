@@ -89,72 +89,46 @@ function view_list_item(ajax_url, item_id, list_id, rel_field_id, rel_field_valu
 	}
         
 	start_executing(grid_htm_id);
-        	
+        
         var formData = new FormData();
         formData.append("item_id", item_id);
         formData.append("list_id", list_id);
         formData.append("parent_item_id", rel_field_value);
         formData.append("parent_field_id", rel_field_id);
         formData.append("grid_htm_id", grid_htm_id);
-        //formData.append("parent_form_htm_id", parent_form_htm_id);
+
+        var request = new FormAjaxRequest (ajax_url, "", grid_htm_id, formData);
+
+        request.progress_info = "";
+        request.err_callback = function() {
+            stop_executing(grid_htm_id);
+        }
         
-        $.ajax({ 
-            type: 'POST',
-            url: DX_CORE.site_url  + ajax_url,
-            data: formData,
-            processData: false,
-            contentType: false,
-            dataType: "json",
-            success : function(data) {
-                try
-                {
-                    var myData = data;                    
-                    if (myData['success'] == 1)
-                    {                  
-                        $( "body" ).append(myData['html']);				
-                    } 
-                    else
-                    {
-                       notify_err(myData['error']);
-                       stop_executing(grid_htm_id);
-                    }
+        request.callback = function(data) {
+            show_form_splash();
+
+            if (data['success'] == 1)
+            {                  
+                if (data['is_fullscreen']) {
+                    $("#td_data").hide();
+                    $("#td_form_data").html(data['html']);
+                    HFormUI.init(grid_htm_id);
                 }
-                catch (err)
-                {
-                   notify_err(err);
-                   stop_executing(grid_htm_id);
+                else {
+                    $( "body" ).append(data['html']);
                 }
-                hide_form_splash();
-                hide_page_splash();
-            },
-            beforeSend: function () {
-                show_form_splash();
-                show_page_splash();
-            },
-            error: function(jqXHR, textStatus, errorThrown)
+            } 
+            else
             {
-                if( jqXHR.status === 422 ) 
-                {
-                    var errors = jqXHR.responseJSON;
-                    var errorsHtml= '<ul>';
-                    $.each( errors, function( key, value ) {
-                        errorsHtml += '<li>' + value[0] + '</li>'; 
-                    });
-                    errorsHtml += '</ul>';
-                    toastr.error(errorsHtml);
-                }
-                else   
-                {
-                    notify_err(DX_CORE.trans_general_error);
-                    console.log("Sistēmas kļūda - XHR: " + jqXHR.statusText);
-                    console.log("Sistēmas kļūda - statuss: " + textStatus);
-                    console.log("Sistēmas kļūda - kļūda: " + errorThrown);
-                }
-                hide_form_splash();
-                hide_page_splash();
-                stop_executing(grid_htm_id);
+               notify_err(data['error']);
+               stop_executing(grid_htm_id);
             }
-        });
+                    
+            hide_form_splash(1);
+        };
+
+        // izpildam AJAX pieprasījumu
+        request.doRequest();
 }
 
 function open_form(ajax_url, item_id, list_id, rel_field_id, rel_field_value, grid_htm_id, form_is_edit_mode, parent_form_htm_id)
@@ -320,7 +294,7 @@ function refresh_form_fields(edit_form_htm_id, form_htm_id, item_id, list_id, re
         dataType: "json",
         async:true,
         success : function(data) {
-            debug_log("refresh_form_fields - AJAX received");
+            
             try
              {
                  var myData = data;
@@ -415,7 +389,7 @@ function reload_edited_form(ajax_url, item_id, list_id, rel_field_id, rel_field_
         var htm = data['html'].replace(re, old_form_htm_id);
         
         var height_content  = $("#list_item_view_form_" + old_form_htm_id).find(".modal-body").height();
-                
+            
         unregister_form("list_item_view_form_" + old_form_htm_id);
         $("#list_item_view_form_" + old_form_htm_id).find(".modal-content").html(htm);
         
@@ -430,13 +404,10 @@ function reload_edited_form(ajax_url, item_id, list_id, rel_field_id, rel_field_
             });
         }
         
-        if (height_content > 500)
-        {
-            var tool_height = $("#top_toolbar_list_item_view_form_" + old_form_htm_id).height();
+        var tool_height = $("#top_toolbar_list_item_view_form_" + old_form_htm_id).height();
 
-            $("#list_item_view_form_" + old_form_htm_id).find(".modal-body").height(height_content - tool_height-21);
-        }
-        
+        $("#list_item_view_form_" + old_form_htm_id).find(".modal-body").height(height_content - tool_height-21);
+                
         var height = $(window).height()*DX_CORE.form_height_ratio;
         var form_body = $("#list_item_view_form_" + old_form_htm_id).find(".modal-body");
         

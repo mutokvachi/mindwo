@@ -13,6 +13,8 @@ class BoxController extends Controller
 
     public static function generateSlideMenu()
     {
+		$parent_id = null;
+		$slide = null;
 
         $sets = BoxController::fillMenuItems(0, 0);
         foreach ($sets as $k => $set) {

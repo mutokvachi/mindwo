@@ -59,7 +59,27 @@ gulp.task('mix_all', function() {
             'jquery-nestable/jquery.nestable.css', // ok
             'mindwo/css/view.css' // ok
         ], 'public/css/elix_view.css', 'resources/assets/plugins');
+        
+        // horizontal menu UI styles                
+        mix.less([
+            'horizontal_ui.less',
+            'bootstrap_menu.less',
+            'multilevel_menu.less'
+        ], 'public/css/elix_mindwo_horizontal.css');
 
+        // Scripts for horizontal menu UI
+        mix.scripts([
+            'mindwo/pages/horizontal_menu.js',
+            'mindwo/pages/horizontal_form_ui.js'
+        ],
+        'public/js/elix_mindwo_horizontal_menu.js', 'resources/assets/plugins');
+        
+        // Scripts for documents search page
+        mix.scripts([
+            'mindwo/pages/documents.js'
+        ],
+        'public/js/elix_documents.js', 'resources/assets/plugins');
+        
         // Core scripts for main blade view - will be included in all pages
         mix.scripts([
             'jquery.min.js', 
@@ -68,15 +88,14 @@ gulp.task('mix_all', function() {
             'bootstrap-hover-dropdown/bootstrap-hover-dropdown.js',
             'jquery-slimscroll/jquery.slimscroll.js',
             'metronic/jquery.blockui.min.js',
-            //'uniform/jquery.uniform.js',
             'bootstrap-switch/js/bootstrap-switch.js',
-            //'icheck/icheck.js',
             'gritter/jquery.gritter.min.js',
             'toastr/toastr.js',
             'bootstrap-modal/js/bootstrap-modalmanager.js',
             'bootstrap-modal/js/bootstrap-modal.js',
             'jquery.cookie.js',
             'tooltipster-master/js/jquery.tooltipster.js',
+            'mindwo/dx_core.js',
             'metronic/app.js',
             'jquery-ui/jquery-ui.min.js',
             'fullcalendar/moment.min.js',
@@ -84,8 +103,7 @@ gulp.task('mix_all', function() {
             'fullcalendar/lang-all.js',
             'metronic/layout.js',
             'metronic/demo.js',
-            'metronic/quick-sidebar.js',
-            'mindwo/dx_core.js',
+            'metronic/quick-sidebar.js',            
             'mindwo/pages/main.js',
             'mindwo/pages/employees_links.js',
             'mindwo/pages/search_top.js',
@@ -129,9 +147,26 @@ gulp.task('mix_all', function() {
             'mindwo/pages/search_tools.js',
             'mindwo/pages/employees.js'
         ], 'public/js/elix_employees.js', 'resources/assets/plugins');
-
+        
+        // Scripts for employee profile
+        mix.scripts([
+           'mindwo/pages/freeform.js'
+        ], 'public/js/elix_freeform.js', 'resources/assets/plugins');
+    
         // Minify all scripts
-        mix.version(['js/elix_userlinks.js', 'js/elix_plugins.js', 'js/elix_view.js', 'js/elix_employees.js', 'css/elix_plugins.css', 'css/elix_mindwo.css', 'css/elix_view.css']);
+        mix.version([
+            'js/elix_userlinks.js', 
+            'js/elix_plugins.js', 
+            'js/elix_view.js', 
+            'js/elix_employees.js', 
+            'js/elix_freeform.js',
+            'css/elix_plugins.css', 
+            'css/elix_mindwo.css', 
+            'css/elix_view.css',
+            'css/elix_mindwo_horizontal.css',
+            'js/elix_mindwo_horizontal_menu.js',
+            'js/elix_documents.js'
+        ]);
     });
 });
 

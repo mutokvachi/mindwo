@@ -18,12 +18,14 @@ namespace App\Libraries\FieldsHtm
             if ($this->item_id == 0 && $this->fld_attr->is_manual_reg_nr) {
                 return "";
             }
-           
+            
+            $reg_state = \App\Http\Controllers\RegisterController::getRegNrState($this->fld_attr, $this->item_value);
+            
             return view('fields.datetime', [
                     'frm_uniq_id' => $this->frm_uniq_id, 
                     'item_field' => $this->fld_attr->db_name, 
                     'item_value' => $this->item_value,
-                    'is_disabled' => ($this->fld_attr->is_readonly) ? 1 : $this->is_disabled_mode,
+                    'is_disabled' => ($this->fld_attr->is_readonly || $reg_state['reg_fld_editable'] == 0) ? 1 : $this->is_disabled_mode,
                     'fld_width' => '130',
                     'tm_format' => Config::get('dx.txt_date_format', 'd.m.Y'),
                     'is_time' => 'false',
