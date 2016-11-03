@@ -224,7 +224,7 @@
                             @if ($employee->department)
                                 <span><a href="#" class="small dx_department_link">{{ $employee->department->title }}</a></span><br><br>
                             @endif
-                            <a href="javascript:;" class="btn btn-default {{ $avail['class'] }}" title="{{ $avail['title'] }}" style="font-size: 10px; "> {{ $avail['button'] }} </a>
+                            <a href="javascript:;" class="btn btn-default {{ $avail['class'] }}" title="{{ $avail['title'] }}" style="font-size: 10px; margin-top: 10px;"> {{ $avail['button'] }} </a>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-12">
                           <div class="employee-details-1">

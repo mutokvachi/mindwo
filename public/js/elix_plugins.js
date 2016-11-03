@@ -6915,7 +6915,7 @@ var PageMain = function()
      * @returns {undefined}
      */
     var resizePage = function() {
-        for (i = 0; i < resize_functions_arr.length; i++) {
+        for (i = 0; i < resize_functions_arr.length; i++) {            
             resize_functions_arr[i]();
         }
     };
@@ -7325,6 +7325,19 @@ var PageMain = function()
     };
     
     /**
+     * Handles window resize events for horizontal menu UI
+     * 
+     * @returns {undefined}
+     */
+    var handleWindowResizeHorUI = function() {
+        $(window).resize(function() {
+            setTimeout(function() {
+                resizePage();
+            }, 500);
+        });  
+    };
+    
+    /**
      * Uzstāda ziņu saitēm, lai tās atver jaunā pārlūka TAB un foksuē TABu.
      * Funkcionalitāte tiek uzstādīta arī mākoņa saitēm.
      * 
@@ -7461,27 +7474,30 @@ var PageMain = function()
      * @returns {undefined}
      */
     var initPageLoaded = function() {
-        initUserTasksPopup();
-        //initSpecialTooltips();     
+        initUserTasksPopup();     
         
         initPortletsShowHide();
         handlePortletsHideShow();
-        
-        handleBtnScreen();      
-        handleWindowResize();
         
         handleTargetedLinkClick();
         
         setFilesLinksIcons();
         
-        initPageSize();
-        
-        setActiveMenu();
+        if ($("body").hasClass("dx-horizontal-menu-ui")) {            
+            handleWindowResizeHorUI();
+            resizePage();
+        }
+        else {
+            handleBtnScreen();      
+            handleWindowResize();
+            initPageSize();
+            setActiveMenu();
+        }
         
         if (dx_is_slider == 1) {
             reset_margin();        
             addResizeCallback(reset_margin);
-        }
+        }        
     };
 
     /**
@@ -7519,9 +7535,13 @@ var PageMain = function()
         },
         initAjaxCSRF: function() {
             initAjaxCSRF();
+        },
+        resizePage: function() {
+            resizePage();
         }
     };
 }();
+
 
 PageMain.init();
 
@@ -7535,6 +7555,7 @@ $(document).ajaxComplete(function(event, xhr, settings) {
     PageMain.initHelpPopups();
     PageMain.initFilesIcons();
 });
+
 /**
  * Atrasto darbinieku saišu JavaScript funkcionalitāte
  * 

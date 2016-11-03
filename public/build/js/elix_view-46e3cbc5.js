@@ -13970,7 +13970,10 @@ function init_textarea(htm_id)
 	    file_browser_callback: FileManager,
             fullscreen_new_window : true,
 	    theme_advanced_font_sizes: "10px,12px,13px,14px,15px,16px,18px,20px,22px,24px,26px,28px,30px,32px,34px,36px,38px,40px",
-	    font_size_style_values: "10px,12px,13px,14px,15px,16px,18px,20px,22px,24px,26px,28px,30px,32px,34px,36px,38px,40px"
+	    font_size_style_values: "10px,12px,13px,14px,15px,16px,18px,20px,22px,24px,26px,28px,30px,32px,34px,36px,38px,40px",
+            apply_source_formatting:true,
+            entity_encoding: 'named',
+            entities:'169,copy,8482,trade,ndash,8212,mdash,8216,lsquo,8217,rsquo,8220,ldquo,8221,rdquo,8364,euro'
         };
       
         // custom_buttons pluginā ir iespējams katrai formai likt savus paštaisītos pluginus
