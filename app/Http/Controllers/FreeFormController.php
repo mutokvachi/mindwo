@@ -101,9 +101,12 @@ class FreeFormController extends FormController
 		foreach($fields as $row)
 		{
 			if(!in_array($row->db_name, $fieldset))
+			{
 				continue;
+			}
 			
-			$field = new FormField($row, $list_id, $item_id, $parent_item_id, $parent_field_id, $row_data, $frm_uniq_id);
+			$field = new FormField($row, $list_id, $item_id, $parent_item_id, $parent_field_id, $row_data,
+				$frm_uniq_id);
 			
 			$html = $field->get_field_input_htm();
 			
@@ -112,6 +115,8 @@ class FreeFormController extends FormController
 				'input' => $html
 			];
 		}
+		
+		$result['success'] = 1;
 		
 		return response($result);
 	}
@@ -135,7 +140,7 @@ class FreeFormController extends FormController
 		$list_id = $request->input('list_id');
 		$params = $this->getFormParams($list_id);
 		$this->checkUserRights($list_id, $item_id);
-                $this->is_editable_wf = true; // we wont check workflow status here
+		$this->is_editable_wf = true; // we wont check workflow status here
 		$fields = $this->getFormFields($params);
 		
 		$fieldset = [];
@@ -163,6 +168,8 @@ class FreeFormController extends FormController
 		
 		$model->save();
 		
+		$result['success'] = 1;
+		
 		return response($result);
 	}
 	
@@ -176,22 +183,24 @@ class FreeFormController extends FormController
 	{
 		// not needed at now
 	}
-        
-        /**
-         * Checks if user have rights to edit - user can edit only his own profile
-         * 
-         * @param integer $list_id List ID (must be dx_users list)
-         * @param integer $item_id User ID         
-         * @throws Exceptions\DXCustomException
-         */
-        private function checkUserRights($list_id, $item_id) {
-            
-            if (Auth::user()->id != $item_id || $list_id != Config::get('dx.employee_list_id')) {
-                throw new Exceptions\DXCustomException(trans('empl_profile.err_no_edit_rights'));
-            }
-            
-            $this->form_is_edit_mode = 1;
-            $this->is_disabled = 0;
-            $this->is_edit_rights = 1;
-        }
+	
+	/**
+	 * Checks if user have rights to edit - user can edit only his own profile
+	 *
+	 * @param integer $list_id List ID (must be dx_users list)
+	 * @param integer $item_id User ID
+	 * @throws Exceptions\DXCustomException
+	 */
+	private function checkUserRights($list_id, $item_id)
+	{
+		
+		if(Auth::user()->id != $item_id || $list_id != Config::get('dx.employee_list_id'))
+		{
+			throw new Exceptions\DXCustomException(trans('empl_profile.err_no_edit_rights'));
+		}
+		
+		$this->form_is_edit_mode = 1;
+		$this->is_disabled = 0;
+		$this->is_edit_rights = 1;
+	}
 }

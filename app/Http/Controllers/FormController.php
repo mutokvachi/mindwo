@@ -38,14 +38,14 @@ class FormController extends Controller
      * 
      * @var integer 
      */
-    private $is_delete_rights = 0;
+    protected $is_delete_rights = 0;
 
     /**
      * Pazīme, vai forma pieļauj rediģēšanu (0 - jā, 1 - nē)
      * 
      * @var integer 
      */
-    private $is_edit_rights = 0;
+    protected $is_edit_rights = 0;
 
     /**
      * Pazīme, vai ieraksta neatrodas darbplūsmā un ja atrodas, vai lietotājam ir rediģēšanas uzdevums, kas pieļauj rediģēt šo ierakstu

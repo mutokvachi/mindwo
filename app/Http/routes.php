@@ -142,6 +142,7 @@ Route::group(['middleware' => 'auth_ajax', 'prefix' => 'inlineform'], function()
 	Route::post('', 'InlineFormController@store');
 	Route::post('{id}/edit', 'InlineFormController@edit');
 	Route::put('{id}', 'InlineFormController@update');
+	Route::delete('{id}', 'InlineFormController@destroy');
 });
 
 // Lapas
