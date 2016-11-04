@@ -162,6 +162,15 @@ button.navbar-toggle span.icon-bar {
   margin-left: 0px!important;
   margin-right: 0px!important;
 }
+.btn-primary {
+  background-color: #3e7c99 !important;
+}
+.blue-soft {
+  background-color: #3e7c99 !important;
+}
+.dx-form-header {
+  background-color: #3e7c99 !important;
+}
 
 /*
 Colors for horizontal menu UI
