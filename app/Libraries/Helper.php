@@ -163,10 +163,25 @@ namespace App\Libraries
          */
         public static function getUserAvatarSmall() {
             if (Auth::user()->picture_guid) {
-                return DIRECTORY_SEPARATOR . "formated_img" . DIRECTORY_SEPARATOR . "small_avatar" . DIRECTORY_SEPARATOR . Auth::user()->picture_guid;
+                return "formated_img/small_avatar/" . Auth::user()->picture_guid;
             }
             else {
-                return DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "global" . DIRECTORY_SEPARATOR . "avatars" . DIRECTORY_SEPARATOR . "default_avatar_small.jpg";
+                return "assets/global/avatars/default_avatar_small.jpg";
+            }
+        }
+        
+         /**
+         * Returns path to employee avatar
+         * If employee does not have picture, will be used default from assets
+         * 
+         * @return string Path to emoloyee big avatar
+         */
+        public static function getEmployeeAvatarBig($picture) {
+            if ($picture) {
+                return "formated_img/small_avatar/" . $picture;
+            }
+            else {
+                return "assets/global/avatars/default_avatar_big.jpg";
             }
         }
 

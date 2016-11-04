@@ -115,10 +115,13 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	 */
 	public function getAvatar()
 	{
-		$thumb_path = 'formated_img/small_avatar/';
-		$thumb = $thumb_path.$this->picture_guid;
-		
-		return is_file(public_path($thumb)) ? url($thumb) : url($thumb_path.get_portal_config('EMPLOYEE_AVATAR'));
+            return url(\App\Libraries\Helper::getEmployeeAvatarBig($this->picture_guid));
+            /*
+            $thumb_path = 'formated_img/small_avatar/';
+            $thumb = $thumb_path.$this->picture_guid;
+
+            return is_file(public_path($thumb)) ? url($thumb) : url($thumb_path.get_portal_config('EMPLOYEE_AVATAR'));
+            */
 	}
 	
 	public function getAvailability()

@@ -129,7 +129,7 @@
                     <!-- BEGIN USER LOGIN DROPDOWN -->
                     <li class="dropdown dropdown-user" style="padding: 0 0px;">
                         <a href="javascript:;" class="dropdown-toggle top-link" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-                            <img src="{{Request::root()}}{{ \App\Libraries\Helper::getUserAvatarSmall() }}" class="img-circle" alt="{{ Auth::user()->display_name }}" style="width: 20px;"/>
+                            <img src="{{Request::root()}}/{{ \App\Libraries\Helper::getUserAvatarSmall() }}" class="img-circle" alt="{{ Auth::user()->display_name }}" style="width: 20px;"/>
                             <span class="username username-hide-on-mobile"> {{ Auth::user()->display_name }} </span>
                             <i class="fa fa-angle-down"></i>
                         </a>

@@ -10,7 +10,7 @@
         
         <div class="row">
             <div class="hidden-xs col-sm-2 col-md-2 employee-pic-box">
-                <img src="{{Request::root()}}/formated_img/small_avatar/{{ ($item->picture_guid) ? $item->picture_guid : $avatar }}" class="img-responsive">
+                <img src="{{Request::root()}}/{{ \App\Libraries\Helper::getEmployeeAvatarBig($item->picture_guid) }}" class="img-responsive">
             </div>
 
             <div class="col-xs-12 col-sm-10 col-md-6">
