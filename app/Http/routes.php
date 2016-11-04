@@ -129,6 +129,8 @@ Route::post('/relogin', 'UserController@reLoginUser');
 // Route group for employee profile
 Route::group(['middleware' => 'auth', 'prefix' => 'employee'], function() {
 	Route::get('profile/{id?}', 'EmplProfileController@show')->name('profile');
+	Route::get('profile/{id}/chunks', ['as' => 'profile_chunks', 'middleware' => 'auth_ajax', 'uses' => 'EmplProfileController@ajaxShowChunks']);
+	Route::get('new', 'EmplProfileController@create');
 });
 
 Route::group(['middleware' => 'auth_ajax', 'prefix' => 'freeform'], function() {
@@ -137,6 +139,7 @@ Route::group(['middleware' => 'auth_ajax', 'prefix' => 'freeform'], function() {
 });
 
 Route::group(['middleware' => 'auth_ajax', 'prefix' => 'inlineform'], function() {
+	Route::post('', 'InlineFormController@store');
 	Route::post('{id}/edit', 'InlineFormController@edit');
 	Route::put('{id}', 'InlineFormController@update');
 });

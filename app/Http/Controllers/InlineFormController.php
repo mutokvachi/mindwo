@@ -48,7 +48,23 @@ class InlineFormController extends FormController
 	 */
 	public function store(Request $request)
 	{
-		// not needed at now
+		$this->validate($request, [
+			'edit_form_id' => 'required|integer|exists:dx_forms,id',
+			'item_id' => 'integer',
+			'multi_list_id' => 'integer'
+		]);
+		
+		$item_id = $request->input('item_id');
+		$form_id = $request->input('edit_form_id');
+		$url = $request->input('redirect_url');
+		
+		$this->checkSaveRights($form_id, $item_id);
+		
+		$save_obj = new FormSave($request);
+		
+		return response([
+			'redirect' => $url.$save_obj->item_id
+		]);
 	}
 	
 	/**
