@@ -66,6 +66,11 @@ gulp.task('mix_all', function() {
             'bootstrap_menu.less',
             'multilevel_menu.less'
         ], 'public/css/elix_mindwo_horizontal.css');
+        
+        // Metronic theme UI styles                
+        mix.less([
+            'metronic_ui.less',
+        ], 'public/css/elix_metronic.css');
 
         // Scripts for horizontal menu UI
         mix.scripts([
@@ -165,7 +170,8 @@ gulp.task('mix_all', function() {
             'css/elix_view.css',
             'css/elix_mindwo_horizontal.css',
             'js/elix_mindwo_horizontal_menu.js',
-            'js/elix_documents.js'
+            'js/elix_documents.js',
+            'css/elix_metronic.css'
         ]);
     });
 });

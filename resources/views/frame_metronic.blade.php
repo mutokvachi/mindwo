@@ -58,7 +58,8 @@
         </style>    
 
         <link href="{{ elixir('css/elix_mindwo.css') }}" rel="stylesheet" type="text/css" />
-
+        <link href="{{ elixir('css/elix_metronic.css') }}" rel="stylesheet" type="text/css" />
+        
         <link rel="shortcut icon" href="{{Request::root()}}/favicon.ico">
     </head>
     <!-- END HEAD -->

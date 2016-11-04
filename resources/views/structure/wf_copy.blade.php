@@ -25,7 +25,7 @@
             </div>
         </div>
         <div>
-            @include('fields.visible', ['fld_name' => '', 'group_label' => '', 'label_title' => 'Jaunās darbplūsmas nosaukums', 'is_required' => 1, 'hint' => '', 'item_htm' => '<input class="form-control" type=text name = "wf_title"  maxlength="255" value = "" required /><span class="glyphicon form-control-feedback" aria-hidden="true"></span>'])
+            @include('fields.visible', ['frm_uniq_id'=>'copy_wf', 'fld_name' => '', 'group_label' => '', 'label_title' => 'Jaunās darbplūsmas nosaukums', 'is_required' => 1, 'hint' => '', 'item_htm' => '<input class="form-control" type=text name = "wf_title"  maxlength="255" value = "" required /><span class="glyphicon form-control-feedback" aria-hidden="true"></span>'])
         </div>
         <div>
             <div class='form-group has-feedback'>

@@ -79,7 +79,8 @@ class EmplProfileController extends Controller
 			'employee' => $employee,
 			'avail' => $employee->getAvailability(),
 			'is_my_profile' => $id == Auth::user()->id,
-			'is_edit_rights' => $this->getEditRightsMode()
+			'is_edit_rights' => $this->getEditRightsMode(),
+                        'mode' => 'view'
 		])->render();
 		
 		$result['manager'] = view('profile.tile_manager', [
