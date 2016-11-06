@@ -26,7 +26,7 @@ class DxFormsFieldsOneRowFields extends Migration
             $table->datetime('modified_time')->nullable();
         });
 
-        DB::table('dx_rows_types')->insert(['id' => 1, 'title' => '1 field per row', 'code' => null]);
+        DB::table('dx_rows_types')->insert(['id' => 1, 'title' => '1 field per row', 'code' => 'col-lg-12']);
         DB::table('dx_rows_types')->insert(['id' => 2, 'title' => '2 fields per row', 'code' => 'col-lg-6 col-md-6 col-sm-12 col-xs-12']);
         DB::table('dx_rows_types')->insert(['id' => 3, 'title' => '3 fields per row', 'code' => 'col-lg-4 col-md-12 col-sm-12 col-xs-12']);
         
