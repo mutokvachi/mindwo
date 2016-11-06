@@ -13636,7 +13636,8 @@ function process_data_fields(post_form_htm_id) {
     process_TextArea_Select(post_form_htm_id, formData);
 
     process_Input_radio(post_form_htm_id, formData);
-
+    process_Input_checkbox(post_form_htm_id, formData);
+    
     return formData;
 }
 
@@ -13648,8 +13649,26 @@ function process_data_fields(post_form_htm_id) {
  * @returns {undefined}
  */
 function process_Input_radio(post_form_htm_id, formData) {
-    $('#' + post_form_htm_id).find(':checkbox:checked, :radio:checked').each(function (key, obj) {
+    $('#' + post_form_htm_id).find(':radio:checked').each(function (key, obj) {
         formData.append(obj.name, obj.value);
+    });
+}
+
+/**
+ * Sagatavo saglabāšanai datu ievades laukus - checkbox
+ * 
+ * @param {string} post_form_htm_id HTML formas elementa id
+ * @param {Object} formData Masīvs ar saglabājamiem datiem
+ * @returns {undefined}
+ */
+function process_Input_checkbox(post_form_htm_id, formData) {
+    $('#' + post_form_htm_id).find('input.dx-bool').each(function (key, obj) {
+        if ($(this).prop('checked')==true){
+            formData.append(obj.name, 1);
+        }
+        else {
+            formData.append(obj.name, 0);
+        }
     });
 }
 
@@ -16601,5 +16620,58 @@ $(document).ajaxComplete(function(event, xhr, settings) {
 
 $(document).ready(function() {
     $(".dx-datetime").DateTimeField();
+});
+(function($)
+{
+	/**
+	 * BoolField - a jQuery plugin that inits boolean field functionality (switch)
+	 *
+	 * @param root
+	 * @returns {*}
+	 * @constructor
+	 */
+	$.fn.BoolField = function(opts)
+	{
+		var options = $.extend({}, $.fn.BoolField.defaults, opts);
+		return this.each(function()
+		{
+			new $.BoolField(this, options);
+		});
+	};
+	
+	$.fn.BoolField.defaults = {
+	};
+	
+	/**
+	 * BoolField constructor
+	 *
+	 * @param root
+	 * @constructor
+	 */
+	$.BoolField = function(root, opts)
+	{
+		$.data(root, 'BoolField', this);
+		
+		this.options = opts;
+		this.root = $(root);
+                
+                if (this.root.data("is-init")) {
+                    return; // field is allready initialized
+                }
+		
+                this.root.bootstrapSwitch();
+                
+                this.root.data("is-init", 1);
+	};
+	
+	
+})(jQuery);
+
+$(document).ajaxComplete(function(event, xhr, settings) {
+    $("input.dx-bool").BoolField();
+});
+
+$(document).ready(function() {
+    $("input.dx-bool").BoolField();
 });
 //# sourceMappingURL=elix_view.js.map

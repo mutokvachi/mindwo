@@ -514,7 +514,8 @@ function process_data_fields(post_form_htm_id) {
     process_TextArea_Select(post_form_htm_id, formData);
 
     process_Input_radio(post_form_htm_id, formData);
-
+    process_Input_checkbox(post_form_htm_id, formData);
+    
     return formData;
 }
 
@@ -526,8 +527,26 @@ function process_data_fields(post_form_htm_id) {
  * @returns {undefined}
  */
 function process_Input_radio(post_form_htm_id, formData) {
-    $('#' + post_form_htm_id).find(':checkbox:checked, :radio:checked').each(function (key, obj) {
+    $('#' + post_form_htm_id).find(':radio:checked').each(function (key, obj) {
         formData.append(obj.name, obj.value);
+    });
+}
+
+/**
+ * Sagatavo saglabāšanai datu ievades laukus - checkbox
+ * 
+ * @param {string} post_form_htm_id HTML formas elementa id
+ * @param {Object} formData Masīvs ar saglabājamiem datiem
+ * @returns {undefined}
+ */
+function process_Input_checkbox(post_form_htm_id, formData) {
+    $('#' + post_form_htm_id).find('input.dx-bool').each(function (key, obj) {
+        if ($(this).prop('checked')==true){
+            formData.append(obj.name, 1);
+        }
+        else {
+            formData.append(obj.name, 0);
+        }
     });
 }
 
