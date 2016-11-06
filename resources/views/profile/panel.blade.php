@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-sm-12 col-md-12 employee-pic-box" style="text-align: center;">
         <img src="{{ $employee->getAvatar() }}" class="img-responsive img-thumbnail" style="max-height: 178px;">
-        <h4><span>{{ $employee->first_name }}</span> <span>{{ $employee->last_name }}</span></h4>
+        <h4 class='dx-empl-title'>{{ $employee->first_name }} {{ $employee->last_name }}</h4>
         <span><a href="#" class="dx_position_link" data-name="position_title">{{ $employee->position_title }}</a></span><br>
         @if($employee->department)
           <span><a href="#" class="small dx_department_link">{{ $employee->department->title }}</a></span><br><br>
@@ -33,3 +33,4 @@
     </div>
   </div>
 </div>
+

@@ -105,7 +105,7 @@
 						if(elem.length)
 							elem.html(input);
 					}
-					hide_page_splash(1);
+					hide_page_splash(1);                                        
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{

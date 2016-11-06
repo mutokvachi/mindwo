@@ -35,7 +35,8 @@ gulp.task('mix_all', function() {
             'bootstrap-modal/css/bootstrap-modal.css', //ok
             'toastr/toastr.min.css', //ok
             'tooltipster-master/css/tooltipster.css', // ok
-            'tooltipster-master/css/themes/tooltipster-light.css' // ok        
+            'tooltipster-master/css/themes/tooltipster-light.css',
+            'animate.css'
         ], 'public/css/elix_plugins.css', 'resources/assets/plugins');
 
         // Core styles for main page - custom made
@@ -158,7 +159,6 @@ gulp.task('mix_all', function() {
         mix.scripts([
            'mindwo/pages/freeform.js',
            'mindwo/pages/inlineform.js',
-           'mindwo/pages/sticky.js',
            'mindwo/pages/empl_links_fix.js'
         ], 'public/js/elix_profile.js', 'resources/assets/plugins');
         /*

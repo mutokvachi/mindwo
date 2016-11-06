@@ -34,7 +34,20 @@
 		this.root = $(root);
                 
 		this.flds_managers = $('.dx-autocompleate-field[data-item-field=manager_id], .dx-autocompleate-field[data-item-field=reporting_manager_id]', this.root);
-		
+		this.tiles_managers = $('.employee-manager-tile', this.root);
+                
+                this.tiles_managers.each(function()
+                {
+                    if (!$(this).data("is-fix-init")) {
+                        
+                        $(this).click(function() {
+                            self.show_tile_manager($(this).data("empl-id"));
+                        });
+                    
+                        $(this).data("is-fix-init", 1);
+                    }
+                });
+                
                 this.flds_managers.each(function()
                 {
                     if (!$(this).data("is-fix-init")) {
@@ -65,7 +78,7 @@
 	 */
 	$.extend($.EmplLinksFix.prototype, {
 		/**
-		 * Show calendar
+		 * Show manager profile
 		 */
 		show_manager: function(fld)
 		{
@@ -76,7 +89,12 @@
                     }
                     show_page_splash(1);
                     window.location = this.options.profile_url + item_id;
-		}
+		},
+                show_tile_manager: function(empl_id)
+                {
+                    show_page_splash(1);
+                    window.location = this.options.profile_url + empl_id;
+                }
 	});
 })(jQuery);
 
