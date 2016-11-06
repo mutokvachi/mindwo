@@ -17,7 +17,7 @@
 
             @if ($item_value > 0)
                 <span class="input-group-btn">
-                    <button class="btn btn-white dx-rel-id-add-btn" type="button" title="{{ trans('fields.set_field_value') }}"><i class='fa fa-external-link'></i></button>
+                    <button class="btn btn-white dx-rel-id-add-btn" type="button" title="{{ trans('fields.view_record') }}"><i class='fa fa-external-link'></i></button>
                 </span>
             @endif
     @else    

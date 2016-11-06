@@ -23,9 +23,9 @@
     
     .profile-sticky {
       padding: 10px 0;
-      border-top: 1px solid #ddd;
+      border: 1px solid #ddd;
       z-index: 10;
-      background-color: white;
+      background-color: #eef1f5;
     }
     
     .profile-sticky a:first-child {
@@ -36,8 +36,7 @@
       position: fixed;
       bottom: 0;
     }
-  </style>
-  <style type="text/css">
+    
     .dx-contact-info {
       margin-bottom: 8px;
       text-overflow: ellipsis;
@@ -118,9 +117,9 @@
           <div class="actions pull-right">
             @if($is_edit_rights && $mode != 'create')
               <a href="javascript:;" class="btn btn-circle btn-default dx-edit-profile">
-                <i class="fa fa-pencil"></i> Edit </a>
+                <i class="fa fa-pencil"></i> {{ trans('form.btn_edit') }} </a>
               <a href="javascript:;" class="btn btn-circle btn-default dx-delete-profile">
-                <i class="fa fa-pencil"></i> Delete </a>
+                <i class="fa fa-trash-o"></i> {{ trans('form.btn_delete') }} </a>
             @endif
           </div>
           <div class="tabbable-line">
@@ -140,10 +139,10 @@
             @show
           </div>
           <div class="profile-sticky" style="{{ $mode == 'create' ? '' : 'display: none' }}">
-            <a href="javascript:;" class="btn btn-circle btn-default dx-save-profile">
-              <i class="fa fa-floppy-o"></i> Save </a>
+            <a href="javascript:;" class="btn btn-circle btn-primary dx-save-profile">
+              <i class="fa fa-floppy-o"></i> {{ trans('form.btn_save') }} </a>
             <a href="javascript:;" class="btn btn-circle btn-default dx-cancel-profile">
-              <i class="fa fa-times"></i> Cancel </a>
+              <i class="fa fa-times"></i> {{ trans('form.btn_cancel') }} </a>
           </div>
         </div>
       </div>

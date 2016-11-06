@@ -143,7 +143,8 @@ gulp.task('mix_all', function() {
             'mindwo/pages/form_logic.js',
             'mindwo/fields/tree.js',
             'mindwo/fields/rel_id.js',
-            'mindwo/fields/autocompleate.js'
+            'mindwo/fields/autocompleate.js',
+            'mindwo/fields/datetime.js'
         ], 'public/js/elix_view.js', 'resources/assets/plugins');
 
         // Scripts for employees search page functionality
@@ -157,7 +158,8 @@ gulp.task('mix_all', function() {
         mix.scripts([
            'mindwo/pages/freeform.js',
            'mindwo/pages/inlineform.js',
-           'mindwo/pages/sticky.js'
+           'mindwo/pages/sticky.js',
+           'mindwo/pages/empl_links_fix.js'
         ], 'public/js/elix_profile.js', 'resources/assets/plugins');
         /*
     */
