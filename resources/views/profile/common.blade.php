@@ -35,6 +35,28 @@
     .employee-details-1 {
       margin-top: 10px;
     }
+    
+    .dx-top-right-menu {
+        margin-right: 0px!important;
+    }
+    
+    .container-fluid {
+        padding-right: 0px;
+        padding-left: 0px;
+    }
+    
+    .dx-page-container {
+        padding: 0px!important;
+    }
+    
+    .page-content {
+        background-color: white!important;
+    }
+    
+    .dx-employee-profile {
+        border: none;
+        box-shadow: none!important;
+    }
   </style>
 @endsection
 
