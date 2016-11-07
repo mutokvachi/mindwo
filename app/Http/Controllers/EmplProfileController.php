@@ -79,7 +79,7 @@ class EmplProfileController extends Controller
 			'chunks' => []
 		];
 		
-		$result['chunks']['.employee-panel'] = view('profile.panel', [
+		$result['chunks']['.dx-employee-panel'] = view('profile.panel', [
 			'mode' => 'show',
 			'employee' => $employee,
 			'avail' => $employee->getAvailability(),
@@ -87,11 +87,11 @@ class EmplProfileController extends Controller
 			'is_edit_rights' => $this->getEditRightsMode()
 		])->render();
 		
-		$result['chunks']['.employee-hired'] = view('profile.tile_hired', [
+		$result['chunks']['.dx-employee-hired'] = view('profile.tile_hired', [
 			'employee' => $employee,
 		])->render();
 		
-		$result['chunks']['.employee-manager'] = view('profile.tile_manager', [
+		$result['chunks']['.dx-employee-manager'] = view('profile.tile_manager', [
 			'employee' => $employee,
 		])->render();
 		

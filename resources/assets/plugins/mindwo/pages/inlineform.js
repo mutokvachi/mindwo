@@ -24,7 +24,8 @@
 	
 	$.fn.InlineForm.defaults = {
 		beforeSave: null,
-		afterSave: null
+		afterSave: null,
+		empl_search_page_url: "/search"
 	};
 	
 	/**
@@ -45,7 +46,6 @@
 		this.saveButton = $('.dx-save-profile', this.root);
 		this.cancelButton = $('.dx-cancel-profile', this.root);
 		this.deleteButton = $('.dx-delete-profile', this.root);
-		this.stickyPanel = $('.profile-sticky', this.root);
 		
 		// Bind callbacks to buttons
 		this.editButton.click(function()
@@ -106,11 +106,6 @@
 					}
 					
 					self.editButton.hide();
-					self.stickyPanel.show(function()
-					{
-						self.stickyPanel.data('Sticky').init();
-						self.stickyPanel.data('Sticky').update();
-					});
 					
 					var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane');
 					
@@ -124,6 +119,8 @@
 					}
 					
 					hide_page_splash(1);
+					
+					$('.dx-stick-footer').show();
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{
@@ -178,7 +175,6 @@
 					}
 					
 					self.editButton.show();
-					self.stickyPanel.hide();
 					
 					var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane');
 					
@@ -197,6 +193,7 @@
 					}
 					
 					hide_page_splash(1);
+					$('.dx-stick-footer').hide();
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{
@@ -212,17 +209,25 @@
 		 */
 		cancel: function()
 		{
+			if(this.root.data('mode') == 'create')
+			{
+				show_page_splash(1);
+				window.location = this.options.empl_search_page_url;
+				return;
+			}
+			
 			this.editButton.show();
-			this.stickyPanel.hide();
+			
 			for(var k in this.originalTabs)
 			{
 				this.tabs.filter('[data-tab-title="' + k + '"]').html(this.originalTabs[k]);
 			}
+			$('.dx-stick-footer').hide();
 		},
 		
 		destroy: function()
 		{
-			if(!confirm('Are you sure?'))
+			if(!confirm(Lang.get('frame.confirm_delete')))
 				return;
 			
 			var request = {
@@ -245,7 +250,7 @@
 						hide_page_splash(1);
 						return;
 					}
-					hide_page_splash(1);
+					
 					window.location = data.redirect;
 				},
 				error: function(jqXHR, textStatus, errorThrown)

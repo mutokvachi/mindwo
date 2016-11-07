@@ -13636,7 +13636,8 @@ function process_data_fields(post_form_htm_id) {
     process_TextArea_Select(post_form_htm_id, formData);
 
     process_Input_radio(post_form_htm_id, formData);
-
+    process_Input_checkbox(post_form_htm_id, formData);
+    
     return formData;
 }
 
@@ -13648,8 +13649,26 @@ function process_data_fields(post_form_htm_id) {
  * @returns {undefined}
  */
 function process_Input_radio(post_form_htm_id, formData) {
-    $('#' + post_form_htm_id).find(':checkbox:checked, :radio:checked').each(function (key, obj) {
+    $('#' + post_form_htm_id).find(':radio:checked').each(function (key, obj) {
         formData.append(obj.name, obj.value);
+    });
+}
+
+/**
+ * Sagatavo saglabāšanai datu ievades laukus - checkbox
+ * 
+ * @param {string} post_form_htm_id HTML formas elementa id
+ * @param {Object} formData Masīvs ar saglabājamiem datiem
+ * @returns {undefined}
+ */
+function process_Input_checkbox(post_form_htm_id, formData) {
+    $('#' + post_form_htm_id).find('input.dx-bool').each(function (key, obj) {
+        if ($(this).prop('checked')==true){
+            formData.append(obj.name, 1);
+        }
+        else {
+            formData.append(obj.name, 0);
+        }
     });
 }
 
@@ -16214,6 +16233,10 @@ var TreeField = function()
 $(document).ajaxComplete(function(event, xhr, settings) {
     TreeField.init();
 });
+
+$(document).ready(function() {
+    TreeField.init();
+});
 /**
  * JavaScript logic for dropdown fields
  * 
@@ -16325,6 +16348,10 @@ var RelIdField = function()
 $(document).ajaxComplete(function(event, xhr, settings) {
     RelIdField.init();
 });
+
+$(document).ready(function() {
+    RelIdField.init();
+});
 /**
  * JavaScript logic for autocompleate fields
  * 
@@ -16338,7 +16365,7 @@ var AutocompleateField = function()
      * @returns {undefined} 
      */
     var handleBtnAdd = function(fld_elem) {
-        fld_elem.find(".dx-rel-id-add-btn").click(function() {            
+        fld_elem.find(".dx-rel-id-add-btn").on("click", function() {            
             var cur_val = fld_elem.find(".dx-auto-input-id").val();
             
             rel_new_form(fld_elem.attr("data-form-url"), fld_elem.attr("data-rel-list-id"), cur_val, fld_elem.attr("data-rel-field-id"), fld_elem.attr("id"), "AutocompleateField");             
@@ -16495,5 +16522,156 @@ var AutocompleateField = function()
 
 $(document).ajaxComplete(function(event, xhr, settings) {
     AutocompleateField.init();
+});
+
+$(document).ready(function() {
+    AutocompleateField.init();
+});
+(function($)
+{
+	/**
+	 * DateTimeField - a jQuery plugin that inits datetime functionality (calendar picker)
+	 *
+	 * @param root
+	 * @returns {*}
+	 * @constructor
+	 */
+	$.fn.DateTimeField = function(opts)
+	{
+		var options = $.extend({}, $.fn.DateTimeField.defaults, opts);
+		return this.each(function()
+		{
+			new $.DateTimeField(this, options);
+		});
+	};
+	
+	$.fn.DateTimeField.defaults = {
+		locale: "en",
+		format: "yyyy-mm-dd",
+                is_time: false
+	};
+	
+	/**
+	 * DateTimeField constructor
+	 *
+	 * @param root
+	 * @constructor
+	 */
+	$.DateTimeField = function(root, opts)
+	{
+		$.data(root, 'DateTimeField', this);
+		var self = this;
+		this.options = opts;
+		this.root = $(root);
+                
+                if (this.root.data("is-init")) {
+                    return; // fields is allready initialized
+                }
+                
+		this.input = $('.dx-datetime-field', this.root);
+		this.calButton = $('.dx-datetime-cal-btn', this.root);
+		
+                if (this.root.data("format")) {
+                    this.options.format = this.root.data("format");
+                }
+                
+                if (this.root.data("locale")) {
+                    this.options.locale = this.root.data("locale");
+                }
+                
+                if (this.root.data("is-time")) {
+                    this.options.is_time = this.root.data("is-time");
+                }
+                
+		// Bind callbacks to buttons
+		this.calButton.click(function()
+		{
+                    self.show_cal();
+		});
+                
+                this.input.datetimepicker({
+                    lang: this.options.locale,
+                    format: this.options.format,
+                    timepicker: this.options.is_time,
+                    dayOfWeekStart: 1,
+                    closeOnDateSelect: true
+                });
+                
+                this.root.data("is-init", 1);
+	};
+	
+	/**
+	 * DateTimeField methods
+	 */
+	$.extend($.DateTimeField.prototype, {
+		/**
+		 * Show calendar
+		 */
+		show_cal: function()
+		{
+                    this.input.datetimepicker('show');
+		}
+	});
+})(jQuery);
+
+$(document).ajaxComplete(function(event, xhr, settings) {
+    $(".dx-datetime").DateTimeField();
+});
+
+$(document).ready(function() {
+    $(".dx-datetime").DateTimeField();
+});
+(function($)
+{
+	/**
+	 * BoolField - a jQuery plugin that inits boolean field functionality (switch)
+	 *
+	 * @param root
+	 * @returns {*}
+	 * @constructor
+	 */
+	$.fn.BoolField = function(opts)
+	{
+		var options = $.extend({}, $.fn.BoolField.defaults, opts);
+		return this.each(function()
+		{
+			new $.BoolField(this, options);
+		});
+	};
+	
+	$.fn.BoolField.defaults = {
+	};
+	
+	/**
+	 * BoolField constructor
+	 *
+	 * @param root
+	 * @constructor
+	 */
+	$.BoolField = function(root, opts)
+	{
+		$.data(root, 'BoolField', this);
+		
+		this.options = opts;
+		this.root = $(root);
+                
+                if (this.root.data("is-init")) {
+                    return; // field is allready initialized
+                }
+		
+                this.root.bootstrapSwitch();
+                
+                this.root.data("is-init", 1);
+	};
+	
+	
+})(jQuery);
+
+$(document).ajaxComplete(function(event, xhr, settings) {
+    $("input.dx-bool").BoolField();
+});
+
+$(document).ready(function() {
+    $("input.dx-bool").BoolField();
 });
 //# sourceMappingURL=elix_view.js.map

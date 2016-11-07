@@ -8,5 +8,5 @@
 return [
     
     'err_no_edit_rights' => 'You have no rights to edit profile data!',
-    
+    'hint_view_profile' => 'View profile',
 ];

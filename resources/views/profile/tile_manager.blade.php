@@ -1,6 +1,6 @@
-<div class="employee-manager">
+<div class="dx-employee-manager">
   @if($employee->manager)
-    <div class="tile bg-blue-madison">
+    <div class="tile bg-blue-madison employee-manager-tile" data-empl-id='{{ $employee->manager->id }}'>
       <div class="tile-body">
         <img src="{{ $employee->manager->getAvatar() }}" alt="" style='max-width: 60px;'>
         <h4>{{ $employee->manager->display_name }}</h4>
@@ -10,6 +10,6 @@
         <div class="name">Direct supervisor</div>
         <div class="number"></div>
       </div>
-    </div> 
+    </div>
   @endif
 </div>

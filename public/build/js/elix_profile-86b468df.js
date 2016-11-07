@@ -105,7 +105,7 @@
 						if(elem.length)
 							elem.html(input);
 					}
-					hide_page_splash(1);
+					hide_page_splash(1);                                        
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{
@@ -222,7 +222,8 @@
 	
 	$.fn.InlineForm.defaults = {
 		beforeSave: null,
-		afterSave: null
+		afterSave: null,
+                empl_search_page_url: "/search"
 	};
 	
 	/**
@@ -243,8 +244,7 @@
 		this.saveButton = $('.dx-save-profile', this.root);
 		this.cancelButton = $('.dx-cancel-profile', this.root);
 		this.deleteButton = $('.dx-delete-profile', this.root);
-		this.stickyPanel = $('.profile-sticky', this.root);
-		
+				
 		// Bind callbacks to buttons
 		this.editButton.click(function()
 		{
@@ -304,12 +304,7 @@
 					}
 					
 					self.editButton.hide();
-					self.stickyPanel.show(function()
-					{
-						self.stickyPanel.data('Sticky').init();
-						self.stickyPanel.data('Sticky').update();
-					});
-					
+										
 					var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane');
 					
 					// replace original html content of marked elements with input fields
@@ -322,6 +317,8 @@
 					}
 					
 					hide_page_splash(1);
+                                        
+                                        $('.dx-stick-footer').show();
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{
@@ -376,8 +373,7 @@
 					}
 					
 					self.editButton.show();
-					self.stickyPanel.hide();
-					
+										
 					var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane');
 					
 					// replace original html content of marked elements with input fields
@@ -395,6 +391,7 @@
 					}
 					
 					hide_page_splash(1);
+                                        $('.dx-stick-footer').hide();
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{
@@ -410,17 +407,24 @@
 		 */
 		cancel: function()
 		{
-			this.editButton.show();
-			this.stickyPanel.hide();
+			if(this.root.data('mode') == 'create') {
+                            show_page_splash(1);
+                            window.location = this.options.empl_search_page_url;
+                            return;
+                        }
+                        
+                        this.editButton.show();
+			
 			for(var k in this.originalTabs)
 			{
 				this.tabs.filter('[data-tab-title="' + k + '"]').html(this.originalTabs[k]);
 			}
+                        $('.dx-stick-footer').hide();
 		},
 		
 		destroy: function()
 		{
-			if(!confirm('Are you sure?'))
+			if(!confirm(Lang.get('frame.confirm_delete')))
 				return;
 			
 			var request = {
@@ -443,7 +447,7 @@
 						hide_page_splash(1);
 						return;
 					}
-					hide_page_splash(1);
+					
 					window.location = data.redirect;
 				},
 				error: function(jqXHR, textStatus, errorThrown)
@@ -456,118 +460,111 @@
 		}
 	});
 })(jQuery);
-/**
- * Author:  Eugene Ostapenko <evo@olympsoft.com>
- * License: MIT
- * Created: 04.11.16, 19:38
- */
 (function($)
 {
-	$.fn.Sticky = function(opts)
+	/**
+	 * EmplLinksFix - a jQuery plugin that fix (re-init) links to other employees (manager, reporting manager)
+	 *
+	 * @param root
+	 * @returns {*}
+	 * @constructor
+	 */
+	$.fn.EmplLinksFix = function(opts)
 	{
-		var options = $.extend({}, $.Sticky.defaults, opts);
+		var options = $.extend({}, $.fn.EmplLinksFix.defaults, opts);
 		return this.each(function()
 		{
-			new $.Sticky(this, options);
+			new $.EmplLinksFix(this, options);
 		});
 	};
 	
-	$.Sticky = function(root, opts)
+	$.fn.EmplLinksFix.defaults = {
+		profile_url: "/employee/profile/"
+	};
+	
+	/**
+	 * EmplLinksFix constructor
+	 *
+	 * @param root
+	 * @constructor
+	 */
+	$.EmplLinksFix = function(root, opts)
 	{
-		$.data(root, 'Sticky', this);
+		$.data(root, 'EmplLinksFix', this);
 		var self = this;
 		this.options = opts;
 		this.root = $(root);
-		this.placeholder = this.root.after('<div/>').next();
-		
-		this.root.width(this.root.parent().width());
-		
-		this.placeholder.css({
-			position: this.root.css('position'),
-			'float': this.root.css('float'),
-			display: 'none'
-		});
-		
-		this.init();
-		this.update();
-		
-		$(window).resize(function()
-		{
-			self.init();
-			self.update();
-		});
-		
-		$(window).scroll(function()
-		{
-			self.init();
-			self.update();
-		});
+                
+		this.flds_managers = $('.dx-autocompleate-field[data-item-field=manager_id], .dx-autocompleate-field[data-item-field=reporting_manager_id]', this.root);
+		this.tiles_managers = $('.employee-manager-tile', this.root);
+                
+                this.tiles_managers.each(function()
+                {
+                    if (!$(this).data("is-fix-init")) {
+                        
+                        $(this).click(function() {
+                            self.show_tile_manager($(this).data("empl-id"));
+                        });
+                    
+                        $(this).data("is-fix-init", 1);
+                    }
+                });
+                                
+                this.flds_managers.each(function()
+                {
+                    if (!$(this).data("is-fix-init")) {
+                        var fld = $(this);
+                        fld.find(".dx-rel-id-add-btn").off("click"); //remove original event handler which will open CMS form
+                        
+                        fld.find(".dx-rel-id-add-btn").click(function() {
+                            self.show_manager(fld);
+                        });
+                        
+                        // Reset tooltip from edit to view hint
+                        fld.find(".dx-rel-id-add-btn").tooltipster('destroy');
+                        fld.find(".dx-rel-id-add-btn").attr("title", Lang.get('empl_profile.hint_view_profile'));
+                        
+                        fld.find(".dx-rel-id-add-btn").tooltipster({
+                            theme: 'tooltipster-light',
+                            animation: 'grow',
+                            maxWidth: 300
+                        });
+        
+                        $(this).data("is-fix-init", 1);
+                    }
+                });
 	};
 	
-	$.Sticky.defaults = {
-		side: 'top'
-	};
-	
-	$.extend($.Sticky.prototype, {
-		init: function()
+	/**
+	 * EmplLinksFix methods
+	 */
+	$.extend($.EmplLinksFix.prototype, {
+		/**
+		 * Show manager profile
+		 */
+		show_manager: function(fld)
 		{
-			this.placeholder.css({
-				width: this.root.outerWidth(),
-				height: this.root.outerHeight()
-			});
-			
-			if(this.options.side == 'top')
-			{
-				if(this.root.hasClass('stuck'))
-					this.top = this.placeholder.offset().top;
-				
-				else
-					this.top = this.root.offset().top;
-			}
-			else
-			{
-				if(this.root.hasClass('stuck'))
-					this.top = this.placeholder.offset().top - this.placeholder.height();
-				
-				else
-					this.top = this.root.offset().top;
-			}
-			
-			this.height = this.root.outerHeight();
+                    var item_id = fld.find(".dx-auto-input-id").val();
+                    
+                    if (item_id == 0) {
+                        return;
+                    }
+                    show_page_splash(1);
+                    window.location = this.options.profile_url + item_id;
 		},
-		
-		stick: function()
-		{
-			this.root.addClass('stuck');
-			this.placeholder.css('display', this.root.css('display'));
-		},
-		
-		unstick: function()
-		{
-			this.root.removeClass('stuck');
-			this.placeholder.css('display', 'none');
-		},
-		
-		update: function()
-		{
-			var self = this;
-			if(self.options.side == 'top')
-			{
-				if($(window).scrollTop() > self.top)
-					self.stick();
-				
-				else
-					self.unstick();
-			}
-			else
-			{
-				if($(window).scrollTop() + $(window).height() < self.top + self.height)
-					self.stick();
-				
-				else
-					self.unstick();
-			}
-		}
+                show_tile_manager: function(empl_id)
+                {
+                    show_page_splash(1);
+                    window.location = this.options.profile_url + empl_id;
+                }
 	});
 })(jQuery);
+
+$(document).ajaxComplete(function() {
+    $(".dx-employee-profile.freeform").EmplLinksFix();
+});
+
+$(document).ready(function() {
+    $(".dx-employee-profile.freeform").EmplLinksFix();
+});
 //# sourceMappingURL=elix_profile.js.map

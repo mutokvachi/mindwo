@@ -346,4 +346,9 @@ h1, h2
 .dx-form-header {
     background-color: #31708f;
 }
+
+.dx-form-field-line {
+    margin-left: 0px!important;
+    margin-right: 0px!important;
+}
 /*# sourceMappingURL=elix_mindwo.css.map */

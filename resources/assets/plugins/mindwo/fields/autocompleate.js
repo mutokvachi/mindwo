@@ -11,7 +11,7 @@ var AutocompleateField = function()
      * @returns {undefined} 
      */
     var handleBtnAdd = function(fld_elem) {
-        fld_elem.find(".dx-rel-id-add-btn").click(function() {            
+        fld_elem.find(".dx-rel-id-add-btn").on("click", function() {            
             var cur_val = fld_elem.find(".dx-auto-input-id").val();
             
             rel_new_form(fld_elem.attr("data-form-url"), fld_elem.attr("data-rel-list-id"), cur_val, fld_elem.attr("data-rel-field-id"), fld_elem.attr("id"), "AutocompleateField");             
@@ -167,5 +167,9 @@ var AutocompleateField = function()
 }();
 
 $(document).ajaxComplete(function(event, xhr, settings) {
+    AutocompleateField.init();
+});
+
+$(document).ready(function() {
     AutocompleateField.init();
 });

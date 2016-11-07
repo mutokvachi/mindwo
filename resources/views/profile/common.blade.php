@@ -41,8 +41,7 @@
       position: fixed;
       bottom: 0;
     }
-  </style>
-  <style type="text/css">
+    
     .dx-contact-info {
       margin-bottom: 8px;
       text-overflow: ellipsis;
@@ -51,6 +50,28 @@
     
     .employee-details-1 {
       margin-top: 10px;
+    }
+    
+    .dx-top-right-menu {
+      margin-right: 0px !important;
+    }
+    
+    .container-fluid {
+      padding-right: 0px;
+      padding-left: 0px;
+    }
+    
+    .dx-page-container {
+      padding: 0px !important;
+    }
+    
+    .page-content {
+      background-color: white !important;
+    }
+    
+    .dx-employee-profile {
+      border: none;
+      box-shadow: none !important;
     }
   </style>
 @endsection
@@ -62,6 +83,14 @@
   <script>
     $(document).ready(function()
     {
+      $(window).on('beforeunload', function()
+      {
+        if($(".dx-stick-footer").is(":visible"))
+        {
+          return 'Your changes have not been saved.';
+        }
+      });
+      
       $('.freeform').FreeForm();
       $('.freeform').InlineForm({
         afterSave: function()
@@ -82,6 +111,9 @@
               {
                 $(selector).first().html(data.chunks[selector]);
               }
+              
+              $('.dx-employee-profile .dx-stick-footer .dx-left img').attr('src', $('.dx-employee-profile .employee-pic-box img').attr("src"));
+              $('.dx-employee-profile .dx-stick-footer .dx-left span.dx-empl-title').html($('.dx-employee-profile .employee-pic-box h4.dx-empl-title').html());
             },
             error: function(jqXHR, textStatus, errorThrown)
             {
@@ -91,19 +123,13 @@
           });
         }
       });
-      $('.profile-sticky').Sticky({side: 'bottom'});
-      $('.dx-tab-link').click(function()
-      {
-        $('.profile-sticky').data('Sticky').init();
-        $('.profile-sticky').data('Sticky').update();
-      });
     });
   </script>
 @endsection
 
 @section('main_content')
   <div id="form_{{ Webpatser\Uuid\Uuid::generate(4) }}"
-    class="portlet light dx-employee-profile freeform"
+    class="portlet light dx-employee-profile freeform" style='padding-bottom: 100px!important;'
     data-freeform="true"
     data-model="App\User"
     data-mode="{{ $mode }}"
@@ -113,7 +139,7 @@
     data-list_id="{{ Config::get('dx.employee_list_id') }}">
     <div class="portlet-body">
       <div class="row">
-        <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
           @include('profile.panel')
           @if($mode != 'create' && $is_edit_rights)
             <div class="tiles">
@@ -122,13 +148,13 @@
             </div>
           @endif
         </div>
-        <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12">
+        <div class="col-lg-9 col-md-8 col-sm-8 col-xs-12">
           <div class="actions pull-right">
             @if($is_edit_rights && $mode != 'create')
               <a href="javascript:;" class="btn btn-circle btn-default dx-edit-profile">
-                <i class="fa fa-pencil"></i> Edit </a>
+                <i class="fa fa-pencil"></i> {{ trans('form.btn_edit') }} </a>
               <a href="javascript:;" class="btn btn-circle btn-default dx-delete-profile">
-                <i class="fa fa-pencil"></i> Delete </a>
+                <i class="fa fa-trash-o"></i> {{ trans('form.btn_delete') }} </a>
             @endif
           </div>
           <div class="tabbable-line">
@@ -147,12 +173,20 @@
             @section('profile_tabs_content')
             @show
           </div>
-          <div class="profile-sticky" style="{{ $mode == 'create' ? '' : 'display: none' }}">
-            <a href="javascript:;" class="btn btn-circle btn-default dx-save-profile">
-              <i class="fa fa-floppy-o"></i> Save </a>
-            <a href="javascript:;" class="btn btn-circle btn-default dx-cancel-profile">
-              <i class="fa fa-times"></i> Cancel </a>
-          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dx-stick-footer animated bounceInUp" style="{{ $mode == 'create' ? '' : 'display: none' }}">
+      <div class='row'>
+        <div class='col-lg-2 col-md-3 hidden-sm hidden-xs dx-left'>
+          <img src="{{ $employee->getAvatar() }}" class="img-responsive img-thumbnail" style="max-height: 60px;">
+          <span class='dx-empl-title'>{{ $employee->first_name }} {{ $employee->last_name }}</span>
+        </div>
+        <div class='col-lg-10 col-md-9 col-sm-12 col-xs-12 dx-right'>
+          <a href="javascript:;" class="btn btn-primary dx-save-profile">
+            <i class="fa fa-floppy-o"></i> {{ trans('form.btn_save') }} </a>
+          <a href="javascript:;" class="btn btn-default dx-cancel-profile">
+            <i class="fa fa-times"></i> {{ trans('form.btn_cancel') }} </a>
         </div>
       </div>
     </div>
