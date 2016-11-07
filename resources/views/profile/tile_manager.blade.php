@@ -1,6 +1,6 @@
 <div class="employee-manager">
   @if($employee->manager)
-    <div class="tile double bg-blue-madison">
+    <div class="tile bg-blue-madison">
       <div class="tile-body">
         <img src="{{ $employee->manager->getAvatar() }}" alt="" style='max-width: 60px;'>
         <h4>{{ $employee->manager->display_name }}</h4>

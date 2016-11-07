@@ -7,12 +7,18 @@
 	 * @returns {*}
 	 * @constructor
 	 */
-	$.fn.FreeForm = function(root)
+	$.fn.FreeForm = function(opts)
 	{
+		var options = $.extend({}, $.fn.FreeForm.defaults, opts);
+		
 		return this.each(function()
 		{
-			new $.FreeForm(this);
+			new $.FreeForm(this, options);
 		});
+	};
+	
+	$.fn.FreeForm.defaults = {
+		
 	};
 	
 	/**
@@ -21,11 +27,14 @@
 	 * @param root
 	 * @constructor
 	 */
-	$.FreeForm = function(root)
+	$.FreeForm = function(root, opts)
 	{
+		// store object instance along with a root DOM element
 		$.data(root, 'FreeForm', this);
+		
 		var self = this;
 		this.root = $(root);
+		this.options = opts;
 		this.fields = $('[data-name]', this.root);
 		this.originalData = {};
 		this.editButton = $('.dx-edit-general', this.root);
@@ -33,18 +42,9 @@
 		this.cancelButton = $('.dx-cancel-general', this.root);
 		
 		// Bind callbacks to buttons
-		this.editButton.click(function()
-		{
-			self.edit();
-		});
-		this.saveButton.click(function()
-		{
-			self.save();
-		});
-		this.cancelButton.click(function()
-		{
-			self.cancel();
-		});
+		this.editButton.click(function() { self.edit(); });
+		this.saveButton.click(function() { self.save(); });
+		this.cancelButton.click(function() { self.cancel(); });
 	};
 	
 	/**

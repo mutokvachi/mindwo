@@ -32,6 +32,11 @@
       margin-left: 20px;
     }
     
+    .dx-employee-profile .tiles .tile {
+      width: auto !important;
+      float: none;
+    }
+    
     .stuck {
       position: fixed;
       bottom: 0;
@@ -72,8 +77,11 @@
                 notify_err(data.error);
                 return;
               }
-              $('.employee-panel').html(data.panel);
-              $('.employee-manager').html(data.manager);
+              
+              for(var selector in data.chunks)
+              {
+                $(selector).first().html(data.chunks[selector]);
+              }
             },
             error: function(jqXHR, textStatus, errorThrown)
             {

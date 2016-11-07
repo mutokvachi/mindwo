@@ -15,6 +15,7 @@
 	$.fn.InlineForm = function(opts)
 	{
 		var options = $.extend({}, $.fn.InlineForm.defaults, opts);
+		
 		return this.each(function()
 		{
 			new $.InlineForm(this, options);
