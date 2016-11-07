@@ -1,13 +1,14 @@
 {
-  "js/elix_userlinks.js": "js/elix_userlinks-4a9f56cc.js",
-  "js/elix_plugins.js": "js/elix_plugins-878ebffe.js",
-  "js/elix_view.js": "js/elix_view-92aef42b.js",
-  "js/elix_employees.js": "js/elix_employees-922c9b11.js",
-  "js/elix_freeform.js": "js/elix_freeform-24a5d481.js",
-  "css/elix_plugins.css": "css/elix_plugins-bcc6c37d.css",
-  "css/elix_mindwo.css": "css/elix_mindwo-8cc9b089.css",
-  "css/elix_view.css": "css/elix_view-fdc54361.css",
-  "css/elix_mindwo_horizontal.css": "css/elix_mindwo_horizontal-f44da389.css",
-  "js/elix_mindwo_horizontal_menu.js": "js/elix_mindwo_horizontal_menu-68dd43b5.js",
-  "js/elix_documents.js": "js/elix_documents-61029def.js"
+  "js/elix_userlinks.js": "js/elix_userlinks-37091570.js",
+  "js/elix_plugins.js": "js/elix_plugins-18c4d3fc.js",
+  "js/elix_view.js": "js/elix_view-12f4eba6.js",
+  "js/elix_employees.js": "js/elix_employees-5709e995.js",
+  "js/elix_profile.js": "js/elix_profile-11c7a912.js",
+  "css/elix_plugins.css": "css/elix_plugins-098a9ffa.css",
+  "css/elix_mindwo.css": "css/elix_mindwo-82dd54fd.css",
+  "css/elix_view.css": "css/elix_view-1e4d52c9.css",
+  "css/elix_mindwo_horizontal.css": "css/elix_mindwo_horizontal-d16383d5.css",
+  "js/elix_mindwo_horizontal_menu.js": "js/elix_mindwo_horizontal_menu-832a290d.js",
+  "js/elix_documents.js": "js/elix_documents-8860f744.js",
+  "css/elix_metronic.css": "css/elix_metronic-6ae5ddb5.css"
 }

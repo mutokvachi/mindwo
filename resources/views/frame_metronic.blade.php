@@ -58,7 +58,8 @@
         </style>    
 
         <link href="{{ elixir('css/elix_mindwo.css') }}" rel="stylesheet" type="text/css" />
-
+        <link href="{{ elixir('css/elix_metronic.css') }}" rel="stylesheet" type="text/css" />
+        
         <link rel="shortcut icon" href="{{Request::root()}}/favicon.ico">
     </head>
     <!-- END HEAD -->
@@ -138,7 +139,7 @@
                             <!-- BEGIN USER LOGIN DROPDOWN -->
                             <li class="dropdown dropdown-user" style="padding: 0 0px; margin-left: 26px;">
                                 <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-                                    <img src="{{Request::root()}}/formated_img/small_avatar/{{ (Auth::user()->picture_guid) ? Auth::user()->picture_guid : get_portal_config('EMPLOYEE_AVATAR') }}" class="img-circle" alt="{{ Auth::user()->display_name }}" />
+                                    <img src="{{Request::root()}}/{{ \App\Libraries\Helper::getUserAvatarSmall() }}" class="img-circle" alt="{{ Auth::user()->display_name }}" />
                                     <span class="username username-hide-on-mobile"> {{ Auth::user()->display_name }} </span>
                                     <i class="fa fa-angle-down"></i>
                                 </a>

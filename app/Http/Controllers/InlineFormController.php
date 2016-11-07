@@ -48,7 +48,24 @@ class InlineFormController extends FormController
 	 */
 	public function store(Request $request)
 	{
-		// not needed at now
+		$this->validate($request, [
+			'edit_form_id' => 'required|integer|exists:dx_forms,id',
+			'item_id' => 'integer',
+			'multi_list_id' => 'integer'
+		]);
+		
+		$item_id = $request->input('item_id');
+		$form_id = $request->input('edit_form_id');
+		$url = $request->input('redirect_url');
+		
+		$this->checkSaveRights($form_id, $item_id);
+		
+		$save_obj = new FormSave($request);
+		
+		return response([
+			'success' => 1,
+			'redirect' => $url . $save_obj->item_id
+		]);
 	}
 	
 	/**
@@ -70,8 +87,8 @@ class InlineFormController extends FormController
 	 */
 	public function edit(Request $request, $id)
 	{
-		$list_id = $request->input('listId');
-		$tabList = $request->input('tabList');
+		$list_id = $request->input('list_id');
+		$tabList = $request->input('tab_list');
 		
 		$form = new \App\Libraries\Forms\Form($list_id, $id);
 		$form->disabled = false;
@@ -80,6 +97,7 @@ class InlineFormController extends FormController
 		$tabs = $form->renderTabContents();
 		
 		$result = [
+			'success' => 1,
 			'tabs' => $tabs
 		];
 		
@@ -117,6 +135,7 @@ class InlineFormController extends FormController
 		$tabs = $form->renderTabContents();
 		
 		$result = [
+			'success' => 1,
 			'tabs' => $tabs
 		];
 		
@@ -129,8 +148,15 @@ class InlineFormController extends FormController
 	 * @param  int $id
 	 * @return \Illuminate\Http\Response
 	 */
-	public function destroy($id)
+	public function destroy(Request $request, $id)
 	{
-		//
+		$this->deleteItem($request);
+		
+		$result = [
+			'redirect' => '/search',
+			'success' => 1
+		];
+		
+		return response($result);
 	}
 }

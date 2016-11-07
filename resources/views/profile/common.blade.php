@@ -1,361 +1,180 @@
 @extends('frame')
 
 @section('main_custom_css')
-<link href="{{Request::root()}}/plugins/tree/themes/default/style.min.css" rel="stylesheet" />
-<link href="{{Request::root()}}/metronic/global/plugins/bootstrap-colorpicker/css/colorpicker.css" rel="stylesheet" type="text/css" />
-<link href="{{Request::root()}}/plugins/select2/select2.css" rel="stylesheet" />
-<link href= "{{ elixir('css/elix_view.css') }}" rel="stylesheet" />
-<style type="text/css">
+  <link href="{{Request::root()}}/plugins/tree/themes/default/style.min.css" rel="stylesheet"/>
+  <link href="{{Request::root()}}/metronic/global/plugins/bootstrap-colorpicker/css/colorpicker.css" rel="stylesheet" type="text/css"/>
+  <link href="{{Request::root()}}/plugins/select2/select2.css" rel="stylesheet"/>
+  <link href="{{ elixir('css/elix_view.css') }}" rel="stylesheet"/>
+  <style type="text/css">
     .freeform .inline .form-control {
-        display: inline-block;
-        width: auto;
+      display: inline-block;
+      width: auto;
     }
+    
     .freeform .inline .input-group {
-        display: inline-block;
-        width: auto !important;
+      display: inline-block;
+      width: auto !important;
     }
+    
     .freeform .inline .input-group-btn {
-        display: inline-block;
-        width: auto !important;
+      display: inline-block;
+      width: auto !important;
     }
-</style>
-<style type="text/css">
+    
+    .stuck {
+      position: fixed;
+      bottom: 0;
+    }
+    
     .dx-contact-info {
-        margin-bottom: 8px;
-        text-overflow: ellipsis;
-        overflow: hidden;
+      margin-bottom: 8px;
+      text-overflow: ellipsis;
+      overflow: hidden;
     }
-
+    
     .employee-details-1 {
-        margin-top: 10px;
+      margin-top: 10px;
     }
-</style>
+    
+    .dx-top-right-menu {
+        margin-right: 0px!important;
+    }
+    
+    .container-fluid {
+        padding-right: 0px;
+        padding-left: 0px;
+    }
+    
+    .dx-page-container {
+        padding: 0px!important;
+    }
+    
+    .page-content {
+        background-color: white!important;
+    }
+    
+    .dx-employee-profile {
+        border: none;
+        box-shadow: none!important;
+    }
+  </style>
 @endsection
 
 @section('main_custom_javascripts')
-<script src='{{Request::root()}}/{{ getIncludeVersion('plugins/tinymce/tinymce.min.js') }}' type='text/javascript'></script>
-<script src="{{ elixir('js/elix_view.js') }}" type='text/javascript'></script>
-<script src="{{ elixir('js/elix_freeform.js') }}" type='text/javascript'></script>
-<script>
-/**
- * InlineForm - a jQuery plugin that provides a way to work with AJAX form embedded into a page
- *
- * @param root
- * @returns {*}
- * @constructor
- */
-$.fn.InlineForm = function (root)
-{
-    return this.each(function () {
-        new $.InlineForm(this);
-    });
-};
-/**
- * InlineForm constructor
- *
- * @param root
- * @constructor
- */
-$.InlineForm = function (root)
-{
-    $.data(root, 'InlineForm', this);
-    var self = this;
-    this.root = $(root);
-    this.tabs = $('.tab-pane', this.root);
-    this.originalTabs = {};
-    this.editButton = $('.dx-edit-profile', this.root);
-    this.saveButton = $('.dx-save-profile', this.root);
-    this.cancelButton = $('.dx-cancel-profile', this.root);
-    this.requests;
-    this.onRequestSuccess;
-    this.onRequestFailed;
-
-    // Bind callbacks to buttons
-    this.editButton.click(function () {
-        self.edit();
-    });
-    this.saveButton.click(function () {
-        self.save();
-    });
-    this.cancelButton.click(function () {
-        self.cancel();
-    });
-};
-
-/**
- * InlineForm methods
- */
-$.extend($.InlineForm.prototype, {
-    /**
-     * Resets and initializes all async request processing parameters
-     * @param {integer} total Total count of processes which will be processed asynchronously
-     */
-    initRequest: function (total) {
-        this.requests = {
-            total: total,
-            succeeded: 0,
-            failed: 0
-        };
-
-        this.onRequestSuccess = [];
-        this.onRequestFailed = [];
-    },
-    /**
-     * Saves completed request status. If all request are finished, then execute success commands
-     * @param {boolean} is_success Parmeter if process wass successful
-     */
-    setRequestStatus: function (is_success) {
-        if (is_success) {
-            this.requests.succeeded++;
-        } else {
-            this.requests.failed++;
-        }
-
-        if (this.requests.total === (this.requests.succeeded + this.requests.failed)) {
-            if (this.requests.failed === 0) {
-                for (var i = 0; i < this.onRequestSuccess.length; i++) {
-                    this.onRequestSuccess[i].func(this.onRequestSuccess[i].args);
-                }
-            } else {
-                for (var i = 0; i < this.onRequestFailed.length; i++) {
-                    this.onRequestFailed[i].func(this.onRequestFailed[i].args);
-                }
+  <script src='{{Request::root()}}/{{ getIncludeVersion('plugins/tinymce/tinymce.min.js') }}' type='text/javascript'></script>
+  <script src="{{ elixir('js/elix_view.js') }}" type='text/javascript'></script>
+  <script src="{{ elixir('js/elix_profile.js') }}" type='text/javascript'></script>
+  <script>
+    $(document).ready(function()
+    {
+      
+        $(window).on('beforeunload', function() {
+            if ($(".dx-stick-footer").is(":visible")) {
+              return 'Your changes have not been saved.';
             }
-
-            hide_page_splash(1);
-        }
-    },
-    /**
-     * Replace HTML with form input fields
-     */
-    edit: function () {
-        var self = this;
-
-        // a structure for JSON request
-        var request = {
-            listId: this.root.data('list_id'),
-            tabList: []
-        };
-
-        this.tabs.each(function () {
-            self.originalTabs[$(this).data('tabTitle')] = $(this).html();
         });
-
+                  
         show_page_splash(1);
-
-        // perform a request to the server
-        $.ajax({
-            type: 'POST',
-            url: DX_CORE.site_url + 'inlineform/' + this.root.data('item_id') + '/edit',
-            dataType: 'json',
-            data: request,
-            success: function (data)
+                  
+        $('.freeform').FreeForm();
+        $('.freeform').InlineForm({
+            afterSave: function()
             {
-                self.editButton.hide();
-                self.saveButton.show();
-                self.cancelButton.show();
-
-                var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane');
-
-                // replace original html content of marked elements with input fields
-                for (var i = 0; i < tabs.length; i++)
+              $.ajax({
+                type: 'GET',
+                url: DX_CORE.site_url + 'employee/profile/' + $('.dx-employee-profile').data('item_id') + '/chunks',
+                dataType: 'json',
+                success: function(data)
                 {
-                    var tab = $(tabs[i]);
-                    var elem = $('[data-tab-title="' + tab.data('tabTitle') + '"]', self.root);
-                    if (elem.length)
-                        elem.html(tab.html());
-                }
-
-                hide_page_splash(1);
-            },
-            error: function (jqXHR, textStatus, errorThrown)
-            {
-                console.log(textStatus);
-                console.log(jqXHR);
-                hide_page_splash(1);
-            }
-        });
-
-        window.DxEmpPersDocs.toggleDisable(false);
-    },
-    /**
-     * Submit input field values to the server
-     */
-    save: function () {
-        var self = this;
-
-        var formData = process_data_fields(this.root.attr('id'));
-
-        formData.append('item_id', this.root.data('item_id'));
-        formData.append('list_id', this.root.data('list_id'));
-        formData.append('edit_form_id', this.root.data('form_id'));
-
-        show_page_splash(1);
-
-        this.initRequest(2);
-
-        // Generated tabs
-        $.ajax({
-            type: 'POST',
-            url: DX_CORE.site_url + 'inlineform/' + this.root.data('item_id') + '?_method=PUT',
-            dataType: 'json',
-            processData: false,
-            contentType: false,
-            data: formData,
-            success: function (data)
-            {
-                self.onRequestSuccess.push(
-                        {
-                            func: function (data) {
-                                self.editButton.show();
-                                self.saveButton.hide();
-                                self.cancelButton.hide();
-
-                                var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane');
-
-                                // replace original html content of marked elements with input fields
-                                for (var i = 0; i < tabs.length; i++)
-                                {
-                                    var tab = $(tabs[i]);
-                                    var elem = $('[data-tab-title="' + tab.data('tabTitle') + '"]', self.root);
-                                    if (elem.length)
-                                        elem.html(tab.html());
-                                }
-
-                                hide_page_splash(1);
-                            },
-                            args: data
-                        }
-                );
-                self.setRequestStatus(true);
-            },
-            error: function (jqXHR, textStatus, errorThrown)
-            {
-                console.log(textStatus);
-                console.log(jqXHR);
-                self.setRequestStatus(false);
-            }
-        });
-
-        // Custom tab
-        window.DxEmpPersDocs.onClickSaveDocs(function () {
-            self.onRequestSuccess.push(
+                    if(typeof data.success != "undefined" && data.success == 0)
                     {
-                        func: function () {
-                            window.DxEmpPersDocs.toggleDisable(true);
-                        },
-                        args: null
+                      notify_err(data.error);
+                      return;
                     }
-            );
-            self.setRequestStatus(true);
+                    $('.employee-panel').html(data.panel);
+                    $('.employee-manager').html(data.manager);
 
+                    $('.dx-employee-profile .dx-stick-footer .dx-left img').attr('src', $('.dx-employee-profile .employee-pic-box img').attr("src"));                
+                    $('.dx-employee-profile .dx-stick-footer .dx-left span.dx-empl-title').html($('.dx-employee-profile .employee-pic-box h4.dx-empl-title').html());
+                },
+                error: function(jqXHR, textStatus, errorThrown)
+                {
+                  console.log(textStatus);
+                  console.log(jqXHR);
+                }
+              });
+            }
         });
-    },
-    /**
-     * Remove input fields and display original HTML
-     */
-    cancel: function () {
-        this.editButton.show();
-        this.saveButton.hide();
-        this.cancelButton.hide();
-        for (var k in this.originalTabs)
-        {
-            this.tabs.filter('[data-tab-title="' + k + '"]').html(this.originalTabs[k]);
-        }
-
-        window.DxEmpPersDocs.cancelEditMode();
-    }
-});
-$(document).ready(function () {
-    show_page_splash(1);
-
-    $('.freeform').FreeForm();
-    $('.freeform').InlineForm();
-
-    window.DxEmpPersDocs.init(function () {
-        hide_page_splash(1);
+        
+        window.DxEmpPersDocs.init(function () {
+            hide_page_splash(1);
+        });
     });
-});
-</script>
+  </script>
 @endsection
 
 @section('main_content')
-<div id="form_{{ Webpatser\Uuid\Uuid::generate(4) }}"
-     class="portlet light dx-employee-profile freeform"
-     data-freeform="true"
-     data-model="App\User"
-     data-form_id="{{ $form->params->form_id }}"
-     data-item_id="{{ $employee->id }}"
-     data-list_id="{{ Config::get('dx.employee_list_id') }}">
+  <div id="form_{{ Webpatser\Uuid\Uuid::generate(4) }}"
+    class="portlet light dx-employee-profile freeform" style='padding-bottom: 100px!important;'
+    data-freeform="true"
+    data-model="App\User"
+    data-mode="{{ $mode }}"
+    data-redirect_url="/employee/profile/"
+    data-form_id="{{ $form->params->form_id }}"
+    data-item_id="{{ $mode == 'create' ? 0 : $employee->id }}"
+    data-list_id="{{ Config::get('dx.employee_list_id') }}">
     <div class="portlet-body">
-        <div class="row">
-            <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-                <div class="employee-panel">
-                    <div class="well">
-                        <div class="row">
-                            <div class="col-sm-12 col-md-12 employee-pic-box" style="text-align: center;">                            
-                                <img src="{{ $employee->getAvatar() }}" class="img-responsive img-thumbnail" style="max-height: 178px;">
-                                <h4><span>{{ $employee->first_name }}</span> <span>{{ $employee->last_name }}</span></h4>
-                                <span><a href="#" class="dx_position_link"> {{ $employee->position_title }}</a></span><br>
-                                @if ($employee->department)
-                                <span><a href="#" class="small dx_department_link">{{ $employee->department->title }}</a></span><br><br>
-                                @endif
-                                <a href="javascript:;" class="btn btn-default {{ $avail['class'] }}" title="{{ $avail['title'] }}" style="font-size: 10px; "> {{ $avail['button'] }} </a>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12">
-                                <div class="employee-details-1">
-                                    <hr>                            
-                                    <div class="text-left">
-                                        <div class="dx-contact-info"><i class="fa fa-envelope-o"></i> <a href="mailto:{{ $employee->email }}">{{ $employee->email }}</a></div>
-                                        <div class="dx-contact-info"><i class="fa fa-phone"></i> {{ $employee->phone }}</div>
-                                        <div class="dx-contact-info"><i class="fa fa-map-marker"></i> {{ $employee->location_city }}, {{ $employee->country ? $employee->country->title : 'N/A' }}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                @if($is_edit_rights)
-                <div class="tiles">
-                    @include('profile.tile_hired')
-                    @include('profile.tile_manager')                 
-                </div>
-                @endif
-
+      <div class="row">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+          @include('profile.panel')
+          @if($mode != 'create' && $is_edit_rights)
+            <div class="tiles">
+              @include('profile.tile_hired')
+              @include('profile.tile_manager')
             </div>
-            <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12"> 
-                <div class="actions pull-right">
-                    @if($is_edit_rights)
-                    <a href="javascript:;" class="btn btn-circle btn-default dx-edit-profile">
-                        <i class="fa fa-pencil"></i> Edit </a>
-                    <a href="javascript:;" class="btn btn-circle btn-default dx-save-profile" style="display: none">
-                        <i class="fa fa-floppy-o"></i> Save </a>
-                    <a href="javascript:;" class="btn btn-circle btn-default dx-cancel-profile" style="display: none">
-                        <i class="fa fa-times"></i> Cancel </a>
-                    @endif
-                </div>
-                <div class="tabbable-line">
-                    <ul class="nav nav-tabs">
-                        @if($is_edit_rights)
-                        {!! $form->renderTabButtons() !!}
-                        @endif
-                        @section('profile_tabs')
-                        @show
-                    </ul>
-                </div>
-                <div class="tab-content" style="padding-top: 20px;">
-                    @if($is_edit_rights)
-                    {!! $form->renderTabContents() !!}
-                    @endif
-                    @section('profile_tabs_content')
-                    @show
-                </div>
-            </div>
+          @endif
         </div>
-
-
-
+        <div class="col-lg-9 col-md-8 col-sm-8 col-xs-12">
+          <div class="actions pull-right">
+            @if($is_edit_rights && $mode != 'create')
+              <a href="javascript:;" class="btn btn-circle btn-default dx-edit-profile">
+                <i class="fa fa-pencil"></i> {{ trans('form.btn_edit') }} </a>
+              <a href="javascript:;" class="btn btn-circle btn-default dx-delete-profile">
+                <i class="fa fa-trash-o"></i> {{ trans('form.btn_delete') }} </a>
+            @endif
+          </div>
+          <div class="tabbable-line">
+            <ul class="nav nav-tabs">
+              @if($is_edit_rights)
+                {!! $form->renderTabButtons() !!}
+              @endif
+              @section('profile_tabs')
+              @show
+            </ul>
+          </div>
+          <div class="tab-content" style="padding-top: 20px;">
+            @if($is_edit_rights)
+              {!! $form->renderTabContents() !!}
+            @endif
+            @section('profile_tabs_content')
+            @show
+          </div>          
+        </div>
+      </div>
     </div>
-</div>
+    <div class="dx-stick-footer animated bounceInUp" style="{{ $mode == 'create' ? '' : 'display: none' }}">
+        <div class='row'>
+            <div class='col-lg-2 col-md-3 hidden-sm hidden-xs dx-left'>
+                <img src="{{ $employee->getAvatar() }}" class="img-responsive img-thumbnail" style="max-height: 60px;">
+                <span class='dx-empl-title'>{{ $employee->first_name }} {{ $employee->last_name }}</span>
+            </div>
+            <div class='col-lg-10 col-md-9 col-sm-12 col-xs-12 dx-right'>
+                <a href="javascript:;" class="btn btn-primary dx-save-profile">
+                    <i class="fa fa-floppy-o"></i> {{ trans('form.btn_save') }} </a>
+                <a href="javascript:;" class="btn btn-default dx-cancel-profile">
+                    <i class="fa fa-times"></i> {{ trans('form.btn_cancel') }} </a>
+            </div>
+        </div>    
+    </div>
+  </div>
 @endsection

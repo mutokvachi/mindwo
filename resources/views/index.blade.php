@@ -58,7 +58,7 @@
                 <input type="hidden" name="_token" value="{{ csrf_token() }}"> 
             </form>
 
-            <button type="button" class="btn btn-primary block full-width m-b" style="margin-bottom: 10px; background-color: #243c68;" id="btnLogin">{{ trans("index.login") }}</button>           
+            <button type="button" class="btn btn-primary block full-width m-b" style="margin-bottom: 10px; background-color: #3f7c99;" id="btnLogin">{{ trans("index.login") }}</button>           
             
             <p class="m-t"> <small>{{ trans("index.version") }}</small> </p>
             

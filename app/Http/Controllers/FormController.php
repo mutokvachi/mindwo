@@ -38,14 +38,14 @@ class FormController extends Controller
      * 
      * @var integer 
      */
-    private $is_delete_rights = 0;
+    protected $is_delete_rights = 0;
 
     /**
      * Pazīme, vai forma pieļauj rediģēšanu (0 - jā, 1 - nē)
      * 
      * @var integer 
      */
-    private $is_edit_rights = 0;
+    protected $is_edit_rights = 0;
 
     /**
      * Pazīme, vai ieraksta neatrodas darbplūsmā un ja atrodas, vai lietotājam ir rediģēšanas uzdevums, kas pieļauj rediģēt šo ierakstu
@@ -726,7 +726,8 @@ class FormController extends Controller
                 lf.is_manual_reg_nr,
                 lf.reg_role_id,
                 ff.tab_id,
-                ff.group_label
+                ff.group_label,
+                rt.code as row_type_code
 	FROM
 		dx_forms_fields ff
 		inner join dx_lists_fields lf on ff.field_id = lf.id
@@ -740,6 +741,7 @@ class FormController extends Controller
                 left join dx_lists_fields lf_par on lf.rel_parent_field_id = lf_par.id
 		left join dx_lists_fields lf_bind on lf.binded_field_id = lf_bind.id
 		left join dx_lists_fields lf_bindr on lf.binded_rel_field_id = lf_bindr.id
+                left join dx_rows_types rt on ff.row_type_id = rt.id
 	WHERE
 		ff.form_id = :form_id
 	ORDER BY

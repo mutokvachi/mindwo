@@ -62,7 +62,7 @@
     <link rel="shortcut icon" href="{{Request::root()}}/favicon.ico">
   </head>
 
-  <body class="dx-main-page"
+  <body class="dx-main-page dx-horizontal-menu-ui"
           dx_valid_html_elements = "{{ get_portal_config('VALID_HTML_ELEMENTS') }}"
           dx_valid_html_styles = "{{ get_portal_config('VALID_HTML_STYLES') }}"
           dx_user_tasks_count = "{{ $user_tasks_count }}"
@@ -129,7 +129,7 @@
                     <!-- BEGIN USER LOGIN DROPDOWN -->
                     <li class="dropdown dropdown-user" style="padding: 0 0px;">
                         <a href="javascript:;" class="dropdown-toggle top-link" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-                            <img src="{{Request::root()}}/formated_img/small_avatar/{{ (Auth::user()->picture_guid) ? Auth::user()->picture_guid : get_portal_config('EMPLOYEE_AVATAR') }}" class="img-circle" alt="{{ Auth::user()->display_name }}" style="width: 20px;"/>
+                            <img src="{{Request::root()}}/{{ \App\Libraries\Helper::getUserAvatarSmall() }}" class="img-circle" alt="{{ Auth::user()->display_name }}" style="max-height: 24px;"/>
                             <span class="username username-hide-on-mobile"> {{ Auth::user()->display_name }} </span>
                             <i class="fa fa-angle-down"></i>
                         </a>
@@ -191,6 +191,8 @@
         </nav>
 
         <div class="container-fluid dx-page-container">
+            <div id="dx-search-box-in-page">                        
+            </div>
             <div class="page-content" id="td_data" style="padding: 15px;">          
               @yield('main_content')
             </div>

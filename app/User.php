@@ -49,6 +49,41 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     protected $hidden = ['password', 'remember_token'];
 
     /**
+     * The "booting" method of the model.
+     *
+     * @return void
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Add default user roles
+        User::created(function ($user) {
+            $roles = \App\Models\System\Role::where('is_default', true)->get();
+
+            $user->roles()->attach($roles);
+        });
+    }
+
+    /**
+     * User roles
+     * @return App\Models\System\Role
+     */
+    public function roles()
+    {
+        return $this->belongsToMany('App\Models\System\Role', 'dx_users_roles');
+    }
+
+    /**
+     * List of users's personal documents
+     * @return App\Employee\EmployeePersonalDocument
+     */
+    public function employeePersonalDocs()
+    {
+        return $this->hasMany('\App\Models\Employee\EmployeePersonalDocument', 'user_id');
+    }
+
+    /**
      * Relation to country
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
@@ -105,10 +140,13 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function getAvatar()
     {
-        $thumb_path = 'formated_img/small_avatar/';
-        $thumb = $thumb_path . $this->picture_guid;
+        return url(\App\Libraries\Helper::getEmployeeAvatarBig($this->picture_guid));
+        /*
+          $thumb_path = 'formated_img/small_avatar/';
+          $thumb = $thumb_path.$this->picture_guid;
 
-        return is_file(public_path($thumb)) ? url($thumb) : url($thumb_path . get_portal_config('EMPLOYEE_AVATAR'));
+          return is_file(public_path($thumb)) ? url($thumb) : url($thumb_path.get_portal_config('EMPLOYEE_AVATAR'));
+         */
     }
 
     public function getAvailability()
@@ -134,40 +172,5 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         }
 
         return $result;
-    }
-
-    /**
-     * The "booting" method of the model.
-     *
-     * @return void
-     */
-    protected static function boot()
-    {
-        parent::boot();
-
-        // Add default user roles
-        User::created(function ($user) {
-            $roles = \App\Models\System\Role::where('is_default', true)->get();
-
-            $user->roles()->attach($roles);
-        });
-    }
-
-    /**
-     * User roles
-     * @return App\Models\System\Role
-     */
-    public function roles()
-    {
-        return $this->belongsToMany('App\Models\System\Role', 'dx_users_roles');
-    }
-
-    /**
-     * List of users's personal documents
-     * @return App\Employee\EmployeePersonalDocument
-     */
-    public function employeePersonalDocs()
-    {
-        return $this->hasMany('\App\Models\Employee\EmployeePersonalDocument', 'user_id');
     }
 }

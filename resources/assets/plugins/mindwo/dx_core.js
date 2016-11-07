@@ -71,9 +71,9 @@ function unregister_form(form_htm_id) {
 
 function get_previous_form_by_list(current_form_htm_id, previous_item_id) {
     var index = DX_CORE.forms_ids.indexOf(current_form_htm_id);
-
+    
     if (index > -1) {
-        for (var i = index; i >= 0; i--) {
+        for (var i = index; i >= 0; i--) {           
             if (DX_CORE.items_ids[i] == previous_item_id) {
                 return DX_CORE.forms_ids[i];
             }
