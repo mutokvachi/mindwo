@@ -67,35 +67,42 @@
   <script>
     $(document).ready(function()
     {
-      $('.freeform').FreeForm();
-      $('.freeform').InlineForm({
-        afterSave: function()
-        {
-          $.ajax({
-            type: 'GET',
-            url: DX_CORE.site_url + 'employee/profile/' + $('.dx-employee-profile').data('item_id') + '/chunks',
-            dataType: 'json',
-            success: function(data)
-            {
-                if(typeof data.success != "undefined" && data.success == 0)
-                {
-                  notify_err(data.error);
-                  return;
-                }
-                $('.employee-panel').html(data.panel);
-                $('.employee-manager').html(data.manager);
-                
-                $('.dx-employee-profile .dx-stick-footer .dx-left img').attr('src', $('.dx-employee-profile .employee-pic-box img').attr("src"));                
-                $('.dx-employee-profile .dx-stick-footer .dx-left span.dx-empl-title').html($('.dx-employee-profile .employee-pic-box h4.dx-empl-title').html());
-            },
-            error: function(jqXHR, textStatus, errorThrown)
-            {
-              console.log(textStatus);
-              console.log(jqXHR);
+      
+        $(window).on('beforeunload', function() {
+            if ($(".dx-stick-footer").is(":visible")) {
+              return 'Your changes have not been saved.';
             }
-          });
-        }
-      });
+        });
+                  
+        $('.freeform').FreeForm();
+        $('.freeform').InlineForm({
+            afterSave: function()
+            {
+              $.ajax({
+                type: 'GET',
+                url: DX_CORE.site_url + 'employee/profile/' + $('.dx-employee-profile').data('item_id') + '/chunks',
+                dataType: 'json',
+                success: function(data)
+                {
+                    if(typeof data.success != "undefined" && data.success == 0)
+                    {
+                      notify_err(data.error);
+                      return;
+                    }
+                    $('.employee-panel').html(data.panel);
+                    $('.employee-manager').html(data.manager);
+
+                    $('.dx-employee-profile .dx-stick-footer .dx-left img').attr('src', $('.dx-employee-profile .employee-pic-box img').attr("src"));                
+                    $('.dx-employee-profile .dx-stick-footer .dx-left span.dx-empl-title').html($('.dx-employee-profile .employee-pic-box h4.dx-empl-title').html());
+                },
+                error: function(jqXHR, textStatus, errorThrown)
+                {
+                  console.log(textStatus);
+                  console.log(jqXHR);
+                }
+              });
+            }
+        });
     });
   </script>
 @endsection
@@ -112,7 +119,7 @@
     data-list_id="{{ Config::get('dx.employee_list_id') }}">
     <div class="portlet-body">
       <div class="row">
-        <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
           @include('profile.panel')
           @if($mode != 'create' && $is_edit_rights)
             <div class="tiles">
@@ -121,7 +128,7 @@
             </div>
           @endif
         </div>
-        <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12">
+        <div class="col-lg-9 col-md-8 col-sm-8 col-xs-12">
           <div class="actions pull-right">
             @if($is_edit_rights && $mode != 'create')
               <a href="javascript:;" class="btn btn-circle btn-default dx-edit-profile">

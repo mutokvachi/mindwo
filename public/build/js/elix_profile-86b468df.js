@@ -509,7 +509,7 @@
                         $(this).data("is-fix-init", 1);
                     }
                 });
-                
+                                
                 this.flds_managers.each(function()
                 {
                     if (!$(this).data("is-fix-init")) {
