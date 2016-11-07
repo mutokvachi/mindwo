@@ -7,12 +7,18 @@
 	 * @returns {*}
 	 * @constructor
 	 */
-	$.fn.FreeForm = function(root)
+	$.fn.FreeForm = function(opts)
 	{
+		var options = $.extend({}, $.fn.FreeForm.defaults, opts);
+		
 		return this.each(function()
 		{
-			new $.FreeForm(this);
+			new $.FreeForm(this, options);
 		});
+	};
+	
+	$.fn.FreeForm.defaults = {
+		
 	};
 	
 	/**
@@ -21,11 +27,14 @@
 	 * @param root
 	 * @constructor
 	 */
-	$.FreeForm = function(root)
+	$.FreeForm = function(root, opts)
 	{
+		// store object instance along with a root DOM element
 		$.data(root, 'FreeForm', this);
+		
 		var self = this;
 		this.root = $(root);
+		this.options = opts;
 		this.fields = $('[data-name]', this.root);
 		this.originalData = {};
 		this.editButton = $('.dx-edit-general', this.root);
@@ -33,18 +42,9 @@
 		this.cancelButton = $('.dx-cancel-general', this.root);
 		
 		// Bind callbacks to buttons
-		this.editButton.click(function()
-		{
-			self.edit();
-		});
-		this.saveButton.click(function()
-		{
-			self.save();
-		});
-		this.cancelButton.click(function()
-		{
-			self.cancel();
-		});
+		this.editButton.click(function() { self.edit(); });
+		this.saveButton.click(function() { self.save(); });
+		this.cancelButton.click(function() { self.cancel(); });
 	};
 	
 	/**
@@ -214,6 +214,7 @@
 	$.fn.InlineForm = function(opts)
 	{
 		var options = $.extend({}, $.fn.InlineForm.defaults, opts);
+		
 		return this.each(function()
 		{
 			new $.InlineForm(this, options);
@@ -223,7 +224,7 @@
 	$.fn.InlineForm.defaults = {
 		beforeSave: null,
 		afterSave: null,
-                empl_search_page_url: "/search"
+		empl_search_page_url: "/search"
 	};
 	
 	/**
@@ -244,7 +245,7 @@
 		this.saveButton = $('.dx-save-profile', this.root);
 		this.cancelButton = $('.dx-cancel-profile', this.root);
 		this.deleteButton = $('.dx-delete-profile', this.root);
-				
+		
 		// Bind callbacks to buttons
 		this.editButton.click(function()
 		{
@@ -304,7 +305,7 @@
 					}
 					
 					self.editButton.hide();
-										
+					
 					var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane');
 					
 					// replace original html content of marked elements with input fields
@@ -317,8 +318,8 @@
 					}
 					
 					hide_page_splash(1);
-                                        
-                                        $('.dx-stick-footer').show();
+					
+					$('.dx-stick-footer').show();
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{
@@ -373,7 +374,7 @@
 					}
 					
 					self.editButton.show();
-										
+					
 					var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane');
 					
 					// replace original html content of marked elements with input fields
@@ -391,7 +392,7 @@
 					}
 					
 					hide_page_splash(1);
-                                        $('.dx-stick-footer').hide();
+					$('.dx-stick-footer').hide();
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{
@@ -407,19 +408,20 @@
 		 */
 		cancel: function()
 		{
-			if(this.root.data('mode') == 'create') {
-                            show_page_splash(1);
-                            window.location = this.options.empl_search_page_url;
-                            return;
-                        }
-                        
-                        this.editButton.show();
+			if(this.root.data('mode') == 'create')
+			{
+				show_page_splash(1);
+				window.location = this.options.empl_search_page_url;
+				return;
+			}
+			
+			this.editButton.show();
 			
 			for(var k in this.originalTabs)
 			{
 				this.tabs.filter('[data-tab-title="' + k + '"]').html(this.originalTabs[k]);
 			}
-                        $('.dx-stick-footer').hide();
+			$('.dx-stick-footer').hide();
 		},
 		
 		destroy: function()

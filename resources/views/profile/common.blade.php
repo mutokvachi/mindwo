@@ -32,7 +32,7 @@
       margin-left: 20px;
     }
     
-    .dx-employee-profile .tiles .tile {
+    .dx-employee-profile.is-admin .tiles .tile.double {
       width: auto !important;
       float: none;
     }
@@ -107,6 +107,7 @@
                 return;
               }
               
+              // update auxiliary info panels
               for(var selector in data.chunks)
               {
                 $(selector).first().html(data.chunks[selector]);
@@ -129,7 +130,7 @@
 
 @section('main_content')
   <div id="form_{{ Webpatser\Uuid\Uuid::generate(4) }}"
-    class="portlet light dx-employee-profile freeform" style='padding-bottom: 100px!important;'
+    class="portlet light dx-employee-profile freeform {{ $is_edit_rights ? 'is-admin' : '' }}" style='padding-bottom: 100px!important;'
     data-freeform="true"
     data-model="App\User"
     data-mode="{{ $mode }}"
