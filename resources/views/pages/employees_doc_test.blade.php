@@ -9,7 +9,7 @@
 @stop
 
 @section('main_content')
-    @include('blocks.empl_profile.personal_docs', ['user_id' => 1])
+    @include('profile.personal_docs', ['user' => App\User::find(1)])
 @stop
 
 @section('main_custom_javascripts') 

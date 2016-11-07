@@ -75,14 +75,6 @@ Route::post('/search', array('as' => 'search', 'middleware' => 'auth', 'uses'=>'
 Route::post('/ajax/departments', array('as' => 'get_departments', 'middleware' => 'auth_ajax', 'uses'=>'DepartmentsController@getDepartments'));
 Route::post('/ajax/employees', array('as' => 'get_employees', 'middleware' => 'auth_ajax', 'uses'=>'EmployeeController@searchAjaxEmployee'));
 
-Route::group(['prefix' => 'employee', 'namespace' => 'Employee'], function () {
-    Route::group(['prefix' => 'personal_docs'], function () {
-        Route::get('/get/employee_docs/{employee_id}', array('middleware' => 'auth', 'uses' => 'EmployeePersonalDocController@getEmployeeDocs'));
-        Route::get('/get/docs_by_country/{country_id}', array('middleware' => 'auth', 'uses' => 'EmployeePersonalDocController@getPersonalDocsByCountry'));
-        Route::post('/save', array('middleware' => 'auth', 'uses' => 'EmployeePersonalDocController@save'));
-    });
-});
-
 Route::get('/emp_docs_test', array('as' => 'search', 'middleware' => 'auth', 'uses' => 'Employee\EmployeePersonalDocController@testView'));
 
 // Bloku AJAX pieprasījumi
@@ -138,17 +130,24 @@ Route::post('/relogin', 'UserController@reLoginUser');
 
 // Route group for employee profile
 Route::group(['middleware' => 'auth', 'prefix' => 'employee'], function() {
-	Route::get('profile/{id?}', 'EmplProfileController@show')->name('profile');
+    Route::get('profile/{id?}', 'EmplProfileController@show')->name('profile');
+    
+    Route::group(['prefix' => 'personal_docs', 'namespace' => 'Employee'], function () {
+        Route::get('/get/employee_docs/{user_id}', 'EmployeePersonalDocController@getEmployeeDocs');
+        Route::get('/get/docs_by_country/{country_id}', 'EmployeePersonalDocController@getPersonalDocsByCountry');
+        Route::post('/save', 'EmployeePersonalDocController@save');
+        Route::get('/get/view/{user_id}/{is_disabled}', 'EmployeePersonalDocController@getView');
+    });
 });
 
 Route::group(['middleware' => 'auth_ajax', 'prefix' => 'freeform'], function() {
-	Route::post('{id}/edit', 'FreeFormController@edit');
-	Route::put('{id}', 'FreeFormController@update');
+    Route::post('{id}/edit', 'FreeFormController@edit');
+    Route::put('{id}', 'FreeFormController@update');
 });
 
 Route::group(['middleware' => 'auth_ajax', 'prefix' => 'inlineform'], function() {
-	Route::post('{id}/edit', 'InlineFormController@edit');
-	Route::put('{id}', 'InlineFormController@update');
+    Route::post('{id}/edit', 'InlineFormController@edit');
+    Route::put('{id}', 'InlineFormController@update');
 });
 
 // Lapas

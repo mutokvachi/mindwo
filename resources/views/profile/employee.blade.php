@@ -24,7 +24,11 @@
           </li>
           <li class="">
             <a href="#tab_skills" data-toggle="tab" aria-expanded="false"> Skills </a>
-          </li>
+          </li>          
+    @else
+        <li class="">
+            <a href="#tab_personal_docs" data-toggle="tab" aria-expanded="false"> Documents </a>
+        </li>
     @endif
 @endsection
 
@@ -104,6 +108,10 @@
         </div>
         <div class="tab-pane fade" id="tab_skills">
           @include('profile.skill')
+        </div>
+    @else
+        <div class="tab-pane fade" id="tab_personal_docs"> 
+          @include('profile.personal_docs', ['user' => $employee])
         </div>
     @endif
 @endsection
