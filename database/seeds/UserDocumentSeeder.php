@@ -1,19 +1,16 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Seeder;
 
-class InsertTestDataDocTemplates extends Migration
+class UserDocumentSeeder extends Seeder
 {
-
     /**
-     * Run the migrations.
+     * Run the database seeds.
      *
      * @return void
      */
-    public function up()
+    public function run()
     {
-
         $doc1 = new App\Models\Employee\PersonalDocument();
         $doc1->name = 'Passport';
         $doc1->description = 'Valid passport';
@@ -53,15 +50,5 @@ class InsertTestDataDocTemplates extends Migration
                 ['country_id' => $country3->id, 'doc_id' => $doc3->id]
             ]);
         }
-    }
-
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
-    {
-        //
     }
 }
