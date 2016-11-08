@@ -81,6 +81,10 @@
           .dx-top-menu .navbar-nav .open .dropdown-menu > li > a {
             background-color: transparent;
           }
+          
+          .dropdown-submenu:hover > .dropdown-menu {
+            display: none;
+          }
         }
         
       </style>
@@ -265,6 +269,56 @@
     
     <script>
       {!! get_portal_config('SCRIPT_JS') !!}
+    </script>
+    
+    <script>
+      $(document).ready(function()
+      {
+        // select all dropdown toggles under the top level
+        $('.dx-main-menu .dropdown-submenu > a.dropdown-toggle').each(function()
+        {
+          $(this).click(function(e)
+          {
+            if($(window).width() < 768)
+            {
+              e.stopPropagation();
+              
+              // select the ul element next to the toggle (submenu itself)
+              var submenu = $(this).next();
+              
+              if(submenu.is(':visible'))
+              {
+                // hide submenu and all open sub-submenus of it
+                submenu.add('.dropdown-menu', submenu).hide();
+              }
+              else
+              {
+                // hide already open submenus at the same level
+                $(this).parent().siblings('.dropdown-submenu').find('.dropdown-menu:visible').hide();
+                submenu.show();
+              }
+            }
+          });
+        });
+        
+        // close open submenus when closing a top-level menu
+        $('.dx-main-menu > li > a.dropdown-toggle').click(function()
+        {
+          if($(window).width() < 768)
+          {
+            // if user is closing menu, then hide submenus of it
+            if($(this).attr('aria-expanded') == 'true')
+            {
+              $(this).next().find('.dropdown-menu:visible').hide();
+            }
+            // if user opens another menu, hide submenus of an already open menu
+            else
+            {
+              $(this).parent().siblings('.open').find('.dropdown-submenu .dropdown-menu:visible').hide();
+            }
+          }
+        });
+      });
     </script>
     
     @if (isset($is_slidable_menu) && $is_slidable_menu)
