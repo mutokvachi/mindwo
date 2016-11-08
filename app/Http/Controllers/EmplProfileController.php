@@ -74,16 +74,24 @@ class EmplProfileController extends Controller
 	{
 		$employee = App\User::find($id);
 
-		$result = [];
-		$result['panel'] = view('profile.panel', [
+		$result = [
+			'success' => 1,
+			'chunks' => []
+		];
+		
+		$result['chunks']['.dx-employee-panel'] = view('profile.panel', [
+			'mode' => 'show',
 			'employee' => $employee,
 			'avail' => $employee->getAvailability(),
 			'is_my_profile' => $id == Auth::user()->id,
-			'is_edit_rights' => $this->getEditRightsMode(),
-                        'mode' => 'view'
+			'is_edit_rights' => $this->getEditRightsMode()
 		])->render();
 		
-		$result['manager'] = view('profile.tile_manager', [
+		$result['chunks']['.dx-employee-hired'] = view('profile.tile_hired', [
+			'employee' => $employee,
+		])->render();
+		
+		$result['chunks']['.dx-employee-manager'] = view('profile.tile_manager', [
 			'employee' => $employee,
 		])->render();
 		

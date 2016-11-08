@@ -108,7 +108,7 @@ class FreeFormController extends FormController
 			$field = new FormField($row, $list_id, $item_id, $parent_item_id, $parent_field_id, $row_data,
 				$frm_uniq_id);
 			
-			$html = $field->get_field_input_htm();
+			$html = $field->get_field_htm();
 			
 			$result['fields'][] = [
 				'name' => $row->db_name,

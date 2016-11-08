@@ -1,4 +1,4 @@
-<div class="employee-manager">
+<div class="dx-employee-manager">
   @if($employee->manager)
     <div class="tile double bg-blue-madison employee-manager-tile" data-empl-id='{{ $employee->manager->id }}'>
       <div class="tile-body">
@@ -10,6 +10,6 @@
         <div class="name">Direct supervisor</div>
         <div class="number"></div>
       </div>
-    </div> 
+    </div>
   @endif
 </div>

@@ -21,6 +21,22 @@
       width: auto !important;
     }
     
+    .profile-sticky {
+      padding: 10px 0;
+      border-top: 1px solid #ddd;
+      z-index: 10;
+      background-color: white;
+    }
+    
+    .profile-sticky a:first-child {
+      margin-left: 20px;
+    }
+    
+    .dx-employee-profile.is-admin .tiles .tile.double {
+      width: auto !important;
+      float: none;
+    }
+    
     .stuck {
       position: fixed;
       bottom: 0;
@@ -37,25 +53,25 @@
     }
     
     .dx-top-right-menu {
-        margin-right: 0px!important;
+      margin-right: 0px !important;
     }
     
     .container-fluid {
-        padding-right: 0px;
-        padding-left: 0px;
+      padding-right: 0px;
+      padding-left: 0px;
     }
     
     .dx-page-container {
-        padding: 0px!important;
+      padding: 0px !important;
     }
     
     .page-content {
-        background-color: white!important;
+      background-color: white !important;
     }
     
     .dx-employee-profile {
-        border: none;
-        box-shadow: none!important;
+      border: none;
+      box-shadow: none !important;
     }
   </style>
 @endsection
@@ -67,6 +83,13 @@
   <script>
     $(document).ready(function()
     {
+      $(window).on('beforeunload', function()
+      {
+        if($(".dx-stick-footer").is(":visible"))
+        {
+          return 'Your changes have not been saved.';
+        }
+      });
       
         $(window).on('beforeunload', function() {
             if ($(".dx-stick-footer").is(":visible")) {
@@ -75,38 +98,43 @@
         });
                   
         show_page_splash(1);
-                  
-        $('.freeform').FreeForm();
-        $('.freeform').InlineForm({
-            afterSave: function()
-            {
-              $.ajax({
-                type: 'GET',
-                url: DX_CORE.site_url + 'employee/profile/' + $('.dx-employee-profile').data('item_id') + '/chunks',
-                dataType: 'json',
-                success: function(data)
-                {
-                    if(typeof data.success != "undefined" && data.success == 0)
-                    {
-                      notify_err(data.error);
-                      return;
-                    }
-                    $('.employee-panel').html(data.panel);
-                    $('.employee-manager').html(data.manager);
-
-                    $('.dx-employee-profile .dx-stick-footer .dx-left img').attr('src', $('.dx-employee-profile .employee-pic-box img').attr("src"));                
-                    $('.dx-employee-profile .dx-stick-footer .dx-left span.dx-empl-title').html($('.dx-employee-profile .employee-pic-box h4.dx-empl-title').html());
-                },
-                error: function(jqXHR, textStatus, errorThrown)
-                {
-                  console.log(textStatus);
-                  console.log(jqXHR);
-                }
-              });
-            }
-        });
         
-        window.DxEmpPersDocs.init(function () {
+      $('.freeform').FreeForm();
+      $('.freeform').InlineForm({
+        afterSave: function()
+        {
+          $.ajax({
+            type: 'GET',
+            url: DX_CORE.site_url + 'employee/profile/' + $('.dx-employee-profile').data('item_id') + '/chunks',
+            dataType: 'json',
+            success: function(data)
+            {
+              if(typeof data.success != "undefined" && data.success == 0)
+              {
+                notify_err(data.error);
+                return;
+              }
+              
+              // update auxiliary info panels
+              for(var selector in data.chunks)
+              {
+                $(selector).first().html(data.chunks[selector]);
+              }
+              
+              $('.dx-employee-profile .dx-stick-footer .dx-left img').attr('src', $('.dx-employee-profile .employee-pic-box img').attr("src"));
+              $('.dx-employee-profile .dx-stick-footer .dx-left span.dx-empl-title').html($('.dx-employee-profile .employee-pic-box h4.dx-empl-title').html());
+            },
+            error: function(jqXHR, textStatus, errorThrown)
+            {
+              console.log(textStatus);
+              console.log(jqXHR);
+            }
+
+          });
+        }
+      });
+      
+      window.DxEmpPersDocs.init(function () {
             hide_page_splash(1);
         });
     });
@@ -115,7 +143,7 @@
 
 @section('main_content')
   <div id="form_{{ Webpatser\Uuid\Uuid::generate(4) }}"
-    class="portlet light dx-employee-profile freeform" style='padding-bottom: 100px!important;'
+    class="portlet light dx-employee-profile freeform {{ $is_edit_rights ? 'is-admin' : '' }}" style='padding-bottom: 100px!important;'
     data-freeform="true"
     data-model="App\User"
     data-mode="{{ $mode }}"
@@ -158,23 +186,23 @@
             @endif
             @section('profile_tabs_content')
             @show
-          </div>          
+          </div>
         </div>
       </div>
     </div>
     <div class="dx-stick-footer animated bounceInUp" style="{{ $mode == 'create' ? '' : 'display: none' }}">
-        <div class='row'>
-            <div class='col-lg-2 col-md-3 hidden-sm hidden-xs dx-left'>
-                <img src="{{ $employee->getAvatar() }}" class="img-responsive img-thumbnail" style="max-height: 60px;">
-                <span class='dx-empl-title'>{{ $employee->first_name }} {{ $employee->last_name }}</span>
-            </div>
-            <div class='col-lg-10 col-md-9 col-sm-12 col-xs-12 dx-right'>
-                <a href="javascript:;" class="btn btn-primary dx-save-profile">
-                    <i class="fa fa-floppy-o"></i> {{ trans('form.btn_save') }} </a>
-                <a href="javascript:;" class="btn btn-default dx-cancel-profile">
-                    <i class="fa fa-times"></i> {{ trans('form.btn_cancel') }} </a>
-            </div>
-        </div>    
+      <div class='row'>
+        <div class='col-lg-2 col-md-3 hidden-sm hidden-xs dx-left'>
+          <img src="{{ $employee->getAvatar() }}" class="img-responsive img-thumbnail" style="max-height: 60px;">
+          <span class='dx-empl-title'>{{ $employee->first_name }} {{ $employee->last_name }}</span>
+        </div>
+        <div class='col-lg-10 col-md-9 col-sm-12 col-xs-12 dx-right'>
+          <a href="javascript:;" class="btn btn-primary dx-save-profile">
+            <i class="fa fa-floppy-o"></i> {{ trans('form.btn_save') }} </a>
+          <a href="javascript:;" class="btn btn-default dx-cancel-profile">
+            <i class="fa fa-times"></i> {{ trans('form.btn_cancel') }} </a>
+        </div>
+      </div>
     </div>
   </div>
 @endsection
