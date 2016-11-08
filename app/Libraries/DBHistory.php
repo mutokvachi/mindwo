@@ -85,19 +85,27 @@ namespace App\Libraries
             if ($this->db_table->is_history_logic == 0) {
                 return; // reģistram nav paredzēts auditēt datu izmaiņas
             }
+            
+            try {
+                DB::transaction(function () {
 
-            DB::transaction(function () {
-                
-                // Izveido rediģēšanas notikumu
-                $this->insertEvent(2);
+                    // Izveido rediģēšanas notikumu
+                    $this->insertEvent(2);
 
-                // Salīdzina lauku izmaiņas un saglabā vēsturē mainītās vērtības
-                $this->compareChanges();
-                
-                if (!$this->is_update_change) {
-                    throw new Exceptions\DXCustomException(trans('errors.nothing_changed'));
+                    // Salīdzina lauku izmaiņas un saglabā vēsturē mainītās vērtības
+                    $this->compareChanges();
+
+                    if (!$this->is_update_change) {
+                        throw new Exceptions\DXHistoryNoChanges;
+                    }
+                });
+            }
+            catch (\Exception $e) {
+                if ($e instanceof Exceptions\DXHistoryNoChanges) {
+                    return;
                 }
-            });
+                throw $e;
+            }             
         }
 
         /**

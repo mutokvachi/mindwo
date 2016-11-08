@@ -344,7 +344,7 @@ function download_file(item_id, list_id, file_field_id) {
     
     show_form_splash();
     show_page_splash();
-    var open_url = DX_CORE.site_url + "download_file_" + item_id + "_" + list_id + "_" + file_field_id;
+    var open_url = DX_CORE.site_url + "download_filejs_" + item_id + "_" + list_id + "_" + file_field_id;
 
     $.fileDownload(open_url, {
         successCallback: function(url) {
@@ -354,7 +354,7 @@ function download_file(item_id, list_id, file_field_id) {
         },
         failCallback: function(html, url) {
             hide_form_splash();
-            hide_page_splash();
+            hide_page_splash();            
             try {
                 var myData = JSON.parse(html);
                 if (myData['success'] == 0) {

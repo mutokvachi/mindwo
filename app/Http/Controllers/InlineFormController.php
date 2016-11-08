@@ -64,7 +64,8 @@ class InlineFormController extends FormController
 		
 		return response([
 			'success' => 1,
-			'redirect' => $url . $save_obj->item_id
+			'redirect' => $url . $save_obj->item_id,
+                        'item_id' => $save_obj->item_id
 		]);
 	}
 	

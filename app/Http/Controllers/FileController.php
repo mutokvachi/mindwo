@@ -55,6 +55,14 @@ class FileController extends Controller
         header('Set-Cookie: fileDownload=true; path=/');
         readfile($file_path);
     }
+    
+    public function getFile_js($item_id, $list_id, $file_field_id) {
+        try {
+            $this->getFile($item_id, $list_id, $file_field_id);
+        } catch (\Exception $ex) {
+            return response(json_encode(['success' => 0, 'error' => $ex->getMessage()]));
+        }
+    }
 
     /**
      * Lejuplādē datni pēc norādītā datnes lauka nosaukuma

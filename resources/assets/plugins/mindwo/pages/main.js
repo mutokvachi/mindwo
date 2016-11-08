@@ -618,6 +618,21 @@ var PageMain = function()
         $('#td_data').css('min-height', min_h + page_header_h);
     };
     
+    var showAjaxError = function(xhr) {
+        if (xhr.status == 200 || xhr.status == 401) {
+            return;
+        }
+        
+        var json = xhr.responseJSON;
+        
+        if(typeof json.success != "undefined" && json.success == 0)
+        {
+                notify_err(json.error);
+                hide_page_splash(1);
+                hide_form_splash();
+        }
+    };
+    
     /**
      * Inicializē galvenās lapas JavaScript funkcionalitāti.
      * Izpildās, kamēr vēl nav visa lapa līdz galam ielādēta.
@@ -643,6 +658,7 @@ var PageMain = function()
      * @returns {undefined}
      */
     var initPageLoaded = function() {
+        
         initUserTasksPopup();     
         
         initPortletsShowHide();
@@ -707,6 +723,9 @@ var PageMain = function()
         },
         resizePage: function() {
             resizePage();
+        },
+        errorHandler: function(xhr) {
+            showAjaxError(xhr);
         }
     };
 }();
@@ -719,7 +738,8 @@ $(document).ready(function() {
     PageMain.initHelpPopups();
 });
 
-$(document).ajaxComplete(function(event, xhr, settings) {
+$(document).ajaxComplete(function(event, xhr, settings) {      
+    PageMain.errorHandler(xhr);
     PageMain.modalsDraggable();
     PageMain.initHelpPopups();
     PageMain.initFilesIcons();

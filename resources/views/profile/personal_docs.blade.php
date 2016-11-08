@@ -99,8 +99,8 @@ if ($user->doc_country_id) {
                 </div>
             </div>
             <div class="col-lg-1">
-                <button class="btn btn-white dx-emp-pers-docs-clear-btn">
-                    <i class='fa fa-remove'></i> {{ trans('employee.personal_docs.clear_doc') }}
+                <button class="btn btn-white dx-emp-pers-docs-clear-btn" title="{{ trans('employee.personal_docs.clear_doc') }}">
+                    <i class='fa fa-trash-o'></i>
                 </button>
             </div>
             <div class='hidden-lg'>
@@ -133,7 +133,7 @@ if ($user->doc_country_id) {
                 window.DxEmpPersDocs.callbackOnInitiSuccess = function () {};
             }
 
-            window.DxEmpPersDocs.userId = $('#dx-emp-pers-docs-panel').attr('data-user-id');
+            window.DxEmpPersDocs.userId = ($('#dx-emp-pers-docs-panel').attr('data-user-id') == '' ? 0 : $('#dx-emp-pers-docs-panel').attr('data-user-id'));
             window.DxEmpPersDocs.dateFormat = $('#dx-emp-pers-docs-panel').attr('data-date-format');
             window.DxEmpPersDocs.locale = $('#dx-emp-pers-docs-panel').attr('data-locale');
             window.DxEmpPersDocs.empDocListId = $('#dx-emp-pers-docs-panel').attr('data-emp-docs-list-id');
@@ -158,10 +158,12 @@ if ($user->doc_country_id) {
             });
         },
         onSuccessLoadEmployeeData: function (data) {
-            var data_rows = JSON.parse(data);
-            // Prepares dropdown list options
-            for (var i = 0; i < data_rows.length; i++) {
-                window.DxEmpPersDocs.createNewDocRow(false, data_rows[i]);
+            if(data != ''){
+                var data_rows = JSON.parse(data);
+                // Prepares dropdown list options
+                for (var i = 0; i < data_rows.length; i++) {
+                    window.DxEmpPersDocs.createNewDocRow(false, data_rows[i]);
+                }
             }
 
             $("#dx-emp-pers-docs-country").trigger('change');
@@ -301,8 +303,12 @@ if ($user->doc_country_id) {
         finishInit: function () {
             if (!window.DxEmpPersDocs.isInit) {
                 window.DxEmpPersDocs.isInit = true;
-                window.DxEmpPersDocs.toggleDisable(true);
-                window.DxEmpPersDocs.callbackOnInitiSuccess()
+                if(window.DxEmpPersDocs.userId == 0){
+                    window.DxEmpPersDocs.toggleDisable(false);
+                }else{
+                    window.DxEmpPersDocs.toggleDisable(true);
+                }                
+                window.DxEmpPersDocs.callbackOnInitiSuccess();
             }
         },
         onClickSaveDocs: function (callbackOnSaveSuccess, callbackOnError) {

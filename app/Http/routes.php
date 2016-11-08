@@ -108,6 +108,7 @@ Route::get('/rest_test/{readviewentries}/{outputformat}/{Start}/{Count}', array(
 
 // Datnes
 Route::get('/download_file_{item_id}_{list_id}_{file_field_id}', array('as' => 'download_file',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getFile'));
+Route::get('/download_filejs_{item_id}_{list_id}_{file_field_id}', array('as' => 'download_file',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getFile_js'));
 Route::get('/download_by_field_{item_id}_{list_id}_{field_name}', array('as' => 'download_file_field',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getFileByField'));
 
 // Darbplūsmas

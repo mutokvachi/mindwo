@@ -153,7 +153,7 @@
     data-list_id="{{ Config::get('dx.employee_list_id') }}">
     <div class="portlet-body">
       <div class="row">
-        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+        <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
           @include('profile.panel')
           @if($mode != 'create' && $is_edit_rights)
             <div class="tiles">
@@ -162,7 +162,7 @@
             </div>
           @endif
         </div>
-        <div class="col-lg-9 col-md-8 col-sm-8 col-xs-12">
+        <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12">
           <div class="actions pull-right">
             @if($is_edit_rights && $mode != 'create')
               <a href="javascript:;" class="btn btn-circle btn-default dx-edit-profile">

@@ -46,7 +46,10 @@
 		this.saveButton = $('.dx-save-profile', this.root);
 		this.cancelButton = $('.dx-cancel-profile', this.root);
 		this.deleteButton = $('.dx-delete-profile', this.root);
-		
+		this.requests;
+                this.onRequestSuccess;
+                this.onRequestFailed;
+        
 		// Bind callbacks to buttons
 		this.editButton.click(function()
 		{
@@ -70,6 +73,45 @@
 	 * InlineForm methods
 	 */
 	$.extend($.InlineForm.prototype, {
+                /**
+                 * Resets and initializes all async request processing parameters
+                 * @param {integer} total Total count of processes which will be processed asynchronously
+                 */
+                initRequest: function (total) {
+                    this.requests = {
+                        total: total,
+                        succeeded: 0,
+                        failed: 0
+                    };
+
+                    this.onRequestSuccess = [];
+                    this.onRequestFailed = [];
+                },
+                /**
+                 * Saves completed request status. If all request are finished, then execute success commands
+                 * @param {boolean} is_success Parmeter if process wass successful
+                 */
+                setRequestStatus: function (is_success) {
+                    if (is_success) {
+                        this.requests.succeeded++;
+                    } else {
+                        this.requests.failed++;
+                    }
+
+                    if (this.requests.total === (this.requests.succeeded + this.requests.failed)) {
+                        if (this.requests.failed === 0) {
+                            for (var i = 0; i < this.onRequestSuccess.length; i++) {
+                                this.onRequestSuccess[i].func(this.onRequestSuccess[i].args);
+                            }
+                        } else {
+                            for (var i = 0; i < this.onRequestFailed.length; i++) {
+                                this.onRequestFailed[i].func(this.onRequestFailed[i].args);
+                            }
+                        }
+
+                        hide_page_splash(1);
+                    }
+                },
 		/**
 		 * Replace HTML with form input fields
 		 */
@@ -118,6 +160,8 @@
 							elem.html(tab.html());
 					}
 					
+                                        window.DxEmpPersDocs.toggleDisable(false);
+                                        
 					hide_page_splash(1);
 					
 					$('.dx-stick-footer').show();
@@ -161,45 +205,61 @@
 				data: formData,
 				success: function(data)
 				{
-					if(typeof data.success != "undefined" && data.success == 0)
-					{
-						notify_err(data.error);
-						hide_page_splash(1);
-						return;
-					}
-					
-					if(self.root.data('mode') == 'create')
-					{
-						window.location = data.redirect;
-						return;
-					}
-					
-					self.editButton.show();
-					
-					var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane');
-					
-					// replace original html content of marked elements with input fields
-					for(var i = 0; i < tabs.length; i++)
-					{
-						var tab = $(tabs[i]);
-						var elem = $('[data-tab-title="' + tab.data('tabTitle') + '"]', self.root);
-						if(elem.length)
-							elem.html(tab.html());
-					}
-					
-					if(self.options.afterSave)
-					{
-						self.options.afterSave();
-					}
-					
-					hide_page_splash(1);
-					$('.dx-stick-footer').hide();
+                                    if(typeof data.success != "undefined" && data.success == 0)
+                                    {
+                                            notify_err(data.error);
+                                            hide_page_splash(1);
+                                            return;
+                                    }
+
+                                    if(self.root.data('mode') == 'create')
+                                    {
+                                        window.DxEmpPersDocs.userId = data.item_id;
+
+                                        // Custom tab
+                                        window.DxEmpPersDocs.onClickSaveDocs(function () {
+                                            window.DxEmpPersDocs.toggleDisable(true);
+
+                                            hide_page_splash(1);
+                                            $('.dx-stick-footer').hide();
+                                            window.location = data.redirect;
+                                        });
+                                    
+                                        
+                                        return;
+                                    }
+
+                                    // Custom tab
+                                    window.DxEmpPersDocs.onClickSaveDocs(function () {
+                                        window.DxEmpPersDocs.toggleDisable(true);
+                                        
+                                        self.editButton.show();
+
+                                        var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane');
+
+                                        // replace original html content of marked elements with input fields
+                                        for(var i = 0; i < tabs.length; i++)
+                                        {
+                                                var tab = $(tabs[i]);
+                                                var elem = $('[data-tab-title="' + tab.data('tabTitle') + '"]', self.root);
+                                                if(elem.length)
+                                                        elem.html(tab.html());
+                                        }
+
+                                        if(self.options.afterSave)
+                                        {
+                                                self.options.afterSave();
+                                        }
+                                    
+                                        hide_page_splash(1);
+                                        $('.dx-stick-footer').hide();
+
+                                    });
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{
-					console.log(textStatus);
 					console.log(jqXHR);
-					hide_page_splash(1);
+                                        console.log(errorThrown);
 				}
 			});
 		},
@@ -223,6 +283,7 @@
 				this.tabs.filter('[data-tab-title="' + k + '"]').html(this.originalTabs[k]);
 			}
 			$('.dx-stick-footer').hide();
+                        window.DxEmpPersDocs.cancelEditMode();
 		},
 		
 		destroy: function()
