@@ -13,6 +13,10 @@ use Log;
 class EmployeePersonalDocController extends Controller
 {
 
+    /**
+     * Path where all docuemtns are stored
+     * @var type 
+     */
     protected $document_path;
 
     public function __construct()
@@ -20,11 +24,20 @@ class EmployeePersonalDocController extends Controller
         $this->document_path = storage_path(config('assets.private_file_path'));
     }
 
+    /**
+     * Test view fors testing purposes
+     * @return \Illuminate\View\View Created view
+     */
     public function testView()
     {
         return view('pages.employees_doc_test');
     }
-
+    
+    /**
+     * Search personal documents types which are assigned to specified country 
+     * @param integer $country_id Country ID
+     * @return App\Employee\PersonalDocument Collection of personal documents types
+     */
     public function getPersonalDocsByCountry($country_id)
     {
         $country = \App\Models\Country::find($country_id);
@@ -32,6 +45,11 @@ class EmployeePersonalDocController extends Controller
         return json_encode($country->personalDocs()->get());
     }
 
+    /**
+     * Gets documents and document's data which are registeres to specified user
+     * @param Integer $user_id User ID
+     * @return App\Employee\EmployeePersonalDocument Collection of personal documents and information about them
+     */
     public function getEmployeeDocs($user_id)
     {
         $user = \App\User::find($user_id);
@@ -52,20 +70,11 @@ class EmployeePersonalDocController extends Controller
         return json_encode($docs);
     }
 
-    public function getView($user_id, $is_disabled)
-    {
-        $user = \App\User::find($user_id);
-
-        if (!$user) {
-            return '0';
-        }
-
-        return view('profile.personal_docs', [
-                    'user' => $user,
-                    'is_disabled' => ($is_disabled == 1 ? true : false)
-                ])->render();
-    }
-
+    /**
+     * Saves data
+     * @param Request $request Data request
+     * @return string Result
+     */
     public function save(Request $request)
     {
         $data = json_decode($request->input('data'), true);
@@ -122,6 +131,10 @@ class EmployeePersonalDocController extends Controller
         return json_encode($result);
     }
 
+    /**
+     * Deletes document from server
+     * @param string $file_guid File name
+     */
     private function deleteOldDocument($file_guid)
     {
         $file_path = $this->document_path . DIRECTORY_SEPARATOR . $file_guid;
@@ -131,6 +144,15 @@ class EmployeePersonalDocController extends Controller
         }
     }
 
+    /**
+     * Saves employee's document models data 
+     * @param Request $request Data rquest
+     * @param integer $counter Counter which counts which is this document in current stack of documents which are being saved
+     * @param integer $user_id User ID to which document is saved
+     * @param \App\Models\Employee\EmployeePersonalDocument $emp_pers_doc Model which is being edited and saved
+     * @param array $input_row Data New data which will be set and saved
+     * @return \App\Models\Employee\EmployeePersonalDocument Saved model
+     */
     private function saveEmpPersDoc(Request $request, $counter, $user_id, $emp_pers_doc, $input_row)
     {
         $file = $request->file('file' . $counter);
@@ -168,6 +190,11 @@ class EmployeePersonalDocController extends Controller
         return $emp_pers_doc;
     }
 
+    /**
+     * Saves file on server's file system
+     * @param \Illuminate\Http\UploadedFile $file Uploaded file
+     * @return string Generated unique file name
+     */
     private function saveFile($file)
     {
         $file_path = tempnam($this->document_path, 'emp');

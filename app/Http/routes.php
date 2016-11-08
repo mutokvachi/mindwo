@@ -134,7 +134,6 @@ Route::group(['middleware' => 'auth', 'prefix' => 'employee'], function() {
         Route::get('/get/employee_docs/{user_id}', 'EmployeePersonalDocController@getEmployeeDocs');
         Route::get('/get/docs_by_country/{country_id}', 'EmployeePersonalDocController@getPersonalDocsByCountry');
         Route::post('/save', 'EmployeePersonalDocController@save');
-        Route::get('/get/view/{user_id}/{is_disabled}', 'EmployeePersonalDocController@getView');
     });
 
     Route::get('profile/{id?}', 'EmplProfileController@show')->name('profile');
