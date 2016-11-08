@@ -289,12 +289,12 @@
               if(submenu.is(':visible'))
               {
                 // hide submenu and all open sub-submenus of it
-                submenu.add('.dropdown-menu', submenu).hide();
+                submenu.add('.dropdown-menu', submenu).attr('style', '');
               }
               else
               {
                 // hide already open submenus at the same level
-                $(this).parent().siblings('.dropdown-submenu').find('.dropdown-menu:visible').hide();
+                $(this).parent().siblings('.dropdown-submenu').find('.dropdown-menu:visible').attr('style', '');
                 submenu.show();
               }
             }
@@ -309,13 +309,21 @@
             // if user is closing menu, then hide submenus of it
             if($(this).attr('aria-expanded') == 'true')
             {
-              $(this).next().find('.dropdown-menu:visible').hide();
+              $(this).next().find('.dropdown-menu:visible').attr('style', '');
             }
             // if user opens another menu, hide submenus of an already open menu
             else
             {
-              $(this).parent().siblings('.open').find('.dropdown-submenu .dropdown-menu:visible').hide();
+              $(this).parent().siblings('.open').find('.dropdown-submenu .dropdown-menu:visible').attr('style', '');
             }
+          }
+        });
+        
+        $(window).resize(function()
+        {
+          if($(window).width() > 768)
+          {
+            $('.dx-main-menu .dropdown-submenu .dropdown-menu:visible').attr('style', '');
           }
         });
       });
