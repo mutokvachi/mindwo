@@ -23,7 +23,7 @@
             </div>
         </div>
         <div>
-            @include('fields.visible', ['fld_name' => '', 'group_label' => '', 'label_title' => 'Jaunā skata nosaukums', 'is_required' => 1, 'hint' => '', 'item_htm' => '<input class="form-control" type=text name = "view_title"  maxlength="500" value = "" required /><span class="glyphicon form-control-feedback" aria-hidden="true"></span>'])
+            @include('fields.visible', ['frm_uniq_id'=>'copy_view', 'fld_name' => '', 'group_label' => '', 'label_title' => 'Jaunā skata nosaukums', 'is_required' => 1, 'hint' => '', 'item_htm' => '<input class="form-control" type=text name = "view_title"  maxlength="500" value = "" required /><span class="glyphicon form-control-feedback" aria-hidden="true"></span>'])
         </div>
         <div>
             <div class="col-lg-4">

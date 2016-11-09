@@ -20,9 +20,9 @@ namespace App\Libraries\Structure
           *
          */
         
-        private $obj_id = 0;
-        private $register_title = "";
-        private $form_title = "";
+        public $obj_id = 0;
+        public $register_title = "";
+        public $form_title = "";
         
         public $exclude_fields = ['created_user_id', 'created_time', 'modified_user_id', 'modified_time'];
         

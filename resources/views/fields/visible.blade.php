@@ -4,8 +4,8 @@
     </div>
 @endif
 
-<div class='form-group has-feedback dx-form-field-line' dx_fld_name_form="{{ $fld_name }}">
-    <label class='col-lg-4 control-label'>
+<div class='form-group has-feedback dx-form-field-line {{ isset($fld_row_code) ? $fld_row_code : "" }}' dx_fld_name_form="{{ $fld_name }}">
+    <label for="{{ $frm_uniq_id }}_{{ $fld_name }}" style="vertical-align: top; margin-right: 10px;">
         @if ($hint)
         <i class='fa fa-question-circle dx-form-help-popup' title='{{ $hint }}' style='cursor: help;'></i>&nbsp;
         @endif
@@ -16,8 +16,8 @@
             <span style="color: red"> *</span>
         @endif
     </label>
-    <div class='col-lg-8'>
-        {!! $item_htm !!}     
-        <div class="help-block with-errors"></div>
-    </div>    
+    
+    {!! $item_htm !!}     
+    <div class="help-block with-errors"></div>
+        
 </div>

@@ -17,7 +17,7 @@ var DateRange = function()
      *  Masīvs ar mēneša nosaukumiem latviski
      * @type Array
      */
-    var arr_month = ['Janvāris', 'Februāris', 'Marts', 'Aprīlis', 'Maijs', 'Jūnijs', 'Jūlijs', 'Augusts', 'Septembris', 'Oktobris', 'Novembris', 'Decembris'];
+    var arr_month = [Lang.get('date_range.m_jan'), Lang.get('date_range.m_feb'), Lang.get('date_range.m_mar'), Lang.get('date_range.m_apr'), Lang.get('date_range.m_may'), Lang.get('date_range.m_jun'), Lang.get('date_range.m_jul'), Lang.get('date_range.m_aug'), Lang.get('date_range.m_sep'), Lang.get('date_range.m_oct'), Lang.get('date_range.m_nov'), Lang.get('date_range.m_dec')];
     
     /**
      * Masīvs ar komonentes uzstādījumiem
@@ -95,19 +95,19 @@ var DateRange = function()
                 locale: {
                     "format": "DD.MM.YYYY",
                     "separator": " - ",
-                    "applyLabel": "Labi",
-                    "cancelLabel": "Atcelt",
-                    "fromLabel": "No",
-                    "toLabel": "Līdz",
-                    "customRangeLabel": "Intervāls",
+                    "applyLabel": Lang.get('date_range.btn_set'),
+                    "cancelLabel": Lang.get('date_range.btn_cancel'),
+                    "fromLabel": Lang.get('date_range.lbl_from'),
+                    "toLabel": Lang.get('date_range.lbl_to'),
+                    "customRangeLabel": Lang.get('date_range.lbl_interval'),
                     "daysOfWeek": [
-                        "Sv",
-                        "P",
-                        "O",
-                        "T",
-                        "C",
-                        "P",
-                        "S"
+                        Lang.get('date_range.d_7'),
+                        Lang.get('date_range.d_1'),
+                        Lang.get('date_range.d_2'),
+                        Lang.get('date_range.d_3'),
+                        Lang.get('date_range.d_4'),
+                        Lang.get('date_range.d_5'),
+                        Lang.get('date_range.d_6')
                     ],
                     "monthNames": arr_month,
                     "firstDay": 1

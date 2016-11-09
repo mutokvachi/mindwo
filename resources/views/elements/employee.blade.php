@@ -10,7 +10,7 @@
         
         <div class="row">
             <div class="hidden-xs col-sm-2 col-md-2 employee-pic-box">
-                <img src="{{Request::root()}}/formated_img/small_avatar/{{ ($item->picture_guid) ? $item->picture_guid : $avatar }}" class="img-responsive">
+                <img src="{{Request::root()}}/{{ \App\Libraries\Helper::getEmployeeAvatarBig($item->picture_guid) }}" class="img-responsive">
             </div>
 
             <div class="col-xs-12 col-sm-10 col-md-6">
@@ -73,7 +73,11 @@
         </div>
         @if ($profile_url || $is_list_rights)
             <div>
-                <a class="btn btn-primary pull-right btn-sm dx-open-profile"  href='JavaScript:;' data-empl-id = "{{ $item->id }}">
+                @if ($profile_url)
+                    <a class="btn btn-primary pull-right btn-sm"  href='{{Request::root()}}{{ $profile_url}}{{ $item->id }}'>
+                @else
+                    <a class="btn btn-primary pull-right btn-sm dx-open-profile"  href='JavaScript:;' data-empl-id = "{{ $item->id }}">
+                @endif
                     <i class="fa fa-user"></i> {{ trans('employee.lbl_open_profile') }} 
                 </a>
             </div>

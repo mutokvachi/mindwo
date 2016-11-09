@@ -19,3 +19,14 @@ a.a_tag {
 .placeholder { color: #aaa; }
 
 /* IE9 placeholder fix: beigas */
+
+/*remove double scrollbar*/
+.modal.fade {
+    overflow: hidden!important;
+}
+
+/* Fix checkbox appearance issue*/
+div.checkbox input.i-checks {
+    position: relative;
+    margin-left: 0px;
+}

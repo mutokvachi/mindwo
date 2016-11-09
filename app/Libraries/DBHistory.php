@@ -7,7 +7,7 @@ namespace App\Libraries
     use PDO;
     use Auth;
     use \App\Exceptions;
-    
+    use Log;
     class DBHistory
     {
         /**
@@ -85,19 +85,27 @@ namespace App\Libraries
             if ($this->db_table->is_history_logic == 0) {
                 return; // reģistram nav paredzēts auditēt datu izmaiņas
             }
+            
+            try {
+                DB::transaction(function () {
 
-            DB::transaction(function () {
-                
-                // Izveido rediģēšanas notikumu
-                $this->insertEvent(2);
+                    // Izveido rediģēšanas notikumu
+                    $this->insertEvent(2);
 
-                // Salīdzina lauku izmaiņas un saglabā vēsturē mainītās vērtības
-                $this->compareChanges();
-                
-                if (!$this->is_update_change) {
-                    throw new Exceptions\DXCustomException(trans('errors.nothing_changed'));
+                    // Salīdzina lauku izmaiņas un saglabā vēsturē mainītās vērtības
+                    $this->compareChanges();
+
+                    if (!$this->is_update_change) {
+                        throw new Exceptions\DXHistoryNoChanges;
+                    }
+                });
+            }
+            catch (\Exception $e) {
+                if ($e instanceof Exceptions\DXHistoryNoChanges) {
+                    return;
                 }
-            });
+                throw $e;
+            }             
         }
 
         /**
@@ -238,11 +246,14 @@ namespace App\Libraries
          */
         private function compareFieldVal($field, $current_arr)
         {
-            if (!isset($this->data_arr[":" . $field->db_name])) {
+            Log::info("FLD: " . $field->db_name);
+            if (!array_key_exists(":" . $field->db_name, $this->data_arr)) {
+                Log::info("NOT set");
                 return; // Lauks nav iekļauts formas datos, nav izmaiņu ko salīdzināt
             }
             
             if ($this->data_arr[":" . $field->db_name] == $current_arr[$field->db_name]) {
+                Log::info("not changed | " . $this->data_arr[":" . $field->db_name] . " | "  . $current_arr[$field->db_name]);
                 return; // Lauka vērtība nav mainīta
             }
 

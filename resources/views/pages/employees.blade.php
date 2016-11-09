@@ -22,7 +22,11 @@
         <h3 class="page-title">{{ trans('employee.page_title') }}
             <small>{{ trans('employee.page_sub_title') }}</small>
             @if ($is_list_rights)
-                <a class="btn btn-primary dx-employee-new-add-btn" ><i class="fa fa-plus"></i> {{ trans('employee.new_employee') }} </a> 
+                @if ($profile_url)  
+                    <a class="btn btn-primary" href="{{Request::root()}}/employee/new"><i class="fa fa-plus"></i> {{ trans('employee.new_employee') }} </a>
+                @else
+                    <a class="btn btn-primary dx-employee-new-add-btn" ><i class="fa fa-plus"></i> {{ trans('employee.new_employee') }} </a> 
+                @endif
             @endif
         </h3>
         

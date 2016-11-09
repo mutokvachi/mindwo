@@ -44,13 +44,11 @@ namespace App\Libraries\Blocks {
 		public function getHTML()
 		{
 			$is_my_profile = ($this->empl_row->id == Auth::user()->id);
-			$view_name = 'blocks.' . (($is_my_profile || !$this->empl_list_rights->is_edit_rights) ? 'empl_profile' : 'empl_profile_large');
 			
-			return view($view_name, [
+			return view('blocks.empl_profile.employee', [
 				'empl_list_id' => $this->empl_list_id,
 				'empl_row' => $this->empl_row,
 				'is_my_profile' => $is_my_profile,
-				'is_empl_edit_rights' => $this->empl_list_rights->is_edit_rights,
 				'external' => $this->getExternalValues()
 			])->render();
 		}
@@ -85,6 +83,11 @@ namespace App\Libraries\Blocks {
 			return "";
 		}
 		
+		/**
+		 * Prepare profile-related data from external tables and sources
+		 *
+		 * @return array
+		 */
 		protected function getExternalValues()
 		{
 			$result = [];
@@ -131,6 +134,14 @@ namespace App\Libraries\Blocks {
 					->where('id', '=', $this->empl_row->country_id)
 					->first();
 			
+			$thumb_path = 'formated_img/small_avatar/';
+			$thumb = $thumb_path.$this->empl_row->picture_guid;
+			
+			$result['avatar']['thumb'] = is_file(public_path($thumb)) ? url($thumb) : url($thumb_path.get_portal_config('EMPLOYEE_AVATAR'));
+			
+			// Get team members
+			$result['team'] = \App\User::where('team_id', $this->empl_row->team_id)->orderBy('display_name')->get();
+			
 			return $result;
 		}
 		
@@ -157,9 +168,6 @@ namespace App\Libraries\Blocks {
 					->where('dx_users.id', '=', $this->empl_id)
 					->first();
 			
-			//var_dump($this->empl_row);
-			//exit;
-			
 			if(!$this->empl_row)
 			{
 				throw new Exceptions\DXCustomException("Darbinieks pēc norādītā ID (" . $this->empl_id . ") nav atrasts!");
@@ -177,11 +185,13 @@ namespace App\Libraries\Blocks {
 		 */
 		private function fillIncludesArr()
 		{
-			
+			/*
 			if(Request::ajax() || !$this->empl_list_rights->is_edit_rights)
 			{
 				return;
 			}
+			*/
+			
 			/*
 			//Krāsu izvēlnes komponente
 			$this->addJSInclude('metronic/global/plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.js');
