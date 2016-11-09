@@ -5,7 +5,7 @@ if ($emp_docs_list) {
     $emp_docs_list_id = $emp_docs_list->id;
     $emp_docs_fld_id = DB::table('dx_lists_fields')->select('id')
                     ->where('list_id', '=', $emp_docs_list->id)
-                    ->where('db_name', '=', 'file_guid')
+                    ->where('db_name', '=', 'file_name')
                     ->first()->id;
 } else {
     $emp_docs_list_id = 0;
