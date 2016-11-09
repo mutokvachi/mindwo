@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use App\Libraries\Structure;
 
 class UserDocumentSeeder extends Seeder
 {
@@ -140,11 +141,14 @@ class UserDocumentSeeder extends Seeder
             $country['obj']->personalDocs()->attach($arr_doc);
         }
         
-        $list_id = App\Libraries\DBHelper::getListByTable('in_employees_personal_docs')->id;
-        // ad rights
-        DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id]);
-        DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id]);
+        $this->setRightsMenu_in_employees_personal_docs();
         
+        $this->setRightsMenu_in_personal_docs();
+         
+        $this->setRightsMenu_in_personal_docs_countries();
+        
+        // force cache for menu to be updated
+        DB::table('in_last_changes')->where('code','=','MENU')->update(['change_time'=>date('Y-n-d H:i:s')]);
     }
     
     private function setCountries() {
@@ -159,5 +163,59 @@ class UserDocumentSeeder extends Seeder
             }
             $this->arr_countr[$i]['obj'] = $country_row;
         }
+    }
+    
+    private function setRightsMenu_in_employees_personal_docs() {
+        // get list
+        $list_id = App\Libraries\DBHelper::getListByTable('in_employees_personal_docs')->id;       
+        
+        // rights
+        DB::table('dx_roles_lists')->where('list_id','=',$list_id)->delete();
+        DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
+    }
+    
+    private function setRightsMenu_in_personal_docs() {
+        
+        // get list
+        $pdoc_list_id = App\Libraries\DBHelper::getListByTable('in_personal_docs')->id;
+        
+        // rights
+        DB::table('dx_roles_lists')->where('list_id','=',$pdoc_list_id)->delete();        
+        DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $pdoc_list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $pdoc_list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
+
+        // menu
+        DB::table('dx_menu')->where('list_id','=',$pdoc_list_id)->delete();
+        DB::table('dx_menu')->insert(['parent_id' => 252, 'title'=>'Employee document types', 'list_id'=>$pdoc_list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', 252)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
+    }
+    
+    private function setRightsMenu_in_personal_docs_countries() {
+        
+        // get list or create if not exists
+        try {
+            $pdcountr_list_id = App\Libraries\DBHelper::getListByTable('in_personal_docs_countries')->id;        
+        }
+        catch(\Exception $e) {
+            $obj_id = DB::table('dx_objects')->insertGetId(['db_name' => 'in_personal_docs_countries', 'title' => 'Employee countries documents' , 'is_history_logic' => 1]);
+
+            $list_gen = new Structure\StructMethod_register_generate();
+            $list_gen->obj_id = $obj_id;
+            $list_gen->register_title = "Employee countries documents";
+            $list_gen->form_title = "Country document";
+            $list_gen->doMethod();
+            
+            $pdcountr_list_id = App\Libraries\DBHelper::getListByTable('in_personal_docs_countries')->id;
+        }
+        
+        // rights
+        DB::table('dx_roles_lists')->where('list_id','=',$pdcountr_list_id)->delete();        
+        DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $pdcountr_list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $pdcountr_list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
+
+        // menu
+        DB::table('dx_menu')->where('list_id','=',$pdcountr_list_id)->delete(); 
+        DB::table('dx_menu')->insert(['parent_id' => 252, 'title'=>'Employee countries documents', 'list_id'=>$pdcountr_list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', 252)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
+
     }
 }
