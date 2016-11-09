@@ -32,7 +32,8 @@ class EmplProfileController extends Controller
 			'avail' => $employee->getAvailability(),
 			'form' => $form,
 			'is_my_profile' => false,
-			'is_edit_rights' => $this->getEditRightsMode()
+			'is_edit_rights' => $this->getEditRightsMode(),
+                        'has_users_documents_access' => $this->validateUsersDocumentsAccess()
 		]);
 	}
 	
@@ -66,7 +67,8 @@ class EmplProfileController extends Controller
 			'avail' => $employee->getAvailability(),
 			'form' => $form,
 			'is_my_profile' => $id == Auth::user()->id,
-			'is_edit_rights' => $this->getEditRightsMode()
+			'is_edit_rights' => $this->getEditRightsMode(),
+                        'has_users_documents_access' => $this->validateUsersDocumentsAccess()
 		]);
 	}
 	
@@ -97,8 +99,18 @@ class EmplProfileController extends Controller
 		
 		return response($result);
 	}
-	
-	public function edit($id, Request $request)
+        
+        /**
+        * Check if user has access for users documents
+        * @return boolean Parameter if user has access
+        */
+        private function validateUsersDocumentsAccess(){
+            $user_documents_controller = new App\Http\Controllers\Employee\EmployeePersonalDocController();
+            return $user_documents_controller->has_access;
+        }
+
+
+        public function edit($id, Request $request)
 	{
 		$employee = App\User::find($id);
 	}

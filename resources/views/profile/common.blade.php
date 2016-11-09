@@ -134,9 +134,13 @@
         }
       });
       
-      window.DxEmpPersDocs.init(function () {
-            hide_page_splash(1);
-        });
+      if($('.freeform').data('has_users_documents_access') == 1){
+        window.DxEmpPersDocs.init(function () {
+              hide_page_splash(1);
+          });
+      } else {
+          hide_page_splash(1);
+      }
     });
   </script>
 @endsection
@@ -150,7 +154,8 @@
     data-redirect_url="/employee/profile/"
     data-form_id="{{ $form->params->form_id }}"
     data-item_id="{{ $mode == 'create' ? 0 : $employee->id }}"
-    data-list_id="{{ Config::get('dx.employee_list_id') }}">
+    data-list_id="{{ Config::get('dx.employee_list_id') }}"
+    data-has_users_documents_access='{{ $has_users_documents_access ? 1 : 0}}'>
     <div class="portlet-body">
       <div class="row">
         <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
