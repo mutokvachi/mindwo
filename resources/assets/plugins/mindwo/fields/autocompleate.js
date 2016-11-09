@@ -107,24 +107,7 @@ var AutocompleateField = function()
                                 notify_err(DX_CORE.trans_general_error);
                         }
                     }
-                },
-                error: function(jqXHR, textStatus, errorThrown)
-                {
-                    if( jqXHR.status === 422 ) 
-                     {
-                         var errors = jqXHR.responseJSON;
-                         var errorsHtml= '<ul>';
-                         $.each( errors, function( key, value ) {
-                             errorsHtml += '<li>' + value[0] + '</li>'; 
-                         });
-                         errorsHtml += '</ul>';
-                         toastr.error(errorsHtml);
-                     }
-                     else   
-                     {
-                         notify_err(DX_CORE.trans_general_error);
-                     }
-                }            
+                }       
             }
         }).on('change', function(event) {
 

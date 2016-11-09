@@ -18,7 +18,7 @@ var reLogin = window.reLogin = {
             reLogin.updateToken(result.token);
         };
 
-        request.err_callback = function (msg) {
+        request.err_callback = function () {
             user_name.val("");
             pasw.val("");
         };

@@ -210,9 +210,6 @@ function authorize_user(login, password) {
         dataType: "html",
         success: function(data) {
             rez = data;
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            alert(DX_CORE.trans_general_error);
         }
     });
 
@@ -248,9 +245,8 @@ function load_view_in_grid(list_id, view_id) {
                 $("#grid_title").html(menu_title);
             }
         },
-        error: function(jqXHR, textStatus, errorThrown) {
+        error: function() {
             $("#grid_title").html("");
-            notify_err(DX_CORE.trans_general_error);
         }
     });
 }
@@ -605,40 +601,16 @@ function FormAjaxRequest (url, form_htm_id, grid_htm_id, formData) {
             },
             error: function(jqXHR, textStatus, errorThrown)
             {
-                if( jqXHR.status === 422 ) 
+                var err_txt = PageMain.getAjaxErrTxt(jqXHR);
+                if (err_callback)
                 {
-                    var errors = jqXHR.responseJSON;
-                    var errorsHtml= '<ul>';
-                    $.each( errors, function( key, value ) {
-                        errorsHtml += '<li>' + value[0] + '</li>'; 
-                    });
-                    errorsHtml += '</ul>';
-                    toastr.error(errorsHtml);
-                    
-                    if (err_callback)
-                    {
-                        err_callback.call(this, errorsHtml);
-                    }
+                    err_callback.call(this, err_txt);
                 }
-                else   
-                {                   
-                    var err_txt = DX_CORE.trans_sys_error;
-                    notify_err(err_txt);
-                    console.log("AJAX kļūda: " + errorThrown);
-                    
-                    if (err_callback)
-                    {
-                        err_callback.call(this, err_txt);
-                    }
-                }
-                
+                console.log("AJAX kļūda: " + errorThrown);
                 if (form_htm_id)
                 {
                     stop_executing(form_htm_id);
                 }
-                
-                hide_page_splash(1);
-                hide_form_splash(1);
             }
         });
     };
@@ -732,35 +704,12 @@ function FormAjaxRequestIE9 (url, form_htm_id, grid_htm_id, formData) {
             },
             error: function(jqXHR, textStatus, errorThrown)
             {
-                if( jqXHR.status === 422 ) 
+                var err_txt = PageMain.getAjaxErrTxt(jqXHR);
+                if (err_callback)
                 {
-                    var errors = jqXHR.responseJSON;
-                    var errorsHtml= '<ul>';
-                    $.each( errors, function( key, value ) {
-                        errorsHtml += '<li>' + value[0] + '</li>'; 
-                    });
-                    errorsHtml += '</ul>';
-                    toastr.error(errorsHtml);
-                    
-                    if (err_callback)
-                    {
-                        err_callback.call(this, errorsHtml);
-                    }
+                    err_callback.call(this, err_txt);
                 }
-                else   
-                {
-                    hide_dx_progres();
-                    hide_form_splash();
-                    var err_txt = DX_CORE.trans_sys_error;
-                    notify_err(err_txt);
-                    console.log("AJAX kļūda: " + errorThrown);
-                    
-                    if (err_callback)
-                    {
-                        err_callback.call(this, err_txt);
-                    }
-                }
-                
+                console.log("AJAX kļūda: " + errorThrown);
                 if (form_htm_id)
                 {
                     stop_executing(form_htm_id);
