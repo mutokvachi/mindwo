@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use DB;
 use Log;
+use App\Libraries\Rights;
 
 /**
  * Employee's personal documents controller
@@ -19,9 +19,50 @@ class EmployeePersonalDocController extends Controller
      */
     protected $document_path;
 
+    /**
+     * Parameter if user has required rights to access control
+     * @var boolean 
+     */
+    public $has_access;
+
+    /**
+     * Constructs employee documents class. Sets needed parameters
+     */
     public function __construct()
     {
         $this->document_path = storage_path(config('assets.private_file_path'));
+
+        $this->getAccess();
+    }
+
+    /**
+     * Get rights and check if user has access to employees documents tab
+     */
+    private function getAccess()
+    {
+        $list = \App\Libraries\DBHelper::getListByTable('in_employees_personal_docs');
+
+        if (!$list) {
+            $this->has_access = false;
+        }
+
+        $list_rights = Rights::getRightsOnList($list->id);
+
+        if ($list_rights && $list_rights->is_edit_rights && $list_rights->is_edit_rights == 1) {
+            $this->has_access = true;
+        } else {
+            $this->has_access = false;
+        }
+    }
+
+    /**
+     * Validate if user has access to employee document tab. If not then request is aborted.
+     */
+    private function validateAccess()
+    {
+        if (!$this->has_access) {
+            abort(403, trans('errors.no_rights_on_register'));
+        }
     }
 
     /**
@@ -30,9 +71,11 @@ class EmployeePersonalDocController extends Controller
      */
     public function testView()
     {
+        $this->validateAccess();
+
         return view('pages.employees_doc_test');
     }
-    
+
     /**
      * Search personal documents types which are assigned to specified country 
      * @param integer $country_id Country ID
@@ -40,6 +83,8 @@ class EmployeePersonalDocController extends Controller
      */
     public function getPersonalDocsByCountry($country_id)
     {
+        $this->validateAccess();
+
         $country = \App\Models\Country::find($country_id);
 
         return json_encode($country->personalDocs()->get());
@@ -52,6 +97,8 @@ class EmployeePersonalDocController extends Controller
      */
     public function getEmployeeDocs($user_id)
     {
+        $this->validateAccess();
+
         $user = \App\User::find($user_id);
 
         if (!$user) {
@@ -77,6 +124,8 @@ class EmployeePersonalDocController extends Controller
      */
     public function save(Request $request)
     {
+        $this->validateAccess();
+
         $data = json_decode($request->input('data'), true);
 
         $user_id = $data['user_id'];

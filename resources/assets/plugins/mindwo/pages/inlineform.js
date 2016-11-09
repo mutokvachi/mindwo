@@ -160,7 +160,9 @@
 							elem.html(tab.html());
 					}
 					
-                                        window.DxEmpPersDocs.toggleDisable(false);
+                                        if(self.root.data('has_users_documents_access') == 1){
+                                            window.DxEmpPersDocs.toggleDisable(false);
+                                        }
                                         
 					hide_page_splash(1);
 					
@@ -214,25 +216,55 @@
 
                                     if(self.root.data('mode') == 'create')
                                     {
-                                        window.DxEmpPersDocs.userId = data.item_id;
+                                        if(self.root.data('has_users_documents_access') == 1){
+                                            window.DxEmpPersDocs.userId = data.item_id;
 
-                                        // Custom tab
-                                        window.DxEmpPersDocs.onClickSaveDocs(function () {
-                                            window.DxEmpPersDocs.toggleDisable(true);
+                                            // Custom tab
+                                            window.DxEmpPersDocs.onClickSaveDocs(function () {
+                                                window.DxEmpPersDocs.toggleDisable(true);
 
+                                                hide_page_splash(1);
+                                                $('.dx-stick-footer').hide();
+                                                window.location = data.redirect;
+                                            });
+                                        } else {
                                             hide_page_splash(1);
                                             $('.dx-stick-footer').hide();
                                             window.location = data.redirect;
-                                        });
+                                        }
                                     
                                         
                                         return;
                                     }
 
-                                    // Custom tab
-                                    window.DxEmpPersDocs.onClickSaveDocs(function () {
-                                        window.DxEmpPersDocs.toggleDisable(true);
-                                        
+                                    if(self.root.data('has_users_documents_access') == 1){
+                                        // Custom tab
+                                        window.DxEmpPersDocs.onClickSaveDocs(function () {
+                                            window.DxEmpPersDocs.toggleDisable(true);
+
+                                            self.editButton.show();
+
+                                            var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane');
+
+                                            // replace original html content of marked elements with input fields
+                                            for(var i = 0; i < tabs.length; i++)
+                                            {
+                                                    var tab = $(tabs[i]);
+                                                    var elem = $('[data-tab-title="' + tab.data('tabTitle') + '"]', self.root);
+                                                    if(elem.length)
+                                                            elem.html(tab.html());
+                                            }
+
+                                            if(self.options.afterSave)
+                                            {
+                                                    self.options.afterSave();
+                                            }
+
+                                            hide_page_splash(1);
+                                            $('.dx-stick-footer').hide();
+
+                                        });
+                                    } else {
                                         self.editButton.show();
 
                                         var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane');
@@ -250,11 +282,10 @@
                                         {
                                                 self.options.afterSave();
                                         }
-                                    
+
                                         hide_page_splash(1);
                                         $('.dx-stick-footer').hide();
-
-                                    });
+                                    }
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{
@@ -283,7 +314,9 @@
 				this.tabs.filter('[data-tab-title="' + k + '"]').html(this.originalTabs[k]);
 			}
 			$('.dx-stick-footer').hide();
-                        window.DxEmpPersDocs.cancelEditMode();
+                        if(this.root.data('has_users_documents_access') == 1){
+                            window.DxEmpPersDocs.cancelEditMode();
+                        }
 		},
 		
 		destroy: function()

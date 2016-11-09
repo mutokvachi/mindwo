@@ -26,9 +26,11 @@
             <a href="#tab_skills" data-toggle="tab" aria-expanded="false"> Skills </a>
           </li>          
     @else
+        @if($has_users_documents_access)
         <li class="">
             <a href="#tab_personal_docs" data-toggle="tab" aria-expanded="false"> Documents </a>
         </li>
+        @endif
     @endif
 @endsection
 
@@ -110,8 +112,10 @@
           @include('profile.skill')
         </div>
     @else
+        @if($has_users_documents_access)
         <div class="tab-pane fade" id="tab_personal_docs"> 
           @include('profile.personal_docs', ['user' => $employee])
         </div>
+        @endif
     @endif
 @endsection
