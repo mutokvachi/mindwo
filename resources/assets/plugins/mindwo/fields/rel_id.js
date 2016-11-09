@@ -109,3 +109,7 @@ var RelIdField = function()
 $(document).ajaxComplete(function(event, xhr, settings) {
     RelIdField.init();
 });
+
+$(document).ready(function() {
+    RelIdField.init();
+});

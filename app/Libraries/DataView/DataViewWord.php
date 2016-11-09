@@ -105,7 +105,7 @@ namespace App\Libraries\DataView {
                         
             for ($i=0; $i<count($view->model);$i++)
             {
-                if ($this->isFieldIncludable($view->model[$i]) && $view->model[$i]["label"] == $fld_label)
+                if ($this->isFieldIncludable($view->model[$i]) && $view->model[$i]["label"] == $fld_label) // compares by list_title field
                 {
                     $cell_obj = Formatters\FormatFactory::build_field($this->resetFieldType($view->model[$i], $row), $row);
 

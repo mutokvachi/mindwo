@@ -23,6 +23,8 @@ return [
     'btn_cancel' => 'Cancel',
     'err_value_not_set' => 'Value not set!',
     'badge_edit' => 'Editing',
-    'badge_new' => 'New'
+    'badge_new' => 'New',
+    
+    'lbl_full_screen' => 'Is full screen mode',
     
 ];

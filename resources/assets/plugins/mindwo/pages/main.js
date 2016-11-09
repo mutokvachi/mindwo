@@ -84,7 +84,7 @@ var PageMain = function()
      * @returns {undefined}
      */
     var resizePage = function() {
-        for (i = 0; i < resize_functions_arr.length; i++) {
+        for (i = 0; i < resize_functions_arr.length; i++) {            
             resize_functions_arr[i]();
         }
     };
@@ -254,6 +254,8 @@ var PageMain = function()
      */
     var initCoreParams = function() {
         DX_CORE.site_url = page_elem.attr("dx_root_url");
+        App.setAssetsPath(DX_CORE.site_url + "assets/");
+        
         DX_CORE.site_public_url = page_elem.attr("dx_public_root_url");
         DX_CORE.progress_gif_url = DX_CORE.site_url + "assets/global/progress/loading.gif";
         DX_CORE.valid_elements = page_elem.attr("dx_valid_html_elements");
@@ -492,6 +494,19 @@ var PageMain = function()
     };
     
     /**
+     * Handles window resize events for horizontal menu UI
+     * 
+     * @returns {undefined}
+     */
+    var handleWindowResizeHorUI = function() {
+        $(window).resize(function() {
+            setTimeout(function() {
+                resizePage();
+            }, 500);
+        });  
+    };
+    
+    /**
      * Uzstāda ziņu saitēm, lai tās atver jaunā pārlūka TAB un foksuē TABu.
      * Funkcionalitāte tiek uzstādīta arī mākoņa saitēm.
      * 
@@ -604,6 +619,59 @@ var PageMain = function()
     };
     
     /**
+     * Handles AJAX response status - display errors if needed
+     * @param {object} xhr AJAX response object
+     * @returns {undefined}
+     */
+    var showAjaxError = function(xhr) {
+        
+        // 401 (session ended) is handled in the file resources/assets/plugins/mindwo/pages/re_login.js
+        if (xhr.status == 200 || xhr.status == 401) {
+            return;
+        }
+        
+        notify_err(getAjaxErrorText(xhr));
+        
+        hide_page_splash(1);
+        hide_form_splash(1);
+    };
+    
+    /**
+     * Gets error message from AJAX error response
+     * 
+     * @param {type} xhr
+     * @returns {string} Error message
+     */
+    var getAjaxErrorText = function(xhr) {
+        var err_txt = "";
+        var json = xhr.responseJSON;
+        
+        // Validation errors handling
+        if ( xhr.status === 422 ) 
+        {            
+            var errorsHtml= '<ul>';
+            $.each( json, function( key, value ) {
+                errorsHtml += '<li>' + value[0] + '</li>'; 
+            });
+            errorsHtml += '</ul>';
+            err_txt = errorsHtml;
+        }
+        else {
+            if ( typeof json.success != "undefined" && json.success == 0 && typeof json.error != "undefined" )
+            {
+                err_txt = json.error;                
+            }
+        }
+        
+        if (!err_txt) {
+            // unknown error
+            err_txt = DX_CORE.trans_general_error;
+        }
+        
+        return err_txt;
+    };
+    
+    /**
      * Inicializē galvenās lapas JavaScript funkcionalitāti.
      * Izpildās, kamēr vēl nav visa lapa līdz galam ielādēta.
      * 
@@ -628,27 +696,31 @@ var PageMain = function()
      * @returns {undefined}
      */
     var initPageLoaded = function() {
-        initUserTasksPopup();
-        //initSpecialTooltips();     
+        
+        initUserTasksPopup();     
         
         initPortletsShowHide();
         handlePortletsHideShow();
-        
-        handleBtnScreen();      
-        handleWindowResize();
         
         handleTargetedLinkClick();
         
         setFilesLinksIcons();
         
-        initPageSize();
-        
-        setActiveMenu();
+        if ($("body").hasClass("dx-horizontal-menu-ui")) {            
+            handleWindowResizeHorUI();
+            resizePage();
+        }
+        else {
+            handleBtnScreen();      
+            handleWindowResize();
+            initPageSize();
+            setActiveMenu();
+        }
         
         if (dx_is_slider == 1) {
             reset_margin();        
             addResizeCallback(reset_margin);
-        }
+        }        
     };
 
     /**
@@ -686,9 +758,19 @@ var PageMain = function()
         },
         initAjaxCSRF: function() {
             initAjaxCSRF();
+        },
+        resizePage: function() {
+            resizePage();
+        },
+        errorHandler: function(xhr) {
+            showAjaxError(xhr);
+        },
+        getAjaxErrTxt: function(xhr) {
+            return getAjaxErrorText(xhr);
         }
     };
 }();
+
 
 PageMain.init();
 
@@ -697,7 +779,8 @@ $(document).ready(function() {
     PageMain.initHelpPopups();
 });
 
-$(document).ajaxComplete(function(event, xhr, settings) {
+$(document).ajaxComplete(function(event, xhr, settings) {      
+    PageMain.errorHandler(xhr);
     PageMain.modalsDraggable();
     PageMain.initHelpPopups();
     PageMain.initFilesIcons();

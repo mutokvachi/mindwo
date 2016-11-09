@@ -11,7 +11,7 @@ var AutocompleateField = function()
      * @returns {undefined} 
      */
     var handleBtnAdd = function(fld_elem) {
-        fld_elem.find(".dx-rel-id-add-btn").click(function() {            
+        fld_elem.find(".dx-rel-id-add-btn").on("click", function() {            
             var cur_val = fld_elem.find(".dx-auto-input-id").val();
             
             rel_new_form(fld_elem.attr("data-form-url"), fld_elem.attr("data-rel-list-id"), cur_val, fld_elem.attr("data-rel-field-id"), fld_elem.attr("id"), "AutocompleateField");             
@@ -107,24 +107,7 @@ var AutocompleateField = function()
                                 notify_err(DX_CORE.trans_general_error);
                         }
                     }
-                },
-                error: function(jqXHR, textStatus, errorThrown)
-                {
-                    if( jqXHR.status === 422 ) 
-                     {
-                         var errors = jqXHR.responseJSON;
-                         var errorsHtml= '<ul>';
-                         $.each( errors, function( key, value ) {
-                             errorsHtml += '<li>' + value[0] + '</li>'; 
-                         });
-                         errorsHtml += '</ul>';
-                         toastr.error(errorsHtml);
-                     }
-                     else   
-                     {
-                         notify_err(DX_CORE.trans_general_error);
-                     }
-                }            
+                }       
             }
         }).on('change', function(event) {
 
@@ -167,5 +150,9 @@ var AutocompleateField = function()
 }();
 
 $(document).ajaxComplete(function(event, xhr, settings) {
+    AutocompleateField.init();
+});
+
+$(document).ready(function() {
     AutocompleateField.init();
 });

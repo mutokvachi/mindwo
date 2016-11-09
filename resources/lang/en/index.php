@@ -7,12 +7,8 @@
 */
 
 return [
-
-    'logo' => '',
     
-    'logo_small' => '',
-    
-    'logo_txt' => 'Mindwo',
+    'logo_txt' => '',
     
     'site_title' => 'MINDWO :: Login',
     

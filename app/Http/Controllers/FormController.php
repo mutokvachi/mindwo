@@ -31,34 +31,34 @@ class FormController extends Controller
      * 
      * @var integer
      */
-    private $is_disabled = 1;
+    protected $is_disabled = 1;
 
     /**
      * Pazīme, vai forma pieļauj dzēšanu (0 - nav, 1 - ir)
      * 
      * @var integer 
      */
-    private $is_delete_rights = 0;
+    protected $is_delete_rights = 0;
 
     /**
      * Pazīme, vai forma pieļauj rediģēšanu (0 - jā, 1 - nē)
      * 
      * @var integer 
      */
-    private $is_edit_rights = 0;
+    protected $is_edit_rights = 0;
 
     /**
      * Pazīme, vai ieraksta neatrodas darbplūsmā un ja atrodas, vai lietotājam ir rediģēšanas uzdevums, kas pieļauj rediģēt šo ierakstu
      * 
      * @var boolean
      */
-    private $is_editable_wf = true;
+    protected $is_editable_wf = true;
     
     /**
      * Pazīme, vai forma pieļauj rediģēšanu ( 0 - jā, 1 - nē)
      * @var integer 
      */
-    private $form_is_edit_mode = 0;
+    protected $form_is_edit_mode = 0;
 
     /**
      * Formai definētā aktuālā darbplūsma - no tabulas dx_workflows_def
@@ -88,9 +88,9 @@ class FormController extends Controller
         // Must have parameters for form loading
         $item_id = $request->input('item_id', 0); // if 0 then new item creation form will be provided otherwise editing form
         $list_id = $request->input('list_id', 0);
-
+        
         $this->form_is_edit_mode = $request->input('form_is_edit_mode', 0);
-
+                
         $parent_item_id = $request->input('parent_item_id', 0);
         $parent_field_id = $request->input('parent_field_id', 0);
 
@@ -137,7 +137,9 @@ class FormController extends Controller
             $info_tasks = array_filter($info_tasks, function($value) { return strlen($value->display_name) > 0; });
         }
         
-        $form_htm = view('elements.form', [
+        $form_blade = ($params->is_full_screen_mode && $parent_item_id == 0) ? "form_full" : "form";
+                
+        $form_htm = view('elements.' . $form_blade, [
             'frm_uniq_id' => $frm_uniq_id,
             'form_title' => $params->form_title,
             'fields_htm' => $fields_htm,
@@ -172,10 +174,10 @@ class FormController extends Controller
             'is_custom_approve' => ($this->workflow && $this->workflow->is_custom_approve) ? 1 : 0,
             'is_editable_wf' => $this->is_editable_wf,
             'is_word_generation_btn' => $this->getWordGenerBtn($list_id),
-            'info_tasks' => $info_tasks,            
+            'info_tasks' => $info_tasks
         ])->render();
-
-        return response()->json(['success' => 1, 'frm_uniq_id' => "" . $frm_uniq_id, 'html' => $form_htm]);
+        
+        return response()->json(['success' => 1, 'frm_uniq_id' => "" . $frm_uniq_id, 'html' => $form_htm, 'is_fullscreen' => $params->is_full_screen_mode]);
     }
 
     /**
@@ -209,7 +211,7 @@ class FormController extends Controller
 
         $fields_htm = $this->getFormFieldsHTML($frm_uniq_id, $list_id, $item_id, $parent_item_id, $parent_field_id, $params);
 
-        return response()->json(['success' => 1, 'html' => $fields_htm, 'tabs' => $this->arr_data_tabs]);
+        return response()->json(['success' => 1, 'html' => $fields_htm, 'tabs' => $this->arr_data_tabs, 'is_fullscreen' => $params->is_full_screen_mode]);
     }
 
     /**
@@ -352,33 +354,69 @@ class FormController extends Controller
      * @param integer $item_id  Ieraksta ID
      * @throws Exceptions\DXCustomException
      */
-    private function setFormsRightsMode($list_id, $item_id)
+    protected function setFormsRightsMode($list_id, $item_id)
     {
         $right = Rights::getRightsOnList($list_id);
 
         if ($right == null) {
+            
             if ($item_id == 0 || !Workflows\Helper::isRelatedTask($list_id, $item_id)) {
                 throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību šajā reģistrā!");
             }
             
-            // var vismaz skatīties ieraksta kartiņu            
+            // var vismaz skatīties ieraksta kartiņu
+            
+            // Pārbauda vai var rediģēt
             if ($this->isRelatedEditableTask($list_id, $item_id)) {
                 $this->is_disabled = 0; // var rediģēt ierakstu
             }
+            else {
+                $this->form_is_edit_mode = 0; // read only
+            }
         }
         else {
-            if ($item_id == 0 && $right->is_new_rights == 0) {
-                throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību veidot jaunu ierakstu šajā reģistrā!");
-            }
-
-            $this->is_delete_rights = $right->is_delete_rights;
-            $this->is_edit_rights = $right->is_edit_rights;
-
-            if ($right->is_edit_rights) {
+            
+            if ($item_id == 0) {
+                if ($right->is_new_rights == 0) {           
+                    throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību veidot jaunu ierakstu šajā reģistrā!");
+                }
                 $this->is_disabled = 0; // var rediģēt, pēc noklusēšanas ir ka nevar
             }
-        }
+            else {
+                if (Rights::isEditTaskRights($list_id, $item_id)) {
+                    // Employee have task to edit this document
+                    
+                    $this->is_edit_rights = 1;
+                    $this->is_delete_rights = 0; // because document is in workflow, so cant delete it
+                }
+                else {
+                    
+                    $is_item_editable_wf = Rights::getIsEditRightsOnItem($list_id, $item_id); // Check if not in workflow and not status finished
 
+                    if (!$is_item_editable_wf) {
+                        // Workflow is in process or finished - user does not have rights to edit/delete
+                        $this->is_edit_rights = 0;
+                        $this->is_delete_rights = 0;
+                        $this->form_is_edit_mode = 0;
+                    }
+                    else {
+                        // set rights acording to register role
+                        $this->is_delete_rights = $right->is_delete_rights;
+                        $this->is_edit_rights = $right->is_edit_rights;
+                    }
+                }
+                
+            }            
+
+            if ($this->is_edit_rights ) {
+                $this->is_disabled = 0; // var rediģēt, pēc noklusēšanas ir ka nevar
+            }
+            
+            if (!$this->is_edit_rights && !$right->is_new_rights) {
+                $this->form_is_edit_mode = 0; // readonly
+            }
+        }
+        
         $this->setFormEditMode($item_id);
     }       
     
@@ -463,24 +501,11 @@ class FormController extends Controller
      * @param integer $item_id  Ieraksta ID
      * @throws Exceptions\DXCustomException
      */
-    private function checkSaveRights($form_id, $item_id)
+    protected function checkSaveRights($form_id, $item_id)
     {
         $tbl = FormSave::getFormTable($form_id);
 
-        $right = Rights::getRightsOnList($tbl->list_id);
-
-        if ($right == null) {
-            throw new Exceptions\DXCustomException(trans('errors.no_rights_on_register'));
-        }
-        else {
-            if ($item_id > 0 && $right->is_edit_rights == 0) {
-                throw new Exceptions\DXCustomException(trans('errors.no_rights_to_edit'));
-            }
-
-            if ($item_id == 0 && $right->is_new_rights == 0) {
-                throw new Exceptions\DXCustomException(trans('errors.no_rights_to_insert'));
-            }
-        }
+        Rights::checkListItemEditRights($tbl->list_id, $item_id);
     }
 
     /**
@@ -612,7 +637,7 @@ class FormController extends Controller
      * @param   int     $is_disabled        Pazīme, vai forma jāattelo skatīšanās režīmā ( 0 - skatīšanās, 1 - rediģēšanas)
      * @return string Formas lauku HTML
      */
-    private function getFormFieldsHTML($frm_uniq_id, $list_id, $item_id, $parent_item_id, $parent_field_id, $params)
+    protected function getFormFieldsHTML($frm_uniq_id, $list_id, $item_id, $parent_item_id, $parent_field_id, $params)
     {
         $row_data = null;
 
@@ -667,7 +692,7 @@ class FormController extends Controller
      * @param  Array  $params Formas parametru masīvs
      * @return Object  Masīvs ar formas lauku objektiem
      */
-    private function getFormFields($params)
+    protected function getFormFields($params)
     {
         $sql = "
 	SELECT
@@ -701,7 +726,8 @@ class FormController extends Controller
                 lf.is_manual_reg_nr,
                 lf.reg_role_id,
                 ff.tab_id,
-                ff.group_label
+                ff.group_label,
+                rt.code as row_type_code
 	FROM
 		dx_forms_fields ff
 		inner join dx_lists_fields lf on ff.field_id = lf.id
@@ -715,6 +741,7 @@ class FormController extends Controller
                 left join dx_lists_fields lf_par on lf.rel_parent_field_id = lf_par.id
 		left join dx_lists_fields lf_bind on lf.binded_field_id = lf_bind.id
 		left join dx_lists_fields lf_bindr on lf.binded_rel_field_id = lf_bindr.id
+                left join dx_rows_types rt on ff.row_type_id = rt.id
 	WHERE
 		ff.form_id = :form_id
 	ORDER BY
@@ -737,7 +764,7 @@ class FormController extends Controller
      * @param  integer  $item_id Ieraksta ID
      * @return Array  Masīvs ar ieraksta lauku vērtībām
      */
-    private function getFormItemDataRow($list_id, $item_id, $params)
+    protected function getFormItemDataRow($list_id, $item_id, $params)
     {
         $fields_rows = $this->getFormSQLFields($list_id);
 
@@ -830,7 +857,7 @@ class FormController extends Controller
      * @param  integer  $list_id Reģistra ID
      * @return Object Formas parametri
      */
-    private function getFormParams($list_id)
+    protected function getFormParams($list_id)
     {
         $sql = "
 	SELECT
@@ -840,7 +867,8 @@ class FormController extends Controller
 		f.zones_count,
 		o.is_multi_registers,
 		f.width,
-                f.is_vertical_tabs
+                f.is_vertical_tabs,
+                f.is_full_screen_mode
 	FROM
 		dx_lists l
 		inner join dx_objects o on l.object_id = o.id

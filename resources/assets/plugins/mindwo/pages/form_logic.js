@@ -330,23 +330,6 @@ var FormLogic = function()
                                 notify_err(frm_appr.attr('dx_system_error'));
                         }
                     }
-                },
-                error: function(jqXHR, textStatus, errorThrown)
-                {
-                    if( jqXHR.status === 422 ) 
-                     {
-                         var errors = jqXHR.responseJSON;
-                         var errorsHtml= '<ul>';
-                         $.each( errors, function( key, value ) {
-                             errorsHtml += '<li>' + value[0] + '</li>'; 
-                         });
-                         errorsHtml += '</ul>';
-                         toastr.error(errorsHtml);
-                     }
-                     else   
-                     {
-                         notify_err(frm_appr.attr('dx_system_error'));
-                     }
                 }
             }
         }).on('change', function(event) {

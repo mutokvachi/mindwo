@@ -1,15 +1,15 @@
 <?php
 
 /**
-*
-* Maršruti
-*
-* Šeit tiek definēti portāla maršruti (routes)
-*/
+ *
+ * Maršruti
+ *
+ * Šeit tiek definēti portāla maršruti (routes)
+ */
 
 // Datu bāzes SQL pieprasīju auditācija, ja ir ieslēgts konfigurācijas parametrs
 if (Config::get('database.log', false)) {
-    
+
     DB::listen(function ($query) {
         // $query->sql
         // $query->bindings
@@ -37,17 +37,17 @@ if (Config::get('database.log', false)) {
  * Failu pārlūks - satura redaktora komponente
  */
 Route::group(array('middleware' => 'auth'), function(){
-    Route::controller('filemanager', 'FilemanagerLaravelController'); 
+    Route::controller('filemanager', 'FilemanagerLaravelController');
 });
 
 // Attēli
 /*
-Route::get('/img/{file}',array('as'=>'img', 'uses' => 'ImageController@getOriginalFile'));
-Route::get('/img/avatar/{size_folder}/{file}',array('as'=>'img', 'uses' => 'ImageController@getAvatarFile'));
-Route::get('/formated_img/{size}/{file}', array('as'=>'img', 'uses' => 'ImageController@getImage'));
-Route::get('/formated_img_galery/{size}/{file}', array('as'=>'img', 'uses' => 'ImageController@getImageGalery'));
-Route::get('/text_img/{file}/{text}', array('as'=>'img', 'uses' => 'ImageController@getImageText'));
-*/
+  Route::get('/img/{file}',array('as'=>'img', 'uses' => 'ImageController@getOriginalFile'));
+  Route::get('/img/avatar/{size_folder}/{file}',array('as'=>'img', 'uses' => 'ImageController@getAvatarFile'));
+  Route::get('/formated_img/{size}/{file}', array('as'=>'img', 'uses' => 'ImageController@getImage'));
+  Route::get('/formated_img_galery/{size}/{file}', array('as'=>'img', 'uses' => 'ImageController@getImageGalery'));
+  Route::get('/text_img/{file}/{text}', array('as'=>'img', 'uses' => 'ImageController@getImageText'));
+ */
 
 // Speciālie PHP skripti, kas pievienoti SVS
 Route::post('/custom_php/{url}', array('as' => 'custom_php',  'middleware' => 'auth_ajax', 'uses'=>'CustomPHPController@executePHP'));
@@ -63,17 +63,19 @@ Route::get('/structure/doc_ppa_html', array('as' => 'structure_ppa_html',  'midd
 
 // Raksti atbilstoši iezīmēm
 /*
-Route::get('/raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showTagArticles'));
-Route::post('/raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showTagArticles'));
-Route::get('/datu_avota_raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showSourceArticles'));
-Route::post('/datu_avota_raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showSourceArticles'));
-*/
+  Route::get('/raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showTagArticles'));
+  Route::post('/raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showTagArticles'));
+  Route::get('/datu_avota_raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showSourceArticles'));
+  Route::post('/datu_avota_raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showSourceArticles'));
+ */
 
 // Meklēšana (darbinieku, dokumentu, rakstu)
 Route::get('/search', array('as' => 'search', 'middleware' => 'auth', 'uses'=>'SearchController@search'));
 Route::post('/search', array('as' => 'search', 'middleware' => 'auth', 'uses'=>'SearchController@search'));
 Route::post('/ajax/departments', array('as' => 'get_departments', 'middleware' => 'auth_ajax', 'uses'=>'DepartmentsController@getDepartments'));
 Route::post('/ajax/employees', array('as' => 'get_employees', 'middleware' => 'auth_ajax', 'uses'=>'EmployeeController@searchAjaxEmployee'));
+
+Route::get('/emp_docs_test', array('as' => 'search', 'middleware' => 'auth', 'uses' => 'Employee\EmployeePersonalDocController@testView'));
 
 // Bloku AJAX pieprasījumi
 //Route::post('/block_ajax', array('as' => 'block_ajax',  'middleware' => 'auth_ajax', 'uses'=>'BlockAjaxController@getData'));
@@ -106,6 +108,7 @@ Route::get('/rest_test/{readviewentries}/{outputformat}/{Start}/{Count}', array(
 
 // Datnes
 Route::get('/download_file_{item_id}_{list_id}_{file_field_id}', array('as' => 'download_file',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getFile'));
+Route::get('/download_filejs_{item_id}_{list_id}_{file_field_id}', array('as' => 'download_file',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getFile_js'));
 Route::get('/download_by_field_{item_id}_{list_id}_{field_name}', array('as' => 'download_file_field',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getFileByField'));
 
 // Darbplūsmas
@@ -125,6 +128,31 @@ Route::get('/logout', array('as' => 'logout','uses'=>'UserController@logOut'));
 Route::post('/ajax/change_password', array('as' => 'change_password', 'middleware' => 'auth_ajax', 'uses'=>'UserController@changePassw'));
 Route::post('/ajax/form_password', array('as' => 'change_password', 'middleware' => 'auth_ajax', 'uses'=>'UserController@formPassw'));
 Route::post('/relogin', 'UserController@reLoginUser');
+
+// Route group for employee profile
+Route::group(['middleware' => 'auth', 'prefix' => 'employee'], function() {
+    Route::group(['prefix' => 'personal_docs', 'namespace' => 'Employee'], function () {
+        Route::get('/get/employee_docs/{user_id}', 'EmployeePersonalDocController@getEmployeeDocs');
+        Route::get('/get/docs_by_country/{country_id}', 'EmployeePersonalDocController@getPersonalDocsByCountry');
+        Route::post('/save', 'EmployeePersonalDocController@save');
+    });
+
+    Route::get('profile/{id?}', 'EmplProfileController@show')->name('profile');
+    Route::get('profile/{id}/chunks', ['as' => 'profile_chunks', 'middleware' => 'auth_ajax', 'uses' => 'EmplProfileController@ajaxShowChunks']);
+    Route::get('new', 'EmplProfileController@create');
+});
+
+Route::group(['middleware' => 'auth_ajax', 'prefix' => 'freeform'], function() {
+    Route::post('{id}/edit', 'FreeFormController@edit');
+    Route::put('{id}', 'FreeFormController@update');
+});
+
+Route::group(['middleware' => 'auth_ajax', 'prefix' => 'inlineform'], function() {
+	Route::post('', 'InlineFormController@store');
+	Route::post('{id}/edit', 'InlineFormController@edit');
+	Route::put('{id}', 'InlineFormController@update');
+	Route::delete('{id}', 'InlineFormController@destroy');
+});
 
 // Lapas
 /*

@@ -82,7 +82,10 @@
 
                 <button type='button' class='btn btn-white' data-dismiss='modal'>{!! ($form_is_edit_mode == 0) ? "<i class='fa fa-sign-out'></i>" . trans('form.btn_close') : "<i class='fa fa-undo'></i> " . trans('form.btn_cancel') !!}</button>
             </div>
-
+            <script type='text/javascript'>
+                register_form('list_item_view_form_{{ $frm_uniq_id }}', {{ $item_id }});
+            </script>
+            
             @include('elements.form_custom_js', ['js_code'=>$js_code, 'frm_uniq_id'=>$frm_uniq_id, 'js_form_id' => $js_form_id])
 
             <script type='text/javascript'>                   
@@ -168,8 +171,8 @@
                         $( '#list_item_view_form_{{ $frm_uniq_id }}' ).modal('show');
                     @endif
                     
-                    register_form('list_item_view_form_{{ $frm_uniq_id }}', {{ $item_id }});
-            </script>
+            </script>           
+            
             
 @if ($is_form_reloaded === 0)            
         </div>

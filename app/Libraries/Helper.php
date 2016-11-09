@@ -8,13 +8,14 @@ namespace App\Libraries
     use Request;
     use Config;
     use App\Http\Controllers\BoxController;
-
+    use Auth;
+    
     /**
      * Palīgfunkciju klase
      */
     class Helper
     {
-
+        
         /**
          * Dzēš ierakstu no datu bāzes un izveido vēstures ierakstu, ja paredzēts veidot vēsturi
          * 
@@ -29,7 +30,7 @@ namespace App\Libraries
             try {
                 $history = new DBHistory($table_row, $fields, null, $item_id);
                 $history->makeDeleteHistory();
-
+                
                 DB::table($table_row->table_name)->where('id', '=', $item_id)->delete();
             }
             catch (\Exception $e) {
@@ -152,6 +153,36 @@ namespace App\Libraries
             $folder = str_replace(DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, $folder);
 
             return $folder;
+        }
+        
+        /**
+         * Returns path to current user small avatar
+         * If user does not have picture, will be used default from assets
+         * 
+         * @return string Path to current user small avatar
+         */
+        public static function getUserAvatarSmall() {
+            if (Auth::user()->picture_guid) {
+                return "formated_img/small_avatar/" . Auth::user()->picture_guid;
+            }
+            else {
+                return "assets/global/avatars/default_avatar_small.jpg";
+            }
+        }
+        
+         /**
+         * Returns path to employee avatar
+         * If employee does not have picture, will be used default from assets
+         * 
+         * @return string Path to emoloyee big avatar
+         */
+        public static function getEmployeeAvatarBig($picture) {
+            if ($picture) {
+                return "formated_img/small_avatar/" . $picture;
+            }
+            else {
+                return "assets/global/avatars/default_avatar_big.jpg";
+            }
         }
 
     }

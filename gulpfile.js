@@ -10,11 +10,17 @@
  */
 
 var gulp = require('gulp');
-var shell = require('gulp-shell');
+var exec = require('child_process').exec;
 var elixir = require('laravel-elixir');
 
-gulp.task('langjs', function() {
-    gulp.src('').pipe(shell('php artisan lang:js ' + 'public/js/lang.js'));
+gulp.task('langjs', function () {
+    // cd command is needed to navigate to path where gulp was executed because on some environments there is problem with incorrect starting path 
+    exec('cd "' + process.cwd() + '" & php artisan lang:js resources/assets/plugins/mindwo/lang.js',
+            function (err, stdout, stderr) {
+                console.log(stdout);
+                console.log(stderr);
+                //gulp.start('mix_all');
+            });
 });
     
 gulp.task('mix_all', function() {
@@ -35,7 +41,8 @@ gulp.task('mix_all', function() {
             'bootstrap-modal/css/bootstrap-modal.css', //ok
             'toastr/toastr.min.css', //ok
             'tooltipster-master/css/tooltipster.css', // ok
-            'tooltipster-master/css/themes/tooltipster-light.css' // ok        
+            'tooltipster-master/css/themes/tooltipster-light.css',
+            'animate.css'
         ], 'public/css/elix_plugins.css', 'resources/assets/plugins');
 
         // Core styles for main page - custom made
@@ -59,7 +66,32 @@ gulp.task('mix_all', function() {
             'jquery-nestable/jquery.nestable.css', // ok
             'mindwo/css/view.css' // ok
         ], 'public/css/elix_view.css', 'resources/assets/plugins');
+        
+        // horizontal menu UI styles                
+        mix.less([
+            'horizontal_ui.less',
+            'bootstrap_menu.less',
+            'multilevel_menu.less'
+        ], 'public/css/elix_mindwo_horizontal.css');
+        
+        // Metronic theme UI styles                
+        mix.less([
+            'metronic_ui.less',
+        ], 'public/css/elix_metronic.css');
 
+        // Scripts for horizontal menu UI
+        mix.scripts([
+            'mindwo/pages/horizontal_menu.js',
+            'mindwo/pages/horizontal_form_ui.js'
+        ],
+        'public/js/elix_mindwo_horizontal_menu.js', 'resources/assets/plugins');
+        
+        // Scripts for documents search page
+        mix.scripts([
+            'mindwo/pages/documents.js'
+        ],
+        'public/js/elix_documents.js', 'resources/assets/plugins');
+        
         // Core scripts for main blade view - will be included in all pages
         mix.scripts([
             'jquery.min.js', 
@@ -68,15 +100,14 @@ gulp.task('mix_all', function() {
             'bootstrap-hover-dropdown/bootstrap-hover-dropdown.js',
             'jquery-slimscroll/jquery.slimscroll.js',
             'metronic/jquery.blockui.min.js',
-            //'uniform/jquery.uniform.js',
             'bootstrap-switch/js/bootstrap-switch.js',
-            //'icheck/icheck.js',
             'gritter/jquery.gritter.min.js',
             'toastr/toastr.js',
             'bootstrap-modal/js/bootstrap-modalmanager.js',
             'bootstrap-modal/js/bootstrap-modal.js',
             'jquery.cookie.js',
             'tooltipster-master/js/jquery.tooltipster.js',
+            'mindwo/dx_core.js',
             'metronic/app.js',
             'jquery-ui/jquery-ui.min.js',
             'fullcalendar/moment.min.js',
@@ -84,8 +115,7 @@ gulp.task('mix_all', function() {
             'fullcalendar/lang-all.js',
             'metronic/layout.js',
             'metronic/demo.js',
-            'metronic/quick-sidebar.js',
-            'mindwo/dx_core.js',
+            'metronic/quick-sidebar.js',            
             'mindwo/pages/main.js',
             'mindwo/pages/employees_links.js',
             'mindwo/pages/search_top.js',
@@ -120,7 +150,9 @@ gulp.task('mix_all', function() {
             'mindwo/pages/form_logic.js',
             'mindwo/fields/tree.js',
             'mindwo/fields/rel_id.js',
-            'mindwo/fields/autocompleate.js'
+            'mindwo/fields/autocompleate.js',
+            'mindwo/fields/datetime.js',
+            'mindwo/fields/bool.js'
         ], 'public/js/elix_view.js', 'resources/assets/plugins');
 
         // Scripts for employees search page functionality
@@ -129,9 +161,30 @@ gulp.task('mix_all', function() {
             'mindwo/pages/search_tools.js',
             'mindwo/pages/employees.js'
         ], 'public/js/elix_employees.js', 'resources/assets/plugins');
-
+        
+        // Scripts for employee profile
+        mix.scripts([
+           'mindwo/pages/freeform.js',
+           'mindwo/pages/inlineform.js',
+           'mindwo/pages/empl_links_fix.js'
+        ], 'public/js/elix_profile.js', 'resources/assets/plugins');
+        /*
+    */
         // Minify all scripts
-        mix.version(['js/elix_userlinks.js', 'js/elix_plugins.js', 'js/elix_view.js', 'js/elix_employees.js', 'css/elix_plugins.css', 'css/elix_mindwo.css', 'css/elix_view.css']);
+        mix.version([
+            'js/elix_userlinks.js', 
+            'js/elix_plugins.js', 
+            'js/elix_view.js', 
+            'js/elix_employees.js', 
+            'js/elix_profile.js',
+            'css/elix_plugins.css', 
+            'css/elix_mindwo.css', 
+            'css/elix_view.css',
+            'css/elix_mindwo_horizontal.css',
+            'js/elix_mindwo_horizontal_menu.js',
+            'js/elix_documents.js',
+            'css/elix_metronic.css'
+        ]);
     });
 });
 
