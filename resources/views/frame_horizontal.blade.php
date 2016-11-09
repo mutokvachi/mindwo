@@ -135,7 +135,7 @@
       
       <div class="container-fluid" style='background-color: white;'>
         <div class="row" style="margin-right: 0px!important;">
-          <div class="col-xs-4 col-sm-4 col-md-2 znavbar-header">
+          <div class="col-xs-6 col-sm-4 col-md-2 navbar-header">
             
             @if (!trans('index.logo_txt'))
               <a href="/">
@@ -148,7 +148,7 @@
             @endif
           </div>
           
-          <div class="col-xs-6 col-sm-8 col-md-10">
+          <div class="col-xs-4 col-sm-8 col-md-10">
             <ul class="nav navbar-nav navbar-right dx-top-right-menu">
             @if (Auth::check() && Auth::user()->id != Config::get('dx.public_user_id',0))
               
@@ -163,6 +163,17 @@
                     <li>
                       <a href="javascript:;" class="dx-user-change-passw-link">
                         <i class="fa fa-key dx-user-menu"></i> {{ trans("frame.password_change") }} </a>
+                    </li>
+                    <li class="hidden-sm hidden-md hidden-lg">
+                      <a href="{{Request::root()}}/structure/doc_manual" class="">
+                        <i class="fa fa-question-circle"></i> {{ trans("frame.user_manual") }}
+                      </a>
+                    </li>
+  
+                    <li class="hidden-sm hidden-md hidden-lg">
+                      <a href="{{Request::root()}}/logout" class="">
+                        <i class="fa fa-sign-out"></i> {{ trans("frame.logout") }}
+                      </a>
                     </li>
                   </ul>
                 </li>
@@ -180,13 +191,13 @@
                   <!-- END TODO DROPDOWN -->
                 @endif
                 
-                <li class="dropdown">
+                <li class="dropdown hidden-xs">
                   <a href="{{Request::root()}}/structure/doc_manual" title="{{ trans("frame.user_manual") }}" class="dropdown-toggle top-link">
                     <i class="fa fa-question-circle"></i>
                   </a>
                 </li>
                 
-                <li class="dropdown">
+                <li class="dropdown hidden-xs">
                   <a href="{{Request::root()}}/logout" title="{{ trans("frame.logout") }}" class="top-link">
                     <i class="fa fa-sign-out"></i>
                   </a>
@@ -316,6 +327,15 @@
             {
               $(this).parent().siblings('.open').find('.dropdown-submenu .dropdown-menu:visible').attr('style', '');
             }
+          }
+        });
+        
+        $('.dx-main-menu > li .dropdown-menu .dropdown-submenu > a.dropdown-toggle').click(function(e)
+        {
+          if($(window).width() >= 768)
+          {
+            e.stopPropagation();
+            $(this).trigger('mouseenter');
           }
         });
         
