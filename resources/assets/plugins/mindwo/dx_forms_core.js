@@ -37,23 +37,6 @@ function load_binded_field(obj_parent, obj_child, binded_field_id, binded_rel_fi
        },
        complete: function () {
            hide_dx_progres(); 
-       },
-       error: function(jqXHR, textStatus, errorThrown)
-       {   
-            if( jqXHR.status === 422 ) 
-            {
-                var errors = jqXHR.responseJSON;
-                var errorsHtml= '<ul>';
-                $.each( errors, function( key, value ) {
-                    errorsHtml += '<li>' + value[0] + '</li>'; 
-                });
-                errorsHtml += '</ul>';
-                toastr.error(errorsHtml);
-            }
-            else   
-            {
-                notify_err(DX_CORE.trans_general_error);
-            }
        }
    });
 }
@@ -182,25 +165,6 @@ function open_form(ajax_url, item_id, list_id, rel_field_id, rel_field_value, gr
             beforeSend: function () {
                 show_form_splash();
                 show_page_splash();
-            },
-            error: function(jqXHR, textStatus, errorThrown)
-            {
-                if( jqXHR.status === 422 ) 
-                {
-                    var errors = jqXHR.responseJSON;
-                    var errorsHtml= '<ul>';
-                    $.each( errors, function( key, value ) {
-                        errorsHtml += '<li>' + value[0] + '</li>'; 
-                    });
-                    errorsHtml += '</ul>';
-                    toastr.error(errorsHtml);
-                }
-                else   
-                {
-                    notify_err(DX_CORE.trans_general_error);
-                }
-                hide_form_splash();
-                hide_page_splash();
             }
         });
 }
@@ -247,24 +211,6 @@ function rel_new_form(ajax_url, list_id, item_id, call_field_id, call_field_htm_
             },
             beforeSend: function () {
                 show_form_splash();
-            },
-            error: function(jqXHR, textStatus, errorThrown)
-            {
-                if( jqXHR.status === 422 ) 
-                {
-                    var errors = jqXHR.responseJSON;
-                    var errorsHtml= '<ul>';
-                    $.each( errors, function( key, value ) {
-                        errorsHtml += '<li>' + value[0] + '</li>'; 
-                    });
-                    errorsHtml += '</ul>';
-                    toastr.error(errorsHtml);
-                }
-                else   
-                {
-                    notify_err(DX_CORE.trans_general_error);
-                }
-                hide_form_splash();
             }
         });
 }
@@ -345,25 +291,6 @@ function refresh_form_fields(edit_form_htm_id, form_htm_id, item_id, list_id, re
         beforeSend: function () {
             show_form_splash();
             show_page_splash();
-        },
-        error: function(jqXHR, textStatus, errorThrown)
-        {
-            if( jqXHR.status === 422 ) 
-            {
-                var errors = jqXHR.responseJSON;
-                var errorsHtml= '<ul>';
-                $.each( errors, function( key, value ) {
-                    errorsHtml += '<li>' + value[0] + '</li>'; 
-                });
-                errorsHtml += '</ul>';
-                toastr.error(errorsHtml);
-            }
-            else   
-            {
-                notify_err(DX_CORE.trans_sys_error);
-            }
-            hide_form_splash();
-            hide_page_splash();
         }
     });
 }

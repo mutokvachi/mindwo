@@ -111,7 +111,7 @@
 				{
 					console.log(textStatus);
 					console.log(jqXHR);
-					hide_page_splash(1);
+                                        console.log(errorThrown);
 				}
 			});
 		},
@@ -176,7 +176,7 @@
 				{
 					console.log(textStatus);
 					console.log(jqXHR);
-					hide_page_splash(1);
+					console.log(errorThrown);
 				}
 			});
 		},

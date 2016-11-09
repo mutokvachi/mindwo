@@ -618,19 +618,57 @@ var PageMain = function()
         $('#td_data').css('min-height', min_h + page_header_h);
     };
     
+    /**
+     * Handles AJAX response status - display errors if needed
+     * @param {object} xhr AJAX response object
+     * @returns {undefined}
+     */
     var showAjaxError = function(xhr) {
+        
+        // 401 (session ended) is handled in the file resources/assets/plugins/mindwo/pages/re_login.js
         if (xhr.status == 200 || xhr.status == 401) {
             return;
         }
         
+        notify_err(getAjaxErrorText(xhr));
+        
+        hide_page_splash(1);
+        hide_form_splash(1);
+    };
+    
+    /**
+     * Gets error message from AJAX error response
+     * 
+     * @param {type} xhr
+     * @returns {string} Error message
+     */
+    var getAjaxErrorText = function(xhr) {
+        var err_txt = "";
         var json = xhr.responseJSON;
         
-        if(typeof json.success != "undefined" && json.success == 0)
-        {
-                notify_err(json.error);
-                hide_page_splash(1);
-                hide_form_splash();
+        // Validation errors handling
+        if ( xhr.status === 422 ) 
+        {            
+            var errorsHtml= '<ul>';
+            $.each( json, function( key, value ) {
+                errorsHtml += '<li>' + value[0] + '</li>'; 
+            });
+            errorsHtml += '</ul>';
+            err_txt = errorsHtml;
         }
+        else {
+            if ( typeof json.success != "undefined" && json.success == 0 && typeof json.error != "undefined" )
+            {
+                err_txt = json.error;                
+            }
+        }
+        
+        if (!err_txt) {
+            // unknown error
+            err_txt = DX_CORE.trans_general_error;
+        }
+        
+        return err_txt;
     };
     
     /**
@@ -726,6 +764,9 @@ var PageMain = function()
         },
         errorHandler: function(xhr) {
             showAjaxError(xhr);
+        },
+        getAjaxErrTxt: function(xhr) {
+            return getAjaxErrorText(xhr);
         }
     };
 }();
