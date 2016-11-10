@@ -29,42 +29,42 @@ gulp.task('mix_all', function() {
 
         // Core styles for main page - plugins
         mix.styles([
-            'pace/themes/pace-theme-flash.css', // ok
+            'pace/themes/pace-theme-flash.css', 
             //'simple-line-icons/simple-line-icons.css', // url fonts/
             //'uniform/css/uniform.default.css', // url ../images/
-            'bootstrap-switch/css/bootstrap-switch.css', // ok
-            'morris/morris.css', //ok
-            'jqvmap/jqvmap/jqvmap.css', // ok
+            'bootstrap-switch/css/bootstrap-switch.css', 
+            'morris/morris.css', 
+            'jqvmap/jqvmap/jqvmap.css',
             //'icheck/skins/all.css', // @import ... seems must remove this css 
-            'fullcalendar/fullcalendar.min.css', // ok
-            'metronic/css/faq.min.css', // ok
-            'bootstrap-modal/css/bootstrap-modal.css', //ok
-            'toastr/toastr.min.css', //ok
-            'tooltipster-master/css/tooltipster.css', // ok
+            'fullcalendar/fullcalendar.min.css', 
+            'metronic/css/faq.min.css', 
+            'bootstrap-modal/css/bootstrap-modal.css',
+            'toastr/toastr.min.css',
+            'tooltipster-master/css/tooltipster.css', 
             'tooltipster-master/css/themes/tooltipster-light.css',
             'animate.css'
         ], 'public/css/elix_plugins.css', 'resources/assets/plugins');
 
         // Core styles for main page - custom made
         mix.styles([
-            'mindwo/css/main.css', // ok
-            'mindwo/css/ie9_fix.css', //ok
-            'mindwo/css/search_top.css', // ok
-            'mindwo/css/splash.css', // ok
-            'mindwo/css/theme_fix.css' // ok
+            'mindwo/css/main.css', 
+            'mindwo/css/ie9_fix.css', 
+            'mindwo/css/search_top.css',
+            'mindwo/css/splash.css',
+            'mindwo/css/theme_fix.css'
         ], 'public/css/elix_mindwo.css', 'resources/assets/plugins');
 
-        // Stypes for view page
+        // Styles for view page
         mix.styles([
-            'datetimepicker/jquery.datetimepicker.css', // ok
-            'dropzone/dropzone.min.css', //ok
-            'dropzone/basic.min.css', // ok
-            'select2/select2-bootstrap.css', // ok
-            'codemirror/css/codemirror.css', // ok
-            'codemirror/css/ambiance.css', // ok
-            'jasny-bootstrap/css/jasny-bootstrap.min.css', // ok
-            'jquery-nestable/jquery.nestable.css', // ok
-            'mindwo/css/view.css' // ok
+            'datetimepicker/jquery.datetimepicker.css', 
+            'dropzone/dropzone.min.css',
+            'dropzone/basic.min.css', 
+            'select2/select2-bootstrap.css', 
+            'codemirror/css/codemirror.css', 
+            'codemirror/css/ambiance.css', 
+            'jasny-bootstrap/css/jasny-bootstrap.min.css', 
+            'jquery-nestable/jquery.nestable.css', 
+            'mindwo/css/view.css' 
         ], 'public/css/elix_view.css', 'resources/assets/plugins');
         
         // horizontal menu UI styles                
@@ -79,6 +79,13 @@ gulp.task('mix_all', function() {
             'metronic_ui.less',
         ], 'public/css/elix_metronic.css');
 
+        // Styles for articles search page
+        mix.styles([
+            'cubeportfolio/css/cubeportfolio.css', 
+            'mindwo/css/search_tools.css', 
+            'bootstrap-daterangepicker/daterangepicker.min.css'
+        ], 'public/css/elix_articles.css', 'resources/assets/plugins');
+        
         // Scripts for horizontal menu UI
         mix.scripts([
             'mindwo/pages/horizontal_menu.js',
@@ -130,7 +137,7 @@ gulp.task('mix_all', function() {
 
         // Scripts for grids/forms functionality
         mix.scripts([
-            'bootstrap-daterangepicker/daterangepicker.min.js',
+            'bootstrap-daterangepicker/daterangepicker.js',
             'bootstrap-colorpicker/js/bootstrap-colorpicker.js',
             'dropzone/dropzone.min.js',
             'jasny-bootstrap/js/jasny-bootstrap.js',
@@ -169,8 +176,18 @@ gulp.task('mix_all', function() {
            'mindwo/pages/inlineform.js',
            'mindwo/pages/empl_links_fix.js'
         ], 'public/js/elix_profile.js', 'resources/assets/plugins');
-        /*
-    */
+        
+        // Scripts for articles search page functionality
+        mix.scripts([
+            'cubeportfolio/js/jquery.cubeportfolio.js',
+            'jscroll/jquery.jscroll.js',
+            'moment.min.js',
+            'bootstrap-daterangepicker/daterangepicker.js',
+            'mindwo/pages/date_range.js',
+            'mindwo/pages/search_tools.js',
+            'mindwo/pages/articles.js'
+        ], 'public/js/elix_articles.js', 'resources/assets/plugins');
+        
         // Minify all scripts
         mix.version([
             'js/elix_userlinks.js', 
@@ -184,7 +201,9 @@ gulp.task('mix_all', function() {
             'css/elix_mindwo_horizontal.css',
             'js/elix_mindwo_horizontal_menu.js',
             'js/elix_documents.js',
-            'css/elix_metronic.css'
+            'css/elix_metronic.css',
+            'js/elix_articles.js',
+            'css/elix_articles.css'
         ]);
     });
 });

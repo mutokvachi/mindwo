@@ -13,7 +13,7 @@ var reLogin = window.reLogin = {
         var request = new FormAjaxRequest(ajax_url, "", "", formData);
 
         request.callback = function (result) {
-            notify_info(DX_CORE.trans_data_saved);
+            notify_info(Lang.get('relogin_form.relogin_ok'));
             $("#popup_authorization").modal("hide");
             reLogin.updateToken(result.token);
         };
@@ -62,17 +62,18 @@ var reLogin = window.reLogin = {
             return false;
         }
     });
-
+    /*
     var reLoginModal = reLogin.auth_popup;
     reLoginModal.on('shown.bs.modal', function () {
         reLoginModal.find("input[name='user_name']").val("").focus();
         reLoginModal.find("input[name='password']").val("");
     });
-
+    */
     // Override $.ajax
     // Store a reference to the original remove method.
+    /*
     var originalPostMethod = jQuery.ajax;
-
+    
     // Define overriding method.
     jQuery.ajax = function (data) {
         // Execute the original method.
@@ -85,4 +86,5 @@ var reLogin = window.reLogin = {
             }
         });
     };
+    */
 })();

@@ -16,7 +16,13 @@
             <div class="col-xs-12 col-sm-10 col-md-6">
                 <div class="employee-details-1">
                     <div class="well">
-                        <h4>{{ $item->employee_name }}
+                        <h4>
+                            @if ($profile_url)
+                                <a href='{{Request::root()}}{{ $profile_url}}{{ $item->id }}'>{{ $item->employee_name }}</a>
+                            @else
+                                {{ $item->employee_name }}
+                            @endif
+                            
                             @if ($item->is_today && $item->email)                        
                                 <a href="mailto: {{ $item->email }}?subject={{ trans('employee.happy_birthday') }}" title='{{ trans('employee.today_birthday') }}' style='color: #E87E04;'><i class="fa fa-gift"></i></a>
                             @endif

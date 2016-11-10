@@ -40,6 +40,12 @@ var PageMain = function()
     var tab_win = null;
 
     /**
+     * Relogin modal dialog obj
+     * @type object
+     */
+    var reLoginModal = null;
+    
+    /**
      * Papildina datņu lejuplādes saites ar ikonām
      * 
      * @returns {undefined}
@@ -626,7 +632,13 @@ var PageMain = function()
     var showAjaxError = function(xhr) {
         
         // 401 (session ended) is handled in the file resources/assets/plugins/mindwo/pages/re_login.js
-        if (xhr.status == 200 || xhr.status == 401) {
+        if (xhr.status == 200) {
+            return;
+        }
+        
+        // session ended - relogin required
+        if (xhr.status == 401) {
+            reLoginModal.modal("show");
             return;
         }
         
@@ -657,7 +669,15 @@ var PageMain = function()
             err_txt = errorsHtml;
         }
         else {
-            if ( typeof json.success != "undefined" && json.success == 0 && typeof json.error != "undefined" )
+            
+            if (typeof json == "undefined") {
+                try {
+                    json = JSON.parse(xhr.responseText);
+                }
+                catch (e) {}
+            }
+            
+            if ( typeof json != "undefined" && typeof json.success != "undefined" && json.success == 0 && typeof json.error != "undefined" )
             {
                 err_txt = json.error;                
             }
@@ -697,6 +717,12 @@ var PageMain = function()
      */
     var initPageLoaded = function() {
         
+        reLoginModal = reLogin.auth_popup;
+        reLoginModal.on('shown.bs.modal', function () {
+            reLoginModal.find("input[name='user_name']").val("").focus();
+            reLoginModal.find("input[name='password']").val("");
+        });
+        
         initUserTasksPopup();     
         
         initPortletsShowHide();
@@ -715,12 +741,12 @@ var PageMain = function()
             handleWindowResize();
             initPageSize();
             setActiveMenu();
-        }
-        
+        }                
+            
         if (dx_is_slider == 1) {
             reset_margin();        
             addResizeCallback(reset_margin);
-        }        
+        }
     };
 
     /**
@@ -777,6 +803,7 @@ PageMain.init();
 $(document).ready(function() {
     PageMain.initPageLoaded();
     PageMain.initHelpPopups();
+    $(this).scrollTop(0,0);
 });
 
 $(document).ajaxComplete(function(event, xhr, settings) {      
