@@ -90,7 +90,7 @@
       </style>
   </head>
   
-  <body class="dx-main-page dx-horizontal-menu-ui"
+  <body class="dx-main-page dx-horizontal-menu-ui" style="overflow: hidden;"
     dx_valid_html_elements="{{ get_portal_config('VALID_HTML_ELEMENTS') }}"
     dx_valid_html_styles="{{ get_portal_config('VALID_HTML_STYLES') }}"
     dx_user_tasks_count="{{ $user_tasks_count }}"

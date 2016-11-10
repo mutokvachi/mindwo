@@ -52,9 +52,13 @@ var PageArticles = function()
      * @returns {undefined}
      */
     var enableScroll = function() {
-        
+        /*
+        if (!$("#feed_area_" + block_guid + " .pager").length) {
+            return;
+        }
+        */
         $("#feed_area_" + block_guid).jscroll({
-            loadingHtml: '<img src="' + getBaseUrl() + 'img/loading.gif" alt="Datu ielāde..." /> Datu ielāde...',
+            loadingHtml: getProgressInfo(),
             padding: 20,
             nextSelector: 'ul.pager li > a[rel=next]',
             callback: function() {
@@ -243,7 +247,7 @@ var PageArticles = function()
             }
             
             $("#feed_area_" + block_guid).jscroll({
-                loadingHtml: '<img src="' + getBaseUrl() + 'img/loading.gif" alt="Datu ielāde..." /> Datu ielāde...',
+                loadingHtml: getProgressInfo(),
                 padding: 20,
                 nextSelector: 'ul.pager li > a[rel=next]',
                 callback: function() {
@@ -254,6 +258,7 @@ var PageArticles = function()
                 contentSelector: ".article_row_area",
                 force_load: true
             });
+            
         });        
     };
 
@@ -262,23 +267,25 @@ var PageArticles = function()
      * 
      * @returns {undefined}
      */
-    var initDateRange = function() {
+    var initDateRange = function() {                
+    
         var arr_date_param = {
             range_id: "defaultrange",
             el_date_from: "pick_date_from",
             el_date_to: "pick_date_to",
             page_selector: ".dx-articles-page",
             form_selector: ".search-tools-form",
-            arr_ranges: {
-                    'Šodien': [moment(), moment()],
-                    'Vakar': [moment().subtract('days', 1), moment().subtract('days', 1)],
-                    'Pirms 7 dienām': [moment().subtract('days', 6), moment()],                    
-                    'Šis mēnesis': [moment().startOf('month'), moment().endOf('month')],
-                    'Iepriekšējais mēnesis': [moment().subtract('month', 1).startOf('month'), moment().subtract('month', 1).endOf('month')]
-                }
+            arr_ranges: {}
         };
         
+        arr_date_param["arr_ranges"][Lang.get('date_range.flt_today')] = [moment(), moment()];
+        arr_date_param["arr_ranges"][Lang.get('date_range.flt_yesterday')] = [moment().subtract('days', 1), moment().subtract('days', 1)];
+        arr_date_param["arr_ranges"][Lang.get('date_range.flt_7')] = [moment().subtract('days', 6), moment()];
+        arr_date_param["arr_ranges"][Lang.get('date_range.flt_thism')] = [moment().startOf('month'), moment().endOf('month')];
+        arr_date_param["arr_ranges"][Lang.get('date_range.flt_prevm')] = [moment().subtract('month', 1).startOf('month'), moment().subtract('month', 1).endOf('month')];
+        
         DateRange.init(arr_date_param, clearLinkShowHide);
+    
     }
     
     /**

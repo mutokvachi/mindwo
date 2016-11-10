@@ -71,4 +71,7 @@ return [
     'import_zip_file_not_exists' => "ZIP arhīvā nav atrodama datne '%s'!",
     
     'import_zip_file_cant_copy' => "Nav iespējams kopēt datni '%s' uz katalogu '%s'!",
+    
+    'session_ended' => 'Lietotāja sesija ir beigusies!',
+    
 ];

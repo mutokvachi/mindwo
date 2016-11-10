@@ -73,4 +73,6 @@ return [
     'import_zip_file_not_exists' => "ZIP archive does not contains file '%s'!",
     
     'import_zip_file_cant_copy' => "Can't copy file '%s' to the destination folder '%s'!",
+    
+    'session_ended' => 'User session is ended!',
 ];
