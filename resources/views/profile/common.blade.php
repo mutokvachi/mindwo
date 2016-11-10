@@ -176,7 +176,7 @@
                 <i class="fa fa-trash-o"></i> {{ trans('form.btn_delete') }} </a>
             @endif
           </div>
-          <div class="tabbable-line">
+          <div class="tabbable-line tabbable-tabdrop">
             <ul class="nav nav-tabs">
               @if($is_edit_rights)
                 {!! $form->renderTabButtons() !!}

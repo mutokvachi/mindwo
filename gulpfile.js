@@ -120,7 +120,8 @@ gulp.task('mix_all', function() {
             'mindwo/pages/employees_links.js',
             'mindwo/pages/search_top.js',
             'validator/validator.js',
-            'mindwo/pages/re_login.js'
+            'mindwo/pages/re_login.js',
+            'bootstrap-tabdrop/js/bootstrap-tabdrop.js'
         ],
         'public/js/elix_plugins.js', 'resources/assets/plugins');
 
