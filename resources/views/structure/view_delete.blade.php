@@ -5,7 +5,7 @@
         <li>Dzēstas tiks tikai reģistra lauku sasaistes ar skatu bet ne paši reģistra lauki, jo tie izmantoti formā un citos skatos.</li>
     </ul>
 </div>
-<div id="{{ $form_guid }}">
+<div id="{{ $form_guid }}" style="margin: 20px;">
     <form class="form-horizontal" id='item_edit_form_{{ $form_guid }}' method='POST' data-toggle="validator">
         <div>
             <div class='form-group has-feedback'>

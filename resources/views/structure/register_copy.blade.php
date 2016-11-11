@@ -7,8 +7,9 @@
         <li>Ja ir piesaistīts reģistrācijas numuru numerators, arī tas saglabāsies. Tāpēc, ja nepieciešams, pēc ģenerācijas ir jākonfigurē atsevišķs numerators.</li>
     </ul>
 </div>
-<div id="{{ $form_guid }}">
+<div id="{{ $form_guid }}" style="margin: 20px;">
     <form class="form-horizontal" id='item_edit_form_{{ $form_guid }}' method='POST' data-toggle="validator">
+        
         <div>
             <div class='form-group has-feedback'>
                 <label class='col-lg-4 control-label'>Kopējamā reģistra nosaukums <span style="color: red"> *</span></label>
@@ -24,10 +25,14 @@
                 </div>    
             </div>
         </div>
-        <div>
-            @include('fields.visible', ['frm_uniq_id'=>'copy_reg', 'fld_name' => '', 'group_label' => '', 'label_title' => 'Jaunā reģistra nosaukums', 'is_required' => 1, 'hint' => 'Nosaukums tiks parādīts virs tabulārā saraksta. Jāraksta daudzskaitlī.', 'item_htm' => '<input class="form-control" type=text name = "register_title"  maxlength="500" value = "" required /><span class="glyphicon form-control-feedback" aria-hidden="true"></span>'])
+        <div class='row'>
+            <div class="col-lg-4">
+            </div>
+            <div class='col-lg-8'>
+                @include('fields.visible', ['frm_uniq_id'=>'copy_reg', 'fld_name' => '', 'group_label' => '', 'label_title' => 'Jaunā reģistra nosaukums', 'is_required' => 1, 'hint' => 'Nosaukums tiks parādīts virs tabulārā saraksta. Jāraksta daudzskaitlī.', 'item_htm' => '<input class="form-control" type=text name = "register_title"  maxlength="500" value = "" required /><span class="glyphicon form-control-feedback" aria-hidden="true"></span>'])
+            </div>
         </div>
-        <div>
+        <div class='row'>
             <div class="col-lg-4">
             </div>
             <div class="col-lg-8">

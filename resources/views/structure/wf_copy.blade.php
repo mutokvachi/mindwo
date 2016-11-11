@@ -7,7 +7,7 @@
         <li>Ja jaunajā reģistrā nebūs definēts darbplūsmas statusa lauks, tad kopēšanas laikā tas tiks automātiski nodefinēts, bet netiks iekļauts ne skatā, ne formā</li>
     </ul>
 </div>
-<div id="{{ $form_guid }}">
+<div id="{{ $form_guid }}" style="margin: 20px;">
     <form class="form-horizontal" id='item_edit_form_{{ $form_guid }}' method='POST' data-toggle="validator">        
         <div>
             <div class='form-group has-feedback'>

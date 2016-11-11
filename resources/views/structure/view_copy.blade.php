@@ -5,7 +5,7 @@
         <li>Netiks kopēts lauks URL, jo tam katram skatam ir jābūt unikālam;</li>
     </ul>
 </div>
-<div id="{{ $form_guid }}">
+<div id="{{ $form_guid }}" style="margin: 20px;">
     <form class="form-horizontal" id='item_edit_form_{{ $form_guid }}' method='POST' data-toggle="validator">        
         <div>
             <div class='form-group has-feedback'>
