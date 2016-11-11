@@ -75,6 +75,10 @@ return [
     'wf_init_add_form_employee_error_already_added' => 'Saskaņotājs jau ir pievienots!',
     
     // Placeholder for position title
-    'wf_init_add_form_employee_position_placeholder' => 'Amats'
+    'wf_init_add_form_employee_position_placeholder' => 'Amats',
+    
+    'wf_init_approvers_title' => 'Saskaņotāju iestatīšana',
+    
+    'wf_init_aproovers_hint' => 'Ja nepieciešams, pirms darbplūsmas uzsākšanas variet koriģēt saskaņotāju secību, noņemt saskaņotāju vai pievienot vēl citus saskaņotājus.'
     
 ];

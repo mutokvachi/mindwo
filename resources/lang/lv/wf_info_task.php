@@ -39,6 +39,12 @@ return [
     'err_empl_not_set' => 'Lūdzu, norādiet darbinieku!',
     
     // Placeholder for position title
-    'plh_position' => 'Amats'
+    'plh_position' => 'Amats',
+    
+    'lbl_inform_count' => 'Nodots informācijai',
+    
+    'msg_no_inform' => 'Dokuments vēl nav nodots informācijai nevienam darbiniekam',
+    
+    'lbl_have_read' => 'Iepazinās'
     
 ];

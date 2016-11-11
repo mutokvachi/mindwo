@@ -42,36 +42,38 @@
            
 
             <div class='modal-body'>
-                <div class='row'>
-                    <form class="form-horizontal" id='item_edit_form_{{ $frm_uniq_id }}' method='POST' data-toggle="validator">
-                        <div class="dx-cms-form-fields-section" style='margin-left: 20px;' 
-                             dx_attr="form_fields" 
-                             dx_is_init="0" 
-                             dx_form_id="{{ $frm_uniq_id }}" 
-                             dx_grid_id="{{ $grid_htm_id }}" 
-                             dx_is_wf_btn="{{ $workflow_btn }}"
-                             dx_list_id="{{ $list_id }}"
-                             dx_is_custom_approve = "{{ $is_custom_approve }}"
-                             >
-                            {!! $fields_htm !!}
-                        </div>
+                
+                    <div class='row dx-form-row'>
+                        <form class="form-horizontal" method='POST' data-toggle="validator" id='item_edit_form_{{ $frm_uniq_id }}'>
+                            <div class="dx-cms-form-fields-section" style='margin-left: 20px;' 
+                                 dx_attr="form_fields" 
+                                 dx_is_init="0" 
+                                 dx_form_id="{{ $frm_uniq_id }}" 
+                                 dx_grid_id="{{ $grid_htm_id }}" 
+                                 dx_is_wf_btn="{{ $workflow_btn }}"
+                                 dx_list_id="{{ $list_id }}"
+                                 dx_is_custom_approve = "{{ $is_custom_approve }}"
+                                 >
+                                {!! $fields_htm !!}
+                            </div>
 
-                        <input type=hidden id='{{ $frm_uniq_id }}_edit_form_id' name='edit_form_id' value='{{ $form_id }}'>
-                        <input type=hidden id='{{ $frm_uniq_id }}_item_id' name='item_id' value='{{ $item_id }}'>
+                            <input type=hidden id='{{ $frm_uniq_id }}_edit_form_id' name='edit_form_id' value='{{ $form_id }}'>
+                            <input type=hidden id='{{ $frm_uniq_id }}_item_id' name='item_id' value='{{ $item_id }}'>
 
-                        @if ($is_multi_registers == 1)
-                            <input type=hidden id='{{ $frm_uniq_id }}_multi_list_id' name='multi_list_id' value='{{ $list_id }}'>
-                        @endif
+                            @if ($is_multi_registers == 1)
+                                <input type=hidden id='{{ $frm_uniq_id }}_multi_list_id' name='multi_list_id' value='{{ $list_id }}'>
+                            @endif
 
-                        @if ($call_field_htm_id)
-                            <input type=hidden id='{{ $frm_uniq_id }}_call_field_htm_id' name='call_field_htm_id' value='{{ $call_field_htm_id }}'>
-                            <input type=hidden id='{{ $frm_uniq_id }}_call_field_id' name='call_field_id' value='{{ $call_field_id }}'>
-                            <input type=hidden id='{{ $frm_uniq_id }}_call_field_type' name='call_field_type' value='{{ $call_field_type }}'>
-                        @endif
-                    
-                        {!! $tabs_htm !!}
-                    </form>
-                </div>
+                            @if ($call_field_htm_id)
+                                <input type=hidden id='{{ $frm_uniq_id }}_call_field_htm_id' name='call_field_htm_id' value='{{ $call_field_htm_id }}'>
+                                <input type=hidden id='{{ $frm_uniq_id }}_call_field_id' name='call_field_id' value='{{ $call_field_id }}'>
+                                <input type=hidden id='{{ $frm_uniq_id }}_call_field_type' name='call_field_type' value='{{ $call_field_type }}'>
+                            @endif
+
+                            {!! $tabs_htm !!}
+                        </form>
+                    </div>                   
+                
             </div>
             
             <div class='modal-footer' style='border-top: 1px solid #c1c1c1;'>
