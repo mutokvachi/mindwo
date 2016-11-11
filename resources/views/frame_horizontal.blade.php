@@ -339,6 +339,7 @@
           }
         });
         
+        // hide open submenus after screen resize
         $(window).resize(function()
         {
           if($(window).width() > 768)

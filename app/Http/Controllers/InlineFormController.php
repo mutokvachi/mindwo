@@ -65,7 +65,7 @@ class InlineFormController extends FormController
 		return response([
 			'success' => 1,
 			'redirect' => $url . $save_obj->item_id,
-                        'item_id' => $save_obj->item_id
+			'item_id' => $save_obj->item_id
 		]);
 	}
 	
@@ -89,17 +89,27 @@ class InlineFormController extends FormController
 	public function edit(Request $request, $id)
 	{
 		$list_id = $request->input('list_id');
-		$tabList = $request->input('tab_list');
+		$tabList = $request->input('tab_list', []);
+		$fieldList = $request->input('field_list', []);
 		
 		$form = new \App\Libraries\Forms\Form($list_id, $id);
 		$form->disabled = false;
 		$form->tabList = $tabList;
+		$form->skipFields = $fieldList;
 		
 		$tabs = $form->renderTabContents();
 		
+		$fields = [];
+		
+		foreach($fieldList as $name)
+		{
+			$fields[$name] = $form->renderField($name);
+		}
+		
 		$result = [
 			'success' => 1,
-			'tabs' => $tabs
+			'tabs' => $tabs,
+			'fields' => $fields
 		];
 		
 		return response($result);
@@ -123,7 +133,8 @@ class InlineFormController extends FormController
 		$item_id = $request->input('item_id');
 		$list_id = $request->input('list_id');
 		$form_id = $request->input('edit_form_id');
-		$tabList = $request->input('tabList', []);
+		$tabList = $request->input('tab_list', []);
+		$fieldList = json_decode($request->input('field_list'), true);
 		
 		$this->checkSaveRights($form_id, $item_id);
 		
@@ -132,12 +143,21 @@ class InlineFormController extends FormController
 		$form = new \App\Libraries\Forms\Form($list_id, $item_id);
 		$form->disabled = true;
 		$form->tabList = $tabList;
+		$form->skipFields = $fieldList;
 		
 		$tabs = $form->renderTabContents();
 		
+		$fields = [];
+		
+		foreach($fieldList as $name)
+		{
+			$fields[$name] = $form->renderField($name);
+		}
+		
 		$result = [
 			'success' => 1,
-			'tabs' => $tabs
+			'tabs' => $tabs,
+			'fields' => $fields
 		];
 		
 		return response($result);

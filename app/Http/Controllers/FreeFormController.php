@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use Webpatser\Uuid\Uuid;
 use App\Libraries\FormField;
+use App\Libraries\FormSave;
 use Auth;
 use Config;
 use App\Exceptions;
@@ -95,12 +96,12 @@ class FreeFormController extends FormController
 		
 		foreach($request->input('fields') as $f)
 		{
-			$fieldset[] = $f['name'];
+			$fieldset[$f['name']]['display'] = $f['display'];
 		}
 		
 		foreach($fields as $row)
 		{
-			if(!in_array($row->db_name, $fieldset))
+			if(!in_array($row->db_name, array_keys($fieldset)))
 			{
 				continue;
 			}
@@ -108,7 +109,7 @@ class FreeFormController extends FormController
 			$field = new FormField($row, $list_id, $item_id, $parent_item_id, $parent_field_id, $row_data,
 				$frm_uniq_id);
 			
-			$html = $field->get_field_htm();
+			$html = $field->get_field_input_htm();
 			
 			$result['fields'][] = [
 				'name' => $row->db_name,
@@ -134,39 +135,47 @@ class FreeFormController extends FormController
 	{
 		$result = [];
 		
-		$class = $request->input('model');
-		$model = $class::find($id);
 		$item_id = $request->input('item_id');
 		$list_id = $request->input('list_id');
+		$form_id = $request->input('edit_form_id');
+		$this->checkSaveRights($form_id, $item_id);
+		
+		$save_obj = new FormSave($request);
+		
+		$class = $request->input('model');
+		$model = $class::find($id);
 		$params = $this->getFormParams($list_id);
 		$this->checkUserRights($list_id, $item_id);
 		$this->is_editable_wf = true; // we wont check workflow status here
 		$fields = $this->getFormFields($params);
 		
-		$fieldset = [];
+		$form = new \App\Libraries\Forms\Form($list_id, $item_id);
+		$form->disabled = true;
 		
-		foreach($request->input('fields') as $f)
-		{
-			$fieldset[$f['name']] = $f['data'];
-		}
+		$fieldMetadata = json_decode($request->input('field_metadata'), true);
 		
 		foreach($fields as $row)
 		{
-			if(!in_array($row->db_name, array_keys($fieldset)))
+			if(!in_array($row->db_name, array_keys($fieldMetadata)))
 			{
 				continue;
 			}
 			
 			$name = $row->db_name;
-			$model->$name = $fieldset[$name];
+			
+			if($fieldMetadata[$name]['display'] == 'form-field')
+				$html = $form->renderField($name);
+			
+			else
+				$html = $model->$name;
 			
 			$result['fields'][] = [
 				'name' => $name,
-				'html' => $model->$name
+				'html' => $html
 			];
 		}
 		
-		$model->save();
+		// $model->save();
 		
 		$result['success'] = 1;
 		

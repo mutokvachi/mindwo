@@ -18,7 +18,9 @@
 	};
 	
 	$.fn.FreeForm.defaults = {
-		
+		editBtnSelector: '.dx-edit-general',
+		saveBtnSelector: '.dx-save-general',
+		cancelBtnSelector: '.dx-cancel-general'
 	};
 	
 	/**
@@ -37,9 +39,9 @@
 		this.options = opts;
 		this.fields = $('[data-name]', this.root);
 		this.originalData = {};
-		this.editButton = $('.dx-edit-general', this.root);
-		this.saveButton = $('.dx-save-general', this.root);
-		this.cancelButton = $('.dx-cancel-general', this.root);
+		this.editButton = $(this.options.editBtnSelector, this.root);
+		this.saveButton = $(this.options.saveBtnSelector, this.root);
+		this.cancelButton = $(this.options.cancelBtnSelector, this.root);
 		
 		// Bind callbacks to buttons
 		this.editButton.click(function() { self.edit(); });
@@ -71,7 +73,8 @@
 			{
 				self.originalData[$(this).data('name')] = $(this).html();
 				request.fields.push({
-					name: $(this).data('name')
+					name: $(this).data('name'),
+					display: ($(this).data('display') ? $(this).data('display') : 'raw')
 				});
 			});
 			
@@ -111,7 +114,7 @@
 				{
 					console.log(textStatus);
 					console.log(jqXHR);
-                                        console.log(errorThrown);
+					console.log(errorThrown);
 				}
 			});
 		},
@@ -122,32 +125,33 @@
 		save: function()
 		{
 			var self = this;
+			var fieldMetadata = {};
+			var formData = process_data_fields(this.root.attr('id'));
+			formData.append('model', this.root.data('model'));
+			formData.append('item_id', this.root.data('item_id'));
+			formData.append('list_id', this.root.data('list_id'));
+			formData.append('edit_form_id', this.root.data('form_id'));
 			
-			// JSON structure
-			var request = {
-				model: this.root.data('model'),
-				item_id: this.root.data('item_id'),
-				list_id: this.root.data('list_id'),
-				fields: []
-			};
-			
-			// collect values of input fields
+			// collect metadata of input fields
 			this.fields.each(function()
 			{
-				request.fields.push({
-					name: $(this).data('name'),
-					data: $(this).find('[name]').val()
-				});
+				fieldMetadata[$(this).data('name')] = {
+					display: $(this).data('display') ? $(this).data('display') : 'raw'
+				};
 			});
+			
+			formData.append('field_metadata', JSON.stringify(fieldMetadata));
 			
 			show_page_splash(1);
 			
 			// submit a request
 			$.ajax({
 				type: 'POST',
-				url: DX_CORE.site_url + 'freeform/' + request.item_id + '?_method=PUT',
+				url: DX_CORE.site_url + 'freeform/' + this.root.data('item_id') + '?_method=PUT',
 				dataType: 'json',
-				data: request,
+				processData: false,
+				contentType: false,
+				data: formData,
 				success: function(data)
 				{
 					if(typeof data.success != "undefined" && data.success == 0)
