@@ -166,10 +166,15 @@ gulp.task('mix_all', function() {
         mix.scripts([
            'mindwo/pages/freeform.js',
            'mindwo/pages/inlineform.js',
-           'mindwo/pages/empl_links_fix.js'
+           'mindwo/pages/empl_links_fix.js',
+           'mindwo/pages/employee/personal_docs.js'
         ], 'public/js/elix_profile.js', 'resources/assets/plugins');
-        /*
-    */
+        
+        // LESS Styles for employee profile                
+        mix.less([
+            'pages/employee/personal_docs.less'
+        ], 'public/css/elix_employee_profile.css');
+
         // Minify all scripts
         mix.version([
             'js/elix_userlinks.js', 
@@ -183,7 +188,8 @@ gulp.task('mix_all', function() {
             'css/elix_mindwo_horizontal.css',
             'js/elix_mindwo_horizontal_menu.js',
             'js/elix_documents.js',
-            'css/elix_metronic.css'
+            'css/elix_metronic.css',
+            'css/elix_employee_profile.css'
         ]);
     });
 });

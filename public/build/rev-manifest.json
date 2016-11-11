@@ -3,12 +3,13 @@
   "js/elix_plugins.js": "js/elix_plugins-7f560fb6.js",
   "js/elix_view.js": "js/elix_view-d9e02ff2.js",
   "js/elix_employees.js": "js/elix_employees-5709e995.js",
-  "js/elix_profile.js": "js/elix_profile-4b82be09.js",
+  "js/elix_profile.js": "js/elix_profile-a2280e5f.js",
   "css/elix_plugins.css": "css/elix_plugins-098a9ffa.css",
   "css/elix_mindwo.css": "css/elix_mindwo-82dd54fd.css",
   "css/elix_view.css": "css/elix_view-1e4d52c9.css",
   "css/elix_mindwo_horizontal.css": "css/elix_mindwo_horizontal-d16383d5.css",
   "js/elix_mindwo_horizontal_menu.js": "js/elix_mindwo_horizontal_menu-bad961b3.js",
   "js/elix_documents.js": "js/elix_documents-8860f744.js",
-  "css/elix_metronic.css": "css/elix_metronic-6ae5ddb5.css"
+  "css/elix_metronic.css": "css/elix_metronic-6ae5ddb5.css",
+  "css/elix_employee_profile.css": "css/elix_employee_profile-b59de9f7.css"
 }
