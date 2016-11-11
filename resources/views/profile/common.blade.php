@@ -77,7 +77,9 @@
       
       show_page_splash(1);
       
-      $('.freeform').FreeForm();
+      $('.freeform').FreeForm({
+        names: ['description']
+      });
       $('.freeform').InlineForm({
         afterSave: function()
         {

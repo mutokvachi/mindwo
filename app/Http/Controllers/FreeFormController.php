@@ -3,12 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use Webpatser\Uuid\Uuid;
 use App\Libraries\FormField;
 use App\Libraries\FormSave;
-use Auth;
-use Config;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use App\Exceptions;
 
 /**
@@ -137,10 +136,12 @@ class FreeFormController extends FormController
 		
 		$item_id = $request->input('item_id');
 		$list_id = $request->input('list_id');
+		
+		/*
 		$form_id = $request->input('edit_form_id');
 		$this->checkSaveRights($form_id, $item_id);
-		
 		$save_obj = new FormSave($request);
+		*/
 		
 		$class = $request->input('model');
 		$model = $class::find($id);
@@ -162,6 +163,7 @@ class FreeFormController extends FormController
 			}
 			
 			$name = $row->db_name;
+			$model->$name = $request->input($name);
 			
 			if($fieldMetadata[$name]['display'] == 'form-field')
 				$html = $form->renderField($name);
@@ -175,7 +177,7 @@ class FreeFormController extends FormController
 			];
 		}
 		
-		// $model->save();
+		$model->save();
 		
 		$result['success'] = 1;
 		

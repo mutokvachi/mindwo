@@ -20,7 +20,8 @@
 	$.fn.FreeForm.defaults = {
 		editBtnSelector: '.dx-edit-general',
 		saveBtnSelector: '.dx-save-general',
-		cancelBtnSelector: '.dx-cancel-general'
+		cancelBtnSelector: '.dx-cancel-general',
+		names: []
 	};
 	
 	/**
@@ -37,7 +38,11 @@
 		var self = this;
 		this.root = $(root);
 		this.options = opts;
-		this.fields = $('[data-name]', this.root);
+		this.fields = $('[data-name]', this.root).filter(function()
+		{
+			if(self.options.names.length == 0 || self.options.names.indexOf($(this).data('name')) != -1)
+				return true;
+		});
 		this.originalData = {};
 		this.editButton = $(this.options.editBtnSelector, this.root);
 		this.saveButton = $(this.options.saveBtnSelector, this.root);
