@@ -207,6 +207,8 @@ button.navbar-toggle span.icon-bar {
 }
 .dx-form-row {
   margin-left: -35px !important;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 .dx-form-row .panel {
   margin-left: 20px!important;
