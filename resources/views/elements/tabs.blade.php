@@ -1,4 +1,4 @@
-<div class='panel blank-panel' id = '{{ $tab_id }}' dx_attr='tab' style="margin-left: 25px;">
+<div class='panel blank-panel' id = '{{ $tab_id }}' dx_attr='tab'>
     <div class='panel-heading' style='background: transparent;'>
         <div class='panel-options'>
             <ul class='nav nav-tabs'>

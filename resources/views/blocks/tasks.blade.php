@@ -18,20 +18,20 @@
                     <div class="progress-info">
                             <div class="progress">
                                     <span style="width: {{ $arr_data["percent_today"] }}%;" class="progress-bar progress-bar-success {{ $arr_data['color_class'] }}">
-                                            <span class="sr-only">{{ $arr_data["percent_today"] }}% izpildīti</span>
+                                            <span class="sr-only">{{ $arr_data["percent_today"] }}% {{ trans('task_widget.compleated') }}</span>
                                     </span>
                             </div>
                             <div class="status">
                                 <div class="status-title"> 
                                     @if ($arr_data['due_today_undone'] > 0)
-                                        <a href="{{ $arr_data['url_today'] }}">Šodien termiņš</a> <span class="badge badge-warning"> {{ $arr_data['due_today_undone'] }} </span>
+                                        <a href="{{ $arr_data['url_today'] }}">{{ trans('task_widget.due_today') }}</a> <span class="badge badge-warning"> {{ $arr_data['due_today_undone'] }} </span>
                                     @else
-                                        Šodien termiņš
+                                        {{ trans('task_widget.due_today') }}
                                     @endif
                                 </div>
                                 <div class="status-number"> 
                                     @if ($arr_data["percent_today"] >0)
-                                    <span title="Šodien izpildīti">{{ $arr_data["percent_today"] }}%</span>
+                                    <span title="{{ trans('task_widget.compleated_today') }}">{{ $arr_data["percent_today"] }}%</span>
                                     @endif
                                 </div>
                             </div>
@@ -39,20 +39,20 @@
                     <div class="progress-info" style="margin-top: 40px;">
                             <div class="progress">
                                     <span style="width: {{ $arr_data["percent_fail"] }}%;" class="progress-bar progress-bar-success green-sharp">
-                                            <span class="sr-only">{{ $arr_data["percent_fail"] }}% izpildīti</span>
+                                            <span class="sr-only">{{ $arr_data["percent_fail"] }}% {{ trans('task_widget.compleated') }}</span>
                                     </span>
                             </div>
                             <div class="status">
                                 <div class="status-title">
                                     @if ($arr_data["failed_todo"] > 0)
-                                        <a href="{{ $arr_data['url_fail'] }}">Termiņš nokavēts</a> <span class="badge badge-danger"> {{ $arr_data["failed_todo"] }} </span>
+                                        <a href="{{ $arr_data['url_fail'] }}">{{ trans('task_widget.overdue') }}</a> <span class="badge badge-danger"> {{ $arr_data["failed_todo"] }} </span>
                                     @else
-                                        Termiņš nokavēts
+                                        {{ trans('task_widget.overdue') }}
                                     @endif                                      
                                 </div>
                                     <div class="status-number"> 
                                         @if ($arr_data["percent_fail"] > 0)
-                                        <span title="Šodien izpildīti {{ $arr_data['failed_solved'] }} no {{ $arr_data['total_failed'] }}">{{ $arr_data["percent_fail"] }}%</span>
+                                        <span title="{{ trans('task_widget.compleated_today') }} {{ $arr_data['failed_solved'] }} {{ trans('task_widget.from') }} {{ $arr_data['total_failed'] }}">{{ $arr_data["percent_fail"] }}%</span>
                                         @endif
                                     </div>
                             </div>

@@ -14,5 +14,7 @@ return [
     'search_placeholder' => 'Search criteria',
     'lbl_pub_date' => 'Publish date',
     'all_types' => 'All',
+    'browser_title' => 'Search results',
+    'browser_title_tags' => 'Search results by tags',
     
 ];

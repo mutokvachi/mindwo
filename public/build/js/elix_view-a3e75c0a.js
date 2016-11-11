@@ -16516,7 +16516,7 @@ var TaskLogic = function()
             $('#item_edit_form_' + frm_id).find('input[name=task_status]').val(data.status);
             reload_grid(frm_deleg.attr('dx_grid_htm_id'));
             
-            notify_info("Uzdevums veiksmīgi deleģēts!");
+            notify_info(Lang.get('task_form.notify_task_delegated'));
         };
         
         // izpildam AJAX pieprasījumu
@@ -16559,7 +16559,7 @@ var TaskLogic = function()
         var employee_id = frm_deleg.find("select[name=employee_id]").val();
         
         if (employee_id == 0) {
-            notify_err("Jānorāda darbinieks, kuram tiks deleģēts uzdevums!");
+            notify_err(Lang.get('task_form.notify_err_provide_employee'));
             frm_deleg.find("select[name=employee_id]").focus();            
             return null;
         }
@@ -16567,7 +16567,7 @@ var TaskLogic = function()
         var task_txt = frm_deleg.find("textarea[name=task_txt]").val();
         
         if (task_txt.length == 0) {
-            notify_err("Jānorāda uzdevuma apraksts!");
+            notify_err(Lang.get('task_form.notify_err_provide_description'));
             frm_deleg.find("textarea[name=task_txt]").focus();            
             return null;
         }
@@ -16593,7 +16593,7 @@ var TaskLogic = function()
 
         if (save_url == "task_no" && comm.length == 0)
         {
-            notify_err("Noraidīšanas gadījumā ir obligāti jānorāda komentārs!");
+            notify_err(Lang.get('task_form.err_comment_required'));
             $( "#" + form_id  + " textarea[name='task_comment']").focus();            
             return null;
         }
@@ -16634,8 +16634,8 @@ var TaskLogic = function()
                     $("#dx_tasks_count_li").hide();
                     setTimeout(function() {
                             $.gritter.add({
-                                title: 'Apsveicam!',
-                                text: '<i class="fa fa-thumbs-o-up"></i> Labs darbs - jums visi uzdevumi ir izpildīti.',
+                                title: Lang.get('task_form.congrat_title'),
+                                text: '<i class="fa fa-thumbs-o-up"></i> ' + Lang.get('task_form.congrat_all_done'),
                                 time: 7000
                             });
                     }, 3000);
@@ -16645,7 +16645,7 @@ var TaskLogic = function()
                     $("#dx_tasks_count_badge").html(data['tasks_count']);
                 }
 
-                notify_info("Uzdevuma dati veiksmīgi saglabāti!");
+                notify_info(Lang.get('task_form.notify_saved'));
             } 
             else
             {             	
@@ -16779,7 +16779,7 @@ var TaskLogic = function()
     var initDueDateField = function(frm_deleg) {
         
         frm_deleg.find(".dx-cms-date-field input[name=due_date]").datetimepicker({
-            lang: 'lv',
+            lang: Lang.getLocale(),
             format: frm_deleg.attr('dx_date_format'),
             timepicker: false,
             dayOfWeekStart: 1,
@@ -16810,7 +16810,7 @@ var TaskLogic = function()
                 }
             },
             errors: {
-                foo: 'Nav norādīta vērtība!'
+                foo: Lang.get('task_form.err_value_not_set')
             },
             feedback: {
                 success: 'glyphicon-ok',

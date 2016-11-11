@@ -34,7 +34,7 @@
                                     </div>
                                     <div class='form-group has-feedback'>
                                         <label class='col-lg-4 control-label'>
-                                            <i class='fa fa-question-circle dx-form-help-popup' style='cursor: help;'></i>&nbsp;{{ trans('wf_info_task.lbl_task_info') }}
+                                            {{ trans('wf_info_task.lbl_task_info') }}
                                         </label>
                                         <div class='col-lg-8'>
                                             <div class="input-group" style="width: 100%;">                                        
@@ -50,17 +50,17 @@
                                 <div class="portlet box grey-cascade dx-cms-info-task-portlet" style="margin-top: 18px;">
                                     <div class="portlet-title">
                                         <div class="caption">
-                                            Nodots informācijai <span class="badge badge-info dx-cms-info-task-count"> {{ count($info_tasks) }} </span></div>                                            
+                                            {{ trans('wf_info_task.lbl_inform_count') }} <span class="badge badge-info dx-cms-info-task-count"> {{ count($info_tasks) }} </span></div>                                            
                                     </div>
                                     <div class="portlet-body dx-cms-info-list">
                                         <div class="scroller" style="height: 175px;" data-always-visible="0" data-rail-visible="1">
                                             @if (count($info_tasks) ==0)
-                                                <p class="dx-cms-no-info">Dokuments vēl nav nodots informācijai nevienam darbiniekam</p>
+                                                <p class="dx-cms-no-info">{{ trans('wf_info_task.msg_no_inform') }}</p>
                                             @else
                                                 @foreach($info_tasks as $info)
                                                     <p>{{ $info->display_name }}
                                                     @if ($info->task_closed_time)
-                                                    &nbsp; <font color="green"<i class="fa fa-check-circle-o" title="Iepazinās: {{ short_date($info->task_closed_time) }}"></i></font>
+                                                    &nbsp; <font color="green"<i class="fa fa-check-circle-o" title="{{ trans('wf_info_task.lbl_have_read') }}: {{ short_date($info->task_closed_time) }}"></i></font>
                                                     @endif
                                                     </p>
                                                 @endforeach

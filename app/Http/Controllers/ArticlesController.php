@@ -95,7 +95,7 @@ class ArticlesController extends Controller
 
         $mode = 'tags';
         $criteria = $item->name;
-        $page_title = "Iezīmei atbilstošās ziņas";
+        $page_title = trans('article.browser_title_tags');
 
         $date_from = '';
         $date_to = '';
@@ -154,7 +154,7 @@ class ArticlesController extends Controller
         $block_guid = Uuid::generate(4);
 
         $tag_id = 0;
-        $page_title = "Meklēšanas rezultāti";
+        $page_title = trans('article.browser_title');
         return view('pages.articles', compact('articles', 'page_title', 'criteria', 'mode', 'picker_from_js', 'picker_from_html', 'picker_to_js', 'picker_to_html', 'block_guid', 'types', 'type_id', 'tag_id', 'date_from', 'date_to'));
     }
 

@@ -175,13 +175,13 @@ class TasksController extends Controller
             
         if (strlen($due_date) == 0)
         {
-            throw new Exceptions\DXCustomException("Nevar saglabāt datus! Nekorekts termiņa datuma formāts! Termiņam jābūt formātā " . Config::get('dx.date_format') . "!");
+            throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_date_format'), Config::get('dx.date_format')));
         }
         
         $task_row = $this->getTaskRow($request->input('task_id'),  Auth::user()->id);
                 
         if (strtotime($task_row->due_date) < strtotime($due_date)) {
-            throw new Exceptions\DXCustomException("Nevar saglabāt datus! Deleģētā uzdevuma terminš nevar būt lielāks par galvenā uzdevuma termiņu " . short_date($task_row->due_date) . ".");
+            throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_date_delegate'), short_date($task_row->due_date)));
         }
         
         $employee_id = $request->input('employee_id');
@@ -193,7 +193,7 @@ class TasksController extends Controller
         if ($employee_id != $subst_empl['employee_id']) {
             
             if ($subst_empl['employee_id'] == Auth::user()->id) {
-                throw new Exceptions\DXCustomException("Uzdevumu nevar deleģēt, jo ir darbinieku aizvietošana un aizvietošanas rezultātā uzdevums jāizpilda Jums. " . $subst_empl['subst_info'] . ".");
+                throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_subst_delegate'), $subst_empl['subst_info']));
             }
             // todo: iespējams jāpiedāvā izvēlēties..
             // pagaidām deleģējam aizvietotājam
@@ -246,7 +246,7 @@ class TasksController extends Controller
             'date_now' => date('Y-n-d H:i:s')
         ]);
         
-        return response()->json(['success' => 1, 'status' => 'Deleģēts']);
+        return response()->json(['success' => 1, 'status' => trans('task_form.status_delegated')]);
     }
     
     /**
@@ -267,14 +267,14 @@ class TasksController extends Controller
         $employee_id = $request->input('empl_id');
         
         if ($employee_id == Auth::user()->id) {
-            throw new Exceptions\DXCustomException("Jums jau ir piekļuve dokumentam - informācijas uzdevums netiks izveidots!");
+            throw new Exceptions\DXCustomException(trans('task_form.err_rights_exists'));
         }
         
         $right = Rights::getRightsOnList($list_id);
 
         if ($right == null) {
             if (!\App\Libraries\Workflows\Helper::isRelatedTask($list_id, $item_id)) {
-                throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību šajā reģistrā!");
+                throw new Exceptions\DXCustomException(trans('task_form.err_no_list_rights'));
             }
         }        
         
@@ -286,7 +286,7 @@ class TasksController extends Controller
                 ->first();
         
         if ($task) {
-            throw new Exceptions\DXCustomException("Norādītajam darbiniekam dokuments jau ir nodots informācijai!");
+            throw new Exceptions\DXCustomException(trans('task_form.err_allready_informed'));
         }
         
         $list_table = \App\Libraries\Workflows\Helper::getListTableName($list_id);
@@ -320,7 +320,7 @@ class TasksController extends Controller
         if ($email) {
             $this->sendNewTaskEmail([
                 'email' => $email,
-                'subject' => 'Jauns uzdevums sistēmā MEDUS',
+                'subject' => trans('task_email.subject'),
                 'task_type' => DB::table('dx_tasks_types')->select('title')->where('id', '=', self::TASK_TYPE_INFO)->first()->title,
                 'task_details' => $request->input('task_info'),
                 'assigner' => Auth::user()->display_name,
@@ -406,7 +406,7 @@ class TasksController extends Controller
 
         $form_htm = view('workflow.task_form', [
                 'frm_uniq_id' => $frm_uniq_id, 
-                'form_title' => "Uzdevums",
+                'form_title' => trans('task_form.form_title'),
                 'task_row' => $task_row,
                 'is_disabled' => $is_disabled,                    
                 'grid_htm_id' => $grid_htm_id,
@@ -440,7 +440,7 @@ class TasksController extends Controller
         
         $this->performTask($item_id, 1, $comment);
         
-        return response()->json(['success' => 1, 'task_status' => 'Izpildīts', 'tasks_count' => getUserActualTaskCount()]);
+        return response()->json(['success' => 1, 'task_status' => trans('task_form.status_done'), 'tasks_count' => getUserActualTaskCount()]);
     }
     
      /**
@@ -459,12 +459,12 @@ class TasksController extends Controller
         $comment = $request->input('task_comment');
         
         if (strlen($comment) == 0) {
-            throw new Exceptions\DXCustomException("Noraidīšanas gadījumā ir obligāti jānorāda komentārs!");
+            throw new Exceptions\DXCustomException(trans('task_form.err_comment_required'));
         }
         
         $this->performTask($item_id, 0, $comment);
         
-        return response()->json(['success' => 1, 'task_status' => 'Noraidīts', 'tasks_count' => getUserActualTaskCount()]);
+        return response()->json(['success' => 1, 'task_status' => trans('task_form.status_rejected'), 'tasks_count' => getUserActualTaskCount()]);
         
     }
     
@@ -521,8 +521,7 @@ class TasksController extends Controller
         }
         
         $html = view('workflow.wf_init_approvers', [
-                     'approvers' => $arr_approvers,
-                     'avatar' => get_portal_config('EMPLOYEE_AVATAR')
+                     'approvers' => $arr_approvers
         ])->render();
                 
         return response()->json(['success' => 1, 'html' => $html]);
@@ -605,7 +604,7 @@ class TasksController extends Controller
         });
 
         // Current doc status, send as response to update interface
-        return response()->json(['success' => 1, 'doc_status' => 'Saskaņošana']); 
+        return response()->json(['success' => 1, 'doc_status' => trans('task_form.doc_in_process')]); 
        
     }
     
@@ -637,7 +636,7 @@ class TasksController extends Controller
         $right = \mindwo\pages\Rights::getRightsOnList($list_id);
 
         if ($right == null || !$right->is_edit_rights) {
-            throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību šajā reģistrā!");
+            throw new Exceptions\DXCustomException(trans('task_form.err_no_list_rights'));
         }
     }
     
@@ -658,7 +657,7 @@ class TasksController extends Controller
                     ->first();
                     
         if (!$this->workflow) {
-            throw new Exceptions\DXCustomException("Reģistram nav definēta neviena aktīva darbplūsma!");            
+            throw new Exceptions\DXCustomException(trans('task_form.err_no_workflow'));            
         }
         
         $this->workflow_id = $this->workflow->id;
@@ -682,7 +681,7 @@ class TasksController extends Controller
         if (!$first_step)
         {
             // can't find step
-           throw new Exceptions\DXCustomException("Darbplūsmai nav nodefinēts neviens solis! Sazinieties ar sistēmas uzturētāju.");
+           throw new Exceptions\DXCustomException(trans('task_form.err_no_wf_step'));
         }
         
         return $first_step->step_nr;
@@ -728,7 +727,7 @@ class TasksController extends Controller
             
             if (!$value_row)
             {
-                throw new Exceptions\DXCustomException("Lai saskaņotu, vispirms ir jānorāda obligātais saskaņojamā dokumenta lauks '" . $fld_row->title_form . "'!");
+                throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_approve_field'), $fld_row->title_form));
             }
             
             // additional validation for some field types
@@ -737,7 +736,7 @@ class TasksController extends Controller
                 // Numurs
                 if ($value_row->val == 0)
                 {
-                    throw new Exceptions\DXCustomException("Lai saskaņotu, vispirms ir jānorāda obligātā saskaņojamā dokumenta lauka '" . $fld_row->title_form . "' skaitliskā vērtība, kurai jābūt lielākai par 0!");
+                    throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_approve_field_num'), $fld_row->title_form));
                 }
             }
             
@@ -759,7 +758,7 @@ class TasksController extends Controller
         // Uzmeklēšana
         if ($value_row->val == 0)
         {
-            throw new Exceptions\DXCustomException("Lai saskaņotu, vispirms ir jānorāda obligātā saskaņojamā dokumenta lauka '" . $fld_row->title_form . "' vērtība (saistītais ieraksts)!");
+            throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_approove_field_lookup'), $fld_row->title_form));
         }
 
         // Check if related list have workflow status field
@@ -791,7 +790,7 @@ class TasksController extends Controller
                 $approved = DB::table($rel_obj_row->db_name)->select(DB::raw($rel_field->db_name . " as val"))->where('id','=',$value_row->val)->where($rel_field->db_name,'=', self::WORKFLOW_STATUS_APPROVED)->first();
                 if (!$approved)
                 {
-                    throw new Exceptions\DXCustomException("Lai saskaņotu, saskaņojamā dokumenta laukā '" . $fld_row->title_form . "' norādītajam saistītajam ierakstam ir jābūt ar statusu 'Apstiprināts'!");
+                    throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_approve_lookup_approved'), $fld_row->title_form));
                 }
             }
         }
@@ -816,7 +815,7 @@ class TasksController extends Controller
 
         if (!$task_row)
         {
-            throw new Exceptions\DXCustomException("Nav pieļaujams rediģēt/deleģēt pabeigtu uzdevumu vai uzdevumu, kas uzdots citam darbiniekam!");
+            throw new Exceptions\DXCustomException(trans('task_form.err_cant_edit_task'));
         }
         
         if ($task_row->step_id) {
@@ -885,7 +884,7 @@ class TasksController extends Controller
                     return; // tajā pašā līmenī ir vēl citi uzdevumi, kas ir procesā vai noraidīti, tāpēc automātiski izpildīt vecāka uzdevumu nevar
                 }
                 else {
-                    $this->performTaskRecursive($task_row->parent_task_id, $is_yes, "Izpildīts automātiski, jo visi deleģētie uzdevumi ir izpildīti.", $task_row->assigned_empl_id);
+                    $this->performTaskRecursive($task_row->parent_task_id, $is_yes, trans('task_form.comment_compleated'), $task_row->assigned_empl_id);
                     return; // izpildam vecāka uzdevumu ToDo: te potenciāli var būt pazīme pie uzdevuma to darīt/nedarīt automātiski..
                 }
             }
@@ -1029,7 +1028,7 @@ class TasksController extends Controller
             ->update([
             'task_closed_time' => date("Y-m-d H:i:s"), 
             'task_status_id' => self::TASK_STATUS_CANCEL, 
-            'task_comment' => 'Uzdevumu anulēja ' . Auth::user()->display_name . '!'
+            'task_comment' => sprintf(trans('task_form.comment_anulated'), Auth::user()->display_name)
             ]);
             
             $this->cancelDelegatedTasks($task->id);
@@ -1056,7 +1055,7 @@ class TasksController extends Controller
             ->update([
             'task_closed_time' => date("Y-m-d H:i:s"), 
             'task_status_id' => self::TASK_STATUS_CANCEL, 
-            'task_comment' => 'Uzdevums anulēts, jo ' . Auth::user()->display_name . ' veica noraidīšanu!'
+            'task_comment' => sprintf(trans('task_form.comment_anulated'), Auth::user()->display_name)
             ]);
             
             $this->cancelDelegatedTasks($task->id);
@@ -1095,7 +1094,7 @@ class TasksController extends Controller
             
             if (!$task)
             {
-                throw new Exceptions\DXCustomException("Darbplūsmas paralēlajam solim nav izveidots uzdevums! Sazinieties ar sistēmas uzturētāju.");
+                throw new Exceptions\DXCustomException(trans('task_form.err_no_paralel_step_task'));
             }
 
             if ($task->task_status_id == self::TASK_STATUS_PROCESS || $task->task_status_id == self::TASK_STATUS_DELEGATE)
@@ -1105,7 +1104,7 @@ class TasksController extends Controller
                     // lets cancel task
                     DB::table("dx_tasks")
                     ->where('id','=',$task->id)
-                    ->update(['task_closed_time' => date("Y-m-d H:i:s"), 'task_status_id' => self::TASK_STATUS_CANCEL, 'task_comment' => 'Kāds no citiem saskaņotājiem veica noraidīšanu!']);
+                    ->update(['task_closed_time' => date("Y-m-d H:i:s"), 'task_status_id' => self::TASK_STATUS_CANCEL, 'task_comment' => trans('task_form.comment_somebody_rejected')]);
                 }
                 else
                 {
@@ -1146,7 +1145,7 @@ class TasksController extends Controller
         {
             if ( !($step_row->task_type_id < self::TASK_TYPE_SET_VAL || $step_row->task_type_id == self::TASK_TYPE_INFO) )
             {
-                throw new Exceptions\DXCustomException("Nekorekti definēta darbplūsma! Paralēli drīkst būt tikai saskaņošanas vai iepazīšanās soļi. Sazinieties ar sistēmas uzturētāju.");
+                throw new Exceptions\DXCustomException(trans('task_form.err_wrong_wf_definition'));
             }
             
             if ($yes_step_nr == 0)
@@ -1156,7 +1155,7 @@ class TasksController extends Controller
             
             if ($yes_step_nr != $step_row->yes_step_nr)
             {
-                throw new Exceptions\DXCustomException("Nekorekti definēta darbplūsma! Paralēlo soļu 'Jā' vērtību uzstādījumiem jābūt vienādiem. Sazinieties ar sistēmas uzturētāju.");
+                throw new Exceptions\DXCustomException(trans('task_form.err_wrong_yes_settings'));
             }
             
             if ($no_step_nr == 0)
@@ -1166,7 +1165,7 @@ class TasksController extends Controller
             
             if ($no_step_nr != $step_row->no_step_nr)
             {
-                throw new Exceptions\DXCustomException("Nekorekti definēta darbplūsma! Paralēlo soļu 'Nē' vērtību uzstādījumiem jābūt vienādiem. Sazinieties ar sistēmas uzturētāju.");
+                throw new Exceptions\DXCustomException(trans('task_form.err_wrong_no_settings'));
             }
             
             $performer_obj = \App\Libraries\Workflows\Performers\PerformerFactory::build_performer($step_row, $item_id, $this->wf_info_id);            
@@ -1357,7 +1356,7 @@ class TasksController extends Controller
         
         if ($recursion_nr > 100) // anti infinity loop check
         {
-            throw new Exceptions\DXCustomException("Darbplūsmai ir pārāk liels iterāciju skaits (" . $recursion_nr . ")! Sazinieties ar sistēmas uzturētāju.");
+            throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_infinite_loop'), $recursion_nr));
         }
         
         $next_step = $this->getWorkflowStepTable($list_id, $step_nr)->first();
@@ -1393,12 +1392,12 @@ class TasksController extends Controller
             else
             {
                 // ToDo: implement other tasks types
-                throw new Exceptions\DXCustomException("Reģistra (ID = " . $list_id . ") darbplūsmai norādīts neatbalstīts uzdevuma veids (" . $next_step->task_type_id . ")! Sazinieties ar sistēmas uzturētāju.");
+                throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_wrong_task_type'), $list_id, $next_step->task_type_id ));
             }
         }
         else
         {
-            throw new Exceptions\DXCustomException("Reģistra (ID = " . $list_id . ") darbplūsmai norādīts neeksistējošs solis (" . $step_nr . ")! Sazinieties ar sistēmas uzturētāju.");
+            throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_wrong_task_type'), $list_id, $step_nr ));
         }
     }
     
@@ -1442,7 +1441,7 @@ class TasksController extends Controller
                 case 7:
                     return !isNull($item_val);
                 default:
-                    throw new Exceptions\DXCustomException("Darbplūsmai ir norādīts neatbalstīts lauka operācijas veids (" . $operation_id . ")! Sazinieties ar sistēmas uzturētāju.");
+                    throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_wrong_operation'), $operation_id));
         }
     }
 }

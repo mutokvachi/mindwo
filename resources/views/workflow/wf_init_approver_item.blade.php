@@ -12,7 +12,7 @@
                 {{ trans('workflow.wf_init_due_label') }}: <input type="text" maxlength="2" name="due_days" value="{{ $due_days }}" style="width: 30px;"/>&nbsp; {{ trans('workflow.wf_init_due_days') }}
             </div>
             <div class="col-md-1">
-                <a href="JavaScript:;" title="Noņemt" class="pull-right dx-cms-approver-remove" dx_is_init="0"><i class="fa fa-trash-o"></i></a>
+                <a href="JavaScript:;" title="{{ trans('workflow.wf_init_remove_approver_btn') }}" class="pull-right dx-cms-approver-remove" dx_is_init="0"><i class="fa fa-trash-o"></i></a>
             </div>
         </div>
     </div>

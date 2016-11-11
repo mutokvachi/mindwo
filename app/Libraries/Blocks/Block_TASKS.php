@@ -120,7 +120,7 @@ namespace App\Libraries\Blocks
                                       ->where('task_closed_time', '>=', date('Y-n-d'))
                                       ->count();
             
-            $arr_data['title'] = "MANI UZDEVUMI";
+            $arr_data['title'] = trans('task_widget.my_tasks');
             $arr_data['url_all'] = "/skats_aktualie_uzdevumi";
             $arr_data['url_today'] = "/skats_mani_uzdevumi_sodien_termins";
             $arr_data['url_fail'] = "/skats_mani_uzdevumi_nokavetie";
@@ -183,7 +183,7 @@ namespace App\Libraries\Blocks
                                       ->where('task_closed_time', '>=', date('Y-n-d'))
                                       ->count();
             
-            $arr_data['title'] = "PADOTO UZDEVUMI";
+            $arr_data['title'] = trans('task_widget.my_team');
             $arr_data['url_all'] = "/skats_padoto_aktualie_uzdevumi";
             $arr_data['url_today'] = "/skats_padoto_sodienas_uzdevumi";
             $arr_data['url_fail'] = "/skats_padoto_kavetie_uzdevumi";
@@ -227,7 +227,7 @@ namespace App\Libraries\Blocks
                                       ->where('task_closed_time', '>=', date('Y-n-d'))
                                       ->count();
             
-            $arr_data['title'] = "Uzņēmuma UZDEVUMI";
+            $arr_data['title'] = trans('task_widget.company');
             $arr_data['url_all'] = "/skats_uznemuma_uzdevumi_aktualie";
             $arr_data['url_today'] = "/skats_uznemuma_uzdevumi_sodienas";
             $arr_data['url_fail'] = "/skats_uznemuma_uzdevumi_kavetie";
