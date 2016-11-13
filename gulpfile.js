@@ -15,7 +15,7 @@ var elixir = require('laravel-elixir');
 
 gulp.task('langjs', function () {
     // cd command is needed to navigate to path where gulp was executed because on some environments there is problem with incorrect starting path 
-    exec('cd "' + process.cwd() + '" & php artisan lang:js resources/assets/plugins/mindwo/lang.js',
+    exec('cd "' + process.cwd() + '" & php artisan lang:js public/js/lang.js',
             function (err, stdout, stderr) {
                 console.log(stdout);
                 console.log(stderr);
@@ -71,7 +71,8 @@ gulp.task('mix_all', function() {
         mix.less([
             'horizontal_ui.less',
             'bootstrap_menu.less',
-            'multilevel_menu.less'
+            'multilevel_menu.less',
+            'empl_profile.less'
         ], 'public/css/elix_mindwo_horizontal.css');
         
         // Metronic theme UI styles                

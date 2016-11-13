@@ -136,5 +136,5 @@ var HMenuUI = function()
 
 $(document).ready(function()
 {
-    setTimeout(function(){ HMenuUI.init(); }, 500);
+    HMenuUI.init();
 });

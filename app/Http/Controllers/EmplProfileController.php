@@ -25,6 +25,7 @@ class EmplProfileController extends Controller
 		$form = new App\Libraries\Forms\Form(Config::get('dx.employee_list_id'));
 		$form->disabled = false;
 		$form->tabList = ['General', 'Personal details', 'Work details', 'Workplace', 'Contact details', 'Addresses'];
+		$form->skipFields = ['picture_name'];
 		
 		return view('profile.employee', [
 			'mode' => 'create',
@@ -33,7 +34,7 @@ class EmplProfileController extends Controller
 			'form' => $form,
 			'is_my_profile' => false,
 			'is_edit_rights' => $this->getEditRightsMode(),
-                        'has_users_documents_access' => $this->validateUsersDocumentsAccess()
+			'has_users_documents_access' => $this->validateUsersDocumentsAccess()
 		]);
 	}
 	
@@ -60,6 +61,7 @@ class EmplProfileController extends Controller
 		$form = new App\Libraries\Forms\Form(Config::get('dx.employee_list_id'), $id);
 		$form->disabled = true;
 		$form->tabList = ['General', 'Personal details', 'Work details', 'Workplace', 'Contact details', 'Addresses'];
+		$form->skipFields = ['picture_name'];
 		
 		return view('profile.employee', [
 			'mode' => 'show',
@@ -68,23 +70,27 @@ class EmplProfileController extends Controller
 			'form' => $form,
 			'is_my_profile' => $id == Auth::user()->id,
 			'is_edit_rights' => $this->getEditRightsMode(),
-                        'has_users_documents_access' => $this->validateUsersDocumentsAccess()
+			'has_users_documents_access' => $this->validateUsersDocumentsAccess()
 		]);
 	}
 	
 	public function ajaxShowChunks($id)
 	{
 		$employee = App\User::find($id);
-
+		
 		$result = [
 			'success' => 1,
 			'chunks' => []
 		];
 		
+		$form = new App\Libraries\Forms\Form(Config::get('dx.employee_list_id'), $id);
+		$form->disabled = true;
+		
 		$result['chunks']['.dx-employee-panel'] = view('profile.panel', [
 			'mode' => 'show',
 			'employee' => $employee,
 			'avail' => $employee->getAvailability(),
+			'form' => $form,
 			'is_my_profile' => $id == Auth::user()->id,
 			'is_edit_rights' => $this->getEditRightsMode()
 		])->render();
@@ -99,24 +105,24 @@ class EmplProfileController extends Controller
 		
 		return response($result);
 	}
-        
-        /**
-        * Check if user has access for users documents
-        * @return boolean Parameter if user has access
-        */
-        private function validateUsersDocumentsAccess(){
-            $user_documents_controller = new App\Http\Controllers\Employee\EmployeePersonalDocController();
-            return $user_documents_controller->has_access;
-        }
-
-
-        public function edit($id, Request $request)
+	
+	public function edit($id, Request $request)
 	{
 		$employee = App\User::find($id);
 	}
 	
 	public function update(Request $request, $id)
 	{
+	}
+	
+	/**
+	 * Check if user has access for users documents
+	 * @return boolean Parameter if user has access
+	 */
+	private function validateUsersDocumentsAccess()
+	{
+		$user_documents_controller = new App\Http\Controllers\Employee\EmployeePersonalDocController();
+		return $user_documents_controller->has_access;
 	}
 	
 	/**
