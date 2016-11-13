@@ -14946,7 +14946,17 @@ function reload_edited_form(ajax_url, item_id, list_id, rel_field_id, rel_field_
         var height = $(window).height()*DX_CORE.form_height_ratio;
         var form_body = $("#list_item_view_form_" + old_form_htm_id).find(".modal-body");
         
-        form_body.css('overflow-y', 'auto');        
+        form_body.css('overflow-y', 'auto');    
+        
+        var scroll_height = form_body.find(".dx-form-row")[0].scrollHeight;
+        
+        if (scroll_height > (height_content - tool_height - 21) && scroll_height < (height - tool_height - 51)) {
+            form_body.height(scroll_height);
+        }
+        else {
+            form_body.height(height_content);
+        }
+        
         form_body.css('max-height', height + 'px');
         
         FormLogic.adjustDataTabs($("#item_edit_form_" + old_form_htm_id).find(".dx-cms-form-fields-section").first());

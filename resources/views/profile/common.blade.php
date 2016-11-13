@@ -89,20 +89,25 @@
             dataType: 'json',
             success: function(data)
             {
-              if(typeof data.success != "undefined" && data.success == 0)
-              {
-                notify_err(data.error);
-                return;
-              }
+                if(typeof data.success != "undefined" && data.success == 0)
+                {
+                  notify_err(data.error);
+                  return;
+                }
               
-              // update auxiliary info panels
-              for(var selector in data.chunks)
-              {
-                $(selector).first().html(data.chunks[selector]);
-              }
+                // update auxiliary info panels
+                for(var selector in data.chunks)
+                {
+                  $(selector).first().html(data.chunks[selector]);
+                }
               
-              $('.dx-employee-profile .dx-stick-footer .dx-left img').attr('src', $('.dx-employee-profile .employee-pic-box img').attr("src"));
-              $('.dx-employee-profile .dx-stick-footer .dx-left span.dx-empl-title').html($('.dx-employee-profile .employee-pic-box h4.dx-empl-title').html());
+                var img_src = DX_CORE.site_url + "assets/global/avatars/default_avatar_big.jpg";
+                
+                if ($('.dx-employee-panel .fileinput-preview img').length) {
+                    img_src = $('.dx-employee-panel .fileinput-preview img').attr("src");
+                }
+                $('.dx-employee-profile .dx-stick-footer .dx-left img').attr('src', img_src);
+                $('.dx-employee-profile .dx-stick-footer .dx-left span.dx-empl-title').html($('.dx-employee-profile .employee-pic-box h4.dx-empl-title').html());
             },
             error: function(jqXHR, textStatus, errorThrown)
             {

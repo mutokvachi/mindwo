@@ -1,10 +1,7 @@
 <div class='fileinput fileinput-{{ $class_exist }}' data-provides='fileinput'>
   <div class="dx-fileinput-thumbnail">
-    <div class='fileinput-preview thumbnail' style='width: 200px; height: 150px;'>
-      @if ($item_value)
-        <a href='JavaScript: download_file({{ $item_id }}, {{ $list_id }}, {{ $field_id }});'><img src='{{Request::root()}}/img/{{ $file_guid }}' alt='{{ $item_value }}' style='max-height: 140px;'></a>
-      @endif
-    </div>
+    <div class='fileinput-preview thumbnail' style='width: 200px; height: 150px;'>@if ($item_value)
+        <a href='JavaScript: download_file({{ $item_id }}, {{ $list_id }}, {{ $field_id }});'><img src='{{Request::root()}}/img/{{ $file_guid }}' alt='{{ $item_value }}' style='max-height: 140px;'></a>@endif</div>
   </div>
   <div class="dx-fileinput-buttons">
     @if (!$is_disabled)

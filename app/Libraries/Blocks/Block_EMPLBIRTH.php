@@ -91,8 +91,7 @@ namespace App\Libraries\Blocks
         
             return view('blocks.empl_birth', [
                         'block_guid' => $this->block_guid,
-                        'employees' => $this->employees,
-                        'avatar' => get_portal_config('EMPLOYEE_AVATAR'),
+                        'employees' => $this->employees,                        
                         'empl_cnt_day' => $this->empl_cnt_day,
                         'click2call_url' => get_portal_config('CLICK2CALL_URL'),
                         'fixed_phone_part' => get_portal_config('CLICK2CALL_INNER_PHONE'),
