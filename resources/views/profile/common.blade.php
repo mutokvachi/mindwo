@@ -21,25 +21,9 @@
       width: auto !important;
     }
     
-    .profile-sticky {
-      padding: 10px 0;
-      border-top: 1px solid #ddd;
-      z-index: 10;
-      background-color: white;
-    }
-    
-    .profile-sticky a:first-child {
-      margin-left: 20px;
-    }
-    
     .dx-employee-profile.is-admin .tiles .tile.double {
       width: auto !important;
       float: none;
-    }
-    
-    .stuck {
-      position: fixed;
-      bottom: 0;
     }
     
     .dx-contact-info {
@@ -91,15 +75,11 @@
         }
       });
       
-        $(window).on('beforeunload', function() {
-            if ($(".dx-stick-footer").is(":visible")) {
-              return 'Your changes have not been saved.';
-            }
-        });
-                  
-        show_page_splash(1);
-        
-      $('.freeform').FreeForm();
+      show_page_splash(1);
+      
+      $('.freeform').FreeForm({
+        names: ['description']
+      });
       $('.freeform').InlineForm({
         afterSave: function()
         {
@@ -128,18 +108,22 @@
             {
               console.log(textStatus);
               console.log(jqXHR);
+              console.log(errorThrown);
             }
-
           });
         }
       });
       
-      if($('.freeform').data('has_users_documents_access') == 1){
-        window.DxEmpPersDocs.init(function () {
-              hide_page_splash(1);
-          });
-      } else {
+      if($('.freeform').data('has_users_documents_access') == 1)
+      {
+        window.DxEmpPersDocs.init(function()
+        {
           hide_page_splash(1);
+        });
+      }
+      else
+      {
+        hide_page_splash(1);
       }
     });
   </script>

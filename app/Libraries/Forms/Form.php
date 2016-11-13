@@ -14,6 +14,7 @@ use PDO;
 class Form
 {
 	public $tabList = [];
+	public $skipFields = [];
 	public $disabled = false;
 	public $editMode = false;
 	public $params;
@@ -78,6 +79,27 @@ class Form
 		return $result;
 	}
 	
+	public function renderField($name)
+	{
+		$result = '';
+		
+		foreach($this->formFields as $row)
+		{
+			if($row->db_name != $name)
+				continue;
+			
+			$field = new FormField($row, $this->listId, $this->itemId, 0, 0, $this->itemData, $this->formUid);
+			$field->is_disabled_mode = $this->disabled;
+			$field->is_editable_wf = $this->editable;
+			
+			$result = $field->get_field_input_htm();
+
+			break;
+		}
+		
+		return $result;
+	}
+	
 	public function renderScripts()
 	{
 		
@@ -118,6 +140,9 @@ class Form
 			{
 				continue;
 			}
+			
+			if(in_array($row->db_name, $this->skipFields))
+				continue;
 			
 			$field = new FormField($row, $this->listId, $this->itemId, 0, 0, $this->itemData, $this->formUid);
 			$field->is_disabled_mode = $this->disabled;
