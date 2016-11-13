@@ -214,6 +214,9 @@ button.navbar-toggle span.icon-bar {
   margin-left: 20px!important;
   box-shadow: none!important;
 }
+.logo-default {
+  margin-top: 6px;
+}
 
 /*
 Colors for horizontal menu UI

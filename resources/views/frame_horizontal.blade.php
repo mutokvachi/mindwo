@@ -164,15 +164,16 @@
                       <a href="javascript:;" class="dx-user-change-passw-link">
                         <i class="fa fa-key dx-user-menu"></i> {{ trans("frame.password_change") }} </a>
                     </li>
+                    <!--
                     <li class="hidden-sm hidden-md hidden-lg">
                       <a href="{{Request::root()}}/structure/doc_manual" class="">
                         <i class="fa fa-question-circle"></i> {{ trans("frame.user_manual") }}
                       </a>
                     </li>
-  
+                    -->
                     <li class="hidden-sm hidden-md hidden-lg">
                       <a href="{{Request::root()}}/logout" class="">
-                        <i class="fa fa-sign-out"></i> {{ trans("frame.logout") }}
+                        <i class="fa fa-sign-out dx-user-menu"></i> {{ trans("frame.logout") }}
                       </a>
                     </li>
                   </ul>
@@ -190,13 +191,13 @@
                   </li>
                   <!-- END TODO DROPDOWN -->
                 @endif
-                
+                <!--
                 <li class="dropdown hidden-xs">
                   <a href="{{Request::root()}}/structure/doc_manual" title="{{ trans("frame.user_manual") }}" class="dropdown-toggle top-link">
                     <i class="fa fa-question-circle"></i>
                   </a>
                 </li>
-                
+                -->
                 <li class="dropdown hidden-xs">
                   <a href="{{Request::root()}}/logout" title="{{ trans("frame.logout") }}" class="top-link">
                     <i class="fa fa-sign-out"></i>

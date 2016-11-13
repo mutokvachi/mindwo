@@ -187,7 +187,7 @@ namespace App\Libraries
             $right = Rights::getRightsOnList($list_id);
 
             if ($right == null || !$right->is_edit_rights || ($item_id ==0 && !$right->is_new_rights)) {
-                throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību šajā reģistrā!");
+                throw new Exceptions\DXCustomException(trans('errors.no_rights_on_register'));
             }
             
             if ($item_id == 0 && $right->is_new_rights) {
@@ -197,7 +197,7 @@ namespace App\Libraries
             $is_item_editable_wf = Rights::getIsEditRightsOnItem($list_id, $item_id); // Check if not in workflow and not status finished
 
             if (!$is_item_editable_wf) {
-                throw new Exceptions\DXCustomException("Ierakstu nav iespējams rediģēt, jo tas atrodas darbplūsmā!");
+                throw new Exceptions\DXCustomException(trans('errors.cant_edit_in_process'));
             }
         }    
 

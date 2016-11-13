@@ -74,4 +74,10 @@ return [
     
     'session_ended' => 'Lietotāja sesija ir beigusies!',
     
+    'cant_edit_in_process' => 'Ierakstu nav iespējams rediģēt, jo tas atrodas darbplūsmā!',
+    
+    'access_denied_title' => 'Piekļuve liegta',
+    
+    'access_denied_msg' => 'Jums nav piepieciešamo tiesību, lai piekļūtu skata <b>%s</b> datiem!',
+    
 ];

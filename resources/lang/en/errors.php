@@ -75,4 +75,10 @@ return [
     'import_zip_file_cant_copy' => "Can't copy file '%s' to the destination folder '%s'!",
     
     'session_ended' => 'User session is ended!',
+    
+    'cant_edit_in_process' => 'Record can not be edited because it is in workflow process!',
+    
+    'access_denied_title' => 'Access denied',
+    
+    'access_denied_msg' => 'You do not have rights to access the view <b>%s</b>!',
 ];

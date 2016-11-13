@@ -2,7 +2,7 @@
     <li class="{{ ($level ==0) ? $active : '' }} {{($level > 0 && $sub_items_htm) ? 'dropdown-submenu' : '' }}">
         <a href="{{ $href }}" data-level="{{ $level }}" data-toggle="{{ ($sub_items_htm) ? 'dropdown' : '' }}" class="{{ ($sub_items_htm) ? 'dropdown-toggle' : ''}}" {{ $target }} {!! ($color) ? 'style="color: ' . $color . ';"' : '' !!}>
             
-            @if ($icon_class && $level > 0)
+            @if ($icon_class)
             <i class="{{ $icon_class }}" {!! ($color) ? 'style="color: ' . $color . ';"' : '' !!}></i>
             @endif
 
