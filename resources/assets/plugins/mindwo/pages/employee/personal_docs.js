@@ -1,63 +1,56 @@
+/**
+ * 
+ * @type Window.DxEmpPersDocs|window.DxEmpPersDocs Contains logic for viewing and editing employee's documents
+ */
 window.DxEmpPersDocs = window.DxEmpPersDocs || {
     /**
      * Row counter, used to identify rows
      */
     rowCount: 0,
-    
     /**
      * User ID which is loaded
      */
     userId: 0,
-    
     /**
      * Date format used in system. This format is used to initialize date picker
      */
     dateFormat: '',
-    
     /**
      * Locale used in system. This format is used to initializes date picker
      */
     locale: 'en',
-    
     /**
      * Registers ID for table where documents are saved
      */
     empDocListId: 0,
-    
     /**
      * Registers field ID where documents are saved
      */
     empDocFldId: 0,
-    
     /**
      * Parameter if component is initialized
      */
     isInit: false,
-    
     /**
      * Clone of view which contains view state with data saved in database.
      * If edit mode is canceled, then this view is replaced with edit view and all made changes are lost
      */
     viewClone: '',
-    
     /**
      * Callback function which is called after successful components initialization
      * @param {type} data Data which is sent to callback function
      */
     callbackOnInitiSuccess: function (data) {},
-    
     /**
      * Callback function which is called after successful data save
      * @param {type} data Data which is sent to callback function
      */
     callbackOnSaveSuccess: function (data) {},
-    
     /**
      * Callback function which is called after process is exited with error
      * @param {type} data Data which is sent to callback function
      */
     callbackOnError: function (data) {},
-    
     /**
      * Initializes component
      */
@@ -76,14 +69,24 @@ window.DxEmpPersDocs = window.DxEmpPersDocs || {
         $("#dx-emp-pers-docs-country").change(window.DxEmpPersDocs.onChangeCountry);
         window.DxEmpPersDocs.loadEmployeeData();
     },
+    /**
+     * Enter edit mode by saving view state in memory. 
+     * It is needed to revert changes if edit mode is canceled
+     */
     enterEditMode: function () {
         window.DxEmpPersDocs.viewClone = $('#dx-emp-pers-docs-panel').clone(true, true);
     },
+    /**
+     * Cancels edit mode by loading previous view state
+     */
     cancelEditMode: function () {
         $('#dx-emp-pers-docs-panel').replaceWith(window.DxEmpPersDocs.viewClone);
         window.DxEmpPersDocs.viewClone = null;
         window.DxEmpPersDocs.toggleDisable(true);
     },
+    /**
+     * Loads employee document data from server
+     */
     loadEmployeeData: function () {
         $.ajax({
             url: '/employee/personal_docs/get/employee_docs/' + window.DxEmpPersDocs.userId,
@@ -92,6 +95,10 @@ window.DxEmpPersDocs = window.DxEmpPersDocs || {
             error: window.DxEmpPersDocs.onAjaxError
         });
     },
+    /**
+     * Evenet ahndler on successful employee data retrieval
+     * @param {array} data Employee document data which ir retrieved
+     */
     onSuccessLoadEmployeeData: function (data) {
         if (data != '') {
             var data_rows = JSON.parse(data);
@@ -103,6 +110,11 @@ window.DxEmpPersDocs = window.DxEmpPersDocs || {
 
         $("#dx-emp-pers-docs-country").trigger('change');
     },
+    /**
+     * Draws document row
+     * @param {boolean} is_new Argument if row is new and doesnt contain any data
+     * @param {array} data Data which will be used to draw row. Can contains saved data or if new then document type
+     */
     createNewDocRow: function (is_new, data) {
         // Gets template for row and converts it as jquery object
         var new_row_html = $($('#dx-emp-pers-docs-new-row').html());
@@ -124,6 +136,12 @@ window.DxEmpPersDocs = window.DxEmpPersDocs || {
         // Increase row counter
         window.DxEmpPersDocs.rowCount++;
     },
+    /**
+     * Initiates date picker control in row
+     * @param {DOMElement} new_row_html Row's DOM elemenet
+     * @param {string} value Date which will be set in date picker
+     * @returns {DOMElement} Edited row with initialized date picker
+     */
     initValidToDatePicker: function (new_row_html, value) {
         var picker = new_row_html.find('.dx-emp-pers-docs-validto-input');
         picker.attr('id', 'dx-emp-pers-docs-validto-input-' + window.DxEmpPersDocs.rowCount);
@@ -140,6 +158,12 @@ window.DxEmpPersDocs = window.DxEmpPersDocs || {
         });
         return new_row_html;
     },
+    /**
+     * Sets data for new document row
+     * @param {DOMElement} new_row_html Row's DOM elemenet
+     * @param {array} data_row Data array for input values
+     * @returns {DOMElement} Row containing values
+     */
     setDocTypeValue: function (new_row_html, data_row) {
         // Prepare "valid to" date picker            
         new_row_html = window.DxEmpPersDocs.initValidToDatePicker(new_row_html, '');
@@ -148,6 +172,12 @@ window.DxEmpPersDocs = window.DxEmpPersDocs || {
         new_row_html.find('.dx-emp-pers-docs-type-label').html(data_row.name);
         return new_row_html;
     },
+    /**
+     * Sets data for already saved document row
+     * @param {DOMElement} new_row_html Row's DOM elemenet
+     * @param {array} data_row Data array for input values
+     * @returns {DOMElement} Row containing values
+     */
     setValues: function (new_row_html, data_row) {
         new_row_html = window.DxEmpPersDocs.initValidToDatePicker(new_row_html, data_row.valid_to);
         new_row_html.attr('id', 'dx-emp-pers-docs-row-' + data_row.doc_id);
@@ -160,6 +190,12 @@ window.DxEmpPersDocs = window.DxEmpPersDocs || {
 
         return new_row_html;
     },
+    /**
+     * Sets saved document link in file input box
+     * @param {DOMElement} new_row_html Row's DOM elemenet
+     * @param {integer} row_id ID for document row in database
+     * @param {string} file_name Saved name for the file
+     */
     setFileValue: function (new_row_html, row_id, file_name) {
         if (file_name && file_name != null) {
             var file_link = "<a href='JavaScript: download_file(" + row_id + " , " + window.DxEmpPersDocs.empDocListId + ", " + window.DxEmpPersDocs.empDocFldId + ");'>" + file_name + "</a>";
@@ -167,6 +203,10 @@ window.DxEmpPersDocs = window.DxEmpPersDocs || {
             new_row_html.find('.dx-emp-pers-docs-file-input-isset').val(1);
         }
     },
+    /**
+     * Clears documents row data
+     * @param {object} e Event arguments which contains event caller
+     */
     clearDocRow: function (e) {
         var row = $(e.target).parents('.dx-emp-pers-docs-row');
         row.find('.dx-emp-pers-docs-id-input').val(0);
@@ -175,6 +215,10 @@ window.DxEmpPersDocs = window.DxEmpPersDocs || {
         row.find('.dx-emp-pers-docs-publisher-input').val('');
         row.find('.dx-emp-pers-docs-file-input-remove-btn').trigger('click');
     },
+    /**
+     * Gets data from inputs for data saving
+     * @returns {FormData} Data retrieved from input fields
+     */
     getDataForSave: function () {
         var rows = $('#dx-emp-pers-docs-table .dx-emp-pers-docs-row');
         var data = {
@@ -201,9 +245,17 @@ window.DxEmpPersDocs = window.DxEmpPersDocs || {
         formData.append('data', JSON.stringify(data));
         return formData;
     },
+    /**
+     * Binds click event for clear button
+     * @param {DOMElement} new_row_html Row's DOM elemenet
+     */
     bindDocRowEvenets: function (new_row_html) {
         new_row_html.find('.dx-emp-pers-docs-clear-btn').click(window.DxEmpPersDocs.clearDocRow);
     },
+    /**
+     * Event when changing country from dropdown which requests document types associated with selected country
+     * @param {object} e Event arguments which contains event caller
+     */
     onChangeCountry: function (e) {
         var country_id = $(e.target).val();
         $.ajax({
@@ -213,11 +265,19 @@ window.DxEmpPersDocs = window.DxEmpPersDocs || {
             error: window.DxEmpPersDocs.onAjaxError
         });
     },
+    /**
+     * Event on successful document type retrieval when changing country
+     * @param {array} data Document types associated with country
+     */
     onSuccessChangeCountry: function (data) {
         var docs = JSON.parse(data);
         window.DxEmpPersDocs.drawRows(docs);
         window.DxEmpPersDocs.finishInit();
     },
+    /**
+     * Draws rows when country is changed
+     * @param {array} docs Document types associated with selected country
+     */
     drawRows: function (docs) {
         // Moves all existing rows to hidden history div
         $('#dx-emp-pers-docs-table').contents().appendTo('#dx-emp-pers-docs-table-history');
@@ -240,6 +300,9 @@ window.DxEmpPersDocs = window.DxEmpPersDocs || {
             $(obj).tooltip();
         });
     },
+    /**
+     * Finishes initialization
+     */
     finishInit: function () {
         if (!window.DxEmpPersDocs.isInit) {
             window.DxEmpPersDocs.isInit = true;
@@ -251,6 +314,11 @@ window.DxEmpPersDocs = window.DxEmpPersDocs || {
             window.DxEmpPersDocs.callbackOnInitiSuccess();
         }
     },
+    /**
+     * Saves data
+     * @param {function} callbackOnSaveSuccess Callback function for successful saving
+     * @param {function} callbackOnError Callback function when error happens on data save
+     */
     onClickSaveDocs: function (callbackOnSaveSuccess, callbackOnError) {
         if (callbackOnSaveSuccess) {
             window.DxEmpPersDocs.callbackOnSaveSuccess = callbackOnSaveSuccess;
@@ -275,6 +343,10 @@ window.DxEmpPersDocs = window.DxEmpPersDocs || {
             error: window.DxEmpPersDocs.onAjaxError
         });
     },
+    /**
+     * Event on successful data save
+     * @param {array} data_rows Data returned about saved document rows
+     */
     onSuccessSave: function (data_rows) {
         // Set id for rows and update file input control value
         for (var i = 0; i < data_rows.length; i++) {
@@ -291,10 +363,18 @@ window.DxEmpPersDocs = window.DxEmpPersDocs || {
         $('#dx-emp-pers-docs-table-history').empty();
         window.DxEmpPersDocs.callbackOnSaveSuccess();
     },
+    /**
+     * Event when ajax request gets error
+     * @param {array} data Data containing error information
+     */
     onAjaxError: function (data) {
         window.DxEmpPersDocs.finishInit();
         window.DxEmpPersDocs.callbackOnError();
     },
+    /**
+     * Swicthed edit and view modes
+     * @param {boolean} is_disabled If true then view mode is set else edit mode is set
+     */
     toggleDisable: function (is_disabled) {
         if (!is_disabled) {
             window.DxEmpPersDocs.enterEditMode();
@@ -335,4 +415,4 @@ window.DxEmpPersDocs = window.DxEmpPersDocs || {
 
         $('#dx-emp-pers-docs-country').prop('disabled', is_disabled);
     }
-}
+};

@@ -97,7 +97,7 @@ if ($user->doc_country_id) {
                                 <input class='fileinput-remove-mark dx-emp-pers-docs-file-input-remove' type='hidden' value='0' name = 'file_guid_remove' />
                             </span>
                             <a href='#' class='input-group-addon btn btn-default fileinput-exists dx-emp-pers-docs-file-input-remove-btn' data-dismiss='fileinput' data-tooltip-title="{{ trans('fields.btn_remove') }}">
-                                <i class='fa fa-remove'></i>
+                                <i class='fa fa-times'></i>
                             </a>
                             <input class="dx-emp-pers-docs-file-input-isset" type="hidden" name='file_guid_is_set' value="0" />                        
                         </div>

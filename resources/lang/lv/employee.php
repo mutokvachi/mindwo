@@ -35,7 +35,7 @@ return [
   
     'personal_docs' => [
         'new_doc' => 'Jauns dokuments',
-        'clear_doc' => 'Notīrīt',
+        'clear_doc' => 'Notīrīt dokumenta datus',
         'save_docs' => 'Saglabāt dokumentus',
         'country' => 'Valsts',
         'personal_doc_type' => 'Dokumenta tips',
