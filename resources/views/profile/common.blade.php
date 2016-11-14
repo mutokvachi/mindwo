@@ -5,6 +5,7 @@
   <link href="{{Request::root()}}/metronic/global/plugins/bootstrap-colorpicker/css/colorpicker.css" rel="stylesheet" type="text/css"/>
   <link href="{{Request::root()}}/plugins/select2/select2.css" rel="stylesheet"/>
   <link href="{{ elixir('css/elix_view.css') }}" rel="stylesheet"/>
+  <link href="{{ elixir('css/elix_employee_profile.css') }}" rel="stylesheet"/>
   <style type="text/css">
     .freeform .inline .form-control {
       display: inline-block;
@@ -21,25 +22,9 @@
       width: auto !important;
     }
     
-    .profile-sticky {
-      padding: 10px 0;
-      border-top: 1px solid #ddd;
-      z-index: 10;
-      background-color: white;
-    }
-    
-    .profile-sticky a:first-child {
-      margin-left: 20px;
-    }
-    
     .dx-employee-profile.is-admin .tiles .tile.double {
       width: auto !important;
       float: none;
-    }
-    
-    .stuck {
-      position: fixed;
-      bottom: 0;
     }
     
     .dx-contact-info {
@@ -91,15 +76,11 @@
         }
       });
       
-        $(window).on('beforeunload', function() {
-            if ($(".dx-stick-footer").is(":visible")) {
-              return 'Your changes have not been saved.';
-            }
-        });
-                  
-        show_page_splash(1);
-        
-      $('.freeform').FreeForm();
+      show_page_splash(1);
+      
+      $('.freeform').FreeForm({
+        names: ['description']
+      });
       $('.freeform').InlineForm({
         afterSave: function()
         {
@@ -109,37 +90,46 @@
             dataType: 'json',
             success: function(data)
             {
-              if(typeof data.success != "undefined" && data.success == 0)
-              {
-                notify_err(data.error);
-                return;
-              }
+                if(typeof data.success != "undefined" && data.success == 0)
+                {
+                  notify_err(data.error);
+                  return;
+                }
               
-              // update auxiliary info panels
-              for(var selector in data.chunks)
-              {
-                $(selector).first().html(data.chunks[selector]);
-              }
+                // update auxiliary info panels
+                for(var selector in data.chunks)
+                {
+                  $(selector).first().html(data.chunks[selector]);
+                }
               
-              $('.dx-employee-profile .dx-stick-footer .dx-left img').attr('src', $('.dx-employee-profile .employee-pic-box img').attr("src"));
-              $('.dx-employee-profile .dx-stick-footer .dx-left span.dx-empl-title').html($('.dx-employee-profile .employee-pic-box h4.dx-empl-title').html());
+                var img_src = DX_CORE.site_url + "assets/global/avatars/default_avatar_big.jpg";
+                
+                if ($('.dx-employee-panel .fileinput-preview img').length) {
+                    img_src = $('.dx-employee-panel .fileinput-preview img').attr("src");
+                }
+                $('.dx-employee-profile .dx-stick-footer .dx-left img').attr('src', img_src);
+                $('.dx-employee-profile .dx-stick-footer .dx-left span.dx-empl-title').html($('.dx-employee-profile .employee-pic-box h4.dx-empl-title').html());
             },
             error: function(jqXHR, textStatus, errorThrown)
             {
               console.log(textStatus);
               console.log(jqXHR);
+              console.log(errorThrown);
             }
-
           });
         }
       });
       
-      if($('.freeform').data('has_users_documents_access') == 1){
-        window.DxEmpPersDocs.init(function () {
-              hide_page_splash(1);
-          });
-      } else {
+      if($('.freeform').data('has_users_documents_access') == 1)
+      {
+        window.DxEmpPersDocs.init(function()
+        {
           hide_page_splash(1);
+        });
+      }
+      else
+      {
+        hide_page_splash(1);
       }
     });
   </script>
@@ -176,7 +166,7 @@
                 <i class="fa fa-trash-o"></i> {{ trans('form.btn_delete') }} </a>
             @endif
           </div>
-          <div class="tabbable-line">
+          <div class="tabbable-line tabbable-tabdrop">
             <ul class="nav nav-tabs">
               @if($is_edit_rights)
                 {!! $form->renderTabButtons() !!}

@@ -90,7 +90,7 @@
       </style>
   </head>
   
-  <body class="dx-main-page dx-horizontal-menu-ui"
+  <body class="dx-main-page dx-horizontal-menu-ui" style="overflow: hidden;"
     dx_valid_html_elements="{{ get_portal_config('VALID_HTML_ELEMENTS') }}"
     dx_valid_html_styles="{{ get_portal_config('VALID_HTML_STYLES') }}"
     dx_user_tasks_count="{{ $user_tasks_count }}"
@@ -164,15 +164,16 @@
                       <a href="javascript:;" class="dx-user-change-passw-link">
                         <i class="fa fa-key dx-user-menu"></i> {{ trans("frame.password_change") }} </a>
                     </li>
+                    <!--
                     <li class="hidden-sm hidden-md hidden-lg">
                       <a href="{{Request::root()}}/structure/doc_manual" class="">
                         <i class="fa fa-question-circle"></i> {{ trans("frame.user_manual") }}
                       </a>
                     </li>
-  
+                    -->
                     <li class="hidden-sm hidden-md hidden-lg">
                       <a href="{{Request::root()}}/logout" class="">
-                        <i class="fa fa-sign-out"></i> {{ trans("frame.logout") }}
+                        <i class="fa fa-sign-out dx-user-menu"></i> {{ trans("frame.logout") }}
                       </a>
                     </li>
                   </ul>
@@ -190,13 +191,13 @@
                   </li>
                   <!-- END TODO DROPDOWN -->
                 @endif
-                
+                <!--
                 <li class="dropdown hidden-xs">
                   <a href="{{Request::root()}}/structure/doc_manual" title="{{ trans("frame.user_manual") }}" class="dropdown-toggle top-link">
                     <i class="fa fa-question-circle"></i>
                   </a>
                 </li>
-                
+                -->
                 <li class="dropdown hidden-xs">
                   <a href="{{Request::root()}}/logout" title="{{ trans("frame.logout") }}" class="top-link">
                     <i class="fa fa-sign-out"></i>
@@ -339,6 +340,7 @@
           }
         });
         
+        // hide open submenus after screen resize
         $(window).resize(function()
         {
           if($(window).width() > 768)

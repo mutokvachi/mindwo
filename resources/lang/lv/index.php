@@ -8,6 +8,8 @@
 
 return [
         
+    'app_name' => env('APP_NAME', 'MEDUS'),
+    
     'logo_txt' => '',
     
     'site_title' => 'MEDUS :: SVS',

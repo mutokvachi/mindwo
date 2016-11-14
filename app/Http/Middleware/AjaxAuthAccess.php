@@ -19,7 +19,7 @@ class AjaxAuthAccess
     {
         if (Auth::guest()) {
             if ($request->ajax()) {
-                return response()->json(['success' => 0, 'error' => 'Lietotāja sesija ir beigusies!'], 401);
+                return response()->json(['success' => 0, 'error' => trans('errors.session_ended')], 401);
             } else {
                 return redirect()->guest('login');
             }

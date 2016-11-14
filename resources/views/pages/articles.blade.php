@@ -2,12 +2,7 @@
 
 @section('main_custom_css')
    
-    <link href="{{Request::root()}}/{{ getIncludeVersion('metronic/global/plugins/cubeportfolio/css/cubeportfolio.css') }}" rel="stylesheet" />    
-    <link href="{{Request::root()}}/{{ getIncludeVersion('css/pages/search_tools.css') }}" rel="stylesheet" type="text/css" />
-    
-    @if ($mode=='search')
-        <link href="{{Request::root()}}/{{ getIncludeVersion('metronic/global/plugins/bootstrap-daterangepicker/daterangepicker.min.css') }}" rel="stylesheet" type="text/css" />
-    @endif
+    <link href="{{ elixir('css/elix_articles.css') }}" rel="stylesheet" />
     
     <style>       
         .cbp-filter-item {
@@ -47,24 +42,24 @@
 @stop
 
 @section('main_content')
-    <h3 class="page-title">Portāls
-        <small>meklēšana</small>
+    <h3 class="page-title">{{ trans('article.page_title') }}
+        <small>{{ trans('article.sub_title') }}</small>
     </h3>
-
+    
     <div class="dx-articles-page"
         dx_block_guid = "{{ $block_guid }}"
         dx_articles_count = "{{ count($articles) }}"
         dx_mode = "{{ $mode }}"
         dx_current_type = "{{ $type_id }}"
         dx_search_criteria = "{{ urlencode($criteria) }}"
-        dx_search_searchType = "{{ urlencode('Ziņas') }}"
+        dx_search_searchType = "{{ urlencode(trans('search_top.news')) }}"
         dx_search_pick_date_from = "{{ $date_from }}"
         dx_search_pick_date_to = "{{ $date_to }}"
         >
         @if ($mode=='search')
             
             @include('search_tools.search_form', [
-                'criteria_title' => 'Meklēšanas frāze',
+                'criteria_title' => trans('article.search_placeholder'),
                 'fields_view' => 'search_tools.article_fields',
                 'form_url' => 'search'
             ])        
@@ -72,7 +67,7 @@
         @else
             <form action='{{Request::root()}}/raksti_{{ $tag_id }}' method='POST' id="search_form">
                 <input type="hidden" name='type' value='{{ $type_id }}' id="search_type">
-                <input type="hidden" name="searchType" value="Ziņas" />
+                <input type="hidden" name="searchType" value="{{ urlencode(trans('search_top.news')) }}" />
                 {!! csrf_field() !!}
             </form>
         @endif        
@@ -96,31 +91,18 @@
                             @foreach($articles as $article)
                                 @include('elements.articles_ele')
                             @endforeach
-                            {!! $articles->appends(['criteria' => urlencode($criteria), 'searchType' => urlencode('Ziņas'), 'type' => $type_id, 'pick_date_from' => $date_from, 'pick_date_to' => $date_to])->render() !!}
+                            {!! $articles->appends(['criteria' => urlencode($criteria), 'searchType' => urlencode(trans('search_top.news')), 'type' => $type_id, 'pick_date_from' => $date_from, 'pick_date_to' => $date_to])->render() !!}
                         </div>
                     </div>
                 </div>
             @else
                 <div class="alert alert-info" role="alert">
-                    Nav atrasts neviens atbilstošs ieraksts.
+                    {{ trans('search_top.nothing_found') }}
                 </div>
             @endif
     </div>
 @stop
 
-@section('main_custom_javascripts') 
-    <script src="{{ Request::root() }}/{{ getIncludeVersion('metronic/global/plugins/cubeportfolio/js/jquery.cubeportfolio.min.js') }}" type="text/javascript"></script>    
-    <script src="{{ Request::root() }}/{{ getIncludeVersion('plugins/jscroll/jquery.jscroll.js') }}" type="text/javascript"></script>
-   
-    @if ($mode=='search')
-        <script src="{{ Request::root() }}/{{ getIncludeVersion('metronic/global/plugins/moment.min.js') }}" type="text/javascript"></script>
-        <script src="{{ Request::root() }}/{{ getIncludeVersion('metronic/global/plugins/bootstrap-daterangepicker/daterangepicker.min.js') }}" type="text/javascript"></script>
-        
-        <script src="{{ Request::root() }}/{{ getIncludeVersion('js/pages/date_range.js') }}" type="text/javascript"></script>
-        
-    @endif     
-    
-    <script src='{{Request::root()}}/{{ getIncludeVersion('js/pages/search_tools.js') }}' type='text/javascript'></script>
-    <script src='{{Request::root()}}/{{ getIncludeVersion('js/pages/articles.js') }}' type='text/javascript'></script>
-    
+@section('main_custom_javascripts')   
+    <script src = "{{ elixir('js/elix_articles.js') }}" type='text/javascript'></script>
 @stop

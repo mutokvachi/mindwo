@@ -8,6 +8,8 @@
 
 return [
     
+    'app_name' => env('APP_NAME', 'MINDWO'),
+    
     'logo_txt' => '',
     
     'site_title' => 'MINDWO :: Login',

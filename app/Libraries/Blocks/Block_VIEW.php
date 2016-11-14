@@ -214,8 +214,8 @@ namespace App\Libraries\Blocks
                 }
                 else {
                     return view('elements.error', [
-                        'page_title' => "Piekļuve liegta",
-                        'message' => "Jums nav piepieciešamo tiesību, lai piekļūtu skata <b>" . $view_row->title . "</b> datiem!"
+                        'page_title' => trans('errors.access_denied_title'),
+                        'message' => sprintf(trans('errors.access_denied_msg'), $view_row->title)
                     ])->render();
                 }
             }

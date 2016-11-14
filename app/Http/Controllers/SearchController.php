@@ -35,7 +35,7 @@ class SearchController  extends Controller
             case trans("search_top.documents"):
                 return (new DocumentsController)->searchDocument($request);
             case trans("search_top.news"):
-                return (new \mindwo\pages\Controllers\ArticlesController)->searchArticle($request);
+                return (new ArticlesController)->searchArticle($request);
             default:
                 throw new Exceptions\DXCustomException(trans("search_top.news") . " (" . $search_type . ")!");
         }

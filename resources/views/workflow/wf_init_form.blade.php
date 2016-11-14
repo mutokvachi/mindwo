@@ -8,8 +8,8 @@
                     @include('elements.form_header',['form_title' => trans('workflow.wf_init_form_title'), 'badge' => ''])
                    				
                     <div class='modal-body' style="overflow-y: auto; max-height: 500px; padding-left: 40px;">
-                        <h2>Saskaņotāju iestatīšana</h2>
-                        <p>Ja nepieciešams, pirms darbplūsmas uzsākšanas variet koriģēt saskaņotāju secību, noņemt saskaņotāju vai pievienot vēl citus saskaņotājus.</p>
+                        <h2>{{ trans('workflow.wf_init_approvers_title') }}</h2>
+                        <p>{{ trans('workflow.wf_init_aproovers_hint') }}</p>
                         <div>
                             <button class="btn btn-primary dx-cms-wf-btn-add-approver" type="button">{{ trans('workflow.wf_init_btn_add_approver') }}</button>
                             

@@ -71,4 +71,13 @@ return [
     'import_zip_file_not_exists' => "ZIP arhīvā nav atrodama datne '%s'!",
     
     'import_zip_file_cant_copy' => "Nav iespējams kopēt datni '%s' uz katalogu '%s'!",
+    
+    'session_ended' => 'Lietotāja sesija ir beigusies!',
+    
+    'cant_edit_in_process' => 'Ierakstu nav iespējams rediģēt, jo tas atrodas darbplūsmā!',
+    
+    'access_denied_title' => 'Piekļuve liegta',
+    
+    'access_denied_msg' => 'Jums nav piepieciešamo tiesību, lai piekļūtu skata <b>%s</b> datiem!',    
+   
 ];
