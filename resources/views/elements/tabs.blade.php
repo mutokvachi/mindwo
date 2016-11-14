@@ -1,22 +1,26 @@
 <div class='panel blank-panel' id = '{{ $tab_id }}' dx_attr='tab'>
     <div class='panel-heading' style='background: transparent;'>
         <div class='panel-options'>
-            <ul class='nav nav-tabs'>
-                @foreach($tabs_items as $key => $item)
-                <li 
-                    @if ($key == 0)
-                        class='active'
-                    @endif
-                >
-                <a data-toggle='tab' class="dx-tab-link"
-                    @if ($key == 0)
-                        aria-expanded='true' 
-                    @else
-                        aria-expanded='false' 
-                    @endif
-                    href='#tabs_{{ $frm_uniq_id }}_{{ $item->id}}' tab_id='tabs_{{ $frm_uniq_id }}_{{ $item->id }}' grid_list_id='{{ $item->grid_list_id}}' grid_list_field_id='{{ $item->grid_list_field_id }}'>{{ $item->title }}</a></li>
-                @endforeach
-            </ul>
+            <div>
+                <div class="tabbable-line tabbable-tabdrop">
+                    <ul class='nav nav-tabs'>
+                        @foreach($tabs_items as $key => $item)
+                        <li 
+                            @if ($key == 0)
+                                class='active'
+                            @endif
+                        >
+                        <a data-toggle='tab' class="dx-tab-link"
+                            @if ($key == 0)
+                                aria-expanded='true' 
+                            @else
+                                aria-expanded='false' 
+                            @endif
+                            href='#tabs_{{ $frm_uniq_id }}_{{ $item->id}}' tab_id='tabs_{{ $frm_uniq_id }}_{{ $item->id }}' grid_list_id='{{ $item->grid_list_id}}' grid_list_field_id='{{ $item->grid_list_field_id }}'>{{ $item->title }}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
+            </diV>
         </div>
     </div>
     <div class='panel-body'>
@@ -42,6 +46,14 @@
         load_tab_grid('tabs_{{ $frm_uniq_id }}_{{ head($tabs_items)->id }}', {{ head($tabs_items)->grid_list_id }}, 0, {{ head($tabs_items)->grid_list_field_id }}, {{ $item_id }},'list_item_view_form_{{ $frm_uniq_id }}', 1, 5, 0);
     @endif
     
+    /*
+    if ($().tabdrop) {
+        $('#{{ $tab_id }}').find('.tabbable-tabdrop .nav-tabs').tabdrop({
+            text: '<i class="fa fa-ellipsis-v"></i>&nbsp;<i class="fa fa-angle-down"></i>'
+        });
+    }
+    */
+       
     $('#{{ $tab_id }} a.dx-tab-link').click(function () {
       if ($('#' + this.getAttribute('tab_id')).html().trim().length == 0)
       {
