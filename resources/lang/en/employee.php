@@ -35,7 +35,7 @@ return [
     
     'personal_docs' => [
         'new_doc' => 'New document',
-        'clear_doc' => 'Clear',
+        'clear_doc' => 'Clear document data',
         'save_docs' => 'Save documents',
         'country' => 'Country',
         'personal_doc_type' => 'Document type',
