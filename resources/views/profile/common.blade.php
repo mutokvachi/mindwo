@@ -45,10 +45,6 @@
       padding-left: 0px;
     }
     
-    .dx-page-container {
-      padding: 0px !important;
-    }
-    
     .page-content {
       background-color: white !important;
     }
@@ -56,6 +52,12 @@
     .dx-employee-profile {
       border: none;
       box-shadow: none !important;
+    }
+    
+    @media screen and (max-width: 767px) {
+      .dx-page-container {
+        padding: 20px 0 0 0 !important;
+      }
     }
   </style>
 @endsection
