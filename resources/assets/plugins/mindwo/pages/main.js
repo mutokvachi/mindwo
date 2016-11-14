@@ -638,6 +638,8 @@ var PageMain = function()
         
         // session ended - relogin required
         if (xhr.status == 401) {
+            hide_page_splash(1);
+            hide_form_splash(1);
             reLoginModal.modal("show");
             return;
         }
