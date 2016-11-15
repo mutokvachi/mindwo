@@ -8597,13 +8597,23 @@ var reLogin = window.reLogin = {
 			var collection = [];
 			this.dropdown.removeClass('hide');
 			this.element
-				.append(this.dropdown.find('li'))
+				.append(this.dropdown.find('li').not('.dx-sub'))
 				.find('>li')
 				.not('.tabdrop')
 				.each(function(){
 					if(this.offsetTop > 0) {
-						collection.push(this);
+                                            if (this.classList.contains("dx-sub-tab")) {
+                                                this.classList.add("dropdown-submenu");
+                                                this.classList.remove("dropdown");
+                                            }
+                                            collection.push(this);
 					}
+                                        else {
+                                            if (this.classList.contains("dx-sub-tab")) {
+                                                this.classList.add("dropdown");
+                                                this.classList.remove("dropdown-submenu");
+                                            }
+                                        }
 				});
 			if (collection.length > 0) {
 				collection = $(collection);
