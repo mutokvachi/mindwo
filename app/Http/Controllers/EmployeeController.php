@@ -150,7 +150,7 @@ class EmployeeController extends Controller
         
         return view('pages.employees', [
             'employees' => $employees,
-            'page_title' => "Meklēšanas rezultāti",
+            'page_title' => trans('search_top.search_page_title'),
             'block_guid' => Uuid::generate(4),
             'avatar' => get_portal_config('EMPLOYEE_AVATAR'),
             'source_icon' => get_portal_config('DATASOURCE_ICON_CLASS'),

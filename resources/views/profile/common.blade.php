@@ -170,6 +170,25 @@
             <ul class="nav nav-tabs">
               @if($is_edit_rights)
                 {!! $form->renderTabButtons() !!}
+                <li class="dropdown dx-sub-tab">
+                    <a href="javascript:;" id="myTabDrop1" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> Qualification
+                        <i class="fa fa-angle-down"></i>
+                    </a>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="myTabDrop1">
+                        <li class="dx-sub">
+                            <a href="#tab_2_3" tabindex="-1" data-toggle="tab"> Languages </a>
+                        </li>
+                        <li class="dx-sub">
+                            <a href="#tab_2_4" tabindex="-1" data-toggle="tab"> Links </a>
+                        </li>
+                        <li class="dx-sub">
+                            <a href="#tab_2_3" tabindex="-1" data-toggle="tab"> Education </a>
+                        </li>
+                        <li class="dx-sub">
+                            <a href="#tab_2_4" tabindex="-1" data-toggle="tab"> Certificates </a>
+                        </li>
+                    </ul>
+                </li>
               @endif
               @section('profile_tabs')
               @show
@@ -177,7 +196,7 @@
           </div>
           <div class="tab-content" style="padding-top: 20px;">
             @if($is_edit_rights)
-              {!! $form->renderTabContents() !!}
+              {!! $form->renderTabContents() !!}                
             @endif
             @section('profile_tabs_content')
             @show

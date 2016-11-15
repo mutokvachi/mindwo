@@ -331,6 +331,9 @@ Multi level menu
   margin-left: 10px;
   border-radius: 6px 0 6px 6px;
 }
+.dx-sub-tab.dropdown-submenu i.fa-angle-down {
+  color: transparent;
+}
 
 .employee-pic-box .fileinput-preview:empty {
   background: url(../../assets/global/avatars/default_avatar_big.jpg) no-repeat center;

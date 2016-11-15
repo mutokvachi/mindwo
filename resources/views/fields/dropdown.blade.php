@@ -14,7 +14,7 @@
     @if ($is_disabled)
      
         <input type=hidden id='{{ $frm_uniq_id }}_{{ $item_field }}' value='{{ $item_value }}' name = '{{ $item_field }}' />
-        <input class='form-control dx-rel-id-text' disabled 
+        <input class='form-control dx-rel-id-text' readonly 
 
         @foreach($items as $item)
             @if ($item->id == $item_value)
