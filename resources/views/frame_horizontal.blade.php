@@ -61,6 +61,10 @@
       
       <link rel="shortcut icon" href="{{Request::root()}}/favicon.ico">
       <style>
+        .dx-main-menu-toggle {
+          margin-right: 0;
+        }
+        
         @media screen and (max-width: 767px) {
           .navbar {
             min-height: auto;
@@ -139,7 +143,7 @@
       </div>
       
       <div class="container-fluid" style='background-color: white;'>
-        <div class="row" style="margin-right: 0px!important;">
+        <div class="row">
           <div class="col-xs-6 col-sm-4 col-md-2 navbar-header">
             
             @if (!trans('index.logo_txt'))
@@ -153,8 +157,8 @@
             @endif
           </div>
           
-          <div class="col-xs-6 col-sm-8 col-md-10">
-            <button type="button" class="navbar-toggle collapsed" style="top: 8px;" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <div class="col-xs-6 col-sm-8 col-md-10" style="padding-right: 20px">
+            <button type="button" class="navbar-toggle collapsed dx-main-menu-toggle" style="top: 8px;" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
               <span class="sr-only">Toggle navigation</span>
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>

@@ -139,6 +139,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'employee'], function() {
 
     Route::get('profile/{id?}', 'EmplProfileController@show')->name('profile');
     Route::get('profile/{id}/chunks', ['as' => 'profile_chunks', 'middleware' => 'auth_ajax', 'uses' => 'EmplProfileController@ajaxShowChunks']);
+	Route::get('profile/{id}/tabs', ['as' => 'profile_tabs', 'middleware' => 'auth_ajax', 'uses' => 'EmplProfileController@ajaxShowTab']);
     Route::get('new', 'EmplProfileController@create');
 });
 
