@@ -148,7 +148,7 @@ gulp.task('mix_all', function() {
             'codemirror/js/mode/javascript/javascript.js',        
             'datetimepicker/jquery.datetimepicker.js',
             'select2/select2.min.js',
-            //'select2/select2_locale_lv.js', ToDo: implement universal approach to set lang
+            'select2/select2_locale_multi.js',
             'jquery-nestable/jquery.nestable.js',
             'mindwo/pages/date_range.js',
             'mindwo/dx_forms_core.js',

@@ -74,38 +74,6 @@ class EmplProfileController extends Controller
 		]);
 	}
 	
-	public function ajaxShowChunks($id)
-	{
-		$employee = App\User::find($id);
-		
-		$result = [
-			'success' => 1,
-			'chunks' => []
-		];
-		
-		$form = new App\Libraries\Forms\Form(Config::get('dx.employee_list_id'), $id);
-		$form->disabled = true;
-		
-		$result['chunks']['.dx-employee-panel'] = view('profile.panel', [
-			'mode' => 'show',
-			'employee' => $employee,
-			'avail' => $employee->getAvailability(),
-			'form' => $form,
-			'is_my_profile' => $id == Auth::user()->id,
-			'is_edit_rights' => $this->getEditRightsMode()
-		])->render();
-		
-		$result['chunks']['.dx-employee-hired'] = view('profile.tile_hired', [
-			'employee' => $employee,
-		])->render();
-		
-		$result['chunks']['.dx-employee-manager'] = view('profile.tile_manager', [
-			'employee' => $employee,
-		])->render();
-		
-		return response($result);
-	}
-	
 	public function edit($id, Request $request)
 	{
 		$employee = App\User::find($id);
@@ -140,5 +108,57 @@ class EmplProfileController extends Controller
 		}
 		
 		return $is_edit_rights;
+	}
+	
+	public function ajaxShowChunks($id)
+	{
+		$employee = App\User::find($id);
+		
+		$result = [
+			'success' => 1,
+			'chunks' => []
+		];
+		
+		$form = new App\Libraries\Forms\Form(Config::get('dx.employee_list_id'), $id);
+		$form->disabled = true;
+		
+		$result['chunks']['.dx-employee-panel'] = view('profile.panel', [
+			'mode' => 'show',
+			'employee' => $employee,
+			'avail' => $employee->getAvailability(),
+			'form' => $form,
+			'is_my_profile' => $id == Auth::user()->id,
+			'is_edit_rights' => $this->getEditRightsMode()
+		])->render();
+		
+		$result['chunks']['.dx-employee-hired'] = view('profile.tile_hired', [
+			'employee' => $employee,
+		])->render();
+		
+		$result['chunks']['.dx-employee-manager'] = view('profile.tile_manager', [
+			'employee' => $employee,
+		])->render();
+		
+		return response($result);
+	}
+	
+	public function ajaxShowTab(Request $request, $id)
+	{
+		$employee = App\User::find($id);
+		$tabId = $request->input('tab_id');
+		
+		$result = [
+			'success' => 1,
+			'html' => ''
+		];
+		
+		$result['html'] = view('profile.'.$tabId, [
+			'mode' => 'show',
+			'employee' => $employee,
+			'is_my_profile' => $id == Auth::user()->id,
+			'is_edit_rights' => $this->getEditRightsMode()
+		])->render();
+		
+		return response($result);
 	}
 }

@@ -1,7 +1,7 @@
 @if($counter = 0)
 @endif
   @foreach($tabs as $key => $tab)
-    <div class="tab-pane fade {{ $counter == 0 ? 'active in' : '' }}" id='tabs_{{ $formUid }}_{{ $tab->id }}' data-tab-title="{{ $tab->title }}">
+    <div class="tab-pane fade {{ $counter == 0 && !$is_tabdrop ? 'active in' : '' }}{{ (!$tab->is_custom_data) ? ' dx-grid-tab-pane' : '' }}" id='tabs_{{ $formUid }}_{{ $tab->id }}' data-tab-title="{{ $tab->title }}">
       @if ($tab->is_custom_data)
         <div
           dx_tab_id="{{ $tab->id }}"

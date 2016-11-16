@@ -61,6 +61,10 @@
       
       <link rel="shortcut icon" href="{{Request::root()}}/favicon.ico">
       <style>
+        .dx-main-menu-toggle {
+          margin-right: 0;
+        }
+        
         @media screen and (max-width: 767px) {
           .navbar {
             min-height: auto;
@@ -84,6 +88,11 @@
           
           .dropdown-submenu:hover > .dropdown-menu {
             display: none;
+          }
+          
+          .dx-top-right-menu {
+            float: right;
+            margin-right: 10px !important;
           }
         }
         
@@ -148,7 +157,13 @@
             @endif
           </div>
           
-          <div class="col-xs-4 col-sm-8 col-md-10">
+          <div class="col-xs-6 col-sm-8 col-md-10" style="padding-right: 20px">
+            <button type="button" class="navbar-toggle collapsed dx-main-menu-toggle" style="top: 8px;" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
             <ul class="nav navbar-nav navbar-right dx-top-right-menu">
             @if (Auth::check() && Auth::user()->id != Config::get('dx.public_user_id',0))
               
@@ -206,14 +221,7 @@
               
               @endif
             </ul>
-          </div>
-          <div class="col-xs-2 hidden-sm hidden-md hidden-lg hidden-xl">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-              <span class="sr-only">Toggle navigation</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
+            <!-- hidden-sm hidden-md hidden-lg -->
           </div>
         </div>
       </div>
