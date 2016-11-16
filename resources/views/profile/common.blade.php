@@ -228,6 +228,20 @@
       {
         hide_page_splash(1);
       }
+      
+      // set tabs links for sub-grids
+      $('.dx-employee-profile a.dx-tab-link').click(function (e) {
+        if ($('#' + this.getAttribute('tab_id')).html().trim().length == 0)
+        {
+            if ('{{ $mode }}' == 'create') {
+                e.preventDefault();
+                e.stopPropagation();
+                notify_err('Please, save the new employee profile and then will be possible to enter related data!');
+                return;
+            }
+            load_tab_grid(this.getAttribute('tab_id') ,this.getAttribute('grid_list_id'), 0, this.getAttribute('grid_list_field_id'), {{ $mode == 'create' ? 0 : $employee->id }}, $(".dx-employee-profile").attr("id"), 1, 5, 1);
+        }
+      });
     });
   </script>
 @endsection
@@ -267,25 +281,16 @@
             <ul class="nav nav-tabs">
               @if($is_edit_rights)
                 {!! $form->renderTabButtons() !!}
+                                
                 <li class="dropdown dx-sub-tab">
                     <a href="javascript:;" id="myTabDrop1" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> Qualification
                         <i class="fa fa-angle-down"></i>
-                    </a>
+                    </a>                    
                     <ul class="dropdown-menu" role="menu" aria-labelledby="myTabDrop1">
-                        <li class="dx-sub">
-                            <a href="#tab_2_3" tabindex="-1" data-toggle="tab"> Languages </a>
-                        </li>
-                        <li class="dx-sub">
-                            <a href="#tab_2_4" tabindex="-1" data-toggle="tab"> Links </a>
-                        </li>
-                        <li class="dx-sub">
-                            <a href="#tab_2_3" tabindex="-1" data-toggle="tab"> Education </a>
-                        </li>
-                        <li class="dx-sub">
-                            <a href="#tab_2_4" tabindex="-1" data-toggle="tab"> Certificates </a>
-                        </li>
+                        {!! $form->renderSubgridTabButtons("_qualification", ['Languages', 'Links', 'Education', 'Certificates', 'CVs & other'], 1) !!}                        
                     </ul>
                 </li>
+                
               @endif
               @section('profile_tabs')
               @show
@@ -297,6 +302,9 @@
             @endif
             @section('profile_tabs_content')
             @show
+            
+            {!! $form->renderSubgridTabContents("_qualification", ['Languages', 'Links', 'Education', 'Certificates', 'CVs & other'], 1) !!}
+            
           </div>
         </div>
       </div>

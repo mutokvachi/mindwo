@@ -143,7 +143,7 @@
       </div>
       
       <div class="container-fluid" style='background-color: white;'>
-        <div class="row">
+        <div class="row" style="margin-right: 0px!important;">
           <div class="col-xs-6 col-sm-4 col-md-2 navbar-header">
             
             @if (!trans('index.logo_txt'))
