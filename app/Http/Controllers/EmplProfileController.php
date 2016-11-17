@@ -24,7 +24,7 @@ class EmplProfileController extends Controller
 		
 		$form = new App\Libraries\Forms\Form(Config::get('dx.employee_list_id'));
 		$form->disabled = false;
-		$form->tabList = ['General', 'Personal details', 'Work details', 'Workplace', 'Contact details', 'Addresses'];
+		$form->tabList = [trans('empl_profile.tab_general'), trans('empl_profile.tab_pdetails'), trans('empl_profile.tab_wdetails'), trans('empl_profile.tab_wplace'), trans('empl_profile.tab_cdetails'), trans('empl_profile.tab_addr')];
 		$form->skipFields = ['picture_name'];
 		
 		return view('profile.employee', [
