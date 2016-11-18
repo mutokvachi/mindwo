@@ -29,14 +29,16 @@ class Block_CONGRATULATE extends Block
 	
 	public function getTypeOfEvent($employee)
 	{
-                if ($employee->birth_date && !$employee->join_date) {
-                    return 'Birthday';
-                }
-                
-                if (!$employee->birth_date && $employee->join_date) {
-                    return $this->getAnniversTxt($employee->join_date);
-                }
-            
+		if($employee->birth_date && !$employee->join_date)
+		{
+			return 'Birthday';
+		}
+		
+		if(!$employee->birth_date && $employee->join_date)
+		{
+			return $this->getAnniversTxt($employee->join_date);
+		}
+		
 		$now = Carbon::now();
 		
 		$birth = Carbon::createFromFormat('Y-m-d', $employee->birth_date);
@@ -48,7 +50,7 @@ class Block_CONGRATULATE extends Block
 		
 		else
 		{
-                        return $this->getAnniversTxt($employee->join_date);
+			return $this->getAnniversTxt($employee->join_date);
 		}
 	}
 	
@@ -100,45 +102,44 @@ END;
 				->whereMonth('birth_date', '=', $now->month)
 				->whereDay('birth_date', '=', $now->day);
 		})
-		->orWhere(function ($query) use ($now)
-		{
-			$query
-				->whereMonth('join_date', '=', $now->month)
-				->whereDay('join_date', '=', $now->day);
-		})
-		->get()
-			
-		// check permissions
-		->filter(function ($employee) use ($user)
-		{
-			// logged user is admin
-			if($user->id == 1)
+			->orWhere(function ($query) use ($now)
 			{
-				return true;
-			}
-			
-			// employee doesn't have any access rights specified
-			if(!count($employee->access))
+				$query
+					->whereMonth('join_date', '=', $now->month)
+					->whereDay('join_date', '=', $now->day);
+			})
+			->get()
+			// check permissions
+			->filter(function ($employee) use ($user)
 			{
-				return true;
-			}
-			
-			// check if logged in user has the same access role
-			foreach($employee->access as $role)
-			{
-				$tmp = $user->access->filter(function ($item) use ($role)
-				{
-					return $item->id == $role->id;
-				});
-				
-				if(count($tmp))
+				// logged user is admin
+				if($user->id == 1)
 				{
 					return true;
 				}
-			}
-			
-			return false;
-		});
+				
+				// employee doesn't have any access rights specified
+				if(!count($employee->access))
+				{
+					return true;
+				}
+				
+				// check if logged in user has the same access role
+				foreach($employee->access as $role)
+				{
+					$tmp = $user->access->filter(function ($item) use ($role)
+					{
+						return $item->id == $role->id;
+					});
+					
+					if(count($tmp))
+					{
+						return true;
+					}
+				}
+				
+				return false;
+			});
 		
 		return $this->employees;
 	}
@@ -147,26 +148,33 @@ END;
 	{
 		// TODO: Implement parseParams() method.
 	}
-        
-        private function getAnniversTxt($join_date) {
-            $now = Carbon::now();
-            $join = Carbon::createFromFormat('Y-m-d', $join_date);
-            if($join->month == $now->month && $join->day == $now->day)
-            {
-                    $yrs = $now->year - $join->year;
-                    $txt = 'Work anniversary - ';
-                    if ($yrs == 0) {
-                        $txt = "Joined today";
-                    }
-                    else if ($yrs == 1) {
-                        $txt .= $yrs . " year";
-                    }
-                    else {
-                        $txt .= $yrs . " years";
-                    }
-                    return $txt;
-            }
-        }
+	
+	private function getAnniversTxt($join_date)
+	{
+		$now = Carbon::now();
+		$join = Carbon::createFromFormat('Y-m-d', $join_date);
+		if($join->month == $now->month && $join->day == $now->day)
+		{
+			$yrs = $now->year - $join->year;
+			$txt = 'Work anniversary - ';
+			if($yrs == 0)
+			{
+				$txt = "Joined today";
+			}
+			else
+			{
+				if($yrs == 1)
+				{
+					$txt .= $yrs . " year";
+				}
+				else
+				{
+					$txt .= $yrs . " years";
+				}
+			}
+			return $txt;
+		}
+	}
 }
 
 ?>
