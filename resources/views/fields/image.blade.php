@@ -8,7 +8,7 @@
       <span class='btn btn-primary btn-file'>
         <span class='fileinput-new'>{{ trans('fields.btn_set') }}</span>
         <span class='fileinput-exists'>{{ trans('fields.btn_change') }}</span>
-        <input type='file' name='{{ $item_field }}'/>
+        <input type='file' name='{{ $item_field }}' accept="{{ $ext }}"/>
         <input class='fileinput-remove-mark' type='hidden' value='0' name='{{ $item_field_remove }}'/>
       </span>
       <a href='#' class='btn btn-white fileinput-exists' data-dismiss='fileinput'>{{ trans('fields.btn_remove') }}</a>

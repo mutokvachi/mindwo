@@ -71,6 +71,7 @@ function view_list_item(ajax_url, item_id, list_id, rel_field_id, rel_field_valu
             return;
 	}
         
+        show_form_splash();
 	start_executing(grid_htm_id);
         
         var formData = new FormData();
@@ -88,8 +89,7 @@ function view_list_item(ajax_url, item_id, list_id, rel_field_id, rel_field_valu
         }
         
         request.callback = function(data) {
-            show_form_splash();
-
+            
             if (data['success'] == 1)
             {                  
                 if (data['is_fullscreen']) {
