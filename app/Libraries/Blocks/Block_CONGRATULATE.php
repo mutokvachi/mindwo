@@ -29,8 +29,12 @@ class Block_CONGRATULATE extends Block
 	
 	public function getTypeOfEvent($employee)
 	{
+                if ($employee->birth_date && !$employee->join_date) {
+                    return 'Birthday';
+                }
+            
 		$now = Carbon::now();
-		$join = Carbon::createFromFormat('Y-m-d', $employee->join_date);
+		
 		$birth = Carbon::createFromFormat('Y-m-d', $employee->birth_date);
 		
 		if($birth->month == $now->month && $birth->day == $now->day)
@@ -40,7 +44,8 @@ class Block_CONGRATULATE extends Block
 		
 		else
 		{
-			if($join->month == $now->month && $join->day == $now->day)
+			$join = Carbon::createFromFormat('Y-m-d', $employee->join_date);
+                        if($join->month == $now->month && $join->day == $now->day)
 			{
 				return 'Work anniversary - ' . ($now->year - $join->year) . ' year(s)';
 			}

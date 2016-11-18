@@ -29,15 +29,14 @@ gulp.task('mix_all', function() {
 
         // Core styles for main page - plugins
         mix.styles([
-            'pace/themes/pace-theme-flash.css', 
-            //'simple-line-icons/simple-line-icons.css', // url fonts/
-            //'uniform/css/uniform.default.css', // url ../images/
+            'pace/themes/pace-theme-flash.css',
             'bootstrap-switch/css/bootstrap-switch.css', 
             'morris/morris.css', 
             'jqvmap/jqvmap/jqvmap.css',
-            //'icheck/skins/all.css', // @import ... seems must remove this css 
             'fullcalendar/fullcalendar.min.css', 
             'metronic/css/faq.min.css', 
+            'metronic/css/components-md.css',
+            'metronic/css/components.css',
             'bootstrap-modal/css/bootstrap-modal.css',
             'toastr/toastr.min.css',
             'tooltipster-master/css/tooltipster.css', 

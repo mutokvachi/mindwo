@@ -1,7 +1,7 @@
 @if(count($events))
   <div class="portlet widget-activities" dx_block_id="activities">
     <div class="portlet-title">
-      <div class="caption font-grey-cascade uppercase">ACTIVITIES</span></div>
+      <div class="caption font-grey-cascade uppercase">LATEST ACTIVITIES</span></div>
       <div class="tools">
         <a class="collapse" href="javascript:;"> </a>
       </div>

@@ -53,7 +53,7 @@ END;
 		if($this->events)
 			return $this->events;
 		
-		$this->events = Models\Event::all()->reverse();
+		$this->events = Models\Event::limit(10)->orderBy('id', 'DESC')->get();
 		
 		return $this->events;
 	}
