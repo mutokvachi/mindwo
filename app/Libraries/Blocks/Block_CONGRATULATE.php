@@ -32,6 +32,10 @@ class Block_CONGRATULATE extends Block
                 if ($employee->birth_date && !$employee->join_date) {
                     return 'Birthday';
                 }
+                
+                if (!$employee->birth_date && $employee->join_date) {
+                    return $this->getAnniversTxt($employee->join_date);
+                }
             
 		$now = Carbon::now();
 		
@@ -44,11 +48,7 @@ class Block_CONGRATULATE extends Block
 		
 		else
 		{
-			$join = Carbon::createFromFormat('Y-m-d', $employee->join_date);
-                        if($join->month == $now->month && $join->day == $now->day)
-			{
-				return 'Work anniversary - ' . ($now->year - $join->year) . ' year(s)';
-			}
+                        return $this->getAnniversTxt($employee->join_date);
 		}
 	}
 	
@@ -147,6 +147,26 @@ END;
 	{
 		// TODO: Implement parseParams() method.
 	}
+        
+        private function getAnniversTxt($join_date) {
+            $now = Carbon::now();
+            $join = Carbon::createFromFormat('Y-m-d', $join_date);
+            if($join->month == $now->month && $join->day == $now->day)
+            {
+                    $yrs = $now->year - $join->year;
+                    $txt = 'Work anniversary - ';
+                    if ($yrs == 0) {
+                        $txt = "Joined today";
+                    }
+                    else if ($yrs == 1) {
+                        $txt .= $yrs . " year";
+                    }
+                    else {
+                        $txt .= $yrs . " years";
+                    }
+                    return $txt;
+            }
+        }
 }
 
 ?>
