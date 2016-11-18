@@ -56,6 +56,10 @@ namespace App\Libraries\FieldsHtm
         {
         }
         
+        /**
+         * Returns allowed extensions and mime types seperated by coma
+         * @return string Allowed extensions and mime types seperated by coma
+         */
         private function getAllowedExt() {
             
             if ($this->fld_attr->is_readonly) {
