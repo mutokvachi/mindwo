@@ -236,7 +236,7 @@
             if ('{{ $mode }}' == 'create') {
                 e.preventDefault();
                 e.stopPropagation();
-                notify_err('Please, save the new employee profile and then will be possible to enter related data!');
+                notify_err(Lang.get('empl_profile.err_first_save_new_item'));
                 return;
             }
             load_tab_grid(this.getAttribute('tab_id') ,this.getAttribute('grid_list_id'), 0, this.getAttribute('grid_list_field_id'), {{ $mode == 'create' ? 0 : $employee->id }}, $(".dx-employee-profile").attr("id"), 1, 5, 1);
@@ -279,32 +279,36 @@
           </div>
           <div class="tabbable-line tabbable-tabdrop">
             <ul class="nav nav-tabs">
-              @if($is_edit_rights)
-                {!! $form->renderTabButtons() !!}
-                                
-                <li class="dropdown dx-sub-tab">
-                    <a href="javascript:;" id="myTabDrop1" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> Qualification
-                        <i class="fa fa-angle-down"></i>
-                    </a>                    
-                    <ul class="dropdown-menu" role="menu" aria-labelledby="myTabDrop1">
-                        {!! $form->renderSubgridTabButtons("_qualification", ['Languages', 'Links', 'Education', 'Certificates', 'CVs & other'], 1) !!}                        
-                    </ul>
-                </li>
+                @if($is_edit_rights)
+                  {!! $form->renderTabButtons() !!}
+                @endif
                 
-              @endif
-              @section('profile_tabs')
-              @show
+                @section('profile_tabs')
+                @show
+
+                @if($is_edit_rights)
+                  <li class="dropdown dx-sub-tab">
+                      <a href="javascript:;" id="myTabDrop1" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> {{ trans('empl_profile.qualif_menu') }}
+                          <i class="fa fa-angle-down"></i>
+                      </a>                    
+                      <ul class="dropdown-menu" role="menu" aria-labelledby="myTabDrop1">
+                          {!! $form->renderSubgridTabButtons("_qualification", [trans('empl_profile.tab_lang'), trans('empl_profile.tab_links'), trans('empl_profile.tab_educ'), trans('empl_profile.tab_cert'), trans('empl_profile.tab_cv')], 1) !!}                        
+                      </ul>
+                  </li>
+                @endif
             </ul>
           </div>
           <div class="tab-content" style="padding-top: 20px;">
             @if($is_edit_rights)
               {!! $form->renderTabContents() !!}                
             @endif
+            
             @section('profile_tabs_content')
             @show
             
-            {!! $form->renderSubgridTabContents("_qualification", ['Languages', 'Links', 'Education', 'Certificates', 'CVs & other'], 1) !!}
-            
+            @if($is_edit_rights)
+                {!! $form->renderSubgridTabContents("_qualification", [trans('empl_profile.tab_lang'), trans('empl_profile.tab_links'), trans('empl_profile.tab_educ'), trans('empl_profile.tab_cert'), trans('empl_profile.tab_cv')], 1) !!}
+            @endif
           </div>
         </div>
       </div>

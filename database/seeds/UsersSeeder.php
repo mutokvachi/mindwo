@@ -16,8 +16,6 @@ class UsersSeeder extends Seeder
      */
     public function run()
     {
-		$users = factory(App\User::class, 10)->create()->each(function($user) {
-			$user->roles()->save(factory(App\Models\UserRoles::class)->make());
-		});
+		factory(App\User::class, 10)->create();
     }
 }
