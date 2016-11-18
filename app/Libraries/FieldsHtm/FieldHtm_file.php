@@ -2,6 +2,7 @@
 
 namespace App\Libraries\FieldsHtm
 {
+    use DB;
     
     /**
      * Datnes lauka attēlošanas klase. Attēlo 3 veida laukus: multi datņu pievienošana, attēls vai parasta datne
@@ -43,7 +44,8 @@ namespace App\Libraries\FieldsHtm
                         'item_value' => $this->item_value,
                         'is_disabled' => ($this->fld_attr->is_readonly) ? 1 : $this->is_disabled_mode,
                         'class_exist' => $class_exist,
-                        'is_required' => $this->fld_attr->is_required
+                        'is_required' => $this->fld_attr->is_required,
+                        'ext' => $this->getAllowedExt()
             ])->render();
         }
 
@@ -52,6 +54,30 @@ namespace App\Libraries\FieldsHtm
          */
         protected function setDefaultVal()
         {
+        }
+        
+        private function getAllowedExt() {
+            
+            if ($this->fld_attr->is_readonly) {
+                return "";
+            }
+            
+            $extensions =   DB::table('dx_files_headers')->where(function($query) {
+                                if ($this->fld_attr->is_image_file) {
+                                    $query->where('is_img', '=', 1);
+                                }
+                            })->get();
+            
+            $ext_txt = "";
+            foreach($extensions as $ext) {
+               if (strlen($ext_txt) > 0) {
+                   $ext_txt .= ",";
+               } 
+               
+               $ext_txt .= "." . $ext->extention . "," . $ext->content_type;
+            }
+            
+            return $ext_txt;
         }
 
     }

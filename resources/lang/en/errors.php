@@ -33,6 +33,7 @@ return [
     
     // 1. %s - file extension, 2. %s - file name
     'unsuported_file_extension' => "Unsupported file extension '%s'! The file '%s' cannot be saved.",
+    'unsuported_image_file' => "Unsupported picture file extension '%s'! The file '%s' cannot be saved.",
     
      // %s - minimum password characters count
     'min_password' => "The data cannot be saved! Password must have at least %s characters!",
