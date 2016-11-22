@@ -13,11 +13,11 @@ class AddFileImgMark extends Migration
      */
     public function up()
     {
-        /*
+        
         Schema::table('dx_files_headers', function (Blueprint $table) {
             $table->boolean('is_img')->nullable()->default(false)->comment = "Is image"; 
         });
-        */
+        
         DB::table('dx_files_headers')->whereIn('extention', $this->arrExt)->update(['is_img' => 1]);
     }
 
