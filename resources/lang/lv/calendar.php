@@ -23,4 +23,10 @@ return [
     */
     
     'days_arr' => ['Svētdiena', 'Pirmdiena', 'Otrdiena', 'Trešdiena', 'Ceturtdiena', 'Piektdiena', 'Sestdiena'],
+    
+    'lbl_month' => 'Mēnesis',
+    'lbl_month_from' => 'Mēnesis no',
+    
+    'lbl_day' => 'Diena',
+    'lbl_day_from' => 'Diena no',
 ];

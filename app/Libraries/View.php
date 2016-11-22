@@ -540,15 +540,8 @@ namespace App\Libraries {
 						$fld = $this->list_obj_db_name . "." . $row->db_name;
 					}
 					
-					if ($row->sys_name == "bool")
-					{
-						$sql_fields =  $sql_fields . "case when " . $fld . "=1 then 'Jā' else 'Nē' end as " . $fld_name;
-					}
-					else
-					{
-						$sql_fields =  $sql_fields . $fld . " as " . $fld_name;
-					}
-					
+                                        $sql_fields =  $sql_fields . $fld . " as " . $fld_name;
+										
 					if ($row->sys_name == "email")
 					{
 						array_push ($this->email_fld_arr, $fld_name); // we put all email fields in array which can be used to process email sending logic

@@ -174,7 +174,7 @@
                     <span class="username hidden-xs"> {{ Auth::user()->display_name }} </span>
                     <i class="fa fa-angle-down"></i>
                   </a>
-                  <ul class="dropdown-menu dropdown-menu-default">
+                  <ul class="dropdown-menu dropdown-menu-default dx-sub-menu-right">
                     <li>
                       <a href="javascript:;" class="dx-user-change-passw-link">
                         <i class="fa fa-key dx-user-menu"></i> {{ trans("frame.password_change") }} </a>
