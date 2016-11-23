@@ -5,10 +5,11 @@ namespace App\Libraries\Blocks;
 use App;
 use App\Models;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 
 class Block_ACTIVITIES extends Block
 {
-	protected $events;
+	protected $events, $lists = [], $groups = [], $user;
 	
 	public function getHtml()
 	{
@@ -28,6 +29,7 @@ class Block_ACTIVITIES extends Block
 				$(document).ready(function(){
 					var items = $('.widget-activities .mt-actions > .mt-action');
 					var mult = (items.length < 5 ? items.length : 5);
+					
 					$('.widget-activities .mt-actions').slimScroll({
 						height: (items.first().outerHeight() * mult) + 'px'
 					});
@@ -37,25 +39,58 @@ class Block_ACTIVITIES extends Block
 					$('.widget-activities .mt-action-buttons .dx-button-history').click(function(){
 						view_list_item('form', $(this).data('item_id'), $(this).data('list_id'), 0, 0, '', '');
 					});
-					$('.widget-activities > .portlet-title .dropdown-menu a').click(function(){
-						console.log($(this).data('group'));
-						var buttons = $('.widget-activities > .portlet-title > .actions > .btn-group > ul > li > a');
-						var items = $('.widget-activities > .portlet-body .mt-actions > .mt-action');
+					
+					var labels = $('.widget-activities > .portlet-title > .actions > .btn-group label');
+					var checkboxes = $('.widget-activities > .portlet-title > .actions > .btn-group input');
+					
+					labels.click(function(e)
+					{
+						e.stopPropagation();
+					});
+					
+					checkboxes.change(function(){
+						var request = {
+							param: 'OBJ=ACTIVITIES',
+							groups: []
+						};
 						
-						if($(this).data('group') == '-1')
+						checkboxes.each(function()
 						{
-							buttons.removeClass('active');
-							items.filter(':hidden').show();
-							return;
-						}
+							if($(this).is(':checked'))
+							{
+								request.groups.push($(this).val());
+							}
+						});
 						
-						if(!$(this).hasClass('active'))
-						{
-							buttons.removeClass('active');
-							$(this).addClass('active');
-							items.filter(':visible').hide();
-							items.filter('[data-group="' + $(this).data('group') + '"]').show();
-						}
+						show_page_splash(1);
+						
+						$.ajax({
+							type: 'POST',
+							url: DX_CORE.site_url + 'block_ajax',
+							dataType: 'json',
+							data: request,
+							success: function(data)
+							{
+								if(typeof data.success != "undefined" && data.success == 0)
+								{
+									notify_err(data.error);
+									hide_page_splash(1);
+									return;
+								}
+								
+								var root = $('.widget-activities > .portlet-body .mt-actions');
+								
+								root.html(data.html);
+								
+								hide_page_splash(1);
+							},
+							error: function(jqXHR, textStatus, errorThrown)
+							{
+								console.log(textStatus);
+								console.log(jqXHR);
+								hide_page_splash(1);
+							}
+						});
 					});
 				});
 			</script>
@@ -73,28 +108,62 @@ END;
 				.widget-activities > .portlet-title > .actions > .btn-group > ul > li > a.active {
 					background-color: #ddd;
 				}
+				.widget-activities .mt-checkbox-list {
+					padding: 10px;
+				}
+				.widget-activities label {
+					display: block;
+					white-space: nowrap;
+				}
 			</style>
 END;
 	}
 
 	public function getJSONData()
 	{
-		// TODO: Implement getJSONData() method.
+		return [
+			'groups' => $this->groups,
+			'lists' => $this->lists
+		];
 	}
 	
 	protected function parseParams()
 	{
-		// TODO: Implement parseParams() method.
+		$this->user = App\User::find(Auth::user()->id);
+		
+		if(Request::ajax())
+		{
+			$this->groups = Request::input('groups');
+		}
+		
+		if(empty($this->groups))
+		{
+			$this->lists = array_keys($this->user->getLists());
+		}
+		
+		else
+		{
+			foreach($this->user->getLists() as $id => $arr)
+			{
+				if(in_array($arr['group'], $this->groups))
+				{
+					$this->lists[] = $id;
+				}
+			}
+		}
 	}
 	
+	/**
+	 * Find all events that user can view, and optionally filter them by group.
+	 *
+	 * @return mixed
+	 */
 	protected function getEvents()
 	{
 		if($this->events)
 			return $this->events;
 		
-		$user = App\User::find(Auth::user()->id);
-		
-		$this->events = Models\Event::whereIn('list_id', array_keys($user->getLists()))
+		$this->events = Models\Event::whereIn('list_id', $this->lists)
 			->limit(10)
 			->orderBy('id', 'desc')
 			->get();

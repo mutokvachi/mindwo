@@ -179,7 +179,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	}
 	
 	/**
-	 * Get an array of lists which the user has access to, and cache this array to $this->lists field.
+	 * Get an array of lists which the user has access to, and cache this array to $this->lists property.
 	 *
 	 * @return array
 	 */
@@ -196,7 +196,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 			{
 				if(!isset($lists[$list->id]))
 				{
+					
 					$lists[$list->id] = [
+						'group' => $list->group_id,
 						'new' => (boolean)$list->pivot->is_new_rights,
 						'edit' => (boolean)$list->pivot->is_edit_rights,
 						'delete' => (boolean)$list->pivot->is_delete_rigths

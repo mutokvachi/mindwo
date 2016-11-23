@@ -1,34 +1,32 @@
 @if(count($events))
-  <div class="portlet widget-activities" dx_block_id="activities">
-    <div class="portlet-title">
-      <div class="caption font-grey-cascade uppercase">LATEST ACTIVITIES</span></div>
-      <div class="actions">
-        <div class="btn-group">
-          <a class="btn btn-default btn-sm" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
-            <i class="fa fa-filter"></i> Filter by <i class="fa fa-angle-down"></i>
-          </a>
-          <ul class="dropdown-menu pull-right">
-            <li>
-              <a href="javascript:;" data-group="-1">Show all</a>
-            </li>
-            @foreach($groups as $group)
-              <li>
-                <a href="javascript:;" data-group="{{ $group->id }}">{{ $group->title }}</a>
-              </li>
-            @endforeach
-            <li>
-              <a href="javascript:;" data-group="0">Other</a>
-            </li>
-          </ul>
+  @if(!Request::ajax())
+    <div class="portlet widget-activities" dx_block_id="activities">
+      <div class="portlet-title">
+        <div class="caption font-grey-cascade uppercase">LATEST ACTIVITIES</span></div>
+        <div class="actions">
+          <div class="btn-group">
+            <a class="btn green btn-outline btn-circle btn-sm" style="border-width: 1px !important;" href="javascript:;" data-toggle="dropdown" data-close-others="true" aria-expanded="false">
+              Filter by <i class="fa fa-angle-down"></i>
+            </a>
+            <div class="dropdown-menu pull-right form-group">
+              <div class="mt-checkbox-list">
+                @foreach($groups as $group)
+                  <label class="mt-checkbox mt-checkbox-outline">
+                    <input type="checkbox" value="{{ $group->id }}"> {{ $group->title }}
+                    <span></span>
+                  </label>
+                @endforeach
+                <label class="mt-checkbox mt-checkbox-outline">
+                  <input type="checkbox" value=""> Other
+                  <span></span>
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      {{--
-      <div class="tools">
-        <a class="collapse" href="javascript:;"> </a>
-      </div>
-      --}}
-    </div>
-    <div class="portlet-body">
+      <div class="portlet-body">
+    @endif
       <div class="mt-actions">
         @foreach($events as $event)
           <div class="mt-action" data-group="{{ $event->lists->group_id ? $event->lists->group_id : 0 }}">
@@ -85,6 +83,8 @@
           </div>
         @endforeach
       </div>
+        @if(!Request::ajax())
     </div>
   </div>
+    @endif
 @endif
