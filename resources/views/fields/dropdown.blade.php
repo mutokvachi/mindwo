@@ -30,7 +30,7 @@
              data-foo="bar" dx_binded_field_id = '{{ $binded_field_id }}' dx_binded_rel_field_id = '{{ $binded_rel_field_id }}'
             >
 
-            @if (!(count($items) == 1 && $is_required))
+            @if (!((count($items) == 1 && $is_required) || ($item_value > 0 && $is_required))))
                 <option value=0></option>
             @endif
 

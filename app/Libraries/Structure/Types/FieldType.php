@@ -1,8 +1,7 @@
 <?php
 
 namespace App\Libraries\Structure\Types
-{
-
+{    
     abstract class FieldType
     {
         /**
@@ -40,6 +39,15 @@ namespace App\Libraries\Structure\Types
             $this->table_name = $table_name;
             
             $this->initField();
+            
+            /*
+            try {
+                Log::info("Methods: " . json_encode(get_class_methods($this->field_obj)));
+            }
+            catch (\Exception $e) {
+                Log::info($e->getMessage());
+            }            
+            */
         }
 
         /**

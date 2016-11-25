@@ -7,7 +7,8 @@ namespace App\Libraries
     use Illuminate\Database\Schema\Blueprint;
     use Illuminate\Database\Migrations\Migration;
     use Illuminate\Support\Facades\Schema;
-
+    use App\Libraries\Structure;
+    
     /**
      * Palīgfunkciju klase datu bāzes struktūras izveidei
      */
@@ -55,6 +56,11 @@ namespace App\Libraries
         const FIELD_TYPE_FILE = 12;
         
         /**
+         * Register field type - color picker (from table dx_field_types)
+         */
+        const FIELD_TYPE_COLOR = 17;
+        
+        /**
          * Returns object row by list_id
          * 
          * @param integer $list_id Registera ID
@@ -76,6 +82,11 @@ namespace App\Libraries
         public static function getListByTable($table_name)
         {
             $obj = DB::table('dx_objects')->where('db_name', '=', $table_name)->first();
+            
+            if (!$obj) {
+                return null;
+            }
+            
             $list = DB::table('dx_lists')->where('object_id', '=', $obj->id)->first();
 
             return $list;
@@ -223,6 +234,23 @@ namespace App\Libraries
 
                 DB::table('dx_lists_fields')->where('id', '=', $fld->id)->delete();
             });
+        }
+        
+        /**
+         * Delete register by table name
+         * 
+         * @param string $table_name DB table name
+         */
+        public static function deleteRegister($table_name) {
+            $list = DBHelper::getListByTable($table_name);
+            
+            if (!$list) {
+                return;
+            }
+            
+            $list_del = new Structure\StructMethod_register_delete();
+            $list_del->list_id = $list->id;
+            $list_del->doMethod(); 
         }
 
     }
