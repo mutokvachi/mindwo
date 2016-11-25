@@ -9,7 +9,7 @@ use Carbon\Carbon;
 /**
  * Class Block_CONGRATULATE
  *
- * Widget that displays birthdays and work anniversaries
+ * Widget that displays birthdays and work anniversaries.
  *
  * @package App\Libraries\Blocks
  */
@@ -17,6 +17,11 @@ class Block_CONGRATULATE extends Block
 {
 	protected $employees;
 	
+	/**
+	 * Render widget and return its HTML.
+	 *
+	 * @return string
+	 */
 	public function getHtml()
 	{
 		$result = view('blocks.widget_congratulate', [
@@ -27,6 +32,12 @@ class Block_CONGRATULATE extends Block
 		return $result;
 	}
 	
+	/**
+	 * Get a text string that describes kind of an event - birthday or work anniversary.
+	 *
+	 * @param $employee
+	 * @return string
+	 */
 	public function getTypeOfEvent($employee)
 	{
 		if($employee->birth_date && !$employee->join_date)
@@ -54,6 +65,11 @@ class Block_CONGRATULATE extends Block
 		}
 	}
 	
+	/**
+	 * Returns JavaScript that calculates appropriate height of a widget.
+	 *
+	 * @return string
+	 */
 	public function getJS()
 	{
 		return <<<END
@@ -69,6 +85,11 @@ class Block_CONGRATULATE extends Block
 END;
 	}
 	
+	/**
+	 * Returns widget's styles.
+	 *
+	 * @return string
+	 */
 	public function getCSS()
 	{
 		return <<<END
@@ -86,6 +107,11 @@ END;
 		// TODO: Implement getJSONData() method.
 	}
 	
+	/**
+	 * Find employees that have birthday or work anniversary today.
+	 *
+	 * @return mixed
+	 */
 	protected function getEmployees()
 	{
 		if($this->employees)
@@ -149,6 +175,12 @@ END;
 		// TODO: Implement parseParams() method.
 	}
 	
+	/**
+	 * Returns properly formatted string containing number of years of work anniversary.
+	 *
+	 * @param $join_date
+	 * @return string
+	 */
 	private function getAnniversTxt($join_date)
 	{
 		$now = Carbon::now();

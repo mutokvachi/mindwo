@@ -29,7 +29,7 @@
     @endif
       <div class="mt-actions">
         @foreach($events as $event)
-          <div class="mt-action" data-group="{{ $event->lists->group_id ? $event->lists->group_id : 0 }}">
+          <div class="mt-action" data-id="{{ $event->id }}" data-group="{{ $event->lists->group_id ? $event->lists->group_id : 0 }}">
             <div class="mt-action-img">
               <img src="{{ $event->user->getAvatar() }}" alt="">
             </div>
