@@ -760,6 +760,10 @@ var PageMain = function()
     var addResizeCallback = function(callback) {
         resize_functions_arr.push(callback);
     };
+    
+    function showConfirm(){
+        
+    };
 
     return {
         init: function() {

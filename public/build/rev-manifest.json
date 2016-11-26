@@ -3,7 +3,7 @@
   "js/elix_plugins.js": "js/elix_plugins-793483f7.js",
   "js/elix_view.js": "js/elix_view-01b1956d.js",
   "js/elix_employees.js": "js/elix_employees-922c9b11.js",
-  "js/elix_profile.js": "js/elix_profile-d0035cbd.js",
+  "js/elix_profile.js": "js/elix_profile-218c0f52.js",
   "css/elix_plugins.css": "css/elix_plugins-4de1c80e.css",
   "css/elix_mindwo.css": "css/elix_mindwo-22c950a6.css",
   "css/elix_view.css": "css/elix_view-fdc54361.css",
@@ -13,5 +13,5 @@
   "css/elix_metronic.css": "css/elix_metronic-dbdd9ecc.css",
   "js/elix_articles.js": "js/elix_articles-830bea41.js",
   "css/elix_articles.css": "css/elix_articles-eeb1c7fa.css",
-  "css/elix_employee_profile.css": "css/elix_employee_profile-a3ec4152.css"
+  "css/elix_employee_profile.css": "css/elix_employee_profile-b4685b14.css"
 }

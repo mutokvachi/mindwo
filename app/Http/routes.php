@@ -108,10 +108,17 @@ Route::post('/relogin', 'UserController@reLoginUser');
 
 // Route group for employee profile
 Route::group(['middleware' => 'auth', 'prefix' => 'employee'], function() {
+    Route::get('test', 'EmplProfileController@create');
+    
     Route::group(['prefix' => 'personal_docs', 'namespace' => 'Employee'], function () {
         Route::get('/get/employee_docs/{user_id}', 'EmployeePersonalDocController@getEmployeeDocs');
         Route::get('/get/docs_by_country/{country_id}', 'EmployeePersonalDocController@getPersonalDocsByCountry');
         Route::post('/save', 'EmployeePersonalDocController@save');
+    });
+    
+    Route::group(['prefix' => 'notes', 'namespace' => 'Employee'], function () {
+        Route::get('/get/view/{user_id}', 'NoteController@getView');
+        Route::post('/save', 'NoteController@save');
     });
 
     Route::get('profile/{id?}', 'EmplProfileController@show')->name('profile');

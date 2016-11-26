@@ -44,4 +44,8 @@ return [
         'publisher' => 'Publisher',
         'file' => 'File',
     ],    
+    
+    'notes' => [
+        'type_hint' => 'Type a note here...',
+    ], 
 ];

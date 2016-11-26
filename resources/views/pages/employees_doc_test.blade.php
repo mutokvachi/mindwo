@@ -6,12 +6,23 @@
 <link href="{{Request::root()}}/plugins/select2/select2.css" rel="stylesheet" />
 
 <link href= "{{ elixir('css/elix_view.css') }}" rel="stylesheet" />
+<link href="{{ elixir('css/elix_employee_profile.css') }}" rel="stylesheet"/>
 @stop
 
 @section('main_content')
-    @include('profile.personal_docs', ['user' => App\User::find(1)])
+<div id='dx-tab_notes' >
+    
+</div>
 @stop
 
 @section('main_custom_javascripts') 
     <script src = "{{ elixir('js/elix_view.js') }}" type='text/javascript'></script>
+    <script src = "{{ elixir('js/elix_profile.js') }}" type='text/javascript'></script>
+    <script  type='text/javascript'>
+        window.DxEmpNotes.init();
+        
+        window.DxEmpNotes.init(1, true);
+          
+          window.DxEmpNotes.loadView());
+        </script>
 @stop

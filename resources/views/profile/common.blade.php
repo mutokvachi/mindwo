@@ -217,7 +217,7 @@
         }
       });
       
-      if($('.freeform').data('has_users_documents_access') == 1)
+      if($('.freeform').data('has_users_documents_access') == 1 && $('.freeform').data('is_edit_rights') == 1)
       {
         window.DxEmpPersDocs.init(function()
         {
@@ -227,6 +227,13 @@
       else
       {
         hide_page_splash(1);
+      }
+      
+      var user_id = $('.freeform').data('item_id');
+      if($('.freeform').data('has_users_notes_access') == 1 && user_id > 0){          
+          window.DxEmpNotes.init(user_id);
+          
+          $('#dx-tab_notes-btn').click(window.DxEmpNotes.loadView);
       }
       
       // set tabs links for sub-grids
@@ -256,7 +263,9 @@
     data-form_id="{{ $form->params->form_id }}"
     data-item_id="{{ $mode == 'create' ? 0 : $employee->id }}"
     data-list_id="{{ Config::get('dx.employee_list_id') }}"
-    data-has_users_documents_access='{{ $has_users_documents_access ? 1 : 0}}'>
+    data-is_edit_rights='{{ $is_edit_rights }}'
+    data-has_users_documents_access='{{ $has_users_documents_access ? 1 : 0}}'
+    data-has_users_notes_access='{{ $has_users_notes_access ? 1 : 0}}'>
     <div class="portlet-body">
       <div class="row">
         <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">

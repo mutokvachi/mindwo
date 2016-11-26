@@ -208,7 +208,7 @@
 					{
 						window.DxEmpPersDocs.toggleDisable(false);
 					}
-					
+                                        
 					hide_page_splash(1);
 					
 					$('.dx-stick-footer').show();
@@ -268,16 +268,14 @@
 							
 							// Custom tab
 							window.DxEmpPersDocs.onClickSaveDocs(function()
-							{
-								window.DxEmpPersDocs.toggleDisable(true);
-								
+							{								
 								hide_page_splash(1);
 								$('.dx-stick-footer').hide();
 								window.location = data.redirect;
 							});
 						}
 						else
-						{
+						{                                                    
 							hide_page_splash(1);
 							$('.dx-stick-footer').hide();
 							window.location = data.redirect;

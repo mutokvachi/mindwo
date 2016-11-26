@@ -44,4 +44,8 @@ return [
         'publisher' => 'Izdevējs',
         'file' => 'Datne',
     ],    
+    
+    'notes' => [
+        'type_hint' => 'Rakstiet piezīmi šeit...',
+    ], 
 ];
