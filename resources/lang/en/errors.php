@@ -84,6 +84,7 @@ return [
     'access_denied_msg' => 'You do not have rights to access the view <b>%s</b>!',
     
     'invalid_input_data' => 'Invalid input data!',
+    
     // timeoff
     'no_accrual_policy' => 'There is not accrual policy set for employee!',
 ];
