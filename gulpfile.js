@@ -175,12 +175,14 @@ gulp.task('mix_all', function() {
            'mindwo/pages/freeform.js',
            'mindwo/pages/inlineform.js',
            'mindwo/pages/empl_links_fix.js',
-           'mindwo/pages/employee/personal_docs.js'
+           'mindwo/pages/employee/personal_docs.js',
+           'mindwo/pages/employee/notes.js'
         ], 'public/js/elix_profile.js', 'resources/assets/plugins');
         
         // LESS Styles for employee profile                
         mix.less([
-            'pages/employee/personal_docs.less'
+            'pages/employee/personal_docs.less',
+            'pages/employee/notes.less'
         ], 'public/css/elix_employee_profile.css');
         
         // Scripts for articles search page functionality

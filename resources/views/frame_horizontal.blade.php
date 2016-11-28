@@ -262,6 +262,7 @@
       
       @include('elements.popup_info')
     </div>
+      @include('main.modal_dialog')
     <script>
       dx_is_slider = {{ ((isset($is_slidable_menu) && $is_slidable_menu)) ? "1" : "0" }};
     </script>

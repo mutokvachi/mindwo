@@ -70,7 +70,8 @@ class EmplProfileController extends Controller
 			'form' => $form,
 			'is_my_profile' => $id == Auth::user()->id,
 			'is_edit_rights' => $this->getEditRightsMode(),
-			'has_users_documents_access' => $this->validateUsersDocumentsAccess()
+			'has_users_documents_access' => $this->validateUsersDocumentsAccess(),
+                        'has_users_notes_access' => $this->validateUsersNotesAccess($employee)
 		]);
 	}
 	
@@ -91,6 +92,20 @@ class EmplProfileController extends Controller
 	{
 		$user_documents_controller = new App\Http\Controllers\Employee\EmployeePersonalDocController();
 		return $user_documents_controller->has_access;
+	}
+        
+        /**
+	 * Check if user has access for users notes
+         * @param \App\User $user Employee's user model
+	 * @return boolean Parameter if user has access
+	 */
+	private function validateUsersNotesAccess($user)
+	{
+            $user_notes_controller = new App\Http\Controllers\Employee\NoteController();
+
+            $user_notes_controller->getAccess($user);
+
+            return ($user_notes_controller->has_hr_access || $user_notes_controller->has_manager_access);
 	}
 	
 	/**

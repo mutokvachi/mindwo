@@ -1,6 +1,6 @@
 /**
- * 
- * @type Window.DxEmpPersDocs|window.DxEmpPersDocs Contains logic for viewing and editing employee's documents
+ * Contains logic for viewing and editing employee's documents
+ * @type Window.DxEmpPersDocs|window.DxEmpPersDocs 
  */
 window.DxEmpPersDocs = window.DxEmpPersDocs || {
     /**

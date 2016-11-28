@@ -44,6 +44,7 @@ class EmployeePersonalDocController extends Controller
 
         if (!$list) {
             $this->has_access = false;
+            return;
         }
 
         $list_rights = Rights::getRightsOnList($list->id);
