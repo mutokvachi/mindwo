@@ -149,13 +149,13 @@ namespace App\Libraries\Timeoff
             
             foreach($rows as $holiday) {                
                 
-                $holiday->date_from = $this->getHolidayDate($holiday->day_from_code, $holiday->month_from_nr);
+                $holiday->date_from = $this->getDateFromCode($holiday->day_from_code, $holiday->month_from_nr);
                 
                 if (!$holiday->is_several_days) {
                     $holiday->date_to = $holiday->date_from;
                 }
                 else {
-                    $holiday->date_to = $this->getHolidayDate($holiday->day_to_code, $holiday->month_to_nr);
+                    $holiday->date_to = $this->getDateFromCode($holiday->day_to_code, $holiday->month_to_nr);
                 }
             }
             
@@ -169,7 +169,7 @@ namespace App\Libraries\Timeoff
          * @param integer $month_nr Month number
          * @return DateTime
          */
-        private function getHolidayDate($day_code, $month_nr) {
+        private function getDateFromCode($day_code, $month_nr) {
             $now = Carbon::now();
             if (is_numeric($day_code)) {
                     $dat = $now->year . '-' . $month_nr . '-' . $day_code;
@@ -224,7 +224,7 @@ namespace App\Libraries\Timeoff
                                  ->leftJoin('dx_carryover_types as co', 'al.carryover_type_id', '=', 'co.id')
                                  ->where('al.accrual_policy_id', '=', $this->policy_row->accrual_policy_id)
                                  ->get();
-            
+            $arr_lev = [];
             foreach($levels as $level) {
                 
             }
