@@ -31,6 +31,15 @@ class Note extends Model
     ];
 
     /**
+     * User who last created note
+     * @return \App\User
+     */
+    public function createdUser()
+    {
+        return $this->belongsTo('\App\User', 'created_user_id');
+    }
+    
+    /**
      * User who last modified note
      * @return \App\User
      */

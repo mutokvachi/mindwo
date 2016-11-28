@@ -49,6 +49,7 @@ return [
         'type_hint' => 'Type a note here...',
         'delete_note_title' => 'Delete note',
         'delete_note_text' => 'Do You really want to delete note?',
-        'note_missing' => "Note doesn't exist!"
+        'note_missing' => "Note doesn't exist!",
+        'modified' => "Modified"
     ], 
 ];

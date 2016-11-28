@@ -12,6 +12,7 @@ use App\Libraries\Rights;
  */
 class NoteController extends Controller
 {
+
     /**
      * Parameter if user has manager rights
      * @var boolean 
@@ -72,7 +73,7 @@ class NoteController extends Controller
         }
 
         $note->note = $note_text;
-        $note->is_hr = $this->has_manager_access;
+        $note->is_hr = $this->has_hr_access ? 1 : 0;
         $note->user_id = $user_id;
 
         if (!$note->created_user_id) {
@@ -131,11 +132,13 @@ class NoteController extends Controller
      */
     public function getAccess($user)
     {
-        if (!$this->getListEditRights()) {
-            return;
-        }
-
         $this->has_hr_access = $this->getHRAccess();
+
+        // List edit rights are checked only for HR users. 
+        // If user has manager access then it doesnt matter if he has access to list
+        if (!$this->getListEditRights()) {
+            $this->has_hr_access = false;
+        }
 
         if (!$this->has_hr_access) {
             $this->has_manager_access = $this->getManagerAccess($user);
