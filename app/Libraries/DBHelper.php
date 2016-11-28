@@ -8,6 +8,7 @@ namespace App\Libraries
     use Illuminate\Database\Migrations\Migration;
     use Illuminate\Support\Facades\Schema;
     use App\Libraries\Structure;
+    use Illuminate\Support\Facades\File;
     
     /**
      * Palīgfunkciju klase datu bāzes struktūras izveidei
@@ -251,6 +252,94 @@ namespace App\Libraries
             $list_del = new Structure\StructMethod_register_delete();
             $list_del->list_id = $list->id;
             $list_del->doMethod(); 
+        }
+        
+        /**
+         * Removes or hides fields from the lists all views (if found)
+         * 
+         * @param string $table_name List's table name
+         * @param array $flds_arr Array with field names to be removed
+         * @param boolean $is_hide_only True - field will be hidden, False - field will be deleted from view
+         */
+        public static function removeFieldsFromAllViews($table_name, $flds_arr, $is_hide_only) {
+            $list = DBHelper::getListByTable($table_name);
+            
+            if (!$list) {
+                return;
+            }            
+            
+            foreach($flds_arr as $fld) {
+                $fld_row = DB::table('dx_lists_fields')->where('list_id', '=', $list->id)->where('db_name', '=', $fld)->first();
+
+                if (!$fld_row) {
+                    continue;
+                }
+
+                if ($is_hide_only) {
+                    DB::table('dx_views_fields')->where('list_id', '=', $list->id)->where('field_id', '=', $fld_row->id)->update(['is_hidden' => 1]);
+                }
+                else {
+                    DB::table('dx_views_fields')->where('list_id', '=', $list->id)->where('field_id', '=', $fld_row->id)->delete();
+                }
+            }            
+        }
+        
+         /**
+         * Removes or hides fields from the lists all forms (if found)
+         *
+         * @param string $table_name List's table name
+         * @param array $flds_arr Array with field names to be removed
+         * @param boolean $is_hide_only True - field will be hidden, False - field will be deleted from form
+         */
+        public static function removeFieldsFromAllForms($table_name, $flds_arr, $is_hide_only) {
+            $list = DBHelper::getListByTable($table_name);
+            
+            if (!$list) {
+                return;
+            }
+                        
+            foreach($flds_arr as $fld) {
+                $fld_row = DB::table('dx_lists_fields')->where('list_id', '=', $list->id)->where('db_name', '=', $fld)->first();
+
+                if (!$fld_row) {
+                    continue;
+                }
+
+                if ($is_hide_only) {
+                    DB::table('dx_forms_fields')->where('list_id', '=', $list->id)->where('field_id', '=', $fld_row->id)->update(['is_hidden' => 1]);
+                }
+                else {
+                    DB::table('dx_forms_fields')->where('list_id', '=', $list->id)->where('field_id', '=', $fld_row->id)->delete();
+                }
+            }     
+        }
+        
+        /**
+         * Ads JavaScript to the list form
+         * 
+         * @param string $table_name List's table name
+         * @param string $file_name File name which is stored in the folder storage/app/updates
+         * @param string $description JavaScript short description
+         */
+        public static function addJavaScriptToForm($table_name, $file_name, $description) {
+            $list = DBHelper::getListByTable($table_name);
+            
+            if (!$list) {
+                return;
+            }
+            
+            // add special JavaScript
+            $form_id = DB::table('dx_forms')->where('list_id', '=', $list->id)->first()->id;
+
+            $dir = storage_path() . DIRECTORY_SEPARATOR . "app" . DIRECTORY_SEPARATOR . "updates" . DIRECTORY_SEPARATOR;       
+            $file_js = $dir . $file_name;
+            $content = File::get($file_js);
+
+            DB::table('dx_forms_js')->insert([
+                'title' => $description,
+                'form_id' => $form_id,
+                'js_code' => $content
+            ]);
         }
 
     }

@@ -82,4 +82,7 @@ return [
     'access_denied_title' => 'Access denied',
     
     'access_denied_msg' => 'You do not have rights to access the view <b>%s</b>!',
+    
+    // timeoff
+    'no_accrual_policy' => 'There is not accrual policy set for employee!',
 ];
