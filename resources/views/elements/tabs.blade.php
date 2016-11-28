@@ -1,3 +1,4 @@
+<div class="row"></div>
 <div class='panel blank-panel' id = '{{ $tab_id }}' dx_attr='tab'>
     <div class='panel-heading' style='background: transparent;'>
         <div class='panel-options'>

@@ -20,7 +20,7 @@ namespace App\Libraries\FieldsHtm
             }
             
             $reg_state = \App\Http\Controllers\RegisterController::getRegNrState($this->fld_attr, $this->item_value);
-            
+           
             return view('fields.datetime', [
                     'frm_uniq_id' => $this->frm_uniq_id, 
                     'item_field' => $this->fld_attr->db_name, 
@@ -38,6 +38,30 @@ namespace App\Libraries\FieldsHtm
          */
         protected function setDefaultVal()
         {
+            if ($this->item_id > 0) {
+                return;
+            }
+            
+            $this->item_value = $this->generateDate();
+        }
+        
+        /**
+         * Generated today's date
+         * @return Date Today's date
+         */
+        private function generateDate()
+        {
+            if (strlen($this->fld_attr->default_value) == 0)
+            {
+                return null;
+            }
+                
+            if ($this->fld_attr->default_value == "[NOW]")
+            {
+                return date(Config::get('dx.txt_date_format', 'd.m.Y'));
+            }
+            
+            return null;                
         }
 
     }

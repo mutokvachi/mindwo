@@ -361,7 +361,7 @@ class FormController extends Controller
         if ($right == null) {
             
             if ($item_id == 0 || !Workflows\Helper::isRelatedTask($list_id, $item_id)) {
-                throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību šajā reģistrā!");
+                throw new Exceptions\DXCustomException(trans('errors.no_rights_on_register'));
             }
             
             // var vismaz skatīties ieraksta kartiņu
@@ -378,7 +378,7 @@ class FormController extends Controller
             
             if ($item_id == 0) {
                 if ($right->is_new_rights == 0) {           
-                    throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību veidot jaunu ierakstu šajā reģistrā!");
+                    throw new Exceptions\DXCustomException(trans('errors.no_rights_to_insert'));
                 }
                 $this->is_disabled = 0; // var rediģēt, pēc noklusēšanas ir ka nevar
             }

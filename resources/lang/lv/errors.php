@@ -82,5 +82,9 @@ return [
     'access_denied_msg' => 'Jums nav piepieciešamo tiesību, lai piekļūtu skata <b>%s</b> datiem!',    
     
     'invalid_input_data' => 'Nepareizi ievadīti dati!',
+    'access_denied_msg' => 'Jums nav piepieciešamo tiesību, lai piekļūtu skata <b>%s</b> datiem!',  
+    
+    //timeoff
+    'no_accrual_policy' => 'Darbiniekam nav iestatīta atbilstoša kompensējamā laika uzkrāšanas politika',
    
 ];
