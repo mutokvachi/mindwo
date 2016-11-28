@@ -26,6 +26,10 @@ window.DxEmpNotes = window.DxEmpNotes || {
         window.DxEmpNotes.userId = userId;
 
     },
+    /**
+     * Loads view
+     * @returns {undefined}
+     */
     loadView: function () {
         if (window.DxEmpNotes.isLoaded) {
             return;
@@ -52,7 +56,7 @@ window.DxEmpNotes = window.DxEmpNotes || {
         window.DxEmpNotes.chatFormColorDefault = $('.dx-emp-notes-chat-form').css("background-color");
 
         $('.dx-emp-notes-btn').click(window.DxEmpNotes.onNoteEnter);
-        $('.dx-emp-notes-input-id').keyup(function (e) {
+        $('.dx-emp-notes-input-text').keyup(function (e) {
             if (e.keyCode == 13) {
                 window.DxEmpNotes.onNoteEnter();
             }
@@ -65,6 +69,10 @@ window.DxEmpNotes = window.DxEmpNotes || {
 
         hide_page_splash(1);
     },
+    /**
+     * Retrieve data for saving
+     * @returns {object} Prepared data
+     */
     getDataForSave: function () {
         var data = {};
 
@@ -74,6 +82,10 @@ window.DxEmpNotes = window.DxEmpNotes || {
 
         return data;
     },
+    /**
+     * Event handler when note saving is initiated
+     * @returns {undefined}
+     */
     onNoteEnter: function () {
         if (window.DxEmpNotes.isSending) {
             return;
@@ -93,6 +105,7 @@ window.DxEmpNotes = window.DxEmpNotes || {
     /**
      * Load selected note's data into note input boxes
      * @param {object} e Evenet caller
+     * @returns {undefined}
      */
     onEditClick: function (e) {
         var edit_btn = $(e.target);
@@ -112,16 +125,73 @@ window.DxEmpNotes = window.DxEmpNotes || {
         });
 
     },
+    /**
+     * Event handler for delete click. Opens modal confirmation window
+     * @param {object} e Event arguments
+     * @returns {undefined}
+     */
     onDeleteClick: function (e) {
         var del_btn = $(e.target);
+
+        var note_id = del_btn.closest('.message').find('.dx-emp-notes-edit-id').val();
+
+        PageMain.showConfirm(window.DxEmpNotes.onDeleteConfirm,
+                note_id,
+                Lang.get('employee.notes.delete_note_title'),
+                Lang.get('employee.notes.delete_note_text'),
+                Lang.get('form.btn_delete'),
+                '');
     },
+    /**
+     * Event handler when delete operation is confirmed
+     * @param {integer} id Note's ID which will be deleted
+     * @returns {undefined}
+     */
+    onDeleteConfirm: function (id) {
+        if (window.DxEmpNotes.isSending) {
+            return;
+        }
+
+        window.DxEmpNotes.showLoading();
+        
+         var data = {
+             note_id: id
+         };
+        
+        $.ajax({
+            url: DX_CORE.site_url + 'employee/notes/delete',
+            data: data,
+            type: "delete",
+            success: window.DxEmpNotes.onSuccessDelete,
+            error: window.DxEmpNotes.onAjaxError
+        });
+    },
+    /**
+     * Shows loading box
+     * @returns {undefined}
+     */
     showLoading: function () {
         window.DxEmpNotes.isSending = true;
         show_page_splash(1);
     },
+    /**
+     * Hides loading box
+     * @returns {undefined}
+     */
     hideLoading: function () {
         window.DxEmpNotes.isSending = false;
         hide_page_splash(1);
+    },
+    /**
+     * Event on successful note delete
+     * @param {integer} note_id Note id which was deleted
+     */
+    onSuccessDelete: function (note_id) {
+        if (note_id) {
+            $('.dx-emp-notes-edit-id[value=' + note_id + ']').closest('li').remove();
+        }
+
+        window.DxEmpNotes.hideLoading();
     },
     /**
      * Event on successful data save

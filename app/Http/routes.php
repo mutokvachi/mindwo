@@ -119,6 +119,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'employee'], function() {
     Route::group(['prefix' => 'notes', 'namespace' => 'Employee'], function () {
         Route::get('/get/view/{user_id}', 'NoteController@getView');
         Route::post('/save', 'NoteController@save');
+        Route::delete('/delete', 'NoteController@delete');
     });
 
     Route::get('profile/{id?}', 'EmplProfileController@show')->name('profile');

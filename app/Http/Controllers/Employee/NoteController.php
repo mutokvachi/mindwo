@@ -12,7 +12,6 @@ use App\Libraries\Rights;
  */
 class NoteController extends Controller
 {
-
     /**
      * Parameter if user has manager rights
      * @var boolean 
@@ -24,14 +23,6 @@ class NoteController extends Controller
      * @var boolean 
      */
     public $has_hr_access = false;
-
-    /**
-     * Constructs employee documents class. Sets needed parameters
-     */
-    public function __construct()
-    {
-        
-    }
 
     /**
      * Gets employee's notes view
@@ -46,10 +37,10 @@ class NoteController extends Controller
         $this->validateAccess();
 
         return view('profile.tab_notes', [
-            'user' => $user,
-            'has_hr_access' => $this->has_hr_access,
-            'has_manager_access' => $this->has_manager_access
-        ])->render();
+                    'user' => $user,
+                    'has_hr_access' => $this->has_hr_access,
+                    'has_manager_access' => $this->has_manager_access
+                ])->render();
     }
 
     /**
@@ -58,16 +49,16 @@ class NoteController extends Controller
      * @return string Result
      */
     public function save(Request $request)
-    {        
+    {
         // Retrieve user
-        $user_id = $request->input('user_id');        
+        $user_id = $request->input('user_id');
         $user = \App\User::find($user_id);
 
         // Check if user has edit rights to tab
         $this->getAccess($user);
         $this->validateAccess();
-        
-        $note_id = $request->input('note_id');        
+
+        $note_id = $request->input('note_id');
         $note_text = $request->input('note_text');
 
         if (!$user) {
@@ -92,19 +83,46 @@ class NoteController extends Controller
         $note->modified_user_id = \Auth::user()->id;
 
         $note->save();
-        
+
         $view = view('profile.control_notes_record', [
-            'note' => $note, 
+            'note' => $note,
             'is_new' => true,
             'has_hr_access' => $this->has_hr_access,
             'has_manager_access' => $this->has_manager_access
-            ])->render();
+                ])->render();
 
         $result = [
             'view' => $view
         ];
 
         return $result;
+    }
+
+    /**
+     * Deletes note
+     * @param Request $request Data request
+     * @return string Result
+     */
+    public function delete(Request $request)
+    {
+        $note_id = $request->input('note_id');
+
+        $note = \App\Models\Employee\Note::find($note_id);
+
+        if (!$note) {
+            abort(400, trans('notes.note_missing'));
+        }
+
+        // Retrieve user      
+        $user = \App\User::find($note->user_id);
+
+        // Check if user has edit rights to tab
+        $this->getAccess($user);
+        $this->validateAccess();
+
+        $note->delete();
+
+        return $note_id;
     }
 
     /**

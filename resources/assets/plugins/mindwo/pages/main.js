@@ -761,8 +761,50 @@ var PageMain = function()
         resize_functions_arr.push(callback);
     };
     
-    function showConfirm(){
+    /**
+     * Opens modal confirmation dialog. If modal's title, body or buttons text is not specified then function useses default texts.
+     * @param {function} callback Callback function executed after accept
+     * @param {object} callbackParameters Callback functions parameters
+     * @param {string} title Modal title
+     * @param {string} bodyText Modal body text
+     * @param {string} acceptText Modal accept button text
+     * @param {string} declineText Modal decline button text
+     * @returns {undefined}
+     */
+    var showConfirm = function(callback, callbackParameters, title, bodyText, acceptText, declineText){
+        if(!title){
+            title = Lang.get('form.modal_confirm_title');
+        }
         
+        if(!bodyText){
+            bodyText = Lang.get('form.modal_confirm_body');
+        }
+        
+        if(!acceptText){
+            acceptText = Lang.get('form.btn_accept');
+        }
+        
+        if(!declineText){
+            declineText = Lang.get('form.btn_cancel');
+        }
+        
+        
+        var modal = $('#mindwo-modal');
+        
+        modal.find('#mindwo-modal-label').html(title);
+        modal.find('#mindwo-modal-body').html(bodyText);
+        modal.find('#mindwo-modal-decline').html(declineText);
+         
+        var accept_btn  = modal.find('#mindwo-modal-accept')
+        accept_btn.html(acceptText);
+       
+        accept_btn.click(function(){
+            accept_btn.off('click');
+            
+            callback(callbackParameters);
+        });
+        
+        modal.modal('show');        
     };
 
     return {
@@ -799,6 +841,9 @@ var PageMain = function()
         },
         getAjaxErrTxt: function(xhr) {
             return getAjaxErrorText(xhr);
+        },
+        showConfirm:function(callback, callbackParameters, title, bodyText, acceptText, declineText){
+            showConfirm(callback, callbackParameters, title, bodyText, acceptText, declineText);
         }
     };
 }();
