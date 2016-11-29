@@ -81,11 +81,20 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	
 	/**
 	 * List of users's personal documents
-	 * @return App\Employee\EmployeePersonalDocument
+	 * @return App\Models\Employee\EmployeePersonalDocument
 	 */
 	public function employeePersonalDocs()
 	{
 		return $this->hasMany('\App\Models\Employee\EmployeePersonalDocument', 'user_id');
+	}
+        
+        /**
+	 * List of users's notes
+	 * @return App\Models\Employee\Note
+	 */
+	public function notes()
+	{
+		return $this->hasMany('\App\Models\Employee\Note', 'user_id');
 	}
 	
 	/**

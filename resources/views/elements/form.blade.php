@@ -7,8 +7,8 @@
 @endif
             @include('elements.form_header',['form_title' => $form_title, 'badge' => $form_badge])
 
-           
-                <div class='modal-header' style='background-color: #EEEEEE; border-bottom: 1px solid #c1c1c1; min-height: 55px;' id="top_toolbar_list_item_view_form_{{ $frm_uniq_id }}">
+                
+                <div class='modal-header' style='background-color: #EEEEEE; border-bottom: 1px solid #c1c1c1; min-height: 55px; {{ ($item_id > 0 && !$form_is_edit_mode) ? '' : 'display: none;'}}' id="top_toolbar_list_item_view_form_{{ $frm_uniq_id }}">
                     <div class="dx_form_btns_left">
                         @if ($is_edit_rights && $form_is_edit_mode == 0 && $is_editable_wf == 1)
                             <button  type='button' class='btn btn-primary' id='btn_edit_{{ $frm_uniq_id }}'><i class="fa fa-pencil-square-o"></i> {{ trans('form.btn_edit') }}</button>
@@ -39,6 +39,7 @@
                     </div>                    
                     <!--<button  type='button' class='btn btn-white pull-right' id='btn_print_{{ $frm_uniq_id }}'><i class="fa fa-print"></i> Drukāt</button>-->
                 </div>
+                
            
 
             <div class='modal-body'>

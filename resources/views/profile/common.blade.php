@@ -217,7 +217,7 @@
         }
       });
       
-      if($('.freeform').data('has_users_documents_access') == 1)
+      if($('.freeform').data('has_users_documents_access') == 1 && $('.freeform').data('is_edit_rights') == 1)
       {
         window.DxEmpPersDocs.init(function()
         {
@@ -227,6 +227,13 @@
       else
       {
         hide_page_splash(1);
+      }
+      
+      var user_id = $('.freeform').data('item_id');
+      if($('.freeform').data('has_users_notes_access') == 1 && user_id > 0){          
+          window.DxEmpNotes.init(user_id);
+          
+          $('#dx-tab_notes-btn').click(window.DxEmpNotes.loadView);
       }
       
       // set tabs links for sub-grids
@@ -256,7 +263,9 @@
     data-form_id="{{ $form->params->form_id }}"
     data-item_id="{{ $mode == 'create' ? 0 : $employee->id }}"
     data-list_id="{{ Config::get('dx.employee_list_id') }}"
-    data-has_users_documents_access='{{ $has_users_documents_access ? 1 : 0}}'>
+    data-is_edit_rights='{{ $is_edit_rights }}'
+    data-has_users_documents_access='{{ $has_users_documents_access ? 1 : 0}}'
+    data-has_users_notes_access='{{ $has_users_notes_access ? 1 : 0}}'>
     <div class="portlet-body">
       <div class="row">
         <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">
@@ -291,8 +300,17 @@
                       <a href="javascript:;" id="myTabDrop1" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> {{ trans('empl_profile.qualif_menu') }}
                           <i class="fa fa-angle-down"></i>
                       </a>                    
-                      <ul class="dropdown-menu" role="menu" aria-labelledby="myTabDrop1">
+                      <ul class="dropdown-menu dx-sub-menu-left" role="menu" aria-labelledby="myTabDrop1">
                           {!! $form->renderSubgridTabButtons("_qualification", [trans('empl_profile.tab_lang'), trans('empl_profile.tab_links'), trans('empl_profile.tab_educ'), trans('empl_profile.tab_cert'), trans('empl_profile.tab_cv')], 1) !!}                        
+                      </ul>
+                  </li>
+                  
+                  <li class="dropdown dx-sub-tab">
+                      <a href="javascript:;" id="myTabDrop1" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> {{ trans('empl_profile.assets_menu') }}
+                          <i class="fa fa-angle-down"></i>
+                      </a>                    
+                      <ul class="dropdown-menu dx-sub-menu-left" role="menu" aria-labelledby="myTabDrop1">
+                          {!! $form->renderSubgridTabButtons("_assets", [trans('empl_profile.tab_cards'), trans('empl_profile.tab_devices')], 1) !!}                        
                       </ul>
                   </li>
                 @endif
@@ -308,6 +326,7 @@
             
             @if($is_edit_rights)
                 {!! $form->renderSubgridTabContents("_qualification", [trans('empl_profile.tab_lang'), trans('empl_profile.tab_links'), trans('empl_profile.tab_educ'), trans('empl_profile.tab_cert'), trans('empl_profile.tab_cv')], 1) !!}
+                {!! $form->renderSubgridTabContents("_assets", [trans('empl_profile.tab_cards'), trans('empl_profile.tab_devices')], 1) !!}
             @endif
           </div>
         </div>

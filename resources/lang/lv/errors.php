@@ -33,6 +33,7 @@ return [
     
     // 1. %s - file extension, 2. %s - file name
     'unsuported_file_extension' => 'Neatbalstīts datnes paplašinājums "%s"! Nav iespējams saglabāt datni "%s".',
+    'unsuported_image_file' => 'Neatbalstīts attēla datnes paplašinājums "%s"! Nav iespējams saglabāt datni "%s".',
     
     // %s - minimum password characters count
     'min_password' => 'Nevar saglabāt datus! Paroles laukā ir obligāti jānorāda parole ar vismaz %s simboliem!',
@@ -79,5 +80,12 @@ return [
     'access_denied_title' => 'Piekļuve liegta',
     
     'access_denied_msg' => 'Jums nav piepieciešamo tiesību, lai piekļūtu skata <b>%s</b> datiem!',    
-   
+    
+    'invalid_input_data' => 'Nepareizi ievadīti dati!',
+        
+    //timeoff
+    'no_accrual_policy' => 'Darbiniekam nav iestatīta atbilstoša kompensējamā laika uzkrāšanas politika',
+    'unsupported_factory_class' => "Neatbalstīts klases objekts '%s'!",
+    'no_joined_date' => 'Darbiniekam nav uzstādīts darba attiecību sākšanas datums!',
+    
 ];

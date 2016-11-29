@@ -33,6 +33,7 @@ return [
     
     // 1. %s - file extension, 2. %s - file name
     'unsuported_file_extension' => "Unsupported file extension '%s'! The file '%s' cannot be saved.",
+    'unsuported_image_file' => "Unsupported picture file extension '%s'! The file '%s' cannot be saved.",
     
      // %s - minimum password characters count
     'min_password' => "The data cannot be saved! Password must have at least %s characters!",
@@ -81,4 +82,11 @@ return [
     'access_denied_title' => 'Access denied',
     
     'access_denied_msg' => 'You do not have rights to access the view <b>%s</b>!',
+    
+    'invalid_input_data' => 'Invalid input data!',
+    
+    // timeoff
+    'no_accrual_policy' => 'There is not accrual policy set for employee!',
+    'unsupported_factory_class' => "Unsupported class object '%s'!",
+    'no_joined_date' => 'Date joined is not set for the employee!',
 ];

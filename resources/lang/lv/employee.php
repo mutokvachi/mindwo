@@ -44,4 +44,12 @@ return [
         'publisher' => 'Izdevējs',
         'file' => 'Datne',
     ],    
+    
+    'notes' => [
+        'type_hint' => 'Rakstiet piezīmi šeit...',
+        'delete_note_title' => 'Piezīmes dzēšana',
+        'delete_note_text' => 'Vai Jūs tiešām vēlaties dzēst piezīmi?',
+        'note_missing' => "Piezīme neeksistē!",
+        'modified' => "Laboja"
+    ], 
 ];

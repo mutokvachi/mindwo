@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\ProcessWorkerCommand::class,
         \App\Console\Commands\CheckQueueListener::class,
         \App\Console\Commands\FixImageSizes::class,
+        \App\Console\Commands\CalculateTimeoff::class,
     ];
 
     /**

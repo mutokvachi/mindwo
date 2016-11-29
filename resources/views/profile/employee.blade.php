@@ -31,6 +31,11 @@
       </li>
     @endif
   @endif
+  @if($has_users_notes_access)
+    <li class="">
+        <a id='dx-tab_notes-btn' href="#dx-tab_notes" data-toggle="tab" aria-expanded="false"> Notes </a>
+    </li>
+    @endif
 @endsection
 
 @section('profile_tabs_content')
@@ -105,5 +110,9 @@
         @include('profile.personal_docs', ['user' => $employee])
       </div>
     @endif
+  @endif
+  @if($has_users_notes_access)
+    <div class="tab-pane fade" id="dx-tab_notes">
+    </div>
   @endif
 @endsection

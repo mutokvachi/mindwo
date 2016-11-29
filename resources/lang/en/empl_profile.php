@@ -21,10 +21,16 @@ return [
     
     'qualif_menu' => 'Qualification',
     
-    // Subgrid tabs (must be equal with tab titles defined in CMS form - in database table dx_tabs)
+    // Subgrid tabs for qualification (must be equal with tab titles defined in CMS form - in database table dx_tabs)
     'tab_lang' => 'Languages',
     'tab_links' => 'Links',
     'tab_educ' => 'Education',
     'tab_cert' => 'Certificates',
     'tab_cv' => 'CVs & other', 
+    
+    'assets_menu' => 'Assets',
+    
+    // Subgrid tabs for assets (must be equal with tab titles defined in CMS form - in database table dx_tabs)
+    'tab_cards' => 'Corporate cards',
+    'tab_devices' => 'Devices',
 ];
