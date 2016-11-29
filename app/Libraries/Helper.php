@@ -9,6 +9,7 @@ namespace App\Libraries
     use Config;
     use App\Http\Controllers\BoxController;
     use Auth;
+    use Carbon\Carbon;
     
     /**
      * Palīgfunkciju klase
@@ -183,6 +184,27 @@ namespace App\Libraries
             else {
                 return "assets/global/avatars/default_avatar_big.jpg";
             }
+        }
+        
+        /**
+         * Builds date from given month and day numbers
+         * 
+         * @param string $day_code Day number (or "LAST")
+         * @param integer $month_nr Month number
+         * @return string Date in format yyyy-mm-dd
+         */
+        public static function getDateFromCode($day_code, $month_nr) {
+            $now = Carbon::now();
+            if (is_numeric($day_code)) {
+                    $dat = $now->year . '-' . $month_nr . '-' . $day_code;
+            }
+            else {
+                // last day
+                $dat_month = $now->year . '-' . $month_nr . '-01';
+                $dat = date("Y-m-t", strtotime($dat_month));
+            }
+            
+            return $dat;
         }
 
     }

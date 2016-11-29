@@ -85,5 +85,7 @@ return [
         
     //timeoff
     'no_accrual_policy' => 'Darbiniekam nav iestatīta atbilstoša kompensējamā laika uzkrāšanas politika',
-   
+    'unsupported_factory_class' => "Neatbalstīts klases objekts '%s'!",
+    'no_joined_date' => 'Darbiniekam nav uzstādīts darba attiecību sākšanas datums!',
+    
 ];
