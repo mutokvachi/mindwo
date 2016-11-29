@@ -52,6 +52,12 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	 * @var array
 	 */
 	protected $hidden = ['password', 'remember_token'];
+	/**
+	 * Here we cache array of lists the user has access to.
+	 *
+	 * @var
+	 */
+	protected $lists;
 	
 	/**
 	 * Relation to user roles
@@ -179,6 +185,47 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 		}
 		
 		return $result;
+	}
+	
+	/**
+	 * Get an array of lists which the user has access to, and cache this array to $this->lists property.
+	 *
+	 * @return array
+	 */
+	public function getLists()
+	{
+		if($this->lists)
+			return $this->lists;
+		
+		$lists = [];
+		
+		$this->roles->each(function ($role) use (&$lists)
+		{
+			$role->lists->each(function ($list) use (&$lists)
+			{
+				if(!isset($lists[$list->id]))
+				{
+					
+					$lists[$list->id] = [
+						'group' => $list->group_id,
+						'new' => (boolean)$list->pivot->is_new_rights,
+						'edit' => (boolean)$list->pivot->is_edit_rights,
+						'delete' => (boolean)$list->pivot->is_delete_rigths
+					];
+				}
+				
+				else
+				{
+					$list->pivot->is_new_rights && ($lists[$list->id]['new'] = true);
+					$list->pivot->is_edit_rights && ($lists[$list->id]['edit'] = true);
+					$list->pivot->is_delete_rights && ($lists[$list->id]['delete'] = true);
+				}
+			});
+		});
+		
+		$this->lists = $lists;
+		
+		return $this->lists;
 	}
 	
 	/**
