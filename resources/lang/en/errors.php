@@ -87,4 +87,6 @@ return [
     
     // timeoff
     'no_accrual_policy' => 'There is not accrual policy set for employee!',
+    'unsupported_factory_class' => "Unsupported class object '%s'!",
+    'no_joined_date' => 'Date joined is not set for the employee!',
 ];

@@ -338,7 +338,7 @@ class EmployeeController extends Controller
                 ->leftJoin('in_sources', 'em.source_id', '=', 'in_sources.id')
                 ->leftJoin('in_departments', 'em.department_id', '=', 'in_departments.id')
                 ->leftJoin(Config::get('dx.empl_table') . ' as man', 'em.manager_id', '=', 'man.id')
-                ->leftJoin('in_left_reasons as le', 'em.left_reason_id', '=', 'le.id')
+                ->leftJoin('dx_timeoff_types as le', 'em.left_reason_id', '=', 'le.id')
                 ->leftJoin(Config::get('dx.empl_table') . ' as subst', 'em.substit_empl_id', '=', 'subst.id');
 
         $this->setWhere($employees);
