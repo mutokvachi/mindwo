@@ -1,10 +1,31 @@
-<div id="dx-emp-notes-timeoff">   
+<div id="dx-emp-timeoff-panel" 
+     data-year="{{ $user->timeoffYears()->first()->timeoffYear }}"
+     data-timeoff="{{ $user->timeoff()->first()->title }}">   
     <div class="dx-emp-timeoff-tiles row">
-        @foreach ($user->timeoff() as $timeoff)
+        @foreach ($user->timeoff()->get() as $timeoff)
         @include('profile.control_timeoff_tile', ['timeoff' => $timeoff])
         @endforeach
     </div>
-    <div>
-        <table class="table table-hover" style="width: 738px;"><thead><tr><th style="text-align: right; " data-field="id" tabindex="0"><div class="th-inner sortable both">Item ID</div><div class="fht-cell" style="width: 208px;"></div></th><th style="text-align: center; " data-field="name" tabindex="0"><div class="th-inner sortable both desc">Item Name</div><div class="fht-cell" style="width: 272px;"></div></th><th style="" data-field="price" tabindex="0"><div class="th-inner sortable both">Item Price</div><div class="fht-cell" style="width: 256px;"></div></th></tr></thead></table>
+
+    <div class="portlet light">
+        <div class="portlet-title">
+            <div class="caption font-green-sharp">
+                <i class="icon-speech font-green-sharp"></i>
+                <span class="caption-subject"> History </span>
+                
+                
+        </div>
+        <div class="portlet-body">
+            <table id="dx-empt-datatable-timeoff" class="table table-condensed table-hover">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th class="sorting_disabled">Notes</th>
+                        <th>Uses / Accrued</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
     </div>
 </div>

@@ -63,7 +63,9 @@ gulp.task('mix_all', function() {
             'codemirror/css/ambiance.css', 
             'jasny-bootstrap/css/jasny-bootstrap.min.css', 
             'jquery-nestable/jquery.nestable.css', 
-            'mindwo/css/view.css' 
+            'mindwo/css/view.css',
+            'datatables/plugins/bootstrap/datatables.bootstrap.css',
+            'datatables/datatables.min.css'
         ], 'public/css/elix_view.css', 'resources/assets/plugins');
         
         // horizontal menu UI styles                
@@ -160,7 +162,9 @@ gulp.task('mix_all', function() {
             'mindwo/fields/rel_id.js',
             'mindwo/fields/autocompleate.js',
             'mindwo/fields/datetime.js',
-            'mindwo/fields/bool.js'
+            'mindwo/fields/bool.js',
+            'datatables/datatables.all.min.js',
+            'datatables/plugins/bootstrap/datatables.bootstrap.js'
         ], 'public/js/elix_view.js', 'resources/assets/plugins');
 
         // Scripts for employees search page functionality

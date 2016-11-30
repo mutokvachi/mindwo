@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Log;
 use App\Libraries\Rights;
+use Yajra\Datatables\Datatables;
 
 /**
  * Employee's time off controller
@@ -53,6 +54,14 @@ class TimeoffController extends Controller
         $user = \App\User::find($user_id);
         
         return $user->timeoffCalc()->where('timeoff_type_id', $timeoff_type_id)->get();
+    }
+    
+    public function getTable($user_id, $timeoff_type_id, $year){
+        $user = \App\User::find($user_id);
+        
+        return Datatables::of($user->timeoffCalc()
+                )
+                ->make(true);
     }
 
     /**
