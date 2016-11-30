@@ -37,6 +37,7 @@ gulp.task('mix_all', function() {
             'metronic/css/faq.min.css', 
             'metronic/css/components-md.css',
             'metronic/css/components.css',
+            'metronic/css/profile-2.css',
             'bootstrap-modal/css/bootstrap-modal.css',
             'toastr/toastr.min.css',
             'tooltipster-master/css/tooltipster.css', 
