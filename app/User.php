@@ -9,6 +9,7 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use DB;
 use Log;
+use Config;
 
 /**
  * Model for systems users
@@ -100,7 +101,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	}
         
         /**
-	 * List of users's notes
+	 * List of users's timeoff calculations
 	 * @return App\Models\Employee\Note
 	 */
 	public function timeoffCalc()
@@ -122,31 +123,29 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	 */
 	public function timeoff()
 	{
-            $timeoff_types = DB::table('dx_users_accrual_policies AS uap')                        
-                ->select('uap.timeoff_type_id')   
-                ->where('uap.user_id', $this->id)
-                ->groupBy('uap.timeoff_type_id')
-                ->lists('uap.timeoff_type_id');
+            $timeoffs =  DB::table('dx_timeoff_types as to')
+                         ->where('to.is_disabled', '=', 0)
+                         ->orderBy('to.title')
+                         ->get();
             
-            if(!$timeoff_types){
-                return array();
-            } 
+            foreach($timeoffs as $timeoff) {
+                $balance = DB::table('dx_timeoff_calc')
+                           ->where('user_id', '=', $this->id)
+                           ->where('timeoff_type_id', '=', $timeoff->id)
+                           ->orderBy('calc_date', 'DESC')
+                           ->first();
+                
+                $timeoff->unit = "h";
+                $time = ($balance) ? $balance->balance : 0;
+                if (!$timeoff->is_accrual_hours) {
+                    $time = round(($time/Config::get('dx.working_day_h', 8)));
+                    $timeoff->unit = "d";
+                }
+                
+                $timeoff->balance = $time;
+            }
             
-            return DB::table('dx_timeoff_types AS tt')
-                ->leftJoin('dx_timeoff_calc AS tc', 'tt.id', '=', 'tc.timeoff_type_id')
-                ->leftJoin('dx_timeoff_calc AS tc2', function ($join) {
-                    $join->on('tc2.timeoff_type_id', '=', 'tc.timeoff_type_id');
-                    $join->on('tc2.user_id', '=', 'tc.user_id');
-                    $join->on('tc2.calc_date', '>', 'tc.calc_date');
-                })
-                ->select('tt.id', 'tt.title', 'tt.icon', 'tt.color', 'tt.is_accrual_hours', 'tc.balance')
-                ->whereNull('tc.id')
-                ->orWhere(function ($query) use ($timeoff_types) {
-                    $query->whereIn('tt.id', $timeoff_types)
-                        ->where('tc.user_id', $this->id)
-                        ->whereNull('tc2.calc_date');
-                })
-                ->orderBy('tt.title');
+            return $timeoffs;            
 	}
 	
 	/**

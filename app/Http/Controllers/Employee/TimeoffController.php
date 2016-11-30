@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Log;
 use App\Libraries\Rights;
 use Yajra\Datatables\Datatables;
-
+use App\Libraries\Timeoff\Timeoff;
 /**
  * Employee's time off controller
  */
@@ -34,15 +34,29 @@ class TimeoffController extends Controller
     {
         $user = \App\User::find($user_id);
 
-        //$this->getAccess($user);
+        $this->getAccess($user);
 
         //$this->validateAccess();
-
+        
         return view('profile.tab_timeoff', [
                     'user' => $user,
                     'has_hr_access' => $this->has_hr_access,
                     'has_manager_access' => $this->has_manager_access
                 ])->render();
+    }
+    
+    /**
+     * Calculate timeoff data
+     * 
+     * @param integer $user_id Employee ID for which to calculate
+     * @param integer $timeoff_id Timeoff type ID for which to calculate
+     * @return Response JSON response with status info
+     */
+    public function calculateTimeoff($user_id, $timeoff_id) {
+        $timeoff = new Timeoff($user_id, $timeoff_id);
+        $timeoff->calculate();
+        
+        return response()->json(['success' => 1]);
     }
     
     /**
@@ -53,13 +67,13 @@ class TimeoffController extends Controller
     public function getCalcTable($user_id, $timeoff_type_id){
         $user = \App\User::find($user_id);
         
-        return $user->timeoffCalc()->where('timeoff_type_id', $timeoff_type_id)->get();
+        return $user->timeoffCalc()->where('timeoff_type_id', $timeoff_type_id)->orderBy('calc_date', 'DESC')->get();
     }
     
     public function getTable($user_id, $timeoff_type_id, $year){
         $user = \App\User::find($user_id);
         
-        return Datatables::of($user->timeoffCalc()
+        return Datatables::of($user->timeoffCalc()->where('timeoff_type_id', $timeoff_type_id)->orderBy('calc_date', 'DESC')
                 )
                 ->make(true);
     }

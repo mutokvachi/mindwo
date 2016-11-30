@@ -1,9 +1,9 @@
 <div id="dx-emp-timeoff-panel" 
-     data-year="{{ $user->timeoffYears()->first()->timeoffYear }}"
-     data-timeoff="{{ $user->timeoff()->first()->title }}">   
+     data-year="2016"
+     data-timeoff="">   
     <div class="dx-emp-timeoff-tiles row">
-        @foreach ($user->timeoff()->get() as $timeoff)
-        @include('profile.control_timeoff_tile', ['timeoff' => $timeoff])
+        @foreach ($user->timeoff() as $timeoff)
+        @include('profile.control_timeoff_tile', ['timeoff' => $timeoff, 'has_hr_access' => $has_hr_access])
         @endforeach
     </div>
 
@@ -21,8 +21,8 @@
                     <tr>
                         <th>Date</th>
                         <th class="sorting_disabled">Notes</th>
-                        <th>Uses / Accrued</th>
-                        <th>Balance</th>
+                        <th>Used / Accrued (hours)</th>
+                        <th>Balance (hours)</th>
                     </tr>
                 </thead>
             </table>

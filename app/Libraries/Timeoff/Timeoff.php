@@ -8,6 +8,8 @@ namespace App\Libraries\Timeoff
     use Carbon\Carbon;    
     use Auth;
     use Log;
+    use App\Libraries\DBHelper;
+    use App\Libraries\Rights;
     
     /**
      * Class for employee time off calculation

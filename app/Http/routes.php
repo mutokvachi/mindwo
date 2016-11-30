@@ -124,6 +124,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'employee'], function() {
     
     Route::group(['prefix' => 'timeoff', 'namespace' => 'Employee'], function () {
         Route::get('/get/view/{user_id}', 'TimeoffController@getView');
+        Route::get('/get/calculate/{user_id}/{timeoff_id}', 'TimeoffController@calculateTimeoff');
         Route::get('/get/table/{user_id}/{timeoff_type_id}/{year}', 'TimeoffController@getTable');
     });
 

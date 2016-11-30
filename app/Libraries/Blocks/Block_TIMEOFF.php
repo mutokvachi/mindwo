@@ -12,9 +12,7 @@ use Carbon\Carbon;
  * Widget displays current user timeoff balance and provides possibility to request leave
  */
 class Block_TIMEOFF extends Block
-{
-	private $work_day_h = 8;
-	
+{	
 	/**
 	 * Render widget and return its HTML.
 	 *
@@ -23,7 +21,8 @@ class Block_TIMEOFF extends Block
 	public function getHtml()
 	{
 		$result = view('blocks.timeoff.widget', [
-			'self' => $this
+			'self' => $this,
+                        'user' => App\User::find(Auth::user()->id)
 		])->render();
 		
 		return $result;
@@ -79,32 +78,6 @@ END;
 	protected function parseParams()
 	{
 	}
-        
-        public function getTimeoffs() {
-            $timeoffs =  DB::table('dx_timeoff_types as to')
-                         ->where('to.is_disabled', '=', 0)
-                         ->get();
-            
-            foreach($timeoffs as $timeoff) {
-                $balance = DB::table('dx_timeoff_calc')
-                           ->where('user_id', '=', Auth::user()->id)
-                           ->where('timeoff_type_id', '=', $timeoff->id)
-                           ->orderBy('calc_date', 'DESC')
-                           ->first();
-                
-                $timeoff->unit = "h";
-                $time = ($balance) ? $balance->balance : 0;
-                if (!$timeoff->is_accrual_hours) {
-                    $time = round(($time/$this->work_day_h));
-                    $timeoff->unit = "d";
-                }
-                
-                $timeoff->balance = $time;
-            }
-            
-            return $timeoffs;
-                   
-        }
 }
 
 ?>

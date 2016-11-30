@@ -35,10 +35,12 @@
     <li class="">
         <a id='dx-tab_notes-btn' href="#dx-tab_notes" data-toggle="tab" aria-expanded="false"> Notes </a>
     </li>
-    @endif
+  @endif
+  @if($has_users_documents_access || $is_my_profile)
     <li class="">
         <a id='dx-tab_timeoff-btn' href="#dx-tab_timeoff" data-toggle="tab" aria-expanded="false"> Time off </a>
     </li>
+  @endif
 @endsection
 
 @section('profile_tabs_content')
@@ -63,24 +65,7 @@
       <div class="tiles">
         @include('profile.tile_hired')
         @include('profile.tile_manager')
-        @if($is_my_profile)
-          <div class="tile image double selected">
-            <div class="tile-body">
-              <img src="/assets/global/tiles/vacation.jpg" alt=""></div>
-            <div class="tile-object">
-              <div class="name"> Available vacation days</div>
-              <div class="number"> 14</div>
-            </div>
-          </div>
-          <div class="tile bg-red-intense">
-            <div class="tile-body">
-              <i class="fa fa-calendar"></i>
-            </div>
-            <div class="tile-object">
-              <div class="name"> Sick days</div>
-              <div class="number"> 3</div>
-            </div>
-          </div>
+        @if($is_my_profile)                   
           <div class="tile bg-yellow-saffron">
             <div class="tile-body">
               <i class="fa fa-gift"></i>
@@ -118,6 +103,8 @@
     <div class="tab-pane fade" id="dx-tab_notes">
     </div>
   @endif
+  @if($has_users_documents_access  || $is_my_profile)
   <div class="tab-pane fade" id="dx-tab_timeoff">
   </div>
+  @endif
 @endsection

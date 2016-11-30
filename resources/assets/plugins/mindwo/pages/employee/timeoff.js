@@ -51,7 +51,19 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
         $('#dx-tab_timeoff').html(data);
 
         $("#dx-tab_timeoff [data-counter='counterup']").counterUp({delay: 10, time: 700});
-
+        
+        $(".dx-accrual-calc").click(function() {
+            window.DxEmpTimeoff.showLoading();
+            $.ajax({
+                url: DX_CORE.site_url + 'employee/timeoff/get/calculate/' + window.DxEmpTimeoff.userId + "/" + $(this).data('timeoff'),
+                type: "get",
+                success: window.DxEmpTimeoff.onCalculateSuccess($(this).data('timeoff')),
+                error: function (data) {
+                    window.DxEmpTimeoff.hideLoading();
+                }
+            }); 
+        });
+        
         //$('#dx-tab_timeoff').on('click', '.dx-emp-timeoff-sel-timeoff', {}, window.DxEmpNotes.timeoffSelect);
        // $('#dx-tab_timeoff').on('click', '.dx-emp-timeoff-sel-year', {}, window.DxEmpNotes.yearSelect);
 
@@ -61,6 +73,31 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
         window.DxEmpTimeoff.initDataTable();
 
         window.DxEmpTimeoff.isLoaded = true;
+    },
+    onCalculateSuccess: function(timeoff_id) {        
+        window.DxEmpTimeoff.refreshDataTable(timeoff_id);
+    },
+    refreshDataTable: function(timeoff_id) {
+        var url = DX_CORE.site_url + 'employee/timeoff/get/table/' + window.DxEmpTimeoff.userId + '/' + timeoff_id + '/' + 1;
+        var tableId = '#dx-empt-datatable-timeoff';
+        
+        $.getJSON(url, null, function( json )
+        {
+            var table = $(tableId).dataTable();
+            var oSettings = table.fnSettings();
+
+            table.fnClearTable(this);
+
+            for (var i=0; i<json.aaData.length; i++)
+            {
+              table.oApi._fnAddData(oSettings, json.aaData[i]);
+            }
+
+            oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+            table.fnDraw();
+            
+            window.DxEmpTimeoff.hideLoading();
+        });  
     },
     initDataTable: function () {
         $('#dx-empt-datatable-timeoff').DataTable({

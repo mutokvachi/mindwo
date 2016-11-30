@@ -86,7 +86,7 @@ return [
     'invalid_input_data' => 'Invalid input data!',
     
     // timeoff
-    'no_accrual_policy' => 'There is not accrual policy set for employee!',
+    'no_accrual_policy' => 'There is no accrual policy set for this time off type!',
     'unsupported_factory_class' => "Unsupported class object '%s'!",
     'no_joined_date' => 'Date joined is not set for the employee!',
 ];

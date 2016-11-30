@@ -89,4 +89,11 @@
   font-style: italic;
 }
 
+.dx-emp-timeoff-tiles .widget-thumb-heading {
+  font-size: 16px;
+}
+.dx-emp-timeoff-tiles .widget-thumb .widget-thumb-wrap .widget-thumb-icon {
+  font-size: 35px;
+}
+
 /*# sourceMappingURL=elix_employee_profile.css.map */
