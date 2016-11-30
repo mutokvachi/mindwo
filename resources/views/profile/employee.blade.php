@@ -36,6 +36,9 @@
         <a id='dx-tab_notes-btn' href="#dx-tab_notes" data-toggle="tab" aria-expanded="false"> Notes </a>
     </li>
     @endif
+    <li class="">
+        <a id='dx-tab_timeoff-btn' href="#dx-tab_timeoff" data-toggle="tab" aria-expanded="false"> Time off </a>
+    </li>
 @endsection
 
 @section('profile_tabs_content')
@@ -115,4 +118,6 @@
     <div class="tab-pane fade" id="dx-tab_notes">
     </div>
   @endif
+  <div class="tab-pane fade" id="dx-tab_timeoff">
+  </div>
 @endsection

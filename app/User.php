@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use DB;
+use Log;
 
 /**
  * Model for systems users
@@ -89,6 +91,49 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	public function notes()
 	{
 		return $this->hasMany('\App\Models\Employee\Note', 'user_id');
+	}
+        
+        /**
+	 * List of users's notes
+	 * @return App\Models\Employee\Note
+	 */
+	public function timeoffCalc()
+	{
+		return $this->hasMany('\App\Models\Employee\UserAccrualPolicy', 'user_id');
+	}
+        
+        /**
+	 * Users's timeoff data
+	 * @return object Contains time off types data and value for specific user
+	 */
+	public function timeoff()
+	{
+            $timeoff_types = DB::table('dx_users_accrual_policies AS uap')                        
+                ->select('uap.timeoff_type_id')   
+                ->where('uap.user_id', $this->id)
+                ->groupBy('uap.timeoff_type_id')
+                ->lists('uap.timeoff_type_id');
+            
+            if(!$timeoff_types){
+                return array();
+            } 
+            
+            return DB::table('dx_timeoff_types AS tt')
+                ->leftJoin('dx_timeoff_calc AS tc', 'tt.id', '=', 'tc.timeoff_type_id')
+                ->leftJoin('dx_timeoff_calc AS tc2', function ($join) {
+                    $join->on('tc2.timeoff_type_id', '=', 'tc.timeoff_type_id');
+                    $join->on('tc2.user_id', '=', 'tc.user_id');
+                    $join->on('tc2.to_date', '>', 'tc.to_date');
+                })
+                ->select('tt.title', 'tt.icon', 'tt.color', 'tt.is_accrual_hours', 'tc.balance')
+                ->whereNull('tc.id')
+                ->orWhere(function ($query) use ($timeoff_types) {
+                    $query->whereIn('tt.id', $timeoff_types)
+                        ->where('tc.user_id', $this->id)
+                        ->whereNull('tc2.to_date');
+                })
+                ->orderBy('tt.title')
+                ->get();
 	}
 	
 	/**
