@@ -64,7 +64,9 @@ gulp.task('mix_all', function() {
             'codemirror/css/ambiance.css', 
             'jasny-bootstrap/css/jasny-bootstrap.min.css', 
             'jquery-nestable/jquery.nestable.css', 
-            'mindwo/css/view.css' 
+            'mindwo/css/view.css',
+            'datatables/plugins/bootstrap/datatables.bootstrap.css',
+            'datatables/datatables.min.css'
         ], 'public/css/elix_view.css', 'resources/assets/plugins');
         
         // horizontal menu UI styles                
@@ -161,7 +163,9 @@ gulp.task('mix_all', function() {
             'mindwo/fields/rel_id.js',
             'mindwo/fields/autocompleate.js',
             'mindwo/fields/datetime.js',
-            'mindwo/fields/bool.js'
+            'mindwo/fields/bool.js',
+            'datatables/datatables.all.min.js',
+            'datatables/plugins/bootstrap/datatables.bootstrap.js'
         ], 'public/js/elix_view.js', 'resources/assets/plugins');
 
         // Scripts for employees search page functionality
@@ -177,13 +181,17 @@ gulp.task('mix_all', function() {
            'mindwo/pages/inlineform.js',
            'mindwo/pages/empl_links_fix.js',
            'mindwo/pages/employee/personal_docs.js',
-           'mindwo/pages/employee/notes.js'
+           'mindwo/pages/employee/notes.js',
+           'mindwo/pages/employee/timeoff.js',
+           'counterup/jquery.counterup.min.js',
+           'counterup/jquery.waypoints.min.js'
         ], 'public/js/elix_profile.js', 'resources/assets/plugins');
         
         // LESS Styles for employee profile                
         mix.less([
             'pages/employee/personal_docs.less',
-            'pages/employee/notes.less'
+            'pages/employee/notes.less',
+            'pages/employee/timeoff.less'
         ], 'public/css/elix_employee_profile.css');
         
         // Scripts for articles search page functionality

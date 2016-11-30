@@ -236,6 +236,9 @@
           $('#dx-tab_notes-btn').click(window.DxEmpNotes.loadView);
       }
       
+      window.DxEmpTimeoff.init(user_id);          
+      $('#dx-tab_timeoff-btn').click(window.DxEmpTimeoff.loadView);
+      
       // set tabs links for sub-grids
       $('.dx-employee-profile a.dx-tab-link').click(function (e) {
         if ($('#' + this.getAttribute('tab_id')).html().trim().length == 0)

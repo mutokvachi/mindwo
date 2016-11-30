@@ -190,6 +190,11 @@ return [
          * JavaScript localization https://github.com/rmariuzzo/Laravel-JS-Localization
          */
         Mariuzzo\LaravelJsLocalization\LaravelJsLocalizationServiceProvider::class,
+        
+        /**
+         * Laravel data table provider
+         */
+        Yajra\Datatables\DatatablesServiceProvider::class,
     ],
 
     /*
@@ -241,6 +246,7 @@ return [
         'Excel'     => 'Maatwebsite\Excel\Facades\Excel',
         'Image'     => 'mindwo\pages\Facades\Image',
         'FilemanagerLaravel' => 'Pqb\FilemanagerLaravel\Facades\FilemanagerLaravel',
+        'Datatables' => Yajra\Datatables\Facades\Datatables::class,
     ],
 
 ];

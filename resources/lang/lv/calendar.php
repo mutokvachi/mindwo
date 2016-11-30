@@ -29,4 +29,7 @@ return [
     
     'lbl_day' => 'Diena',
     'lbl_day_from' => 'Diena no',
+    
+    'hours' => "Stundas",
+    'days' => 'Dienas'
 ];
