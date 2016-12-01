@@ -8,6 +8,7 @@ namespace App\Libraries
     use \Illuminate\Support\Facades\Schema;
     use App\Libraries\Workflows;
     use App\Exceptions;
+    use Log;
     
     /**
      * Klase nodrošina tiesību kontroli
@@ -185,13 +186,17 @@ namespace App\Libraries
             }
 
             $right = Rights::getRightsOnList($list_id);
-
-            if ($right == null || !$right->is_edit_rights || ($item_id ==0 && !$right->is_new_rights)) {
+            
+            if ($right == null) {
                 throw new Exceptions\DXCustomException(trans('errors.no_rights_on_register'));
             }
             
             if ($item_id == 0 && $right->is_new_rights) {
                 return;
+            }
+            
+            if (!$right->is_edit_rights || ($item_id ==0 && !$right->is_new_rights)) {
+                throw new Exceptions\DXCustomException(trans('errors.no_rights_on_register'));
             }
 
             $is_item_editable_wf = Rights::getIsEditRightsOnItem($list_id, $item_id); // Check if not in workflow and not status finished

@@ -6,14 +6,26 @@ use DB;
 
 use App;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
+use App\Libraries\DBHelper;
 
 /**
  * Widget displays current user timeoff balance and provides possibility to request leave
  */
 class Block_TIMEOFF extends Block
 {	
-	/**
+        /**
+         * Leaves request register field for user_id
+         * @var integer 
+         */
+        public $user_field_id = 0;
+        
+        /**
+         * Leaves request register id
+         * @var type 
+         */
+        public $leaves_list_id = 0;
+        
+        /**
 	 * Render widget and return its HTML.
 	 *
 	 * @return string
@@ -37,21 +49,19 @@ class Block_TIMEOFF extends Block
 	 */
 	public function getJS()
 	{
-            return "";
-            /*
+            
 		return <<<END
 			<script>
 				$(document).ready(function(){
-					var items = $('.widget-congratulate .mt-actions > .mt-action');
-					var mult = (items.length < 3 ? items.length : 3);
-					$('.widget-congratulate .mt-actions').slimScroll({
-						height: (items.first().outerHeight() * mult) + 'px'
-					});
+					$(".dx-timeoff-balance .dx-btn-leave-request").click(function() {   
+                                            show_page_splash();
+                                            view_list_item("form", 0, $(this).data('leaves-list-id'), $(this).data('user-field-id'), $(this).data('user-id'), "", ""); 
+                                        });
 				});
 			</script>
 END;
              
-             */
+             
 	}
 	
 	/**
@@ -77,6 +87,11 @@ END;
         
 	protected function parseParams()
 	{
+            $this->leaves_list_id = DBHelper::getListByTable("dx_users_left")->id;
+            $this->user_field_id = DB::table('dx_lists_fields')
+                             ->where('list_id', '=', $this->leaves_list_id)
+                             ->where('db_name', '=', 'user_id')
+                             ->first()->id;
 	}
 }
 

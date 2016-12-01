@@ -47,6 +47,7 @@ return [
     'no_rights_on_register' => 'Jums nav nepieciešamo tiesību šajā reģistrā!',
     'no_rights_to_insert' => 'Jums nav jauna ieraksta veidošanas tiesības šajā reģistrā!', 
     'no_rights_to_edit' => "Jums nav ieraksta labošanas tiesības šajā reģistrā!", 
+    'no_rights_to_delete' => 'Jums nav dzēšanas tiesību šajā reģistrā!',
     
     'cant_create_folder' => "Nav iespējams izveidot katalogu '%s' uz servera diska!",
     'import_wrong_bool' => "Importējamajā Excel datnē Jā/Nē laukā '%s' norādīta nekorekta vērtība '%s'! Laukā pieļaujams norādīt tikai vērtības '%s' vai '%s'.",

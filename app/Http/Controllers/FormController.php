@@ -357,7 +357,7 @@ class FormController extends Controller
     protected function setFormsRightsMode($list_id, $item_id)
     {
         $right = Rights::getRightsOnList($list_id);
-
+        
         if ($right == null) {
             
             if ($item_id == 0 || !Workflows\Helper::isRelatedTask($list_id, $item_id)) {
