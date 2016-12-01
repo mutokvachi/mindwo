@@ -1,4 +1,4 @@
-<div class="portlet sale-summary" dx_block_id="timeoff_widget">
+<div class="portlet sale-summary dx-timeoff-balance" dx_block_id="timeoff_widget">
     <div class="portlet-title">
         <div class="caption">My time off available</div>
         {{--
@@ -17,7 +17,7 @@
             @endforeach            
         </ul>
         <div style="text-align: center;">
-            <button type="button" class="btn btn-primary btn-sm">Request time off</button>
+            <button type="button" class="btn btn-primary btn-sm dx-btn-leave-request" data-leaves-list-id = "{{ $self->leaves_list_id }}" data-user-field-id = "{{ $self->user_field_id }}" data-user-id = "{{ Auth::user()->id }}">Request time off</button>
         </div>
     </div>
 </div>

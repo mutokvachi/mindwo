@@ -47,6 +47,7 @@ return [
     'no_rights_on_register' => "You do not have the necessary rights in this register!",
     'no_rights_to_insert' => "You have no rights to insert a new entry in this register!", 
     'no_rights_to_edit' => "You have no rights to edit the entry in this register!", 
+    'no_rights_to_delete' => 'You have no rights to delete the entry in this register!',
     
     'cant_create_folder' => "It is impossible to create a folder '%s' on the server disk!",
     
