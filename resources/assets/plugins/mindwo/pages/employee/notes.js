@@ -1,6 +1,6 @@
 /**
  * Contains logic for viewing and editing employee's notes
- * @type Window.DxEmpPersDocs|window.DxEmpPersDocs 
+ * @type Window.DxEmpNotes|window.DxEmpNotes 
  */
 window.DxEmpNotes = window.DxEmpNotes || {
     /**

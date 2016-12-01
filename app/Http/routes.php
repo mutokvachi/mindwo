@@ -121,6 +121,12 @@ Route::group(['middleware' => 'auth', 'prefix' => 'employee'], function() {
         Route::post('/save', 'NoteController@save');
         Route::delete('/delete', 'NoteController@delete');
     });
+    
+    Route::group(['prefix' => 'timeoff', 'namespace' => 'Employee'], function () {
+        Route::get('/get/view/{user_id}', 'TimeoffController@getView');
+        Route::get('/get/calculate/{user_id}/{timeoff_id}', 'TimeoffController@calculateTimeoff');
+        Route::get('/get/table/{user_id}/{timeoff_type_id}/{year}', 'TimeoffController@getTable');
+    });
 
     Route::get('profile/{id?}', 'EmplProfileController@show')->name('profile');
     Route::get('profile/{id}/chunks', ['as' => 'profile_chunks', 'middleware' => 'auth_ajax', 'uses' => 'EmplProfileController@ajaxShowChunks']);
