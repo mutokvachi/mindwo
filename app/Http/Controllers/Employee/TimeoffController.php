@@ -8,6 +8,9 @@ use Log;
 use App\Libraries\Rights;
 use Yajra\Datatables\Datatables;
 use App\Libraries\Timeoff\Timeoff;
+use DB;
+use Config;
+
 /**
  * Employee's time off controller
  */
@@ -56,7 +59,25 @@ class TimeoffController extends Controller
         $timeoff = new Timeoff($user_id, $timeoff_id);
         $timeoff->calculate();
         
-        return response()->json(['success' => 1]);
+        $timeoff_row =  DB::table('dx_timeoff_types as to')
+                         ->where('to.id', '=', $timeoff_id)
+                         ->first();
+        
+        $balance = DB::table('dx_timeoff_calc')
+                           ->where('user_id', '=', $user_id)
+                           ->where('timeoff_type_id', '=', $timeoff_id)
+                           ->orderBy('calc_date', 'DESC')
+                           ->first();
+        
+        $time = ($balance) ? $balance->balance : 0;
+        $unit = trans('calendar.hours');
+        
+        if (!$timeoff_row->is_accrual_hours) {
+            $time = round(($time/Config::get('dx.working_day_h', 8)));
+            $unit = trans('calendar.days');
+        }                
+        
+        return response()->json(['success' => 1, 'balance' => $time, 'unit' => $unit]);
     }
     
     /**

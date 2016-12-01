@@ -7085,10 +7085,11 @@ var PageMain = function()
      */
     var initNotifications = function() {
         toastr.options = {
-            "closeButton": false,
+            "closeButton": true,
             "debug": false,
             "progressBar": true,
-            "positionClass": "toast-top-right",
+            "positionClass": "toast-top-center",
+            "preventDuplicates": true,
             "onclick": null,
             "showDuration": "300",
             "hideDuration": "1000",

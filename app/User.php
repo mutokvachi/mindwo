@@ -128,6 +128,12 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
                          ->orderBy('to.title')
                          ->get();
             
+            $user_policy_list_id = Libraries\DBHelper::getListByTable("dx_users_accrual_policies")->id;
+            $user_policy_field_id = DB::table('dx_lists_fields')
+                             ->where('list_id', '=', $user_policy_list_id)
+                             ->where('db_name', '=', 'user_id')
+                             ->first()->id;
+            
             foreach($timeoffs as $timeoff) {
                 $balance = DB::table('dx_timeoff_calc')
                            ->where('user_id', '=', $this->id)
@@ -143,6 +149,17 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
                 }
                 
                 $timeoff->balance = $time;
+                $timeoff->user_policy_list_id = $user_policy_list_id;
+                $timeoff->user_policy_field_id = $user_policy_field_id;
+                
+                $user_policy_row = DB::table('dx_users_accrual_policies')
+                                ->where('user_id', '=', $this->id)
+                                ->where('timeoff_type_id', '=', $timeoff->id)
+                                ->whereNull('end_date')
+                                ->first();
+                
+                $timeoff->user_policy_id = ($user_policy_row) ? $user_policy_row->id : 0;
+                
             }
             
             return $timeoffs;            

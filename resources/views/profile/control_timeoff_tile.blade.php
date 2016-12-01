@@ -10,7 +10,11 @@
                     </a>
                     <ul class="dropdown-menu pull-right">
                         <li>
-                            <a href="javascript:;"> Accrual Policy </a>
+                            <a href="javascript:;" class='dx-accrual-policy'
+                               data-policy-id = "{{ $timeoff->user_policy_id }}"
+                               data-policy-list-id = "{{ $timeoff->user_policy_list_id }}"
+                               data-policy-user-field-id = "{{ $timeoff->user_policy_field_id }}"
+                            > Accrual Policy </a>
                         </li>
                         <li class="divider"> </li>
                         <li>

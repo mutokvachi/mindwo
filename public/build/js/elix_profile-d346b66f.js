@@ -1436,14 +1436,32 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
         
         $(".dx-accrual-calc").click(function() {
             window.DxEmpTimeoff.showLoading();
+            var a_elem = $(this);
             $.ajax({
                 url: DX_CORE.site_url + 'employee/timeoff/get/calculate/' + window.DxEmpTimeoff.userId + "/" + $(this).data('timeoff'),
                 type: "get",
-                success: window.DxEmpTimeoff.onCalculateSuccess($(this).data('timeoff')),
+                success: function(data) {
+                    var thumb = a_elem.closest("div.widget-thumb");
+                    var cnt_elem = thumb.find(".widget-thumb-body-stat").first();
+                    
+                    cnt_elem.attr("data-value",  data.balance);
+                    
+                    cnt_elem.html(data.balance);
+                    
+                    thumb.find(".widget-thumb-subtitle").first().html(data.unit);
+                    cnt_elem.counterUp({delay: 10, time: 700});
+                    
+                    window.DxEmpTimeoff.onCalculateSuccess($(this).data('timeoff'));
+                },
                 error: function (data) {
                     window.DxEmpTimeoff.hideLoading();
                 }
             }); 
+        });
+        
+        $(".dx-accrual-policy").click(function() {
+            window.DxEmpTimeoff.showLoading();
+            view_list_item("form", $(this).data('policy-id'), $(this).data('policy-list-id'), $(this).data('policy-user-field-id'), window.DxEmpTimeoff.userId, "", ""); 
         });
         
         //$('#dx-tab_timeoff').on('click', '.dx-emp-timeoff-sel-timeoff', {}, window.DxEmpNotes.timeoffSelect);
@@ -1469,10 +1487,12 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
             var oSettings = table.fnSettings();
 
             table.fnClearTable(this);
-
-            for (var i=0; i<json.aaData.length; i++)
-            {
-              table.oApi._fnAddData(oSettings, json.aaData[i]);
+            
+            if (json.aaData) {
+                for (var i=0; i<json.aaData.length; i++)
+                {
+                  table.oApi._fnAddData(oSettings, json.aaData[i]);
+                }
             }
 
             oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();

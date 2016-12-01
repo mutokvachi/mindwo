@@ -30,6 +30,13 @@ div.checkbox input.i-checks {
     position: relative;
     margin-left: 0px;
 }
+
+// Fix notify position
+.toast-top-center {
+    top: 12px;
+    margin: 0 auto;
+    left: 50%;
+}
 .ie9-fix-placeholders {
     display: none;
 }
