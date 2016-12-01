@@ -36,7 +36,7 @@
         <a id='dx-tab_notes-btn' href="#dx-tab_notes" data-toggle="tab" aria-expanded="false"> Notes </a>
     </li>
   @endif
-  @if($has_users_documents_access || $is_my_profile)
+  @if($has_users_timeoff_access)
     <li class="">
         <a id='dx-tab_timeoff-btn' href="#dx-tab_timeoff" data-toggle="tab" aria-expanded="false"> Time off </a>
     </li>
@@ -103,7 +103,7 @@
     <div class="tab-pane fade" id="dx-tab_notes">
     </div>
   @endif
-  @if($has_users_documents_access  || $is_my_profile)
+  @if($has_users_timeoff_access)
   <div class="tab-pane fade" id="dx-tab_timeoff">
   </div>
   @endif

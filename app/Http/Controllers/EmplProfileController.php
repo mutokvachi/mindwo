@@ -71,7 +71,8 @@ class EmplProfileController extends Controller
 			'is_my_profile' => $id == Auth::user()->id,
 			'is_edit_rights' => $this->getEditRightsMode(),
 			'has_users_documents_access' => $this->validateUsersDocumentsAccess(),
-                        'has_users_notes_access' => $this->validateUsersNotesAccess($employee)
+                        'has_users_notes_access' => $this->validateUsersNotesAccess($employee),
+                        'has_users_timeoff_access' => $this->validateUsersTimeoffAccess($employee),
 		]);
 	}
 	
@@ -85,6 +86,19 @@ class EmplProfileController extends Controller
 	}
 	
 	/**
+	 * Check if user has access for users time off data
+	 * @return boolean Parameter if user has access
+	 */
+	private function validateUsersTimeoffAccess($user)
+	{
+		$user_timeoff_controller = new App\Http\Controllers\Employee\TimeoffController();
+                
+                $user_timeoff_controller->getAccess($user);
+                  
+		return ($user_timeoff_controller->has_access || $user_timeoff_controller->has_manager_access);
+	}
+        
+        /**
 	 * Check if user has access for users documents
 	 * @return boolean Parameter if user has access
 	 */

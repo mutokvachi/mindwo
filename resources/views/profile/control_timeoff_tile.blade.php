@@ -2,7 +2,7 @@
     <!-- BEGIN WIDGET THUMB -->
     <div class="widget-thumb widget-bg-color-white text-uppercase margin-bottom-20 bordered">
         <h4 class="widget-thumb-heading">{{ $timeoff->title }}</h4>
-        @if ($has_hr_access)
+        @if ($has_access)
             <div class="actions" style="position: absolute; top: 10px; right: 25px;">
                 <div class="btn-group">
                     <a class="btn green-haze btn-outline btn-circle btn-sm" href="javascript:;" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" aria-expanded="false"> Actions

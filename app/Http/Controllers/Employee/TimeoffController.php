@@ -18,16 +18,12 @@ class TimeoffController extends Controller
 {
 
     /**
-     * Parameter if user has manager rights
+     * Parameter if user has access
      * @var boolean 
      */
-    public $has_manager_access = false;
-
-    /**
-     * Parameter if user has HR (Human resources) rights
-     * @var boolean 
-     */
-    public $has_hr_access = false;
+    public $has_access = false;
+    
+    public $has_my_access = false;
 
     /**
      * Gets employee's time off view
@@ -36,18 +32,18 @@ class TimeoffController extends Controller
     public function getView($user_id)
     {
         $user = \App\User::find($user_id);
-
-        $this->getAccess($user);
-
-        //$this->validateAccess();
         
+       $this->getAccess($user);
+      $this->validateAccess();
+        
+        
+
         return view('profile.tab_timeoff', [
                     'user' => $user,
-                    'has_hr_access' => $this->has_hr_access,
-                    'has_manager_access' => $this->has_manager_access
+                    'has_access' => ($this->has_access)
                 ])->render();
     }
-    
+
     /**
      * Calculate timeoff data
      * 
@@ -55,120 +51,74 @@ class TimeoffController extends Controller
      * @param integer $timeoff_id Timeoff type ID for which to calculate
      * @return Response JSON response with status info
      */
-    public function calculateTimeoff($user_id, $timeoff_id) {
+    public function calculateTimeoff($user_id, $timeoff_id)
+    {
+        
         $timeoff = new Timeoff($user_id, $timeoff_id);
         $timeoff->calculate();
-        
-        $timeoff_row =  DB::table('dx_timeoff_types as to')
-                         ->where('to.id', '=', $timeoff_id)
-                         ->first();
-        
+
+        $timeoff_row = DB::table('dx_timeoff_types as to')
+                ->where('to.id', '=', $timeoff_id)
+                ->first();
+
         $balance = DB::table('dx_timeoff_calc')
-                           ->where('user_id', '=', $user_id)
-                           ->where('timeoff_type_id', '=', $timeoff_id)
-                           ->orderBy('calc_date', 'DESC')
-                           ->first();
-        
+                ->where('user_id', '=', $user_id)
+                ->where('timeoff_type_id', '=', $timeoff_id)
+                ->orderBy('calc_date', 'DESC')
+                ->first();
+
         $time = ($balance) ? $balance->balance : 0;
         $unit = trans('calendar.hours');
-        
+
         if (!$timeoff_row->is_accrual_hours) {
-            $time = round(($time/Config::get('dx.working_day_h', 8)));
+            $time = round(($time / Config::get('dx.working_day_h', 8)));
             $unit = trans('calendar.days');
-        }                
-        
+        }
+
         return response()->json(['success' => 1, 'balance' => $time, 'unit' => $unit]);
     }
-    
+
     /**
      * Gets employee's time off calculated table
      * @param integer $user_id Employee's user ID
      * @param integer $timeoff_type_id Time off types id
+     * @param integer $year Time off year
      */
-    public function getCalcTable($user_id, $timeoff_type_id){
-        $user = \App\User::find($user_id);
+    public function getTable($user_id, $timeoff_type_id, $year)
+    {
         
-        return $user->timeoffCalc()->where('timeoff_type_id', $timeoff_type_id)->orderBy('calc_date', 'DESC')->get();
-    }
-    
-    public function getTable($user_id, $timeoff_type_id, $year){
         $user = \App\User::find($user_id);
-        
-        return Datatables::of($user->timeoffCalc()->where('timeoff_type_id', $timeoff_type_id)->orderBy('calc_date', 'DESC')
-                )
-                ->make(true);
+
+        return Datatables::of($user->timeoffCalc()->with('timeoffRecordType')
+                                ->where('timeoff_type_id', $timeoff_type_id)
+                                ->where(DB::Raw('YEAR(calc_date)'), $year)
+                        )
+                        ->make(true);
     }
 
     /**
      * Get rights and check if user has access to employees time off data
-     * @param \App\User $user Users model
      */
     public function getAccess($user)
     {
-        $this->has_hr_access = $this->getHRAccess();
-
-        // List edit rights are checked only for HR users. 
-        // If user has manager access then it doesnt matter if he has access to list
-        if (!$this->getListEditRights()) {
-            $this->has_hr_access = false;
+        if($user->id == \Auth::user()->id){
+             $this->has_my_access = true; 
         }
-
-        if (!$this->has_hr_access) {
-            $this->has_manager_access = $this->getManagerAccess($user);
-        }
-    }
-
-    /**
-     * Check if user has manager access
-     * @param \App\User $user User's model to who manager will be checked
-     * @return boolean True if has manager access
-     */
-    private function getManagerAccess($user)
-    {
-        if ($user && $user->manager_id == \Auth::user()->id) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Check if user has HR access
-     * @return boolean True if has HR access
-     */
-    private function getHRAccess()
-    {
-        // Get rights for employee list
-        $list_rights = Rights::getRightsOnList(config('dx.employee_list_id'));
-
-        // If user has rights the he has HR rights
-        if ($list_rights && $list_rights->is_edit_rights && $list_rights->is_edit_rights == 1) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Check if user has edit rights
-     * @return boolean True if has rights
-     */
-    private function getListEditRights()
-    {
-        $list = \App\Libraries\DBHelper::getListByTable('in_employees_notes');
+        
+        $list = \App\Libraries\DBHelper::getListByTable('dx_timeoff_calc');
 
         // Check if register exist for users time off data
         if (!$list) {
-            return false;
+            return;
         }
 
         $list_rights = Rights::getRightsOnList($list->id);
 
         // Check if user has edit rights on list
         if ($list_rights && $list_rights->is_edit_rights && $list_rights->is_edit_rights == 1) {
-            return true;
+            $this->has_access = true;
         } else {
-            return false;
+            return;
         }
     }
 
@@ -177,7 +127,7 @@ class TimeoffController extends Controller
      */
     private function validateAccess()
     {
-        if (!$this->has_hr_access && !$this->has_manager_access) {
+        if (!$this->has_access && !$this->has_my_access) {
             abort(403, trans('errors.no_rights_on_register'));
         }
     }
