@@ -10,7 +10,7 @@ foreach ($timeoffs as $timeoff) {
 }
 
 $filter_all_years = $user->timeoffYears()->get();
-$filter_year = $user->timeoffYears()->first()->timeoffYear;
+$filter_year = count($filter_all_years) > 0 ? $user->timeoffYears()->first()->timeoffYear : date('Y');
 ?>
 <div id="dx-emp-timeoff-panel" 
      data-year="{{ $filter_year }}"
@@ -34,15 +34,17 @@ $filter_year = $user->timeoffYears()->first()->timeoffYear;
                         <i class="fa fa-calendar"></i> Year - <span class="dx-emp-timeoff-curr-year">{{ $filter_year }}</span>
                         <i class="fa fa-angle-down"></i>
                     </a>
-                    <ul class="dropdown-menu pull-right">
-                        @foreach ($filter_all_years as $year)
-                        <li>
-                            <a href="javascript:;" class="dx-emp-timeoff-sel-year" data-value="{{ $year->timeoffYear }}">
-                                {{ $year->timeoffYear }}
-                            </a>
-                        </li>
-                        @endforeach
-                    </ul>
+                    @if (count($filter_all_years) > 0)
+                        <ul class="dropdown-menu pull-right">
+                            @foreach ($filter_all_years as $year)
+                            <li>
+                                <a href="javascript:;" class="dx-emp-timeoff-sel-year" data-value="{{ $year->timeoffYear }}">
+                                    {{ $year->timeoffYear }}
+                                </a>
+                            </li>
+                            @endforeach
+                        </ul>
+                    @endif
                 </div>
                 <div class="btn-group">
                     <a class="btn btn-circle btn-default " href="javascript:;" data-toggle="dropdown" aria-expanded="false">
