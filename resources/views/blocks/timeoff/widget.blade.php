@@ -12,7 +12,7 @@
             @foreach ($user->timeoff() as $timeoff)
                 <li>
                     <span class="sale-info" style="text-transform: uppercase;"> <i class="{{ $timeoff->icon }}" style="padding: 5px; width: 24px; height: 24px; color: white; background-color:{{ $timeoff->color or '#3598dc' }}"></i> {{ $timeoff->title }} </span>
-                    <span class="sale-num"> {{ $timeoff->balance }}{{ $timeoff->unit}} </span>
+                    <span class="sale-num"> {{ $timeoff->balance }} {{ $timeoff->unit}} </span>
                 </li>
             @endforeach            
         </ul>

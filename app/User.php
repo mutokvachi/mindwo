@@ -141,11 +141,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
                            ->orderBy('calc_date', 'DESC')
                            ->first();
                 
-                $timeoff->unit = "h";
+                $timeoff->unit = trans('calendar.hours');
                 $time = ($balance) ? $balance->balance : 0;
                 if (!$timeoff->is_accrual_hours) {
                     $time = round(($time/Config::get('dx.working_day_h', 8)));
-                    $timeoff->unit = "d";
+                    $timeoff->unit = trans('calendar.days');
                 }
                 
                 $timeoff->balance = $time;

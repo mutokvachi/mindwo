@@ -28,7 +28,7 @@
             <i class="widget-thumb-icon {{ $timeoff->icon or 'fa fa-briefcase' }}" style="background-color:{{ $timeoff->color or '#3598dc' }}"></i>
             <div class="widget-thumb-body">
                 <span class="widget-thumb-subtitle">
-                    {{ $timeoff->is_accrual_hours ? trans('calendar.hours') : trans('calendar.days') }}
+                    {{ $timeoff->unit }}
                 </span>
                 <span class="widget-thumb-body-stat" data-counter="counterup" data-value="{{ $timeoff->balance }}">
                     {{ $timeoff->balance }}

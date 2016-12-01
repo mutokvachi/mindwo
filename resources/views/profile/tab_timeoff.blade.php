@@ -46,7 +46,7 @@ $filter_year = $user->timeoffYears()->first()->timeoffYear;
                 </div>
                 <div class="btn-group">
                     <a class="btn btn-circle btn-default " href="javascript:;" data-toggle="dropdown" aria-expanded="false">
-                        <i class="fa fa-briefcase"></i> Time off - <span class="dx-emp-timeoff-curr-timeoff">{{ $filter_timeoff_title }}</span>
+                        <i class="fa fa-filter"></i> Time off - <span class="dx-emp-timeoff-curr-timeoff">{{ $filter_timeoff_title }}</span>
                         <i class="fa fa-angle-down"></i>
                     </a>
                     <ul class="dropdown-menu pull-right">
