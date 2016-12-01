@@ -51,81 +51,74 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
         $('#dx-tab_timeoff').html(data);
 
         $("#dx-tab_timeoff [data-counter='counterup']").counterUp({delay: 10, time: 700});
-        
-        $(".dx-accrual-calc").click(function() {
+
+        $(".dx-accrual-calc").click(function () {
             window.DxEmpTimeoff.showLoading();
             var a_elem = $(this);
             $.ajax({
-                url: DX_CORE.site_url + 'employee/timeoff/get/calculate/' + window.DxEmpTimeoff.userId + "/" + $(this).data('timeoff'),
+                url: DX_CORE.site_url + 'employee/timeoff/get/calculate/' + window.DxEmpTimeoff.userId + "/" + a_elem.data('timeoff'),
                 type: "get",
-                success: function(data) {
+                success: function (data) {
                     var thumb = a_elem.closest("div.widget-thumb");
                     var cnt_elem = thumb.find(".widget-thumb-body-stat").first();
-                    
-                    cnt_elem.attr("data-value",  data.balance);
-                    
+
+                    cnt_elem.attr("data-value", data.balance);
+
                     cnt_elem.html(data.balance);
-                    
+
                     thumb.find(".widget-thumb-subtitle").first().html(data.unit);
                     cnt_elem.counterUp({delay: 10, time: 700});
-                    
-                    window.DxEmpTimeoff.onCalculateSuccess($(this).data('timeoff'));
+
+                    window.DxEmpTimeoff.onCalculateSuccess(a_elem.data('timeoff'));
                 },
                 error: function (data) {
                     window.DxEmpTimeoff.hideLoading();
                 }
-            }); 
+            });
         });
-        
-        $(".dx-accrual-policy").click(function() {
-            window.DxEmpTimeoff.showLoading();
-            view_list_item("form", $(this).data('policy-id'), $(this).data('policy-list-id'), $(this).data('policy-user-field-id'), window.DxEmpTimeoff.userId, "", ""); 
-        });
-        
-        //$('#dx-tab_timeoff').on('click', '.dx-emp-timeoff-sel-timeoff', {}, window.DxEmpNotes.timeoffSelect);
-       // $('#dx-tab_timeoff').on('click', '.dx-emp-timeoff-sel-year', {}, window.DxEmpNotes.yearSelect);
 
-       // window.DxEmpTimeoff.year = $('#dx-emp-timeoff-panel').data('year');
-     //  window.DxEmpTimeoff.timeoff = $('#dx-emp-timeoff-panel').data('timeoff');
+        $(".dx-accrual-policy").click(function () {
+            window.DxEmpTimeoff.showLoading();
+            view_list_item("form", $(this).data('policy-id'), $(this).data('policy-list-id'), $(this).data('policy-user-field-id'), window.DxEmpTimeoff.userId, "", "");
+        });
+
+        $('.dx-emp-timeoff-sel-timeoff').click(window.DxEmpTimeoff.timeoffSelect);
+        $('.dx-emp-timeoff-sel-year').click(window.DxEmpTimeoff.yearSelect);
+
+
+        window.DxEmpTimeoff.year = $('#dx-emp-timeoff-panel').data('year');
+        window.DxEmpTimeoff.timeoff = $('#dx-emp-timeoff-panel').data('timeoff');
+        window.DxEmpTimeoff.timeoffTitle = $('#dx-emp-timeoff-panel').data('timeoff_title');
 
         window.DxEmpTimeoff.initDataTable();
 
         window.DxEmpTimeoff.isLoaded = true;
     },
-    onCalculateSuccess: function(timeoff_id) {        
-        window.DxEmpTimeoff.refreshDataTable(timeoff_id);
-    },
-    refreshDataTable: function(timeoff_id) {
-        var url = DX_CORE.site_url + 'employee/timeoff/get/table/' + window.DxEmpTimeoff.userId + '/' + timeoff_id + '/' + 1;
-        var tableId = '#dx-empt-datatable-timeoff';
-        
-        $.getJSON(url, null, function( json )
-        {
-            var table = $(tableId).dataTable();
-            var oSettings = table.fnSettings();
-
-            table.fnClearTable(this);
-            
-            if (json.aaData) {
-                for (var i=0; i<json.aaData.length; i++)
-                {
-                  table.oApi._fnAddData(oSettings, json.aaData[i]);
-                }
-            }
-
-            oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
-            table.fnDraw();
-            
+    onCalculateSuccess: function (timeoff_id) {
+        if (window.DxEmpTimeoff.timeoff == timeoff_id) {
+            window.DxEmpTimeoff.refreshDataTable();
+        } else {
             window.DxEmpTimeoff.hideLoading();
-        });  
+        }
+    },
+    refreshDataTable: function () {
+        var url = DX_CORE.site_url + 'employee/timeoff/get/table/' + window.DxEmpTimeoff.userId + '/' + window.DxEmpTimeoff.timeoff + '/' + window.DxEmpTimeoff.year;
+
+        window.DxEmpTimeoff.dataTable.ajax.url(url).load();
+
+        return;
     },
     initDataTable: function () {
-        $('#dx-empt-datatable-timeoff').DataTable({
+        window.DxEmpTimeoff.dataTable = $('#dx-empt-datatable-timeoff').DataTable({
             serverSide: true,
             searching: false,
-            ajax: DX_CORE.site_url + 'employee/timeoff/get/table/' + window.DxEmpTimeoff.userId + '/' + 1 + '/' + 1,
+            order: [[ 1, "desc" ]],
+            ajax: DX_CORE.site_url + 'employee/timeoff/get/table/' + window.DxEmpTimeoff.userId + '/' + window.DxEmpTimeoff.timeoff + '/' + window.DxEmpTimeoff.year,
             columns: [
                 {data: 'calc_date', name: 'calc_date'},
+                {data: 'from_date', name: 'from_date'},
+                {data: 'to_date', name: 'to_date'},
+                {data: 'timeoff_record_type.title', name: 'timeoffRecordType.title'},
                 {data: 'notes', name: 'notes'},
                 {data: 'amount', name: 'amount'},
                 {data: 'balance', name: 'balance'}
@@ -141,20 +134,21 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
     yearSelect: function (e) {
         var btn = $(e.target);
 
-        window.DxEmpTimeoff.year = btn.value();
-        
-        $('.dx-emp-timeoff-curr').html(window.DxEmpTimeoff.timeoff + ' (' + window.DxEmpTimeoff.year + ')');
+        window.DxEmpTimeoff.year = btn.data('value');
 
-        window.DxEmpTimeoff.initDataTable();
+        $('.dx-emp-timeoff-curr-year').html(window.DxEmpTimeoff.year);
+
+        window.DxEmpTimeoff.refreshDataTable();
     },
     timeoffSelect: function (e) {
         var btn = $(e.target);
 
-        window.DxEmpTimeoff.timeoff = btn.value();
-        
-        $('.dx-emp-timeoff-curr').html(window.DxEmpTimeoff.timeoff + ' (' + window.DxEmpTimeoff.year + ')');
+        window.DxEmpTimeoff.timeoff = btn.data('value');
+        window.DxEmpTimeoff.timeoffTitle = btn.data('title');
 
-        window.DxEmpTimeoff.initDataTable();
+        $('.dx-emp-timeoff-curr-timeoff').html(window.DxEmpTimeoff.timeoffTitle);
+
+        window.DxEmpTimeoff.refreshDataTable();
     },
     /**
      * Shows loading box
