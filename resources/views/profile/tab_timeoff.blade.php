@@ -18,19 +18,19 @@ $filter_year = count($filter_all_years) > 0 ? $user->timeoffYears()->first()->ti
      data-timeoff_title="{{ $filter_timeoff_title }}">   
     <div class="dx-emp-timeoff-tiles row">
         @foreach ($timeoffs as $timeoff)
-        @include('profile.control_timeoff_tile', ['timeoff' => $timeoff, 'has_access' => $has_access])
+        @include('profile.control_timeoff_tile')
         @endforeach
     </div>
 
     <div class="portlet light">
         <div class="portlet-title">
-            <div class="caption font-green-sharp">
-                <i class="icon-speech font-green-sharp"></i>
-                <span class="caption-subject"> History </span>
+            <div class="caption font-green-seagreen">
+                <i class="fa fa-history font-green-seagreen"></i>
+                <span class="caption-subject font-lg bold"> History </span>
             </div>
             <div class="actions">
                 <div class="btn-group">
-                    <a class="btn btn-circle btn-default " href="javascript:;" data-toggle="dropdown" aria-expanded="false">
+                    <a class="btn green-seagreen btn-outline btn-circle" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
                         <i class="fa fa-calendar"></i> Year - <span class="dx-emp-timeoff-curr-year">{{ $filter_year }}</span>
                         <i class="fa fa-angle-down"></i>
                     </a>
@@ -47,7 +47,7 @@ $filter_year = count($filter_all_years) > 0 ? $user->timeoffYears()->first()->ti
                     @endif
                 </div>
                 <div class="btn-group">
-                    <a class="btn btn-circle btn-default " href="javascript:;" data-toggle="dropdown" aria-expanded="false">
+                    <a class="btn green-seagreen btn-outline btn-circle" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
                         <i class="fa fa-filter"></i> Time off - <span class="dx-emp-timeoff-curr-timeoff">{{ $filter_timeoff_title }}</span>
                         <i class="fa fa-angle-down"></i>
                     </a>

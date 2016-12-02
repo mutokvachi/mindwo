@@ -95,7 +95,7 @@ class EmplProfileController extends Controller
                 
                 $user_timeoff_controller->getAccess($user);
                   
-		return ($user_timeoff_controller->has_access || $user_timeoff_controller->has_my_access);
+		return ($user_timeoff_controller->has_hr_access || $user_timeoff_controller->has_my_access);
 	}
         
         /**

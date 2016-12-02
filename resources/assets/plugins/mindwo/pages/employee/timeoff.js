@@ -112,7 +112,7 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
         window.DxEmpTimeoff.dataTable = $('#dx-empt-datatable-timeoff').DataTable({
             serverSide: true,
             searching: false,
-            order: [[ 1, "desc" ]],
+            order: [[ 0, "desc" ]],
             ajax: DX_CORE.site_url + 'employee/timeoff/get/table/' + window.DxEmpTimeoff.userId + '/' + window.DxEmpTimeoff.timeoff + '/' + window.DxEmpTimeoff.year,
             columns: [
                 {data: 'calc_date', name: 'calc_date'},

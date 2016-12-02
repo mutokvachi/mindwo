@@ -16,13 +16,16 @@ use Config;
  */
 class TimeoffController extends Controller
 {
-
     /**
-     * Parameter if user has access
+     * Parameter if user has HR access
      * @var boolean 
      */
-    public $has_access = false;
-    
+    public $has_hr_access = false;
+
+    /**
+     * Parameter if user is owner of opened profile
+     * @var boolean 
+     */
     public $has_my_access = false;
 
     /**
@@ -32,15 +35,15 @@ class TimeoffController extends Controller
     public function getView($user_id)
     {
         $user = \App\User::find($user_id);
-        
-       $this->getAccess($user);
-      $this->validateAccess();
-        
-        
+
+        $this->getAccess($user);
+
+        // User with any access type can view this data
+        $this->validateAccess();
 
         return view('profile.tab_timeoff', [
                     'user' => $user,
-                    'has_access' => ($this->has_access)
+                    'has_hr_access' => ($this->has_hr_access)
                 ])->render();
     }
 
@@ -53,7 +56,13 @@ class TimeoffController extends Controller
      */
     public function calculateTimeoff($user_id, $timeoff_id)
     {
-        
+        $user = \App\User::find($user_id);
+
+        $this->getAccess($user);
+
+        // Only user with HR access can view this data
+        $this->validateHrAccess();
+
         $timeoff = new Timeoff($user_id, $timeoff_id);
         $timeoff->calculate();
 
@@ -86,8 +95,12 @@ class TimeoffController extends Controller
      */
     public function getTable($user_id, $timeoff_type_id, $year)
     {
-        
         $user = \App\User::find($user_id);
+
+        $this->getAccess($user);
+
+        // User with any access type can view this data
+        $this->validateAccess();
 
         return Datatables::of($user->timeoffCalc()->with('timeoffRecordType')
                                 ->where('timeoff_type_id', $timeoff_type_id)
@@ -101,10 +114,10 @@ class TimeoffController extends Controller
      */
     public function getAccess($user)
     {
-        if($user->id == \Auth::user()->id){
-             $this->has_my_access = true; 
+        if ($user && $user->id == \Auth::user()->id) {
+            $this->has_my_access = true;
         }
-        
+
         $list = \App\Libraries\DBHelper::getListByTable('dx_timeoff_calc');
 
         // Check if register exist for users time off data
@@ -116,18 +129,28 @@ class TimeoffController extends Controller
 
         // Check if user has edit rights on list
         if ($list_rights && $list_rights->is_edit_rights && $list_rights->is_edit_rights == 1) {
-            $this->has_access = true;
+            $this->has_hr_access = true;
         } else {
             return;
         }
     }
 
     /**
-     * Validate if user has access to employee time off tab. If not then request is aborted.
+     * Validate if user has any access to employee time off tab. If not then request is aborted.
      */
     private function validateAccess()
     {
-        if (!$this->has_access && !$this->has_my_access) {
+        if (!$this->has_hr_access && !$this->has_my_access) {
+            abort(403, trans('errors.no_rights_on_register'));
+        }
+    }
+
+    /**
+     * Validate if user has HR access to employee time off tab. If not then request is aborted.
+     */
+    private function validateHrAccess()
+    {
+        if (!$this->has_hr_access) {
             abort(403, trans('errors.no_rights_on_register'));
         }
     }
