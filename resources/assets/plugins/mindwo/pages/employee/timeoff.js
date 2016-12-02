@@ -59,22 +59,13 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
                 url: DX_CORE.site_url + 'employee/timeoff/get/calculate/' + window.DxEmpTimeoff.userId + "/" + a_elem.data('timeoff'),
                 type: "get",
                 success: function (data) {
-                    var thumb = a_elem.closest("div.widget-thumb");
-                    var cnt_elem = thumb.find(".widget-thumb-body-stat").first();
-
-                    cnt_elem.attr("data-value", data.balance);
-
-                    cnt_elem.html(data.balance);
-
-                    thumb.find(".widget-thumb-subtitle").first().html(data.unit);
-                    cnt_elem.counterUp({delay: 10, time: 700});
-
-                    window.DxEmpTimeoff.onCalculateSuccess(a_elem.data('timeoff'));
-                },
-                error: function (data) {
-                    window.DxEmpTimeoff.hideLoading();
+                    window.DxEmpTimeoff.onCalculateSuccess(a_elem, data);
                 }
             });
+        });
+        
+        $(".dx-accrual-delete").click(function () {
+            PageMain.showConfirm(window.DxEmpTimeoff.deleteCalculation, $(this), Lang.get('form.modal_confirm_title'), Lang.get('timeoff.delete_confirm'), Lang.get('form.btn_delete'), Lang.get('form.btn_cancel'));            
         });
 
         $(".dx-accrual-policy").click(function () {
@@ -94,12 +85,32 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
 
         window.DxEmpTimeoff.isLoaded = true;
     },
-    onCalculateSuccess: function (timeoff_id) {
-        if (window.DxEmpTimeoff.timeoff == timeoff_id) {
+    onCalculateSuccess: function (a_elem, data) {
+        var thumb = a_elem.closest("div.widget-thumb");
+        var cnt_elem = thumb.find(".widget-thumb-body-stat").first();
+
+        cnt_elem.attr("data-value", data.balance);
+
+        cnt_elem.html(data.balance);
+
+        thumb.find(".widget-thumb-subtitle").first().html(data.unit);
+        cnt_elem.counterUp({delay: 10, time: 700});
+        
+        if (window.DxEmpTimeoff.timeoff == a_elem.data('timeoff')) {
             window.DxEmpTimeoff.refreshDataTable();
         } else {
             window.DxEmpTimeoff.hideLoading();
         }
+    },
+    deleteCalculation: function(a_elem) {
+        window.DxEmpTimeoff.showLoading();        
+        $.ajax({
+            url: DX_CORE.site_url + 'employee/timeoff/get/delete_calculated/' + window.DxEmpTimeoff.userId + "/" + a_elem.data('timeoff'),
+            type: "get",
+            success: function (data) {
+                window.DxEmpTimeoff.onCalculateSuccess(a_elem, data);
+            }
+        });
     },
     refreshDataTable: function () {
         var url = DX_CORE.site_url + 'employee/timeoff/get/table/' + window.DxEmpTimeoff.userId + '/' + window.DxEmpTimeoff.timeoff + '/' + window.DxEmpTimeoff.year;

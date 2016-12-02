@@ -126,6 +126,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'employee'], function() {
         Route::get('/get/view/{user_id}', 'TimeoffController@getView');
         Route::get('/get/calculate/{user_id}/{timeoff_id}', 'TimeoffController@calculateTimeoff');
         Route::get('/get/table/{user_id}/{timeoff_type_id}/{year}', 'TimeoffController@getTable');
+        Route::get('/get/delete_calculated/{user_id}/{timeoff_id}', 'TimeoffController@deleteTimeoff');
     });
 
     Route::get('profile/{id?}', 'EmplProfileController@show')->name('profile');
