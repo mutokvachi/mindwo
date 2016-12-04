@@ -269,9 +269,9 @@
     data-item_id="{{ $mode == 'create' ? 0 : $employee->id }}"
     data-list_id="{{ Config::get('dx.employee_list_id') }}"
     data-is_edit_rights='{{ $is_edit_rights }}'
-    data-has_users_documents_access='{{ $has_users_documents_access ? 1 : 0}}'
-    data-has_users_notes_access='{{ $has_users_notes_access ? 1 : 0}}'
-    data-has_users_timeoff_access='{{ $has_users_timeoff_access ? 1 : 0}}'>
+    data-has_users_documents_access='{{ (isset($has_users_documents_access) && $has_users_documents_access) ? 1 : 0}}'
+    data-has_users_notes_access='{{ (isset($has_users_notes_access) && $has_users_notes_access) ? 1 : 0}}'
+    data-has_users_timeoff_access='{{ (isset($has_users_timeoff_access) && $has_users_timeoff_access) ? 1 : 0}}'>
     <div class="portlet-body">
       <div class="row">
         <div class="col-lg-2 col-md-3 col-sm-3 col-xs-12">

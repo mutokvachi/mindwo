@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Employee;
 
@@ -86,6 +86,35 @@ class TimeoffController extends Controller
 
         return response()->json(['success' => 1, 'balance' => $time, 'unit' => $unit]);
     }
+    
+    /**
+     * Delete timeoff data
+     * 
+     * @param integer $user_id Employee ID for which to calculate
+     * @param integer $timeoff_id Timeoff type ID for which to calculate
+     * @return Response JSON response with status info
+     */
+    public function deleteTimeoff($user_id, $timeoff_id) {
+        DB::transaction(function () use ($user_id, $timeoff_id) {
+            DB::table('dx_timeoff_calc')
+                ->where('user_id', '=', $user_id)
+                ->where('timeoff_type_id', '=', $timeoff_id)
+                ->delete();
+        });
+        
+        $timeoff_row = DB::table('dx_timeoff_types as to')
+                ->where('to.id', '=', $timeoff_id)
+                ->first();        
+        
+        $unit = trans('calendar.hours');
+
+        if (!$timeoff_row->is_accrual_hours) {
+            
+            $unit = trans('calendar.days');
+        }
+
+        return response()->json(['success' => 1, 'balance' => 0, 'unit' => $unit]);
+    }
 
     /**
      * Gets employee's time off calculated table
@@ -152,6 +181,25 @@ class TimeoffController extends Controller
     {
         if (!$this->has_hr_access) {
             abort(403, trans('errors.no_rights_on_register'));
+        }
+    }
+    
+    /**
+    * Checks user rights to perform calculation deletion
+    * 
+    * @throws Exceptions\DXCustomException
+    */
+    private function checkDeleteRights() {
+
+        $list = DBHelper::getListByTable('dx_timeoff_calc');
+        $right = Rights::getRightsOnList($list->id);
+
+        if ($right == null) {
+            throw new Exceptions\DXCustomException(trans('errors.no_rights_on_register'));
+        }
+
+        if ($right->is_delete_rights == 0) {           
+            throw new Exceptions\DXCustomException(trans('errors.no_rights_to_delete'));
         }
     }
 }
