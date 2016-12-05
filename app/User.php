@@ -101,14 +101,18 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	}
         
         /**
-	 * List of users's timeoff calculations
-	 * @return App\Models\Employee\Note
+	 * List of users's time off calculations
+	 * @return App\Models\Employee\TimeoffCalc
 	 */
 	public function timeoffCalc()
 	{
 		return $this->hasMany('\App\Models\Employee\TimeoffCalc', 'user_id');
 	}
         
+        /**
+         * List of user's time off years
+         * @return collection
+         */
         public function timeoffYears(){
             return DB::table('dx_timeoff_calc AS tc')
                 ->select(DB::Raw('YEAR(tc.calc_date) as timeoffYear'))
@@ -118,14 +122,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         }
         
         /**
-	 * Users's timeoff data
+	 * Users's time off data
 	 * @return object Contains time off types data and value for specific user
 	 */
 	public function timeoff()
 	{
             $timeoffs =  DB::table('dx_timeoff_types as to')
                          ->where('to.is_disabled', '=', 0)
-                         ->orderBy('to.title')
+                         ->orderBy('to.order_index')
                          ->get();
             
             $user_policy_list_id = Libraries\DBHelper::getListByTable("dx_users_accrual_policies")->id;
