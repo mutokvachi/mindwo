@@ -52,7 +52,8 @@ class TimeoffController extends Controller
      * @param integer $user_id Employee's user ID
      * @return string View's HTML
      */
-    public function getYearFilterView($user_id){
+    public function getYearFilterView($user_id)
+    {
         $user = \App\User::find($user_id);
 
         $this->getAccess($user);
@@ -61,12 +62,12 @@ class TimeoffController extends Controller
         $this->validateAccess();
 
         $filter_all_years = $user->timeoffYears()->get();
-        
+
         return view('profile.timeoff.control_timeoff_filter_year', [
                     'filter_all_years' => $filter_all_years
                 ])->render();
     }
-    
+
     /**
      * Calculate timeoff data
      * 
@@ -106,7 +107,7 @@ class TimeoffController extends Controller
 
         return response()->json(['success' => 1, 'balance' => $time, 'unit' => $unit]);
     }
-    
+
     /**
      * Delete timeoff data
      * 
@@ -114,22 +115,23 @@ class TimeoffController extends Controller
      * @param integer $timeoff_id Timeoff type ID for which to calculate
      * @return Response JSON response with status info
      */
-    public function deleteTimeoff($user_id, $timeoff_id) {
+    public function deleteTimeoff($user_id, $timeoff_id)
+    {
         DB::transaction(function () use ($user_id, $timeoff_id) {
             DB::table('dx_timeoff_calc')
-                ->where('user_id', '=', $user_id)
-                ->where('timeoff_type_id', '=', $timeoff_id)
-                ->delete();
+                    ->where('user_id', '=', $user_id)
+                    ->where('timeoff_type_id', '=', $timeoff_id)
+                    ->delete();
         });
-        
+
         $timeoff_row = DB::table('dx_timeoff_types as to')
                 ->where('to.id', '=', $timeoff_id)
-                ->first();        
-        
+                ->first();
+
         $unit = trans('calendar.hours');
 
         if (!$timeoff_row->is_accrual_hours) {
-            
+
             $unit = trans('calendar.days');
         }
 
@@ -141,6 +143,7 @@ class TimeoffController extends Controller
      * @param integer $user_id Employee's user ID
      * @param integer $timeoff_type_id Time off types id
      * @param integer $year Time off year
+     * @return Yajra\Datatables
      */
     public function getTable($user_id, $timeoff_type_id, $year)
     {
@@ -203,14 +206,14 @@ class TimeoffController extends Controller
             abort(403, trans('errors.no_rights_on_register'));
         }
     }
-    
-    /**
-    * Checks user rights to perform calculation deletion
-    * 
-    * @throws Exceptions\DXCustomException
-    */
-    private function checkDeleteRights() {
 
+    /**
+     * Checks user rights to perform calculation deletion
+     * 
+     * @throws Exceptions\DXCustomException
+     */
+    private function checkDeleteRights()
+    {
         $list = DBHelper::getListByTable('dx_timeoff_calc');
         $right = Rights::getRightsOnList($list->id);
 
@@ -218,7 +221,7 @@ class TimeoffController extends Controller
             throw new Exceptions\DXCustomException(trans('errors.no_rights_on_register'));
         }
 
-        if ($right->is_delete_rights == 0) {           
+        if ($right->is_delete_rights == 0) {
             throw new Exceptions\DXCustomException(trans('errors.no_rights_to_delete'));
         }
     }

@@ -1,5 +1,5 @@
 /**
- * Contains logic for viewing and editing employee's notes
+ * Contains logic for viewing and editing employee's time off data
  * @type Window.DxEmpTimeoff|window.DxEmpTimeoff 
  */
 window.DxEmpTimeoff = window.DxEmpTimeoff || {
@@ -12,7 +12,7 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
      */
     isLoaded: false,
     /**
-     * Parameter if note is sending to server
+     * Parameter if data is sending to server
      */
     isSending: false,
     /**
@@ -25,6 +25,8 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
     timeoff: 1,
     /**
      * Initializes component
+     * @param {integer} userId User's ID which is opened
+     * @returns {undefined}
      */
     init: function (userId) {
         window.DxEmpTimeoff.userId = userId;
@@ -53,7 +55,7 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
      * Reloads year filter
      * @returns {undefined}
      */
-    loadFilterYear: function(){
+    loadFilterYear: function () {
         $.ajax({
             url: DX_CORE.site_url + 'employee/timeoff/get/filter/year/' + window.DxEmpTimeoff.userId,
             type: "get",
@@ -67,7 +69,7 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
      * @param {string} data  HTML of the filter
      * @returns {undefined}
      */
-    onLoadFilterYearSuccess:function(data){
+    onLoadFilterYearSuccess: function (data) {
         $('.dx-emp-timeoff-filter-year-list').html(data);
     },
     /**
@@ -90,9 +92,9 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
                 }
             });
         });
-        
+
         $(".dx-accrual-delete").click(function () {
-            PageMain.showConfirm(window.DxEmpTimeoff.deleteCalculation, $(this), Lang.get('form.modal_confirm_title'), Lang.get('timeoff.delete_confirm'), Lang.get('form.btn_delete'), Lang.get('form.btn_cancel'));            
+            PageMain.showConfirm(window.DxEmpTimeoff.deleteCalculation, $(this), Lang.get('form.modal_confirm_title'), Lang.get('timeoff.delete_confirm'), Lang.get('form.btn_delete'), Lang.get('form.btn_cancel'));
         });
 
         $(".dx-accrual-policy").click(function () {
@@ -100,7 +102,7 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
             view_list_item("form", $(this).data('policy-id'), $(this).data('policy-list-id'), $(this).data('policy-user-field-id'), window.DxEmpTimeoff.userId, "", "");
         });
 
-        $('.dx-emp-timeoff-sel-timeoff').click(window.DxEmpTimeoff.timeoffSelect);        
+        $('.dx-emp-timeoff-sel-timeoff').click(window.DxEmpTimeoff.timeoffSelect);
         $('.dx-emp-timeoff-filter-year').on('click', '.dx-emp-timeoff-sel-year', {}, window.DxEmpTimeoff.yearSelect);
 
         window.DxEmpTimeoff.year = $('#dx-emp-timeoff-panel').data('year');
@@ -111,6 +113,12 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
 
         window.DxEmpTimeoff.isLoaded = true;
     },
+    /**
+     * Event handler on successful calculation
+     * @param {DOMObject} a_elem Button which triggered event
+     * @param {array} data Data returned from server
+     * @returns {undefined}
+     */
     onCalculateSuccess: function (a_elem, data) {
         var thumb = a_elem.closest("div.widget-thumb");
         var cnt_elem = thumb.find(".widget-thumb-body-stat").first();
@@ -121,18 +129,23 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
 
         thumb.find(".widget-thumb-subtitle").first().html(data.unit);
         cnt_elem.counterUp({delay: 10, time: 700});
-        
+
         // This also refresh table after filter is reloaded
         window.DxEmpTimeoff.loadFilterYear();
-        
+
         if (window.DxEmpTimeoff.timeoff == a_elem.data('timeoff')) {
             window.DxEmpTimeoff.refreshDataTable();
         } else {
             window.DxEmpTimeoff.hideLoading();
         }
     },
-    deleteCalculation: function(a_elem) {
-        window.DxEmpTimeoff.showLoading();        
+    /**
+     * Deletes calculation
+     * @param {DOMObject} a_elem Button which triggered event
+     * @returns {undefined}
+     */
+    deleteCalculation: function (a_elem) {
+        window.DxEmpTimeoff.showLoading();
         $.ajax({
             url: DX_CORE.site_url + 'employee/timeoff/get/delete_calculated/' + window.DxEmpTimeoff.userId + "/" + a_elem.data('timeoff'),
             type: "get",
@@ -141,6 +154,10 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
             }
         });
     },
+    /**
+     * Refreshes data table
+     * @returns {undefined}
+     */
     refreshDataTable: function () {
         var url = DX_CORE.site_url + 'employee/timeoff/get/table/' + window.DxEmpTimeoff.userId + '/' + window.DxEmpTimeoff.timeoff + '/' + window.DxEmpTimeoff.year;
 
@@ -148,11 +165,15 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
 
         return;
     },
+    /**
+     * Initializes data table
+     * @returns {undefined}
+     */
     initDataTable: function () {
         window.DxEmpTimeoff.dataTable = $('#dx-empt-datatable-timeoff').DataTable({
             serverSide: true,
             searching: false,
-            order: [[ 0, "desc" ]],
+            order: [[0, "desc"]],
             ajax: DX_CORE.site_url + 'employee/timeoff/get/table/' + window.DxEmpTimeoff.userId + '/' + window.DxEmpTimeoff.timeoff + '/' + window.DxEmpTimeoff.year,
             columns: [
                 {data: 'calc_date', name: 'calc_date'},
@@ -172,22 +193,24 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
         });
     },
     /**
-     * Event callback when filter value is selected
-     * @param {type} e
+     * Event callback when filter's year value is selected
+     * @param {object} e Event caller
      * @returns {undefined}
      */
     yearSelect: function (e) {
         var btn = $(e.target);
 
-        window.DxEmpTimeoff.filterByYear(btn.data('value'));
-    },  
-    filterByYear: function (value){
-        window.DxEmpTimeoff.year = value;
+        window.DxEmpTimeoff.year = btn.data('value');
 
         $('.dx-emp-timeoff-curr-year').html(window.DxEmpTimeoff.year);
 
         window.DxEmpTimeoff.refreshDataTable();
     },
+    /**
+     * Event callback when filter's time off type value is selected
+     * @param {object} e Event caller
+     * @returns {undefined}
+     */
     timeoffSelect: function (e) {
         var btn = $(e.target);
 
@@ -217,6 +240,7 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
     /**
      * Event when ajax request gets error
      * @param {array} data Data containing error information
+     * @returns {undefined}
      */
     onAjaxError: function (data) {
         window.DxEmpTimeoff.hideLoading();
