@@ -10,18 +10,16 @@ foreach ($timeoffs as $timeoff) {
 }
 
 $filter_all_years = $user->timeoffYears()->get();
-$filter_year = count($filter_all_years) > 0 ? $user->timeoffYears()->first()->timeoffYear : date('Y');
 ?>
 <div id="dx-emp-timeoff-panel" 
-     data-year="{{ $filter_year }}"
+     data-year="{{ (count($filter_all_years) > 0) ? $filter_all_years[0]->timeoffYear : date('Y') }}"
      data-timeoff="{{ $filter_timeoff_id }}"
      data-timeoff_title="{{ $filter_timeoff_title }}">   
     <div class="dx-emp-timeoff-tiles row">
         @foreach ($timeoffs as $timeoff)
-        @include('profile.control_timeoff_tile')
+        @include('profile.timeoff.control_timeoff_tile')
         @endforeach
     </div>
-
     <div class="portlet light">
         <div class="portlet-title">
             <div class="caption font-green-seagreen">
@@ -29,22 +27,14 @@ $filter_year = count($filter_all_years) > 0 ? $user->timeoffYears()->first()->ti
                 <span class="caption-subject font-lg bold"> History </span>
             </div>
             <div class="actions">
-                <div class="btn-group">
+                <div class="btn-group dx-emp-timeoff-filter-year">
                     <a class="btn green-seagreen btn-outline btn-circle" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
-                        <i class="fa fa-calendar"></i> Year - <span class="dx-emp-timeoff-curr-year">{{ $filter_year }}</span>
+                        <i class="fa fa-calendar"></i> Year - <span class="dx-emp-timeoff-curr-year">{{ (count($filter_all_years) > 0) ? $filter_all_years[0]->timeoffYear : date('Y') }}</span>
                         <i class="fa fa-angle-down"></i>
                     </a>
-                    @if (count($filter_all_years) > 0)
-                        <ul class="dropdown-menu pull-right">
-                            @foreach ($filter_all_years as $year)
-                            <li>
-                                <a href="javascript:;" class="dx-emp-timeoff-sel-year" data-value="{{ $year->timeoffYear }}">
-                                    {{ $year->timeoffYear }}
-                                </a>
-                            </li>
-                            @endforeach
-                        </ul>
-                    @endif
+                    <ul class="dropdown-menu pull-right dx-emp-timeoff-filter-year-list">
+                        @include('profile.timeoff.control_timeoff_filter_year')
+                    </ul>
                 </div>
                 <div class="btn-group">
                     <a class="btn green-seagreen btn-outline btn-circle" href="javascript:;" data-toggle="dropdown" aria-expanded="false">

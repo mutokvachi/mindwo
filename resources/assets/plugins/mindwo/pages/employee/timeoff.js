@@ -15,7 +15,13 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
      * Parameter if note is sending to server
      */
     isSending: false,
+    /**
+     * Current filter's year value
+     */
     year: 2016,
+    /**
+     * Current filter's time off value
+     */
     timeoff: 1,
     /**
      * Initializes component
@@ -42,6 +48,27 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
                 window.DxEmpTimeoff.hideLoading();
             }
         });
+    },
+    /**
+     * Reloads year filter
+     * @returns {undefined}
+     */
+    loadFilterYear: function(){
+        $.ajax({
+            url: DX_CORE.site_url + 'employee/timeoff/get/filter/year/' + window.DxEmpTimeoff.userId,
+            type: "get",
+            success: window.DxEmpTimeoff.onLoadFilterYearSuccess,
+            error: function (data) {
+            }
+        });
+    },
+    /**
+     * On successfully retrieved filter HTML
+     * @param {string} data  HTML of the filter
+     * @returns {undefined}
+     */
+    onLoadFilterYearSuccess:function(data){
+        $('.dx-emp-timeoff-filter-year-list').html(data);
     },
     /**
      * Evnet handler when view is successfully loaded
@@ -73,9 +100,8 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
             view_list_item("form", $(this).data('policy-id'), $(this).data('policy-list-id'), $(this).data('policy-user-field-id'), window.DxEmpTimeoff.userId, "", "");
         });
 
-        $('.dx-emp-timeoff-sel-timeoff').click(window.DxEmpTimeoff.timeoffSelect);
-        $('.dx-emp-timeoff-sel-year').click(window.DxEmpTimeoff.yearSelect);
-
+        $('.dx-emp-timeoff-sel-timeoff').click(window.DxEmpTimeoff.timeoffSelect);        
+        $('.dx-emp-timeoff-filter-year').on('click', '.dx-emp-timeoff-sel-year', {}, window.DxEmpTimeoff.yearSelect);
 
         window.DxEmpTimeoff.year = $('#dx-emp-timeoff-panel').data('year');
         window.DxEmpTimeoff.timeoff = $('#dx-emp-timeoff-panel').data('timeoff');
@@ -95,6 +121,9 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
 
         thumb.find(".widget-thumb-subtitle").first().html(data.unit);
         cnt_elem.counterUp({delay: 10, time: 700});
+        
+        // This also refresh table after filter is reloaded
+        window.DxEmpTimeoff.loadFilterYear();
         
         if (window.DxEmpTimeoff.timeoff == a_elem.data('timeoff')) {
             window.DxEmpTimeoff.refreshDataTable();
@@ -142,10 +171,18 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
             }
         });
     },
+    /**
+     * Event callback when filter value is selected
+     * @param {type} e
+     * @returns {undefined}
+     */
     yearSelect: function (e) {
         var btn = $(e.target);
 
-        window.DxEmpTimeoff.year = btn.data('value');
+        window.DxEmpTimeoff.filterByYear(btn.data('value'));
+    },  
+    filterByYear: function (value){
+        window.DxEmpTimeoff.year = value;
 
         $('.dx-emp-timeoff-curr-year').html(window.DxEmpTimeoff.year);
 

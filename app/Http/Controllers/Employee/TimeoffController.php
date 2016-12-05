@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Controllers\Employee;
 
@@ -47,6 +47,26 @@ class TimeoffController extends Controller
                 ])->render();
     }
 
+    /**
+     * Returns HTML for the year filter view
+     * @param integer $user_id Employee's user ID
+     * @return string View's HTML
+     */
+    public function getYearFilterView($user_id){
+        $user = \App\User::find($user_id);
+
+        $this->getAccess($user);
+
+        // User with any access type can view this data
+        $this->validateAccess();
+
+        $filter_all_years = $user->timeoffYears()->get();
+        
+        return view('profile.timeoff.control_timeoff_filter_year', [
+                    'filter_all_years' => $filter_all_years
+                ])->render();
+    }
+    
     /**
      * Calculate timeoff data
      * 
