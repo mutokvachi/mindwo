@@ -3,10 +3,10 @@ $timeoffs = $user->timeoff();
 
 $filter_timeoff_id = 0;
 $filter_timeoff_title = 0;
-foreach ($timeoffs as $timeoff) {
-    $filter_timeoff_id = $timeoff->id;
-    $filter_timeoff_title = $timeoff->title;
-    break;
+
+if ((count($timeoffs) > 0)) {
+    $filter_timeoff_id = $timeoffs[0]->id;
+    $filter_timeoff_title = $timeoffs[0]->title;
 }
 
 $filter_all_years = $user->timeoffYears()->get();

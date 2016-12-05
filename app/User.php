@@ -129,7 +129,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	{
             $timeoffs =  DB::table('dx_timeoff_types as to')
                          ->where('to.is_disabled', '=', 0)
-                         ->orderBy('to.title')
+                         ->orderBy('to.order_index')
                          ->get();
             
             $user_policy_list_id = Libraries\DBHelper::getListByTable("dx_users_accrual_policies")->id;
