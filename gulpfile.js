@@ -196,6 +196,20 @@ gulp.task('mix_all', function() {
             'mindwo/pages/articles.js'
         ], 'public/js/elix_articles.js', 'resources/assets/plugins');
         
+        // Scripts for organization chart
+        mix.scripts([
+            'orgchart/OrgChart.js',
+			'select2/select2.min.js',
+			'select2/select2_locale_multi.js'
+        ], 'public/js/elix_orgchart.js', 'resources/assets/plugins');
+	
+		// Styles for organization chart
+        mix.styles([
+            'orgchart/orgchart.css',
+			'select2/select2.css',
+            'select2/select2-bootstrap.css'
+		], 'public/css/elix_orgchart.css', 'resources/assets/plugins');
+        
         // Minify all scripts
         mix.version([
             'js/elix_userlinks.js', 
@@ -212,7 +226,9 @@ gulp.task('mix_all', function() {
             'css/elix_metronic.css',
             'js/elix_articles.js',
             'css/elix_articles.css',
-            'css/elix_employee_profile.css'
+            'css/elix_employee_profile.css',
+            'js/elix_orgchart.js',
+            'css/elix_orgchart.css'
         ]);
     });
 });

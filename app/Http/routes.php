@@ -141,7 +141,8 @@ Route::group(['middleware' => 'auth_ajax', 'prefix' => 'inlineform'], function()
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'organization'], function() {
-	Route::get('chart', 'OrgChartController@show');
+	Route::get('chart/{id?}', ['as' => 'organization_chart', 'uses' => 'OrgChartController@show']);
+	Route::get('chart/parent/{id?}', ['as' => 'organization_chart_parent', 'middleware' => 'auth_ajax', 'uses' => 'OrgChartController@ajaxGetParent']);
 });
 
 // Lapas
