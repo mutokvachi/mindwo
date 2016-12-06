@@ -5,7 +5,6 @@ use Illuminate\Database\Migrations\Migration;
 use App\Libraries\Structure;
 
 use Illuminate\Support\Facades\Config;
-use App;
 
 class CreateTimeOff extends Migration
 {

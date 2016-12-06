@@ -4,7 +4,6 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use App\Libraries\Structure;
 use Illuminate\Support\Facades\Config;
-use App;
 
 class CreateQualificationDocs extends Migration
 {
