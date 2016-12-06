@@ -218,6 +218,16 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	{
 		return $this->hasMany('App\User', 'team_id', 'team_id');
 	}
+        
+        /**
+	 * Relation to subordinates (dirrect reporters)
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function subordinates()
+	{
+		return $this->hasMany('App\User', 'manager_id', 'id');
+	}
 	
 	/**
 	 * Get an URL of user's avatar

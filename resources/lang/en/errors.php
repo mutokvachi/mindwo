@@ -90,4 +90,7 @@ return [
     'no_accrual_policy' => 'There is no accrual policy set for this time off type!',
     'unsupported_factory_class' => "Unsupported class object '%s'!",
     'no_joined_date' => 'Date joined is not set for the employee!',
+    
+    //tasks widget
+    'unsupported_task_view' => "Unsupported tasks view code '%s'!",
 ];

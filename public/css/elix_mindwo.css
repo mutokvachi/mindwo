@@ -37,6 +37,10 @@ div.checkbox input.i-checks {
     margin: 0 auto;
     left: 50%;
 }
+
+.btn.scroll-to-top {
+    position: fixed!important;
+}
 .ie9-fix-placeholders {
     display: none;
 }

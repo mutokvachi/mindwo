@@ -4,9 +4,22 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use App\Libraries\Structure;
 use Illuminate\Support\Facades\Config;
+use App;
 
 class CreateQualificationLang extends Migration
 {
+    
+    private $is_hr_ui = false;
+    private $is_hr_role = false;
+    
+    private function checkUI_Role() {
+        $list_id = Config::get('dx.employee_list_id', 0);
+        
+        $this->is_hr_ui = ($list_id > 0);   
+        
+        $this->is_hr_role  = (App::getLocale() == 'en');
+    }
+    
     /**
      * Run the migrations.
      *
@@ -14,6 +27,8 @@ class CreateQualificationLang extends Migration
      */
     public function up()
     {
+        $this->checkUI_Role();
+        
         Schema::dropIfExists('dx_users_langs');
         Schema::dropIfExists('dx_langs');
         Schema::dropIfExists('dx_lang_levels');
@@ -91,12 +106,17 @@ class CreateQualificationLang extends Migration
         $list_id = App\Libraries\DBHelper::getListByTable('dx_lang_levels')->id;       
         
         // rights
-        DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        if ($this->is_hr_role) {
+            DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        }
+        
         DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
 
         // menu
-        DB::table('dx_menu')->insert(['parent_id' => 252, 'title'=>'Language levels', 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', 252)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
-
+        if ($this->is_hr_ui) {
+            DB::table('dx_menu')->insert(['parent_id' => 252, 'title'=>'Language levels', 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', 252)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
+        }
+        
         // create languages register        
         $obj_id = DB::table('dx_objects')->insertGetId(['db_name' => 'dx_langs', 'title' => 'Languages' , 'is_history_logic' => 1]);
         $list_gen = new Structure\StructMethod_register_generate();
@@ -109,12 +129,16 @@ class CreateQualificationLang extends Migration
         $list_id = App\Libraries\DBHelper::getListByTable('dx_langs')->id;       
         
         // rights
-        DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        if ($this->is_hr_role) {
+            DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        }
         DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
 
         // menu
-        DB::table('dx_menu')->insert(['parent_id' => 252, 'title'=>'Languages', 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', 252)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
-                
+        if ($this->is_hr_ui) {
+            DB::table('dx_menu')->insert(['parent_id' => 252, 'title'=>'Languages', 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', 252)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
+        }
+        
         // create employees/languages register        
         $obj_id = DB::table('dx_objects')->insertGetId(['db_name' => 'dx_users_langs', 'title' => 'Employee languages' , 'is_history_logic' => 1]);
         $list_gen = new Structure\StructMethod_register_generate();
@@ -127,7 +151,8 @@ class CreateQualificationLang extends Migration
         $list_id = App\Libraries\DBHelper::getListByTable('dx_users_langs')->id;       
         
         //fix user field (because we have 2 registers in 1 table dx_users)
-        DB::table('dx_lists_fields')
+        if ($this->is_hr_ui) {
+            DB::table('dx_lists_fields')
                 ->where('list_id', '=', $list_id)
                 ->where('db_name', '=', 'user_id')
                 ->update([
@@ -135,21 +160,26 @@ class CreateQualificationLang extends Migration
                     'rel_display_field_id' => DB::table('dx_lists_fields')->where('list_id', '=', Config::get('dx.employee_list_id'))->where('db_name', '=', 'display_name')->first()->id,
                     'type_id' => \App\Libraries\DBHelper::FIELD_TYPE_LOOKUP
                 ]);
+        }
                 
-        // rights       
-        DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        // rights
+        if ($this->is_hr_role) {
+            DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        }
         DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
         
-        // make tab in employee profile form
-        $form_id = DB::table('dx_forms')->where('list_id', '=', Config::get('dx.employee_list_id'))->first()->id;
-        
-        DB::table('dx_forms_tabs')->insert([
-            'form_id'=>$form_id,
-            'title' => 'Languages',
-            'grid_list_id' => $list_id,
-            'grid_list_field_id' => DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'user_id')->first()->id,
-            'order_index' => (DB::table('dx_forms_tabs')->where('form_id', '=', $form_id)->max('order_index')+10)
-        ]);
+        if ($this->is_hr_ui) {
+            // make tab in employee profile form
+            $form_id = DB::table('dx_forms')->where('list_id', '=', Config::get('dx.employee_list_id'))->first()->id;
+
+            DB::table('dx_forms_tabs')->insert([
+                'form_id'=>$form_id,
+                'title' => 'Languages',
+                'grid_list_id' => $list_id,
+                'grid_list_field_id' => DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'user_id')->first()->id,
+                'order_index' => (DB::table('dx_forms_tabs')->where('form_id', '=', $form_id)->max('order_index')+10)
+            ]);
+        }
     }
 
     /**
