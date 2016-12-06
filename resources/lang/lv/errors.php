@@ -89,4 +89,6 @@ return [
     'unsupported_factory_class' => "Neatbalstīts klases objekts '%s'!",
     'no_joined_date' => 'Darbiniekam nav uzstādīts darba attiecību sākšanas datums!',
     
+    //tasks widget
+    'unsupported_task_view' => "Neatbalstīts uzdevmu skata kods '%s'!",
 ];
