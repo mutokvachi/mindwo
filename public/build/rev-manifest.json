@@ -13,5 +13,7 @@
   "css/elix_metronic.css": "css/elix_metronic-dbdd9ecc.css",
   "js/elix_articles.js": "js/elix_articles-830bea41.js",
   "css/elix_articles.css": "css/elix_articles-eeb1c7fa.css",
-  "css/elix_employee_profile.css": "css/elix_employee_profile-586c1a86.css"
+  "css/elix_employee_profile.css": "css/elix_employee_profile-586c1a86.css",
+  "js/elix_orgchart.js": "js/elix_orgchart-35309609.js",
+  "css/elix_orgchart.css": "css/elix_orgchart-9d96085f.css"
 }

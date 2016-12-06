@@ -147,6 +147,11 @@ Route::group(['middleware' => 'auth_ajax', 'prefix' => 'inlineform'], function()
 	Route::delete('{id}', 'InlineFormController@destroy');
 });
 
+Route::group(['middleware' => 'auth', 'prefix' => 'organization'], function() {
+	Route::get('chart/{id?}', ['as' => 'organization_chart', 'uses' => 'OrgChartController@show']);
+	Route::get('chart/parent/{id?}', ['as' => 'organization_chart_parent', 'middleware' => 'auth_ajax', 'uses' => 'OrgChartController@ajaxGetParent']);
+});
+
 // Lapas
 /*
 Route::get('/{id}/{item}', array('as' => 'page',  'middleware' => 'auth', 'uses'=>'PagesController@showPageItem'));
