@@ -29,8 +29,13 @@ class FixCustomJs extends Migration
         foreach($this->arr_upd as $upd) {
             // save backup
             $tmp_file = $tmp_dir . $upd['file_name'];
-            $content = DB::table('dx_forms_js')->where('id', '=', $upd["js_id"])->first()->js_code;
+            $content_row = DB::table('dx_forms_js')->where('id', '=', $upd["js_id"])->first();
             
+            if (!$content_row) {
+                continue;
+            }
+            
+            $content = $content_row->js_code;
             $bytes_written = File::put($tmp_file, $content);
             if ($bytes_written === false)
             {
@@ -55,6 +60,12 @@ class FixCustomJs extends Migration
         $tmp_dir = storage_path() . DIRECTORY_SEPARATOR . "app" . DIRECTORY_SEPARATOR . "tmp" . DIRECTORY_SEPARATOR;
         
         foreach($this->arr_upd as $upd) {          
+            
+            $content_row = DB::table('dx_forms_js')->where('id', '=', $upd["js_id"])->first();
+            
+            if (!$content_row) {
+                continue;
+            }
             
             // update with backup value
             $file_js = $tmp_dir . $upd['file_name'];
