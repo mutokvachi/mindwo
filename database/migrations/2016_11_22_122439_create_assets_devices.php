@@ -119,8 +119,10 @@ class CreateAssetsDevices extends Migration
         
         // rights
         DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
-        DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
-
+        if ($this->is_hr_ui) {
+            DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        }
+        
         // menu
         $rep_menu = DB::table('dx_menu')->where('title', '=', 'Reports')->first();
         if ($rep_menu) {

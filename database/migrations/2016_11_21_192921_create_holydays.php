@@ -168,6 +168,17 @@ class CreateHolydays extends Migration
             DB::table('dx_menu')->insertGetId(['parent_id' => $menu_parent_id, 'title'=>'Month days', 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $menu_parent_id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
         }
         
+        // check if countries register exists
+        $coun = DB::table('dx_objects')->where('db_name','=','dx_countries')->first();
+        if (!$coun) {
+            $obj_id = DB::table('dx_objects')->insertGetId(['db_name' => 'dx_countries', 'title' => 'Countries' , 'is_history_logic' => 1]);
+            $list_gen = new Structure\StructMethod_register_generate();
+            $list_gen->obj_id = $obj_id;
+            $list_gen->register_title = "Countries";
+            $list_gen->form_title = "Countries";
+            $list_gen->doMethod();
+        }
+        
         // create holidays register
         $obj_id = DB::table('dx_objects')->insertGetId(['db_name' => 'dx_holidays', 'title' => 'Holidays' , 'is_history_logic' => 1]);
         $list_gen = new Structure\StructMethod_register_generate();
@@ -181,8 +192,10 @@ class CreateHolydays extends Migration
         
         // rights
         DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
-        DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
-
+        if ($this->is_hr_role) {
+            DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        }
+        
         // menu
         if ($this->is_hr_ui) {
             DB::table('dx_menu')->insertGetId(['parent_id' => $menu_parent_id, 'title'=>'Holidays', 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $menu_parent_id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);

@@ -96,7 +96,13 @@ class CreateQualificationEduc extends Migration
         if ($this->is_hr_ui) {
             DB::table('dx_menu')->insert(['parent_id' => 252, 'title'=>'Education levels', 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', 252)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
         }
-        
+        		
+		// check if field type decimal exists
+		$dec = DB::table('dx_field_types')->where('id','=',18)->first();
+		if (!$dec) {
+			DB::table('dx_field_types')->insert(['id'=>18, 'title' => 'Decimal', 'sys_name' => 'decimal']);
+		}
+		
         // create employees/links register        
         $obj_id = DB::table('dx_objects')->insertGetId(['db_name' => 'dx_users_educ', 'title' => 'Employee education' , 'is_history_logic' => 1]);
         $list_gen = new Structure\StructMethod_register_generate();

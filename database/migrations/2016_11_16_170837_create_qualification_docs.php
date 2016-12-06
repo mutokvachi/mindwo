@@ -82,11 +82,13 @@ class CreateQualificationDocs extends Migration
         $list_id = App\Libraries\DBHelper::getListByTable('dx_qual_doc_types')->id;       
         
         // rights
-        DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        if ($this->is_hr_role) {
+            DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        }
         DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
 
         // menu
-        if ($this->is_hr_role) {
+        if ($this->is_hr_ui) {
             DB::table('dx_menu')->insert(['parent_id' => 252, 'title'=>'Qualif. doc. types', 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', 252)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
         }
         
