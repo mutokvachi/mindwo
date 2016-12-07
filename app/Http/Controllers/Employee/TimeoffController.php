@@ -16,6 +16,7 @@ use Config;
  */
 class TimeoffController extends Controller
 {
+
     /**
      * Parameter if user has HR access
      * @var boolean 
@@ -105,7 +106,7 @@ class TimeoffController extends Controller
             $unit = trans('calendar.days');
         }
 
-        return response()->json(['success' => 1, 'balance' => $time, 'unit' => $unit]);
+        return response()->json(['success' => 1, 'balance' => floor($time), 'unit' => $unit]);
     }
 
     /**
@@ -137,15 +138,55 @@ class TimeoffController extends Controller
 
         return response()->json(['success' => 1, 'balance' => 0, 'unit' => $unit]);
     }
+    
+    /**
+     * Gets employee's time off data for chart
+     * @param integer $user_id Employee's user ID
+     * @param integer $timeoff_type_id Time off types id
+     * @param integer $date_from Date from in seconds
+     * @param integer $date_to Date to in seconds
+     */
+    public function getChartData($user_id, $timeoff_type_id, $date_from, $date_to) {
+        $user = \App\User::find($user_id);
+
+        $this->getAccess($user);
+
+        // User with any access type can view this data
+        $this->validateAccess();
+
+        $date_from_o = new \DateTime();
+        $date_from_o->setTimestamp($date_from);
+
+        $date_to_o = new \DateTime();
+        $date_to_o->setTimestamp($date_to);
+        
+        $res = DB::table('dx_timeoff_calc')
+                ->select(DB::Raw('SUM(CASE WHEN amount >= 0 then amount ELSE 0 END) AS accrued'),
+                        DB::Raw('SUM(CASE WHEN amount < 0 then amount ELSE 0 END) AS used'),
+                        DB::Raw("SUBSTRING_INDEX( GROUP_CONCAT(balance ORDER BY calc_date DESC), ',', 1 ) AS balance"),
+                        'calc_date_month',
+                        'calc_date_year')
+                ->where('user_id', $user_id)
+                ->where('timeoff_type_id', $timeoff_type_id)
+                                ->where('calc_date', '>=', $date_from_o)
+                                ->where('calc_date', '<=', $date_to_o)
+                ->groupBy('calc_date_month', 'calc_date_year')
+                ->get();
+        
+        echo '<pre>';
+        var_dump($res);
+                
+    }
 
     /**
      * Gets employee's time off calculated table
      * @param integer $user_id Employee's user ID
      * @param integer $timeoff_type_id Time off types id
-     * @param integer $year Time off year
+     * @param integer $date_from Date from in seconds
+     * @param integer $date_to Date to in seconds
      * @return Yajra\Datatables
      */
-    public function getTable($user_id, $timeoff_type_id, $year)
+    public function getTable($user_id, $timeoff_type_id, $date_from, $date_to)
     {
         $user = \App\User::find($user_id);
 
@@ -154,9 +195,16 @@ class TimeoffController extends Controller
         // User with any access type can view this data
         $this->validateAccess();
 
+        $date_from_o = new \DateTime();
+        $date_from_o->setTimestamp($date_from);
+
+        $date_to_o = new \DateTime();
+        $date_to_o->setTimestamp($date_to);
+
         return Datatables::of($user->timeoffCalc()->with('timeoffRecordType')
                                 ->where('timeoff_type_id', $timeoff_type_id)
-                                ->where(DB::Raw('YEAR(calc_date)'), $year)
+                                ->where('calc_date', '>=', $date_from_o)
+                                ->where('calc_date', '<=', $date_to_o)
                         )
                         ->make(true);
     }

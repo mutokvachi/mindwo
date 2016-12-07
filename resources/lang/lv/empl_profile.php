@@ -33,4 +33,33 @@ return [
     // Subgrid tabs for assets (must be equal with tab titles defined in CMS form - in database table dx_tabs)
     'tab_cards' => 'Corporate cards',
     'tab_devices' => 'Devices',
+    
+    'personal_docs' => [
+        'new_doc' => 'Jauns dokuments',
+        'clear_doc' => 'Notīrīt dokumenta datus',
+        'save_docs' => 'Saglabāt dokumentus',
+        'country' => 'Valsts',
+        'personal_doc_type' => 'Dokumenta tips',
+        'doc_nr' => 'Dokumenta numurs',
+        'valid_to' => 'Derīgs līdz',
+        'publisher' => 'Izdevējs',
+        'file' => 'Datne',
+    ],    
+    
+    'notes' => [
+        'type_hint' => 'Rakstiet piezīmi šeit...',
+        'delete_note_title' => 'Piezīmes dzēšana',
+        'delete_note_text' => 'Vai Jūs tiešām vēlaties dzēst piezīmi?',
+        'note_missing' => "Piezīme neeksistē!",
+        'modified' => "Laboja"
+    ], 
+    
+    'timeoff' => [
+        'menu_actions' => 'Iespējas',
+        'accrual_policy' => 'Uzkrāšanas politika',
+        'calculate' => 'Aprēķināt',
+        'delete_accrual' => 'Dzēst aprēķināto',
+
+        'delete_confirm' => 'Vai tiešām dzēst aprēķināto dienu uzkrājumu norādītajam prombūtnes veidam?',
+    ], 
 ];

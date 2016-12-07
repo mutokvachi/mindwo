@@ -66,7 +66,8 @@ gulp.task('mix_all', function() {
             'jquery-nestable/jquery.nestable.css', 
             'mindwo/css/view.css',
             'datatables/plugins/bootstrap/datatables.bootstrap.css',
-            'datatables/datatables.min.css'
+            'datatables/datatables.min.css',
+            'bootstrap-daterangepicker/daterangepicker.min.css'
         ], 'public/css/elix_view.css', 'resources/assets/plugins');
         
         // horizontal menu UI styles                
@@ -140,6 +141,7 @@ gulp.task('mix_all', function() {
 
         // Scripts for grids/forms functionality
         mix.scripts([
+            'moment.min.js',
             'bootstrap-daterangepicker/daterangepicker.js',
             'bootstrap-colorpicker/js/bootstrap-colorpicker.js',
             'dropzone/dropzone.min.js',
