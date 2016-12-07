@@ -186,7 +186,10 @@ gulp.task('mix_all', function() {
            'mindwo/pages/employee/notes.js',
            'mindwo/pages/employee/timeoff.js',
            'counterup/jquery.counterup.min.js',
-           'counterup/jquery.waypoints.min.js'
+           'counterup/jquery.waypoints.min.js',
+           'flot/jquery.flot.min.js',
+           'flot/jquery.flot.resize.min.js',
+           'flot/jquery.flot.axislabels.js'
         ], 'public/js/elix_profile.js', 'resources/assets/plugins');
         
         // LESS Styles for employee profile                

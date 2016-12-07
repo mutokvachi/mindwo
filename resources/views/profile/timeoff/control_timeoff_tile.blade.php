@@ -6,7 +6,7 @@
             <i class="widget-thumb-icon {{ $timeoff->icon or 'fa fa-briefcase' }}" style="background-color:{{ $timeoff->color or '#3598dc' }}"></i>
             <div class="widget-thumb-body">
                 <span class="widget-thumb-subtitle">
-                    {{ $timeoff->unit }}
+                    {{ $timeoff->unit }} <span style="font-size: 10px">{{ trans('empl_profile.timeoff.available') }}</span>
                 </span>
                 <span class="widget-thumb-body-stat" data-counter="counterup" data-value="{{ floor($timeoff->balance) }}">
                     {{ floor($timeoff->balance) }}

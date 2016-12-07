@@ -55,11 +55,30 @@ return [
     ], 
     
     'timeoff' => [
+        'accrued' => 'Accrued',
+        'used' => 'Used',
+        'balance' => 'Balance',
         'menu_actions' => 'Actions',
         'accrual_policy' => 'Accrual Policy',
         'calculate' => 'Calculate',
         'delete_accrual' => 'Delete calculated',
 
         'delete_confirm' => 'Are You sure? Delete calculated accrual?',
+        
+        'history' => 'History',
+        'timeoff' => 'Time off',
+        'date_interval' => 'Date interval',
+        'total_accrued' => 'Total accrued',
+        'total_used' => 'Total used',
+        'from_date' => 'From date',
+        'to_date' => 'To date',
+        'date' => 'Date',
+        'type' => 'Type',
+        'notes' => 'Notes',
+        'used_accrued' => 'Used / Accrued (hours)',
+        'balance_hours' => 'Balance (hours)',
+        'chart' => 'Chart',
+        'table' => 'Table',
+        'available' => 'available'
     ], 
 ];

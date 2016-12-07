@@ -55,11 +55,30 @@ return [
     ], 
     
     'timeoff' => [
+        'accrued' => 'Uzkrāts',
+        'used' => 'Izlietots',
+        'balance' => 'Atlikums',
         'menu_actions' => 'Iespējas',
         'accrual_policy' => 'Uzkrāšanas politika',
         'calculate' => 'Aprēķināt',
         'delete_accrual' => 'Dzēst aprēķināto',
 
         'delete_confirm' => 'Vai tiešām dzēst aprēķināto dienu uzkrājumu norādītajam prombūtnes veidam?',
+        
+        'history' => 'Vēsture',
+        'timeoff' => 'Prombūtne',
+        'date_interval' => 'Datuma periods',
+        'total_accrued' => 'Kopā uzkrāts',
+        'total_used' => 'Kopā izlietots',
+        'from_date' => 'No datuma',
+        'to_date' => 'Līdz datumam',
+        'date' => 'Datums',
+        'type' => 'Tips',
+        'notes' => 'Piezīmes',
+        'used_accrued' => 'Izlietots / Uzkrāts (stundas)',
+        'balance_hours' => 'Atlikums (stundas)',
+        'chart' => 'Diagramma',
+        'table' => 'Tabula',
+        'available' => 'pieejamas'
     ], 
 ];

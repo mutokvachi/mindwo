@@ -140,11 +140,35 @@ class TimeoffController extends Controller
     }
     
     /**
+     * Gets employee's time off total data for specified period
+     * @param integer $user_id Employee's user ID
+     * @param integer $timeoff_type_id Time off types id
+     * @param integer $date_from Date from in seconds
+     * @param integer $date_to Date to in seconds
+     * @return Object total data values for period
+     */
+    public function getPeriodData($user_id, $timeoff_type_id, $date_from, $date_to){        
+        return DB::table('dx_timeoff_calc AS c')
+                ->leftJoin('dx_timeoff_types AS t', 't.id', '=', 'c.timeoff_type_id')
+                ->select(DB::Raw('SUM(CASE WHEN c.amount >= 0 then c.amount ELSE 0 END) AS accrued'),
+                        DB::Raw('SUM(CASE WHEN c.amount < 0 then c.amount ELSE 0 END) * -1 AS used'),
+                        DB::Raw("SUBSTRING_INDEX( GROUP_CONCAT(c.balance ORDER BY c.calc_date DESC), ',', 1 ) AS balance"),
+                        DB::Raw('MIN(t.is_accrual_hours) AS is_accrual_hours'))
+                ->where('c.user_id', $user_id)
+                ->where('c.timeoff_type_id', $timeoff_type_id)
+                                ->where('c.calc_date', '>=', $date_from)
+                                ->where('c.calc_date', '<=', $date_to)
+                ->groupBy('c.user_id')
+                ->get();
+    }
+    
+    /**
      * Gets employee's time off data for chart
      * @param integer $user_id Employee's user ID
      * @param integer $timeoff_type_id Time off types id
      * @param integer $date_from Date from in seconds
      * @param integer $date_to Date to in seconds
+     * @return Response JSON response with chart data
      */
     public function getChartData($user_id, $timeoff_type_id, $date_from, $date_to) {
         $user = \App\User::find($user_id);
@@ -162,7 +186,7 @@ class TimeoffController extends Controller
         
         $res = DB::table('dx_timeoff_calc')
                 ->select(DB::Raw('SUM(CASE WHEN amount >= 0 then amount ELSE 0 END) AS accrued'),
-                        DB::Raw('SUM(CASE WHEN amount < 0 then amount ELSE 0 END) AS used'),
+                        DB::Raw('SUM(CASE WHEN amount < 0 then amount ELSE 0 END) * -1 AS used'),
                         DB::Raw("SUBSTRING_INDEX( GROUP_CONCAT(balance ORDER BY calc_date DESC), ',', 1 ) AS balance"),
                         'calc_date_month',
                         'calc_date_year')
@@ -170,12 +194,12 @@ class TimeoffController extends Controller
                 ->where('timeoff_type_id', $timeoff_type_id)
                                 ->where('calc_date', '>=', $date_from_o)
                                 ->where('calc_date', '<=', $date_to_o)
-                ->groupBy('calc_date_month', 'calc_date_year')
+                ->groupBy('calc_date_year', 'calc_date_month')
                 ->get();
         
-        echo '<pre>';
-        var_dump($res);
-                
+        $resTotal = $this->getPeriodData($user_id, $timeoff_type_id, $date_from_o, $date_to_o);
+        
+        return response()->json(['success' => 1, 'res' => $res, 'total' => $resTotal]);                
     }
 
     /**
