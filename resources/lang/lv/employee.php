@@ -32,24 +32,4 @@ return [
     'lbl_search_placeholder' => 'Meklēšanas kritērijs',
     'lbl_count' => 'Ierakstu skaits:',
     'lbl_nothing_found' => 'Nav atrasts neviens atbilstošs ieraksts.', 
-  
-    'personal_docs' => [
-        'new_doc' => 'Jauns dokuments',
-        'clear_doc' => 'Notīrīt dokumenta datus',
-        'save_docs' => 'Saglabāt dokumentus',
-        'country' => 'Valsts',
-        'personal_doc_type' => 'Dokumenta tips',
-        'doc_nr' => 'Dokumenta numurs',
-        'valid_to' => 'Derīgs līdz',
-        'publisher' => 'Izdevējs',
-        'file' => 'Datne',
-    ],    
-    
-    'notes' => [
-        'type_hint' => 'Rakstiet piezīmi šeit...',
-        'delete_note_title' => 'Piezīmes dzēšana',
-        'delete_note_text' => 'Vai Jūs tiešām vēlaties dzēst piezīmi?',
-        'note_missing' => "Piezīme neeksistē!",
-        'modified' => "Laboja"
-    ], 
 ];

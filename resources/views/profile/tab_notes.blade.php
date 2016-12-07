@@ -5,7 +5,7 @@
         <div class="chat-form dx-emp-notes-chat-form">
             <div class="input-cont">
                 <input class='dx-emp-notes-input-id' type='hidden'>
-                <input class="form-control dx-emp-notes-input-text" type="text" placeholder="{{ trans('employee.notes.type_hint') }}"> </div>
+                <input class="form-control dx-emp-notes-input-text" type="text" placeholder="{{ trans('empl_profile.notes.type_hint') }}"> </div>
             <div class="btn-cont dx-emp-notes-btn">
                 <span class="arrow"> </span>
                 <a href="javascript:void(0);" class="btn blue icn-only">

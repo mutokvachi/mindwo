@@ -66,7 +66,8 @@ gulp.task('mix_all', function() {
             'jquery-nestable/jquery.nestable.css', 
             'mindwo/css/view.css',
             'datatables/plugins/bootstrap/datatables.bootstrap.css',
-            'datatables/datatables.min.css'
+            'datatables/datatables.min.css',
+            'bootstrap-daterangepicker/daterangepicker.min.css'
         ], 'public/css/elix_view.css', 'resources/assets/plugins');
         
         // horizontal menu UI styles                
@@ -140,6 +141,7 @@ gulp.task('mix_all', function() {
 
         // Scripts for grids/forms functionality
         mix.scripts([
+            'moment.min.js',
             'bootstrap-daterangepicker/daterangepicker.js',
             'bootstrap-colorpicker/js/bootstrap-colorpicker.js',
             'dropzone/dropzone.min.js',
@@ -184,7 +186,10 @@ gulp.task('mix_all', function() {
            'mindwo/pages/employee/notes.js',
            'mindwo/pages/employee/timeoff.js',
            'counterup/jquery.counterup.min.js',
-           'counterup/jquery.waypoints.min.js'
+           'counterup/jquery.waypoints.min.js',
+           'flot/jquery.flot.min.js',
+           'flot/jquery.flot.resize.min.js',
+           'flot/jquery.flot.axislabels.js'
         ], 'public/js/elix_profile.js', 'resources/assets/plugins');
         
         // LESS Styles for employee profile                

@@ -110,18 +110,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	}
         
         /**
-         * List of user's time off years
-         * @return collection
-         */
-        public function timeoffYears(){
-            return DB::table('dx_timeoff_calc AS tc')
-                ->select(DB::Raw('YEAR(tc.calc_date) as timeoffYear'))
-                ->where('tc.user_id', $this->id)
-                ->groupBy(DB::Raw('YEAR(tc.calc_date)'))
-                ->orderBy(DB::Raw('YEAR(tc.calc_date)'), 'desc');
-        }
-        
-        /**
 	 * Users's time off data
 	 * @return object Contains time off types data and value for specific user
 	 */
