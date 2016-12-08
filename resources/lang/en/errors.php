@@ -93,4 +93,11 @@ return [
     
     //tasks widget
     'unsupported_task_view' => "Unsupported tasks view code '%s'!",
+    
+    //file download
+    'file_not_found' => "File '%s' not found! Please, contact the IT support!",
+    'file_not_set' => 'List item does not have any file attached!',
+    'no_donwload_rights' => "You do not have rights on the item with ID %s!",
+    'file_record_not_found' => "Item with ID %s not found! Please, contact the IT support!",
+    
 ];

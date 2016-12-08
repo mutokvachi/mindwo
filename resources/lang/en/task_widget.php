@@ -23,6 +23,8 @@ return [
     'hint_reject' => 'Reject',
     'hint_approve' => 'Approve',
     'hint_delegate' => 'Delegate',
+    'hint_read' => 'Read',
+    'hint_do' => 'Perform',
     'hint_view_task' => 'View task details',
     'hint_view_form' => 'View related data form',
     'hint_view_file' => 'Download related file',
@@ -40,4 +42,9 @@ return [
     'view_sub_done' => 'Subordinated - compleated',
     'view_sub_duetoday' => 'Subordinated - due today',
     
+    'see_register' => 'Tasks register',
+    
+    'hint_overdue_days' => 'Overdue %s days',
+    'hint_due_today' => 'Due today',
+    'msg_done' => 'Task is compleated!',
 ];

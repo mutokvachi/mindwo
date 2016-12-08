@@ -91,4 +91,11 @@ return [
     
     //tasks widget
     'unsupported_task_view' => "Neatbalstīts uzdevmu skata kods '%s'!",
+    
+    //file download
+    'file_not_found' => "Datne '%s' nav atrodama! Lūdzu, sazinieties ar sistēmas uzturētāju!",
+    'file_not_set' => 'Ierakstam nav pievienota neviena datne!',
+    'no_donwload_rights' => "Jums nav tiesību uz datni ierakstam ar ID %s!",
+    'file_record_not_found' => "Datne ar ieraksta ID %s nav atrodama! Lūdzu, sazinieties ar sistēmas uzturētāju!",
+    
 ];
