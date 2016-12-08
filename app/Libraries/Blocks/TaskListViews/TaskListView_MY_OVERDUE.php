@@ -5,14 +5,12 @@ namespace App\Libraries\Blocks\TaskListViews
     use Auth;
     
     /**
-     * Accrual start period - Day
+     * Tasks view - OVERDUE
      */
     class TaskListView_MY_OVERDUE extends TaskListView
     {
         /**
-         * Returns accrual level start date
-         * 
-         * @return DateTime
+         * Sets tasks view where criteria
          */
         public function setCriteria() {
             

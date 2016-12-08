@@ -260,4 +260,27 @@ return [
     | If it is set logo_txt then this setting "logo_small" will be ignored.
     */
     'logo_small' => env('APP_SMALL_LOGO','assets/global/logo/logo-default.png'),
+    
+    /*
+    |--------------------------------------------------------------------------
+    | UI setting for big logo used in login page
+    |--------------------------------------------------------------------------
+    */
+    'logo_big' => 'assets/global/logo/mindwo_logo_big.png',
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Working day hours - used for HR timeoff calculations
+    |--------------------------------------------------------------------------
+    */
+    'working_day_h' => 8,
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Default search - in top menu (must be set accroding to language)
+    | English: Employees, Documents, News
+    | Latvian: Darbinieki, Dokumenti, Ziņas
+    |--------------------------------------------------------------------------
+    */
+    'default_search' => 'Documents',
 ];

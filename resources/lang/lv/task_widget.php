@@ -22,6 +22,8 @@ return [
     'hint_reject' => 'Noraidīt',
     'hint_approve' => 'Apstiprināt',
     'hint_delegate' => 'Deleģēt',
+    'hint_read' => 'Iepazinos',
+    'hint_do' => 'Izpildīt',
     'hint_view_task' => 'Skatīt uzdevumu',
     'hint_view_form' => 'Atvērt ar uzdevumu saistīto datu kartiņu',
     'hint_view_file' => 'Lejupielādēt ar uzdevumu saistītā dokumenta datni',
@@ -38,5 +40,11 @@ return [
     'view_sub_overdue' => 'Padoto - nokavētie',
     'view_sub_done' => 'Padoto - pabeigtie',
     'view_sub_duetoday' => 'Padoto - šodien termiņš',
+    
+    'see_register' => 'Uzdevumu reģistrs',
+    
+    'hint_overdue_days' => 'Nokavēts %s dienas',
+    'hint_due_today' => 'Jāizpilda šodien',
+    'msg_done' => 'Uzdevums ir veiksmīgi izpildīts!',
     
 ];

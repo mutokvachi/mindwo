@@ -1,4 +1,7 @@
-<div class="row">
+@if (!Request::ajax())
+<div class="row dx-tasks-total-widget">
+@endif
+
     @foreach($arr_info as $arr_data)
     <div class="col-lg-{{ $panels_class }} col-md-{{ $panels_class }} col-sm-6 col-xs-12">
             <div class="dashboard-stat2 ">
@@ -60,4 +63,7 @@
             </div>
     </div>
     @endforeach
+    
+@if (!Request::ajax())
 </div>
+@endif

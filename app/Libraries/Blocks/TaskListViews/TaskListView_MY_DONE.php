@@ -5,9 +5,9 @@ namespace App\Libraries\Blocks\TaskListViews
     use Auth;
     
     /**
-     * Tasks view - ACTUAL
+     * Tasks view - DONE
      */
-    class TaskListView_MY_ACTUAL extends TaskListView
+    class TaskListView_MY_DONE extends TaskListView
     {
         /**
          * Sets tasks view where criteria
@@ -16,7 +16,7 @@ namespace App\Libraries\Blocks\TaskListViews
             
             $this->rows
                     ->where('t.task_employee_id', '=', Auth::user()->id)
-                    ->whereNull('t.task_closed_time');
+                    ->whereNotNull('t.task_closed_time');
             
         }
 

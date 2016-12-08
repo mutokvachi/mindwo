@@ -53,7 +53,7 @@
                             <div class="col-md-4">
                                 <i class="fa fa-calendar-o"></i>&nbsp;<span>{{ short_date($item->reg_date) }}</span><br>                                
                                 @if ($item->file_guid)
-                                <a href="{{ Request::root() }}/download_by_field_{{ $item->item_id }}_{{ $item->list_id }}_{{ $item->file_field_name }}" target="_blank" title="{{ trans('documents.hint_file') }}"><i class="fa fa-file-o"></i> {{ $item->kind_title }}</a>
+                                <a href="{{ Request::root() }}/download_by_field_{{ $item->item_id }}_{{ $item->list_id }}_{{ $item->file_field_name }}" title="{{ trans('documents.hint_file') }}"><i class="fa fa-file-o"></i> {{ $item->kind_title }}</a>
                                 @else
                                     {{ $item->kind_title }}
                                 @endif

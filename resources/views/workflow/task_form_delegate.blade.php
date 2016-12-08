@@ -45,7 +45,7 @@
                                                     <span class='input-group-btn'>
                                                         <button type='button' class='btn btn-white'><i class='fa fa-calendar'></i></button>
                                                     </span>
-                                                    <input class='form-control' type=text name = 'due_date' value = '{{ short_date($task_row->due_date) }}' required />
+                                                    <input class='form-control' type=text name = 'due_date' value = '{{ (isset($task_row) && $task_row) ? short_date($task_row->due_date) : '' }}' required />
                                                 </div>
                                                 <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                                             </div>

@@ -31,9 +31,12 @@
         </div>
         <div class="task-footer">
             <div class="btn-arrow-link pull-right">
-                <a href="javascript:;">See All Records</a>
+                <a href="{{ url('skats_aktualie_uzdevumi') }}">{{ trans('task_widget.see_register') }}</a>                
                 <i class="icon-arrow-right"></i>
             </div>
         </div>
     </div>
 </div>
+@if ($self->is_subordinates)
+@include('workflow.task_form_delegate')
+@endif

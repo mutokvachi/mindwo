@@ -70,6 +70,8 @@
 			  depth: {{ $displayLevels }},
 			  ajaxURL: ajaxURLs,
 			  toggleSiblingsResp: true,
+                          pan: true,
+                          zoom: true,
 			  createNode: function(node, data)
 			  {
 				  var content = $(node).children('.content');
