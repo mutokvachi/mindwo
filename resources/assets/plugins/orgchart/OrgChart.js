@@ -293,7 +293,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return;
 	          }
 	          if (this.status === 200) {
-	            resolve(JSON.parse(this.response));
+	          	
+	          	// Fixed issue with JSON parse error
+	          	var response = (typeof this.response == 'object') ? this.response : JSON.parse(this.response);
+	            
+	          	resolve(response);
 	          } else {
 	            reject(new Error(this.statusText));
 	          }
@@ -540,7 +544,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var that = this,
 	          table = document.createElement('table');
 	
-	      nodeData.relationship = '001';
+	      //nodeData.relationship = '001';
+	      
 	      this._createNode(nodeData, 0).then(function (nodeDiv) {
 	        var chart = that.chart;
 	

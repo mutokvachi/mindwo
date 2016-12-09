@@ -17,7 +17,7 @@
           </select>
           <select class="dx-orgchart-levels form-control pull-left">
             @for($i = 1; $i <= $startLevels; $i++)
-              <option>{{ $i }}</option>
+              <option{{ $i == $displayLevels ? ' selected' : '' }}>{{ $i }}</option>
             @endfor
           </select>
           <button type="button" class="dx-orgchart-filter btn btn-primary pull-left">
@@ -49,7 +49,7 @@
 			  levels.children().remove();
 			  for(var i = 1; i <= count; i++)
 			  {
-				  levels.append('<option>' + i + '</option>');
+				  levels.append('<option' + (i == 2 ? ' selected' : '') + '>' + i + '</option>');
 			  }
 		  });
 		  $('.dx-orgchart-filter').click(function(e)
@@ -58,18 +58,17 @@
 				  + '/' + $('.dx-orgchart-select :selected').attr('value')
 				  + '?displayLevels=' + $('.dx-orgchart-levels').val();
 		  });
-		  
-		  var ajaxURLs = {
-  		  'parent': '{{ route('organization_chart_parent').'/' }}'
-		  };
-		  
+		  // init orgchart plugin
 		  var orgchart = new OrgChart({
 			  chartContainer: '#dx-orgchart-container',
 			  data: orgchartDatasource,
 			  nodeContent: 'title',
 			  depth: {{ $displayLevels }},
-			  ajaxURL: ajaxURLs,
 			  toggleSiblingsResp: true,
+			  pan: true,
+			  zoom: true,
+			  exportButton: true,
+        // customize node creation process
 			  createNode: function(node, data)
 			  {
 				  var content = $(node).children('.content');
@@ -78,8 +77,26 @@
 				  
 				  if(data.subordinates > 0)
 					  content.append('<div class="subordinates" title="Number of subordinates">' + data.subordinates + '</div>');
+				  
+				  // add up arrow button to top node
+				  if(data.hasParent)
+					  $(node).append('<i class="edge verticalEdge topEdge fa"></i>');
 			  }
 		  });
+		  // save original handler of click event of up arrow button
+			orgchart._clickTopEdgeOld = orgchart._clickTopEdge;
+  		// override event handler of up arrow button
+		  orgchart._clickTopEdge = function(event)
+		  {
+			  var node = $(event.target).parents('.node').first();
+			  var data = node.data('source');
+			  
+			  if(data.top)
+				  location.href = data.parentUrl;
+			  
+			  else
+				  this._clickTopEdgeOld(event);
+		  };
 	  });
   </script>
 @endsection

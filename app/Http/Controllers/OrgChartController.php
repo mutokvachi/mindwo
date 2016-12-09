@@ -6,20 +6,64 @@ use App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades;
 
+/**
+ * Class OrgChartController
+ *
+ * Controller for organization chart
+ *
+ * @package App\Http\Controllers
+ */
 class OrgChartController extends Controller
 {
+	/**
+	 * Id of employee from which to start chart
+	 * @var int
+	 */
 	protected $rootId;
+	/**
+	 * Number of chart levels to display from request
+	 * @var int
+	 */
 	protected $displayLevels;
+	/**
+	 * Array of employees' models
+	 * @var array
+	 */
 	protected $employees;
+	/**
+	 * Manager -> subordinates index
+	 * @var array
+	 */
 	protected $index;
+	/**
+	 * Organizational hierarchy
+	 * @var array
+	 */
 	protected $tree;
+	/**
+	 * Auxiliary hierarchy index
+	 * @var array
+	 */
 	protected $treeIndex;
+	/**
+	 * Subordinary -> manager index
+	 * @var array
+	 */
+	protected $parentsIndex;
+	/**
+	 * Array containing number of hierarchical levels under each employee
+	 * @var array
+	 */
 	protected $levels = [];
 	
+	/**
+	 * OrgChartController constructor.
+	 */
 	public function __construct()
 	{
 		$this->employees = $this->getEmployees();
 		$this->index = $this->getIndex();
+		$this->parentsIndex = $this->getParentsIndex();
 		
 		$id = Facades\Route::current()->getParameter('id', 0);
 		$this->rootId = $id ? $id : $this->index[0][0];
@@ -28,6 +72,12 @@ class OrgChartController extends Controller
 		$this->tree = $this->getTree($this->rootId);
 	}
 	
+	/**
+	 * Render organization chart.
+	 *
+	 * @param number|null $id Optional ID of an employee from which to start chart.
+	 * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+	 */
 	public function show($id = null)
 	{
 		$result = view('organization.chart', [
@@ -42,39 +92,9 @@ class OrgChartController extends Controller
 		return $result;
 	}
 	
-	public function ajaxGetParent($id)
-	{
-		$parent = '';
-		
-		foreach($this->index as $key => $children)
-		{
-			if(in_array($id, $children))
-			{
-				$parent = $key;
-				break;
-			}
-		}
-		
-		$employee = $this->employees[$parent];
-		
-		$hasParent = ($parent == $this->index[0][0]) ? '0' : '1';
-		$hasChildren = empty($this->index[$parent]) ? '0' : '1';
-		$hasSiblings = '0'; //count($node) > 1 ? '1' : '0';
-		
-		$tmp = [
-			'id' => $employee->id,
-			'name' => $employee->display_name,
-			'title' => $employee->position_title ?: '',
-			'avatar' => $employee->getAvatar(),
-			'subordinates' => count($this->index[$parent]),
-			'href' => route('profile', $employee->id),
-			'relationship' => $hasParent . $hasSiblings . $hasChildren
-		];
-		
-		return response($tmp);
-	}
-	
 	/**
+	 * Get all employees except admin users.
+	 *
 	 * @return array
 	 */
 	public function getEmployees()
@@ -94,6 +114,11 @@ class OrgChartController extends Controller
 	}
 	
 	/**
+	 * Build index of managers and their subordinates.
+	 *
+	 * Example of index structure:
+	 *
+	 * ```php
 	 * $index = [
 	 *   0    => [1263],
 	 *   1263 => [1264, 1265],
@@ -101,6 +126,9 @@ class OrgChartController extends Controller
 	 *   1267 => [1273],
 	 *   1265 => [1269, 1270]
 	 * ];
+	 * ```
+	 *
+	 * @return array
 	 */
 	public function getIndex()
 	{
@@ -115,20 +143,62 @@ class OrgChartController extends Controller
 	}
 	
 	/**
-	 *    $arr = [
-	 *        1263 => [
-	 *            1264 => [
-	 *                1267 => [
-	 *                    1273 => []
-	 *                ],
-	 *                1268 => []
-	 *            ],
-	 *            1265 => [
-	 *                1269 => [],
-	 *                1270 => []
-	 *            ]
-	 *        ]
-	 *    ];
+	 * Build index of employees and their direct managers.
+	 *
+	 * Example of index structure:
+	 *
+	 * ```php
+	 * $index = [
+	 *   1263 => 0,
+	 *   1264 => 1263,
+	 *   1265 => 1263,
+	 *   1267 => 1264,
+	 *   1268 => 1264,
+	 *   1273 => 1267,
+	 *   1269 => 1265,
+	 *   1270 => 1265
+	 * ];
+	 * ```
+	 *
+	 * @return array
+	 */
+	public function getParentsIndex()
+	{
+		$index = [];
+		
+		foreach($this->index as $parent => $children)
+		{
+			foreach($children as $child)
+			{
+				$index[$child] = $parent;
+			}
+		}
+		
+		return $index;
+	}
+	
+	/**
+	 * Recursively traverse index of managers and subordinates and build muilti-dimensional array describing
+	 * organizational hierarchy.
+	 *
+	 * Example of hierarchy:
+	 *
+	 * ```php
+	 * $arr = [
+	 *     1263 => [
+	 *         1264 => [
+	 *             1267 => [
+	 *                 1273 => []
+	 *             ],
+	 *             1268 => []
+	 *         ],
+	 *         1265 => [
+	 *             1269 => [],
+	 *             1270 => []
+	 *         ]
+	 *     ]
+	 * ];
+	 * ```
 	 *
 	 * @return array
 	 */
@@ -178,11 +248,15 @@ class OrgChartController extends Controller
 	}
 	
 	/**
-	 * @param null $node
+	 * Generate multi-dimensional array containing organizational data required by OrgChart JavaScript plugin.
+	 *
+	 * @param array|null $node
 	 * @return array
 	 */
 	public function getOrgchartDatasource($node = null)
 	{
+		$top = $node ? false : true;
+		
 		if(!$node)
 		{
 			if(isset($this->treeIndex[$this->rootId]))
@@ -213,8 +287,15 @@ class OrgChartController extends Controller
 				'avatar' => $employee->getAvatar(),
 				'subordinates' => count($subnode),
 				'href' => route('profile', $employee->id),
-				'relationship' => $hasParent . $hasSiblings . $hasChildren
+				'relationship' => $hasParent . $hasSiblings . $hasChildren,
+				'hasParent' => $hasParent == '1',
+				'top' => $top
 			];
+			
+			if($top)
+			{
+				$tmp['parentUrl'] = route('organization_chart', $this->parentsIndex[$id]);
+			}
 			
 			if(!empty($subnode))
 			{
