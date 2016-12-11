@@ -19,5 +19,8 @@
         <div style="text-align: center;">
             <button type="button" class="btn btn-primary btn-sm dx-btn-leave-request" data-leaves-list-id = "{{ $self->leaves_list_id }}" data-user-field-id = "{{ $self->user_field_id }}" data-user-id = "{{ Auth::user()->id }}">Request time off</button>
         </div>
+        <div style="text-align: center; margin-top: 15px;">
+            <a href="{{ $self->leaves_view_url }}">History</a>
+        </div>
     </div>
 </div>
