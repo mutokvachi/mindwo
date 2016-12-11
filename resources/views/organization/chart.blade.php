@@ -3,7 +3,18 @@
 @section('main_content')
   <div class="portlet light">
     <div class="portlet-title">
-      <div class="caption font-grey-cascade uppercase">Orgchart ({{ count($employees) }})</div>
+        <div class="caption font-grey-cascade uppercase"><i class="fa fa-sitemap"></i> {{ trans('organization.chart_title') }} <span class="badge badge-info" title="{{ trans('organization.hint_count') }}">{{ count($employees) }}</span></div>
+        <div class="actions">
+            <a class="btn btn-circle btn-icon-only btn-default" href="javascript:;" id="dx-org-zoom-in" title="{{ trans('organization.btn_zoom_in') }}">
+                <i class="fa fa-search-plus"></i>
+            </a>
+            <a class="btn btn-circle btn-icon-only btn-default" href="javascript:;" id="dx-org-zoom-out" title="{{ trans('organization.btn_zoom_out') }}">
+                <i class="fa fa-search-minus"></i>
+            </a>
+            <a class="btn btn-circle btn-icon-only btn-default" href="javascript:;" id="dx-org-export" title="{{ trans('organization.btn_export') }}">
+                <i class="fa fa-download"></i>
+            </a>
+        </div>
     </div>
     <div class="portlet-body">
       <div class="row">
@@ -17,12 +28,12 @@
           </select>
           <select class="dx-orgchart-levels form-control pull-left">
             @for($i = 1; $i <= $startLevels; $i++)
-              <option>{{ $i }}</option>
+              <option{{ $i == $displayLevels ? ' selected' : '' }}>{{ $i }}</option>
             @endfor
           </select>
           <button type="button" class="dx-orgchart-filter btn btn-primary pull-left">
-            <i class="fa fa-filter"></i>
-          </button>
+            <i class="fa fa-filter"></i> {{ trans('organization.btn_filter') }}
+          </button>           
         </div>
       </div>
       <div class="row">
@@ -49,7 +60,7 @@
 			  levels.children().remove();
 			  for(var i = 1; i <= count; i++)
 			  {
-				  levels.append('<option>' + i + '</option>');
+				  levels.append('<option' + (i == 2 ? ' selected' : '') + '>' + i + '</option>');
 			  }
 		  });
 		  $('.dx-orgchart-filter').click(function(e)
@@ -58,20 +69,17 @@
 				  + '/' + $('.dx-orgchart-select :selected').attr('value')
 				  + '?displayLevels=' + $('.dx-orgchart-levels').val();
 		  });
-		  
-		  var ajaxURLs = {
-  		  'parent': '{{ route('organization_chart_parent').'/' }}'
-		  };
-		  
+		  // init orgchart plugin
 		  var orgchart = new OrgChart({
 			  chartContainer: '#dx-orgchart-container',
 			  data: orgchartDatasource,
 			  nodeContent: 'title',
 			  depth: {{ $displayLevels }},
-			  ajaxURL: ajaxURLs,
 			  toggleSiblingsResp: true,
-                          pan: true,
-                          zoom: true,
+			  pan: true,
+			  //zoom: true,
+			  //exportButton: true,
+        // customize node creation process
 			  createNode: function(node, data)
 			  {
 				  var content = $(node).children('.content');
@@ -79,9 +87,39 @@
 				  content.prepend('<a href="' + data.href + '"><img src="' + data.avatar + '" alt=""></a>');
 				  
 				  if(data.subordinates > 0)
-					  content.append('<div class="subordinates" title="Number of subordinates">' + data.subordinates + '</div>');
+					  content.append('<div class="subordinates" title="' + Lang.get('organization.hint_subord') + '">' + data.subordinates + '</div>');
+				  
+				  // add up arrow button to top node
+				  if(data.hasParent)
+					  $(node).append('<i class="edge verticalEdge topEdge fa"></i>');
 			  }
 		  });
+		  // save original handler of click event of up arrow button
+			orgchart._clickTopEdgeOld = orgchart._clickTopEdge;
+  		// override event handler of up arrow button
+		  orgchart._clickTopEdge = function(event)
+		  {
+			  var node = $(event.target).parents('.node').first();
+			  var data = node.data('source');
+			  
+			  if(data.top)
+				  location.href = data.parentUrl;
+			  
+			  else
+				  this._clickTopEdgeOld(event);
+		  };
+                  
+                $("#dx-org-zoom-in").click(function() {
+                   orgchart.set_zoom(-1);
+                });
+                
+                $("#dx-org-zoom-out").click(function() {
+                   orgchart.set_zoom(1);
+                });
+                
+                $("#dx-org-export").click(function() {
+                   orgchart._clickExportButton();
+                });
 	  });
   </script>
 @endsection
@@ -172,6 +210,17 @@
     
     .orgchart .subordinates {
       float: right;
+    }
+    
+    .oc-export-btn {
+        right: 15px!important;
+        top: -100px!important;
+        background-color: #3e7c99!important;
+        border-color: #2e6da4!important;
+    }
+    
+    .actions .btn-icon-only {
+        border: 1px solid #ccc!important;
     }
   </style>
 @endsection

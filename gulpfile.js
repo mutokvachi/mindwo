@@ -212,6 +212,7 @@ gulp.task('mix_all', function() {
         
         // Scripts for organization chart
         mix.scripts([
+            'html2canvas/html2canvas.js',
             'orgchart/OrgChart.js',
 			'select2/select2.min.js',
 			'select2/select2_locale_multi.js'
