@@ -246,14 +246,11 @@ namespace App\Libraries
          */
         private function compareFieldVal($field, $current_arr)
         {
-            Log::info("FLD: " . $field->db_name);
-            if (!array_key_exists(":" . $field->db_name, $this->data_arr)) {
-                Log::info("NOT set");
+            if (!array_key_exists(":" . $field->db_name, $this->data_arr)) {               
                 return; // Lauks nav iekļauts formas datos, nav izmaiņu ko salīdzināt
             }
             
-            if ($this->data_arr[":" . $field->db_name] == $current_arr[$field->db_name]) {
-                Log::info("not changed | " . $this->data_arr[":" . $field->db_name] . " | "  . $current_arr[$field->db_name]);
+            if ($this->data_arr[":" . $field->db_name] == $current_arr[$field->db_name]) {                
                 return; // Lauka vērtība nav mainīta
             }
 

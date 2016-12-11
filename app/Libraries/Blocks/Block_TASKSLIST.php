@@ -259,7 +259,7 @@ END;
                                     padding-right: 15px!important;
                                 }
             
-                                .tasks-widget .mt-action-img a {
+                                .tasks-widget .mt-action-img a.btn {
                                     width: 50px;
                                     height:50px;
                                     font-size: 20px!important;

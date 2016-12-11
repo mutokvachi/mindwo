@@ -46,6 +46,11 @@ class TasksController extends Controller
     const REPRESENT_ABOUT = 7;
     
     /**
+     * Employee to which document applays
+     */
+    const REPRESENT_EMPL = 9;
+    
+    /**
      * Uzdevuma veids - saskaņot
      */
     const TASK_TYPE_APPROVE = 1;
@@ -295,6 +300,7 @@ class TasksController extends Controller
         
         $reg_nr = $arr_meta_vals[self::REPRESENT_REG_NR];
         $info = $arr_meta_vals[self::REPRESENT_ABOUT];
+        $item_empl_id = $arr_meta_vals[self::REPRESENT_EMPL];
         
         DB::transaction(function () use ($request, $employee_id, $list_id, $item_id, $reg_nr, $info) {
             $this->new_task_id = DB::table('dx_tasks')->insertGetId([
@@ -311,7 +317,8 @@ class TasksController extends Controller
                 'task_type_id' => self::TASK_TYPE_INFO,
                 'task_created_time' => date('Y-n-d H:i:s'),
                 'task_status_id' => self::TASK_STATUS_PROCESS,
-                'task_employee_id' => $employee_id
+                'task_employee_id' => $employee_id,
+                'item_empl_id' => $item_empl_id
             ]);
         });
         
@@ -703,8 +710,9 @@ class TasksController extends Controller
         
         $reg_nr = $arr_meta_vals[self::REPRESENT_REG_NR];
         $info = $arr_meta_vals[self::REPRESENT_ABOUT];
-                
-        $this->insertAcceptanceTask($steps, $list_id, $item_id, $reg_nr, $info);
+        $item_empl_id = $arr_meta_vals[self::REPRESENT_EMPL];
+        
+        $this->insertAcceptanceTask($steps, $list_id, $item_id, $reg_nr, $info, $item_empl_id);
     }
     
     /**
@@ -1124,7 +1132,7 @@ class TasksController extends Controller
      */
     private function newAcceptanceTask($task_row, $steps)
     {
-        $this->insertAcceptanceTask($steps, $task_row->list_id, $task_row->item_id, $task_row->item_reg_nr, $task_row->item_info);
+        $this->insertAcceptanceTask($steps, $task_row->list_id, $task_row->item_id, $task_row->item_reg_nr, $task_row->item_info, $task_row->item_empl_id);
     }
     
     /**
@@ -1135,9 +1143,10 @@ class TasksController extends Controller
      * @param integer $item_id      Ieraksta ID
      * @param string  $item_reg_nr  Ieraksta (dokumenta) reģ. nr.
      * @param string  $item_info    Dokumenta saturs (apraksts)
+     * @param integer $item_empl_id Darbinieka ID (ja uzdevums ir saistīts ar darbinieka objektu)
      * @throws Exceptions\DXCustomException
      */
-    private function insertAcceptanceTask($steps, $list_id, $item_id, $item_reg_nr, $item_info)
+    private function insertAcceptanceTask($steps, $list_id, $item_id, $item_reg_nr, $item_info, $item_empl_id)
     {        
         $yes_step_nr = 0;
         $no_step_nr = 0;
@@ -1191,7 +1200,8 @@ class TasksController extends Controller
                     'task_employee_id' => $performer["empl_id"], 
                     'step_id' => $step_row->id, 
                     'wf_info_id' => $this->wf_info_id,
-                    'wf_approv_id' => $performer["wf_approv_id"]
+                    'wf_approv_id' => $performer["wf_approv_id"],
+                    'item_empl_id' => $item_empl_id
                 ]);
             
                 $this->sendNewTaskEmail([

@@ -45,12 +45,40 @@ namespace App\Libraries\Workflows
                 }
                 else {
                     $arr_vals[\App\Http\Controllers\TasksController::REPRESENT_REG_NR] = Helper::getMetaValByField($table_name, $list_id, \App\Http\Controllers\TasksController::REPRESENT_REG_NR, $item_id);
-                }                
+                }
             }
             else {
                 $arr_vals[\App\Http\Controllers\TasksController::REPRESENT_ABOUT] = Helper::getMetaValByField($table_name, $list_id, \App\Http\Controllers\TasksController::REPRESENT_ABOUT, $item_id);
-                $arr_vals[\App\Http\Controllers\TasksController::REPRESENT_REG_NR] = Helper::getMetaValByField($table_name, $list_id, \App\Http\Controllers\TasksController::REPRESENT_REG_NR, $item_id);
+                $arr_vals[\App\Http\Controllers\TasksController::REPRESENT_REG_NR] = Helper::getMetaValByField($table_name, $list_id, \App\Http\Controllers\TasksController::REPRESENT_REG_NR, $item_id);   
             }
+            
+            $arr_vals = Helper::setEmplRepresent($arr_vals, $table_name, $list_id, $item_id);
+            
+            return $arr_vals;
+        }
+        
+        /**
+         * Set value for employee representation field
+         * 
+         * @param array $arr_vals Representation array
+         * @param string $table_name Table name where value can be found
+         * @param integer $list_id Register ID
+         * @param integer $item_id Item ID
+         * @return array Representation array
+         * @throws \App\Libraries\Workflows\Exception
+         */
+        private static function setEmplRepresent($arr_vals, $table_name, $list_id, $item_id) {
+            try {
+                $arr_vals[\App\Http\Controllers\TasksController::REPRESENT_EMPL] = Helper::getMetaValByField($table_name, $list_id, \App\Http\Controllers\TasksController::REPRESENT_EMPL, $item_id);
+            }
+            catch (\Exception $e) {
+                if ($e instanceof Exceptions\DXNoRepresentField) {
+                    $arr_vals[\App\Http\Controllers\TasksController::REPRESENT_EMPL] = null;
+                }
+                else {
+                    throw $e;
+                }
+            } 
             
             return $arr_vals;
         }
@@ -242,7 +270,7 @@ namespace App\Libraries\Workflows
                     ->first();
 
             if (!$fld_row) {
-                throw new Exceptions\DXCustomException("Darbplūsmas skatam nav norādīts, kurus dokumenta laukus attēlot uzdevumā! Sazinieties ar sistēmas uzturētāju.");
+                throw new Exceptions\DXNoRepresentField();
             }
 
             $fld_val_row = DB::table("dx_lists_fields")->where("id", "=", $fld_row->field_id)->first();
@@ -260,7 +288,7 @@ namespace App\Libraries\Workflows
          * @return Array Masīvs ar aizvietošanas/izpildītāja informāciju: employee_id - izpildītāja ID, subst_info - aizvietošanas gadījumā aizvietotāju dati teksta veidā
          * @throws Exceptions\DXCustomException
          */
-        private static function validateEmployee($empl_id, $info) {
+        public static function validateEmployee($empl_id, $info) {
             // pārbaudam vai jau strādā un vēl nav atbrīvots no darba
             $user = DB::table('dx_users')
                     ->select(

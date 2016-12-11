@@ -87,7 +87,14 @@ END;
         
 	protected function parseParams()
 	{
-            $this->leaves_list_id = DBHelper::getListByTable("dx_users_left")->id;
+            $this->leaves_list_id = DBHelper::getListByTable("dx_timeoff_requests")->id;
+            
+            $this->leaves_view_url = url('skats_' . DB::table('dx_views')
+                                        ->where('list_id', '=', $this->leaves_list_id)
+                                        ->where('is_default','=', 1)
+                                        ->where('is_hidden_from_main_grid', '=', 0)
+                                        ->first()->id);
+            
             $this->user_field_id = DB::table('dx_lists_fields')
                              ->where('list_id', '=', $this->leaves_list_id)
                              ->where('db_name', '=', 'user_id')

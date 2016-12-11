@@ -41,11 +41,15 @@ namespace App\Libraries\Blocks\TaskListViews
                                   't.task_closed_time',
                                   't.task_details',
                                   DB::raw('DATEDIFF(t.due_date, now()) as days_left'),
-                                  'ts.title as task_status'
+                                  'ts.title as task_status',
+                                  't.item_empl_id',
+                                  'u.display_name as item_employee',
+                                  'u.picture_guid'
                           )
                           ->leftJoin('dx_lists as l', 't.list_id', '=', 'l.id')
                           ->leftJoin('dx_tasks_types as tt', 't.task_type_id', '=', 'tt.id')
-                          ->leftJoin('dx_tasks_statuses as ts', 't.task_status_id', '=', 'ts.id');
+                          ->leftJoin('dx_tasks_statuses as ts', 't.task_status_id', '=', 'ts.id')
+                          ->leftJoin('dx_users as u', 't.item_empl_id', '=', 'u.id');
         }
         
         /**

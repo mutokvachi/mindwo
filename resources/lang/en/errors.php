@@ -100,4 +100,5 @@ return [
     'no_donwload_rights' => "You do not have rights on the item with ID %s!",
     'file_record_not_found' => "Item with ID %s not found! Please, contact the IT support!",
     
+    'no_represent_field' => "There is not set field representation for the workflow view! Please, contact IT support.",
 ];
