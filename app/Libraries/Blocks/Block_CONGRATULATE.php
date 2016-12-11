@@ -5,6 +5,7 @@ namespace App\Libraries\Blocks;
 use App;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Config;
 
 /**
  * Class Block_CONGRATULATE
@@ -50,7 +51,7 @@ class Block_CONGRATULATE extends Block
 			return $this->getAnniversTxt($employee->join_date);
 		}
 		
-		$now = Carbon::now();
+		$now = Carbon::now(Config::get('dx.time_zone'));
 		
 		$birth = Carbon::createFromFormat('Y-m-d', $employee->birth_date);
 		
@@ -119,7 +120,7 @@ END;
 			return $this->employees;
 		}
 		
-		$now = Carbon::now();
+		$now = Carbon::now(Config::get('dx.time_zone'));
 		$user = App\User::find(Auth::user()->id);
 		
 		$this->employees = App\User::where(function ($query) use ($now)
@@ -183,7 +184,7 @@ END;
 	 */
 	private function getAnniversTxt($join_date)
 	{
-		$now = Carbon::now();
+		$now = Carbon::now(Config::get('dx.time_zone'));
 		$join = Carbon::createFromFormat('Y-m-d', $join_date);
 		if($join->month == $now->month && $join->day == $now->day)
 		{

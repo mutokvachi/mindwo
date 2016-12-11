@@ -4,7 +4,8 @@ namespace App\Libraries\Timeoff\AccrualPeriod
 {
 
     use Carbon\Carbon;
-
+    use Config;
+    
     /**
      * Accrual start period - Monthly
      */
@@ -18,7 +19,7 @@ namespace App\Libraries\Timeoff\AccrualPeriod
          */
         public function isAccruable($calc_date)
         {
-            $now = Carbon::now();
+            $now = Carbon::now(Config::get('dx.time_zone'));
             $dat = Carbon::createFromFormat("Y-m-d", \App\Libraries\Helper::getDateFromCode($this->level_row->day_code, $now->month));
 
             return ($calc_date->day == $dat->day && $calc_date->month == $dat->month);

@@ -194,7 +194,7 @@ namespace App\Libraries
          * @return string Date in format yyyy-mm-dd
          */
         public static function getDateFromCode($day_code, $month_nr) {
-            $now = Carbon::now();
+            $now = Carbon::now(Config::get('dx.time_zone'));
             if (is_numeric($day_code)) {
                     $dat = $now->year . '-' . $month_nr . '-' . $day_code;
             }
