@@ -341,7 +341,21 @@ namespace App\Libraries
                 'js_code' => $content
             ]);
         }
-
+        
+        /**
+         * Gets role ID by role name. If not found - creates it
+         * @param string $role_name Role name
+         * @return integer Role ID
+         */
+        public static function getOrCreateRoleID($role_name) {            
+            $role_row = DB::table('dx_roles')->where('title', '=', $role_name)->first();
+            
+            if (!$role_row) {
+                return DB::table('dx_roles')->insertGetId(['title' => $role_name]);
+            }
+            
+            return $role_row->id;
+        }
     }
 
 }

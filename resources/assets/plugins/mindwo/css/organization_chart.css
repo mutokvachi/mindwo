@@ -1,0 +1,95 @@
+.dx-orgchart-select {
+	min-width: 300px;
+	margin-right: 20px;
+}
+
+.dx-orgchart-levels {
+	width: 60px;
+	margin-right: 20px;
+}
+
+.orgchart {
+	background-image: none;
+	width: 100%;
+}
+
+.orgchart td {
+	margin: 0;
+	padding: 0;
+}
+
+.orgchart .node {
+	width: 170px;
+	border: 0px none !important;
+	background-color: transparent;
+	padding: 3px;
+	margin: 0;
+}
+
+.orgchart .node:hover {
+	border: 0px none !important;
+	background-color: transparent;
+}
+
+.orgchart .node .title {
+	background-color: white;
+	color: black;
+	font-weight: normal;
+	padding: 5px;
+	height: auto;
+	border: 1px solid #ccc;
+	border-bottom: none;
+}
+
+.orgchart .node .title i {
+	display: none;
+}
+
+.orgchart .node .content {
+	height: 140px;
+	white-space: normal;
+	border-top: none;
+	padding: 5px;
+	border: 1px solid #ccc;
+	border-top: none;
+}
+
+.orgchart .node .content .text {
+	height: 32px;
+	line-height: 15px;
+	vertical-align: middle;
+	padding-top: 8px;
+}
+
+.orgchart .node a.link {
+	display: block;
+}
+
+.orgchart .node img {
+	width: 80px;
+	height: 80px;
+	border-radius: 50% !important;
+}
+
+.orgchart tr.lines td {
+	border-color: #ccc !important;
+}
+
+.orgchart tr.lines .downLine {
+	background-color: #ccc !important;
+}
+
+.orgchart .subordinates {
+	float: right;
+}
+
+.oc-export-btn {
+	right: 15px !important;
+	top: -100px !important;
+	background-color: #3e7c99 !important;
+	border-color: #2e6da4 !important;
+}
+
+.actions .btn-icon-only {
+	border: 1px solid #ccc !important;
+}

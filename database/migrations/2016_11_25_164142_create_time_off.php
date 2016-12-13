@@ -4,8 +4,20 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use App\Libraries\Structure;
 
+use Illuminate\Support\Facades\Config;
+
 class CreateTimeOff extends Migration
 {
+    private $is_hr_ui = false;
+    private $is_hr_role = false;
+    
+    private function checkUI_Role() {
+        $list_id = Config::get('dx.employee_list_id', 0);
+        
+        $this->is_hr_ui = ($list_id > 0);   
+        
+        $this->is_hr_role  = (App::getLocale() == 'en');
+    }
     
     private $menu_parent_id = 0;
     
@@ -16,12 +28,15 @@ class CreateTimeOff extends Migration
      */
     public function up()
     {     
+        $this->checkUI_Role();
         
         $this->fixFormsJSCascade();
         
         $this->deleteTables();
         
-        $this->menu_parent_id = DB::table('dx_menu')->insertGetId(['parent_id' => 252, 'title'=>'Time off', 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', 252)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
+        if ($this->is_hr_ui) {
+            $this->menu_parent_id = DB::table('dx_menu')->insertGetId(['parent_id' => 252, 'title'=>'Time off', 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', 252)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
+        }
         
         // classifiers
         $this->createAccrualStart();
@@ -71,6 +86,8 @@ class CreateTimeOff extends Migration
      */
     public function down()
     {
+        $this->checkUI_Role();
+        
         \App\Libraries\DBHelper::deleteRegister('dx_users_accrual_policies');
         \App\Libraries\DBHelper::deleteRegister('dx_timeoff_calc');
         \App\Libraries\DBHelper::deleteRegister('dx_accrual_levels');
@@ -84,7 +101,9 @@ class CreateTimeOff extends Migration
                 
         $this->deleteTables();
         
-        DB::table('dx_menu')->where('parent_id', '=', 252)->where('title', '=', 'Time off')->delete();
+        if ($this->is_hr_ui) {
+            DB::table('dx_menu')->where('parent_id', '=', 252)->where('title', '=', 'Time off')->delete();
+        }
         
         Schema::table('dx_forms_js', function (Blueprint $table) {
             $table->dropForeign(['form_id']);
@@ -172,11 +191,15 @@ class CreateTimeOff extends Migration
         
         // set rights
         DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
-        DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
-
+        if ($this->is_hr_role) {
+            DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        }
+        
         // create menu
-        DB::table('dx_menu')->insertGetId(['parent_id' => $this->menu_parent_id, 'title'=>$list_name, 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $this->menu_parent_id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
-
+        if ($this->is_hr_ui) {
+            DB::table('dx_menu')->insertGetId(['parent_id' => $this->menu_parent_id, 'title'=>$list_name, 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $this->menu_parent_id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
+        }
+        
     }
     
     private function createCarryOverDates() {        
@@ -221,8 +244,9 @@ class CreateTimeOff extends Migration
         DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
  
         // create menu
-        DB::table('dx_menu')->insertGetId(['parent_id' => $this->menu_parent_id, 'title'=>$list_name, 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $this->menu_parent_id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
-
+        if ($this->is_hr_ui) {
+            DB::table('dx_menu')->insertGetId(['parent_id' => $this->menu_parent_id, 'title'=>$list_name, 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $this->menu_parent_id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
+        }
     }
     
     private function createAccrualStart() {        
@@ -268,8 +292,9 @@ class CreateTimeOff extends Migration
         DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
  
         // create menu
-        DB::table('dx_menu')->insertGetId(['parent_id' => $this->menu_parent_id, 'title'=>$list_name, 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $this->menu_parent_id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
-
+        if ($this->is_hr_ui) {
+            DB::table('dx_menu')->insertGetId(['parent_id' => $this->menu_parent_id, 'title'=>$list_name, 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $this->menu_parent_id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
+        }
     }
     
     private function createCarryOverTypes() {        
@@ -314,8 +339,9 @@ class CreateTimeOff extends Migration
         DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
 
         // create menu
-        DB::table('dx_menu')->insertGetId(['parent_id' => $this->menu_parent_id, 'title'=>$list_name, 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $this->menu_parent_id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
-
+        if ($this->is_hr_ui) {
+            DB::table('dx_menu')->insertGetId(['parent_id' => $this->menu_parent_id, 'title'=>$list_name, 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $this->menu_parent_id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
+        }
     }
     
     private function createAccrualTypes() {        
@@ -360,8 +386,9 @@ class CreateTimeOff extends Migration
         DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
 
         // create menu
-        DB::table('dx_menu')->insertGetId(['parent_id' => $this->menu_parent_id, 'title'=>$list_name, 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $this->menu_parent_id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
-
+        if ($this->is_hr_ui) {
+            DB::table('dx_menu')->insertGetId(['parent_id' => $this->menu_parent_id, 'title'=>$list_name, 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $this->menu_parent_id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
+        }
     }
     
     private function createAccrualPolicies() {        
@@ -416,11 +443,15 @@ class CreateTimeOff extends Migration
         
         // set rights
         DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
-        DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
-
+        if ($this->is_hr_role) {
+            DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        }
+        
         // create menu
-        DB::table('dx_menu')->insertGetId(['parent_id' => $this->menu_parent_id, 'title'=>$list_name, 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $this->menu_parent_id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
-
+        if ($this->is_hr_ui) {
+            DB::table('dx_menu')->insertGetId(['parent_id' => $this->menu_parent_id, 'title'=>$list_name, 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $this->menu_parent_id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
+        }
+        
         // tab in related form
         $timeoff_list_id = App\Libraries\DBHelper::getListByTable('dx_timeoff_types')->id; 
         $form_id = DB::table('dx_forms')->where('list_id', '=', $timeoff_list_id)->first()->id;
@@ -515,8 +546,10 @@ class CreateTimeOff extends Migration
         
         // set rights
         DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
-        DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
-
+        if ($this->is_hr_role) {
+            DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        }
+        
         // adjust fields in form
         DB::table('dx_forms_fields')
                 ->where('list_id', '=', $list_id)
@@ -643,10 +676,13 @@ class CreateTimeOff extends Migration
         
         // set rights
         DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
-        DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
-
+        if ($this->is_hr_role) {
+            DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        }
+        
         //fix user field (because we have 2 registers in 1 table dx_users)
-        DB::table('dx_lists_fields')
+        if ($this->is_hr_ui) {
+            DB::table('dx_lists_fields')
                 ->where('list_id', '=', $list_id)
                 ->where('db_name', '=', 'user_id')
                 ->update([
@@ -654,6 +690,7 @@ class CreateTimeOff extends Migration
                     'rel_display_field_id' => DB::table('dx_lists_fields')->where('list_id', '=', Config::get('dx.employee_list_id'))->where('db_name', '=', 'display_name')->first()->id,
                     'type_id' => \App\Libraries\DBHelper::FIELD_TYPE_LOOKUP
                 ]);
+        }
         
         // adjust fields in form
         DB::table('dx_forms_fields')
@@ -712,10 +749,12 @@ class CreateTimeOff extends Migration
                                             ->first()->id)
                 ->update(['row_type_id' => 2]);
         
-        // menu
-        $rep_menu = DB::table('dx_menu')->where('title', '=', 'Reports')->first();
-        if ($rep_menu) {
-            DB::table('dx_menu')->insertGetId(['parent_id' => $rep_menu->id, 'title'=>$list_name, 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $rep_menu->id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
+        if ($this->is_hr_ui) {
+            // menu
+            $rep_menu = DB::table('dx_menu')->where('title', '=', 'Reports')->first();
+            if ($rep_menu) {
+                DB::table('dx_menu')->insertGetId(['parent_id' => $rep_menu->id, 'title'=>$list_name, 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $rep_menu->id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
+            }
         }
     }
     
@@ -762,8 +801,9 @@ class CreateTimeOff extends Migration
         DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
 
         // create menu
-        DB::table('dx_menu')->insertGetId(['parent_id' => $this->menu_parent_id, 'title'=>$list_name, 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $this->menu_parent_id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
-
+        if ($this->is_hr_ui) {
+            DB::table('dx_menu')->insertGetId(['parent_id' => $this->menu_parent_id, 'title'=>$list_name, 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $this->menu_parent_id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
+        }
     }
     
     private function createUsersAccrualPolicies() {        
@@ -814,10 +854,13 @@ class CreateTimeOff extends Migration
         
         // set rights
         DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
-        DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
-
+        if ($this->is_hr_role) {
+            DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        }
+        
         //fix user field (because we have 2 registers in 1 table dx_users)
-        DB::table('dx_lists_fields')
+        if ($this->is_hr_ui) {
+            DB::table('dx_lists_fields')
                 ->where('list_id', '=', $list_id)
                 ->where('db_name', '=', 'user_id')
                 ->update([
@@ -825,6 +868,7 @@ class CreateTimeOff extends Migration
                     'rel_display_field_id' => DB::table('dx_lists_fields')->where('list_id', '=', Config::get('dx.employee_list_id'))->where('db_name', '=', 'display_name')->first()->id,
                     'type_id' => \App\Libraries\DBHelper::FIELD_TYPE_LOOKUP
                 ]);
+        }
         
         // set binded fields
         $bind_list = \App\Libraries\DBHelper::getListByTable('dx_accrual_policies');
@@ -881,10 +925,12 @@ class CreateTimeOff extends Migration
                                             ->first()->id)
                 ->update(['row_type_id' => 2]);
         
-        // menu
-        $rep_menu = DB::table('dx_menu')->where('title', '=', 'Reports')->first();
-        if ($rep_menu) {
-            DB::table('dx_menu')->insertGetId(['parent_id' => $rep_menu->id, 'title'=>'Employees accrual policies', 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $rep_menu->id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
+        if ($this->is_hr_ui) {
+            // menu
+            $rep_menu = DB::table('dx_menu')->where('title', '=', 'Reports')->first();
+            if ($rep_menu) {
+                DB::table('dx_menu')->insertGetId(['parent_id' => $rep_menu->id, 'title'=>'Employees accrual policies', 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $rep_menu->id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
+            }
         }
         
         // add special JavaScript

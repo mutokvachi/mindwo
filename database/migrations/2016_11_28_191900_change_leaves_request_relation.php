@@ -3,8 +3,21 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
+use Illuminate\Support\Facades\Config;
+
 class ChangeLeavesRequestRelation extends Migration
 {
+    private $is_hr_ui = false;
+    private $is_hr_role = false;
+    
+    private function checkUI_Role() {
+        $list_id = Config::get('dx.employee_list_id', 0);
+        
+        $this->is_hr_ui = ($list_id > 0);   
+        
+        $this->is_hr_role  = (App::getLocale() == 'en');
+    }
+    
     /**
      * Run the migrations.
      *
@@ -12,6 +25,12 @@ class ChangeLeavesRequestRelation extends Migration
      */
     public function up()
     {        
+        $this->checkUI_Role();
+        
+        if (!$this->is_hr_ui) {
+            return;
+        }
+        
         $list_id = App\Libraries\DBHelper::getListByTable('dx_users_left')->id;    
         
         $rel_list_id = App\Libraries\DBHelper::getListByTable('dx_timeoff_types')->id;
@@ -78,6 +97,12 @@ class ChangeLeavesRequestRelation extends Migration
      */
     public function down()
     {
+        $this->checkUI_Role();
+        
+        if (!$this->is_hr_ui) {
+            return;
+        }
+        
         $list_id = App\Libraries\DBHelper::getListByTable('dx_users_left')->id;    
         
         $rel_list_id = App\Libraries\DBHelper::getListByTable('in_left_reasons')->id;

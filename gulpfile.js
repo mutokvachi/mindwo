@@ -37,6 +37,7 @@ gulp.task('mix_all', function() {
             'metronic/css/faq.min.css', 
             'metronic/css/components-md.css',
             'metronic/css/components.css',
+            'metronic/css/profile-2.css',
             'bootstrap-modal/css/bootstrap-modal.css',
             'toastr/toastr.min.css',
             'tooltipster-master/css/tooltipster.css', 
@@ -63,7 +64,10 @@ gulp.task('mix_all', function() {
             'codemirror/css/ambiance.css', 
             'jasny-bootstrap/css/jasny-bootstrap.min.css', 
             'jquery-nestable/jquery.nestable.css', 
-            'mindwo/css/view.css' 
+            'mindwo/css/view.css',
+            'datatables/plugins/bootstrap/datatables.bootstrap.css',
+            'datatables/datatables.min.css',
+            'bootstrap-daterangepicker/daterangepicker.min.css'
         ], 'public/css/elix_view.css', 'resources/assets/plugins');
         
         // horizontal menu UI styles                
@@ -137,6 +141,7 @@ gulp.task('mix_all', function() {
 
         // Scripts for grids/forms functionality
         mix.scripts([
+            'moment.min.js',
             'bootstrap-daterangepicker/daterangepicker.js',
             'bootstrap-colorpicker/js/bootstrap-colorpicker.js',
             'dropzone/dropzone.min.js',
@@ -160,7 +165,9 @@ gulp.task('mix_all', function() {
             'mindwo/fields/rel_id.js',
             'mindwo/fields/autocompleate.js',
             'mindwo/fields/datetime.js',
-            'mindwo/fields/bool.js'
+            'mindwo/fields/bool.js',
+            'datatables/datatables.all.min.js',
+            'datatables/plugins/bootstrap/datatables.bootstrap.js'
         ], 'public/js/elix_view.js', 'resources/assets/plugins');
 
         // Scripts for employees search page functionality
@@ -176,13 +183,20 @@ gulp.task('mix_all', function() {
            'mindwo/pages/inlineform.js',
            'mindwo/pages/empl_links_fix.js',
            'mindwo/pages/employee/personal_docs.js',
-           'mindwo/pages/employee/notes.js'
+           'mindwo/pages/employee/notes.js',
+           'mindwo/pages/employee/timeoff.js',
+           'counterup/jquery.counterup.min.js',
+           'counterup/jquery.waypoints.min.js',
+           'flot/jquery.flot.min.js',
+           'flot/jquery.flot.resize.min.js',
+           'flot/jquery.flot.axislabels.js'
         ], 'public/js/elix_profile.js', 'resources/assets/plugins');
         
         // LESS Styles for employee profile                
         mix.less([
             'pages/employee/personal_docs.less',
-            'pages/employee/notes.less'
+            'pages/employee/notes.less',
+            'pages/employee/timeoff.less'
         ], 'public/css/elix_employee_profile.css');
         
         // Scripts for articles search page functionality
@@ -201,17 +215,35 @@ gulp.task('mix_all', function() {
             'html2canvas/html2canvas.js',
             'orgchart/OrgChart.js',
 			'select2/select2.min.js',
-			'select2/select2_locale_multi.js'
+			'select2/select2_locale_multi.js',
+            'mindwo/pages/organization_chart.js'
         ], 'public/js/elix_orgchart.js', 'resources/assets/plugins');
 	
 		// Styles for organization chart
         mix.styles([
             'orgchart/orgchart.css',
 			'select2/select2.css',
-            'select2/select2-bootstrap.css'
+            'select2/select2-bootstrap.css',
+            'mindwo/css/organization_chart.css'
 		], 'public/css/elix_orgchart.css', 'resources/assets/plugins');
-        
-        // Minify all scripts
+	
+		// Scripts for departments chart
+		mix.scripts([
+			'html2canvas/html2canvas.js',
+			'orgchart/OrgChart.js'
+            //,
+			//'mindwo/pages/organization_departments.js'
+		], 'public/js/elix_orgdepartments.js', 'resources/assets/plugins');
+	
+		// Styles for departments chart
+		mix.styles([
+			'orgchart/orgchart.css',
+			'select2/select2.css',
+			'select2/select2-bootstrap.css',
+			'mindwo/css/organization_chart.css'
+		], 'public/css/elix_orgdepartments.css', 'resources/assets/plugins');
+	
+		// Minify all scripts
         mix.version([
             'js/elix_userlinks.js', 
             'js/elix_plugins.js', 
@@ -229,7 +261,9 @@ gulp.task('mix_all', function() {
             'css/elix_articles.css',
             'css/elix_employee_profile.css',
             'js/elix_orgchart.js',
-            'css/elix_orgchart.css'
+            'css/elix_orgchart.css',
+			'js/elix_orgdepartments.js',
+			'css/elix_orgdepartments.css'
         ]);
     });
 });

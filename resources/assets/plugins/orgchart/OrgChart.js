@@ -138,16 +138,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    chart.addEventListener('click', this._clickChart.bind(this));
 	    // append the export button to the chart-container
 	    if (opts.exportButton && !chartContainer.querySelector('.oc-export-btn')) {
-	      var exportBtn = document.createElement('button'),
-	          downloadBtn = document.createElement('a');
-	
-	      exportBtn.setAttribute('class', 'oc-export-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''));
-	      exportBtn.innerHTML = 'Export';
-	      exportBtn.addEventListener('click', this._clickExportButton.bind(this));
-	      downloadBtn.setAttribute('class', 'oc-download-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''));
-	      downloadBtn.setAttribute('download', opts.exportFilename + '.png');
-	      chartContainer.appendChild(exportBtn);
-	      chartContainer.appendChild(downloadBtn);
+                var exportBtn = document.createElement('button'),
+                downloadBtn = document.createElement('a');
+                
+                exportBtn.setAttribute('class', 'oc-export-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''));
+                exportBtn.innerHTML = '<i class="fa fa-download"></i> Export';
+                exportBtn.addEventListener('click', this._clickExportButton.bind(this));
+                downloadBtn.setAttribute('class', 'oc-download-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''));
+                downloadBtn.setAttribute('download', opts.exportFilename + '.png');
+                chartContainer.appendChild(exportBtn);
+                chartContainer.appendChild(downloadBtn);
 	    }
 	
 	    if (opts.pan) {
@@ -1873,7 +1873,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	      }).then(function (canvas) {
 	        var downloadBtn = chartContainer.querySelector('.oc-download-btn');
-	
+                
+                if (!downloadBtn) {
+                    downloadBtn = document.createElement('a');
+                    downloadBtn.setAttribute('class', 'oc-download-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''));
+                    downloadBtn.setAttribute('download', opts.exportFilename + '.png');
+                    chartContainer.appendChild(downloadBtn);
+                }
+                
 	        chartContainer.querySelector('.mask').classList.add('hidden');
 	        downloadBtn.setAttribute('href', canvas.toDataURL());
 	        downloadBtn.click();
@@ -2042,7 +2049,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	      this._setChartScale(this.chart, newScale);
 	    }
-	  }, {
+	  },{
+	    key: 'set_zoom',
+	    value: function set_zoom(delta) {
+	
+	      var newScale = delta > 0 ? 0.8 : 1.2;
+	
+	      this._setChartScale(this.chart, newScale);
+	    }
+	  },{
 	    key: '_getPinchDist',
 	    value: function _getPinchDist(event) {
 	      return Math.sqrt((event.touches[0].clientX - event.touches[1].clientX) * (event.touches[0].clientX - event.touches[1].clientX) + (event.touches[0].clientY - event.touches[1].clientY) * (event.touches[0].clientY - event.touches[1].clientY));

@@ -14,8 +14,7 @@ use Log;
  * Datņu lejuplādēšanas kontrolieris
  */
 class FileController extends Controller
-{
-
+{    
     /**
      * Lejuplādē datni
      * 
@@ -27,14 +26,20 @@ class FileController extends Controller
      */
     public function getFile($item_id, $list_id, $file_field_id)
     {
+        $this->checkRights($item_id, $list_id);
+        
         $file = $this->getFileData($item_id, $list_id, $file_field_id);
+        
+        if (!$file) {
+            throw new Exceptions\DXCustomException(sprintf(trans('errors.file_record_not_found'),$item_id));
+        }
 
         $file_folder = $this->getFileFolder($file->is_public_file);
 
         $file_path = $file_folder . $file->file_guid;
 
         if (!file_exists($file_path)) {
-            throw new Exceptions\DXCustomException("Datne '" . $file_path . "' nav atrodama! Lūdzu, sazinieties ar sistēmas uzturētāju!");
+            throw new Exceptions\DXCustomException(sprintf(trans('errors.file_not_found'), $file_path));
         }
         /*
         // This is Laravel approach - but not working with cookie..        
@@ -56,6 +61,14 @@ class FileController extends Controller
         readfile($file_path);
     }
     
+    /**
+     * Download file from AJAX request
+     * 
+     * @param ineger $item_id Item ID
+     * @param integer $list_id List ID
+     * @param integer $file_field_id Field ID
+     * @return Response File download
+     */
     public function getFile_js($item_id, $list_id, $file_field_id) {
         try {
             $this->getFile($item_id, $list_id, $file_field_id);
@@ -75,24 +88,54 @@ class FileController extends Controller
      */
     public function getFileByField($item_id, $list_id, $field_name)
     {
+        $this->checkRights($item_id, $list_id);
+        
         $file_field_id = DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', $field_name)->first()->id;
 
         $file = $this->getFileData($item_id, $list_id, $file_field_id);
 
-        $file_folder = $this->getFileFolder($file->is_public_file);
-
-        $file_path = $file_folder . $file->file_guid;
-
-        if (!file_exists($file_path)) {
-            throw new Exceptions\DXCustomException("Datne '" . $file_path . "' nav atrodama! Lūdzu, sazinieties ar sistēmas uzturētāju!");
+        if (!$file) {
+            throw new Exceptions\DXCustomException(sprintf(trans('errors.file_record_not_found'),$item_id));
         }
+        
+        return $this->performFileDownload($file);
+    }
+    
+    /**
+     * Downloads first (according to order index in form) available file from register item
+     * 
+     * @param integer $item_id Item ID
+     * @param integer $list_id List ID
+     * @return type Response with file
+     * @throws Exceptions\DXCustomException
+     */
+    public function getFirstFile($item_id, $list_id) {
+        
+        $this->checkRights($item_id, $list_id);
+        
+        $file_fields = DB::table('dx_lists_fields as lf')
+                       ->select('lf.id')
+                       ->join('dx_forms_fields as ff', 'lf.id', '=', 'ff.field_id')
+                       ->where('lf.list_id', '=', $list_id)
+                       ->where('lf.type_id', '=', \App\Libraries\DBHelper::FIELD_TYPE_FILE)
+                       ->orderBy('ff.order_index')
+                       ->get();
+        
+        $file = null;
+        foreach($file_fields as $filefield) {
+            $file = $this->getFileData($item_id, $list_id, $filefield->id);
 
-        $headers = array(
-            'Content-Type: ' . $this->getFileContentHeader($file->file_name),
-            'Content-Disposition: attachment; filename="' . $file->file_name . '";'
-        );
-
-        return response()->download($file_path, $file->file_name, $headers);
+            if ($file && $file->file_name) {
+                break;
+            }
+        }
+        
+        if (!$file) {
+            // no file set for list item
+            throw new Exceptions\DXCustomException(trans('errors.file_not_set'));
+        }
+        
+        return $this->performFileDownload($file);
     }
 
     /**
@@ -104,24 +147,11 @@ class FileController extends Controller
      * @return Object Datnes datu bāzes ieraksta rinda
      * @throws Exceptions\DXCustomException
      */
-    public function getFileData($item_id, $list_id, $file_field_id)
+    private function getFileData($item_id, $list_id, $file_field_id)
     {
-        $right = Rights::getRightsOnList($list_id);
-
-        if ($right == null) {
-            if (!\App\Libraries\Workflows\Helper::isRelatedTask($list_id, $item_id)) {
-                Log::info("Lietotājam " . Auth::user()->display_name . " nav tiesību uz ierakstu ar ID " . $item_id . " reģistrā ar ID " . $list_id);
-                throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību šajā reģistrā!");
-            }
-        }
-
         $fields_row = $this->getFieldsRow($list_id, $file_field_id);
 
-        $file_row = $this->getFileDataRows($fields_row, $list_id, $item_id);
-
-        if (!$file_row) {
-            throw new Exceptions\DXCustomException("Datne ar ieraksta ID " . $item_id . " nav atrodama! Lūdzu, sazinieties ar sistēmas uzturētāju!");
-        }
+        $file_row = $this->getFileDataRows($fields_row, $list_id, $item_id);        
 
         return $file_row;
     }
@@ -153,6 +183,28 @@ class FileController extends Controller
         return $file_folder;
     }
 
+    /**
+     * Finds file from server disk and downloads it
+     * @param object $file File row
+     * @return Response File download
+     * @throws Exceptions\DXCustomException
+     */
+    private function performFileDownload($file) {
+        $file_folder = $this->getFileFolder($file->is_public_file);
+
+        $file_path = $file_folder . $file->file_guid;
+
+        if (!file_exists($file_path)) {
+            throw new Exceptions\DXCustomException(sprintf(trans('errors.file_not_found'), $file_path));
+        }
+
+        $headers = array(
+            'Content-Type: ' . $this->getFileContentHeader($file->file_name),
+            'Content-Disposition: attachment; filename="' . $file->file_name . '";'
+        );
+        Log::info("Te jabut donw");
+        return response()->download($file_path, $file->file_name, $headers);
+    }
     /**
      * Izgūst datnes reģistra lauku rindas objektu
      * 
@@ -195,7 +247,26 @@ class FileController extends Controller
      * @return Array Masīvs ar datnes ierakstu (masīvā tiek ekspektēts 1 ieraksts)
      */
     private function getFileDataRows($fields_row, $list_id, $item_id)
-    {
+    {       
+        $data_tb = DB::table($fields_row->table_name)
+                ->select('id', DB::raw($fields_row->file_field_name . " as file_name"), DB::raw(str_replace("_name", "_guid", $fields_row->file_field_name) . " as file_guid"), DB::raw($fields_row->is_public_file . " as is_public_file")
+                )
+                ->where('id', '=', $item_id);
+
+        if ($fields_row->is_multi_registers == 1) {
+            $data_tb->where('multi_list_id', '=', 'list_id');
+        }
+
+        return $data_tb->first();
+    }
+    
+    /**
+     * Checks if it is set special permissions on item and weather user have those special rights
+     * @param integer $item_id
+     * @throws Exceptions\DXCustomException
+     */
+    private function checkItemAccess($item_id) {
+                
         $item_rights = DB::table('dx_item_access')
                 ->where('list_id', '=', 'list_id')
                 ->where('list_item_id', '=', $item_id)
@@ -210,20 +281,29 @@ class FileController extends Controller
                     ->count();
 
             if ($user_rights == 0) {
-                throw new Exceptions\DXCustomException("Jums nav tiesību uz datni ierakstam ar ID " . $item_id . "!");
+                throw new Exceptions\DXCustomException(sprintf(trans('errors.no_donwload_rights'), $item_id));
             }
         }
+    }
+    
+    /**
+     * Checks if user have rights on list or have task for specific item
+     * 
+     * @param integer $item_id Item ID
+     * @param integer $list_id List ID
+     */
+    private function checkRights($item_id, $list_id) {
+        $right = Rights::getRightsOnList($list_id);
 
-        $data_tb = DB::table($fields_row->table_name)
-                ->select('id', DB::raw($fields_row->file_field_name . " as file_name"), DB::raw(str_replace("_name", "_guid", $fields_row->file_field_name) . " as file_guid"), DB::raw($fields_row->is_public_file . " as is_public_file")
-                )
-                ->where('id', '=', $item_id);
-
-        if ($fields_row->is_multi_registers == 1) {
-            $data_tb->where('multi_list_id', '=', 'list_id');
+        if ($right == null) {
+            if (!\App\Libraries\Workflows\Helper::isRelatedTask($list_id, $item_id)) {
+                Log::info("Lietotājam " . Auth::user()->display_name . " nav tiesību uz ierakstu ar ID " . $item_id . " reģistrā ar ID " . $list_id);
+                throw new Exceptions\DXCustomException(trans('errors.no_rights_on_register'));
+            }
         }
-
-        return $data_tb->first();
+        else {
+            $this->checkItemAccess($item_id);
+        }
     }
 
     /**

@@ -87,6 +87,7 @@ Route::get('/rest_test/{readviewentries}/{outputformat}/{Start}/{Count}', array(
 Route::get('/download_file_{item_id}_{list_id}_{file_field_id}', array('as' => 'download_file',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getFile'));
 Route::get('/download_filejs_{item_id}_{list_id}_{file_field_id}', array('as' => 'download_file',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getFile_js'));
 Route::get('/download_by_field_{item_id}_{list_id}_{field_name}', array('as' => 'download_file_field',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getFileByField'));
+Route::get('/download_first_file_{item_id}_{list_id}', array('as' => 'download_first_file',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getFirstFile'));
 
 // Darbplūsmas
 Route::post('/form_task', array('as' => 'task_form',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@getTaskForm'));
@@ -121,6 +122,15 @@ Route::group(['middleware' => 'auth', 'prefix' => 'employee'], function() {
         Route::post('/save', 'NoteController@save');
         Route::delete('/delete', 'NoteController@delete');
     });
+    
+    Route::group(['prefix' => 'timeoff', 'namespace' => 'Employee'], function () {
+        Route::get('/get/view/{user_id}', 'TimeoffController@getView');
+        Route::get('/get/filter/year/{user_id}', 'TimeoffController@getYearFilterView');
+        Route::get('/get/calculate/{user_id}/{timeoff_id}', 'TimeoffController@calculateTimeoff');
+        Route::get('/get/table/{user_id}/{timeoff_type_id}/{date_from}/{date_to}', 'TimeoffController@getTable');
+        Route::get('/get/chart/{user_id}/{timeoff_type_id}/{date_from}/{date_to}', 'TimeoffController@getChartData');
+        Route::get('/get/delete_calculated/{user_id}/{timeoff_id}', 'TimeoffController@deleteTimeoff');
+    });
 
     Route::get('profile/{id?}', 'EmplProfileController@show')->name('profile');
     Route::get('profile/{id}/chunks', ['as' => 'profile_chunks', 'middleware' => 'auth_ajax', 'uses' => 'EmplProfileController@ajaxShowChunks']);
@@ -142,7 +152,7 @@ Route::group(['middleware' => 'auth_ajax', 'prefix' => 'inlineform'], function()
 
 Route::group(['middleware' => 'auth', 'prefix' => 'organization'], function() {
 	Route::get('chart/{id?}', ['as' => 'organization_chart', 'uses' => 'OrgChartController@show']);
-	Route::get('chart/parent/{id?}', ['as' => 'organization_chart_parent', 'middleware' => 'auth_ajax', 'uses' => 'OrgChartController@ajaxGetParent']);
+	Route::get('departments', ['as' => 'organization_departments', 'uses' => 'DepartmentsChartController@show']);
 });
 
 // Lapas

@@ -7,6 +7,17 @@ use Illuminate\Support\Facades\Config;
 
 class CreateQualificationCert extends Migration
 {
+    private $is_hr_ui = false;
+    private $is_hr_role = false;
+    
+    private function checkUI_Role() {
+        $list_id = Config::get('dx.employee_list_id', 0);
+        
+        $this->is_hr_ui = ($list_id > 0);   
+        
+        $this->is_hr_role  = (App::getLocale() == 'en');
+    }
+    
     /**
      * Run the migrations.
      *
@@ -14,6 +25,8 @@ class CreateQualificationCert extends Migration
      */
     public function up()
     {
+        $this->checkUI_Role();
+        
         Schema::dropIfExists('dx_users_cert');
                 
         DB::table('dx_objects')->whereIn('db_name', ['dx_users_cert'])->delete();
@@ -52,7 +65,8 @@ class CreateQualificationCert extends Migration
         $list_id = App\Libraries\DBHelper::getListByTable('dx_users_cert')->id;       
         
         //fix user field (because we have 2 registers in 1 table dx_users)
-        DB::table('dx_lists_fields')
+        if ($this->is_hr_ui) {
+            DB::table('dx_lists_fields')
                 ->where('list_id', '=', $list_id)
                 ->where('db_name', '=', 'user_id')
                 ->update([
@@ -60,6 +74,7 @@ class CreateQualificationCert extends Migration
                     'rel_display_field_id' => DB::table('dx_lists_fields')->where('list_id', '=', Config::get('dx.employee_list_id'))->where('db_name', '=', 'display_name')->first()->id,
                     'type_id' => \App\Libraries\DBHelper::FIELD_TYPE_LOOKUP
                 ]);
+        }
         
         //fix file field
         DB::table('dx_lists_fields')
@@ -74,20 +89,24 @@ class CreateQualificationCert extends Migration
                     'type_id'=>  \App\Libraries\DBHelper::FIELD_TYPE_FILE
                 ]);
                 
-        // rights       
-        DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        // rights
+        if ($this->is_hr_role) {
+            DB::table('dx_roles_lists')->insert(['role_id' => 39, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); //HR
+        }
         DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
         
-        // make tab in employee profile form
-        $form_id = DB::table('dx_forms')->where('list_id', '=', Config::get('dx.employee_list_id'))->first()->id;
-        
-        DB::table('dx_forms_tabs')->insert([
-            'form_id'=>$form_id,
-            'title' => 'Certificates',
-            'grid_list_id' => $list_id,
-            'grid_list_field_id' => DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'user_id')->first()->id,
-            'order_index' => (DB::table('dx_forms_tabs')->where('form_id', '=', $form_id)->max('order_index')+10)
-        ]);
+        if ($this->is_hr_ui) {
+            // make tab in employee profile form
+            $form_id = DB::table('dx_forms')->where('list_id', '=', Config::get('dx.employee_list_id'))->first()->id;
+
+            DB::table('dx_forms_tabs')->insert([
+                'form_id'=>$form_id,
+                'title' => 'Certificates',
+                'grid_list_id' => $list_id,
+                'grid_list_field_id' => DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'user_id')->first()->id,
+                'order_index' => (DB::table('dx_forms_tabs')->where('form_id', '=', $form_id)->max('order_index')+10)
+            ]);
+        }
     }
 
     /**

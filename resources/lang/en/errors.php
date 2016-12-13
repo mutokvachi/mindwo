@@ -47,6 +47,7 @@ return [
     'no_rights_on_register' => "You do not have the necessary rights in this register!",
     'no_rights_to_insert' => "You have no rights to insert a new entry in this register!", 
     'no_rights_to_edit' => "You have no rights to edit the entry in this register!", 
+    'no_rights_to_delete' => 'You have no rights to delete the entry in this register!',
     
     'cant_create_folder' => "It is impossible to create a folder '%s' on the server disk!",
     
@@ -86,7 +87,18 @@ return [
     'invalid_input_data' => 'Invalid input data!',
     
     // timeoff
-    'no_accrual_policy' => 'There is not accrual policy set for employee!',
+    'no_accrual_policy' => 'There is no accrual policy set for this time off type!',
     'unsupported_factory_class' => "Unsupported class object '%s'!",
     'no_joined_date' => 'Date joined is not set for the employee!',
+    
+    //tasks widget
+    'unsupported_task_view' => "Unsupported tasks view code '%s'!",
+    
+    //file download
+    'file_not_found' => "File '%s' not found! Please, contact the IT support!",
+    'file_not_set' => 'List item does not have any file attached!',
+    'no_donwload_rights' => "You do not have rights on the item with ID %s!",
+    'file_record_not_found' => "Item with ID %s not found! Please, contact the IT support!",
+    
+    'no_represent_field' => "There is not set field representation for the workflow view! Please, contact IT support.",
 ];

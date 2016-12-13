@@ -3,8 +3,21 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
+use Illuminate\Support\Facades\Config;
+
 class FixHrClassifiersMenu extends Migration
 {
+    private $is_hr_ui = false;
+    private $is_hr_role = false;
+    
+    private function checkUI_Role() {
+        $list_id = Config::get('dx.employee_list_id', 0);
+        
+        $this->is_hr_ui = ($list_id > 0);   
+        
+        $this->is_hr_role  = (App::getLocale() == 'en');
+    }
+    
     /**
      * Run the migrations.
      *
@@ -12,6 +25,13 @@ class FixHrClassifiersMenu extends Migration
      */
     public function up()
     {
+        $this->checkUI_Role();
+        
+        if (!$this->is_hr_ui) {
+            return;
+        }
+            
+        
         // Documents        
         $menu_id = DB::table('dx_menu')->insertGetId([
             'parent_id' => 252, 

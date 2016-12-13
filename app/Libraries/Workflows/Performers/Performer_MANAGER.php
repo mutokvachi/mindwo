@@ -4,6 +4,8 @@ namespace App\Libraries\Workflows\Performers
 {
     use DB;
     use App\Exceptions;
+    use Log;
+    
     /**
      * Darbplūsmas izpildītājs - darbinieks klase
      */
@@ -16,8 +18,14 @@ namespace App\Libraries\Workflows\Performers
          */
         public function setEmployeeID()
         {
+            $fld_row = DB::table("dx_lists_fields")->where('id', '=', $this->step_row->field_id)->first();
+            
+            \App\Libraries\Workflows\Helper::validateEmplField($fld_row);
+            
+            $empl_id = \App\Libraries\Workflows\Helper::getDocEmplValue($this->step_row->list_id, $this->item_id, $fld_row);
+            
             $empl_row = DB::table('dx_users')
-                        ->where('id', '=', $this->step_row->employee_id)
+                        ->where('id', '=', $empl_id)
                         ->first();
             
             if (!$empl_row->manager_id) {

@@ -8,6 +8,9 @@ namespace App\Libraries\Timeoff
     use Carbon\Carbon;    
     use Auth;
     use Log;
+    use App\Libraries\DBHelper;
+    use App\Libraries\Rights;
+    use Config;
     
     /**
      * Class for employee time off calculation
@@ -120,7 +123,7 @@ namespace App\Libraries\Timeoff
             // get date from which to start calculation
             $first_date = $this->getFirstCalcDate();
             
-            $now = Carbon::now();
+            $now = Carbon::now(Config::get('dx.time_zone'));
             
             if ($first_date->gt($now)) {
                 return; // allready all is calculated
@@ -140,7 +143,7 @@ namespace App\Libraries\Timeoff
             
             // Calculate timeoff data
             while ($is_ok_to_loop) {
-                $calc_date_next = $this->checkHolidays($calc_date_cur->copy()->addDay()); // we get next day for calculation (accroding to hilidays which we skip)
+                $calc_date_next = $this->checkHolidays($calc_date_cur->copy()->addDay()); // we get next day for calculation (accroding to holidays which we skip)
                 $next_leave_stat = $this->isLeaveDay($calc_date_next); // we calculate leave ID (can be 0 if no leave) for next day
                 
                 $diff = $calc_date_next->diffInDays($calc_date_cur); // we check if there was skipped days because of holidays
@@ -213,9 +216,9 @@ namespace App\Libraries\Timeoff
             
             $accrued_amount = 0;
             if ($leave_id) {
-                $accrued_amount = -8; // working day is 8 hours
+                $accrued_amount = - Config::get('dx.working_day_h', 8); // working day is 8 hours
             }
-            else {
+            else {                
                 $level = $this->getLevel($calc_date);
                 if ($level['period']->isAccruable($calc_date)) {
                     $accrued_amount = $level['accrued_amount'];
@@ -254,7 +257,7 @@ namespace App\Libraries\Timeoff
          * @return object Accrual level object
          */
         private function getLevel($dat) {
-            foreach($this->levels_rows as $level) {                
+            foreach($this->levels_rows as $level) {                      
                 if ($dat->between($level['from_date'], $level['to_date'])) {
                     return $level;
                 }
@@ -377,7 +380,7 @@ namespace App\Libraries\Timeoff
                                  ->orderBy('al.id')
                                  ->get();
             
-            $now = Carbon::now();
+            $now = Carbon::now(Config::get('dx.time_zone'))->copy()->addDay();
             $arr_lev = [];
             foreach($levels as $key => $level) {
                 $start = AccrualStart\AccrualStartFactory::build_start($level, $this->policy_row, $this->employee_row);                              
@@ -446,7 +449,7 @@ namespace App\Libraries\Timeoff
          * @return boolean True - date can be calculated, False - date is after today or after employment termination date
          */
         private function isCalcDateOk($calc_date) {
-            $now = Carbon::now();
+            $now = Carbon::now(Config::get('dx.time_zone'));
             
             if ($calc_date->gte($now)) {
                 return false;

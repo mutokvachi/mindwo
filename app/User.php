@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use DB;
+use Log;
+use Config;
 
 /**
  * Model for systems users
@@ -96,6 +99,63 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	{
 		return $this->hasMany('\App\Models\Employee\Note', 'user_id');
 	}
+        
+        /**
+	 * List of users's time off calculations
+	 * @return App\Models\Employee\TimeoffCalc
+	 */
+	public function timeoffCalc()
+	{
+		return $this->hasMany('\App\Models\Employee\TimeoffCalc', 'user_id');
+	}
+        
+        /**
+	 * Users's time off data
+	 * @return object Contains time off types data and value for specific user
+	 */
+	public function timeoff()
+	{
+            $timeoffs =  DB::table('dx_timeoff_types as to')
+                         ->where('to.is_disabled', '=', 0)
+                         ->orderBy('to.order_index')
+                         ->get();
+            
+            $user_policy_list_id = Libraries\DBHelper::getListByTable("dx_users_accrual_policies")->id;
+            $user_policy_field_id = DB::table('dx_lists_fields')
+                             ->where('list_id', '=', $user_policy_list_id)
+                             ->where('db_name', '=', 'user_id')
+                             ->first()->id;
+            
+            foreach($timeoffs as $timeoff) {
+                $balance = DB::table('dx_timeoff_calc')
+                           ->where('user_id', '=', $this->id)
+                           ->where('timeoff_type_id', '=', $timeoff->id)
+                           ->orderBy('calc_date', 'DESC')
+                           ->first();
+                
+                $timeoff->unit = trans('calendar.hours');
+                $time = ($balance) ? $balance->balance : 0;
+                if (!$timeoff->is_accrual_hours) {
+                    $time = round(($time/Config::get('dx.working_day_h', 8)));
+                    $timeoff->unit = trans('calendar.days');
+                }
+                
+                $timeoff->balance = $time;
+                $timeoff->user_policy_list_id = $user_policy_list_id;
+                $timeoff->user_policy_field_id = $user_policy_field_id;
+                
+                $user_policy_row = DB::table('dx_users_accrual_policies')
+                                ->where('user_id', '=', $this->id)
+                                ->where('timeoff_type_id', '=', $timeoff->id)
+                                ->whereNull('end_date')
+                                ->first();
+                
+                $timeoff->user_policy_id = ($user_policy_row) ? $user_policy_row->id : 0;
+                
+            }
+            
+            return $timeoffs;            
+	}
 	
 	/**
 	 * Relation to country
@@ -145,6 +205,16 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	public function team_members()
 	{
 		return $this->hasMany('App\User', 'team_id', 'team_id');
+	}
+        
+        /**
+	 * Relation to subordinates (dirrect reporters)
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function subordinates()
+	{
+		return $this->hasMany('App\User', 'manager_id', 'id');
 	}
 	
 	/**
