@@ -244,6 +244,10 @@ class DepartmentsChartController extends Controller
 				'subordinates' => count($subnode),
 				'source_id' => $department->source_id,
 				'count' => $this->counts[$department->id],
+				'search' => '/search?searchType='
+					.trans('search_top.employees')
+					.'&source_id='.$department->source_id
+					.'&department='.$department->title,
 				'relationship' => $hasParent . $hasSiblings . $hasChildren,
 			];
 			

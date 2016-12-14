@@ -30,66 +30,15 @@
 @endsection
 
 @section('main_custom_javascripts')
-	<script src="{{ elixir('js/elix_orgdepartments.js') }}" type='text/javascript'></script>
+  <script src="{{ elixir('js/elix_orgdepartments.js') }}" type='text/javascript'></script>
   <script>
 	  var orgchartData = {
 		  source: {!! json_encode($datasource, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) !!},
 		  route: '{{ route('organization_departments') }}'
-				//,
-		  // displayLevels: {{ $displayLevels }}
 	  };
-	  // init orgchart plugin
-	  var orgchart = new OrgChart({
-		  chartContainer: '#dx-orgchart-container',
-		  data: orgchartData.source,
-		  nodeContent: 'title',
-		  depth: orgchartData.displayLevels,
-		  toggleSiblingsResp: true,
-		  pan: true,
-		  // customize node creation process
-		  createNode: function(node, data)
-		  {
-			  var content = $(node).children('.content');
-			  content.prepend('<div class="main-icon"><i class="fa fa-sitemap"></i></div>');
-			  
-			  if(data.id != 0)
-				{
-					content.append('<div class="pull-left"><i class="fa fa-users"></i> ' +
-						'<a href="/search?searchType={{ trans('search_top.employees') }}' +
-						'&source_id=' + data.source_id + '&department=' + data.name + '">' +
-						data.count + '</a></div>');
-				}
-			  
-			  if(data.subordinates > 0)
-				  content.append('<div class="subordinates" title="' + Lang.get('organization.hint_subord') + '">' + data.subordinates + '</div>');
-		  }
-	  });
-	  $("#dx-org-zoom-in").click(function()
-	  {
-		  orgchart.set_zoom(-1);
-	  });
-	  $("#dx-org-zoom-out").click(function()
-	  {
-		  orgchart.set_zoom(1);
-	  });
-	  $("#dx-org-export").click(function()
-	  {
-		  orgchart._clickExportButton();
-	  });
   </script>
 @endsection
 
 @section('main_custom_css')
   <link href="{{ elixir('css/elix_orgdepartments.css') }}" rel="stylesheet"/>
-	<style>
-		.orgchart .node .content {
-			height: 70px;
-		}
-		
-		.orgchart .node .content .main-icon {
-			font-size: 28px;
-			margin: 10px 0;
-		}
-		
-	</style>
 @endsection

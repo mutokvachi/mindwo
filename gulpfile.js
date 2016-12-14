@@ -230,9 +230,8 @@ gulp.task('mix_all', function() {
 		// Scripts for departments chart
 		mix.scripts([
 			'html2canvas/html2canvas.js',
-			'orgchart/OrgChart.js'
-            //,
-			//'mindwo/pages/organization_departments.js'
+			'orgchart/OrgChart.js',
+			'mindwo/pages/organization_departments.js'
 		], 'public/js/elix_orgdepartments.js', 'resources/assets/plugins');
 	
 		// Styles for departments chart
@@ -240,7 +239,8 @@ gulp.task('mix_all', function() {
 			'orgchart/orgchart.css',
 			'select2/select2.css',
 			'select2/select2-bootstrap.css',
-			'mindwo/css/organization_chart.css'
+			'mindwo/css/organization_chart.css',
+			'mindwo/css/organization_departments.css'
 		], 'public/css/elix_orgdepartments.css', 'resources/assets/plugins');
 	
 		// Minify all scripts
