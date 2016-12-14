@@ -174,7 +174,8 @@ class FormController extends Controller
             'is_custom_approve' => ($this->workflow && $this->workflow->is_custom_approve) ? 1 : 0,
             'is_editable_wf' => $this->is_editable_wf,
             'is_word_generation_btn' => $this->getWordGenerBtn($list_id),
-            'info_tasks' => $info_tasks
+            'info_tasks' => $info_tasks,
+            'is_workflow_defined' => ($this->workflow)
         ])->render();
         
         return response()->json(['success' => 1, 'frm_uniq_id' => "" . $frm_uniq_id, 'html' => $form_htm, 'is_fullscreen' => $params->is_full_screen_mode]);
@@ -562,15 +563,16 @@ class FormController extends Controller
         $doc_table = \App\Libraries\Workflows\Helper::getListTableName($list_id);
 
         $item_data = DB::table($doc_table)
+                     ->select('dx_item_status_id')
                      ->where("id", "=", $item_id)
-                     ->where("dx_item_status_id", "=", \App\Http\Controllers\TasksController::WORKFLOW_STATUS_APPROVED)
+                     //->where("dx_item_status_id", "=", \App\Http\Controllers\TasksController::WORKFLOW_STATUS_APPROVED)
                      ->first();
 
         if ($item_data) {
-            return 2; // ieraksts ir apstiprināts
+            return ($item_data->dx_item_status_id >0) ? $item_data->dx_item_status_id : 1;
         }
 
-        return 1; // ieraksts nav apstiprināts
+        return 1; // workflow not started
     }
 
     /**

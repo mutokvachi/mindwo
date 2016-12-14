@@ -13,7 +13,7 @@
                             <div class='row'>
                                 <form class="form-horizontal" method='POST' data-toggle="validator">        
                                     <div>
-                                        <div class='form-group has-feedback'>
+                                        <div class='form-group has-feedback dx-form-field-line'>
                                             <label class='col-lg-4 control-label'>{{ trans('task_delegate.lbl_employee') }} <span style="color: red"> *</span></label>
                                             <div class='col-lg-8'>
                                                 <select class='form-control' name = 'employee_id' required data-foo="bar">
@@ -28,7 +28,7 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <div class='form-group has-feedback'>
+                                        <div class='form-group has-feedback dx-form-field-line'>
                                             <label class='col-lg-4 control-label'>{{ trans('task_delegate.lbl_task_descr') }} <span style="color: red"> *</span></label>
                                             <div class='col-lg-8'>
                                                 <textarea class="form-control" name = "task_txt"  rows="4" maxlength="4000" required></textarea>
@@ -38,7 +38,7 @@
                                         </div>
                                     </div>
                                     <div>
-                                         <div class='form-group has-feedback'>
+                                         <div class='form-group has-feedback dx-form-field-line'>
                                             <label class='col-lg-4 control-label'><i class="fa fa-question-circle dx-form-help-popup" style="cursor: help;" title="{{ trans('task_delegate.hint_due') }}"></i> {{ trans('task_delegate.lbl_due') }} <span style="color: red"> *</span></label>
                                             <div class='col-lg-8'>
                                                 <div class='input-group dx-cms-date-field' style="width: 200px;">

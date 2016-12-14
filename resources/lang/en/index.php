@@ -12,7 +12,7 @@ return [
     
     'logo_txt' => '',
     
-    'site_title' => 'MINDWO :: Login',
+    'site_title' => env('APP_NAME', 'MINDWO') . ' :: Login',
     
     'hello_title' => 'Welcome to the Mindwo team site!',
     

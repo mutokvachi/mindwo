@@ -163,6 +163,41 @@ class TasksController extends Controller
     private $workflow = null;
     
     /**
+     * Returns workflow tasks history information
+     * 
+     * @param \Illuminate\Http\Request $request AJAX request
+     * @return Response JSON result
+     */
+    public function getTasksHistory(Request $request) {
+        $this->validate($request, [
+            'item_id' => 'required|integer',
+            'list_id' => 'required|integer|exists:dx_lists,id'
+        ]);
+        
+        $list_id = $request->input('list_id');
+        $item_id = $request->input('item_id');
+        
+        $right = Rights::getRightsOnList($list_id);
+
+        if ($right == null) {
+            if (!\App\Libraries\Workflows\Helper::isRelatedTask($list_id, $item_id)) {
+                throw new Exceptions\DXCustomException(trans('task_form.err_no_list_rights'));
+            }
+        }    
+        
+        $tasks_view = \App\Libraries\Blocks\TaskListViews\TaskListViewFactory::build_taskview("DOC_HISTORY");
+        $tasks_view->list_id = $list_id;
+        $tasks_view->item_id = $item_id;
+        
+        $html = view('workflow.task_history', [
+                'tasks' => $tasks_view->getRows(),
+                'profile_url' => Config::get('dx.employee_profile_page_url')
+                ])->render();
+        
+        return response()->json(['success' => 1, 'html' => $html]);
+    }
+    
+    /**
      * Saglabā deleģēto uzdevumu
      * 
      * @param \Illuminate\Http\Request $request AJAX POST pieprasījums
@@ -1206,10 +1241,10 @@ class TasksController extends Controller
             
                 $this->sendNewTaskEmail([
                     'email' => $performer["subst_data"]["email"],
-                    'subject' => 'Jauns uzdevums sistēmā MEDUS',
+                    'subject' => sprintf(trans('task_email.subject'), trans('index.app_name')),
                     'task_type' => DB::table('dx_tasks_types')->select('title')->where('id', '=', $step_row->task_type_id)->first()->title,
                     'task_details' => $resolution_text,
-                    'assigner' => "Darbplūsma",
+                    'assigner' => trans('task_email.assigner_wf'),
                     'due_date' => $performer["due"],
                     'list_title' => DB::table('dx_lists')->select('list_title')->where('id', '=', $list_id)->first()->list_title,
                     'doc_id' => $item_id,

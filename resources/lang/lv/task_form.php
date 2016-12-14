@@ -33,7 +33,9 @@ return [
     'status_done' => 'Izpildīts',
     'status_rejected' => 'Noraidīts',
     
-    'doc_in_process' => 'Saskaņošana',
+    'doc_in_process' => 'Procesā',
+    'doc_approved' => 'Apstiprināts',
+    'doc_rejected' => 'Noraidīts',
     
     'comment_compleated' => 'Izpildīts automātiski, jo visi deleģētie uzdevumi ir izpildīti.',
     
@@ -86,4 +88,15 @@ return [
     'err_step_not_exists' => 'Reģistra (ID = %s) darbplūsmai norādīts neeksistējošs solis (%s)! Sazinieties ar sistēmas uzturētāju.',
     // %s - operation ID
     'err_wrong_operation' => 'Darbplūsmai ir norādīts neatbalstīts lauka operācijas veids (%s)! Sazinieties ar sistēmas uzturētāju.',
+    
+    'msg_workflow_startet' => 'Darbplūsmas process veiksmīgi uzsākts!',
+    
+    'err_provide_approver' => 'Lūdzu, norādiet vismaz vienu saskaņotāju!',
+    'err_first_save_to_init' => 'Lai uzsāktu darbplūsmu, vispirms veiciet datu saglabāšanu!',
+    'err_first_save_to_info' => 'Lai dokumentu nodotu informācijai, vispirms tas ir jāsaglabā!',
+    
+    'menu_task_history' => 'Uzdevumu vēsture',
+    'menu_cancel_wf' => 'Atcelt darbplūsmu',
+    
+    'history_title' => 'Darbplūsmas uzdevumu vēsture',
 ];

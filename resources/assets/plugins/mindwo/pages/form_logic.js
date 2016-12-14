@@ -87,7 +87,7 @@ var FormLogic = function()
            // Noslēpjam augšejo pogu joslu
            $("#top_toolbar_" + form_htm_id).hide();
 
-           notify_info("Darbplūsmas process veiksmīgi uzsākts!");
+           notify_info(Lang.get('task_form.msg_workflow_startet'));
 
            // Pārlādējam darbplūsmas uzdevumu sadaļu, lai parādās jaunais uzdevums
            $( "#" + form_htm_id + " button[dx_attr='refresh']").click();
@@ -207,7 +207,7 @@ var FormLogic = function()
             var approvers = getApproversState(block);
             
             if (approvers == "[]") {
-                notify_err("Lūdzu, norādiet vismaz vienu saskaņotāju!");
+                notify_err(Lang.get('task_form.err_provide_approver'));
                 return;
             }
             
@@ -390,7 +390,7 @@ var FormLogic = function()
             
             if (item_id === 0)
             {
-                notify_err("Lai uzsāktu darbplūsmu, vispirms veiciet datu saglabāšanu!");
+                notify_err(Lang.get('task_form.err_first_save_to_init'));
                 return;
             }
        
@@ -415,7 +415,7 @@ var FormLogic = function()
             
             if (item_id === 0)
             {
-                notify_err("Lai dokumentu nodotu informācijai, vispirms tas ir jāsaglabā!");
+                notify_err(Lang.get('task_form.err_first_save_to_info'));
                 return;
             }
             
@@ -443,6 +443,35 @@ var FormLogic = function()
             frm_info.modal('show');            
         });
     };
+    
+    /**
+     * Handles menu click for task history opening
+     * @param {object} section Form object
+     * @returns {undefined}
+     */
+    var handleTaskHistoryMenuClick = function(section) {
+        $("#list_item_view_form_" + section.attr("dx_form_id")).find(".dx-menu-task-history").click(function() {
+            var item_id = $( "#item_edit_form_" + section.attr("dx_form_id")  + " input[name='item_id']").val();
+            var list_id = section.attr("dx_list_id");
+            
+            $('#popup_window .modal-header h4').html(Lang.get('task_form.history_title'));
+
+            $("#popup_body").html(getProgressInfo());
+            $('#popup_window').modal('show');
+
+            var formData = "item_id=" + item_id + "&list_id=" + list_id;
+
+            var request = new FormAjaxRequestIE9 ('get_tasks_history', "", "", formData);            
+            request.progress_info = "";                       
+
+            request.callback = function(data) {
+                $('#popup_body').html(data['html']);
+            };
+
+            // execute AJAX request
+            request.doRequest();
+        });
+    }
     
     /**
      * Izveido informācijas uzdevumu
@@ -555,6 +584,7 @@ var FormLogic = function()
             handleRegBtnClick($(this));
             handleWFInitBtnClick($(this));
             handleInfoTaskBtnClick($(this));
+            handleTaskHistoryMenuClick($(this));
             adjustDataTabs($(this));
             setFocusFirstField($(this));
             $(this).attr('dx_is_init', 1); // uzstādam pazīmi, ka forma inicializēta
