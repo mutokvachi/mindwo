@@ -59,6 +59,13 @@ class FormController extends Controller
      * @var integer 
      */
     protected $form_is_edit_mode = 0;
+    
+    /**
+     * Row with last rejected task data
+     * 
+     * @var object
+     */
+    public $reject_task = null;
 
     /**
      * Formai definētā aktuālā darbplūsma - no tabulas dx_workflows_def
@@ -71,6 +78,20 @@ class FormController extends Controller
      * @var array 
      */
     private $arr_data_tabs = [];
+    
+    /**
+     * Indicates if workflow for this item can be canceled
+     * 
+     * @var boolean
+     */
+    public $is_wf_cancelable = false;
+    
+    /**
+     * Rights on list
+     * 
+     * @var object 
+     */
+    public $list_right = null;
     
     /**
      * Izgūst formas HTML ar AJAX pieprasījumu
@@ -107,36 +128,8 @@ class FormController extends Controller
 
         $this->setWorkflow($list_id);
         
-        $table_name = \App\Libraries\Workflows\Helper::getListTableName($list_id);
-        $info_tasks = null;        
-        if ($item_id != 0 && $table_name == "dx_doc") {
-            
-            
-            $creator_id = DB::table($table_name)->select('created_user_id')->where('id','=',$item_id)->first()->created_user_id;
-            
-            $info_tasks = DB::table('dx_tasks as t')
-                            ->select('u.display_name', 't.task_closed_time')
-                            ->join('dx_users as u', 't.task_employee_id', '=', 'u.id')
-                            ->where('t.list_id', '=', $list_id)
-                            ->where('t.item_id', '=', $item_id)
-                            ->where('t.task_type_id', '=', TasksController::TASK_TYPE_INFO)                            
-                            ->where('t.task_employee_id', "!=", $creator_id)
-                            ->orderBy('u.display_name', 't.task_closed_time')
-                            ->distinct()
-                            ->get();
-            
-            $arr_uniq = [];
-            foreach($info_tasks as $task) {
-                if (array_search($task->display_name, $arr_uniq)) {
-                    $task->display_name = "";
-                }else {
-                    array_push($arr_uniq, $task->display_name);
-                }
-            }
-            
-            $info_tasks = array_filter($info_tasks, function($value) { return strlen($value->display_name) > 0; });
-        }
-        
+        $table_name = \App\Libraries\Workflows\Helper::getListTableName($list_id);              
+                
         $form_blade = ($params->is_full_screen_mode && $parent_item_id == 0) ? "form_full" : "form";
                 
         $form_htm = view('elements.' . $form_blade, [
@@ -173,8 +166,10 @@ class FormController extends Controller
             'workflow_btn' => $this->isWorkflowInit($list_id, $item_id), // Uzstāda pazīmi, vai redzama darbplūsmu poga 
             'is_custom_approve' => ($this->workflow && $this->workflow->is_custom_approve) ? 1 : 0,
             'is_editable_wf' => $this->is_editable_wf,
-            'is_word_generation_btn' => $this->getWordGenerBtn($list_id),
-            'info_tasks' => $info_tasks
+            'is_word_generation_btn' => \App\Libraries\Helper::getWordGenerBtn($list_id),
+            'info_tasks' => \App\Libraries\Helper::getInfoTasks($list_id, $item_id, $table_name),
+            'is_workflow_defined' => ($this->workflow),
+            'self' => $this
         ])->render();
         
         return response()->json(['success' => 1, 'frm_uniq_id' => "" . $frm_uniq_id, 'html' => $form_htm, 'is_fullscreen' => $params->is_full_screen_mode]);
@@ -356,9 +351,9 @@ class FormController extends Controller
      */
     protected function setFormsRightsMode($list_id, $item_id)
     {
-        $right = Rights::getRightsOnList($list_id);
+        $this->list_right = Rights::getRightsOnList($list_id);
         
-        if ($right == null) {
+        if ($this->list_right == null) {
             
             if ($item_id == 0 || !Workflows\Helper::isRelatedTask($list_id, $item_id)) {
                 throw new Exceptions\DXCustomException(trans('errors.no_rights_on_register'));
@@ -377,7 +372,7 @@ class FormController extends Controller
         else {
             
             if ($item_id == 0) {
-                if ($right->is_new_rights == 0) {           
+                if ($this->list_right->is_new_rights == 0) {           
                     throw new Exceptions\DXCustomException(trans('errors.no_rights_to_insert'));
                 }
                 $this->is_disabled = 0; // var rediģēt, pēc noklusēšanas ir ka nevar
@@ -401,8 +396,30 @@ class FormController extends Controller
                     }
                     else {
                         // set rights acording to register role
-                        $this->is_delete_rights = $right->is_delete_rights;
-                        $this->is_edit_rights = $right->is_edit_rights;
+                        
+                        if ($this->list_right->is_only_own_rows == 0) {
+                            $this->is_delete_rights = $this->list_right->is_delete_rights;
+                            $this->is_edit_rights = $this->list_right->is_edit_rights;
+                        }
+                        else {
+                            $table_name = \App\Libraries\DBHelper::getListObject($list_id)->db_name;
+                            $fld_name = DB::table('dx_lists_fields')->where('id', '=', $this->list_right->is_only_own_rows)->first()->db_name;
+                            $data_row = DB::table($table_name)
+                                        ->select($fld_name . ' as user')
+                                        ->where('id', '=', $item_id)
+                                        ->first();
+                            
+                            if ($data_row->user == Auth::user()->id) {
+                                $this->is_delete_rights = $this->list_right->is_delete_rights;
+                                $this->is_edit_rights = $this->list_right->is_edit_rights;
+                            }
+                            else {
+                                $this->is_edit_rights = 0;
+                                $this->is_delete_rights = 0;
+                                $this->form_is_edit_mode = 0;
+                            }
+                            
+                        }
                     }
                 }
                 
@@ -412,7 +429,7 @@ class FormController extends Controller
                 $this->is_disabled = 0; // var rediģēt, pēc noklusēšanas ir ka nevar
             }
             
-            if (!$this->is_edit_rights && !$right->is_new_rights) {
+            if (!$this->is_edit_rights && !$this->list_right->is_new_rights) {
                 $this->form_is_edit_mode = 0; // readonly
             }
         }
@@ -455,23 +472,6 @@ class FormController extends Controller
         else {
             $this->form_is_edit_mode = 1;
         }
-    }
-
-    /**
-     * Atgriež pazīmi, vai formas reģistram ir definēts kāds skats, kas izmantojams WORD ģenerēšanas lauku sarakstam
-     * 
-     * @param integer $list_id  Reģistra ID
-     * @return int 0 - nav Word ģenerēšana; 1 - ir Word ģenerēšana
-     */
-    private function getWordGenerBtn($list_id)
-    {
-        $is_word_generation_btn = 0;
-        $view_row = DB::table('dx_views')->where('list_id', '=', $list_id)->where('is_for_word_generating', '=', 1)->first();
-        if ($view_row) {
-            $is_word_generation_btn = 1;
-        }
-
-        return $is_word_generation_btn;
     }
 
     /**
@@ -533,46 +533,29 @@ class FormController extends Controller
         $cur_task = Workflows\Helper::getCurrentTask($list_id, $item_id);
             
         if ($cur_task) {
+            $wf_info = DB::table('dx_workflows_info')
+                        ->where('id','=',$cur_task->wf_info_id)
+                        ->first();
             
+            $this->is_wf_cancelable = ($wf_info->init_user_id == Auth::user()->id || ($this->list_right && $this->list_right->is_edit_rights && !$this->list_right->is_only_own_rows));
             return 2; // darbplūsma ir procesā
         }
 
         if ($this->workflow) {
             // Ir definēta darbplūsma
             
-            return $this->getItemApprovalStatus($list_id, $item_id);
+            $status = Workflows\Helper::getItemApprovalStatus($list_id, $item_id);
+            
+            if ($status == 3) { // item in status rejected
+                $this->reject_task = Workflows\Helper::getWFRejectedInfo($list_id, $item_id);
+            }
+            
+            return $status;
         }
         
         return 0; // reģistram nav definēta aktīva darbplūsma        
     }
-
-    /**
-     * Nosaka ieraksta apstiprināšanas statusu (ja ir definēta apstiprināšanas darbplūsma)
-     * 
-     * @param integer $list_id  Reģistra ID
-     * @param integer $item_id  Ieraksta ID
-     * @return integer  Apstiprināšanas statuss (1 - nav apstprināts, 2 - ir apstiprināts)
-     */
-    private function getItemApprovalStatus($list_id, $item_id)
-    {
-        if ($item_id == 0) {
-            return 1; // ieraksts nav apstiprināts, jo vispār vēl nav pat saglabāts
-        }
-        
-        $doc_table = \App\Libraries\Workflows\Helper::getListTableName($list_id);
-
-        $item_data = DB::table($doc_table)
-                     ->where("id", "=", $item_id)
-                     ->where("dx_item_status_id", "=", \App\Http\Controllers\TasksController::WORKFLOW_STATUS_APPROVED)
-                     ->first();
-
-        if ($item_data) {
-            return 2; // ieraksts ir apstiprināts
-        }
-
-        return 1; // ieraksts nav apstiprināts
-    }
-
+   
     /**
      * Izgūst uzmeklēšanas lauka vērtību masīvu pēc norādītā meklēšanas kritērija
      * 

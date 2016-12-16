@@ -12,9 +12,9 @@ return [
     'my_tasks' => 'MY TASKS',
     'my_team' => 'TEAM TASKS',
     'company' => 'COMPANY TASKS',
-    'compleated' => 'compleated',
+    'compleated' => 'completed',
     'due_today' => 'Due today',
-    'compleated_today' => 'Compleated today',
+    'compleated_today' => 'Completed today',
     'overdue' => 'Overdue',
     'from' => 'from',
     
@@ -23,19 +23,19 @@ return [
     'hint_reject' => 'Reject',
     'hint_approve' => 'Approve',
     'hint_delegate' => 'Delegate',
-    'hint_read' => 'Read',
+    'hint_read' => 'Noticed',
     'hint_do' => 'Perform',
     'hint_view_task' => 'View task details',
     'hint_view_form' => 'View related data form',
     'hint_view_file' => 'Download related file',
-    'widget_title' => 'Tasks',
+    'widget_title' => 'My Tasks',
     'lbl_filter' => 'Filter by',
     
     // tasks views
-    'view_my_actual' => 'My - actual',
-    'view_my_overdue' => 'My - overdue',
-    'view_my_done' => 'My - compleated',
-    'view_my_duetoday' => 'My - due today',
+    'view_my_actual' => 'Actual',
+    'view_my_overdue' => 'Overdue',
+    'view_my_done' => 'Completed',
+    'view_my_duetoday' => 'Due today',
     
     'view_sub_actual' => 'Subordinated - actual',
     'view_sub_overdue' => 'Subordinated - overdue',
@@ -46,5 +46,8 @@ return [
     
     'hint_overdue_days' => 'Overdue %s days',
     'hint_due_today' => 'Due today',
-    'msg_done' => 'Task is compleated!',
+    'msg_done' => 'Task is completed!',
+    
+    'link_history' => 'History',
+    'hint_history' => 'View workflow history',
 ];

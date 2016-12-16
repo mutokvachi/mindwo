@@ -107,17 +107,18 @@ namespace App\Libraries
          * Appends a new field to the form at the end
          * @param integer $list_id Register ID
          * @param integer $fld_id Field ID
+         * @param array $arr_vals Array with additional fields setting
          */
-        public static function addFieldToForm($list_id, $fld_id)
+        public static function addFieldToForm($list_id, $fld_id, $arr_vals = [])
         {
             $form = DB::table('dx_forms')->where('list_id', '=', $list_id)->first();
 
-            DB::table('dx_forms_fields')->insert([
-                'list_id' => $list_id,
-                'form_id' => $form->id,
-                'field_id' => $fld_id,
-                'order_index' => (DB::table('dx_forms_fields')->where('form_id', '=', $form->id)->max('order_index') + 10)
-            ]);
+            $arr_vals['list_id'] = $list_id;
+            $arr_vals['form_id'] = $form->id;
+            $arr_vals['field_id'] = $fld_id;
+            $arr_vals['order_index'] = (DB::table('dx_forms_fields')->where('form_id', '=', $form->id)->max('order_index') + 10);
+            
+            DB::table('dx_forms_fields')->insert($arr_vals);
         }
         
         /**
@@ -340,6 +341,24 @@ namespace App\Libraries
                 'form_id' => $form_id,
                 'js_code' => $content
             ]);
+        }
+        
+        /**
+         * Removes JavaScript from form
+         * 
+         * @param string $table_name List's table name
+         * @param string $description JavaScript short description
+         */
+        public static function removeJavaScriptFromForm($table_name, $description) {
+            $list = DBHelper::getListByTable($table_name);
+            
+            if (!$list) {
+                return;
+            }
+            
+            $form_id = DB::table('dx_forms')->where('list_id', '=', $list->id)->first()->id;
+
+            DB::table('dx_forms_js')->where('form_id', '=', $form_id)->where('title','=', $description)->delete();
         }
         
         /**

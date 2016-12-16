@@ -171,7 +171,29 @@ class Block_TASKSLIST extends Block
         
                                             $('.tasks-widget .dx-btn-no').click(function() {
                                                 openTaskForm($(this));
-                                            });                                            
+                                            });
+                                                
+                                            $('.tasks-widget .dx-task-history').click(function() {
+                                                var item_id = $(this).data('item-id');
+                                                var list_id = $(this).data('list-id');
+
+                                                $('#popup_window .modal-header h4').html(Lang.get('task_form.history_title'));
+
+                                                $("#popup_body").html(getProgressInfo());
+                                                $('#popup_window').modal('show');
+
+                                                var formData = "item_id=" + item_id + "&list_id=" + list_id;
+
+                                                var request = new FormAjaxRequestIE9 ('get_tasks_history', "", "", formData);            
+                                                request.progress_info = "";                       
+
+                                                request.callback = function(data) {
+                                                    $('#popup_body').html(data['html']);
+                                                };
+
+                                                // execute AJAX request
+                                                request.doRequest();
+                                            });
                                             
                                             $('.tasks-widget .dx-btn-deleg').click(function() {
                                                 var frm_deleg = $("#form_delegate_widget");

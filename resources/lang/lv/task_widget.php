@@ -47,4 +47,6 @@ return [
     'hint_due_today' => 'Jāizpilda šodien',
     'msg_done' => 'Uzdevums ir veiksmīgi izpildīts!',
     
+    'link_history' => 'Vēsture',
+    'hint_history' => 'Skatīt darbplūsmas vēsturi',
 ];
