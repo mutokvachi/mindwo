@@ -49,6 +49,13 @@
                             {{ $task->task_details }}
                         </p>
                     @endif
+                    
+                    @if( $task->is_history)
+                        <p class="mt-action-desc">
+                            <a href="javascript:;" class="dx-task-history" data-list-id="{{ $task->list_id }}" data-item-id="{{ $task->item_id }}" title="{{ trans('task_widget.hint_history') }}">{{ trans('task_widget.link_history') }}</a>
+                        </p>
+                    @endif
+                    
                 </div>
             </div>
             @if (!$task->task_closed_time)

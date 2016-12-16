@@ -113,7 +113,7 @@ gulp.task('mix_all', function() {
             'metronic/jquery.blockui.min.js',
             'bootstrap-switch/js/bootstrap-switch.js',
             'gritter/jquery.gritter.min.js',
-            'toastr/toastr.js',
+            'toastr/toastr.min.js',
             'bootstrap-modal/js/bootstrap-modalmanager.js',
             'bootstrap-modal/js/bootstrap-modal.js',
             'jquery.cookie.js',

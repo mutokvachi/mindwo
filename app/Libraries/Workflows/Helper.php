@@ -322,6 +322,75 @@ namespace App\Libraries\Workflows
                 'position_title' => $user->position_title
             );
         }
+        
+        /**
+         * Gets item's workflow cancelation info
+         * 
+         * @param integer $list_id List ID
+         * @param integer $item_id Item ID
+         * @return object Data with wf cancelation info
+         */
+        public static function getWFRejectedInfo($list_id, $item_id) {
+   
+            //find last noninformative task
+            $last_task = DB::table('dx_tasks')
+                            ->where('list_id', '=', $list_id)
+                            ->where('item_id', '=', $item_id)
+                            ->where('task_type_id', '!=', \App\Http\Controllers\TasksController::TASK_TYPE_INFO)
+                            ->orderBy('id', 'DESC')
+                            ->first();
+
+            // lets findout if workflow was canceled forced
+            $wf_info = DB::table('dx_workflows_info as i')
+                    ->select('u.display_name', 'i.end_time as task_closed_time', 'u.picture_guid', 'u.id as end_user_id', 'i.comment as task_comment')
+                    ->leftJoin('dx_users as u', 'i.init_user_id', '=', 'u.id')
+                    ->where('i.id','=',$last_task->wf_info_id)
+                    ->where('i.is_forced_end', '=', 1)
+                    ->first();
+
+            if ($wf_info) {                
+                return $wf_info;
+            }
+            else {                
+                // lets find last task with status rejected row
+                return  DB::table('dx_tasks as t')
+                                 ->select('u.display_name', 't.task_comment', 't.task_closed_time', 'u.picture_guid', 'u.id as end_user_id')
+                                 ->leftJoin('dx_users as u', 't.task_employee_id', '=', 'u.id')
+                                 ->where('t.list_id', '=', $list_id)
+                                 ->where('t.item_id', '=', $item_id)
+                                 ->where('t.task_type_id', '!=', \App\Http\Controllers\TasksController::TASK_TYPE_INFO)
+                                 ->where('t.task_status_id', '=', \App\Http\Controllers\TasksController::TASK_STATUS_DENY)
+                                 ->orderBy('t.id', 'DESC')
+                                 ->first();
+            }
+        }
+        
+         /**
+        * Nosaka ieraksta apstiprināšanas statusu (ja ir definēta apstiprināšanas darbplūsma)
+        * 
+        * @param integer $list_id  Reģistra ID
+        * @param integer $item_id  Ieraksta ID
+        * @return integer  Apstiprināšanas statuss no tabulas dx_item_statuses
+        */
+        public static function getItemApprovalStatus($list_id, $item_id)
+        {
+            if ($item_id == 0) {
+                return 1; // ieraksts nav apstiprināts, jo vispār vēl nav pat saglabāts
+            }
+
+            $doc_table = \App\Libraries\Workflows\Helper::getListTableName($list_id);
+
+            $item_data = DB::table($doc_table)
+                         ->select('dx_item_status_id')
+                         ->where("id", "=", $item_id)
+                         ->first();
+
+            if ($item_data) {
+                return ($item_data->dx_item_status_id >0) ? $item_data->dx_item_status_id : 1;
+            }
+
+            return 1; // workflow not started
+        }
 
     }
 

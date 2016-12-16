@@ -77,6 +77,7 @@ Route::post('/delete_item', array('as' => 'delete_item',  'middleware' => 'auth_
 Route::post('/generate_word', array('as' => 'generate_word',  'middleware' => 'auth_ajax', 'uses'=>'WordController@generateWord'));
 route::post('/register_document', array('as' => 'register_item',  'middleware' => 'auth_ajax', 'uses'=>'RegisterController@registerDocument'));
 Route::post('/get_tasks_history', array('as' => 'get_tasks_history',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@getTasksHistory'));
+Route::post('/cancel_workflow', array('as' => 'cancel_workflow',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@cancelWorkflow'));
 
 // Startē procesu forsēti
 Route::get('/force_process/{id}', array('as' => 'force_process',  'middleware' => 'auth', 'uses'=>'ProcessController@forceProcess'));

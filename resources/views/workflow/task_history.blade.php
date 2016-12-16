@@ -1,6 +1,18 @@
+<?php 
+    $wf_init_id = 0;
+    $not_drawn = 0;
+?>
 <ul class="chats" style="margin-left: 20px!important; margin-right: 20px!important;">
+    
     @foreach($tasks as $key => $task)
-        <li class="{{ ($task->task_status_id == 3) ? 'out' : 'in' }}">
+        
+        @if ($task->wf_info_id != $wf_init_id)
+            @if ($not_drawn == 1)
+                @include('workflow.wf_init_info', ['wf_info' => $wf_info])
+            @endif
+        @endif
+        
+        <li class="{{ ($task->task_status_id == 3 || $task->task_status_id == 4) ? 'out' : 'in' }}">
             <img class="avatar" alt="" src="{{Request::root()}}/{{ \App\Libraries\Helper::getEmployeeAvatarBig($task->performer_picture) }}">
             <div class="message">
                 <span class="arrow"> </span>
@@ -28,6 +40,28 @@
                 </span>
             </div>
         </li>
-    @endforeach                                                
+        
+        @if ($task->wf_info_id != $wf_init_id)
+            
+            <?php
+            $wf_info = $self->getWfInitInfo($task->wf_info_id);
+            
+            if ($wf_init_id == 0) {
+                $not_drawn = 1;
+            }
+            else {
+                $not_drawn = 0;
+            }
+            $wf_init_id = $task->wf_info_id;
+            ?>
+            @if ($not_drawn == 0)
+                @include('workflow.wf_init_info', ['wf_info' => $wf_info])
+            @endif
+        @endif
+    @endforeach
+    
+    @if ($wf_init_id>0 && $not_drawn == 1)
+       @include('workflow.wf_init_info', ['wf_info' => $wf_info])
+    @endif
 </ul>
 

@@ -50,7 +50,9 @@ namespace App\Libraries\Blocks\TaskListViews
                                   'te.picture_guid as performer_picture',
                                   't.task_comment',
                                   't.task_created_time',
-                                  't.task_employee_id'
+                                  't.task_employee_id',
+                                  DB::raw('exists(select id from dx_tasks as ht where ht.list_id = t.list_id and ht.item_id = t.item_id and ht.id != t.id) as is_history'),
+                                  't.wf_info_id'
                           )
                           ->leftJoin('dx_lists as l', 't.list_id', '=', 'l.id')
                           ->leftJoin('dx_tasks_types as tt', 't.task_type_id', '=', 'tt.id')

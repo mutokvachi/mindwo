@@ -23,7 +23,7 @@ return [
     'lbl_status' => 'Status',
     'lbl_finished_date' => 'Compleated date',
     'lbl_comment' => 'Comment',
-    'btn_read' => 'Read',
+    'btn_read' => 'Noticed',
     'btn_done' => 'Approve',
     'btn_delegate' => 'Delegate',
     'btn_reject' => 'Reject',
@@ -99,4 +99,19 @@ return [
     'menu_cancel_wf' => 'Cancel workflow',
     
     'history_title' => 'Workflow history',
+    
+    'lbl_rejected_by' => 'Rejected by',
+    'lbl_started_workflow' => 'Started workflow',
+    
+    'lbl_stoped_workflow' => 'Workflow canceled',
+    
+    'btn_cancel_wf' => 'Cancel workflow',
+    'lbl_cancel_comment' => 'Comment',
+    'msg_wf_canceled' => 'Workflow is canceled!',
+    'err_comment_required_to_cancel' => 'Please, provide comment in order to cancel the workflow!',
+    'wf_cancel_form_title' => 'Cancel workflow',
+    
+    'err_wf_no_rights_to_cancel' => 'You do not have rights to cancel this workflow!',
+    'err_wf_not_in_process' => 'You can not cancel this workflow because it is not in process!',
+    
 ];

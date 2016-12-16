@@ -89,7 +89,8 @@ namespace App\Libraries
             select 
                 max(rl.is_delete_rights) as is_delete_rights,
                 max(rl.is_edit_rights) as is_edit_rights,
-                max(rl.is_new_rights) as is_new_rights
+                max(rl.is_new_rights) as is_new_rights,
+                min(ifnull(rl.user_field_id,0)) as is_only_own_rows
             from 
                 dx_users_roles ur 
                 inner join dx_roles_lists rl on ur.role_id = rl.role_id 

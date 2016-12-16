@@ -10,88 +10,11 @@
                 
                 <div class='modal-header' style='background-color: #EEEEEE; border-bottom: 1px solid #c1c1c1; min-height: 55px; {{ ($item_id > 0 && !$form_is_edit_mode) ? '' : 'display: none;'}}' id="top_toolbar_list_item_view_form_{{ $frm_uniq_id }}">
                     @if ($is_workflow_defined && $workflow_btn > 1)
-                        <div class="btn-group pull-right">
-                            <button type="button" class="btn 
-                                @if ($workflow_btn == 2)
-                                    blue-hoki
-                                @endif
-                                
-                                @if ($workflow_btn == 3)
-                                    red-soft
-                                @endif
-                                
-                                @if ($workflow_btn == 4)
-                                    green-meadow
-                                @endif
-                                
-                                btn-sm btn-outline dropdown-toggle" data-toggle="dropdown" aria-expanded="true"
-                                
-                                style="border: 1px solid {{ ($workflow_btn == 2) ? '#67809F' : (($workflow_btn == 3) ? '#E43A45' : '#1BBC9B') }}!important;"> 
-                                    @if ($workflow_btn == 2)
-                                        {{ trans('task_form.doc_in_process') }}
-                                    @endif
-
-                                    @if ($workflow_btn == 3)
-                                        {{ trans('task_form.doc_rejected') }}
-                                    @endif
-
-                                    @if ($workflow_btn == 4)
-                                        {{ trans('task_form.doc_approved') }}
-                                    @endif
-                            
-                                        <i class="fa fa-angle-down"></i>
-                            </button>
-                    
-                            <ul class="dropdown-menu pull-right" role="menu">                                                              
-                                <li>
-                                    <a href="javascript:;" class="dx-menu-task-history">
-                                        <i class="fa fa-tasks"></i> {{ trans('task_form.menu_task_history') }}</a>
-                                </li>
-                                @if ($workflow_btn == 2)
-                                    <li class="divider"> </li>
-                                    <li>
-                                        <a href="javascript:;">
-                                            <i class="fa fa-undo"></i> {{ trans('task_form.menu_cancel_wf') }}</a>
-                                    </li>
-                                @endif
-                            </ul>   
-                        </div>                        
+                        @include('workflow.wf_status_btn', ['is_wf_cancelable' => $self->is_wf_cancelable])                                      
                     @endif
                     <div class="dx_form_btns_left">
-                        @if ($is_edit_rights && $form_is_edit_mode == 0 && $is_editable_wf == 1)
-                            <button  type='button' class='btn btn-primary' id='btn_edit_{{ $frm_uniq_id }}'><i class="fa fa-pencil-square-o"></i> {{ trans('form.btn_edit') }}</button>
-                        @endif
-
-                        @if ($is_delete_rights && $item_id > 0 && $is_editable_wf == 1 && $form_is_edit_mode == 0)
-                            <button  type='button' class='btn btn-white' id='btn_delete_{{ $frm_uniq_id }}'><i class="fa fa-trash-o"></i> {{ trans('form.btn_delete') }}</button>
-                        @endif
-
-                        @if ($is_edit_rights && $is_word_generation_btn && $is_editable_wf == 1 && $form_is_edit_mode == 0)
-                            <button  type='button' class='btn btn-white' id='btn_word_{{ $frm_uniq_id }}' title='{{ trans('form.word_hint') }}'><i class="fa fa-file-word-o"></i> {{ trans('form.word_generate_btn') }}</button>
-                        @endif
-
-                        @if ($workflow_btn == 1 && $form_is_edit_mode == 0 && $is_editable_wf == 1 && $is_edit_rights)    
-                            <button  type='button' class='btn btn-white dx-init-wf-btn'><font color="green"><i class="fa fa-play"></i></font> {{ trans('form.btn_start_workflow') }}</button>
-                        @endif
-                        @if ($form_is_edit_mode == 0 && $is_info_tasks_rights)
-                            <button  type='button' class='btn btn-white dx-for-info-btn' title="{{ trans('form.btn_info_hint') }}">{{ trans('form.btn_info') }}
-
-                                &nbsp;<span class="badge badge-info dx-cms-info-task-count"
-                                            @if (count($info_tasks) == 0)
-                                                style="display: none;"
-                                            @endif
-                                            > {{ count($info_tasks) }} </span>
-
-                            </button>
-                        @endif
+                        @include('elements.form_left_btns')
                     </div>
-                    @if ($workflow_btn == 3)
-                            <div class="alert alert-danger" role="alert" style="margin-top: 15px;">
-                                Noraidīja: <b>Jānis Supe</b>
-                                <br>
-                                <i>Te ir noraidīšanas pamatojums kaut kāds iespējams garš</i>
-                            </div>
-                    @endif
                     <!--<button  type='button' class='btn btn-white pull-right' id='btn_print_{{ $frm_uniq_id }}'><i class="fa fa-print"></i> Drukāt</button>-->
                 </div>
                 
@@ -109,7 +32,16 @@
                                  dx_is_wf_btn="{{ $workflow_btn }}"
                                  dx_list_id="{{ $list_id }}"
                                  dx_is_custom_approve = "{{ $is_custom_approve }}"
+                                 data-parent-field-id = "{{ $parent_field_id }}"
+                                 data-parent-item-id = "{{ $parent_item_id }}"
                                  >
+                                @if ($workflow_btn == 3)
+                                        <div class="alert alert-danger dx-reject-info" role="alert" style="margin-top: 15px;">
+                                            {{ trans('task_form.lbl_rejected_by') }}: <b>{{ $self->reject_task->display_name }}</b>, {{ long_date($self->reject_task->task_closed_time) }}
+                                            <br>
+                                            <i>{{ $self->reject_task->task_comment }}</i>
+                                        </div>
+                                @endif
                                 {!! $fields_htm !!}
                             </div>
 
@@ -208,21 +140,6 @@
                             event.stopPropagation();
                             printForm('item_edit_form_{{ $frm_uniq_id }}');
                         });
-
-                        $('#btn_edit_{{ $frm_uniq_id }}').click(function(event){
-                            event.stopPropagation();
-                            open_form('form', {{ $item_id }}, {{ $list_id }}, {{ $parent_field_id }}, {{ $parent_item_id }}, '{{ $grid_htm_id }}', 1, 'list_item_view_form_{{ $frm_uniq_id }}');
-                        });
-
-                        $('#btn_delete_{{ $frm_uniq_id }}').click(function( event ) {
-                          event.stopPropagation();
-                          delete_list_item('list_item_view_form_{{ $frm_uniq_id }}', '{{ $grid_htm_id }}');
-                        });
-
-                        $('#btn_word_{{ $frm_uniq_id }}').click(function(event){
-                            event.stopPropagation();
-                            generate_word({{ $item_id }}, {{ $list_id }}, '{{ $grid_htm_id }}', 'list_item_view_form_{{ $frm_uniq_id }}');
-                        });
                     @endif
 
                     @if ($is_form_reloaded === 0)                
@@ -246,3 +163,5 @@
 @if ($form_is_edit_mode == 0 && $is_info_tasks_rights)
     @include('workflow.wf_info_task')
 @endif
+
+@include('workflow.wf_cancel')

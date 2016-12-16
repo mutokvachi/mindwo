@@ -99,4 +99,17 @@ return [
     'menu_cancel_wf' => 'Atcelt darbplūsmu',
     
     'history_title' => 'Darbplūsmas uzdevumu vēsture',
+    
+    'lbl_rejected_by' => 'Noraidīja',
+    'lbl_started_workflow' => 'Uzsāka darbplūsmu',
+    'lbl_stoped_workflow' => 'Atcelta darbplūsma',
+    
+    'btn_cancel_wf' => 'Atcelt darbplūsmu',
+    'lbl_cancel_comment' => 'Komentārs',
+    'msg_wf_canceled' => 'Darbplūsma ir atcelta!',
+    'err_comment_required_to_cancel' => 'Lai atceltu darbplūsmu, ir obligāri jānorāda komentārs!',
+    'wf_cancel_form_title' => 'Darbplūsmas atcelšana',
+    
+    'err_wf_no_rights_to_cancel' => 'Jums nav nepieciešamo tiesību atcelt šo darbplūsmu!',
+    'err_wf_not_in_process' => 'Atcelt var tikai procesā esošas darbplūsmas!',
 ];

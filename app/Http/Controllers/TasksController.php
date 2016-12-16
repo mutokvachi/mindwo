@@ -12,6 +12,7 @@ use App\Exceptions;
 use Config;
 use App\Jobs\SendTaskEmail;
 use App\Libraries\Rights;
+use App\Libraries\Workflows;
 use Log;
 
 /**
@@ -163,6 +164,82 @@ class TasksController extends Controller
     private $workflow = null;
     
     /**
+     * If item rejected - rejection info data
+     * @var object 
+     */
+    //public $reject_task = null;
+    
+    /**
+     * Cancels workflow execution process
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return type
+     * @throws Exceptions\DXCustomException
+     */
+    public function cancelWorkflow(Request $request) {
+        $this->validate($request, [
+            'item_id' => 'required|integer',
+            'list_id' => 'required|integer|exists:dx_lists,id',
+            'comment' => 'required'
+        ]);
+        
+        $list_id = $request->input('list_id');
+        $item_id = $request->input('item_id');
+        $comment = $request->input('comment');
+        
+        $cur_task = Workflows\Helper::getCurrentTask($list_id, $item_id);
+        
+        if (!$cur_task) {
+            throw new Exceptions\DXCustomException(trans('task_form.err_wf_not_in_process'));
+        }
+        
+        $list_right = Rights::getRightsOnList($list_id);
+        
+        $wf_info = DB::table('dx_workflows_info')
+                    ->where('id','=',$cur_task->wf_info_id)
+                    ->first();
+
+        $is_wf_cancelable = ($wf_info->init_user_id == Auth::user()->id || ($list_right && $list_right->is_edit_rights && !$list_right->is_only_own_rows));
+        
+        if (!$is_wf_cancelable) {
+            throw new Exceptions\DXCustomException(trans('task_form.err_wf_no_rights_to_cancel'));
+        }
+        
+        $item_table = \App\Libraries\DBHelper::getListObject($list_id)->db_name;
+        
+        DB::transaction(function () use ($item_id, $list_id, $wf_info, $item_table, $cur_task, $comment) {
+            // close all inprocess tasks
+            DB::table("dx_tasks")
+                ->where('item_id', '=', $item_id)
+                ->where('list_id', '=', $list_id)
+                ->whereNull('task_closed_time')
+                ->where('task_type_id', '!=', self::TASK_TYPE_INFO)
+                ->update([
+                'task_closed_time' => date("Y-m-d H:i:s"), 
+                'task_status_id' => self::TASK_STATUS_CANCEL, 
+                'task_comment' => sprintf(trans('task_form.comment_anulated'), Auth::user()->display_name) . ' ' . $comment
+            ]);
+            
+            // set wf info about cancelation
+            DB::table('dx_workflows_info')->where('id', '=', $wf_info->id)->update([
+                'end_time' => date("Y-m-d H:i:s"),
+                'end_user_id' => Auth::user()->id,
+                'is_forced_end' => 1,
+                'comment' => $comment
+            ]);
+            
+            // reject list item
+            DB::table($item_table)->where('id', '=', $item_id)->update(['dx_item_status_id' => 3]);
+            
+        });
+        
+        return response()->json([
+            'success' => 1,
+            'left_btns' => $this->getFormTopMenuLeft($list_id, $item_id, 3)
+        ]);
+    }
+    
+    /**
      * Returns workflow tasks history information
      * 
      * @param \Illuminate\Http\Request $request AJAX request
@@ -171,30 +248,55 @@ class TasksController extends Controller
     public function getTasksHistory(Request $request) {
         $this->validate($request, [
             'item_id' => 'required|integer',
-            'list_id' => 'required|integer|exists:dx_lists,id'
+            'list_id' => 'required|integer|exists:dx_lists,id'            
         ]);
         
         $list_id = $request->input('list_id');
         $item_id = $request->input('item_id');
-        
+                
         $right = Rights::getRightsOnList($list_id);
 
         if ($right == null) {
             if (!\App\Libraries\Workflows\Helper::isRelatedTask($list_id, $item_id)) {
                 throw new Exceptions\DXCustomException(trans('task_form.err_no_list_rights'));
             }
-        }    
-        
+        }            
+        /*
+        $status = Workflows\Helper::getItemApprovalStatus($list_id, $item_id);            
+        if ($status == 3) { // item in status rejected
+            $this->reject_task = Workflows\Helper::getWFRejectedInfo($list_id, $item_id);
+        }
+        */
         $tasks_view = \App\Libraries\Blocks\TaskListViews\TaskListViewFactory::build_taskview("DOC_HISTORY");
         $tasks_view->list_id = $list_id;
         $tasks_view->item_id = $item_id;
         
         $html = view('workflow.task_history', [
                 'tasks' => $tasks_view->getRows(),
-                'profile_url' => Config::get('dx.employee_profile_page_url')
+                'profile_url' => Config::get('dx.employee_profile_page_url'),
+                'self' => $this
                 ])->render();
         
         return response()->json(['success' => 1, 'html' => $html]);
+    }
+    
+    /**
+     * Returns workflow initiator info by wf instance ID
+     * 
+     * @param integer $wf_init_id Workflow instance ID
+     * @return object Workflow init info
+     */
+    public function getWfInitInfo($wf_init_id) {
+        return DB::table('dx_workflows_info as wf')
+               ->select(
+                    'u.display_name',
+                    'u.picture_guid',
+                    'wf.init_user_id',
+                    'wf.init_time'                           
+               )
+               ->leftJoin('dx_users as u', 'wf.init_user_id', '=', 'u.id')
+               ->where('wf.id', '=', $wf_init_id)
+               ->first();
     }
     
     /**
@@ -644,10 +746,42 @@ class TasksController extends Controller
             }
 
         });
-
+        
         // Current doc status, send as response to update interface
-        return response()->json(['success' => 1, 'doc_status' => trans('task_form.doc_in_process')]); 
+        return response()->json([
+            'success' => 1, 
+            'doc_status' => trans('task_form.doc_in_process'),
+            'status_btn' => view('workflow.wf_status_btn',[
+                                'workflow_btn' => 2, // in process
+                                'is_wf_cancelable' => 1
+                            ])->render(),
+            'left_btns' => $this->getFormTopMenuLeft($list_id, $item_id, 2)
+        ]); 
        
+    }
+    
+    /**
+     * Gets HTML for forms top menu left side buttons
+     * 
+     * @param integer $list_id List ID
+     * @param integer $item_id Item ID
+     * @param integer $workflow_btn Workflow button showing status (2 - in process/hide, other - show)
+     * @return string HTML for top menu left side buttons
+     */
+    private function getFormTopMenuLeft($list_id, $item_id, $workflow_btn) {
+        $table_name = \App\Libraries\DBHelper::getListObject($list_id)->db_name;
+        
+        return  view('elements.form_left_btns', [
+                                'is_edit_rights' => 1, // because was able to start workflow
+                                'is_delete_rights' => 1, // because was able to start workflow
+                                'form_is_edit_mode' => 0,
+                                'workflow_btn' => $workflow_btn,
+                                'item_id' => $item_id,
+                                'is_editable_wf' => Rights::getIsEditRightsOnItem($list_id, $item_id),
+                                'is_info_tasks_rights' => ($table_name == "dx_doc"),
+                                'is_word_generation_btn' => \App\Libraries\Helper::getWordGenerBtn($list_id),
+                                'info_tasks' => \App\Libraries\Helper::getInfoTasks($list_id, $item_id, $table_name)
+                ])->render();
     }
     
     /**
