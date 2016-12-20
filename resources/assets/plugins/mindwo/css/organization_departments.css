@@ -1,0 +1,8 @@
+.orgchart .node .content {
+	height: 70px;
+}
+
+.orgchart .node .content .main-icon {
+	font-size: 28px;
+	margin: 10px 0;
+}

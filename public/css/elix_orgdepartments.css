@@ -1762,4 +1762,12 @@ html[dir="rtl"] .select2-container-multi .select2-search-choice-close {
 .actions .btn-icon-only {
 	border: 1px solid #ccc !important;
 }
-/*# sourceMappingURL=elix_orgchart.css.map */
+.orgchart .node .content {
+	height: 70px;
+}
+
+.orgchart .node .content .main-icon {
+	font-size: 28px;
+	margin: 10px 0;
+}
+/*# sourceMappingURL=elix_orgdepartments.css.map */
