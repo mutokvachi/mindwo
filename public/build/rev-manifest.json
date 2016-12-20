@@ -1,11 +1,11 @@
 {
   "js/elix_userlinks.js": "js/elix_userlinks-40d7496c.js",
-  "js/elix_plugins.js": "js/elix_plugins-e66a501b.js",
-  "js/elix_view.js": "js/elix_view-5ac624f1.js",
+  "js/elix_plugins.js": "js/elix_plugins-374d47d4.js",
+  "js/elix_view.js": "js/elix_view-8d502275.js",
   "js/elix_employees.js": "js/elix_employees-d12d9e34.js",
   "js/elix_profile.js": "js/elix_profile-18b00b2a.js",
   "css/elix_plugins.css": "css/elix_plugins-b22f3f6d.css",
-  "css/elix_mindwo.css": "css/elix_mindwo-fe11098f.css",
+  "css/elix_mindwo.css": "css/elix_mindwo-7836a267.css",
   "css/elix_view.css": "css/elix_view-4297d500.css",
   "css/elix_mindwo_horizontal.css": "css/elix_mindwo_horizontal-6b861fc6.css",
   "js/elix_mindwo_horizontal_menu.js": "js/elix_mindwo_horizontal_menu-826ef624.js",
@@ -16,6 +16,6 @@
   "css/elix_employee_profile.css": "css/elix_employee_profile-9078c5b0.css",
   "js/elix_orgchart.js": "js/elix_orgchart-b6e6f31e.js",
   "css/elix_orgchart.css": "css/elix_orgchart-cf0311bd.css",
-  "js/elix_orgdepartments.js": "js/elix_orgdepartments-7fc51106.js",
-  "css/elix_orgdepartments.css": "css/elix_orgdepartments-798a3163.css"
+  "js/elix_orgdepartments.js": "js/elix_orgdepartments-f06b6c6e.js",
+  "css/elix_orgdepartments.css": "css/elix_orgdepartments-3a4a852b.css"
 }

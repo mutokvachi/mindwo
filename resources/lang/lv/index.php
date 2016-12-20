@@ -12,7 +12,7 @@ return [
     
     'logo_txt' => '',
     
-    'site_title' => 'MEDUS :: SVS',
+    'site_title' => env('APP_NAME', 'MINDWO') . ' :: SVS',
     
     'hello_title' => 'Sveicināti MEDUS SVS vietnē!',
     

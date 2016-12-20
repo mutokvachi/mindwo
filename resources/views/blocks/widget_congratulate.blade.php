@@ -1,7 +1,7 @@
 @if(count($employees))
   <div class="portlet widget-congratulate" dx_block_id="congratulate">
     <div class="portlet-title">
-      <div class="caption font-grey-cascade uppercase">{{ trans('widgets.congratulate.title') }} <span class="badge badge-success">{{ count($employees) }}</span></div>
+      <div class="caption font-grey-cascade uppercase">{{ trans('congratulate.widget_title') }} <span class="badge badge-success">{{ count($employees) }}</span></div>
       {{--
       <div class="tools">
         <a class="collapse" href="javascript:;"> </a>
@@ -20,9 +20,13 @@
                 <div class="mt-action-info">
                   <div class="mt-action-details">
                     <span class="mt-action-author">
-                      <a href="{{ route('profile', $employee->id) }}">
-                        {{ $employee->first_name }} {{ $employee->last_name }}
-                      </a>
+                        @if ($self->is_profile)
+                            <a href="{{ route('profile', $employee->id) }}">
+                              {{ $employee->first_name }} {{ $employee->last_name }}
+                            </a>
+                        @else
+                            {{ $employee->first_name }} {{ $employee->last_name }}
+                        @endif
                     </span>
                     <div class="mt-action-desc">
                       {{ $self->getTypeOfEvent($employee) }}

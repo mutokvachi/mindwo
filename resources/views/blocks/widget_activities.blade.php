@@ -2,11 +2,11 @@
   @if(!Request::ajax())
     <div class="portlet widget-activities" dx_block_id="activities">
       <div class="portlet-title">
-        <div class="caption font-grey-cascade uppercase">{{ trans('widgets.activities.title') }}</div>
+        <div class="caption font-grey-cascade uppercase">{{ trans('activities.widget_title') }}</div>
         <div class="actions">
           <div class="btn-group">
             <a class="btn green btn-outline btn-circle btn-sm" style="border-width: 1px !important;" href="javascript:;" data-toggle="dropdown" data-close-others="true" aria-expanded="false">
-              {{ trans('widgets.activities.filter_by') }} <i class="fa fa-angle-down"></i>
+              {{ trans('activities.lbl_filter') }} <i class="fa fa-angle-down"></i>
             </a>
             <div class="dropdown-menu pull-right form-group">
               <div class="mt-checkbox-list">
@@ -17,7 +17,7 @@
                   </label>
                 @endforeach
                 <label class="mt-checkbox mt-checkbox-outline">
-                  <input type="checkbox" value=""> {{ trans('widgets.activities.other') }}
+                  <input type="checkbox" value=""> {{ trans('activities.lbl_other') }}
                   <span></span>
                 </label>
               </div>
@@ -43,9 +43,13 @@
                   </div>
                   <div class="mt-action-details">
                     <span class="mt-action-author">
-                      <a href="{{ route('profile', $event->user->id) }}">
-                        {{ $event->user->first_name }} {{ $event->user->last_name }}
-                      </a>
+                        @if ($self->is_profile)
+                            <a href="{{ route('profile', $event->user->id) }}">
+                              {{ $event->user->first_name }} {{ $event->user->last_name }}
+                            </a>
+                        @else
+                            {{ $event->user->first_name }} {{ $event->user->last_name }}
+                        @endif
                     </span>
                     <div class="mt-action-desc">
                       {{ $event->lists->list_title }}: {{ $event->type->title }}
@@ -72,11 +76,10 @@
                       ? 'true'
                       : 'false'
                       
-                    }}" data-list_id="{{ $event->lists->id }}" data-item_id="{{ $event->item_id }}">{{ trans('widgets.activities.view') }}</a>
+                    }}" data-list_id="{{ $event->lists->id }}" data-item_id="{{ $event->item_id }}">{{ trans('activities.btn_view') }}</a>
                   @else
                     <a href="javascript:;" class="btn btn-outline green btn-xs dx-button-history"
-                      data-list_id="{{ App\Libraries\DBHelper::getListByTable('dx_db_events')->id }}"
-                      data-item_id="{{ $event->id }}">{{ trans('widgets.activities.history') }}</a>
+                      data-list_id="{{ App\Libraries\DBHelper::getListByTable('dx_db_events')->id }}" data-item_id="{{ $event->id }}">{{ trans('activities.btn_history') }}</a>
                   @endif
                 </div>
               </div>

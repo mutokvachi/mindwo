@@ -17047,10 +17047,20 @@ var FormLogic = function()
            // Atjauninam statusa lauka vērtību
            $( "#" + form_htm_id  + " input[dx_fld_name='dx_item_status_id']").val(data['doc_status']);
 
-           // Noslēpjam augšejo pogu joslu
-           $("#top_toolbar_" + form_htm_id).hide();
-
-           notify_info("Darbplūsmas process veiksmīgi uzsākts!");
+           // reinit top menu
+           $("#top_toolbar_" + form_htm_id).find(".dx-wf-menu-group").remove();
+           $("#top_toolbar_" + form_htm_id).prepend(data.status_btn);
+           var frm_section = $( "#" + form_htm_id).find('.dx-cms-form-fields-section');
+           handleTaskHistoryMenuClick(frm_section);
+           handleCancelWorkflowMenuClick(frm_section);
+           
+           $("#top_toolbar_" + form_htm_id).find(".dx_form_btns_left").html(data.left_btns);           
+           initTopLeftBtns(frm_section);
+                      
+           // hide reject info if it is displayed
+           $("#" + form_htm_id).find('.dx-reject-info').hide();
+           
+           notify_info(Lang.get('task_form.msg_workflow_startet'));
 
            // Pārlādējam darbplūsmas uzdevumu sadaļu, lai parādās jaunais uzdevums
            $( "#" + form_htm_id + " button[dx_attr='refresh']").click();
@@ -17170,7 +17180,7 @@ var FormLogic = function()
             var approvers = getApproversState(block);
             
             if (approvers == "[]") {
-                notify_err("Lūdzu, norādiet vismaz vienu saskaņotāju!");
+                notify_err(Lang.get('task_form.err_provide_approver'));
                 return;
             }
             
@@ -17353,7 +17363,7 @@ var FormLogic = function()
             
             if (item_id === 0)
             {
-                notify_err("Lai uzsāktu darbplūsmu, vispirms veiciet datu saglabāšanu!");
+                notify_err(Lang.get('task_form.err_first_save_to_init'));
                 return;
             }
        
@@ -17378,7 +17388,7 @@ var FormLogic = function()
             
             if (item_id === 0)
             {
-                notify_err("Lai dokumentu nodotu informācijai, vispirms tas ir jāsaglabā!");
+                notify_err(Lang.get('task_form.err_first_save_to_info'));
                 return;
             }
             
@@ -17405,6 +17415,113 @@ var FormLogic = function()
             
             frm_info.modal('show');            
         });
+    };
+    
+    /**
+     * Handles menu click for task history opening
+     * @param {object} section Form object
+     * @returns {undefined}
+     */
+    var handleTaskHistoryMenuClick = function(section) {
+        $("#list_item_view_form_" + section.attr("dx_form_id")).find(".dx-menu-task-history").click(function() {
+            var item_id = $( "#item_edit_form_" + section.attr("dx_form_id")  + " input[name='item_id']").val();
+            var list_id = section.attr("dx_list_id");
+            
+            $('#popup_window .modal-header h4').html(Lang.get('task_form.history_title'));
+
+            $("#popup_body").html(getProgressInfo());
+            $('#popup_window').modal('show');
+
+            var formData = "item_id=" + item_id + "&list_id=" + list_id;
+
+            var request = new FormAjaxRequestIE9 ('get_tasks_history', "", "", formData);            
+            request.progress_info = "";                       
+
+            request.callback = function(data) {
+                $('#popup_body').html(data['html']);
+            };
+
+            // execute AJAX request
+            request.doRequest();
+        });
+    };
+    
+    /**
+     * Opens worfklow cancelation form
+     * 
+     * @param {object} section Form object
+     * @returns {undefined}
+     */
+    var handleCancelWorkflowMenuClick = function(section) {
+        var main_form = $("#list_item_view_form_" + section.attr("dx_form_id"));
+        main_form.find(".dx-menu-cancel-workflow").click(function() {
+            
+            var cancel_form = $('#wf_cancel_form_' + section.attr("dx_form_id"));
+            
+            if (cancel_form.data('is-init') == "0") {
+                cancel_form.find('.dx-btn-cancel-wf').click(function() {
+                    handleCancelWorkflowBtnClick(cancel_form, main_form);
+                });
+                
+                cancel_form.on('shown', function () {
+                    cancel_form.find('textarea[name=comment]').focus();
+                    cancel_form.find('.modal-body').css('height', '138px');
+                });
+                
+                cancel_form.data('is-init', 1);
+            }
+            
+            cancel_form.modal('show');
+        });
+    };
+    
+    /**
+     * Handles workflow cancelation button pressing - cancels workflow
+     * @returns {undefined}
+     */
+    var handleCancelWorkflowBtnClick = function(frm, main_form) {
+        
+        var item_id = main_form.find("input[name='item_id']").val();
+        var list_id = frm.data('list-id');
+        var grid_id = frm.data('grid-id');
+        
+        var comment = frm.find('textarea[name=comment]').val();
+        
+        if (comment.length == 0) {
+            notify_err(Lang.get('task_form.err_comment_required_to_cancel'));
+            comment.focus();
+            return;
+        }
+        
+        var formData = new FormData();
+        formData.append("item_id", item_id);
+        formData.append("list_id", list_id);
+        formData.append("comment", comment);
+        
+        show_form_splash(1);
+        var request = new FormAjaxRequest('cancel_workflow', "", "", formData);            
+        request.progress_info = "";                       
+
+        request.callback = function(data) {
+            notify_info(Lang.get('task_form.msg_wf_canceled'));
+            hide_form_splash(1);
+            if (grid_id) {
+                reload_grid(grid_id);
+            }
+            main_form.find(".dx-wf-divider-cancel").hide();
+            main_form.find(".dx-menu-cancel-workflow").hide();
+            main_form.find(".dx-wf-menu-btn").removeClass("blue-hoki").addClass("red-soft").css('border-color', '#E43A45');
+            main_form.find(".dx-wf-menu-btn-title").html(Lang.get('task_form.doc_rejected'));
+            
+            var frm_section = main_form.find('.dx-cms-form-fields-section');
+            $("#top_toolbar_" + main_form.attr('id')).find(".dx_form_btns_left").html(data.left_btns);           
+            initTopLeftBtns(frm_section);
+            
+            frm.modal('hide');
+        };
+
+        // execute AJAX request
+        request.doRequest();
     };
     
     /**
@@ -17496,6 +17613,37 @@ var FormLogic = function()
     };
     
     /**
+     * Sets event handlers on forms top left menu buttons
+     * 
+     * @param {object} section Form object
+     * @returns {undefined}
+     */
+    var initTopLeftBtns = function(section) {
+        var frm = $("#list_item_view_form_" + section.attr("dx_form_id"));
+        var item_id = frm.find("input[name='item_id']").val();
+        var list_id = section.attr('dx_list_id');
+        var parent_field_id = section.data('parent-field-id');
+        var parent_item_id = section.data('parent-item-id');
+        var grid_htm_id = section.attr('dx_grid_id');
+        var frm_uniq_id = section.attr('dx_form_id');
+        
+        frm.find('.dx-form-btn-edit').click(function() {
+            open_form('form', item_id, list_id, parent_field_id, parent_item_id, grid_htm_id, 1, 'list_item_view_form_' + frm_uniq_id);
+        });
+        
+        frm.find('.dx-form-btn-delete').click(function() {
+            delete_list_item('list_item_view_form_' + frm_uniq_id, grid_htm_id);
+        });
+        
+        frm.find('.dx-form-btn-word').click(function() {
+            generate_word(item_id, list_id, grid_htm_id, 'list_item_view_form_' + frm_uniq_id);
+        });
+        
+        handleWFInitBtnClick(section);
+        handleInfoTaskBtnClick(section);
+    };
+    
+    /**
      * Sets focus on first editable field
      * 
      * @param {object} frm Form HTML object
@@ -17516,10 +17664,13 @@ var FormLogic = function()
     {        
         $(".dx-cms-form-fields-section[dx_is_init='0']").each(function() {
             handleRegBtnClick($(this));
-            handleWFInitBtnClick($(this));
-            handleInfoTaskBtnClick($(this));
+            handleTaskHistoryMenuClick($(this));
+            handleCancelWorkflowMenuClick($(this));
             adjustDataTabs($(this));
             setFocusFirstField($(this));
+            
+            initTopLeftBtns($(this));
+            
             $(this).attr('dx_is_init', 1); // uzstādam pazīmi, ka forma inicializēta
         });
         

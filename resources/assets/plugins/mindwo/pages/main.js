@@ -308,7 +308,7 @@ var PageMain = function()
             "closeButton": true,
             "debug": false,
             "progressBar": true,
-            "positionClass": "toast-top-center",
+            "positionClass": "toast-top-left",
             "preventDuplicates": true,
             "onclick": null,
             "showDuration": "300",

@@ -29,7 +29,7 @@ namespace App\Libraries\Workflows\Performers
                         ->first();
             
             if (!$empl_row->manager_id) {
-                throw new Exceptions\DXCustomException("Nav iespējams izveidot uzdevumu, jo darbiniekam '" . $empl_row->display_name . "' nav norādīts tiešais vadītājs!");
+                throw new Exceptions\DXCustomException(sprintf(trans('workflow.err_no_direct_manager'), $empl_row->display_name));
             }
             
             $item = ["empl_id" => $empl_row->manager_id, 'due_days' => $this->step_row->term_days, 'wf_approv_id' => null];
