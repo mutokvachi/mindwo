@@ -7,6 +7,7 @@ use App\Models;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
+use Config;
 
 /**
  * Class Block_ACTIVITIES
@@ -37,6 +38,12 @@ class Block_ACTIVITIES extends Block
 	 * @var int Id of last loaded element for lazy loading
 	 */
 	protected $lastId;
+        
+        /**
+         * Indicates if system have profile UI functionality
+         * @var type 
+         */
+        public $is_profile = false;
 	
 	/**
 	 * Render widget and return its HTML.
@@ -266,6 +273,8 @@ END;
 				}
 			}
 		}
+                
+                $this->is_profile = (Config::get('dx.employee_profile_page_url'));
 	}
 	
 	/**

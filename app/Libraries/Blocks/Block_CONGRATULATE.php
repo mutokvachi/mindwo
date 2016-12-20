@@ -18,6 +18,12 @@ class Block_CONGRATULATE extends Block
 {
 	protected $employees;
 	
+        /**
+         * Indicates if system have profile UI functionality
+         * @var type 
+         */
+        public $is_profile = false;
+        
 	/**
 	 * Render widget and return its HTML.
 	 *
@@ -43,7 +49,7 @@ class Block_CONGRATULATE extends Block
 	{
 		if($employee->birth_date && !$employee->join_date)
 		{
-			return 'Birthday';
+			return trans('congratulate.lbl_birthday');
 		}
 		
 		if(!$employee->birth_date && $employee->join_date)
@@ -57,7 +63,7 @@ class Block_CONGRATULATE extends Block
 		
 		if($birth->month == $now->month && $birth->day == $now->day)
 		{
-			return 'Birthday';
+			return trans('congratulate.lbl_birthday');
 		}
 		
 		else
@@ -173,7 +179,7 @@ END;
 	
 	protected function parseParams()
 	{
-		// TODO: Implement parseParams() method.
+            $this->is_profile = (Config::get('dx.employee_profile_page_url'));
 	}
 	
 	/**
@@ -189,20 +195,20 @@ END;
 		if($join->month == $now->month && $join->day == $now->day)
 		{
 			$yrs = $now->year - $join->year;
-			$txt = 'Work anniversary - ';
+			$txt = trans('congratulate.lbl_anniversary');
 			if($yrs == 0)
 			{
-				$txt = "Joined today";
+				$txt = trans('congratulate.lbl_joined_today');
 			}
 			else
 			{
 				if($yrs == 1)
 				{
-					$txt .= $yrs . " year";
+					$txt .= $yrs . " " . trans('congratulate.lbl_year');
 				}
 				else
 				{
-					$txt .= $yrs . " years";
+					$txt .= $yrs . " " . trans('congratulate.lbl_years');
 				}
 			}
 			return $txt;
