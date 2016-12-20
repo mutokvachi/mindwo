@@ -8,9 +8,9 @@ use Illuminate\Support\Facades;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Class OrgChartController
+ * Class DepartmentsChartController
  *
- * Controller for organization chart
+ * Controller for departments chart
  *
  * @package App\Http\Controllers
  */
@@ -50,7 +50,7 @@ class DepartmentsChartController extends Controller
 	protected $counts;
 	
 	/**
-	 * OrgChartController constructor.
+	 * DepartmentsChartController constructor.
 	 */
 	public function __construct()
 	{
@@ -60,7 +60,7 @@ class DepartmentsChartController extends Controller
 		$this->tree = $this->getTree(0);
 		
 		$counts = DB::table('dx_users')
-			->select(DB::raw('department_id, COUNT(*) as count'))
+			->select(DB::raw('department_id, COUNT(*) AS count'))
 			->groupBy('department_id')
 			->get();
 		
@@ -71,7 +71,7 @@ class DepartmentsChartController extends Controller
 	}
 	
 	/**
-	 * Render organization chart.
+	 * Render departments chart.
 	 *
 	 * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
 	 */
@@ -219,7 +219,7 @@ class DepartmentsChartController extends Controller
 			
 			$result0 = [
 				'id' => 0,
-				'name' => 'Company', //trans('organization.company'),
+				'name' => trans('organization.deps_company'),
 				'title' => '',
 				'subordinates' => count($node),
 				'source_id' => 2,

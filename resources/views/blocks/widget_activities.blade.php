@@ -2,11 +2,11 @@
   @if(!Request::ajax())
     <div class="portlet widget-activities" dx_block_id="activities">
       <div class="portlet-title">
-        <div class="caption font-grey-cascade uppercase">LATEST ACTIVITIES</span></div>
+        <div class="caption font-grey-cascade uppercase">{{ trans('widgets.activities.title') }}</div>
         <div class="actions">
           <div class="btn-group">
             <a class="btn green btn-outline btn-circle btn-sm" style="border-width: 1px !important;" href="javascript:;" data-toggle="dropdown" data-close-others="true" aria-expanded="false">
-              Filter by <i class="fa fa-angle-down"></i>
+              {{ trans('widgets.activities.filter_by') }} <i class="fa fa-angle-down"></i>
             </a>
             <div class="dropdown-menu pull-right form-group">
               <div class="mt-checkbox-list">
@@ -17,7 +17,7 @@
                   </label>
                 @endforeach
                 <label class="mt-checkbox mt-checkbox-outline">
-                  <input type="checkbox" value=""> Other
+                  <input type="checkbox" value=""> {{ trans('widgets.activities.other') }}
                   <span></span>
                 </label>
               </div>
@@ -72,10 +72,11 @@
                       ? 'true'
                       : 'false'
                       
-                    }}" data-list_id="{{ $event->lists->id }}" data-item_id="{{ $event->item_id }}">View</a>
+                    }}" data-list_id="{{ $event->lists->id }}" data-item_id="{{ $event->item_id }}">{{ trans('widgets.activities.view') }}</a>
                   @else
                     <a href="javascript:;" class="btn btn-outline green btn-xs dx-button-history"
-                      data-list_id="{{ App\Libraries\DBHelper::getListByTable('dx_db_events')->id }}" data-item_id="{{ $event->id }}">History</a>
+                      data-list_id="{{ App\Libraries\DBHelper::getListByTable('dx_db_events')->id }}"
+                      data-item_id="{{ $event->id }}">{{ trans('widgets.activities.history') }}</a>
                   @endif
                 </div>
               </div>

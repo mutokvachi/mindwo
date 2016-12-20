@@ -1,7 +1,7 @@
 @if(count($employees))
   <div class="portlet widget-congratulate" dx_block_id="congratulate">
     <div class="portlet-title">
-      <div class="caption font-grey-cascade uppercase">CONGRATULATE <span class="badge badge-success">{{ count($employees) }}</span></div>
+      <div class="caption font-grey-cascade uppercase">{{ trans('widgets.congratulate.title') }} <span class="badge badge-success">{{ count($employees) }}</span></div>
       {{--
       <div class="tools">
         <a class="collapse" href="javascript:;"> </a>
