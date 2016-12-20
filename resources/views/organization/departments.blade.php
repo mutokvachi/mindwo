@@ -4,7 +4,7 @@
   <div class="portlet light">
     <div class="portlet-title">
       <div class="caption font-grey-cascade uppercase">
-        <i class="fa fa-sitemap"></i> {{ trans('organization.chart_title') }}
+        <i class="fa fa-sitemap"></i> {{ trans('organization.deps_title') }}
         <span class="badge badge-info" title="{{ trans('organization.hint_count') }}">{{ count($departments) }}</span>
       </div>
       <div class="actions">

@@ -20,10 +20,10 @@
 			createNode: function(node, data)
 			{
 				var content = $(node).children('.content');
-				content.prepend('<div class="main-icon"><i class="fa fa-sitemap"></i></div>');
+				//content.prepend('<div class="main-icon"><i class="fa fa-sitemap"></i></div>');
 				
 				if(data.id != 0)
-					content.append('<div class="pull-left"><i class="fa fa-users"></i> <a href="' + data.search + '">' + data.count + '</a></div>');
+					content.append('<div class="pull-left"><a href="' + data.search + '">' + '<i class="fa fa-users"></i> ' + data.count + '</a></div>');
 				
 				if(data.subordinates > 0)
 					content.append('<div class="subordinates" title="' + Lang.get('organization.hint_subdeps') + '">' + data.subordinates + '</div>');

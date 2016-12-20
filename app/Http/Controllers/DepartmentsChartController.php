@@ -219,7 +219,7 @@ class DepartmentsChartController extends Controller
 			
 			$result0 = [
 				'id' => 0,
-				'name' => 'Company', //trans('organization.company'),
+				'name' => trans('organization.deps_company'),
 				'title' => '',
 				'subordinates' => count($node),
 				'source_id' => 2,
@@ -243,11 +243,12 @@ class DepartmentsChartController extends Controller
 				'title' => '',
 				'subordinates' => count($subnode),
 				'source_id' => $department->source_id,
-				'count' => $this->counts[$department->id],
+				'count' => isset($this->counts[$department->id]) ? $this->counts[$department->id] : 0,
 				'search' => '/search?searchType='
 					.trans('search_top.employees')
 					.'&source_id='.$department->source_id
-					.'&department='.$department->title,
+					.'&department='.$department->title
+                                        .'&department_id='.$department->id,
 				'relationship' => $hasParent . $hasSiblings . $hasChildren,
 			];
 			
