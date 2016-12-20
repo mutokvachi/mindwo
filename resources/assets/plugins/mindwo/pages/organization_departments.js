@@ -22,7 +22,7 @@
 				var content = $(node).children('.content');
 				//content.prepend('<div class="main-icon"><i class="fa fa-sitemap"></i></div>');
 				
-				if(data.id != 0)
+				if(data.id > 0 && data.count > 0)
 					content.append('<div class="pull-left"><a href="' + data.search + '">' + '<i class="fa fa-users"></i> ' + data.count + '</a></div>');
 				
 				if(data.subordinates > 0)
