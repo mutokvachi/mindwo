@@ -215,17 +215,35 @@ gulp.task('mix_all', function() {
             'html2canvas/html2canvas.js',
             'orgchart/OrgChart.js',
 			'select2/select2.min.js',
-			'select2/select2_locale_multi.js'
+			'select2/select2_locale_multi.js',
+            'mindwo/pages/organization_chart.js'
         ], 'public/js/elix_orgchart.js', 'resources/assets/plugins');
 	
 		// Styles for organization chart
         mix.styles([
             'orgchart/orgchart.css',
 			'select2/select2.css',
-            'select2/select2-bootstrap.css'
+            'select2/select2-bootstrap.css',
+            'mindwo/css/organization_chart.css'
 		], 'public/css/elix_orgchart.css', 'resources/assets/plugins');
-        
-        // Minify all scripts
+	
+		// Scripts for departments chart
+		mix.scripts([
+			'html2canvas/html2canvas.js',
+			'orgchart/OrgChart.js',
+			'mindwo/pages/organization_departments.js'
+		], 'public/js/elix_orgdepartments.js', 'resources/assets/plugins');
+	
+		// Styles for departments chart
+		mix.styles([
+			'orgchart/orgchart.css',
+			'select2/select2.css',
+			'select2/select2-bootstrap.css',
+			'mindwo/css/organization_chart.css',
+			'mindwo/css/organization_departments.css'
+		], 'public/css/elix_orgdepartments.css', 'resources/assets/plugins');
+	
+		// Minify all scripts
         mix.version([
             'js/elix_userlinks.js', 
             'js/elix_plugins.js', 
@@ -243,7 +261,9 @@ gulp.task('mix_all', function() {
             'css/elix_articles.css',
             'css/elix_employee_profile.css',
             'js/elix_orgchart.js',
-            'css/elix_orgchart.css'
+            'css/elix_orgchart.css',
+			'js/elix_orgdepartments.js',
+			'css/elix_orgdepartments.css'
         ]);
     });
 });
