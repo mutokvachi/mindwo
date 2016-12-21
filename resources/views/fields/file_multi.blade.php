@@ -3,13 +3,14 @@
     $("div#drop_{{ $frm_uniq_id }}").dropzone({
         paramName: "{{ $item_field }}",
         maxFiles: {{ ini_get('max_file_uploads') }},
-        url: "/file/post", 
-        dictDefaultMessage: "<h3>Ievelciet šeit datnes</h3><p>Vai arī spiediet ar peli, lai atvērtu datņu pārlūkošanas logu.</p>",
-        dictMaxFilesExceeded: "Vienā saglabāšanas reizē pieļaujams vienlaicīgi augšuplādēt ne vairāk kā {{ ini_get('max_file_uploads') }} datnes!",
+        url: "fakepath", 
+        autoProcessQueue: false,
+        dictDefaultMessage: "<h3>" + Lang.get('fields.title_drag_drop') + "</h3><p>" + Lang.get('fields.title_mouse_click') + "</p>",
+        dictMaxFilesExceeded: Lang.get('fields.rule_part1') + "{{ ini_get('max_file_uploads') }}" +  Lang.get('fields.rule_part2'),
         init:   function() {
                     this.on("addedfile", function(file) {
                         // Create the remove button
-                        var removeButton = Dropzone.createElement("<a href='javascript:;'' class='btn btn-sm btn-default btn-block' style='margin-top: 10px; cursor: hand;'>Noņemt</a>");
+                        var removeButton = Dropzone.createElement("<a href='javascript:;' class='btn btn-sm btn-primary btn-block' style='margin-top: 10px; cursor: pointer;'>" + Lang.get('fields.btn_remove') + "</a>");
                         
                         // Capture the Dropzone instance as closure.
                         var _this = this;
@@ -28,6 +29,11 @@
 
                         // Add the button to the file preview element.
                         file.previewElement.appendChild(removeButton);
+                        
+                        $(".dz-progress").remove();
+                        $('.dz-preview').addClass('dz-complete');
+                        $(".dz-error-message").css('margin-top', '35px');
+                        $(".dz-error-message").css('color', 'white');
                     });
                 } 
     });
