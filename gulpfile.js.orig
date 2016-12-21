@@ -285,10 +285,13 @@ gulp.task('mix_all', function() {
             'css/elix_employee_profile.css',
             'js/elix_orgchart.js',
             'css/elix_orgchart.css',
+<<<<<<< HEAD
 			'js/elix_orgdepartments.js',
-			'css/elix_orgdepartments.css',
-	'js/elix_block_report.js', 
+			'css/elix_orgdepartments.css'
+=======
+            'js/elix_block_report.js', 
             'css/elix_block_report.css'
+>>>>>>> feature-report
         ]);
     });
 });

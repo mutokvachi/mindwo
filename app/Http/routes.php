@@ -140,6 +140,12 @@ Route::group(['middleware' => 'auth', 'prefix' => 'employee'], function() {
     Route::get('new', 'EmplProfileController@create');
 });
 
+Route::group(['middleware' => 'auth', 'prefix' => 'widget'], function() {        
+    Route::group(['prefix' => 'report'], function () {
+        Route::get('/get/chart/{report_name}/{group_id}/{date_from}/{date_to}', 'ReportController@getChartData');
+    });
+});
+
 Route::group(['middleware' => 'auth_ajax', 'prefix' => 'freeform'], function() {
     Route::post('{id}/edit', 'FreeFormController@edit');
     Route::put('{id}', 'FreeFormController@update');

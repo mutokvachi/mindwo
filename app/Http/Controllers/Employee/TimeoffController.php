@@ -235,6 +235,8 @@ class TimeoffController extends Controller
 
     /**
      * Get rights and check if user has access to employees time off data
+     * @param \App\User $user User whoes profile is being viewed
+     * @return type
      */
     public function getAccess($user)
     {
