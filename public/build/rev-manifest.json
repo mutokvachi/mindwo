@@ -17,5 +17,7 @@
   "js/elix_orgchart.js": "js/elix_orgchart-e1720049.js",
   "css/elix_orgchart.css": "css/elix_orgchart-f8578184.css",
   "js/elix_orgdepartments.js": "js/elix_orgdepartments-a79364f0.js",
-  "css/elix_orgdepartments.css": "css/elix_orgdepartments-6cb34593.css"
+  "css/elix_orgdepartments.css": "css/elix_orgdepartments-6cb34593.css",
+  "js/elix_block_report.js": "js/elix_block_report-14377138.js",
+  "css/elix_block_report.css": "css/elix_block_report-61915036.css"
 }
