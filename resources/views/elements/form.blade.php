@@ -99,6 +99,8 @@
                             @if ($tabs_htm)
                                 $('{{ $tab_id }}').remove();
                             @endif
+                            
+                            toastr.clear();
                     });
 
                     @if ($form_is_edit_mode == 1)
