@@ -169,6 +169,28 @@ gulp.task('mix_all', function() {
             'datatables/datatables.all.min.js',
             'datatables/plugins/bootstrap/datatables.bootstrap.js'
         ], 'public/js/elix_view.js', 'resources/assets/plugins');
+        
+        mix.less([
+            'blocks/report.less'
+        ], 'public/css/elix_block_report_main.css');
+        
+        mix.styles([
+            'bootstrap-daterangepicker/daterangepicker.min.css'
+        ], 'public/css/elix_block_report_plugins.css', 'resources/assets/plugins');
+        
+        mix.styles([
+            'elix_block_report_main.css', 
+            'elix_block_report_plugins.css'
+        ], 'public/css/elix_block_report.css', 'public/css');
+        
+        mix.scripts([
+            'moment.min.js',
+            'bootstrap-daterangepicker/daterangepicker.js',
+            'mindwo/blocks/report.js',
+            'flot/jquery.flot.min.js',
+            'flot/jquery.flot.resize.min.js',
+            'flot/jquery.flot.axislabels.js'
+        ], 'public/js/elix_block_report.js', 'resources/assets/plugins');
 
         // Scripts for employees search page functionality
         mix.scripts([
@@ -176,6 +198,7 @@ gulp.task('mix_all', function() {
             'mindwo/pages/search_tools.js',
             'mindwo/pages/employees.js'
         ], 'public/js/elix_employees.js', 'resources/assets/plugins');
+        
         
         // Scripts for employee profile
         mix.scripts([
@@ -230,7 +253,7 @@ gulp.task('mix_all', function() {
             'js/elix_userlinks.js', 
             'js/elix_plugins.js', 
             'js/elix_view.js', 
-            'js/elix_employees.js', 
+            'js/elix_employees.js',             
             'js/elix_profile.js',
             'css/elix_plugins.css', 
             'css/elix_mindwo.css', 
@@ -243,7 +266,9 @@ gulp.task('mix_all', function() {
             'css/elix_articles.css',
             'css/elix_employee_profile.css',
             'js/elix_orgchart.js',
-            'css/elix_orgchart.css'
+            'css/elix_orgchart.css',
+            'js/elix_block_report.js', 
+            'css/elix_block_report.css'
         ]);
     });
 });
