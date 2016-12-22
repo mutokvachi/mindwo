@@ -2,7 +2,7 @@
   @if(!Request::ajax())
     <div class="portlet widget-activities" dx_block_id="activities">
       <div class="portlet-title">
-        <div class="caption font-grey-cascade uppercase">{{ trans('activities.widget_title') }}</span></div>
+        <div class="caption font-grey-cascade uppercase">{{ trans('activities.widget_title') }}</div>
         <div class="actions">
           <div class="btn-group">
             <a class="btn green btn-outline btn-circle btn-sm" style="border-width: 1px !important;" href="javascript:;" data-toggle="dropdown" data-close-others="true" aria-expanded="false">

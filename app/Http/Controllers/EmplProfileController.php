@@ -24,7 +24,14 @@ class EmplProfileController extends Controller
 		
 		$form = new App\Libraries\Forms\Form(Config::get('dx.employee_list_id'));
 		$form->disabled = false;
-		$form->tabList = [trans('empl_profile.tab_general'), trans('empl_profile.tab_pdetails'), trans('empl_profile.tab_wdetails'), trans('empl_profile.tab_wplace'), trans('empl_profile.tab_cdetails'), trans('empl_profile.tab_addr')];
+		$form->tabList = [
+			trans('empl_profile.tab_general'),
+			trans('empl_profile.tab_pdetails'),
+			trans('empl_profile.tab_wdetails'),
+			trans('empl_profile.tab_wplace'),
+			trans('empl_profile.tab_cdetails'),
+			trans('empl_profile.tab_addr')
+		];
 		$form->skipFields = ['picture_name'];
 		
 		return view('profile.employee', [
@@ -60,7 +67,14 @@ class EmplProfileController extends Controller
 		
 		$form = new App\Libraries\Forms\Form(Config::get('dx.employee_list_id'), $id);
 		$form->disabled = true;
-		$form->tabList = ['General', 'Personal details', 'Work details', 'Workplace', 'Contact details', 'Addresses'];
+		$form->tabList = [
+			trans('empl_profile.tab_general'),
+			trans('empl_profile.tab_pdetails'),
+			trans('empl_profile.tab_wdetails'),
+			trans('empl_profile.tab_wplace'),
+			trans('empl_profile.tab_cdetails'),
+			trans('empl_profile.tab_addr')
+		];
 		$form->skipFields = ['picture_name'];
 		
 		return view('profile.employee', [
@@ -71,8 +85,8 @@ class EmplProfileController extends Controller
 			'is_my_profile' => $id == Auth::user()->id,
 			'is_edit_rights' => $this->getEditRightsMode(),
 			'has_users_documents_access' => $this->validateUsersDocumentsAccess(),
-                        'has_users_notes_access' => $this->validateUsersNotesAccess($employee),
-                        'has_users_timeoff_access' => $this->validateUsersTimeoffAccess($employee),
+			'has_users_notes_access' => $this->validateUsersNotesAccess($employee),
+			'has_users_timeoff_access' => $this->validateUsersTimeoffAccess($employee),
 		]);
 	}
 	
@@ -86,59 +100,11 @@ class EmplProfileController extends Controller
 	}
 	
 	/**
-	 * Check if user has access for users time off data
-	 * @return boolean Parameter if user has access
+	 * Get updated content of auxiliary blocks after profile save.
+	 *
+	 * @param $id
+	 * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
 	 */
-	private function validateUsersTimeoffAccess($user)
-	{
-		$user_timeoff_controller = new App\Http\Controllers\Employee\TimeoffController();
-                
-                $user_timeoff_controller->getAccess($user);
-                  
-		return ($user_timeoff_controller->has_hr_access || $user_timeoff_controller->has_my_access);
-	}
-        
-        /**
-	 * Check if user has access for users documents
-	 * @return boolean Parameter if user has access
-	 */
-	private function validateUsersDocumentsAccess()
-	{
-		$user_documents_controller = new App\Http\Controllers\Employee\EmployeePersonalDocController();
-		return $user_documents_controller->has_access;
-	}
-        
-        /**
-	 * Check if user has access for users notes
-         * @param \App\User $user Employee's user model
-	 * @return boolean Parameter if user has access
-	 */
-	private function validateUsersNotesAccess($user)
-	{
-            $user_notes_controller = new App\Http\Controllers\Employee\NoteController();
-
-            $user_notes_controller->getAccess($user);
-
-            return ($user_notes_controller->has_hr_access || $user_notes_controller->has_manager_access);
-	}
-	
-	/**
-	 * Checks if user have edit rights on employees register
-	 * @return int 0 - no edit rights; 1 - can edit
-	 */
-	private function getEditRightsMode()
-	{
-		$empl_list_rights = Rights::getRightsOnList(Config::get('dx.employee_list_id'));
-		
-		$is_edit_rights = 0;
-		if($empl_list_rights && $empl_list_rights->is_edit_rights)
-		{
-			$is_edit_rights = 1;
-		}
-		
-		return $is_edit_rights;
-	}
-	
 	public function ajaxShowChunks($id)
 	{
 		$employee = App\User::find($id);
@@ -171,6 +137,13 @@ class EmplProfileController extends Controller
 		return response($result);
 	}
 	
+	/**
+	 * Get content of a tab via AJAX request
+	 *
+	 * @param Request $request
+	 * @param $id
+	 * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+	 */
 	public function ajaxShowTab(Request $request, $id)
 	{
 		$employee = App\User::find($id);
@@ -181,7 +154,7 @@ class EmplProfileController extends Controller
 			'html' => ''
 		];
 		
-		$result['html'] = view('profile.'.$tabId, [
+		$result['html'] = view('profile.' . $tabId, [
 			'mode' => 'show',
 			'employee' => $employee,
 			'is_my_profile' => $id == Auth::user()->id,
@@ -189,5 +162,59 @@ class EmplProfileController extends Controller
 		])->render();
 		
 		return response($result);
+	}
+	
+	/**
+	 * Check if user has access for users time off data
+	 * @return boolean Parameter if user has access
+	 */
+	private function validateUsersTimeoffAccess($user)
+	{
+		$user_timeoff_controller = new App\Http\Controllers\Employee\TimeoffController();
+		
+		$user_timeoff_controller->getAccess($user);
+		
+		return ($user_timeoff_controller->has_hr_access || $user_timeoff_controller->has_my_access);
+	}
+	
+	/**
+	 * Check if user has access for users documents
+	 * @return boolean Parameter if user has access
+	 */
+	private function validateUsersDocumentsAccess()
+	{
+		$user_documents_controller = new App\Http\Controllers\Employee\EmployeePersonalDocController();
+		return $user_documents_controller->has_access;
+	}
+	
+	/**
+	 * Check if user has access for users notes
+	 * @param \App\User $user Employee's user model
+	 * @return boolean Parameter if user has access
+	 */
+	private function validateUsersNotesAccess($user)
+	{
+		$user_notes_controller = new App\Http\Controllers\Employee\NoteController();
+		
+		$user_notes_controller->getAccess($user);
+		
+		return ($user_notes_controller->has_hr_access || $user_notes_controller->has_manager_access);
+	}
+	
+	/**
+	 * Checks if user have edit rights on employees register
+	 * @return int 0 - no edit rights; 1 - can edit
+	 */
+	private function getEditRightsMode()
+	{
+		$empl_list_rights = Rights::getRightsOnList(Config::get('dx.employee_list_id'));
+		
+		$is_edit_rights = 0;
+		if($empl_list_rights && $empl_list_rights->is_edit_rights)
+		{
+			$is_edit_rights = 1;
+		}
+		
+		return $is_edit_rights;
 	}
 }

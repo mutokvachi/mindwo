@@ -8,9 +8,9 @@ use Illuminate\Support\Facades;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Class OrgChartController
+ * Class DepartmentsChartController
  *
- * Controller for organization chart
+ * Controller for departments chart
  *
  * @package App\Http\Controllers
  */
@@ -46,11 +46,10 @@ class DepartmentsChartController extends Controller
 	 * @var array
 	 */
 	protected $levels = [];
-	
 	protected $counts;
 	
 	/**
-	 * OrgChartController constructor.
+	 * DepartmentsChartController constructor.
 	 */
 	public function __construct()
 	{
@@ -60,7 +59,7 @@ class DepartmentsChartController extends Controller
 		$this->tree = $this->getTree(0);
 		
 		$counts = DB::table('dx_users')
-			->select(DB::raw('department_id, COUNT(*) as count'))
+			->select(DB::raw('department_id, COUNT(*) AS count'))
 			->groupBy('department_id')
 			->get();
 		
@@ -71,7 +70,7 @@ class DepartmentsChartController extends Controller
 	}
 	
 	/**
-	 * Render organization chart.
+	 * Render departments chart.
 	 *
 	 * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
 	 */
@@ -245,10 +244,10 @@ class DepartmentsChartController extends Controller
 				'source_id' => $department->source_id,
 				'count' => isset($this->counts[$department->id]) ? $this->counts[$department->id] : 0,
 				'search' => '/search?searchType='
-					.trans('search_top.employees')
-					.'&source_id='.$department->source_id
-					.'&department='.$department->title
-                                        .'&department_id='.$department->id,
+					. trans('search_top.employees')
+					. '&source_id=' . $department->source_id
+					. '&department=' . $department->title
+					. '&department_id=' . $department->id,
 				'relationship' => $hasParent . $hasSiblings . $hasChildren,
 			];
 			
