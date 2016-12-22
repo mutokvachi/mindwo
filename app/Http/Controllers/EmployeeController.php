@@ -118,6 +118,13 @@ class EmployeeController extends Controller
     private $is_fast_search = 0;
     
     /**
+     * Team ID
+     * 
+     * @var integer
+     */
+    private $team_id = 0;
+    
+    /**
      * Darbinieku meklēšana
      * 
      * @param       Request $request GET/POST pieprasījuma objekts
@@ -262,6 +269,7 @@ class EmployeeController extends Controller
         $this->subst_empl_id = $request->input('subst_empl_id', 0);
         $this->is_from_link = $request->input('is_from_link', 0);
         $this->department_id = $request->input('department_id', 0);
+        $this->team_id = $request->input('team_id', 0);
         
         //$this->setPhoneParam();
         $this->setReverseParam();
@@ -362,7 +370,8 @@ class EmployeeController extends Controller
         $this->wherePhone($employees);
         $this->whereManager($employees);
         $this->whereSubstitute($employees);
-
+        $this->whereTeam($employees);
+        
         $employees->whereNull('em.' . Config::get('dx.empl_fields.empl_end_date')); // Tikai aktuālos darbiniekus
     }
 
@@ -389,6 +398,27 @@ class EmployeeController extends Controller
         if ($this->source_id > 0 && $this->department_id == 0)
         {
             $employees->where('in_departments.source_id', '=', $this->source_id);
+        }
+        
+        if ($this->source_id == -1) {
+            $employees->whereNull('em.department_id');
+        }
+    }
+    
+     /**
+     * Pievieno datu bāzes pieprasījumam komandas nosacījumu
+     * 
+     * @param Object $employees Darbinieku datu bāzes pieprasījuma objekts
+     */
+    private function whereTeam(&$employees)
+    {
+        if ($this->team_id > 0)
+        {
+            $employees->where('em.team_id', '=', $this->team_id);
+        }
+        
+        if ($this->team_id == -1) {
+            $employees->whereNull('em.team_id');
         }
     }
 

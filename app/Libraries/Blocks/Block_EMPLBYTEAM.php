@@ -101,7 +101,7 @@ class Block_EMPLBYTEAM extends Block
 		{
 			if(!$item->team_id || !isset($this->getTeams()[$item->team_id]))
 			{
-				$unassignedCount++;
+				$unassignedCount = $item->count;
 				continue;
 			}
 			
@@ -139,12 +139,11 @@ class Block_EMPLBYTEAM extends Block
 					height: 20px;
 				}
 				.widget-emplbyteam .progress-bar span, .widget-emplbyteam .progress-bar a {
-					color: white;
+					color: #26344b;
 					display: block;
 					position: absolute;
 					text-align: left;
 					margin-left: 20px;
-					text-shadow: 0px 0px 2px #333;
 				}
 			</style>
 END;

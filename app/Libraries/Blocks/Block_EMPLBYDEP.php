@@ -123,7 +123,7 @@ class Block_EMPLBYDEP extends Block
 		{
 			if(!$item->department_id || !isset($this->getDepartments()[$item->department_id]))
 			{
-				$unassignedCount++;
+				$unassignedCount = $item->count;
 				continue;
 			}
 			
@@ -170,12 +170,11 @@ class Block_EMPLBYDEP extends Block
 					height: 20px;
 				}
 				.widget-emplbydep .progress-bar span, .widget-emplbydep .progress-bar a {
-					color: white;
+					color: #26344b;
 					display: block;
 					position: absolute;
 					text-align: left;
 					margin-left: 20px;
-					text-shadow: 0px 0px 2px #333;
 				}
 			</style>
 END;
