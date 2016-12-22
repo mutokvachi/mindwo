@@ -33,18 +33,18 @@ class Report_EMPLOYEE_STATUS extends Report
             $group_query = ' u.department_id = :groupId AND ';
         }
 
-        $res = DB::select('SELECT 
+        $res = DB::select("SELECT 
             cl.year, 
             cl.month, 
-            (SELECT COUNT(*) FROM dx_users u WHERE ' . $group_query .' YEAR(u.join_date) = cl.year AND MONTH(u.join_date) = cl.month AND u.join_date >= :fromDate AND u.join_date <= :toDate) as gain,
-            (SELECT COUNT(*) FROM dx_users u WHERE ' . $group_query .' YEAR(u.termination_date) = cl.year AND MONTH(u.termination_date) = cl.month AND u.termination_date >= :fromDate AND u.termination_date <= :toDate) as loss,
+            (SELECT COUNT(*) FROM dx_users u WHERE " . $group_query ." YEAR(ifnull(u.join_date,'1970-01-01')) = cl.year AND MONTH(ifnull(u.join_date,'1970-01-01')) = cl.month AND ifnull(u.join_date,'1970-01-01') >= :fromDate AND ifnull(u.join_date,'1970-01-01') <= :toDate) as gain,
+            (SELECT COUNT(*) FROM dx_users u WHERE " . $group_query ." YEAR(u.termination_date) = cl.year AND MONTH(u.termination_date) = cl.month AND u.termination_date >= :fromDate AND u.termination_date <= :toDate) as loss,
             (SELECT COUNT(*) FROM dx_users u 
-                    WHERE ' . $group_query .'
+                    WHERE " . $group_query . "
                     (
-                            u.join_date <=  :toDate
-                            AND (YEAR(u.join_date) < cl.year 
-                                    OR (YEAR(u.join_date) = cl.year 
-                                            AND (MONTH(u.join_date) <= cl.month 
+                            ifnull(u.join_date,'1970-01-01') <=  :toDate
+                            AND (YEAR(ifnull(u.join_date,'1970-01-01')) < cl.year 
+                                    OR (YEAR(ifnull(u.join_date,'1970-01-01')) = cl.year 
+                                            AND (MONTH(ifnull(u.join_date,'1970-01-01')) <= cl.month 
                                             )
                                     )
                             )
@@ -64,7 +64,7 @@ class Report_EMPLOYEE_STATUS extends Report
             WHERE cl.year >= YEAR(:fromDate)
             AND cl.year <= YEAR(:toDate)
             AND cl.month >= MONTH(:fromDate)
-            AND cl.month <= MONTH(:toDate);', $args);
+            AND cl.month <= MONTH(:toDate);", $args);
 
         $resOverall = $this->getOverallData($res);
 
