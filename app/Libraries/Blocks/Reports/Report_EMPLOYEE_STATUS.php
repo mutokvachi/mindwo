@@ -36,24 +36,24 @@ class Report_EMPLOYEE_STATUS extends Report
         $res = DB::select('SELECT 
             cl.year, 
             cl.month, 
-            (SELECT COUNT(*) FROM dx_users u WHERE ' . $group_query .' YEAR(u.valid_from) = cl.year AND MONTH(u.valid_from) = cl.month AND u.valid_from >= :fromDate AND u.valid_from <= :toDate) as gain,
-            (SELECT COUNT(*) FROM dx_users u WHERE ' . $group_query .' YEAR(u.valid_to) = cl.year AND MONTH(u.valid_to) = cl.month AND u.valid_to >= :fromDate AND u.valid_to <= :toDate) as loss,
+            (SELECT COUNT(*) FROM dx_users u WHERE ' . $group_query .' YEAR(u.join_date) = cl.year AND MONTH(u.join_date) = cl.month AND u.join_date >= :fromDate AND u.join_date <= :toDate) as gain,
+            (SELECT COUNT(*) FROM dx_users u WHERE ' . $group_query .' YEAR(u.termination_date) = cl.year AND MONTH(u.termination_date) = cl.month AND u.termination_date >= :fromDate AND u.termination_date <= :toDate) as loss,
             (SELECT COUNT(*) FROM dx_users u 
                     WHERE ' . $group_query .'
                     (
-                            u.valid_from <=  :toDate
-                            AND (YEAR(u.valid_from) < cl.year 
-                                    OR (YEAR(u.valid_from) = cl.year 
-                                            AND (MONTH(u.valid_from) <= cl.month 
+                            u.join_date <=  :toDate
+                            AND (YEAR(u.join_date) < cl.year 
+                                    OR (YEAR(u.join_date) = cl.year 
+                                            AND (MONTH(u.join_date) <= cl.month 
                                             )
                                     )
                             )
-                            AND (u.valid_to IS NULL 
-                                    OR YEAR(u.valid_to) > cl.year 
-                                    OR (YEAR(u.valid_to) = cl.year 
-                                            AND (MONTH(u.valid_to) > cl.month 
-                                                    OR (MONTH(u.valid_to) = cl.month 
-                                                            AND (MONTH(u.valid_to) = MONTH(:toDate) AND u.valid_to > :toDate)
+                            AND (u.termination_date IS NULL 
+                                    OR YEAR(u.termination_date) > cl.year 
+                                    OR (YEAR(u.termination_date) = cl.year 
+                                            AND (MONTH(u.termination_date) > cl.month 
+                                                    OR (MONTH(u.termination_date) = cl.month 
+                                                            AND (MONTH(u.termination_date) = MONTH(:toDate) AND u.termination_date > :toDate)
                                                     )
                                             )
                                     )
