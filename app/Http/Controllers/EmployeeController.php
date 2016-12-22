@@ -388,7 +388,7 @@ class EmployeeController extends Controller
     {
         if ($this->source_id > 0 && $this->department_id == 0)
         {
-            $employees->where('em.source_id', '=', $this->source_id);
+            $employees->where('in_departments.source_id', '=', $this->source_id);
         }
     }
 

@@ -5,6 +5,7 @@ namespace App\Libraries\Blocks\Reports;
 use DB;
 use Log;
 use App\Libraries\Rights;
+use App\Exceptions;
 
 /**
  * Bāzes abstraktā klase priekš procesiem, kurus izpilda ar laravel darbiem (jobs)
@@ -81,7 +82,8 @@ abstract class Report
         $this->getAccess();
 
         if (!$this->has_access) {
-            abort(403, trans('errors.no_rights_on_register'));
+            //abort(403, trans('errors.no_rights_on_register'));
+            throw new Exceptions\DXCustomException(trans('errors.no_rights_on_register'));
         }
     }
 }
