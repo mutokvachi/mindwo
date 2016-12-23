@@ -55,18 +55,17 @@ abstract class Report
     }
 
     /**
-     * Get rights and check if user has access to employees time off data
+     * Get rights and check if user has access to employees register (and if so - then have rights to all reports)
      */
     private function getAccess()
     {
-        $list = \App\Libraries\DBHelper::getListByTable($this->table_name);
-
-        // Check if register exist for users time off data
-        if (!$list) {
+        $list_id = Config::get('dx.employee_list_id', 0);
+        
+        if ($list_id == 0) {
             return;
         }
 
-        $list_rights = Rights::getRightsOnList($list->id);
+        $list_rights = Rights::getRightsOnList($list_id);
 
         // Check if user has edit rights on list
         if ($list_rights && $list_rights->is_edit_rights && $list_rights->is_edit_rights == 1) {
