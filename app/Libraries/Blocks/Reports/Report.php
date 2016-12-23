@@ -6,6 +6,7 @@ use DB;
 use Log;
 use App\Libraries\Rights;
 use App\Exceptions;
+use Config;
 
 /**
  * Bāzes abstraktā klase priekš procesiem, kurus izpilda ar laravel darbiem (jobs)
