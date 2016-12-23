@@ -19,6 +19,11 @@ use Config;
 class Block_ACTIVITIES extends Block
 {
 	/**
+	 * Indicates if system have profile UI functionality
+	 * @var type
+	 */
+	public $is_profile = false;
+	/**
 	 * @var App\User Current logged in user
 	 */
 	protected $user;
@@ -38,16 +43,9 @@ class Block_ACTIVITIES extends Block
 	 * @var int Id of last loaded element for lazy loading
 	 */
 	protected $lastId;
-        
-        /**
-         * Indicates if system have profile UI functionality
-         * @var type 
-         */
-        public $is_profile = false;
 	
 	/**
 	 * Render widget and return its HTML.
-	 *
 	 * @return string
 	 */
 	public function getHtml()
@@ -234,7 +232,7 @@ END;
 			</style>
 END;
 	}
-
+	
 	public function getJSONData()
 	{
 		return [];
@@ -273,8 +271,8 @@ END;
 				}
 			}
 		}
-                
-                $this->is_profile = (Config::get('dx.employee_profile_page_url'));
+		
+		$this->is_profile = (Config::get('dx.employee_profile_page_url'));
 	}
 	
 	/**
@@ -285,12 +283,16 @@ END;
 	protected function getEvents()
 	{
 		if($this->events)
+		{
 			return $this->events;
+		}
 		
 		$query = Models\Event::whereIn('list_id', $this->lists);
 		
 		if($this->lastId)
+		{
 			$query->where('id', '<', $this->lastId);
+		}
 		
 		$query
 			->limit((Request::ajax() && $this->lastId) ? 5 : 10)
