@@ -52,6 +52,11 @@ class TasksController extends Controller
     const REPRESENT_EMPL = 9;
     
     /**
+     * Employee which is responsible about document
+     */
+    const REPRESENT_RESPONSIBLE_EMPL = 10;
+    
+    /**
      * Uzdevuma veids - saskaņot
      */
     const TASK_TYPE_APPROVE = 1;

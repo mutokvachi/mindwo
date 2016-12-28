@@ -133,7 +133,15 @@ namespace App\Libraries
             $tab = DB::table('dx_forms_tabs')->where('form_id', '=', $form->id)->where('title', '=', $tab_title)->first();
             
             if (!$tab) {
-                return;
+                $tab_id = DB::table('dx_forms_tabs')->insertGetId([
+                    'form_id' => $form->id, 
+                    'title' => $tab_title, 
+                    'order_index' => (DB::table('dx_forms_tabs')->where('form_id', '=', $form->id)->max('order_index') + 10),
+                    'is_custom_data' => 1
+                ]);
+            }
+            else {
+                $tab_id = $tab->id;
             }
             
             if ($order_index == 0) {
@@ -144,7 +152,7 @@ namespace App\Libraries
                 'list_id' => $list_id,
                 'form_id' => $form->id,
                 'field_id' => $fld_id,
-                'tab_id' => $tab->id,
+                'tab_id' => $tab_id,
                 'order_index' => $order_index
             ]);
         }

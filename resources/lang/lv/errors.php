@@ -99,4 +99,7 @@ return [
     'file_record_not_found' => "Datne ar ieraksta ID %s nav atrodama! Lūdzu, sazinieties ar sistēmas uzturētāju!",
     
     'no_represent_field' => "Darbplūsmas skatam nav norādīts, kurus dokumenta laukus attēlot uzdevumā! Sazinieties ar sistēmas uzturētāju.",
+    
+    'no_respo_empl_field' => "Skatam '%s' definēts kontroles nosacījums, bet nosacījumā norādītais atbildīgā darbinieka lauks nav ietverts skatā!",
+    
 ];
