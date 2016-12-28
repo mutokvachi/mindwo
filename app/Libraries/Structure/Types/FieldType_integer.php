@@ -34,6 +34,12 @@ namespace App\Libraries\Structure\Types
                 'title_form' => $this->field_title,
                 'is_required' => $this->is_required
             );
+            
+            $def = $this->field_obj->getDefault();
+            
+            if ($def) {
+                $arr_flds['default_value'] = $def;
+            }
 
             $key = $this->getForeignKey();
 

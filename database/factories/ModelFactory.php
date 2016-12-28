@@ -27,7 +27,8 @@ $factory->define(App\User::class, function(Faker\Generator $faker)
 	$thumb_folder = public_path('formated_img/small_avatar/');
 	$picture_guid = Webpatser\Uuid\Uuid::generate(4).".jpg";
 
-	copy("https://unsplash.it/300/300/?random", "$img_folder/$picture_guid");
+	//copy("https://unsplash.it/300/300/?random", "$img_folder/$picture_guid");
+	copy("http://loremflickr.com/300/300", "$img_folder/$picture_guid");
 	
 	$image = new \App\Libraries\Image\Image;
 	$image->resize($img_folder, $picture_guid, 120, 120, $thumb_folder);
@@ -62,7 +63,7 @@ $factory->define(App\User::class, function(Faker\Generator $faker)
 		'country_id' => $faker->numberBetween(1, 8),
 		'employment_status_id' => $faker->numberBetween(1, 3),
 		'position_id' => $faker->numberBetween(1, 7),
-		'team_id' => $faker->numberBetween(1, 2),
+		'team_id' => $faker->numberBetween(3, 4),
 		'job_type_id' => $faker->numberBetween(1, 2),
 		'reporting_manager_id' => 1,
 		'location_country_id' => $faker->numberBetween(1, 8),
@@ -87,19 +88,5 @@ $factory->define(App\User::class, function(Faker\Generator $faker)
 		'whatsapp' => $mobile,
 		'telegram' => $mobile,
 		'emergency_contacts' => $faker->phoneNumber,
-	];
-});
-
-/**
- * Model factory for user roles
- */
-$factory->define(App\Models\UserRoles::class, function(Faker\Generator $faker)
-{
-	return [
-		'role_id' => 23,
-		'created_user_id' => 1,
-		'created_time' => date('Y-m-d H:i:s'),
-		'modified_user_id' => 1,
-		'modified_time' => date('Y-m-d H:i:s'),
 	];
 });

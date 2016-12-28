@@ -7,7 +7,9 @@ namespace App\Libraries
     use Illuminate\Database\Schema\Blueprint;
     use Illuminate\Database\Migrations\Migration;
     use Illuminate\Support\Facades\Schema;
-
+    use App\Libraries\Structure;
+    use Illuminate\Support\Facades\File;
+    
     /**
      * Palīgfunkciju klase datu bāzes struktūras izveidei
      */
@@ -55,6 +57,11 @@ namespace App\Libraries
         const FIELD_TYPE_FILE = 12;
         
         /**
+         * Register field type - color picker (from table dx_field_types)
+         */
+        const FIELD_TYPE_COLOR = 17;
+        
+        /**
          * Returns object row by list_id
          * 
          * @param integer $list_id Registera ID
@@ -76,6 +83,11 @@ namespace App\Libraries
         public static function getListByTable($table_name)
         {
             $obj = DB::table('dx_objects')->where('db_name', '=', $table_name)->first();
+            
+            if (!$obj) {
+                return null;
+            }
+            
             $list = DB::table('dx_lists')->where('object_id', '=', $obj->id)->first();
 
             return $list;
@@ -95,17 +107,18 @@ namespace App\Libraries
          * Appends a new field to the form at the end
          * @param integer $list_id Register ID
          * @param integer $fld_id Field ID
+         * @param array $arr_vals Array with additional fields setting
          */
-        public static function addFieldToForm($list_id, $fld_id)
+        public static function addFieldToForm($list_id, $fld_id, $arr_vals = [])
         {
             $form = DB::table('dx_forms')->where('list_id', '=', $list_id)->first();
 
-            DB::table('dx_forms_fields')->insert([
-                'list_id' => $list_id,
-                'form_id' => $form->id,
-                'field_id' => $fld_id,
-                'order_index' => (DB::table('dx_forms_fields')->where('form_id', '=', $form->id)->max('order_index') + 10)
-            ]);
+            $arr_vals['list_id'] = $list_id;
+            $arr_vals['form_id'] = $form->id;
+            $arr_vals['field_id'] = $fld_id;
+            $arr_vals['order_index'] = (DB::table('dx_forms_fields')->where('form_id', '=', $form->id)->max('order_index') + 10);
+            
+            DB::table('dx_forms_fields')->insert($arr_vals);
         }
         
         /**
@@ -120,7 +133,15 @@ namespace App\Libraries
             $tab = DB::table('dx_forms_tabs')->where('form_id', '=', $form->id)->where('title', '=', $tab_title)->first();
             
             if (!$tab) {
-                return;
+                $tab_id = DB::table('dx_forms_tabs')->insertGetId([
+                    'form_id' => $form->id, 
+                    'title' => $tab_title, 
+                    'order_index' => (DB::table('dx_forms_tabs')->where('form_id', '=', $form->id)->max('order_index') + 10),
+                    'is_custom_data' => 1
+                ]);
+            }
+            else {
+                $tab_id = $tab->id;
             }
             
             if ($order_index == 0) {
@@ -131,7 +152,7 @@ namespace App\Libraries
                 'list_id' => $list_id,
                 'form_id' => $form->id,
                 'field_id' => $fld_id,
-                'tab_id' => $tab->id,
+                'tab_id' => $tab_id,
                 'order_index' => $order_index
             ]);
         }
@@ -224,7 +245,144 @@ namespace App\Libraries
                 DB::table('dx_lists_fields')->where('id', '=', $fld->id)->delete();
             });
         }
+        
+        /**
+         * Delete register by table name
+         * 
+         * @param string $table_name DB table name
+         */
+        public static function deleteRegister($table_name) {
+            $list = DBHelper::getListByTable($table_name);
+            
+            if (!$list) {
+                return;
+            }
+            
+            $list_del = new Structure\StructMethod_register_delete();
+            $list_del->list_id = $list->id;
+            $list_del->doMethod(); 
+        }
+        
+        /**
+         * Removes or hides fields from the lists all views (if found)
+         * 
+         * @param string $table_name List's table name
+         * @param array $flds_arr Array with field names to be removed
+         * @param boolean $is_hide_only True - field will be hidden, False - field will be deleted from view
+         */
+        public static function removeFieldsFromAllViews($table_name, $flds_arr, $is_hide_only) {
+            $list = DBHelper::getListByTable($table_name);
+            
+            if (!$list) {
+                return;
+            }            
+            
+            foreach($flds_arr as $fld) {
+                $fld_row = DB::table('dx_lists_fields')->where('list_id', '=', $list->id)->where('db_name', '=', $fld)->first();
 
+                if (!$fld_row) {
+                    continue;
+                }
+
+                if ($is_hide_only) {
+                    DB::table('dx_views_fields')->where('list_id', '=', $list->id)->where('field_id', '=', $fld_row->id)->update(['is_hidden' => 1]);
+                }
+                else {
+                    DB::table('dx_views_fields')->where('list_id', '=', $list->id)->where('field_id', '=', $fld_row->id)->delete();
+                }
+            }            
+        }
+        
+         /**
+         * Removes or hides fields from the lists all forms (if found)
+         *
+         * @param string $table_name List's table name
+         * @param array $flds_arr Array with field names to be removed
+         * @param boolean $is_hide_only True - field will be hidden, False - field will be deleted from form
+         */
+        public static function removeFieldsFromAllForms($table_name, $flds_arr, $is_hide_only) {
+            $list = DBHelper::getListByTable($table_name);
+            
+            if (!$list) {
+                return;
+            }
+                        
+            foreach($flds_arr as $fld) {
+                $fld_row = DB::table('dx_lists_fields')->where('list_id', '=', $list->id)->where('db_name', '=', $fld)->first();
+
+                if (!$fld_row) {
+                    continue;
+                }
+
+                if ($is_hide_only) {
+                    DB::table('dx_forms_fields')->where('list_id', '=', $list->id)->where('field_id', '=', $fld_row->id)->update(['is_hidden' => 1]);
+                }
+                else {
+                    DB::table('dx_forms_fields')->where('list_id', '=', $list->id)->where('field_id', '=', $fld_row->id)->delete();
+                }
+            }     
+        }
+        
+        /**
+         * Ads JavaScript to the list form
+         * 
+         * @param string $table_name List's table name
+         * @param string $file_name File name which is stored in the folder storage/app/updates
+         * @param string $description JavaScript short description
+         */
+        public static function addJavaScriptToForm($table_name, $file_name, $description) {
+            $list = DBHelper::getListByTable($table_name);
+            
+            if (!$list) {
+                return;
+            }
+            
+            // add special JavaScript
+            $form_id = DB::table('dx_forms')->where('list_id', '=', $list->id)->first()->id;
+
+            $dir = storage_path() . DIRECTORY_SEPARATOR . "app" . DIRECTORY_SEPARATOR . "updates" . DIRECTORY_SEPARATOR;       
+            $file_js = $dir . $file_name;
+            $content = File::get($file_js);
+
+            DB::table('dx_forms_js')->insert([
+                'title' => $description,
+                'form_id' => $form_id,
+                'js_code' => $content
+            ]);
+        }
+        
+        /**
+         * Removes JavaScript from form
+         * 
+         * @param string $table_name List's table name
+         * @param string $description JavaScript short description
+         */
+        public static function removeJavaScriptFromForm($table_name, $description) {
+            $list = DBHelper::getListByTable($table_name);
+            
+            if (!$list) {
+                return;
+            }
+            
+            $form_id = DB::table('dx_forms')->where('list_id', '=', $list->id)->first()->id;
+
+            DB::table('dx_forms_js')->where('form_id', '=', $form_id)->where('title','=', $description)->delete();
+        }
+        
+        /**
+         * Gets role ID by role name. If not found - creates it
+         * @param string $role_name Role name
+         * @return integer Role ID
+         */
+        public static function getOrCreateRoleID($role_name) {            
+            $role_row = DB::table('dx_roles')->where('title', '=', $role_name)->first();
+            
+            if (!$role_row) {
+                return DB::table('dx_roles')->insertGetId(['title' => $role_name]);
+            }
+            
+            return $role_row->id;
+        }
     }
 
 }

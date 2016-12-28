@@ -40,15 +40,6 @@ Route::group(array('middleware' => 'auth'), function(){
     Route::controller('filemanager', 'FilemanagerLaravelController');
 });
 
-// Attēli
-/*
-  Route::get('/img/{file}',array('as'=>'img', 'uses' => 'ImageController@getOriginalFile'));
-  Route::get('/img/avatar/{size_folder}/{file}',array('as'=>'img', 'uses' => 'ImageController@getAvatarFile'));
-  Route::get('/formated_img/{size}/{file}', array('as'=>'img', 'uses' => 'ImageController@getImage'));
-  Route::get('/formated_img_galery/{size}/{file}', array('as'=>'img', 'uses' => 'ImageController@getImageGalery'));
-  Route::get('/text_img/{file}/{text}', array('as'=>'img', 'uses' => 'ImageController@getImageText'));
- */
-
 // Speciālie PHP skripti, kas pievienoti SVS
 Route::post('/custom_php/{url}', array('as' => 'custom_php',  'middleware' => 'auth_ajax', 'uses'=>'CustomPHPController@executePHP'));
 Route::get('/custom_php/{url}', array('as' => 'custom_php',  'middleware' => 'auth', 'uses'=>'CustomPHPController@executePHP'));
@@ -61,14 +52,6 @@ Route::get('/structure/changes_sql', array('as' => 'structure_sql',  'middleware
 Route::get('/structure/doc_ppa', array('as' => 'structure_ppa',  'middleware' => 'auth', 'uses'=>'StructureController@generatePPA'));
 Route::get('/structure/doc_ppa_html', array('as' => 'structure_ppa_html',  'middleware' => 'auth', 'uses'=>'StructureController@generatePPAHtml'));
 
-// Raksti atbilstoši iezīmēm
-/*
-  Route::get('/raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showTagArticles'));
-  Route::post('/raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showTagArticles'));
-  Route::get('/datu_avota_raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showSourceArticles'));
-  Route::post('/datu_avota_raksti_{id}', array('as' => 'tag_articles', 'middleware' => 'auth', 'uses'=>'ArticlesController@showSourceArticles'));
- */
-
 // Meklēšana (darbinieku, dokumentu, rakstu)
 Route::get('/search', array('as' => 'search', 'middleware' => 'auth', 'uses'=>'SearchController@search'));
 Route::post('/search', array('as' => 'search', 'middleware' => 'auth', 'uses'=>'SearchController@search'));
@@ -76,12 +59,6 @@ Route::post('/ajax/departments', array('as' => 'get_departments', 'middleware' =
 Route::post('/ajax/employees', array('as' => 'get_employees', 'middleware' => 'auth_ajax', 'uses'=>'EmployeeController@searchAjaxEmployee'));
 
 Route::get('/emp_docs_test', array('as' => 'search', 'middleware' => 'auth', 'uses' => 'Employee\EmployeePersonalDocController@testView'));
-
-// Bloku AJAX pieprasījumi
-//Route::post('/block_ajax', array('as' => 'block_ajax',  'middleware' => 'auth_ajax', 'uses'=>'BlockAjaxController@getData'));
-
-// Kalendāra ieraksti
-//Route::post('/event', array('as' => 'event',  'middleware' => 'auth_ajax', 'uses'=>'CalendarController@getEvent'));
 
 // Grids
 Route::post('/grid', array('as' => 'grid',  'middleware' => 'auth_ajax', 'uses'=>'GridController@getGrid'));
@@ -99,6 +76,8 @@ Route::post('/save_form', array('as' => 'save_form',  'middleware' => 'auth_ajax
 Route::post('/delete_item', array('as' => 'delete_item',  'middleware' => 'auth_ajax', 'uses'=>'FormController@deleteItem'));
 Route::post('/generate_word', array('as' => 'generate_word',  'middleware' => 'auth_ajax', 'uses'=>'WordController@generateWord'));
 route::post('/register_document', array('as' => 'register_item',  'middleware' => 'auth_ajax', 'uses'=>'RegisterController@registerDocument'));
+Route::post('/get_tasks_history', array('as' => 'get_tasks_history',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@getTasksHistory'));
+Route::post('/cancel_workflow', array('as' => 'cancel_workflow',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@cancelWorkflow'));
 
 // Startē procesu forsēti
 Route::get('/force_process/{id}', array('as' => 'force_process',  'middleware' => 'auth', 'uses'=>'ProcessController@forceProcess'));
@@ -110,6 +89,7 @@ Route::get('/rest_test/{readviewentries}/{outputformat}/{Start}/{Count}', array(
 Route::get('/download_file_{item_id}_{list_id}_{file_field_id}', array('as' => 'download_file',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getFile'));
 Route::get('/download_filejs_{item_id}_{list_id}_{file_field_id}', array('as' => 'download_file',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getFile_js'));
 Route::get('/download_by_field_{item_id}_{list_id}_{field_name}', array('as' => 'download_file_field',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getFileByField'));
+Route::get('/download_first_file_{item_id}_{list_id}', array('as' => 'download_first_file',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getFirstFile'));
 
 // Darbplūsmas
 Route::post('/form_task', array('as' => 'task_form',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@getTaskForm'));
@@ -131,15 +111,39 @@ Route::post('/relogin', 'UserController@reLoginUser');
 
 // Route group for employee profile
 Route::group(['middleware' => 'auth', 'prefix' => 'employee'], function() {
+    Route::get('test', 'EmplProfileController@create');
+    
     Route::group(['prefix' => 'personal_docs', 'namespace' => 'Employee'], function () {
         Route::get('/get/employee_docs/{user_id}', 'EmployeePersonalDocController@getEmployeeDocs');
         Route::get('/get/docs_by_country/{country_id}', 'EmployeePersonalDocController@getPersonalDocsByCountry');
         Route::post('/save', 'EmployeePersonalDocController@save');
     });
+    
+    Route::group(['prefix' => 'notes', 'namespace' => 'Employee'], function () {
+        Route::get('/get/view/{user_id}', 'NoteController@getView');
+        Route::post('/save', 'NoteController@save');
+        Route::delete('/delete', 'NoteController@delete');
+    });
+    
+    Route::group(['prefix' => 'timeoff', 'namespace' => 'Employee'], function () {
+        Route::get('/get/view/{user_id}', 'TimeoffController@getView');
+        Route::get('/get/filter/year/{user_id}', 'TimeoffController@getYearFilterView');
+        Route::get('/get/calculate/{user_id}/{timeoff_id}', 'TimeoffController@calculateTimeoff');
+        Route::get('/get/table/{user_id}/{timeoff_type_id}/{date_from}/{date_to}', 'TimeoffController@getTable');
+        Route::get('/get/chart/{user_id}/{timeoff_type_id}/{date_from}/{date_to}', 'TimeoffController@getChartData');
+        Route::get('/get/delete_calculated/{user_id}/{timeoff_id}', 'TimeoffController@deleteTimeoff');
+    });
 
     Route::get('profile/{id?}', 'EmplProfileController@show')->name('profile');
     Route::get('profile/{id}/chunks', ['as' => 'profile_chunks', 'middleware' => 'auth_ajax', 'uses' => 'EmplProfileController@ajaxShowChunks']);
+	Route::get('profile/{id}/tabs', ['as' => 'profile_tabs', 'middleware' => 'auth_ajax', 'uses' => 'EmplProfileController@ajaxShowTab']);
     Route::get('new', 'EmplProfileController@create');
+});
+
+Route::group(['middleware' => 'auth', 'prefix' => 'widget'], function() {        
+    Route::group(['prefix' => 'report'], function () {
+        Route::get('/get/chart/{report_name}/{group_id}/{date_from}/{date_to}', 'ReportController@getChartData');
+    });
 });
 
 Route::group(['middleware' => 'auth_ajax', 'prefix' => 'freeform'], function() {
@@ -152,6 +156,11 @@ Route::group(['middleware' => 'auth_ajax', 'prefix' => 'inlineform'], function()
 	Route::post('{id}/edit', 'InlineFormController@edit');
 	Route::put('{id}', 'InlineFormController@update');
 	Route::delete('{id}', 'InlineFormController@destroy');
+});
+
+Route::group(['middleware' => 'auth', 'prefix' => 'organization'], function() {
+	Route::get('chart/{id?}', ['as' => 'organization_chart', 'uses' => 'OrgChartController@show']);
+	Route::get('departments', ['as' => 'organization_departments', 'uses' => 'DepartmentsChartController@show']);
 });
 
 // Lapas

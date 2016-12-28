@@ -27,7 +27,7 @@ if ($user->doc_country_id) {
      data-emp-docs-fld-id='{{ $emp_docs_fld_id }}'>
     <div class='row dx-emp-pers-docs-country-row'>
         <div class='col-lg-4 col-md-12'>
-            <div>{{ trans('employee.personal_docs.country') }}</div>
+            <div>{{ trans('empl_profile.personal_docs.country') }}</div>
             <select class='form-control dx-not-focus' id="dx-emp-pers-docs-country">
                 @foreach (App\Models\Country::all() as $country)            
                 <option value="{{$country->id}}" {{ $selected_country_id == $country->id ? 'selected' : '' }}>{{ $country->title }}</option>
@@ -40,19 +40,19 @@ if ($user->doc_country_id) {
     </div>
     <div class="row visible-lg" style="margin-top: 10px;">
         <div class="col-lg-2 dx-emp-pers-docs-table-col">   
-            {{ trans('employee.personal_docs.personal_doc_type') }}
+            {{ trans('empl_profile.personal_docs.personal_doc_type') }}
         </div>
         <div class="col-lg-2 dx-emp-pers-docs-table-col">   
-            {{ trans('employee.personal_docs.doc_nr') }}
+            {{ trans('empl_profile.personal_docs.doc_nr') }}
         </div>
         <div class="col-lg-2 dx-emp-pers-docs-table-col">   
-            {{ trans('employee.personal_docs.valid_to') }}
+            {{ trans('empl_profile.personal_docs.valid_to') }}
         </div>
         <div class="col-lg-2 dx-emp-pers-docs-table-col">   
-            {{ trans('employee.personal_docs.publisher') }}
+            {{ trans('empl_profile.personal_docs.publisher') }}
         </div>
         <div class="col-lg-3 dx-emp-pers-docs-table-col">   
-            {{ trans('employee.personal_docs.file') }}
+            {{ trans('empl_profile.personal_docs.file') }}
         </div>
     </div>
     <div id="dx-emp-pers-docs-table"></div>
@@ -62,15 +62,15 @@ if ($user->doc_country_id) {
             <input class="dx-emp-pers-docs-id-input" type="hidden" />
             <input class="dx-emp-pers-docs-type-input" type="hidden" />    
             <div class="col-lg-2 dx-emp-pers-docs-table-col">
-                <div class='hidden-lg dx-emp-pers-docs-label-mobile'>{{ trans('employee.personal_docs.personal_doc_type') }}</div>
+                <div class='hidden-lg dx-emp-pers-docs-label-mobile'>{{ trans('empl_profile.personal_docs.personal_doc_type') }}</div>
                 <label class="dx-emp-pers-docs-type-label"></label>
             </div>
             <div class="col-lg-2 dx-emp-pers-docs-table-col"> 
-                <div class="hidden-lg dx-emp-pers-docs-label-mobile">{{ trans('employee.personal_docs.doc_nr') }}</div>
+                <div class="hidden-lg dx-emp-pers-docs-label-mobile">{{ trans('empl_profile.personal_docs.doc_nr') }}</div>
                 <input class="form-control dx-emp-pers-docs-docnr-input" type="text" maxlength="500" />  
             </div>
             <div class="col-lg-2 dx-emp-pers-docs-table-col">           
-                <div class="hidden-lg dx-emp-pers-docs-label-mobile">{{ trans('employee.personal_docs.valid_to') }}</div>
+                <div class="hidden-lg dx-emp-pers-docs-label-mobile">{{ trans('empl_profile.personal_docs.valid_to') }}</div>
                 <div class='input-group'>
                     <span class='input-group-btn'>
                         <button type='button' class='btn btn-white dx-emp-pers-docs-validto-input-calc'><i class='fa fa-calendar'></i></button>
@@ -79,12 +79,12 @@ if ($user->doc_country_id) {
                 </div>
             </div>
             <div class="col-lg-2 dx-emp-pers-docs-table-col">  
-                <div class="hidden-lg dx-emp-pers-docs-label-mobile">{{ trans('employee.personal_docs.publisher') }}</div>
+                <div class="hidden-lg dx-emp-pers-docs-label-mobile">{{ trans('empl_profile.personal_docs.publisher') }}</div>
                 <input class="form-control dx-emp-pers-docs-publisher-input" type="text" maxlength="500" />   
             </div>
             <div class="col-lg-4 dx-emp-pers-docs-table-col">
                 <div class="col-lg-11 dx-emp-pers-docs-table-col1">
-                    <div class="hidden-lg dx-emp-pers-docs-label-mobile">{{ trans('employee.personal_docs.file') }}</div>
+                    <div class="hidden-lg dx-emp-pers-docs-label-mobile">{{ trans('empl_profile.personal_docs.file') }}</div>
                     <div class="dx-emp-pers-docs-file-input">
                         <div class='fileinput fileinput-new input-group' data-provides='fileinput' style="width: 100%;" dx_file_field_id="{{ $emp_docs_fld_id }}">
                             <div class='form-control'>
@@ -104,7 +104,7 @@ if ($user->doc_country_id) {
                     </div>
                 </div>
                 <div class="col-lg-1 dx-emp-pers-docs-table-col2">
-                    <button class="btn btn-white dx-emp-pers-docs-clear-btn" data-tooltip-title="{{ trans('employee.personal_docs.clear_doc') }}">
+                    <button class="btn btn-white dx-emp-pers-docs-clear-btn" data-tooltip-title="{{ trans('empl_profile.personal_docs.clear_doc') }}">
                         <i class='fa fa-trash-o'></i>
                     </button>
                 </div>

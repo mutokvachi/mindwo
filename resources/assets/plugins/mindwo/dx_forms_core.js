@@ -71,6 +71,7 @@ function view_list_item(ajax_url, item_id, list_id, rel_field_id, rel_field_valu
             return;
 	}
         
+        show_form_splash();
 	start_executing(grid_htm_id);
         
         var formData = new FormData();
@@ -88,11 +89,10 @@ function view_list_item(ajax_url, item_id, list_id, rel_field_id, rel_field_valu
         }
         
         request.callback = function(data) {
-            show_form_splash();
-
+            
             if (data['success'] == 1)
             {                  
-                if (data['is_fullscreen']) {
+                if (data['is_fullscreen'] != "0") {
                     $("#td_data").hide();
                     $("#td_form_data").html(data['html']);
                     HFormUI.init(grid_htm_id);
@@ -341,8 +341,10 @@ function reload_edited_form(ajax_url, item_id, list_id, rel_field_id, rel_field_
         form_body.css('overflow-y', 'auto');    
         
         var scroll_height = form_body.find(".dx-form-row")[0].scrollHeight;
+        var heading_height = $("#list_item_view_form_" + old_form_htm_id).find(".modal-header").outerHeight();
+        var footer_height = $("#list_item_view_form_" + old_form_htm_id).find(".modal-header").outerHeight();
         
-        if (scroll_height > (height_content - tool_height - 21) && scroll_height < (height - tool_height - 51)) {
+        if (scroll_height > (height_content - tool_height - 21) && scroll_height < (height - tool_height - heading_height - footer_height)) {
             form_body.height(scroll_height);
         }
         else {

@@ -265,6 +265,10 @@ namespace App\Libraries\FieldsSave
             if (!$header_row) {
                 throw new Exceptions\DXCustomException(sprintf(trans('errors.unsuported_file_extension'), $extention, $file_name));
             }
+            
+            if ($this->fld->is_image_file && !$header_row->is_img) {
+                throw new Exceptions\DXCustomException(sprintf(trans('errors.unsuported_image_file'), $extention, $file_name));
+            }
         }
 
     }

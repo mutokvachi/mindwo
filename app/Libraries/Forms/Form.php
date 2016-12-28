@@ -30,7 +30,13 @@ class Form
 	protected $tabsData = [];
 	protected $allTabs = [];
 	protected $visibleTabs = [];
-	
+        
+        /**
+         * Array for sub-grids tabs
+         * @var array
+         */
+	protected $subgridTabs = [];
+        
 	public function __construct($listId, $itemId = null)
 	{
 		$this->listId = $listId;
@@ -52,6 +58,27 @@ class Form
 	{
 		return new self($listId, $itemId);
 	}
+        
+        /**
+         * Returns tab buttons HTML for sub-grid tabs
+         * 
+         * @param string $set_name Tabs set name - for example, it can be sub-menu items set
+         * @param array $arr_titles Array with tab titles by which tabs will be selected from db: dx_forms_tabs.title
+         * @param boolean $is_submenu If 1 then is submenu items (will be used tabdrop logic with popup sub-menu)
+         * @return string HTML for sub-grid tab buttons
+         */
+        public function renderSubgridTabButtons($set_name, $arr_titles, $is_submenu) {
+                $result = view('forms.tab_buttons', [
+			'itemId' => $this->itemId,
+			'formId' => $this->params->form_id,
+			'formUid' => $this->formUid,
+			'tabId' => $this->tabUid,
+			'tabs' => $this->getSubgridTabs($set_name, $arr_titles),
+                        'is_tabdrop' => $is_submenu,
+		])->render();
+		
+		return $result;
+        }
 	
 	public function renderTabButtons()
 	{
@@ -61,6 +88,29 @@ class Form
 			'formUid' => $this->formUid,
 			'tabId' => $this->tabUid,
 			'tabs' => $this->getVisibleTabs(),
+                        'is_tabdrop' => 0,
+		])->render();
+		
+		return $result;
+	}
+        
+        /**
+         * Returns tab content HTML for sub-grid tabs
+         * 
+         * @param string $set_name Tabs set name - for example, it can be sub-menu items set
+         * @param array $arr_titles Array with tab titles by which tabs will be selected from db: dx_forms_tabs.title
+         * @param boolean $is_submenu If 1 then is submenu items (will be used tabdrop logic with popup sub-menu)
+         * @return string HTML for sub-grid tab content
+         */
+        public function renderSubgridTabContents($set_name, $arr_titles, $is_submenu)
+	{
+		$result = view('forms.tab_contents', [
+			'itemId' => $this->itemId,
+			'formId' => $this->params->form_id,
+			'formUid' => $this->formUid,
+			'tabId' => $this->tabUid,
+			'tabs' => $this->getSubgridTabs($set_name, $arr_titles),
+                        'is_tabdrop' => $is_submenu,
 		])->render();
 		
 		return $result;
@@ -74,6 +124,7 @@ class Form
 			'formUid' => $this->formUid,
 			'tabId' => $this->tabUid,
 			'tabs' => $this->getVisibleTabs(),
+                        'is_tabdrop' => 0,
 		])->render();
 		
 		return $result;
@@ -104,6 +155,36 @@ class Form
 	{
 		
 	}
+        
+        /**
+         * Returns array with tabs by provided tabs titles
+         * 
+         * @param string $set_name Tabs set name - for example, it can be sub-menu items set
+         * @param array $arr_titles Array with tab titles by which tabs will be selected from db: dx_forms_tabs.title
+         * @return array Array with matching tabs
+         */
+        protected function getSubgridTabs($set_name, $arr_titles)
+	{
+		$tab_store = ($set_name) ? $set_name : "_default";
+                
+                if (isset($this->subgridTabs[$tab_store])) {
+                    return $this->subgridTabs[$tab_store];
+                }
+                
+                $this->subgridTabs[$tab_store] = [];
+                		
+		foreach($this->allTabs as $tab)
+		{
+			// Skip tabs that are not listed
+			if(!empty($arr_titles) && !in_array($tab->title, $arr_titles))
+				continue;
+			
+			$tab->data_htm = '';			
+			$this->subgridTabs[$tab_store][$tab->id] = $tab;
+		}
+                
+                return $this->subgridTabs[$tab_store];
+        }
 	
 	/**
 	 * Get visible tabs and populate them with form fields html.

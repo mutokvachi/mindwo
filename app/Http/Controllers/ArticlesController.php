@@ -54,7 +54,7 @@ class ArticlesController extends Controller
 
         $mode = 'tags';
         $criteria = $item->name;
-        $page_title = "Iezīmei atbilstošās ziņas";
+        $page_title = trans('article.browser_title_tags');
 
         $date_from = '';
         $date_to = '';

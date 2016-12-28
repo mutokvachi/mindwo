@@ -32,16 +32,4 @@ return [
     'lbl_search_placeholder' => 'Criteria',
     'lbl_count' => 'Record count:',
     'lbl_nothing_found' => 'No record found by provided search criteria.',
-    
-    'personal_docs' => [
-        'new_doc' => 'New document',
-        'clear_doc' => 'Clear document data',
-        'save_docs' => 'Save documents',
-        'country' => 'Country',
-        'personal_doc_type' => 'Document type',
-        'doc_nr' => 'Document number',
-        'valid_to' => 'Valid to',
-        'publisher' => 'Publisher',
-        'file' => 'File',
-    ],    
 ];

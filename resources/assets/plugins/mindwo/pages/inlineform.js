@@ -40,7 +40,7 @@
 		var self = this;
 		this.options = opts;
 		this.root = $(root);
-		this.tabs = $('.tab-pane', this.root);
+		this.tabs = $('.tab-pane', this.root).not(".dx-grid-tab-pane");
 		
 		// detached fields, that are custom placed outside of main form (e.g. avatar in employee profile)
 		this.fields = $('[data-name]', this.root);
@@ -188,7 +188,7 @@
 					
 					self.editButton.hide();
 					
-					var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane');
+					var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane').not(".dx-grid-tab-pane");
 					
 					// replace original html content of marked elements with input fields
 					for(var i = 0; i < tabs.length; i++)
@@ -208,7 +208,7 @@
 					{
 						window.DxEmpPersDocs.toggleDisable(false);
 					}
-					
+                                        
 					hide_page_splash(1);
 					
 					$('.dx-stick-footer').show();
@@ -268,16 +268,14 @@
 							
 							// Custom tab
 							window.DxEmpPersDocs.onClickSaveDocs(function()
-							{
-								window.DxEmpPersDocs.toggleDisable(true);
-								
+							{								
 								hide_page_splash(1);
 								$('.dx-stick-footer').hide();
 								window.location = data.redirect;
 							});
 						}
 						else
-						{
+						{                                                    
 							hide_page_splash(1);
 							$('.dx-stick-footer').hide();
 							window.location = data.redirect;
@@ -295,7 +293,7 @@
 							
 							self.editButton.show();
 							
-							var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane');
+							var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane').not(".dx-grid-tab-pane");
 							
 							// replace original html content of marked elements with input fields
 							for(var i = 0; i < tabs.length; i++)
@@ -320,7 +318,7 @@
 					{
 						self.editButton.show();
 						
-						var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane');
+						var tabs = $($.parseHTML('<div>' + data.tabs + '</div>')).find('.tab-pane').not(".dx-grid-tab-pane");
 						
 						// replace original html content of marked elements with input fields
 						for(var i = 0; i < tabs.length; i++)

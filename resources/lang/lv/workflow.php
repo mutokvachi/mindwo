@@ -79,6 +79,8 @@ return [
     
     'wf_init_approvers_title' => 'Saskaņotāju iestatīšana',
     
-    'wf_init_aproovers_hint' => 'Ja nepieciešams, pirms darbplūsmas uzsākšanas variet koriģēt saskaņotāju secību, noņemt saskaņotāju vai pievienot vēl citus saskaņotājus.'
+    'wf_init_aproovers_hint' => 'Ja nepieciešams, pirms darbplūsmas uzsākšanas variet koriģēt saskaņotāju secību, noņemt saskaņotāju vai pievienot vēl citus saskaņotājus.',
+    
+    'err_no_direct_manager' => "Nav iespējams izveidot uzdevumu, jo darbiniekam '%s' nav norādīts tiešais vadītājs!",
     
 ];

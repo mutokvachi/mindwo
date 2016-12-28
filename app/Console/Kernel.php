@@ -4,36 +4,36 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Config;
 
 /**
- * Klase apstrādā komandu izpildes grafiku
+ * Handles JOBs scheduling and Artisan commands
  */
 class Kernel extends ConsoleKernel
 {
     /**
-     * @var array Artisan komandu saraksts
+     * @var array Custom artisan commands
      */
     protected $commands = [
         \App\Console\Commands\ProcessWorkerCommand::class,
         \App\Console\Commands\CheckQueueListener::class,
         \App\Console\Commands\FixImageSizes::class,
+        \App\Console\Commands\CalculateTimeoff::class,
+        \App\Console\Commands\AuditViewCounts::class,
     ];
 
     /**
-     * Definē komandu izpildes grafiku
+     * Schedule for JOBs
      *
      * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
      */
-    protected function schedule(Schedule $schedule)
-    {
-        // Sagatavo procesus, kurus nepieciešams izpildīt un pievieno izpildāmo Laravel darbu rindai
-        $schedule->command('process_worker_command')
-                ->everyMinute();
-                
+    protected function schedule(Schedule $schedule)    {                
 
-        // Izpilda Laravel darbus no rindas
-        $schedule->command('queue:listen')
-                ->everyMinute();
+        // Executes monitoring views at 8:00 AM on working days
+        $schedule->command('mindwo:audit_view')
+                ->weekdays()
+                ->daily(8)
+                ->timezone(Config::get('dx.time_zone'));
     }
 }

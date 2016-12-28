@@ -24,7 +24,14 @@ class EmplProfileController extends Controller
 		
 		$form = new App\Libraries\Forms\Form(Config::get('dx.employee_list_id'));
 		$form->disabled = false;
-		$form->tabList = ['General', 'Personal details', 'Work details', 'Workplace', 'Contact details', 'Addresses'];
+		$form->tabList = [
+			trans('empl_profile.tab_general'),
+			trans('empl_profile.tab_pdetails'),
+			trans('empl_profile.tab_wdetails'),
+			trans('empl_profile.tab_wplace'),
+			trans('empl_profile.tab_cdetails'),
+			trans('empl_profile.tab_addr')
+		];
 		$form->skipFields = ['picture_name'];
 		
 		return view('profile.employee', [
@@ -60,7 +67,14 @@ class EmplProfileController extends Controller
 		
 		$form = new App\Libraries\Forms\Form(Config::get('dx.employee_list_id'), $id);
 		$form->disabled = true;
-		$form->tabList = ['General', 'Personal details', 'Work details', 'Workplace', 'Contact details', 'Addresses'];
+		$form->tabList = [
+			trans('empl_profile.tab_general'),
+			trans('empl_profile.tab_pdetails'),
+			trans('empl_profile.tab_wdetails'),
+			trans('empl_profile.tab_wplace'),
+			trans('empl_profile.tab_cdetails'),
+			trans('empl_profile.tab_addr')
+		];
 		$form->skipFields = ['picture_name'];
 		
 		return view('profile.employee', [
@@ -70,10 +84,27 @@ class EmplProfileController extends Controller
 			'form' => $form,
 			'is_my_profile' => $id == Auth::user()->id,
 			'is_edit_rights' => $this->getEditRightsMode(),
-			'has_users_documents_access' => $this->validateUsersDocumentsAccess()
+			'has_users_documents_access' => $this->validateUsersDocumentsAccess(),
+			'has_users_notes_access' => $this->validateUsersNotesAccess($employee),
+			'has_users_timeoff_access' => $this->validateUsersTimeoffAccess($employee),
 		]);
 	}
 	
+	public function edit($id, Request $request)
+	{
+		$employee = App\User::find($id);
+	}
+	
+	public function update(Request $request, $id)
+	{
+	}
+	
+	/**
+	 * Get updated content of auxiliary blocks after profile save.
+	 *
+	 * @param $id
+	 * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+	 */
 	public function ajaxShowChunks($id)
 	{
 		$employee = App\User::find($id);
@@ -106,13 +137,44 @@ class EmplProfileController extends Controller
 		return response($result);
 	}
 	
-	public function edit($id, Request $request)
+	/**
+	 * Get content of a tab via AJAX request
+	 *
+	 * @param Request $request
+	 * @param $id
+	 * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+	 */
+	public function ajaxShowTab(Request $request, $id)
 	{
 		$employee = App\User::find($id);
+		$tabId = $request->input('tab_id');
+		
+		$result = [
+			'success' => 1,
+			'html' => ''
+		];
+		
+		$result['html'] = view('profile.' . $tabId, [
+			'mode' => 'show',
+			'employee' => $employee,
+			'is_my_profile' => $id == Auth::user()->id,
+			'is_edit_rights' => $this->getEditRightsMode()
+		])->render();
+		
+		return response($result);
 	}
 	
-	public function update(Request $request, $id)
+	/**
+	 * Check if user has access for users time off data
+	 * @return boolean Parameter if user has access
+	 */
+	private function validateUsersTimeoffAccess($user)
 	{
+		$user_timeoff_controller = new App\Http\Controllers\Employee\TimeoffController();
+		
+		$user_timeoff_controller->getAccess($user);
+		
+		return ($user_timeoff_controller->has_hr_access || $user_timeoff_controller->has_my_access);
 	}
 	
 	/**
@@ -123,6 +185,20 @@ class EmplProfileController extends Controller
 	{
 		$user_documents_controller = new App\Http\Controllers\Employee\EmployeePersonalDocController();
 		return $user_documents_controller->has_access;
+	}
+	
+	/**
+	 * Check if user has access for users notes
+	 * @param \App\User $user Employee's user model
+	 * @return boolean Parameter if user has access
+	 */
+	private function validateUsersNotesAccess($user)
+	{
+		$user_notes_controller = new App\Http\Controllers\Employee\NoteController();
+		
+		$user_notes_controller->getAccess($user);
+		
+		return ($user_notes_controller->has_hr_access || $user_notes_controller->has_manager_access);
 	}
 	
 	/**

@@ -76,7 +76,7 @@ class DocumentsController extends Controller
         
         return view('pages.documents', [
             'docs' => $docs,
-            'page_title' => "Meklēšanas rezultāti",
+            'page_title' => trans('search_top.search_page_title'),
             'criteria' => $this->criteria,
             'source_id' => $this->source_id,
             'kind_id' => $this->kind_id,

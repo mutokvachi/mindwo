@@ -12,7 +12,7 @@
 >
     @if ($is_disabled)
 
-            <input class='form-control dx-auto-input-txt' disabled value='{{ $txt_display }}' id="{{ $frm_uniq_id }}_{{ $item_field }}_auto_display" dx_fld_name = '{{ $item_field }}'/>
+            <input class='form-control dx-auto-input-txt' readonly value='{{ $txt_display }}' id="{{ $frm_uniq_id }}_{{ $item_field }}_auto_display" dx_fld_name = '{{ $item_field }}'/>
             <input class="dx-auto-input-id" type=hidden id='{{ $frm_uniq_id }}_{{ $item_field }}' value='{{ $item_value }}' name = '{{ $item_field }}' />
 
             @if ($item_value > 0)

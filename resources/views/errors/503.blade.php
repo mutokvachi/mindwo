@@ -39,7 +39,7 @@
     <body>
         <div class="container">
             <div class="content">
-                <div class="title">MEDUS sistēma pašlaik tiek atjaunināta.<br /><br />Atkārtojiet pieprasījumu pēc dažām minūtēm.</div>
+                <div class="title">The system is in maintenance mode.<br /><br />Please, repeat your request after some minutes.</div>
             </div>
         </div>
     </body>

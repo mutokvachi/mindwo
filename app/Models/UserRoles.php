@@ -10,11 +10,16 @@ class UserRoles extends Model
 	 * @var string Table with user roles
 	 */
 	protected $table = 'dx_users_roles';
-
+	
 	/**
-	 * @var bool Disable automatic timestamps assignment
+	 * Changes default column name for column updated_at
 	 */
-	public $timestamps = false;
+	const UPDATED_AT = 'modified_time';
+	
+	/**
+	 * Changes default column name for column created_at
+	 */
+	const CREATED_AT = 'created_time';
 	
 	/**
 	 * Relation to user model

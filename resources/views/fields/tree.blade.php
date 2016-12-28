@@ -8,7 +8,7 @@
         dx_tree_id = '{{ $frm_uniq_id }}_{{ $item_field }}_tree_field'
      @endif
      >
-    <input disabled type="text" class="form-control dx-tree-txt-visible" name = '{{ $item_field }}_tree_txt' value='{{ $item_full_path }}'>
+    <input readonly type="text" class="form-control dx-tree-txt-visible" name = '{{ $item_field }}_tree_txt' value='{{ $item_full_path }}'>
     @if (!$is_disabled)
         <input type=hidden class="dx-tree-txt-hidden" name = '{{ $item_field }}'  value = '{{ $item_value }}' />
         <span class="input-group-btn">

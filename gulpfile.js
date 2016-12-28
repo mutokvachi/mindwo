@@ -29,15 +29,15 @@ gulp.task('mix_all', function() {
 
         // Core styles for main page - plugins
         mix.styles([
-            'pace/themes/pace-theme-flash.css', 
-            //'simple-line-icons/simple-line-icons.css', // url fonts/
-            //'uniform/css/uniform.default.css', // url ../images/
+            'pace/themes/pace-theme-flash.css',
             'bootstrap-switch/css/bootstrap-switch.css', 
             'morris/morris.css', 
             'jqvmap/jqvmap/jqvmap.css',
-            //'icheck/skins/all.css', // @import ... seems must remove this css 
             'fullcalendar/fullcalendar.min.css', 
             'metronic/css/faq.min.css', 
+            'metronic/css/components-md.css',
+            'metronic/css/components.css',
+            'metronic/css/profile-2.css',
             'bootstrap-modal/css/bootstrap-modal.css',
             'toastr/toastr.min.css',
             'tooltipster-master/css/tooltipster.css', 
@@ -64,7 +64,10 @@ gulp.task('mix_all', function() {
             'codemirror/css/ambiance.css', 
             'jasny-bootstrap/css/jasny-bootstrap.min.css', 
             'jquery-nestable/jquery.nestable.css', 
-            'mindwo/css/view.css' 
+            'mindwo/css/view.css',
+            'datatables/plugins/bootstrap/datatables.bootstrap.css',
+            'datatables/datatables.min.css',
+            'bootstrap-daterangepicker/daterangepicker.min.css'
         ], 'public/css/elix_view.css', 'resources/assets/plugins');
         
         // horizontal menu UI styles                
@@ -110,7 +113,7 @@ gulp.task('mix_all', function() {
             'metronic/jquery.blockui.min.js',
             'bootstrap-switch/js/bootstrap-switch.js',
             'gritter/jquery.gritter.min.js',
-            'toastr/toastr.js',
+            'toastr/toastr.min.js',
             'bootstrap-modal/js/bootstrap-modalmanager.js',
             'bootstrap-modal/js/bootstrap-modal.js',
             'jquery.cookie.js',
@@ -138,6 +141,7 @@ gulp.task('mix_all', function() {
 
         // Scripts for grids/forms functionality
         mix.scripts([
+            'moment.min.js',
             'bootstrap-daterangepicker/daterangepicker.js',
             'bootstrap-colorpicker/js/bootstrap-colorpicker.js',
             'dropzone/dropzone.min.js',
@@ -148,7 +152,7 @@ gulp.task('mix_all', function() {
             'codemirror/js/mode/javascript/javascript.js',        
             'datetimepicker/jquery.datetimepicker.js',
             'select2/select2.min.js',
-            //'select2/select2_locale_lv.js', ToDo: implement universal approach to set lang
+            'select2/select2_locale_multi.js',
             'jquery-nestable/jquery.nestable.js',
             'mindwo/pages/date_range.js',
             'mindwo/dx_forms_core.js',
@@ -161,8 +165,32 @@ gulp.task('mix_all', function() {
             'mindwo/fields/rel_id.js',
             'mindwo/fields/autocompleate.js',
             'mindwo/fields/datetime.js',
-            'mindwo/fields/bool.js'
+            'mindwo/fields/bool.js',
+            'datatables/datatables.all.min.js',
+            'datatables/plugins/bootstrap/datatables.bootstrap.js'
         ], 'public/js/elix_view.js', 'resources/assets/plugins');
+        
+        mix.less([
+            'blocks/report.less'
+        ], 'public/css/elix_block_report_main.css');
+        
+        mix.styles([
+            'bootstrap-daterangepicker/daterangepicker.min.css'
+        ], 'public/css/elix_block_report_plugins.css', 'resources/assets/plugins');
+        
+        mix.styles([
+            'elix_block_report_main.css', 
+            'elix_block_report_plugins.css'
+        ], 'public/css/elix_block_report.css', 'public/css');
+        
+        mix.scripts([
+            'moment.min.js',
+            'bootstrap-daterangepicker/daterangepicker.js',
+            'mindwo/blocks/report.js',
+            'flot/jquery.flot.min.js',
+            'flot/jquery.flot.resize.min.js',
+            'flot/jquery.flot.axislabels.js'
+        ], 'public/js/elix_block_report.js', 'resources/assets/plugins');
 
         // Scripts for employees search page functionality
         mix.scripts([
@@ -171,17 +199,27 @@ gulp.task('mix_all', function() {
             'mindwo/pages/employees.js'
         ], 'public/js/elix_employees.js', 'resources/assets/plugins');
         
+        
         // Scripts for employee profile
         mix.scripts([
            'mindwo/pages/freeform.js',
            'mindwo/pages/inlineform.js',
            'mindwo/pages/empl_links_fix.js',
-           'mindwo/pages/employee/personal_docs.js'
+           'mindwo/pages/employee/personal_docs.js',
+           'mindwo/pages/employee/notes.js',
+           'mindwo/pages/employee/timeoff.js',
+           'counterup/jquery.counterup.min.js',
+           'counterup/jquery.waypoints.min.js',
+           'flot/jquery.flot.min.js',
+           'flot/jquery.flot.resize.min.js',
+           'flot/jquery.flot.axislabels.js'
         ], 'public/js/elix_profile.js', 'resources/assets/plugins');
         
         // LESS Styles for employee profile                
         mix.less([
-            'pages/employee/personal_docs.less'
+            'pages/employee/personal_docs.less',
+            'pages/employee/notes.less',
+            'pages/employee/timeoff.less'
         ], 'public/css/elix_employee_profile.css');
         
         // Scripts for articles search page functionality
@@ -195,12 +233,45 @@ gulp.task('mix_all', function() {
             'mindwo/pages/articles.js'
         ], 'public/js/elix_articles.js', 'resources/assets/plugins');
         
-        // Minify all scripts
+        // Scripts for organization chart
+        mix.scripts([
+            'html2canvas/html2canvas.js',
+            'orgchart/OrgChart.js',
+			'select2/select2.min.js',
+			'select2/select2_locale_multi.js',
+            'mindwo/pages/organization_chart.js'
+        ], 'public/js/elix_orgchart.js', 'resources/assets/plugins');
+	
+		// Styles for organization chart
+        mix.styles([
+            'orgchart/orgchart.css',
+			'select2/select2.css',
+            'select2/select2-bootstrap.css',
+            'mindwo/css/organization_chart.css'
+		], 'public/css/elix_orgchart.css', 'resources/assets/plugins');
+	
+		// Scripts for departments chart
+		mix.scripts([
+			'html2canvas/html2canvas.js',
+			'orgchart/OrgChart.js',
+			'mindwo/pages/organization_departments.js'
+		], 'public/js/elix_orgdepartments.js', 'resources/assets/plugins');
+	
+		// Styles for departments chart
+		mix.styles([
+			'orgchart/orgchart.css',
+			'select2/select2.css',
+			'select2/select2-bootstrap.css',
+			'mindwo/css/organization_chart.css',
+			'mindwo/css/organization_departments.css'
+		], 'public/css/elix_orgdepartments.css', 'resources/assets/plugins');
+	
+		// Minify all scripts
         mix.version([
             'js/elix_userlinks.js', 
             'js/elix_plugins.js', 
             'js/elix_view.js', 
-            'js/elix_employees.js', 
+            'js/elix_employees.js',             
             'js/elix_profile.js',
             'css/elix_plugins.css', 
             'css/elix_mindwo.css', 
@@ -211,7 +282,13 @@ gulp.task('mix_all', function() {
             'css/elix_metronic.css',
             'js/elix_articles.js',
             'css/elix_articles.css',
-            'css/elix_employee_profile.css'
+            'css/elix_employee_profile.css',
+            'js/elix_orgchart.js',
+            'css/elix_orgchart.css',
+			'js/elix_orgdepartments.js',
+			'css/elix_orgdepartments.css',
+	'js/elix_block_report.js', 
+            'css/elix_block_report.css'
         ]);
     });
 });

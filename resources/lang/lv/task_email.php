@@ -8,7 +8,7 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'subject' => 'Jauns uzdevums sistēmā MEDUS',
+    'subject' => 'Jauns uzdevums sistēmā %s',
     'heading' => 'Jauns uzdevums',
     'intro' => '%s sistēmā Jums ir izveidots jauns uzdevums',
   
@@ -28,4 +28,6 @@ return [
     
     // 1st %s - system name, 2nd %s - date/time when email was sent
     'info_sys' => 'E-pasts izsūtīts no %s sistēmas %s.',
+    
+    'assigner_wf' => 'Darbplūsma',
 ];

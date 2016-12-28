@@ -35,4 +35,11 @@ return [
     
     // File
     'file_browser_title' => 'Files browser',
+    
+    // Multi file upload
+    'btn_remove' => 'Remove',
+    'title_drag_drop' => 'Drag & Drop files here',
+    'title_mouse_click' => 'Or click to open file browser.',
+    'rule_part1' => 'Maximum upload file count is ',
+    'rule_part2' => ' files.',
 ];

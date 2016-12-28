@@ -1,5 +1,5 @@
 @if ($is_disabled)
-    <input disabled class='form-control' type=text dx_fld_name = '{{ $item_field }}'   value = '{{ ($item_value) ? ($is_time != 'false') ? long_date($item_value) : short_date($item_value) : ""}}'/>
+    <input readonly class='form-control' type=text dx_fld_name = '{{ $item_field }}'   value = '{{ ($item_value) ? ($is_time != 'false') ? long_date($item_value) : short_date($item_value) : ""}}'/>
 @else
     <div class='input-group dx-datetime' data-format="{{ $tm_format }}" data-locale = "{{ Lang::locale() }}" data-is-time = "{{ $is_time }}">
         <span class='input-group-btn'>

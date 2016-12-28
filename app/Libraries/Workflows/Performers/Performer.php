@@ -66,7 +66,14 @@ namespace App\Libraries\Workflows\Performers
             $arr_empl = [];
             
             foreach($this->employees as $employee) {
-                $subst_data = \App\Libraries\Workflows\Helper::getSubstitEmpl($employee["empl_id"], "");
+                
+                if ($this->step_row->task_type_id != \App\Http\Controllers\TasksController::TASK_TYPE_INFO) {
+                    // we process substitute logic for non-informative tasks only
+                    $subst_data = \App\Libraries\Workflows\Helper::getSubstitEmpl($employee["empl_id"], "");
+                }
+                else {
+                    $subst_data = \App\Libraries\Workflows\Helper::validateEmployee($employee["empl_id"], "");
+                }
                 
                 $employee["empl_id"] = $subst_data["employee_id"];
                 $employee["subst_data"] = $subst_data;

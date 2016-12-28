@@ -33,6 +33,7 @@ return [
     
     // 1. %s - file extension, 2. %s - file name
     'unsuported_file_extension' => 'Neatbalstīts datnes paplašinājums "%s"! Nav iespējams saglabāt datni "%s".',
+    'unsuported_image_file' => 'Neatbalstīts attēla datnes paplašinājums "%s"! Nav iespējams saglabāt datni "%s".',
     
     // %s - minimum password characters count
     'min_password' => 'Nevar saglabāt datus! Paroles laukā ir obligāti jānorāda parole ar vismaz %s simboliem!',
@@ -46,6 +47,7 @@ return [
     'no_rights_on_register' => 'Jums nav nepieciešamo tiesību šajā reģistrā!',
     'no_rights_to_insert' => 'Jums nav jauna ieraksta veidošanas tiesības šajā reģistrā!', 
     'no_rights_to_edit' => "Jums nav ieraksta labošanas tiesības šajā reģistrā!", 
+    'no_rights_to_delete' => 'Jums nav dzēšanas tiesību šajā reģistrā!',
     
     'cant_create_folder' => "Nav iespējams izveidot katalogu '%s' uz servera diska!",
     'import_wrong_bool' => "Importējamajā Excel datnē Jā/Nē laukā '%s' norādīta nekorekta vērtība '%s'! Laukā pieļaujams norādīt tikai vērtības '%s' vai '%s'.",
@@ -79,5 +81,25 @@ return [
     'access_denied_title' => 'Piekļuve liegta',
     
     'access_denied_msg' => 'Jums nav piepieciešamo tiesību, lai piekļūtu skata <b>%s</b> datiem!',    
-   
+    
+    'invalid_input_data' => 'Nepareizi ievadīti dati!',
+        
+    //timeoff
+    'no_accrual_policy' => 'Darbiniekam nav iestatīta atbilstoša kompensējamā laika uzkrāšanas politika',
+    'unsupported_factory_class' => "Neatbalstīts klases objekts '%s'!",
+    'no_joined_date' => 'Darbiniekam nav uzstādīts darba attiecību sākšanas datums!',
+    
+    //tasks widget
+    'unsupported_task_view' => "Neatbalstīts uzdevmu skata kods '%s'!",
+    
+    //file download
+    'file_not_found' => "Datne '%s' nav atrodama! Lūdzu, sazinieties ar sistēmas uzturētāju!",
+    'file_not_set' => 'Ierakstam nav pievienota neviena datne!',
+    'no_donwload_rights' => "Jums nav tiesību uz datni ierakstam ar ID %s!",
+    'file_record_not_found' => "Datne ar ieraksta ID %s nav atrodama! Lūdzu, sazinieties ar sistēmas uzturētāju!",
+    
+    'no_represent_field' => "Darbplūsmas skatam nav norādīts, kurus dokumenta laukus attēlot uzdevumā! Sazinieties ar sistēmas uzturētāju.",
+    
+    'no_respo_empl_field' => "Skatam '%s' definēts kontroles nosacījums, bet nosacījumā norādītais atbildīgā darbinieka lauks nav ietverts skatā!",
+    
 ];

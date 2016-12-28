@@ -3,6 +3,7 @@
     trans_default_info = "{{ trans("search_top.default_info") }}"
     trans_employees = "{{ trans("search_top.employees") }}"
     trans_searching = "{{ trans("search_top.searching") }}"
+    trans_default = "{{ Config::get('dx.default_search') }}"
     >
 <form action='{{Request::root()}}/search' method='POST' id="dx-top-search-form">
     <input type="hidden" id="searchType" name="searchType"/>
@@ -19,7 +20,7 @@
     <div class="input-group" id="top_search">
         
         <div class="input-group-btn">
-            <button id="search_dropd" type="button" class="btn btn-default dropdown-toggle green-soft" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><b id="search_title">{{ trans("search_top.employees") }}</b> <span class="caret"></span></button>
+            <button id="search_dropd" type="button" class="btn btn-default dropdown-toggle green-soft" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><b id="search_title">{{ Config::get('dx.default_search') }}</b> <span class="caret"></span></button>
           <ul class="dropdown-menu">
             <li class="searchTypeItem"><a href="#">{{ trans("search_top.documents") }}</a></li>
             <li class="searchTypeItem"><a href="#">{{ trans("search_top.employees") }}</a></li>            

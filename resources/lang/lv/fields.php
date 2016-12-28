@@ -36,4 +36,11 @@ return [
     // File
     'file_browser_title' => 'Datņu pārvaldība',
     
+    // Multi file upload
+    'btn_remove' => 'Noņemt',
+    'title_drag_drop' => 'Ievelciet šeit datnes',
+    'title_mouse_click' => 'Vai arī spiediet ar peli, lai atvērtu datņu pārlūkošanas logu.',
+    'rule_part1' => 'Vienā saglabāšanas reizē pieļaujams vienlaicīgi augšupielādēt ne vairāk kā ',
+    'rule_part2' => ' datnes.',
+    
 ];

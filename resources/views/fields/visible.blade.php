@@ -18,6 +18,6 @@
     </label>
     
     {!! $item_htm !!}     
-    <div class="help-block with-errors"></div>
+    <div class="help-block with-errors" style="position: absolute; margin-top: -2px; max-height: 20px; overflow-y: hidden;"></div>
         
 </div>
