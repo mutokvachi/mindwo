@@ -27,18 +27,22 @@ class Report_EMPLOYEE_STATUS extends Report
         $args = ['fromDate' => $date_from_o, 'toDate' => $date_to_o];
         
         $group_query = '';
+        $group_query_join = '';
         if($group_id > 0){
             $args['groupId'] = $group_id;
             
-            $group_query = ' u.department_id = :groupId AND ';
+            $group_query = ' d.source_id = :groupId AND ';
+            $group_query_join = ' LEFT JOIN in_departments d ON d.id = u.department_id ';
         }
+        
+        
 
         $res = DB::select("SELECT 
             cl.year, 
             cl.month, 
-            (SELECT COUNT(*) FROM dx_users u WHERE " . $group_query ." YEAR(ifnull(u.join_date,'1970-01-01')) = cl.year AND MONTH(ifnull(u.join_date,'1970-01-01')) = cl.month AND ifnull(u.join_date,'1970-01-01') >= :fromDate AND ifnull(u.join_date,'1970-01-01') <= :toDate) as gain,
-            (SELECT COUNT(*) FROM dx_users u WHERE " . $group_query ." YEAR(u.termination_date) = cl.year AND MONTH(u.termination_date) = cl.month AND u.termination_date >= :fromDate AND u.termination_date <= :toDate) as loss,
-            (SELECT COUNT(*) FROM dx_users u 
+            (SELECT COUNT(*) FROM dx_users u " . $group_query_join ." WHERE " . $group_query ." YEAR(ifnull(u.join_date,'1970-01-01')) = cl.year AND MONTH(ifnull(u.join_date,'1970-01-01')) = cl.month AND ifnull(u.join_date,'1970-01-01') >= :fromDate AND ifnull(u.join_date,'1970-01-01') <= :toDate) as gain,
+            (SELECT COUNT(*) FROM dx_users u " . $group_query_join ." WHERE " . $group_query ." YEAR(u.termination_date) = cl.year AND MONTH(u.termination_date) = cl.month AND u.termination_date >= :fromDate AND u.termination_date <= :toDate) as loss,
+            (SELECT COUNT(*) FROM dx_users u " . $group_query_join ."
                     WHERE " . $group_query . "
                     (
                             ifnull(u.join_date,'1970-01-01') <=  :toDate
