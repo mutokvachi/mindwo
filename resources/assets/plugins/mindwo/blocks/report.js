@@ -222,9 +222,11 @@ window.DxBlockReport = window.DxBlockReport || {
                     axisLabels: {
                         show: true
                     },
-                    yaxes: [{
-                            axisLabel: window.DxBlockReport.getUnit()
-                        }],
+                    yaxis: {
+                        axisLabel: window.DxBlockReport.getUnit(),
+                        tickDecimals: 0,
+                        minTickSize: 1
+                    },
                     xaxis: {
                         ticks: categories
                     },
@@ -244,7 +246,7 @@ window.DxBlockReport = window.DxBlockReport || {
      */
     onPlotHover: function (event, pos, item) {
         if (item) {
-            var y = item.datapoint[1].toFixed(2);
+            var y = item.datapoint[1].toFixed(0);
 
             $("#dx-widget-report-chart-tooltip-" + window.DxBlockReport.uid).html(item.series.label + ": " + y + ' ' + window.DxBlockReport.getUnit())
                     .css({top: pos.pageY + 20, left: pos.pageX + 5})
