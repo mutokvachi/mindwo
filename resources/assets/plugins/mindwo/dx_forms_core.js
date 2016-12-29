@@ -92,10 +92,13 @@ function view_list_item(ajax_url, item_id, list_id, rel_field_id, rel_field_valu
             
             if (data['success'] == 1)
             {                  
-                if (data['is_fullscreen'] != "0") {
+                if (data['is_fullscreen'] == "1") {
                     $("#td_data").hide();
                     $("#td_form_data").html(data['html']);
-                    HFormUI.init(grid_htm_id);
+                    
+                    if (typeof HFormUI != 'undefined') {
+                        HFormUI.init(grid_htm_id);
+                    }
                 }
                 else {
                     $( "body" ).append(data['html']);
