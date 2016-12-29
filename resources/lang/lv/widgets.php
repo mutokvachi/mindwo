@@ -20,8 +20,8 @@ return [
 		'unassigned' => 'Unassigned',
 	],
 	'offers' => [
-		'title' => 'Offers',
-		'subscribe' => 'Subscribe',
-		'unsubscribe' => 'Unsubscribe'
+		'title' => 'Piedāvājumi',
+		'subscribe' => 'Pieteikties',
+		'unsubscribe' => 'Atcelt'
 	]
 ];
