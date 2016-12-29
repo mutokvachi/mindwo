@@ -221,6 +221,8 @@ class FileController extends Controller
         }
 
         $headers = array(
+            'Expires: 0',
+            'Cache-Control: must-revalidate',
             'Content-Type: ' . $this->getFileContentHeader($file->file_name),
             'Content-Disposition: filename="' . $file->file_name . '";'
         );
