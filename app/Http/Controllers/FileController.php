@@ -101,6 +101,28 @@ class FileController extends Controller
         return $this->performFileDownload($file);
     }
     
+     /**
+     * Lejuplādē PDF datni pēc norādītā datnes lauka nosaukuma
+     * 
+     * @param integer $item_id          Ieraksta ID
+     * @param integer $list_id          Reģistra ID
+     * @param integer $field_id          Datnes lauka ID
+     * @return Response Datne
+     * @throws Exceptions\DXCustomException
+     */
+    public function getPDFFile($item_id, $list_id, $field_id)
+    {
+        $this->checkRights($item_id, $list_id);
+        
+        $file = $this->getFileData($item_id, $list_id, $field_id);
+
+        if (!$file) {
+            throw new Exceptions\DXCustomException(sprintf(trans('errors.file_record_not_found'),$item_id));
+        }
+        
+        return $this->performFileDownload($file);
+    }
+    
     /**
      * Downloads first (according to order index in form) available file from register item
      * 
@@ -200,9 +222,9 @@ class FileController extends Controller
 
         $headers = array(
             'Content-Type: ' . $this->getFileContentHeader($file->file_name),
-            'Content-Disposition: attachment; filename="' . $file->file_name . '";'
+            'Content-Disposition: filename="' . $file->file_name . '";'
         );
-        Log::info("Te jabut donw");
+        
         return response()->download($file_path, $file->file_name, $headers);
     }
     /**

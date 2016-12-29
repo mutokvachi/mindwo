@@ -8,5 +8,8 @@
     "laravel-elixir": "^2.0.0",
     "laravel-elixir-task": "^4.0.0",
     "laravel-elixir-uncss": "^2.2.0"
+  },
+  "dependencies": {
+    "pdfjs-dist": "^1.6.418"
   }
 }
