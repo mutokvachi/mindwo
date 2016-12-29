@@ -3,6 +3,7 @@
 namespace App\Libraries\FieldsHtm
 {
     use DB;
+    use File;
     
     /**
      * Datnes lauka attēlošanas klase. Attēlo 3 veida laukus: multi datņu pievienošana, attēls vai parasta datne
@@ -45,7 +46,8 @@ namespace App\Libraries\FieldsHtm
                         'is_disabled' => ($this->fld_attr->is_readonly) ? 1 : $this->is_disabled_mode,
                         'class_exist' => $class_exist,
                         'is_required' => $this->fld_attr->is_required,
-                        'ext' => $this->getAllowedExt()
+                        'ext' => $this->getAllowedExt(),
+                        'is_pdf' => $this->isPDF($this->item_value)
             ])->render();
         }
 
@@ -82,6 +84,22 @@ namespace App\Libraries\FieldsHtm
             }
             
             return $ext_txt;
+        }
+        
+        /**
+         * Checks if file is in PDF format
+         * 
+         * @param string $file_name File name
+         * @return boolean True - is PDF, False - not PDF
+         */
+        private function isPDF($file_name) {
+            if (!$file_name) {
+                return false;
+            }
+            
+            $ext = strtolower(File::extension($file_name));
+            
+            return ($ext == 'pdf');
         }
 
     }
