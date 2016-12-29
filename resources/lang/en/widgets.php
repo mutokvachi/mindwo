@@ -18,5 +18,10 @@ return [
 	'emplbyteam' => [
 		'title' => 'Employees by team',
 		'unassigned' => 'Unassigned',
+	],
+	'offers' => [
+		'title' => 'Offers',
+		'subscribe' => 'Subscribe',
+		'unsubscribe' => 'Unsubscribe'
 	]
 ];

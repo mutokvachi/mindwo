@@ -218,6 +218,15 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	}
 	
 	/**
+	 * Relation to offers for which user is subscribed.
+	 */
+	public function offers()
+	{
+		return $this->belongsToMany('App\Models\Offer', 'dx_users_offers', 'user_id', 'offer_id')
+			->withPivot('quantity');
+	}
+	
+	/**
 	 * Get an URL of user's avatar
 	 *
 	 * @return \Illuminate\Contracts\Routing\UrlGenerator|string
