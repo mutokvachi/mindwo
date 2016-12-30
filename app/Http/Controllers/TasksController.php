@@ -469,7 +469,7 @@ class TasksController extends Controller
         if ($email) {
             $this->sendNewTaskEmail([
                 'email' => $email,
-                'subject' => trans('task_email.subject'),
+                'subject' => sprintf(trans('task_email.subject'), trans('index.app_name')),
                 'task_type' => DB::table('dx_tasks_types')->select('title')->where('id', '=', self::TASK_TYPE_INFO)->first()->title,
                 'task_details' => $request->input('task_info'),
                 'assigner' => Auth::user()->display_name,
