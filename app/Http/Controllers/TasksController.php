@@ -444,7 +444,7 @@ class TasksController extends Controller
         $info = $arr_meta_vals[self::REPRESENT_ABOUT];
         $item_empl_id = $arr_meta_vals[self::REPRESENT_EMPL];
         
-        DB::transaction(function () use ($request, $employee_id, $list_id, $item_id, $reg_nr, $info) {
+        DB::transaction(function () use ($request, $employee_id, $list_id, $item_id, $reg_nr, $info, $item_empl_id) {
             $this->new_task_id = DB::table('dx_tasks')->insertGetId([
                 'assigned_empl_id' => Auth::user()->id,
                 'task_details' => $request->input('task_info'),
