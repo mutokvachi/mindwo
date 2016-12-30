@@ -258,6 +258,11 @@ class AuditViewCounts extends Command
      */
     private function sendDetailedNotify($view)
     {
+        // get default view for list
+        $def_view = DB::table('dx_views')->where('list_id', '=', $view->list_id)->where('is_default', '=', 1)->where('is_hidden_from_main_grid', '=', 0)->first();
+        
+        $view_id = ($def_view) ? $def_view->id : $view->id;
+        
         foreach ($this->arr_empl as $empl) {
 
             $arr_data = [];
@@ -265,7 +270,7 @@ class AuditViewCounts extends Command
             $arr_data['subject'] = $view->title . ": " . count($empl['items']);
             $arr_data['items'] = $empl['items'];
             $arr_data['view_title'] = $view->title;
-            $arr_data['view_id'] = $view->id;
+            $arr_data['view_id'] = $view_id;
 
             dispatch(new \App\Jobs\SendMonitoringMail($arr_data, 'emails.monitor_detailed'));
         }
