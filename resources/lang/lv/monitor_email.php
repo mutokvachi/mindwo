@@ -29,4 +29,6 @@ return [
     'lbl_control' => 'Informācija par kontroles nosacījumiem',
     'lbl_control_title' => 'Nosacījums',
     'lbl_control_count' => 'Skaits',
+    'info_count' => 'Ierakstu skaits sistēmas skatā var atšķirties no šajā e-pastā norādītā, jo informācija sistēmā var būt jau mainīta.',
+    
 ];

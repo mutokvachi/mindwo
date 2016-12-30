@@ -5,6 +5,7 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Config;
+use Log;
 
 /**
  * Handles JOBs scheduling and Artisan commands
@@ -30,10 +31,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)    {                
 
-        // Executes monitoring views at 8:00 AM on working days
+        // Executes monitoring views at 8:00 AM every day
         $schedule->command('mindwo:audit_view')
-                ->weekdays()
+                //->weekdays()
                 ->daily(8)
                 ->timezone(Config::get('dx.time_zone'));
+        
+        $schedule->call(function () {
+            Log::info('Working JOB!');
+        })->everyMinute();
     }
 }
