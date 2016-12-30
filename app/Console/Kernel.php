@@ -5,7 +5,6 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Config;
-use Log;
 
 /**
  * Handles JOBs scheduling and Artisan commands
@@ -36,9 +35,6 @@ class Kernel extends ConsoleKernel
                 //->weekdays()
                 ->daily(8)
                 ->timezone(Config::get('dx.time_zone'));
-        
-        $schedule->call(function () {
-            Log::info('Working JOB!');
-        })->everyMinute();
+
     }
 }
