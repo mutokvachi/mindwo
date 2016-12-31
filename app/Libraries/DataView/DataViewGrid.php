@@ -92,17 +92,7 @@ namespace App\Libraries\DataView {
             {
                     $end_row = $this->grid_total_rows;// - $start_row + 1;
             }
-
-            $cnt = "";
-            if ($this->grid_total_pages == 1)
-            {
-                    $cnt = trans('grid.row_count') . ": " . $this->grid_total_rows;
-            }
-            else
-            {
-                    $cnt = trans('grid.rows') . " " . $start_row . " " .  trans('grid.rows_to') . " " . $end_row . " " . trans('grid.rows_from') . " " . $this->grid_total_rows; 
-            }
-            
+                        
             $prev_page = 1;
             $next_page = 1;
             
@@ -126,13 +116,14 @@ namespace App\Libraries\DataView {
 
             return  view('grid.records_count', [
                         'grid_id' => $this->grid_id,
-                        'record_count' => $cnt,
                         'is_paginator' => $this->grid_is_paginator,
                         'prev_page' => $prev_page,
                         'grid_page_nr' => $this->grid_page_nr,
                         'grid_total_pages' => $this->grid_total_pages,
                         'next_page' => $next_page,
-                        'total_count' => $this->grid_total_rows
+                        'total_count' => $this->grid_total_rows,
+                        'start_row' => $start_row,
+                        'end_row' => $end_row
                     ])->render();
         }
         
