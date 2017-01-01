@@ -15497,25 +15497,6 @@ function init_soft_code(htm_id)
 	}, 1000); // or 10, 100
 }
 
-function printForm(elem_htm_id) 
-{
-    var data = $("#" + elem_htm_id).html();
-    
-    var mywindow = window.open('', 'my div', 'height=400,width=600');
-    mywindow.document.write('<html><head><title>my div</title>');
-    mywindow.document.write('<link rel="stylesheet" href="' + DX_CORE.site_url + 'homer/vendor/bootstrap/dist/css/bootstrap.css" type="text/css" />');
-    mywindow.document.write('</head><body >');
-    mywindow.document.write(data);
-    mywindow.document.write('</body></html>');
-
-    mywindow.document.close(); // necessary for IE >= 10
-    mywindow.focus(); // necessary for IE >= 10
-
-    mywindow.print();
-    mywindow.close();
-    return true;
-}
-
 $(document).ready(function($) {
     //init tinymcm control
     init_textarea();    
@@ -17630,21 +17611,64 @@ var FormLogic = function()
         var grid_htm_id = section.attr('dx_grid_id');
         var frm_uniq_id = section.attr('dx_form_id');
         
-        frm.find('.dx-form-btn-edit').click(function() {
+        frm.find('.dx-form-btn-edit[data-is-init!="1"]').click(function() {
             open_form('form', item_id, list_id, parent_field_id, parent_item_id, grid_htm_id, 1, 'list_item_view_form_' + frm_uniq_id);
+            $(this).attr('data-is-init', 1);
         });
         
-        frm.find('.dx-form-btn-delete').click(function() {
+        frm.find('.dx-form-btn-delete[data-is-init!="1"]').click(function() {
             delete_list_item('list_item_view_form_' + frm_uniq_id, grid_htm_id);
+            $(this).attr('data-is-init', 1);
         });
         
-        frm.find('.dx-form-btn-word').click(function() {
+        frm.find('.dx-form-btn-word[data-is-init!="1"]').click(function() {
             generate_word(item_id, list_id, grid_htm_id, 'list_item_view_form_' + frm_uniq_id);
+            $(this).attr('data-is-init', 1);
+        });
+        
+        frm.find('.dx-form-btn-print[data-is-init!="1"]').click(function() {
+            downloadFormPDF(list_id, item_id);
+            $(this).attr('data-is-init', 1);
         });
         
         handleWFInitBtnClick(section);
         handleInfoTaskBtnClick(section);
     };
+    
+    /**
+     * Generated and downloads PDF withs forms data
+     * 
+     * @param {integer} list_id Register ID
+     * @param {integer} item_id Item ID
+     * @returns {undefined}
+     */
+    function downloadFormPDF(list_id, item_id) {
+
+       show_form_splash();
+       show_page_splash();
+       var open_url = DX_CORE.site_url + "get_form_pdf_" + item_id + "_" + list_id;
+       
+       $.fileDownload(open_url, {
+           successCallback: function(url) {
+               hide_form_splash();
+               hide_page_splash();
+               notify_info(DX_CORE.trans_file_downloaded);            
+           },
+           failCallback: function(html, url) {
+               hide_form_splash();
+               hide_page_splash(); 
+               console.log("Download PDF Error: " + html);
+               try {
+                   var myData = JSON.parse(html);
+                   if (myData['success'] == 0) {
+                       notify_err(myData['error']);
+                   }
+               } catch (err) {
+                   notify_err(DX_CORE.trans_sys_error);
+               }
+           }
+       });
+   };
     
     /**
      * Sets focus on first editable field
@@ -17669,6 +17693,7 @@ var FormLogic = function()
             handleRegBtnClick($(this));
             handleTaskHistoryMenuClick($(this));
             handleCancelWorkflowMenuClick($(this));
+            
             adjustDataTabs($(this));
             setFocusFirstField($(this));
             

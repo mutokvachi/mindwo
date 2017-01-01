@@ -30,10 +30,47 @@ See https://github.com/adobe-type-tools/cmap-resources
 
 
     <link rel="stylesheet" href="viewer.css">
-
+    <style>
+        .spinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin-left: -50px; /* half width of the spinner gif */
+            margin-top: -50px; /* half height of the spinner gif */
+            text-align:center;
+            z-index:1234;
+            overflow: auto;
+            width: 100px; /* width of the spinner gif */
+            height: 60px; /*hight of the spinner gif +2px to fix IE8 issue */
+        }
+        
+        .loading-message-boxed {
+            border: 1px solid #ddd;
+            background-color: #eee;
+            -webkit-border-radius: 4px;
+            -moz-border-radius: 4px;
+            -ms-border-radius: 4px;
+            -o-border-radius: 4px;
+            border-radius: 4px;
+            -webkit-box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+            -moz-box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
+            padding-top: 6px;
+        }
+        
+        .loading-message-boxed > span {
+            line-height: 20px;
+            vertical-align: middle; 
+        }
+        
+        .loading-message-boxed span {
+            color: #333;
+            font-size: 13px;
+        }
+    </style>
     <script src="compatibility.js"></script>
-
-
+    <script type="text/javascript" src="jquery.min.js"></script>
+   
 
 <!-- This snippet is used in production (included from viewer.html) -->
 <link rel="resource" type="application/l10n" href="locale/locale.properties">
@@ -43,10 +80,35 @@ See https://github.com/adobe-type-tools/cmap-resources
 
 
     <script src="viewer.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            var mozL10n = document.mozL10n || document.webL10n;
+            var lbl = mozL10n.get('loading_label', null, 'Loading...');
+            $("#spinner span").html(lbl);
+            $("#spinner").show();
+            
+            var timer = function() {
+                setTimeout(function(){ 
+                    if ($("#viewer").html().length > 0) {
+                        $("#spinner").hide();
+                    }
+                    else {
+                        timer();
+                    }
+                }, 500);
+            };
+            
+            timer();
 
+         });
+    </script>
   </head>
 
   <body tabindex="1" class="loadingInProgress">
+    <div id="spinner" class="spinner loading-message-boxed" style="display:none;" >        
+        <img id="img-spinner" src="images/loading.gif" alt="Loading"/><br>
+        <span>&nbsp;&nbsp;Loading...</span>        
+    </div>
     <div id="outerContainer">
 
       <div id="sidebarContainer">

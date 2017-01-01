@@ -876,7 +876,7 @@ class FormController extends Controller
      * @param  int  $form_id Formas ID
      * @return Object Masīvs ar formas sadaļām
      */
-    private function getFormTabs($form_id)
+    protected function getFormTabs($form_id)
     {
         $sql = "
         SELECT 

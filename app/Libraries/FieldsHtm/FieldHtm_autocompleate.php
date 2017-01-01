@@ -40,6 +40,13 @@ namespace App\Libraries\FieldsHtm
                     'frm_uniq_id_js' => $frm_uniq_id_js
             ])->render();
         }
+        
+        /**
+         * Returns textual value of the field
+         */
+        public function getTxtVal() {
+            return $this->getDisplayText();
+        }
 
         /**
          * Uzstāda noklusēto vērtību jauna ieraksta gadījumā

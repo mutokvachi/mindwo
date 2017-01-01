@@ -21,6 +21,14 @@ namespace App\Libraries\FieldsHtm
                     'is_disabled' => ($this->fld_attr->is_readonly) ? 1 : $this->is_disabled_mode
             ])->render(); 
         }
+        
+        /**
+         * Returns textual value of the field
+         */
+        public function getTxtVal()
+        {
+            return $this->item_value;
+        }
 
         /**
          * Uzstāda noklusēto vērtību jauna ieraksta gadījumā

@@ -78,6 +78,7 @@ Route::post('/generate_word', array('as' => 'generate_word',  'middleware' => 'a
 route::post('/register_document', array('as' => 'register_item',  'middleware' => 'auth_ajax', 'uses'=>'RegisterController@registerDocument'));
 Route::post('/get_tasks_history', array('as' => 'get_tasks_history',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@getTasksHistory'));
 Route::post('/cancel_workflow', array('as' => 'cancel_workflow',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@cancelWorkflow'));
+Route::get('/get_form_pdf_{item_id}_{list_id}.pdf', array('as' => 'form_get_pdf',  'middleware' => 'auth_ajax', 'uses'=>'FormPDFController@getPDF'));
 
 // Startē procesu forsēti
 Route::get('/force_process/{id}', array('as' => 'force_process',  'middleware' => 'auth', 'uses'=>'ProcessController@forceProcess'));

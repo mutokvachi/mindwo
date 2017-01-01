@@ -15,6 +15,7 @@ return [
     'view' => 'View',
     'btn_edit' => 'Edit',
     'btn_delete' => 'Delete',
+    'btn_pdf' => 'To PDF',
     'btn_start_workflow' => 'Start workflow',
     'btn_info' => 'Inform',
     'btn_info_hint' => 'Employees which receives document as informative task',

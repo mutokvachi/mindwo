@@ -40,6 +40,18 @@ namespace App\Libraries\FieldsHtm
                     'tree' => ($is_fld_disabled) ? '' : $tree
             ])->render(); 
         }
+        
+        /**
+         * Returns textual value of the field
+         */
+        public function getTxtVal()
+        {
+            $rows = $this->getTreeRows();
+            
+            $tree = $this->generatePageTree($rows);
+            
+            return $this->tree_full_path;
+        }
 
         /**
          * Uzstāda noklusēto vērtību jauna ieraksta gadījumā

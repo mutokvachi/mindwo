@@ -58,6 +58,11 @@ namespace App\Libraries\FieldsHtm
         abstract function getHtm();
         
         /**
+         * Returns textual value of the field
+         */
+        abstract function getTxtVal();
+        
+        /**
          * Uzstāda noklusēto lauka vērtību jauna ieraksta gadījumā
          */
         abstract protected function setDefaultVal();

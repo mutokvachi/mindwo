@@ -15,6 +15,7 @@ return [
     'view' => 'Skats',
     'btn_edit' => 'Rediģēt',
     'btn_delete' => 'Dzēst',
+    'btn_pdf' => 'Uz PDF',
     'btn_start_workflow' => 'Uz izpildi',
     'btn_info' => 'Informācijai',
     'btn_info_hint' => 'Dokumenta nodošana informācijai citiem darbiniekiem',
