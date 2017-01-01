@@ -1,7 +1,7 @@
 <?php
 // LINUX - base_path('vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64')
 // WINDOWS - base_path('vendor\wemersonjanuario\wkhtmltopdf-windows\bin\64bit\wkhtmltopdf.exe')
-
+// on LINUX must be installed libxrender1
 return array(
 
 
