@@ -31,4 +31,8 @@ return [
     
     'lbl_full_screen' => 'Is full screen mode',
     
+    // To PDF
+    'lbl_data' => 'Data',
+    'lbl_id' => 'Record ID',
+    'lbl_print_date' => 'Data as of',
 ];

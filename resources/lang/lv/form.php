@@ -31,4 +31,9 @@ return [
     
     'lbl_full_screen' => 'Atvērt pilnekrāna režīmā',
     
+    // To PDF
+    'lbl_data' => 'Dati',
+    'lbl_id' => 'Ieraksta ID',
+    'lbl_print_date' => 'Izdrukāts',
+    
 ];

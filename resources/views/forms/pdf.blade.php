@@ -38,25 +38,30 @@
                 </td>
                 <td valign="top" align="right">
                     <b>{{ $self->params->form_title }}</b><br>
-                    Ieraksta ID: {{ $self->item_id }}<br>
-                    <small>Izdrukāts: {{ long_date(date('Y-n-d H:i:s')) }}</small>
+                    {{ trans('form.lbl_id') }}: {{ $self->item_id }}<br>
+                    <small>{{ trans('form.lbl_print_date') }}: {{ long_date(date('Y-n-d H:i:s')) }}</small>
                 </td>
             </tr>
         </tbody>        
     </table>    
     <hr>
     @if (count($self->arr_data_tabs[0]) > 0)
-        <h2>Dati</h2>
+        <h2>{{ trans('form.lbl_data') }}</h2>
         @include('forms.field_section', ['flds' => $self->arr_data_tabs[0]])
     @endif
-    @foreach($self->tab_rows as $tab)
-        <h2>{{ $tab->title }}</h2>
+    @foreach($self->tab_rows as $tab)        
         @if ($tab->is_custom_data)
+            <h2>{{ $tab->title }}</h2>
             @include('forms.field_section', ['flds' => $self->arr_data_tabs[$tab->id]])
         @else
+            <?php $htm = $self->getGridHtm($tab->grid_list_id, $tab->grid_list_field_id); ?>
+            
+        @if (strlen($htm) > 0)
+            <h2>{{ $tab->title }}</h2>
             <table class="table-form">
-                {!! $self->getGridHtm($tab->grid_list_id, $tab->grid_list_field_id) !!}
+                {!! $htm !!}
             </table>
+        @endif
         @endif
     @endforeach
 </body>

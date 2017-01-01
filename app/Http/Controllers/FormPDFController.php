@@ -130,6 +130,12 @@ class FormPDFController extends FormController
         );
     }
     
+    /**
+     * Returns GRID HTML
+     * @param integer $list_id Register ID
+     * @param integer $rel_field_id Related register field ID
+     * @return string HTML
+     */
     public function getGridHtm($list_id, $rel_field_id) {
         $this->setRequestVal('rel_field_id', $rel_field_id);
         $this->setRequestVal('rel_field_value', $this->item_id);
@@ -138,9 +144,20 @@ class FormPDFController extends FormController
 
         $view_obj = DataView\DataViewFactory::build_view('Excel', $view_row->id);
         
-        return $view_obj->getViewHtml();
+        $html = $view_obj->getViewHtml();
+        
+        if (!$view_obj->is_rows) {
+            $html = "";
+        }
+        
+        return $html;
     }
     
+    /**
+     * Re-set REQUEST object values in order to work grid control
+     * @param string $key POST key
+     * @param string $val POST new value
+     */
     private function setRequestVal($key, $val) {
         if (Request::has($key)) {
             Request::replace(array($key => $val));
