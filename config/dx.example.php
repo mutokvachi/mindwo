@@ -266,7 +266,14 @@ return [
     | UI setting for big logo used in login page
     |--------------------------------------------------------------------------
     */
-    'logo_big' => 'assets/global/logo/mindwo_logo_big.png',
+    'logo_big' => env('APP_BIG_LOGO', 'assets/global/logo/medus_logo_big.png'),
+    
+    /*
+    |--------------------------------------------------------------------------
+    | UI setting for logo used for printing (on white background)
+    |--------------------------------------------------------------------------
+    */
+    'logo_print' => env('APP_PRINT_LOGO', 'assets/global/logo/medus_black.png'),
     
     /*
     |--------------------------------------------------------------------------

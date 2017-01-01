@@ -14,8 +14,7 @@
                     @endif
                     <div class="dx_form_btns_left">
                         @include('elements.form_left_btns')
-                    </div>
-                    <!--<button  type='button' class='btn btn-white pull-right' id='btn_print_{{ $frm_uniq_id }}'><i class="fa fa-print"></i> Drukāt</button>-->
+                    </div>                    
                 </div>
                 
            
@@ -136,12 +135,7 @@
                                 success: 'glyphicon-ok',
                                 error: 'glyphicon-alert'
                             }
-                        });
-                    @else
-                        $('#btn_print_{{ $frm_uniq_id }}').click(function(event){
-                            event.stopPropagation();
-                            printForm('item_edit_form_{{ $frm_uniq_id }}');
-                        });
+                        });                    
                     @endif
 
                     @if ($is_form_reloaded === 0)                

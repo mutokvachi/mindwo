@@ -22,7 +22,7 @@ namespace App\Libraries\FieldsHtm
             }
 
             $reg_state = \App\Http\Controllers\RegisterController::getRegNrState($this->fld_attr, $this->item_value);
-            
+
             return view('fields.regnr', [
                         'frm_uniq_id' => $this->frm_uniq_id,
                         'item_field' => $this->fld_attr->db_name,
@@ -33,7 +33,15 @@ namespace App\Libraries\FieldsHtm
                         'is_reg_btn_shown' => $reg_state['reg_btn_shown'],
                         'reg_nr_field_id' => $this->fld_attr->field_id,
                         'list_id' => $this->list_id
-            ])->render();
+                    ])->render();
+        }
+
+        /**
+         * Returns textual value of the field
+         */
+        public function getTxtVal()
+        {
+            return $this->item_value;
         }
 
         /**

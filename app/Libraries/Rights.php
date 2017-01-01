@@ -206,6 +206,51 @@ namespace App\Libraries
                 throw new Exceptions\DXCustomException(trans('errors.cant_edit_in_process'));
             }
         }    
+        
+        /**
+        * Checks if user have rights on list or have task for specific item - for file download
+        * 
+        * @param integer $item_id Item ID
+        * @param integer $list_id List ID
+        */
+        public static function checkFileRights($item_id, $list_id) {
+           $right = Rights::getRightsOnList($list_id);
+
+           if ($right == null) {
+               if (!\App\Libraries\Workflows\Helper::isRelatedTask($list_id, $item_id)) {                   
+                   throw new Exceptions\DXCustomException(trans('errors.no_rights_on_register'));
+               }
+           }
+           else {
+               Rights::checkItemAccess($item_id);
+           }
+        }
+        
+        /**
+        * Checks if it is set special permissions on item and weather user have those special rights
+        * @param integer $item_id
+        * @throws Exceptions\DXCustomException
+        */
+        public static function checkItemAccess($item_id) {
+
+           $item_rights = DB::table('dx_item_access')
+                   ->where('list_id', '=', 'list_id')
+                   ->where('list_item_id', '=', $item_id)
+                   ->count();
+
+           if ($item_rights > 0) {
+
+               $user_rights = DB::table('dx_item_access')
+                       ->where('list_id', '=', 'list_id')
+                       ->where('list_item_id', '=', $item_id)
+                       ->where('user_id', '=', Auth::user()->id)
+                       ->count();
+
+               if ($user_rights == 0) {
+                   throw new Exceptions\DXCustomException(sprintf(trans('errors.no_donwload_rights'), $item_id));
+               }
+           }
+        }
 
     }
 

@@ -24,3 +24,4 @@
 
     </button>
 @endif
+<button class='btn btn-white'><a href="{{Request::root()}}/web/viewer.html?file={{Request::root()}}/get_form_pdf_{{ $item_id }}_{{ $list_id }}.pdf" target="_blank" style="color: #333!important; text-decoration: none!important;"><i class="fa fa-file-pdf-o"></i> {{ trans('form.btn_pdf') }}</a></button>

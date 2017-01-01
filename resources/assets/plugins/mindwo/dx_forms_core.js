@@ -853,25 +853,6 @@ function init_soft_code(htm_id)
 	}, 1000); // or 10, 100
 }
 
-function printForm(elem_htm_id) 
-{
-    var data = $("#" + elem_htm_id).html();
-    
-    var mywindow = window.open('', 'my div', 'height=400,width=600');
-    mywindow.document.write('<html><head><title>my div</title>');
-    mywindow.document.write('<link rel="stylesheet" href="' + DX_CORE.site_url + 'homer/vendor/bootstrap/dist/css/bootstrap.css" type="text/css" />');
-    mywindow.document.write('</head><body >');
-    mywindow.document.write(data);
-    mywindow.document.write('</body></html>');
-
-    mywindow.document.close(); // necessary for IE >= 10
-    mywindow.focus(); // necessary for IE >= 10
-
-    mywindow.print();
-    mywindow.close();
-    return true;
-}
-
 $(document).ready(function($) {
     //init tinymcm control
     init_textarea();    

@@ -50,6 +50,14 @@ namespace App\Libraries\FieldsHtm
                         'is_pdf' => $this->isPDF($this->item_value)
             ])->render();
         }
+        
+        /**
+         * Returns textual value of the field
+         */
+        public function getTxtVal()
+        {
+            return $this->item_value;
+        }
 
         /**
          * Uzstāda noklusēto vērtību jauna ieraksta gadījumā - datnei nav noklusētā vērtība
