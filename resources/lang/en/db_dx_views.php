@@ -37,4 +37,9 @@ return [
     'field_id_form' => 'Darbinieka lauks',
     'field_id_hint' => 'Norāda lauku no šī skata, kas satur informāciju par atbildīgo darbinieku, kuram tiks nosūtīts notifikācijas e-pasts, ja šajā skatā būs kāds ieraksts, kuram kā atbildīgais ir norādīts attiecīgais darbinieks.',
     
+     // Field is_detailed_notify
+    'is_detailed_notify_list' => 'Is detailed notification',
+    'is_detailed_notify_form' => 'Is detailed notification',
+    'is_detailed_notify_hint' => 'Indicates if receivers (custom emails or role) will get detailed information (document numbers, descriptions) about all records from view. If option is not set, then will get general information - view title and record count.',
+
 ];
