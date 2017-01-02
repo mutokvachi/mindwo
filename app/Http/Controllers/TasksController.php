@@ -785,7 +785,8 @@ class TasksController extends Controller
                                 'is_editable_wf' => Rights::getIsEditRightsOnItem($list_id, $item_id),
                                 'is_info_tasks_rights' => ($table_name == "dx_doc"),
                                 'is_word_generation_btn' => \App\Libraries\Helper::getWordGenerBtn($list_id),
-                                'info_tasks' => \App\Libraries\Helper::getInfoTasks($list_id, $item_id, $table_name)
+                                'info_tasks' => \App\Libraries\Helper::getInfoTasks($list_id, $item_id, $table_name),
+                                'list_id' => $list_id
                 ])->render();
     }
     
