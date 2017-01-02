@@ -151,7 +151,7 @@
 </div>
 @endif
 
-@if ($workflow_btn == 1 &&  $is_custom_approve == 1)
+@if (($workflow_btn == 1 || $workflow_btn == 3) && $form_is_edit_mode == 0 && $is_editable_wf == 1 && $is_edit_rights) 
     @include('workflow.wf_init_form')
     @include('workflow.wf_init_add_approver')    
 @endif
