@@ -13,6 +13,7 @@
      data-trans-msg-marked = "{{ trans('grid.msg_marked1') }}"
      data-trans-confirm-del1 = "{{ trans('grid.msg_confirm_del1') }}"
      data-trans-confirm-del-all = "{{ trans('grid.msg_confirm_del_all') }}"
+     data-form-type-id = "{{ $form_type_id }}"
     >
     @if (!$tab_id)
         <div class='portlet' style='background-color: white; padding: 10px;'>
@@ -45,7 +46,11 @@
                                 </ul>
                             </div>
                             @if ($show_new_button)
-                                <button class='btn btn-primary' type='button' id="{{ $menu_id }}_new">{{ trans('grid.new') }}</button>
+                                @if ($form_type_id == 3)
+                                    <a class='btn btn-primary' href="{{Request::root()}}/employee/new">{{ trans('employee.new_employee') }}</a>
+                                @else
+                                    <button class='btn btn-primary' type='button' id="{{ $menu_id }}_new">{{ trans('grid.new') }}</button>
+                                @endif                                
                             @endif
                             
                             @if ($tab_id)

@@ -166,6 +166,8 @@
       {
         if($(".dx-stick-footer").is(":visible"))
         {
+          hide_page_splash(1);
+          hide_form_splash(1);
           return 'Your changes have not been saved.';
         }
       });

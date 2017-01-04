@@ -112,4 +112,13 @@ return [
     
     'err_wf_no_rights_to_cancel' => 'Jums nav nepieciešamo tiesību atcelt šo darbplūsmu!',
     'err_wf_not_in_process' => 'Atcelt var tikai procesā esošas darbplūsmas!',
+    
+    // tasks notify popup
+    'lbl_notify_start' => 'Jums ir jāizpilda',
+    'lbl_tasks_1' => 'uzdevums',
+    'lbl_tasks_n' => 'uzdevumi',
+    'lbl_goto_start' => 'Dodieties uz',
+    'lbl_goto_link_title' => 'uzdevumu sadaļu',
+    'lbl_goto_end' => 'un izpildiet uzdevumus.'
+    
 ];

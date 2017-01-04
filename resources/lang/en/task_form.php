@@ -114,4 +114,12 @@ return [
     'err_wf_no_rights_to_cancel' => 'You do not have rights to cancel this workflow!',
     'err_wf_not_in_process' => 'You can not cancel this workflow because it is not in process!',
     
+    // tasks notify popup
+    'lbl_notify_start' => 'You have to perform',
+    'lbl_tasks_1' => 'task',
+    'lbl_tasks_n' => 'tasks',
+    'lbl_goto_start' => 'Please, open',
+    'lbl_goto_link_title' => 'tasks register',
+    'lbl_goto_end' => 'and perform'
+    
 ];

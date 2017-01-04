@@ -69,7 +69,8 @@ namespace App\Libraries\Blocks
                         'grid_form' => $this->grid->form_url,
                         'hint' => $this->getListHint($this->grid->list_id),
                         'is_setting_rights' => $this->getSettingRights(),
-                        'open_item_id' => Input::get('open_item_id', 0)
+                        'open_item_id' => Input::get('open_item_id', 0),
+                        'form_type_id' => $this->grid->form_type_id
                     ])->render();
         }
 

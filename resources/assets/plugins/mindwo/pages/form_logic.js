@@ -770,3 +770,14 @@ var FormLogic = function()
 $(document).ajaxComplete(function(event, xhr, settings) {            
     FormLogic.init();           
 });
+
+$(window).on('beforeunload', function()
+{
+    var edit_forms = $(".dx-cms-form-fields-section[data-is-edit-mode=1]");
+    
+    if(edit_forms.length > 0){
+        hide_page_splash(1);
+        hide_form_splash(1);
+        return 'Your changes have not been saved.';
+    }
+});
