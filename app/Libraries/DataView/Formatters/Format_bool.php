@@ -1,9 +1,7 @@
 <?php
 
 namespace App\Libraries\DataView\Formatters
-{   
-    use Log;
-    
+{    
     class Format_bool extends FormatAbstract
     {
         /**
@@ -14,15 +12,12 @@ namespace App\Libraries\DataView\Formatters
         */ 
         public function __construct($value)
         {
-            Log::info("BOOLEAN: " . $value);
             if ($value) {
                 $this->value = trans('fields.yes');
             }
             else {
                 $this->value = trans('fields.no');
             }
-            
-            Log::info("BOOLEAN NEW: " . $this->value);
         }
     }
 }
