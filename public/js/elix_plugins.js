@@ -6777,8 +6777,8 @@ var PageMain = function()
             
             setTimeout(function() {
                 $.gritter.add({
-                    title: 'Jums ir jāizpilda <font color="#F1C40F">' + user_tasks_count + '</font>' + ((user_tasks_count > 1) ? ' uzdevumi' : ' uzdevums'),
-                    text: 'Dodieties uz <a href="' + DX_CORE.site_url + 'skats_aktualie_uzdevumi" class="text-warning">uzdevumu sadaļu</a> un izpildiet uzdevumus.',
+                    title: Lang.get('task_form.lbl_notify_start') + ' <font color="#F1C40F">' + user_tasks_count + '</font> ' + ((user_tasks_count > 1) ? Lang.get('task_form.lbl_tasks_n') : Lang.get('task_form.lbl_tasks_1')),
+                    text: Lang.get('task_form.lbl_goto_start') + ' <a href="' + DX_CORE.site_url + 'skats_aktualie_uzdevumi" class="text-warning">' + Lang.get('task_form.lbl_goto_link_title') + '</a> ' + Lang.get('task_form.lbl_goto_end') + ' ' + ((user_tasks_count > 1) ? Lang.get('task_form.lbl_tasks_n') : Lang.get('task_form.lbl_tasks_1')) + '.',
                     time: 7000
                 });
             }, 3000);

@@ -16472,7 +16472,7 @@ var BlockViews = function()
             var rel_field_value = $(this).attr('dx_rel_field_value');
             var form_htm_id = $(this).attr('dx_form_htm_id');
             var view_id = $(this).attr('dx_view_id');
-            var grid_form = $(this).attr('dx_grid_form');
+            var grid_form = $(this).attr('dx_grid_form');            
             
             // Augšējā rīkjosla ar pogām un skatu izkrītošo izvēlni
             handleView(menu_id, tab_id, list_id, rel_field_id, rel_field_value, form_htm_id);
@@ -17717,6 +17717,17 @@ var FormLogic = function()
 $(document).ajaxComplete(function(event, xhr, settings) {            
     FormLogic.init();           
 });
+
+$(window).on('beforeunload', function()
+{
+    var edit_forms = $(".dx-cms-form-fields-section[data-is-edit-mode=1]");
+    
+    if(edit_forms.length > 0){
+        hide_page_splash(1);
+        hide_form_splash(1);
+        return 'Your changes have not been saved.';
+    }
+});
 /**
  * Daudzlīmeņa lauka apstrāde (koka ielāde)
  * 
@@ -18013,7 +18024,19 @@ var AutocompleateField = function()
         fld_elem.find(".dx-rel-id-add-btn").on("click", function() {            
             var cur_val = fld_elem.find(".dx-auto-input-id").val();
             
-            rel_new_form(fld_elem.attr("data-form-url"), fld_elem.attr("data-rel-list-id"), cur_val, fld_elem.attr("data-rel-field-id"), fld_elem.attr("id"), "AutocompleateField");             
+            if (fld_elem.data("is-profile")) {
+                if (cur_val > 0) {
+                    show_page_splash(1);
+                    show_form_splash(1);
+                    window.location = fld_elem.data("profile-url") + cur_val;            
+                }
+                else {
+                    notify_err(Lang.get('fields.err_choose_val'));
+                }
+            }
+            else {
+                rel_new_form(fld_elem.attr("data-form-url"), fld_elem.attr("data-rel-list-id"), cur_val, fld_elem.attr("data-rel-field-id"), fld_elem.attr("id"), "AutocompleateField");                            
+            }
         });
     };
     
@@ -18026,6 +18049,10 @@ var AutocompleateField = function()
         fld_elem.find(".dx-rel-id-del-btn").click(function() {
             fld_elem.find('.dx-auto-input-select2').select2('data', {id:0, text:""});
             fld_elem.find("input.dx-auto-input-id").val(0);
+            
+            if (fld_elem.data("is-profile")) {
+                fld_elem.find(".dx-rel-id-add-btn").hide();
+            }
         });
     };
     
@@ -18113,15 +18140,33 @@ var AutocompleateField = function()
             if (event.val)
             {
                 fld_elem.find("input.dx-auto-input-id").val(event.val);
+                if (fld_elem.data("is-profile")) {
+                    fld_elem.find(".dx-rel-id-add-btn").show();
+                }
             }
             else
             {
                 fld_elem.find("input.dx-auto-input-id").val(0);
+                if (fld_elem.data("is-profile")) {
+                    fld_elem.find(".dx-rel-id-add-btn").hide();
+                }
             }	
         });
         
         // set default value
         fld_elem.find('.dx-auto-input-select2').select2('data', { id: fld_elem.attr("data-item-value"), text: convertText(fld_elem.attr("data-item-text")) });
+    };
+    
+    /**
+     * Show or hide add button in case of employee profile logic
+     * 
+     * @param {object} fld_elem Field element
+     * @returns {undefined}
+     */
+    var initProfileBtn = function(fld_elem) {        
+        if (fld_elem.data("is-profile") && fld_elem.find("input.dx-auto-input-id").val() == "0") {            
+            fld_elem.find(".dx-rel-id-add-btn").hide();
+        }
     };
     
     /**
@@ -18134,6 +18179,7 @@ var AutocompleateField = function()
             handleBtnAdd($(this));
             handleBtnDel($(this));
             initSelect2($(this));
+            initProfileBtn($(this));
             $(this).attr('data-is-init', 1);
         });       
     };

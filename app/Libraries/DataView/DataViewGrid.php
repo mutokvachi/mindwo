@@ -20,6 +20,18 @@ namespace App\Libraries\DataView {
         
         public $form_url = "";
         
+        /**
+         * Grid form type - id from table dx_forms_types
+         * @var integer
+         */
+        public $form_type_id = 0;
+        
+        /**
+         * Existing employee profile page URL (for view or edit)
+         * @var string 
+         */
+        public $profile_url = '';
+        
         public $menu_id = "";
         public $grid_id = "";
         public $grid_title = "";
@@ -50,7 +62,7 @@ namespace App\Libraries\DataView {
         {
             $this->initObjects($view_id, $filter_data, $session_guid);
             
-            $this->form_url = $this->setGridFormURL();
+            $this->setGridFormURL();
             $this->grid_id = $this->view->session_guid;
             $this->grid_title = $this->view->view_obj->grid_title;
             $this->menu_id = Uuid::generate(4);
@@ -241,7 +253,7 @@ namespace App\Libraries\DataView {
                     $dropup = "dropup";
                 }
                     
-                $cell_htm = view('grid.btns_col', ['dropup' => $dropup, 'item_id' => $row['id']])->render();
+                $cell_htm = view('grid.btns_col', ['dropup' => $dropup, 'item_id' => $row['id'], 'form_type_id' => $this->form_type_id])->render();
                 
                 for ($i=0; $i<count($view->model);$i++)
                 {
@@ -364,20 +376,23 @@ namespace App\Libraries\DataView {
         private function setGridFormURL()
         {
             $first_form = DB::table('dx_forms')->where('list_id','=',$this->list_id)->first();
-
+            
             if ($first_form)
             {
                 if ($first_form->form_type_id == 2)
                 {
-                    return $first_form->custom_url;                        
+                    $this->form_url = $first_form->custom_url;                        
+                }
+                else if ($first_form->form_type_id == 3) {
+                    $this->profile_url = Config::get('dx.employee_profile_page_url', '');
                 }
                 else
                 {
-                    return "form";
+                    $this->form_url = "form";
                 }
+                
+                $this->form_type_id = $first_form->form_type_id;
             }
-            
-            return ""; // sarakstam nav definēta forma
         }
         
         /**
@@ -417,16 +432,19 @@ namespace App\Libraries\DataView {
         */ 
         private function formatLinkValue($cell_obj, $model_row, $data_row)
         {
+            $view_name = "";
             if ($model_row['is_link'] && $model_row['type'] != 'file' && strlen($this->form_url) > 0)
             {
-                $cell_obj->value =  view('grid.cell_link', [
-                                         'grid_form' => $this->form_url,
-                                         'item_id' => $data_row["id"],
-                                         'list_id' => $model_row["list_id"],
-                                         'rel_field_id' => $this->view->view_obj->rel_field_id,
-                                         'rel_field_value' => $this->view->view_obj->rel_field_value,
-                                         'grid_id' => $this->grid_id,
-                                         'form_htm_id' => $this->form_htm_id,
+                $view_name = "cell_link";
+            }
+            
+            if ($this->form_type_id == 3 && strlen($this->profile_url) > 0) {
+                $view_name = "cell_link_profile";
+            }
+            
+            if ($view_name) {
+                $cell_obj->value =  view('grid.' . $view_name, [                                         
+                                         'item_id' => $data_row["id"],                                         
                                          'cell_value' => $cell_obj->value
                                     ])->render();
             }

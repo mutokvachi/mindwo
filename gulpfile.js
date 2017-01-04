@@ -204,7 +204,7 @@ gulp.task('mix_all', function() {
         mix.scripts([
            'mindwo/pages/freeform.js',
            'mindwo/pages/inlineform.js',
-           'mindwo/pages/empl_links_fix.js',
+           //'mindwo/pages/empl_links_fix.js',
            'mindwo/pages/employee/personal_docs.js',
            'mindwo/pages/employee/notes.js',
            'mindwo/pages/employee/timeoff.js',

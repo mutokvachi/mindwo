@@ -33,6 +33,7 @@
                                  dx_is_custom_approve = "{{ $is_custom_approve }}"
                                  data-parent-field-id = "{{ $parent_field_id }}"
                                  data-parent-item-id = "{{ $parent_item_id }}"
+                                 data-is-edit-mode = "{{ $form_is_edit_mode }}"
                                  >
                                 @if ($workflow_btn == 3)
                                         <div class="alert alert-danger dx-reject-info" role="alert" style="margin-top: 15px;">

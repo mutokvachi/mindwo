@@ -20,6 +20,7 @@ return [
     'btn_set' => 'Set',
     'btn_change' => 'Change',
     'btn_remove' => 'Remove',
+    'err_choose_val' => 'Please, choose employee to view profile!',
     
     // Tree
     'tree_choose_title' => 'Choose related record',

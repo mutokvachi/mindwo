@@ -1,0 +1,1 @@
+<a href="{{ Request::root() }}{{ Config::get('dx.employee_profile_page_url') }}{{ $item_id }}">{!! $cell_value !!}</a>

@@ -666,7 +666,7 @@ var BlockViews = function()
             var rel_field_value = $(this).attr('dx_rel_field_value');
             var form_htm_id = $(this).attr('dx_form_htm_id');
             var view_id = $(this).attr('dx_view_id');
-            var grid_form = $(this).attr('dx_grid_form');
+            var grid_form = $(this).attr('dx_grid_form');            
             
             // Augšējā rīkjosla ar pogām un skatu izkrītošo izvēlni
             handleView(menu_id, tab_id, list_id, rel_field_id, rel_field_value, form_htm_id);

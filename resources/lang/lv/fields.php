@@ -20,6 +20,7 @@ return [
     'btn_set' => 'Pievienot',
     'btn_change' => 'Mainīt',
     'btn_remove' => 'Noņemt',
+    'err_choose_val' => 'Lai skatītu darbinieka profilu, vispirms jānorāda darbinieks!',
     
     // Tree
     'tree_choose_title' => 'Saistītā ieraksta izvēle',
