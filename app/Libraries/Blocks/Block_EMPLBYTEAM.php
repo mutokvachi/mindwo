@@ -52,7 +52,9 @@ class Block_EMPLBYTEAM extends Block
 			return $this->totalCount;
 		}
 		
-		$this->totalCount = User::whereNotIn('id', Config::get('dx.empl_ignore_ids', [1]))->count();
+		$this->totalCount = User::whereNotIn('id', Config::get('dx.empl_ignore_ids', [1]))
+                                    ->whereNull('termination_date')
+                                    ->count();
 		
 		return $this->totalCount;
 	}
@@ -92,6 +94,7 @@ class Block_EMPLBYTEAM extends Block
 		$counts = DB::table('dx_users')
 			->select(DB::raw('team_id, COUNT(*) AS count'))
 			->whereNotIn('id', Config::get('dx.empl_ignore_ids', [1]))
+                        ->whereNull('termination_date')
 			->groupBy('team_id')
 			->get();
 		
