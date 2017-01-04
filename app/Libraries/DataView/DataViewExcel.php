@@ -136,9 +136,11 @@ namespace App\Libraries\DataView
          */
         private function resetFieldType($model_row)
         {
-            if ($model_row['type'] == 'file' || $model_row['is_link']) {
+            if ($model_row['type'] == 'file') {
                 $model_row['type'] = 'varchar';
             }
+            
+            $model_row['is_link'] = 0;
 
             return $model_row;
         }

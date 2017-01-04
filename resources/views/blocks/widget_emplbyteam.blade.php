@@ -1,6 +1,6 @@
 <div class="portlet widget-emplbyteam" dx_block_id="emplbyteam">
   <div class="portlet-title">
-    <div class="caption font-grey-cascade uppercase">{{ trans('widgets.emplbyteam.title') }} <span class="badge badge-success">{{ $totalCount }}</span></div>
+    <div class="caption font-grey-cascade uppercase">{{ trans('widgets.emplbyteam.title') }} <small style="font-size: 60%;">{{ trans('widgets.emplbydep.today') }}</small> <span class="badge badge-success">{{ $totalCount }}</span></div>
     <div class="tools">
       <a class="collapse" href="javascript:;"> </a>
     </div>

@@ -14,6 +14,7 @@ return [
 	'emplbydep' => [
 		'title' => 'Employees by department',
 		'unassigned' => 'Unassigned',
+                'today' => 'Today',
 	],
 	'emplbyteam' => [
 		'title' => 'Employees by team',
