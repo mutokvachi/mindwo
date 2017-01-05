@@ -12,7 +12,6 @@ use App\Libraries\Rights;
  */
 class NoteController extends Controller
 {
-
     /**
      * Parameter if user has manager rights
      * @var boolean 
@@ -51,6 +50,10 @@ class NoteController extends Controller
      */
     public function save(Request $request)
     {
+        $this->validate($request, [
+            'note_text' => 'required|min:1|max:2000'
+        ]);
+
         // Retrieve user
         $user_id = $request->input('user_id');
         $user = \App\User::find($user_id);
