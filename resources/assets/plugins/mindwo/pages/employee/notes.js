@@ -137,8 +137,8 @@ window.DxEmpNotes = window.DxEmpNotes || {
 
         PageMain.showConfirm(window.DxEmpNotes.onDeleteConfirm,
                 note_id,
-                Lang.get('employee.notes.delete_note_title'),
-                Lang.get('employee.notes.delete_note_text'),
+                Lang.get('empl_profile.notes.delete_note_title'),
+                Lang.get('empl_profile.notes.delete_note_text'),
                 Lang.get('form.btn_delete'),
                 '');
     },
