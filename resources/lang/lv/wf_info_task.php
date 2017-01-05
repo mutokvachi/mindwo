@@ -45,6 +45,14 @@ return [
     
     'msg_no_inform' => 'Dokuments vēl nav nodots informācijai nevienam darbiniekam',
     
-    'lbl_have_read' => 'Iepazinās'
+    'lbl_have_read' => 'Iepazinās',
     
+    'msg_done' => 'Dokuments tika veiksmīgi nodots informācijai',
+    'msg_done_end_n' => 'darbiniekiem.',
+    'msg_done_end_1' => 'darbiniekam.',
+    
+    'lbl_role' => 'Loma (lietotāju grupa)',
+    'hint_role' => 'Ir iespējams izveidot informatīvos uzdevumus visiem darbiniekiem no norādītās lomas.',
+    'err_nothing_done' => 'Dokuments netika nodots informācijai nevienam jaunam darbiniekam!',
+    'hint_info_form' => 'Norādiet darbinieku vai darbinieku grupu, kam dokuments tiks nodots informācijai.',
 ];

@@ -405,13 +405,17 @@ class TasksController extends Controller
     public function sendInfoTask(Request $request) {
         $this->validate($request, [
             'list_id' => 'required|integer|exists:dx_lists,id',
-            'item_id' => 'required|integer',
-            'empl_id' => 'required|integer|exists:dx_users,id'
+            'item_id' => 'required|integer'
         ]);
         
         $item_id = $request->input('item_id');
         $list_id = $request->input('list_id');
-        $employee_id = $request->input('empl_id');
+        $employee_id = $request->input('empl_id', 0);
+        $role_id = $request->input('role_id', 0);
+        
+        if ($employee_id == 0 && $role_id == 0) {
+            throw new Exceptions\DXCustomException(trans('wf_info_task.err_empl_not_set'));
+        }
         
         if ($employee_id == Auth::user()->id) {
             throw new Exceptions\DXCustomException(trans('task_form.err_rights_exists'));
@@ -425,17 +429,49 @@ class TasksController extends Controller
             }
         }        
         
-        $task = DB::table('dx_tasks')
-                ->where('list_id', '=', $list_id)
-                ->where('item_id', '=', $item_id)
-                ->where('task_employee_id', '=', $employee_id)
-                ->where('task_type_id', '=', self::TASK_TYPE_INFO)
-                ->first();
-        
-        if ($task) {
-            throw new Exceptions\DXCustomException(trans('task_form.err_allready_informed'));
+        if ($employee_id > 0 && $role_id == 0){
+            $task = DB::table('dx_tasks')
+                    ->where('list_id', '=', $list_id)
+                    ->where('item_id', '=', $item_id)
+                    ->where('task_employee_id', '=', $employee_id)
+                    ->where('task_type_id', '=', self::TASK_TYPE_INFO)
+                    ->first();
+
+            if ($task) {
+                throw new Exceptions\DXCustomException(trans('task_form.err_allready_informed'));
+            }
+            
+            $users = DB::table('dx_users as u')
+                        ->select('u.id', 'u.display_name', 'u.email')
+                        ->where('u.id', '=', $employee_id)
+                        ->get();
         }
-        
+        else {
+            
+            $users_by_id = DB::table('dx_users as u')
+                        ->select('u.id', 'u.display_name', 'u.email')
+                        ->leftJoin('dx_tasks as t', function ($join) use ($item_id) {
+                                $join->on('u.id', '=', 't.task_employee_id')
+                                     ->where('t.item_id', '=', $item_id)                                  
+                                     ->where('t.task_type_id', '=', self::TASK_TYPE_INFO);
+                        })
+                        ->whereNull('t.id')
+                        ->where('u.id', '=', $employee_id);
+            
+            $users = DB::table('dx_users_roles as ur')
+                        ->select('u.id', 'u.display_name', 'u.email')
+                        ->leftJoin('dx_users as u', 'ur.user_id', '=', 'u.id')
+                        ->leftJoin('dx_tasks as t', function ($join) use ($item_id) {
+                            $join->on('u.id', '=', 't.task_employee_id')
+                                 ->where('t.item_id', '=', $item_id)                                  
+                                 ->where('t.task_type_id', '=', self::TASK_TYPE_INFO);
+                        })
+                        ->where('ur.role_id', '=', $role_id)
+                        ->whereNull('t.id')
+                        ->union($users_by_id)
+                        ->get();
+        }
+    
         $list_table = \App\Libraries\Workflows\Helper::getListTableName($list_id);
         
         $arr_meta_vals = \App\Libraries\Workflows\Helper::getMetaFieldVal($list_table, $list_id, $item_id);
@@ -443,46 +479,48 @@ class TasksController extends Controller
         $reg_nr = $arr_meta_vals[self::REPRESENT_REG_NR];
         $info = $arr_meta_vals[self::REPRESENT_ABOUT];
         $item_empl_id = $arr_meta_vals[self::REPRESENT_EMPL];
+        $task_type_title = DB::table('dx_tasks_types')->select('title')->where('id', '=', self::TASK_TYPE_INFO)->first()->title;
+        $list_title = DB::table('dx_lists')->select('list_title')->where('id', '=', $list_id)->first()->list_title;
         
-        DB::transaction(function () use ($request, $employee_id, $list_id, $item_id, $reg_nr, $info, $item_empl_id) {
-            $this->new_task_id = DB::table('dx_tasks')->insertGetId([
-                'assigned_empl_id' => Auth::user()->id,
-                'task_details' => $request->input('task_info'),
-                'created_user_id' => Auth::user()->id,
-                'created_time' => date('Y-n-d H:i:s'),
-                'modified_user_id' => Auth::user()->id,
-                'modified_time' => date('Y-n-d H:i:s'),
-                'list_id' => $list_id,
-                'item_id' => $item_id,
-                'item_reg_nr' => $reg_nr,
-                'item_info' => $info,
-                'task_type_id' => self::TASK_TYPE_INFO,
-                'task_created_time' => date('Y-n-d H:i:s'),
-                'task_status_id' => self::TASK_STATUS_PROCESS,
-                'task_employee_id' => $employee_id,
-                'item_empl_id' => $item_empl_id
-            ]);
+        DB::transaction(function () use ($request, $users, $list_id, $item_id, $reg_nr, $info, $item_empl_id, $task_type_title, $list_title) {
+            foreach($users as $user) {
+                $new_task_id = DB::table('dx_tasks')->insertGetId([
+                    'assigned_empl_id' => Auth::user()->id,
+                    'task_details' => $request->input('task_info'),
+                    'created_user_id' => Auth::user()->id,
+                    'created_time' => date('Y-n-d H:i:s'),
+                    'modified_user_id' => Auth::user()->id,
+                    'modified_time' => date('Y-n-d H:i:s'),
+                    'list_id' => $list_id,
+                    'item_id' => $item_id,
+                    'item_reg_nr' => $reg_nr,
+                    'item_info' => $info,
+                    'task_type_id' => self::TASK_TYPE_INFO,
+                    'task_created_time' => date('Y-n-d H:i:s'),
+                    'task_status_id' => self::TASK_STATUS_PROCESS,
+                    'task_employee_id' => $user->id,
+                    'item_empl_id' => $item_empl_id
+                ]);
+            
+                if ($user->email) {
+                    $this->sendNewTaskEmail([
+                        'email' => $user->email,
+                        'subject' => sprintf(trans('task_email.subject'), trans('index.app_name')),
+                        'task_type' => $task_type_title,
+                        'task_details' => $request->input('task_info'),
+                        'assigner' => Auth::user()->display_name,
+                        'due_date' => null,
+                        'list_title' => $list_title,
+                        'doc_id' => $item_id,
+                        'doc_about' => $info,
+                        'task_id' => $new_task_id,
+                        'date_now' => date('Y-n-d H:i:s')
+                    ]);
+                }
+            }
         });
         
-        $email = DB::table('dx_users')->where('id', '=', $employee_id)->first()->email;
-        
-        if ($email) {
-            $this->sendNewTaskEmail([
-                'email' => $email,
-                'subject' => sprintf(trans('task_email.subject'), trans('index.app_name')),
-                'task_type' => DB::table('dx_tasks_types')->select('title')->where('id', '=', self::TASK_TYPE_INFO)->first()->title,
-                'task_details' => $request->input('task_info'),
-                'assigner' => Auth::user()->display_name,
-                'due_date' => null,
-                'list_title' => DB::table('dx_lists')->select('list_title')->where('id', '=', $list_id)->first()->list_title,
-                'doc_id' => $item_id,
-                'doc_about' => $info,
-                'task_id' => $this->new_task_id,
-                'date_now' => date('Y-n-d H:i:s')
-            ]);
-        }
-        
-        return response()->json(['success' => 1]);
+        return response()->json(['success' => 1, 'users' => $users]);
     }
     
     /**
