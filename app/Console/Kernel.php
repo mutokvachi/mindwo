@@ -33,8 +33,12 @@ class Kernel extends ConsoleKernel
         // Executes monitoring views at 8:00 AM every day
         $schedule->command('mindwo:audit_view')
                 //->weekdays()
-                ->daily(8)
+                ->dailyAt(8)
                 ->timezone(Config::get('dx.time_zone'));
+        
+        // Checks if queue listener is running. Starts queue listener if not started
+        $schedule->command('mindwo:check_listener')
+                 ->everyTenMinutes();
 
     }
 }

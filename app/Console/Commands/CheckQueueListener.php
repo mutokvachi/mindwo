@@ -16,7 +16,7 @@ class CheckQueueListener extends Command
      *
      * @var string
      */
-    protected $signature = 'medus:check_listener';
+    protected $signature = 'mindwo:check_listener';
 
     /**
      * The console command description.
