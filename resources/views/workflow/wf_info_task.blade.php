@@ -10,12 +10,29 @@
                     @include('elements.form_header',['form_title' => trans('wf_info_task.form_title'), 'badge' => ''])
                    				
                     <div class='modal-body' style="overflow-y: auto; max-height: 500px; padding-left: 40px;">
+                        <p>{{ trans('wf_info_task.hint_info_form') }}</p>
+                        <hr>
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="form-horizontal" style="margin-top: 20px; margin-bottom: 40px;">
                                     <div class='form-group has-feedback'>
                                         <label class='col-lg-4 control-label'>
-                                            <i class='fa fa-question-circle dx-form-help-popup' title='{{ trans('wf_info_task.hint_employee') }}' style='cursor: help;'></i>&nbsp;{{ trans('wf_info_task.lbl_employee') }}<span style="color: red"> *</span>
+                                            <i class='fa fa-question-circle dx-form-help-popup' title='{{ trans('wf_info_task.hint_role') }}' style='cursor: help;'></i>&nbsp;{{ trans('wf_info_task.lbl_role') }}
+                                        </label>
+                                        <div class='col-lg-8'>
+                                            <div class="input-group" style="width: 100%;">                                        
+                                                <select class='form-control' name = 'role'>
+                                                    <option value=0></option>
+                                                    @foreach($self->getRoles() as $role)
+                                                        <option value='{{ $role->id }}'>{{ $role->title }} ({{ $role->total_users }})</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>    
+                                    </div>
+                                    <div class='form-group has-feedback'>
+                                        <label class='col-lg-4 control-label'>
+                                            <i class='fa fa-question-circle dx-form-help-popup' title='{{ trans('wf_info_task.hint_employee') }}' style='cursor: help;'></i>&nbsp;{{ trans('wf_info_task.lbl_employee') }}
                                         </label>
                                         <div class='col-lg-8'>
                                             <div class="input-group" style="width: 100%;">                                        

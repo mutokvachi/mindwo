@@ -174,6 +174,21 @@ class FormController extends Controller
         
         return response()->json(['success' => 1, 'frm_uniq_id' => "" . $frm_uniq_id, 'html' => $form_htm, 'is_fullscreen' => $params->is_full_screen_mode]);
     }
+    
+    /**
+     * Returns all non-system roles
+     * 
+     * @return object Array with roles (table dx_roles)
+     */
+    public function getRoles() {
+        return DB::table('dx_users_roles as ur')
+                 ->join('dx_roles as r', 'r.id', '=', 'ur.role_id')
+                 ->select('r.id', 'r.title', DB::raw('COUNT(*) as total_users'))
+                 ->where('r.is_system', '=', '0')
+                 ->groupBy('r.id')
+                 ->orderBy('r.title')
+                 ->get();
+    }
 
     /**
      * Atgriež atjauninātus formas laukus
