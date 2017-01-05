@@ -645,7 +645,7 @@ var PageMain = function()
             return;
         }
         
-        notify_err(getAjaxErrorText(xhr));
+        toastr.error(getAjaxErrorText(xhr));
         
         hide_page_splash(1);
         hide_form_splash(1);
