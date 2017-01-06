@@ -167,7 +167,8 @@ gulp.task('mix_all', function() {
             'mindwo/fields/datetime.js',
             'mindwo/fields/bool.js',
             'datatables/datatables.all.min.js',
-            'datatables/plugins/bootstrap/datatables.bootstrap.js'
+            'datatables/plugins/bootstrap/datatables.bootstrap.js',
+            'float-thead/dist/jquery.floatThead.js'
         ], 'public/js/elix_view.js', 'resources/assets/plugins');
         
         mix.less([

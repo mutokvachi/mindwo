@@ -48,8 +48,8 @@ return [
     'lbl_have_read' => 'Iepazinās',
     
     'msg_done' => 'Dokuments tika veiksmīgi nodots informācijai',
-    'msg_done_end_n' => 'darbiniekiem.',
-    'msg_done_end_1' => 'darbiniekam.',
+    'msg_done_end_n' => 'darbiniekiem',
+    'msg_done_end_1' => 'darbiniekam',
     
     'lbl_role' => 'Loma (lietotāju grupa)',
     'hint_role' => 'Ir iespējams izveidot informatīvos uzdevumus visiem darbiniekiem no norādītās lomas.',

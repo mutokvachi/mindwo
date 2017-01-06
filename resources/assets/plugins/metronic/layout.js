@@ -44,7 +44,10 @@ var Layout = function () {
                     height = App.getViewPort().height - headerHeight - footerHeight;
                 }
             }
-            content.attr('style', 'min-height:' + height + 'px');
+			
+			if (!content.find(".dx-grid-outer-div").length) {
+				content.attr('style', 'min-height:' + height + 'px'); // Mindwo hack: we need to avoid this for grids page				
+			}
         }
     };
 

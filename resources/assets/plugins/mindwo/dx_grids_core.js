@@ -98,7 +98,12 @@ function post_grid_ajax(formData, grid_data_htm_id, form_htm_id, is_scroll)
                         var d = $("#" + form_htm_id).find(".modal-body");
 
                         d.scrollTop(d.prop("scrollHeight"));
-                    }                    
+                    }
+                    
+                    setTimeout(function(){ 
+                        $('.dropdown-toggle').dropdown(); 
+                    }, 1000);
+                    
                 } 
                 else
                 {

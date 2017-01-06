@@ -46,19 +46,12 @@
     @if (!head($tabs_items)->is_custom_data)
         load_tab_grid('tabs_{{ $frm_uniq_id }}_{{ head($tabs_items)->id }}', {{ head($tabs_items)->grid_list_id }}, 0, {{ head($tabs_items)->grid_list_field_id }}, {{ $item_id }},'list_item_view_form_{{ $frm_uniq_id }}', 1, 5, 0);
     @endif
-    
-    /*
-    if ($().tabdrop) {
-        $('#{{ $tab_id }}').find('.tabbable-tabdrop .nav-tabs').tabdrop({
-            text: '<i class="fa fa-ellipsis-v"></i>&nbsp;<i class="fa fa-angle-down"></i>'
-        });
-    }
-    */
        
     $('#{{ $tab_id }} a.dx-tab-link').click(function () {
-      if ($('#' + this.getAttribute('tab_id')).html().trim().length == 0)
-      {
+        
+        if ($('#' + this.getAttribute('tab_id')).html().trim().length == 0)
+        {
             load_tab_grid(this.getAttribute('tab_id') ,this.getAttribute('grid_list_id'), 0, this.getAttribute('grid_list_field_id'), {{ $item_id }},'list_item_view_form_{{ $frm_uniq_id }}', 1, 5, 1);
-      }
+        }        
     });
 </script>
