@@ -1395,6 +1395,21 @@ span.CodeMirror-selectedtext { background: none; }
 {
     font-weight: bold;
 }
+
+#td_data .dx-grid-outer-div
+{
+    overflow-y: auto;
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+#td_data .dx-grid-outer-div .t_header {
+    background-color: white!important;
+}
+
+.modal-scrollable {
+    overflow: hidden!important;
+}
 table.dataTable {
     clear: both;
     margin-top: 6px !important;
