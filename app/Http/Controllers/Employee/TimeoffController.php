@@ -254,10 +254,12 @@ class TimeoffController extends Controller
         $list_rights = Rights::getRightsOnList($list->id);
 
         // Check if user has edit rights on list
-        if ($list_rights && $list_rights->is_edit_rights && $list_rights->is_edit_rights == 1) {
-            $this->has_hr_access = true;
-        } else {
+        if (!($list_rights && $list_rights->is_edit_rights && $list_rights->is_edit_rights == 1)) {
             return;
+        }
+        
+        if(Rights::isSuperviseOnItem($user->dx_supervise_id)) {
+            $this->has_hr_access = true;
         }
     }
 

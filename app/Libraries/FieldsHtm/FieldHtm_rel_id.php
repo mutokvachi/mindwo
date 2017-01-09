@@ -6,7 +6,8 @@ namespace App\Libraries\FieldsHtm
     use Auth;
     use App\Exceptions;
     use DB;
-
+    use Log;
+    
     /**
      * Izkrītošās izvēlnes lauka attēlošanas klase
      */
@@ -120,7 +121,7 @@ namespace App\Libraries\FieldsHtm
                     return getBindedFieldsItems($this->binded_field_id, $this->binded_rel_field_id, $this->binded_rel_field_value);
                 }
                 else {
-                    $sql_rel = getLookupSQL($this->fld_attr->rel_list_id, $this->fld_attr->rel_table_name, $this->fld_attr->rel_field_name, "txt") . " ORDER BY txt";
+                    $sql_rel = getLookupSQL($this->fld_attr->rel_list_id, $this->fld_attr->rel_table_name, $this->fld_attr, "txt") . " ORDER BY txt";
 
                     if ($this->fld_attr->binded_field_id > 0) {
                         $this->binded_rel_field_value = $this->item_value;
@@ -133,6 +134,7 @@ namespace App\Libraries\FieldsHtm
                 return DB::select($sql_rel);
             }
             catch (\Exception $e) {
+                Log::info("REL ID ERROR: " . $e->getMessage());
                 throw new Exceptions\DXCustomException("Izkrītošās izvēlnes laukam '" . $this->fld_attr->db_name . "' nav iespējams izveidot korektu datu atlases pieprasījumu.");
             }
         }

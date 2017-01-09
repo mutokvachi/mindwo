@@ -139,7 +139,7 @@ class NoteController extends Controller
 
         // List edit rights are checked only for HR users. 
         // If user has manager access then it doesnt matter if he has access to list
-        if (!$this->getListEditRights()) {
+        if (!$this->getListEditRights($user)) {
             $this->has_hr_access = false;
         }
 
@@ -181,9 +181,10 @@ class NoteController extends Controller
 
     /**
      * Check if user has edit rights
+     * @param object $user User for which profile will be loaded
      * @return boolean True if has rights
      */
-    private function getListEditRights()
+    private function getListEditRights($user)
     {
         $list = \App\Libraries\DBHelper::getListByTable('in_employees_notes');
 
@@ -195,11 +196,11 @@ class NoteController extends Controller
         $list_rights = Rights::getRightsOnList($list->id);
 
         // Check if user has edit rights on list
-        if ($list_rights && $list_rights->is_edit_rights && $list_rights->is_edit_rights == 1) {
-            return true;
-        } else {
-            return false;
+        if (!($list_rights && $list_rights->is_edit_rights && $list_rights->is_edit_rights == 1)) {
+            return 0;
         }
+        
+        return Rights::isSuperviseOnItem($user->dx_supervise_id);
     }
 
     /**

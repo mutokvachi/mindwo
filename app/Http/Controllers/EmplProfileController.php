@@ -7,20 +7,37 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use App\Libraries\Rights;
+use DB;
 
 /**
  * Employee profile controller
  */
 class EmplProfileController extends Controller
 {
-	/**
+        /**
+         * Employee data for profile
+         * 
+         * @var object 
+         */
+	private $employee = null;
+        
+        /**
+         * Indicates if new record is beeing created
+         * 
+         * @var boolean True - new item, False - editing 
+         */
+        private $is_new = false;
+        
+        /**
 	 * Show the form for creating a new resource.
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
 	public function create()
 	{
-		$employee = new App\User;
+                $this->is_new = true;
+                
+                $this->employee = new App\User;
 		
 		$form = new App\Libraries\Forms\Form(Config::get('dx.employee_list_id'));
 		$form->disabled = false;
@@ -36,8 +53,8 @@ class EmplProfileController extends Controller
 		
 		return view('profile.employee', [
 			'mode' => 'create',
-			'employee' => $employee,
-			'avail' => $employee->getAvailability(),
+			'employee' => $this->employee,
+			'avail' => $this->employee->getAvailability(),
 			'form' => $form,
 			'is_my_profile' => false,
 			'is_edit_rights' => $this->getEditRightsMode(),
@@ -63,7 +80,7 @@ class EmplProfileController extends Controller
 			$id = Auth::user()->id;
 		}
 		
-		$employee = App\User::find($id);
+		$this->employee = App\User::find($id);
 		
 		$form = new App\Libraries\Forms\Form(Config::get('dx.employee_list_id'), $id);
 		$form->disabled = true;
@@ -79,20 +96,20 @@ class EmplProfileController extends Controller
 		
 		return view('profile.employee', [
 			'mode' => 'show',
-			'employee' => $employee,
-			'avail' => $employee->getAvailability(),
+			'employee' => $this->employee,
+			'avail' => $this->employee->getAvailability(),
 			'form' => $form,
 			'is_my_profile' => $id == Auth::user()->id,
 			'is_edit_rights' => $this->getEditRightsMode(),
 			'has_users_documents_access' => $this->validateUsersDocumentsAccess(),
-			'has_users_notes_access' => $this->validateUsersNotesAccess($employee),
-			'has_users_timeoff_access' => $this->validateUsersTimeoffAccess($employee),
+			'has_users_notes_access' => $this->validateUsersNotesAccess($this->employee),
+			'has_users_timeoff_access' => $this->validateUsersTimeoffAccess($this->employee),
 		]);
 	}
 	
 	public function edit($id, Request $request)
 	{
-		$employee = App\User::find($id);
+		$this->employee = App\User::find($id);
 	}
 	
 	public function update(Request $request, $id)
@@ -107,7 +124,7 @@ class EmplProfileController extends Controller
 	 */
 	public function ajaxShowChunks($id)
 	{
-		$employee = App\User::find($id);
+		$this->employee = App\User::find($id);
 		
 		$result = [
 			'success' => 1,
@@ -119,19 +136,19 @@ class EmplProfileController extends Controller
 		
 		$result['chunks']['.dx-employee-panel'] = view('profile.panel', [
 			'mode' => 'show',
-			'employee' => $employee,
-			'avail' => $employee->getAvailability(),
+			'employee' => $this->employee,
+			'avail' => $this->employee->getAvailability(),
 			'form' => $form,
 			'is_my_profile' => $id == Auth::user()->id,
 			'is_edit_rights' => $this->getEditRightsMode()
 		])->render();
 		
 		$result['chunks']['.dx-employee-hired'] = view('profile.tile_hired', [
-			'employee' => $employee,
+			'employee' => $this->employee,
 		])->render();
 		
 		$result['chunks']['.dx-employee-manager'] = view('profile.tile_manager', [
-			'employee' => $employee,
+			'employee' => $this->employee,
 		])->render();
 		
 		return response($result);
@@ -146,7 +163,7 @@ class EmplProfileController extends Controller
 	 */
 	public function ajaxShowTab(Request $request, $id)
 	{
-		$employee = App\User::find($id);
+		$this->employee = App\User::find($id);
 		$tabId = $request->input('tab_id');
 		
 		$result = [
@@ -156,7 +173,7 @@ class EmplProfileController extends Controller
 		
 		$result['html'] = view('profile.' . $tabId, [
 			'mode' => 'show',
-			'employee' => $employee,
+			'employee' => $this->employee,
 			'is_my_profile' => $id == Auth::user()->id,
 			'is_edit_rights' => $this->getEditRightsMode()
 		])->render();
@@ -209,12 +226,16 @@ class EmplProfileController extends Controller
 	{
 		$empl_list_rights = Rights::getRightsOnList(Config::get('dx.employee_list_id'));
 		
-		$is_edit_rights = 0;
-		if($empl_list_rights && $empl_list_rights->is_edit_rights)
+		if(!($empl_list_rights && $empl_list_rights->is_edit_rights))
 		{
-			$is_edit_rights = 1;
+                    return 0; // no rights on employees list
 		}
-		
-		return $is_edit_rights;
+                
+                if ($this->is_new) {
+                    return 1; // new item
+                }
+                
+                return Rights::isSuperviseOnItem($this->employee->dx_supervise_id);
+                
 	}
 }

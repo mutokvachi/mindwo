@@ -589,6 +589,7 @@ class FormController extends Controller
                 ->first();
 
         $field_item = DB::table('dx_lists_fields')
+                ->select('db_name as rel_field_name', 'is_right_check')
                 ->where('id', '=', $txt_field_id)
                 ->first();
 
@@ -596,7 +597,7 @@ class FormController extends Controller
             throw new Exceptions\DXCustomException("Sistēmas konfigurācijas kļūda! Uzmeklēšanas laukam nav atrodams reģistrs ar ID " . $list_id . " vai saistītais lauks ar ID " . $txt_field_id . ".");
         }
 
-        $rows = DB::select($this->getAutocompleateSQL($table_item, $field_item, $list_id), array($field_item->db_name => "%" . $term . "%"));
+        $rows = DB::select($this->getAutocompleateSQL($table_item, $field_item, $list_id), array($field_item->rel_field_name => "%" . $term . "%"));
 
         $rez = array();
         foreach ($rows as $item) {
@@ -616,9 +617,9 @@ class FormController extends Controller
      */
     private function getAutocompleateSQL($table_item, $field_item, $list_id)
     {               
-        $sql = getLookupSQL($list_id, $table_item->table_name, $field_item->db_name, "txt");
+        $sql = getLookupSQL($list_id, $table_item->table_name, $field_item, "txt");
         
-        $sql = $sql . " AND txt like :" . $field_item->db_name . " ORDER BY txt ASC";
+        $sql = $sql . " AND txt like :" . $field_item->rel_field_name . " ORDER BY txt ASC";
                 
         return $sql;
     }
@@ -725,7 +726,8 @@ class FormController extends Controller
                 lf.reg_role_id,
                 ff.tab_id,
                 ff.group_label,
-                rt.code as row_type_code
+                rt.code as row_type_code,
+                lf.is_right_check
 	FROM
 		dx_forms_fields ff
 		inner join dx_lists_fields lf on ff.field_id = lf.id
