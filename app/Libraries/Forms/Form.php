@@ -373,7 +373,8 @@ class Form
 				lf.reg_role_id,
 				ff.tab_id,
 				ff.group_label,
-                                rt.code as row_type_code
+                                rt.code as row_type_code,
+                                lf.is_right_check
 			FROM
 				dx_forms_fields ff
 				inner join dx_lists_fields lf on ff.field_id = lf.id

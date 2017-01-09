@@ -4,6 +4,7 @@ namespace App\Libraries\FieldsHtm
 {
     use DB;
     use Auth;
+    use App\Exceptions;
     
     /**
      * Uzmeklēšanas lauka attēlošanas klase
@@ -86,7 +87,7 @@ namespace App\Libraries\FieldsHtm
             
             try 
             {                                
-                $sql_rel = getLookupSQL($this->fld_attr->rel_list_id, $this->fld_attr->rel_table_name, $this->fld_attr->rel_field_name, "txt");
+                $sql_rel = getLookupSQL($this->fld_attr->rel_list_id, $this->fld_attr->rel_table_name, $this->fld_attr, "txt");
                 
                 $sql_rel .= " AND id = " . $this->item_value;
                 

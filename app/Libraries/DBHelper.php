@@ -116,8 +116,9 @@ namespace App\Libraries
             $arr_vals['list_id'] = $list_id;
             $arr_vals['form_id'] = $form->id;
             $arr_vals['field_id'] = $fld_id;
-            $arr_vals['order_index'] = (DB::table('dx_forms_fields')->where('form_id', '=', $form->id)->max('order_index') + 10);
-            
+            if (!isset($arr_vals['order_index'])) {
+                $arr_vals['order_index'] = (DB::table('dx_forms_fields')->where('form_id', '=', $form->id)->max('order_index') + 10);
+            }
             DB::table('dx_forms_fields')->insert($arr_vals);
         }
         
