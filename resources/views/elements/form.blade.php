@@ -14,8 +14,7 @@
                     @endif
                     <div class="dx_form_btns_left">
                         @include('elements.form_left_btns')
-                    </div>
-                    <!--<button  type='button' class='btn btn-white pull-right' id='btn_print_{{ $frm_uniq_id }}'><i class="fa fa-print"></i> Drukāt</button>-->
+                    </div>                    
                 </div>
                 
            
@@ -34,6 +33,7 @@
                                  dx_is_custom_approve = "{{ $is_custom_approve }}"
                                  data-parent-field-id = "{{ $parent_field_id }}"
                                  data-parent-item-id = "{{ $parent_item_id }}"
+                                 data-is-edit-mode = "{{ $form_is_edit_mode }}"
                                  >
                                 @if ($workflow_btn == 3)
                                         <div class="alert alert-danger dx-reject-info" role="alert" style="margin-top: 15px;">
@@ -136,12 +136,7 @@
                                 success: 'glyphicon-ok',
                                 error: 'glyphicon-alert'
                             }
-                        });
-                    @else
-                        $('#btn_print_{{ $frm_uniq_id }}').click(function(event){
-                            event.stopPropagation();
-                            printForm('item_edit_form_{{ $frm_uniq_id }}');
-                        });
+                        });                    
                     @endif
 
                     @if ($is_form_reloaded === 0)                
@@ -157,7 +152,7 @@
 </div>
 @endif
 
-@if ($workflow_btn == 1 &&  $is_custom_approve == 1)
+@if (($workflow_btn == 1 || $workflow_btn == 3) && $form_is_edit_mode == 0 && $is_editable_wf == 1 && $is_edit_rights) 
     @include('workflow.wf_init_form')
     @include('workflow.wf_init_add_approver')    
 @endif

@@ -64,6 +64,8 @@ window.DxEmpNotes = window.DxEmpNotes || {
 
         $('.dx-emp-notes-chat').on('click', '.dx-emp-notes-btn-link-edit', {}, window.DxEmpNotes.onEditClick);
         $('.dx-emp-notes-chat').on('click', '.dx-emp-notes-btn-link-delete', {}, window.DxEmpNotes.onDeleteClick);
+        
+        $('.dx-emp-notes-btn-whosee').popover();
 
         window.DxEmpNotes.isLoaded = true;
 
@@ -137,8 +139,8 @@ window.DxEmpNotes = window.DxEmpNotes || {
 
         PageMain.showConfirm(window.DxEmpNotes.onDeleteConfirm,
                 note_id,
-                Lang.get('employee.notes.delete_note_title'),
-                Lang.get('employee.notes.delete_note_text'),
+                Lang.get('empl_profile.notes.delete_note_title'),
+                Lang.get('empl_profile.notes.delete_note_text'),
                 Lang.get('form.btn_delete'),
                 '');
     },

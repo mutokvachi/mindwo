@@ -7,6 +7,7 @@ namespace App\Libraries {
     use Auth;
     use App\Libraries\Rights;
     use App\Exceptions;
+    use Config;
     
     class View 
     {  
@@ -312,7 +313,8 @@ namespace App\Libraries {
 				vf.is_hidden,
 				st.sys_name as order_by,
 				vf.is_sum,
-				at.sys_name as aggregation
+				at.sys_name as aggregation,
+                                lf.rel_list_id
 			FROM
 				dx_views_fields vf
 				inner join dx_lists_fields lf on vf.field_id = lf.id
@@ -485,7 +487,18 @@ namespace App\Libraries {
 				
 				$sql_fields =  $sql_fields . $row->rel_table_db_name . "_" . $rel_cnt . "." . $row->rel_field_db_name . " as " . $fld_name;
 				
-				$sql_join = $sql_join . " LEFT JOIN " . $row->rel_table_db_name . " " . $row->rel_table_db_name . "_" . $rel_cnt . " ON " . $row->rel_table_db_name . "_" . $rel_cnt . ".id = " . $this->list_obj_db_name . "." . $row->db_name;
+                                if ($row->list_id == Config::get('dx.employee_list_id', 0)) {
+                                    // ignore supervision rules for related employees in employees list
+                                    // because we need to see related manager
+                                    $superv_sql = "";
+                                    $join_type = " LEFT JOIN ";
+                                }
+                                else {
+                                    $superv_sql = Rights::getSQLSuperviseRights($row->rel_list_id, $row->rel_table_db_name . "_" . $rel_cnt);                                
+                                    $join_type = (strlen($superv_sql) > 0) ? " JOIN " : " LEFT JOIN ";
+                                }
+                                
+				$sql_join = $sql_join . $join_type . $row->rel_table_db_name . " " . $row->rel_table_db_name . "_" . $rel_cnt . " ON " . $row->rel_table_db_name . "_" . $rel_cnt . ".id = " . $this->list_obj_db_name . "." . $row->db_name . $superv_sql;
 				
 				$original_field = $fld_name; 			
 			}
@@ -739,9 +752,13 @@ namespace App\Libraries {
                     else
                     {
                     */
+                    $superv_sql = "";
                     
+                    if ($this->list_id != Config::get('dx.employee_list_id', 0) || !$this->is_rights_check_off) {
+                        $superv_sql = Rights::getSQLSuperviseRights($this->list_id, $this->list_obj_db_name);
+                    }
                     
-                    $grid_sql = "SELECT * FROM (SELECT " . $sql_fields . " FROM " . $this->list_obj_db_name . $sql_join . " WHERE 1=1 " . $this->getListLevelFilter() . $sql_multi . $sql_tab_where . Rights::getSQLSourceRights($this->list_id, $this->list_obj_db_name) . $this->sql_user_rights . $spec_access . ") tb WHERE 1=1 " . $sql_filter;
+                    $grid_sql = "SELECT * FROM (SELECT " . $sql_fields . " FROM " . $this->list_obj_db_name . $sql_join . " WHERE 1=1 " . $this->getListLevelFilter() . $sql_multi . $sql_tab_where . $superv_sql . Rights::getSQLSourceRights($this->list_id, $this->list_obj_db_name) . $this->sql_user_rights . $spec_access . ") tb WHERE 1=1 " . $sql_filter;
                     
                 }
                 else
@@ -756,7 +773,7 @@ namespace App\Libraries {
                 //DB::statement('CREATE OR REPLACE VIEW v_data_' . $this->view_id . ' as ' . $grid_sql);
 
                 //$sql = "SELECT * FROM v_data_" . $this->view_id . " WHERE 1=1 "; 
-               
+                Log::info("GRID SQL: " . $grid_sql);
                 return $grid_sql;
                 
 	}

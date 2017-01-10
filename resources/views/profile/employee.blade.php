@@ -6,10 +6,7 @@
       <a href="#tab_info" data-toggle="tab" aria-expanded="true"> Info </a>
     </li>
     
-    @if($is_my_profile)
-      <li class="">
-        <a href="#tab_leaves" data-toggle="tab" aria-expanded="true" data-dynamic="true"> Leaves </a>
-      </li>
+    @if($is_my_profile)      
       <li class="">
         <a href="#tab_bonuses" data-toggle="tab" aria-expanded="false" data-dynamic="true"> Bonuses </a>
       </li>
@@ -79,9 +76,7 @@
       </div>
     </div>
     
-    @if ($is_my_profile)
-        <div class="tab-pane fade" id="tab_leaves">
-        </div>
+    @if ($is_my_profile)        
         <div class="tab-pane fade" id="tab_bonuses">
         </div>
     @endif

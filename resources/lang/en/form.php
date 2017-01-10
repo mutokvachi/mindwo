@@ -15,6 +15,7 @@ return [
     'view' => 'View',
     'btn_edit' => 'Edit',
     'btn_delete' => 'Delete',
+    'btn_pdf' => 'To PDF',
     'btn_start_workflow' => 'Start workflow',
     'btn_info' => 'Inform',
     'btn_info_hint' => 'Employees which receives document as informative task',
@@ -30,4 +31,8 @@ return [
     
     'lbl_full_screen' => 'Is full screen mode',
     
+    // To PDF
+    'lbl_data' => 'Data',
+    'lbl_id' => 'Record ID',
+    'lbl_print_date' => 'Data as of',
 ];

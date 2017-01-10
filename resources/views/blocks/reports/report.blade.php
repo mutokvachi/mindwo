@@ -32,10 +32,10 @@
                                 {{ trans('reports.' . $report_name . '.all') }}
                             </a>
                         </li>
-                        @foreach (\App\Models\Department::orderBy('title')->get() as $department)
+                        @foreach (\App\Models\Source::orderBy('title')->get() as $source)
                         <li>
-                            <a href="javascript:;" class="dx-widget-report-sel-group" data-value="{{ $department->id }}" data-title="{{ $department->title }}">
-                                {{ $department->title }}
+                            <a href="javascript:;" class="dx-widget-report-sel-group" data-value="{{ $source->id }}" data-title="{{ $source->title }}">
+                                {{ $source->title }}
                             </a>
                         </li>
                         @endforeach

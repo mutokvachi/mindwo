@@ -23,6 +23,14 @@ namespace App\Libraries\FieldsHtm
                         'is_required' => $this->fld_attr->is_required
             ])->render();
         }
+        
+        /**
+         * Returns textual value of the field
+         */
+        public function getTxtVal()
+        {
+            return $this->item_value;
+        }
 
         /**
          * Uzstāda noklusēto vērtību jauna ieraksta gadījumā

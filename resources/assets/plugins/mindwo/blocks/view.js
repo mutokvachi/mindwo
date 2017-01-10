@@ -649,6 +649,26 @@ var BlockViews = function()
     };
     
     /**
+     * Recalculates grid height to set scrollbars
+     * 
+     * @returns {undefined}
+     */
+    var initHeight = function() {
+        var grid_el = $("#td_data .dx-grid-outer-div");
+        var grid_top = grid_el.offset().top;                
+        var win_h = $( window ).height();
+        var max_h = win_h - grid_top-100;
+        grid_el.css('max-height', max_h + 'px');
+        
+        var page_h = $("#td_data").offset().top;
+        var page_min = win_h - page_h;
+        $("#td_data").css('min-height', page_min + 'px');
+        
+        $(".dx-page-container").css('padding-bottom', '0px');
+        $("#td_data .dx-paginator-butons").css('margin-right', 'auto');
+    };
+    
+    /**
      * Apstrādā un inicializē vēl neinicializētos skatu blokus
      * @returns {undefined}
      */
@@ -666,7 +686,7 @@ var BlockViews = function()
             var rel_field_value = $(this).attr('dx_rel_field_value');
             var form_htm_id = $(this).attr('dx_form_htm_id');
             var view_id = $(this).attr('dx_view_id');
-            var grid_form = $(this).attr('dx_grid_form');
+            var grid_form = $(this).attr('dx_grid_form');            
             
             // Augšējā rīkjosla ar pogām un skatu izkrītošo izvēlni
             handleView(menu_id, tab_id, list_id, rel_field_id, rel_field_value, form_htm_id);
@@ -696,13 +716,32 @@ var BlockViews = function()
             
             openItemByID($(this), grid_form, grid_id, list_id, rel_field_id, rel_field_value, form_htm_id);
             
+            PageMain.addResizeCallback(initHeight);
+            
+            initHeight();
+            
+            var $table = $(this).find('table.dx-grid-table');
+            
+            $table.floatThead({
+                scrollContainer: function($table){
+                    return $table.closest('.dx-grid-outer-div');
+                }
+            });
+            
+            PageMain.addResizeCallback(function() {
+                $table.floatThead('reflow');
+            });
+            
             $(this).attr('dx_block_init', 1); // uzstādam pazīmi, ka skata bloks ir inicializēts
-        });
+        });  
     };
 
     return {
         init: function() {
             initViews();
+        },
+        initHeight: function() {
+            initHeight();
         }
     };
 }();

@@ -167,7 +167,8 @@ gulp.task('mix_all', function() {
             'mindwo/fields/datetime.js',
             'mindwo/fields/bool.js',
             'datatables/datatables.all.min.js',
-            'datatables/plugins/bootstrap/datatables.bootstrap.js'
+            'datatables/plugins/bootstrap/datatables.bootstrap.js',
+            'float-thead/dist/jquery.floatThead.js'
         ], 'public/js/elix_view.js', 'resources/assets/plugins');
         
         mix.less([
@@ -204,7 +205,7 @@ gulp.task('mix_all', function() {
         mix.scripts([
            'mindwo/pages/freeform.js',
            'mindwo/pages/inlineform.js',
-           'mindwo/pages/empl_links_fix.js',
+           //'mindwo/pages/empl_links_fix.js',
            'mindwo/pages/employee/personal_docs.js',
            'mindwo/pages/employee/notes.js',
            'mindwo/pages/employee/timeoff.js',

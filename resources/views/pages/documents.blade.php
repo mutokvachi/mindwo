@@ -71,7 +71,7 @@
                 @endforeach
             </div>
             <div class="text-center">
-                {!! $docs->appends(['criteria' => urlencode($criteria), 'source_id' => $source_id, 'kind_id' => $kind_id, 'pick_date_from' => $date_from, 'pick_date_to' => $date_to, 'searchType' => '{{ trans("search_top.documents") }}'])->render() !!}
+                {!! $docs->appends(['criteria' => urlencode($criteria), 'source_id' => $source_id, 'kind_id' => $kind_id, 'pick_date_from' => $date_from, 'pick_date_to' => $date_to, 'searchType' => trans("search_top.documents")])->render() !!}
                 <div style="color: silver; margin-top: 10px; margin-bottom: 20px;">{{ trans('documents.record_count') }} <b>{{ $total_count }}</b></span></div>
             </div>        
             

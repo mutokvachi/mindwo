@@ -150,7 +150,7 @@ namespace App\Libraries
         {
 
             if (!Auth::user()->source_id) {
-                return; // lietotājam piekļuve visiem datu avotiem
+                return ""; // lietotājam piekļuve visiem datu avotiem
             }
 
             $fld_row = DB::table('dx_lists_fields')
@@ -170,6 +170,79 @@ namespace App\Libraries
             }
 
             return $source_where;
+        }
+        
+        /**
+         * 
+         * @param type $list_id
+         * @param type $table_name
+         * @return string
+         */
+        public static function getSQLSuperviseRights($list_id, $table_name)
+        {            
+            $supervise = DB::table('dx_users_supervise')
+                   ->select('supervise_id')
+                   ->where('user_id', '=', Auth::user()->id)
+                   ->get();
+            
+            if (count($supervise) == 0) {
+                // user have access to all data                
+                return "";
+            }
+            
+            $in_ids = "";
+            foreach($supervise as $row) {
+                if (strlen($in_ids) > 0) {
+                    $in_ids .= ",";
+                }
+                $in_ids .= $row->supervise_id;
+            }
+            
+            $fld_row = DB::table('dx_lists_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('db_name', '=', 'dx_supervise_id')
+                    ->first();
+
+            $source_where = " ";
+
+            if ($fld_row) {
+                $source_where = " AND " . $table_name . ".dx_supervise_id in (" . $in_ids . ") ";
+            }
+
+            if (strpos($table_name, "dx_supervise") === 0) {
+                $source_where = " AND " . $table_name . ".id in (" . $in_ids . ") ";
+            }
+            
+            if (strpos($table_name, "dx_users_supervise") === 0) {
+                $source_where = " AND " . $table_name . ".supervise_id in (" . $in_ids . ") ";
+            }
+            
+            return $source_where;
+        }
+        
+        /**
+         * Check if user have access to data item by supervise_id
+         * @param integer $supervise_id From tabe dx_supervise
+         * @return int 0 - no access, 1 - have access
+         */
+        public static function isSuperviseOnItem($supervise_id) {
+            $supervise = DB::table('dx_users_supervise')
+                   ->select('supervise_id')
+                   ->where('user_id', '=', Auth::user()->id)
+                   ->get();
+            
+            if (count($supervise) == 0) {
+                // user have access to all data                
+                return 1;
+            }
+
+            foreach($supervise as $row) {
+                if ($row->supervise_id == $supervise_id) {
+                    return 1;
+                }
+            }
+
+            return 0;
         }
 
         /**
@@ -206,6 +279,51 @@ namespace App\Libraries
                 throw new Exceptions\DXCustomException(trans('errors.cant_edit_in_process'));
             }
         }    
+        
+        /**
+        * Checks if user have rights on list or have task for specific item - for file download
+        * 
+        * @param integer $item_id Item ID
+        * @param integer $list_id List ID
+        */
+        public static function checkFileRights($item_id, $list_id) {
+           $right = Rights::getRightsOnList($list_id);
+
+           if ($right == null) {
+               if (!\App\Libraries\Workflows\Helper::isRelatedTask($list_id, $item_id)) {                   
+                   throw new Exceptions\DXCustomException(trans('errors.no_rights_on_register'));
+               }
+           }
+           else {
+               Rights::checkItemAccess($item_id);
+           }
+        }
+        
+        /**
+        * Checks if it is set special permissions on item and weather user have those special rights
+        * @param integer $item_id
+        * @throws Exceptions\DXCustomException
+        */
+        public static function checkItemAccess($item_id) {
+
+           $item_rights = DB::table('dx_item_access')
+                   ->where('list_id', '=', 'list_id')
+                   ->where('list_item_id', '=', $item_id)
+                   ->count();
+
+           if ($item_rights > 0) {
+
+               $user_rights = DB::table('dx_item_access')
+                       ->where('list_id', '=', 'list_id')
+                       ->where('list_item_id', '=', $item_id)
+                       ->where('user_id', '=', Auth::user()->id)
+                       ->count();
+
+               if ($user_rights == 0) {
+                   throw new Exceptions\DXCustomException(sprintf(trans('errors.no_donwload_rights'), $item_id));
+               }
+           }
+        }
 
     }
 

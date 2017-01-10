@@ -26,7 +26,7 @@ class FileController extends Controller
      */
     public function getFile($item_id, $list_id, $file_field_id)
     {
-        $this->checkRights($item_id, $list_id);
+        Rights::checkFileRights($item_id, $list_id);
         
         $file = $this->getFileData($item_id, $list_id, $file_field_id);
         
@@ -88,11 +88,33 @@ class FileController extends Controller
      */
     public function getFileByField($item_id, $list_id, $field_name)
     {
-        $this->checkRights($item_id, $list_id);
+        Rights::checkFileRights($item_id, $list_id);
         
         $file_field_id = DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', $field_name)->first()->id;
 
         $file = $this->getFileData($item_id, $list_id, $file_field_id);
+
+        if (!$file) {
+            throw new Exceptions\DXCustomException(sprintf(trans('errors.file_record_not_found'),$item_id));
+        }
+        
+        return $this->performFileDownload($file);
+    }
+    
+     /**
+     * Lejuplādē PDF datni pēc norādītā datnes lauka nosaukuma
+     * 
+     * @param integer $item_id          Ieraksta ID
+     * @param integer $list_id          Reģistra ID
+     * @param integer $field_id          Datnes lauka ID
+     * @return Response Datne
+     * @throws Exceptions\DXCustomException
+     */
+    public function getPDFFile($item_id, $list_id, $field_id)
+    {
+        Rights::checkFileRights($item_id, $list_id);
+        
+        $file = $this->getFileData($item_id, $list_id, $field_id);
 
         if (!$file) {
             throw new Exceptions\DXCustomException(sprintf(trans('errors.file_record_not_found'),$item_id));
@@ -111,7 +133,7 @@ class FileController extends Controller
      */
     public function getFirstFile($item_id, $list_id) {
         
-        $this->checkRights($item_id, $list_id);
+        Rights::checkFileRights($item_id, $list_id);
         
         $file_fields = DB::table('dx_lists_fields as lf')
                        ->select('lf.id')
@@ -199,10 +221,12 @@ class FileController extends Controller
         }
 
         $headers = array(
+            'Expires: 0',
+            'Cache-Control: must-revalidate',
             'Content-Type: ' . $this->getFileContentHeader($file->file_name),
-            'Content-Disposition: attachment; filename="' . $file->file_name . '";'
+            'Content-Disposition: filename="' . $file->file_name . '";'
         );
-        Log::info("Te jabut donw");
+        
         return response()->download($file_path, $file->file_name, $headers);
     }
     /**
@@ -258,52 +282,6 @@ class FileController extends Controller
         }
 
         return $data_tb->first();
-    }
-    
-    /**
-     * Checks if it is set special permissions on item and weather user have those special rights
-     * @param integer $item_id
-     * @throws Exceptions\DXCustomException
-     */
-    private function checkItemAccess($item_id) {
-                
-        $item_rights = DB::table('dx_item_access')
-                ->where('list_id', '=', 'list_id')
-                ->where('list_item_id', '=', $item_id)
-                ->count();
-
-        if ($item_rights > 0) {
-
-            $user_rights = DB::table('dx_item_access')
-                    ->where('list_id', '=', 'list_id')
-                    ->where('list_item_id', '=', $item_id)
-                    ->where('user_id', '=', Auth::user()->id)
-                    ->count();
-
-            if ($user_rights == 0) {
-                throw new Exceptions\DXCustomException(sprintf(trans('errors.no_donwload_rights'), $item_id));
-            }
-        }
-    }
-    
-    /**
-     * Checks if user have rights on list or have task for specific item
-     * 
-     * @param integer $item_id Item ID
-     * @param integer $list_id List ID
-     */
-    private function checkRights($item_id, $list_id) {
-        $right = Rights::getRightsOnList($list_id);
-
-        if ($right == null) {
-            if (!\App\Libraries\Workflows\Helper::isRelatedTask($list_id, $item_id)) {
-                Log::info("Lietotājam " . Auth::user()->display_name . " nav tiesību uz ierakstu ar ID " . $item_id . " reģistrā ar ID " . $list_id);
-                throw new Exceptions\DXCustomException(trans('errors.no_rights_on_register'));
-            }
-        }
-        else {
-            $this->checkItemAccess($item_id);
-        }
     }
 
     /**

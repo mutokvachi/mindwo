@@ -102,7 +102,12 @@ class AuditViewCounts extends Command
             }
 
             if (count($this->arr_emails)) {
-                array_push($this->arr_views, ['view' => $view, 'emails' => $this->arr_emails, 'count' => count($view_data)]);
+                if ($view->is_detailed_notify) {
+                    $this->notifyDetailed($view_data, $view);
+                }
+                else {
+                    array_push($this->arr_views, ['view' => $view, 'emails' => $this->arr_emails, 'count' => count($view_data)]);
+                }
             }
         }
 
@@ -226,7 +231,39 @@ class AuditViewCounts extends Command
         }
 
         if (count($this->arr_empl)) {
-            $this->sendDetailedNotify($view);
+            $this->sendDetailedNotify($view, $this->arr_empl);
+        }
+    }
+    
+    /**
+     * Prepares detailed info and adds it to each email for which notification will be sent
+     * @param object $view_data View data rows
+     * @param object $view View data (row from table dx_views)
+     */
+    private function notifyDetailed($view_data, $view)
+    {
+        $arr_em = [];
+        
+        foreach($this->arr_emails as $em){
+            array_push($arr_em, ['email' => $em, 'items' => array()]);
+        }
+        
+        $list_table = \App\Libraries\Workflows\Helper::getListTableName($view->list_id);
+
+        foreach ($view_data as $row) {
+            
+            foreach($arr_em as $key=>$em){
+                
+                array_push($arr_em[$key]['items'], [
+                    'item_id' => $row->id,
+                    'about' => $this->getMetaVal($list_table, $view, \App\Http\Controllers\TasksController::REPRESENT_ABOUT, $row->id),
+                    'reg_nr' => $this->getMetaVal($list_table, $view, \App\Http\Controllers\TasksController::REPRESENT_REG_NR, $row->id),
+                ]);
+            }
+        }
+        
+        if (count($arr_em)) {
+            $this->sendDetailedNotify($view, $arr_em);
         }
     }
 
@@ -255,17 +292,23 @@ class AuditViewCounts extends Command
      * Sends notifications to responsible employees
      * 
      * @param object $view View row
+     * @param array $arr Array with employees emails
      */
-    private function sendDetailedNotify($view)
-    {
-        foreach ($this->arr_empl as $empl) {
+    private function sendDetailedNotify($view, $arr)
+    {        
+        // get default view for list
+        $def_view = DB::table('dx_views')->where('list_id', '=', $view->list_id)->where('is_default', '=', 1)->where('is_hidden_from_main_grid', '=', 0)->first();
+        
+        $view_id = ($def_view) ? $def_view->id : $view->id;
+        
+        foreach ($arr as $empl) {
 
             $arr_data = [];
             $arr_data['email'] = $empl['email'];
             $arr_data['subject'] = $view->title . ": " . count($empl['items']);
             $arr_data['items'] = $empl['items'];
             $arr_data['view_title'] = $view->title;
-            $arr_data['view_id'] = $view->id;
+            $arr_data['view_id'] = $view_id;
 
             dispatch(new \App\Jobs\SendMonitoringMail($arr_data, 'emails.monitor_detailed'));
         }

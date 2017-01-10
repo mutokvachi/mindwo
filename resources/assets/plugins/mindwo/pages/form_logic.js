@@ -445,8 +445,9 @@ var FormLogic = function()
                 
                 if (cnt == 0) {
                     frm_info.find("input[name=empl_txt]").select2('data', {id:0, text:"", position_title: ""});
-                    frm_info.find("input[name=empl_txt]").select2("open");
+                    frm_info.find("select[name=role]").val(0);
                     frm_info.find(".dx-cms-empl-position-title").text("");
+                    frm_info.find("select[name=role]").focus();
                 }
             });
             
@@ -571,9 +572,15 @@ var FormLogic = function()
      */
     var handleInfoTaskSendBtnClick = function(frm_info, section, item_id) {
         frm_info.find(".dx-cms-info-btn-send").click(function() {
+            var role_id = frm_info.find('select[name=role] option:selected').val();
             var data = frm_info.find("input[name=empl_txt]").select2('data');
+            var empl_id = 0;
             
-            if (!data || data.id == 0) {
+            if (data && data.id > 0) {
+                empl_id = data.id;
+            }
+            
+            if (role_id == 0 && empl_id == 0) {
                 notify_err(frm_info.attr('dx_error_empl_not_set'));
                 frm_info.find("input[name=empl_txt]").select2("open");
                 return;
@@ -582,26 +589,45 @@ var FormLogic = function()
             var formData = new FormData();
             formData.append("list_id", section.attr("dx_list_id"));
             formData.append("item_id", item_id);
-            formData.append("empl_id", data.id);
+            formData.append("empl_id", empl_id);
+            formData.append("role_id", role_id);
             formData.append("task_info", frm_info.find("textarea[name=task_details]").val());
 
             var request = new FormAjaxRequest ("send_info_task", "", "", formData);
 
-            request.callback = function() {
-               notify_info("Dokuments veiksmīgi nodots informācijai darbiniekam " + data.text + "!");
-               
-               frm_info.find(".dx-cms-no-info").remove();
-               frm_info.find(".dx-cms-info-list .scroller").append("<p>" + data.text + "</p>");
-               
-               var cnt = parseInt(frm_info.find(".dx-cms-info-task-count").text()) + 1;
-               
-               $("#list_item_view_form_" + section.attr("dx_form_id")).find(".dx-cms-info-task-count").text(cnt);               
-               $("#list_item_view_form_" + section.attr("dx_form_id")).find(".dx-cms-info-task-count").show();
-               frm_info.find(".dx-cms-info-task-count").text(cnt);
-               
-               frm_info.find("input[name=empl_txt]").select2('data', {id:0, text:"", position_title: ""});
-               
-               frm_info.find(".dx-cms-empl-position-title").text("");
+            request.callback = function(ret) {
+                
+                var cnt_add = ret.users.length;
+
+                if (cnt_add == 0) {
+                    notify_err(Lang.get('wf_info_task.err_nothing_done'));
+                    return;
+                }
+                
+                var msg_end = "n";
+                
+                if (cnt_add == 1) {
+                    msg_end = "1";
+                }
+                
+                var msg = Lang.get('wf_info_task.msg_done') + " " + cnt_add + " " + Lang.get('wf_info_task.msg_done_end_' + msg_end) + "!";
+
+                notify_info(msg);                
+
+                frm_info.find(".dx-cms-no-info").remove();
+                
+                $.each( ret.users, function( key, value ) {
+                    frm_info.find(".dx-cms-info-list .scroller").append("<p>" + value.display_name + "</p>");
+                });
+
+                var cnt = parseInt(frm_info.find(".dx-cms-info-task-count").text()) + cnt_add;
+
+                $("#list_item_view_form_" + section.attr("dx_form_id")).find(".dx-cms-info-task-count").text(cnt);               
+                $("#list_item_view_form_" + section.attr("dx_form_id")).find(".dx-cms-info-task-count").show();
+                frm_info.find(".dx-cms-info-task-count").text(cnt);
+                
+                frm_info.find("input[name=empl_txt]").select2('data', {id:0, text:"", position_title: ""});
+                frm_info.find(".dx-cms-empl-position-title").text("");
             };
 
             // izpildam AJAX pieprasījumu
@@ -664,21 +690,64 @@ var FormLogic = function()
         var grid_htm_id = section.attr('dx_grid_id');
         var frm_uniq_id = section.attr('dx_form_id');
         
-        frm.find('.dx-form-btn-edit').click(function() {
+        frm.find('.dx-form-btn-edit[data-is-init!="1"]').click(function() {
             open_form('form', item_id, list_id, parent_field_id, parent_item_id, grid_htm_id, 1, 'list_item_view_form_' + frm_uniq_id);
+            $(this).attr('data-is-init', 1);
         });
         
-        frm.find('.dx-form-btn-delete').click(function() {
+        frm.find('.dx-form-btn-delete[data-is-init!="1"]').click(function() {
             delete_list_item('list_item_view_form_' + frm_uniq_id, grid_htm_id);
+            $(this).attr('data-is-init', 1);
         });
         
-        frm.find('.dx-form-btn-word').click(function() {
+        frm.find('.dx-form-btn-word[data-is-init!="1"]').click(function() {
             generate_word(item_id, list_id, grid_htm_id, 'list_item_view_form_' + frm_uniq_id);
+            $(this).attr('data-is-init', 1);
+        });
+        
+        frm.find('.dx-form-btn-print[data-is-init!="1"]').click(function() {
+            downloadFormPDF(list_id, item_id);
+            $(this).attr('data-is-init', 1);
         });
         
         handleWFInitBtnClick(section);
         handleInfoTaskBtnClick(section);
     };
+    
+    /**
+     * Generated and downloads PDF withs forms data
+     * 
+     * @param {integer} list_id Register ID
+     * @param {integer} item_id Item ID
+     * @returns {undefined}
+     */
+    function downloadFormPDF(list_id, item_id) {
+
+       show_form_splash();
+       show_page_splash();
+       var open_url = DX_CORE.site_url + "get_form_pdf_" + item_id + "_" + list_id;
+       
+       $.fileDownload(open_url, {
+           successCallback: function(url) {
+               hide_form_splash();
+               hide_page_splash();
+               notify_info(DX_CORE.trans_file_downloaded);            
+           },
+           failCallback: function(html, url) {
+               hide_form_splash();
+               hide_page_splash(); 
+               console.log("Download PDF Error: " + html);
+               try {
+                   var myData = JSON.parse(html);
+                   if (myData['success'] == 0) {
+                       notify_err(myData['error']);
+                   }
+               } catch (err) {
+                   notify_err(DX_CORE.trans_sys_error);
+               }
+           }
+       });
+   };
     
     /**
      * Sets focus on first editable field
@@ -703,6 +772,7 @@ var FormLogic = function()
             handleRegBtnClick($(this));
             handleTaskHistoryMenuClick($(this));
             handleCancelWorkflowMenuClick($(this));
+            
             adjustDataTabs($(this));
             setFocusFirstField($(this));
             
@@ -725,4 +795,15 @@ var FormLogic = function()
 
 $(document).ajaxComplete(function(event, xhr, settings) {            
     FormLogic.init();           
+});
+
+$(window).on('beforeunload', function()
+{
+    var edit_forms = $(".dx-cms-form-fields-section[data-is-edit-mode=1]");
+    
+    if(edit_forms.length > 0){
+        hide_page_splash(1);
+        hide_form_splash(1);
+        return 'Your changes have not been saved.';
+    }
 });

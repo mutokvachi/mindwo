@@ -1,5 +1,5 @@
 <div class="tab-pane fade" id="tab_team">
-  @if($members = $employee->team_members()->orderBy('display_name')->get())
+  @if($members = $employee->team_members()->where('id', '!=', Auth::user()->id)->orderBy('display_name')->get())
     @if($count = count($members))
       <div class="row">
         <div class="col-md-6 col-sm-12">

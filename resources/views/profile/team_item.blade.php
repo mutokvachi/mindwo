@@ -7,8 +7,19 @@
     </div>
   </div>
   <div class="item-body" style="padding-left: 50px;">
-    <span class="item-status"><span class="badge badge-empty badge-success"></span> Available</span><br>
-    <i class="fa fa-map-marker"></i> {{ $item->location_city }}, {{ $item->country ? $item->country->code : 'N/A' }}<br>
-    <i class='fa fa-phone'></i> {{ $item->phone }} <a href="mailto:{{ $item->email }}">{{ $item->email }}</a>
+    <!--
+      <span class="item-status"><span class="badge badge-empty badge-success"></span> Available</span><br>
+    -->
+    @if ($item->location_city || $item->country)
+        <i class="fa fa-map-marker"></i> {{ $item->location_city }}{{ $item->country ? ", " . $item->country->code : '' }}<br>
+    @endif
+    
+    @if ($item->phone)
+        <i class='fa fa-phone'></i> {{ $item->phone }}<br>
+    @endif
+    
+    @if ($item->email)
+        <i class='fa fa-envelope-o'></i> <a href="mailto:{{ $item->email }}">{{ $item->email }}</a>
+    @endif
   </div>
 </div>

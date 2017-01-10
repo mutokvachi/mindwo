@@ -25,6 +25,14 @@ namespace App\Libraries\FieldsHtm
         }
 
         /**
+         * Returns textual value of the field
+         */
+        public function getTxtVal()
+        {
+            return $this->item_value;
+        }
+
+        /**
          * Uzstāda noklusēto vērtību jauna ieraksta gadījumā
          */
         protected function setDefaultVal()

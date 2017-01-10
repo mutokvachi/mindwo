@@ -92,10 +92,13 @@ function view_list_item(ajax_url, item_id, list_id, rel_field_id, rel_field_valu
             
             if (data['success'] == 1)
             {                  
-                if (data['is_fullscreen'] != "0") {
+                if (data['is_fullscreen'] == "1") {
                     $("#td_data").hide();
                     $("#td_form_data").html(data['html']);
-                    HFormUI.init(grid_htm_id);
+                    
+                    if (typeof HFormUI != 'undefined') {
+                        HFormUI.init(grid_htm_id);
+                    }
                 }
                 else {
                     $( "body" ).append(data['html']);
@@ -848,25 +851,6 @@ function init_soft_code(htm_id)
 	setTimeout(function() {
 	  editor.refresh();
 	}, 1000); // or 10, 100
-}
-
-function printForm(elem_htm_id) 
-{
-    var data = $("#" + elem_htm_id).html();
-    
-    var mywindow = window.open('', 'my div', 'height=400,width=600');
-    mywindow.document.write('<html><head><title>my div</title>');
-    mywindow.document.write('<link rel="stylesheet" href="' + DX_CORE.site_url + 'homer/vendor/bootstrap/dist/css/bootstrap.css" type="text/css" />');
-    mywindow.document.write('</head><body >');
-    mywindow.document.write(data);
-    mywindow.document.write('</body></html>');
-
-    mywindow.document.close(); // necessary for IE >= 10
-    mywindow.focus(); // necessary for IE >= 10
-
-    mywindow.print();
-    mywindow.close();
-    return true;
 }
 
 $(document).ready(function($) {

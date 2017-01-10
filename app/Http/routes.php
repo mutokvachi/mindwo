@@ -78,6 +78,7 @@ Route::post('/generate_word', array('as' => 'generate_word',  'middleware' => 'a
 route::post('/register_document', array('as' => 'register_item',  'middleware' => 'auth_ajax', 'uses'=>'RegisterController@registerDocument'));
 Route::post('/get_tasks_history', array('as' => 'get_tasks_history',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@getTasksHistory'));
 Route::post('/cancel_workflow', array('as' => 'cancel_workflow',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@cancelWorkflow'));
+Route::get('/get_form_pdf_{item_id}_{list_id}.pdf', array('as' => 'form_get_pdf',  'middleware' => 'auth_ajax', 'uses'=>'FormPDFController@getPDF'));
 
 // Startē procesu forsēti
 Route::get('/force_process/{id}', array('as' => 'force_process',  'middleware' => 'auth', 'uses'=>'ProcessController@forceProcess'));
@@ -86,6 +87,7 @@ Route::get('/force_process/{id}', array('as' => 'force_process',  'middleware' =
 Route::get('/rest_test/{readviewentries}/{outputformat}/{Start}/{Count}', array('as' => 'rest_test',  'middleware' => 'auth', 'uses'=>'ProcessController@testRESTResponse'));
 
 // Datnes
+Route::get('/download_file_{item_id}_{list_id}_{field_id}.pdf', array('as' => 'download_file',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getPDFFile'));
 Route::get('/download_file_{item_id}_{list_id}_{file_field_id}', array('as' => 'download_file',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getFile'));
 Route::get('/download_filejs_{item_id}_{list_id}_{file_field_id}', array('as' => 'download_file',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getFile_js'));
 Route::get('/download_by_field_{item_id}_{list_id}_{field_name}', array('as' => 'download_file_field',  'middleware' => 'auth_ajax', 'uses'=>'FileController@getFileByField'));
