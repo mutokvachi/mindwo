@@ -1,5 +1,6 @@
 <div class="input-group dx-autocompleate-field" id = "{{ $frm_uniq_id }}_{{ $item_field }}_auto_field" style="width: 100%;"
         data-is-init = "0"
+        data-field-id = "{{ $field_id }}"
         data-form-url = "{{ $form_url }}"
         data-rel-list-id = "{{ $rel_list_id }}"
         data-rel-field-id = "{{ $rel_field_id }}"
