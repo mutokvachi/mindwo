@@ -334,12 +334,12 @@ class FormController extends Controller
      */
     public function getAutocompleateData(Request $request)
     {
-
+        $field_id = $request->input('field_id');
         $term = $request->input('q', Uuid::generate(4)); // We generate default value as GUID so ensure that nothing will be found if search criteria is not provided (temporary solution - as validation does not work)
         $list_id = $request->input('list_id');
         $txt_field_id = $request->input('txt_field_id');
 
-        return response()->json(['success' => 1, 'data' => $this->getAutocompleateArray($list_id, $txt_field_id, $term)]);
+        return response()->json(['success' => 1, 'data' => $this->getAutocompleateArray($list_id, $txt_field_id, $term, $field_id)]);
     }
 
     /**
@@ -580,7 +580,7 @@ class FormController extends Controller
      * @return Array  Masīvs ar kritērijam atbilstošajām vērtībām  
      * @throws Exceptions\DXCustomException
      */
-    private function getAutocompleateArray($list_id, $txt_field_id, $term)
+    private function getAutocompleateArray($list_id, $txt_field_id, $term, $field_id)
     {
         $table_item = DB::table('dx_lists')
                 ->join('dx_objects', 'dx_lists.object_id', '=', 'dx_objects.id')
@@ -592,10 +592,17 @@ class FormController extends Controller
                 ->select('db_name as rel_field_name', 'is_right_check')
                 ->where('id', '=', $txt_field_id)
                 ->first();
-
-        if (!$table_item || !$field_item) {
+        
+        $main_field_item = DB::table('dx_lists_fields')
+                ->select('is_right_check')
+                ->where('id', '=', $field_id)
+                ->first();
+        
+        if (!$table_item || !$field_item || !$main_field_item) {
             throw new Exceptions\DXCustomException("Sistēmas konfigurācijas kļūda! Uzmeklēšanas laukam nav atrodams reģistrs ar ID " . $list_id . " vai saistītais lauks ar ID " . $txt_field_id . ".");
         }
+        
+        $field_item->is_right_check = $main_field_item->is_right_check; // jo tiesības uzstāda galvenā reģistra laukam bet SQLs tiek veidots no saistītā reģistra
 
         $rows = DB::select($this->getAutocompleateSQL($table_item, $field_item, $list_id), array($field_item->rel_field_name => "%" . $term . "%"));
 
