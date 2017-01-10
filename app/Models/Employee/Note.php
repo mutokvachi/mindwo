@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Note extends Model
 {
-
     /**
      * @var string Related table
      */
@@ -38,7 +37,7 @@ class Note extends Model
     {
         return $this->belongsTo('\App\User', 'created_user_id');
     }
-    
+
     /**
      * User who last modified note
      * @return \App\User

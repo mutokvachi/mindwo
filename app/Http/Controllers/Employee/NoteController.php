@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Log;
 use App\Libraries\Rights;
+use DB;
 
 /**
  * Employee's notes controller
@@ -39,7 +40,8 @@ class NoteController extends Controller
         return view('profile.tab_notes', [
                     'user' => $user,
                     'has_hr_access' => $this->has_hr_access,
-                    'has_manager_access' => $this->has_manager_access
+                    'has_manager_access' => $this->has_manager_access,
+                    'users_who_see' => $this->whoCanSee($user)
                 ])->render();
     }
 
@@ -127,6 +129,60 @@ class NoteController extends Controller
         $note->delete();
 
         return $note_id;
+    }
+
+    /**
+     * Returns list of user who can see current note
+     * @param \App\User $user Current user's model
+     */
+    private function whoCanSee($user)
+    {
+        $sql = "
+            select 
+                ur.user_id
+            from 
+                dx_users_roles ur 
+                inner join dx_roles_lists rl on ur.role_id = rl.role_id 
+            where 
+                rl.list_id = :list_id AND
+                rl.is_edit_rights = 1            
+            ";
+
+        $hr_users = DB::select($sql, array('list_id' => config('dx.employee_list_id')));
+
+        $users_who_see = array();
+
+        // Gets HR users
+        foreach ($hr_users as $hr_user_row) {
+            $hr_user = \App\User::find($hr_user_row->user_id);
+
+            if ($hr_user) {
+                $users_who_see[$hr_user->id] = array(
+                    'is_manager' => false,
+                    'id' => $hr_user->id,
+                    'display_name' => $hr_user->display_name,
+                    'position_title' => $hr_user->position_title,
+                    'department' => ($hr_user->department ? $hr_user->department->title : ''),
+                    'picture_guid' => $hr_user->picture_guid
+                );
+            }
+        }
+
+        // Gets manager
+        $manager = \App\User::find($user->manager_id);
+
+        if ($manager && !$users_who_see[$manager->id]) {
+            $users_who_see[] = array(
+                'is_manager' => true,
+                'id' => $manager->id,
+                'display_name' => $manager->display_name,
+                'position_title' => $manager->position_title,
+                'department' => ($manager->department ? $manager->department->title : ''),
+                'picture_guid' => $manager->picture_guid
+            );
+        }
+
+        return $users_who_see;
     }
 
     /**

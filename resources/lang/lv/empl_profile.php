@@ -51,7 +51,8 @@ return [
         'delete_note_title' => 'Piezīmes dzēšana',
         'delete_note_text' => 'Vai Jūs tiešām vēlaties dzēst piezīmi?',
         'note_missing' => "Piezīme neeksistē!",
-        'modified' => "Laboja"
+        'modified' => "Laboja",
+        'who_can_see' => 'Kurš var redzēt šo piezīmi'
     ], 
     
     'timeoff' => [
