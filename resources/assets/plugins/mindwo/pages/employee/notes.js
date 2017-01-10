@@ -64,6 +64,8 @@ window.DxEmpNotes = window.DxEmpNotes || {
 
         $('.dx-emp-notes-chat').on('click', '.dx-emp-notes-btn-link-edit', {}, window.DxEmpNotes.onEditClick);
         $('.dx-emp-notes-chat').on('click', '.dx-emp-notes-btn-link-delete', {}, window.DxEmpNotes.onDeleteClick);
+        
+        $('.dx-emp-notes-btn-whosee').popover();
 
         window.DxEmpNotes.isLoaded = true;
 

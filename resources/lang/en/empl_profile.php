@@ -51,7 +51,8 @@ return [
         'delete_note_title' => 'Delete note',
         'delete_note_text' => 'Do You really want to delete note?',
         'note_missing' => "Note doesn't exist!",
-        'modified' => "Modified"
+        'modified' => "Modified",
+        'who_can_see' => 'Who can see this note'
     ], 
     
     'timeoff' => [
