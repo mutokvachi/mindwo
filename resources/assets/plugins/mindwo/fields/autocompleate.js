@@ -101,7 +101,8 @@ var AutocompleateField = function()
                         list_id: fld_elem.attr("data-rel-list-id"),
                         txt_field_id: fld_elem.attr("data-rel-field-id"),
                         rel_view_id: fld_elem.attr("data-rel-view_id"),
-                        rel_display_formula_field: fld_elem.attr("data-rel-formula-field"),
+                        rel_display_formula_field: fld_elem.attr("data-rel-formula-field"),                        
+                        field_id: fld_elem.attr("data-field-id"),
                     };
                 },
                 results: function (data, page) {                 

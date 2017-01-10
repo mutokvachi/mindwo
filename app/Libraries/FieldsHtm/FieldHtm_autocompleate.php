@@ -29,6 +29,7 @@ namespace App\Libraries\FieldsHtm
             return  view('fields.autocompleate', [
                     'frm_uniq_id' => $this->frm_uniq_id, 
                     'item_field' => $this->fld_attr->db_name, 
+                    'field_id' => $this->fld_attr->field_id,
                     'item_value' => $this->item_value,
                     'is_disabled' => ($this->fld_attr->is_readonly) ? 1 : $this->is_disabled_mode,
                     'rel_list_id' => $this->fld_attr->rel_list_id,
@@ -85,6 +86,8 @@ namespace App\Libraries\FieldsHtm
                 return "";
             }
             
+            $this->fld_attr->is_right_check = 0; // we turn off right check because otherwise wont work CMS for users with default value [ME]
+            
             try 
             {                                
                 $sql_rel = getLookupSQL($this->fld_attr->rel_list_id, $this->fld_attr->rel_table_name, $this->fld_attr, "txt");
@@ -96,6 +99,9 @@ namespace App\Libraries\FieldsHtm
                 $txt_display = (count($items) > 0) ? $items[0]->txt : "";
                 
                 return $txt_display;
+            }
+            catch (Exceptions\DXCustomException $e) {
+                throw $e;
             }
             catch(\Exception $e)
             {
