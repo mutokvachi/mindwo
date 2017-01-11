@@ -19,7 +19,7 @@ namespace App\Libraries\DataView {
         abstract protected function getSortingSQL();
         abstract protected function getLimitSQL();
                 
-        protected function initObjects($view_id, $filter_data, $session_guid)
+        protected function initObjects($view_id, $filter_data, $session_guid, $is_hidden_in_model)
         {                
             $this->view_id = $view_id;
             
@@ -34,7 +34,7 @@ namespace App\Libraries\DataView {
             
             $this->validateIDField();
             
-            $this->view = DataViewFactory::build_view_obj($this->list_id, $this->view_id, $session_guid);
+            $this->view = DataViewFactory::build_view_obj($this->list_id, $this->view_id, $session_guid, $is_hidden_in_model);
             
             $this->filter_obj = new DataViewSQLFiltering($filter_data, $this->list_id);
         }
