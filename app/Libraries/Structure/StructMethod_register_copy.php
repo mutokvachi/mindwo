@@ -235,11 +235,21 @@ namespace App\Libraries\Structure
 
                 if ($key == "field_id" && $val > 0)
                 {
-                    $flds['field_id'] = $this->searchFieldMap($fields, $val);
+                    if (isset($o_field->list_id) && $o_field->list_id != $this->list_id && $o_field->list_id > 0) {
+                        // in view is included field from other list
+                        $flds['field_id'] = $val;
+                        $flds['list_id'] = $o_field->list_id;
+                    }
+                    else {
+                        $flds['field_id'] = $this->searchFieldMap($fields, $val);
+                    }
                 }
             }
             $flds[$obj_rel_field_name] = $new_obj_id;
-            $flds['list_id'] = $new_list_id;
+            
+            if (!isset($flds['list_id'])) {
+                $flds['list_id'] = $new_list_id;
+            }
 
             return DB::table($obj_table)->insertGetId($flds);
         }
