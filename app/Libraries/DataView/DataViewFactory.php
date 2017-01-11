@@ -22,7 +22,7 @@ namespace App\Libraries\DataView
             }
         } 
         
-        public static function build_view_obj($list_id, $view_id, $session_guid) 
+        public static function build_view_obj($list_id, $view_id, $session_guid, $is_hidden_in_model) 
         { 
             if ($session_guid && Request::session()->has($session_guid . "_sql")) 
             {
@@ -30,7 +30,7 @@ namespace App\Libraries\DataView
             }
             else 
             {
-                return new DataViewObjConstructor($list_id, $view_id);
+                return new DataViewObjConstructor($list_id, $view_id, $is_hidden_in_model);
             }
         }
     }
