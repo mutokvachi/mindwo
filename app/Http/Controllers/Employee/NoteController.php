@@ -171,7 +171,7 @@ class NoteController extends Controller
         // Gets manager
         $manager = \App\User::find($user->manager_id);
 
-        if ($manager && !$users_who_see[$manager->id]) {
+        if ($manager && !isset($users_who_see[$manager->id])) {
             $users_who_see[] = array(
                 'is_manager' => true,
                 'id' => $manager->id,
