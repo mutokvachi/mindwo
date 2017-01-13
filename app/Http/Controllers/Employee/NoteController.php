@@ -94,7 +94,8 @@ class NoteController extends Controller
             'note' => $note,
             'is_new' => true,
             'has_hr_access' => $this->has_hr_access,
-            'has_manager_access' => $this->has_manager_access
+            'has_manager_access' => $this->has_manager_access,
+            'users_who_see' => $this->whoCanSee($user)
                 ])->render();
 
         $result = [
