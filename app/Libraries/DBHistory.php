@@ -57,7 +57,7 @@ namespace App\Libraries
          * 
          * @var boolean
          */
-        private $is_update_change = 0;
+        public $is_update_change = 0;
 
         /**
          * Datu bāzes ieraksta izmaiņu vēstures veidošanas klases konstruktors

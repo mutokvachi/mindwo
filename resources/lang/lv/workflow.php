@@ -83,4 +83,10 @@ return [
     
     'err_no_direct_manager' => "Nav iespējams izveidot uzdevumu, jo darbiniekam '%s' nav norādīts tiešais vadītājs!",
     
+    'err_unsuported_activity' => 'Neatbalstīts darbplūsmas pielāgotās aktivitātes kods %s!',
+    
+    'fld_activity' => 'Aktivitāte',
+    'performer_system' => 'Sistēma',
+    'performer_empl' => 'Darbinieks',
+    'err_no_substitute' => "Prombūtnē esošam darbiniekam '%s' nav norādīts aizvietotājs!",
 ];
