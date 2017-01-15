@@ -48,11 +48,14 @@ return [
     'file_hint' => 'Datnei jābūt XLSX vai XLS formātā.',
     'invalid_file' => 'Datus nevar importēt! Lūdzu, norādiet korektu importējamo datni.',
     'invalid_file_format' => "Datus nevar importēt! Lūdzu, norādiet importējamo datni *.xlsx, *.xls, *.csv vai *.zip formātā.",
-    'success' => "Datu imports pabeigts! Importēto ierakstu skaits: ",
+    'success' => "Datu importa process pabeigts!",
+    'count_imported' => 'Importēto ierakstu skaits: ',
+    'count_updated' => 'Laboto ierakstu skaits: ',
     'ignored_columns' => 'Uzmanbu! Prbaudiet kolonnu nosaukumus Excel datnē.<br/><br/>Netika importēti dati no sekojošām Excel kolonnām: ',
     
     'msg_marked1' => 'Iezīmējiet vismaz vienu ierakstu, kuru dzēst!',
     'msg_confirm_del1' => 'Vai tiešām dzēst iezīmēto ierakstu?',
     'msg_confirm_del_all' => 'Vai tiešām dzēst %s iezīmētos ierakstus?',
+    'nothing_imported' => 'Netika importēts vai labots neviens ieraksts.',
     
 ];

@@ -122,7 +122,7 @@ namespace App\Libraries\Workflows
                     return Helper::getSubstitEmpl($subst->substit_empl_id, $info); // atgriežam aizvietotāju (pārbaudot tā prombūtni)
                 }
                 else {                    
-                    throw new Exceptions\DXCustomException("Prombūtnē esošam darbiniekam '" . $user->display_name . "' nav norādīts aizvietotājs!");
+                    throw new Exceptions\DXCustomException(sprintf(trans('workflow.err_no_substitute'), $user->display_name));
                 }
             }
             

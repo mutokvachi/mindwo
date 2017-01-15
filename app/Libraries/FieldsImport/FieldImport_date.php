@@ -12,7 +12,8 @@ namespace App\Libraries\FieldsImport
         /**
          * Expected date format
          */
-        const DATE_FORMAT = "yyyy-mm-dd";
+        const DATE_FORMAT1 = "yyyy-mm-dd";
+        const DATE_FORMAT2 = "dd.mm.yyyy";
         
         /**
          * Sets field value
@@ -26,13 +27,17 @@ namespace App\Libraries\FieldsImport
             }
             else
             {
-                $date = check_date($val, self::DATE_FORMAT);
+                $date = check_date($val, self::DATE_FORMAT1);
             
                 if (strlen($date) == 0)
                 {
-                    throw new Exceptions\DXCustomException(sprintf(trans('errors.import_wrong_date'), $this->fld->title_form, $val, self::DATE_FORMAT));
+                    $date = check_date($val, self::DATE_FORMAT2);
+                    
+                    if (strlen($date) == 0) {
+                        throw new Exceptions\DXCustomException(sprintf(trans('errors.import_wrong_date'), $this->fld->title_form, $val, self::DATE_FORMAT1));
+                    }
                 }
-            
+                
                 $val = $date;
                 $this->is_val_set = 1;
             }

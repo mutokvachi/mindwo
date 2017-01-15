@@ -354,12 +354,15 @@ var BlockViews = function()
             };
             
             request.callback = function(data) {
-
+                var msg = getImportMsg(data);
+                
                 reload_grid(import_frm.attr("data-grid-id"));                
-                notify_info(import_frm.attr("data-trans-success") + data["count"]);
+                notify_info(msg);
                 
                 import_frm.find(".dx-import-progress").hide();
-                import_frm.find('.alert-info').html(import_frm.attr("data-trans-success") + data["count"]).show();
+                
+                
+                import_frm.find('.alert-info').html(msg).show();
                 
                 prepareErrors(data, import_frm);
             };
@@ -368,6 +371,31 @@ var BlockViews = function()
             request.doRequest();
         });
     };
+    
+    var getImportMsg = function(data) {
+        var msg = Lang.get('grid.success');
+        var cnt = "";
+        
+        if (data["imported_count"] > 0) {
+            cnt = Lang.get('grid.count_imported') + data["imported_count"];
+        }
+
+        if (data["updated_count"] > 0) {
+            if (data["imported_count"] > 0) {
+                cnt = cnt + ". ";
+            }
+            cnt = Lang.get('grid.count_updated') + data["updated_count"] + ".";
+        }
+        
+        if (cnt == "") {
+            msg = msg + " " + Lang.get('grid.nothing_imported');
+        }
+        else {
+            msg = msg + " " + cnt;
+        }
+        
+        return msg;
+    }
     
     /**
      * Validated uploaded file extension - is it supported

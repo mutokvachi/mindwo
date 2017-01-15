@@ -83,4 +83,11 @@ return [
     
     'err_no_direct_manager' => "The workflow can not be started because the employee '%s' do not have dirrect manager!",
     
+    'err_unsuported_activity' => 'Unsuported custom workflow activity code %s!',
+    
+    'fld_activity' => 'Activity',
+    
+    'performer_system' => 'System',
+    'performer_empl' => 'Employee',
+    'err_no_substitute' => "Employee '%s' is absent and the substitute person is not provided!",
 ];
