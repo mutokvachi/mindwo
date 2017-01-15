@@ -9,7 +9,7 @@ namespace App\Libraries\DataView
     
     class DataViewObjConstructor extends DataViewObjAbstract
     {        
-        public function __construct($list_id, $view_id)
+        public function __construct($list_id, $view_id, $is_hidden_in_model)
         {
             $this->session_guid = 'grid_' . Uuid::generate(4); // ģenerējam HTML objekta unikālo id, tiks izmantots arī lai SQL saglabātu sesijā
             
@@ -18,7 +18,8 @@ namespace App\Libraries\DataView
             // Tiek uzstādītas vērtības gadījumā, ja registrs izsaukts no formas sadaļas (tad tiek norādīti atbilstoši saistītais lauks un tā vērtība
             $this->view_obj->rel_field_id = Request::input('rel_field_id',0);
             $this->view_obj->rel_field_value = Request::input('rel_field_value',0);
-
+            $this->view_obj->is_hidden_in_model = $is_hidden_in_model;
+            
             $this->view_sql = $this->view_obj->get_view_sql(); // procesējam skata SQL sagatavošanu
 
             if (strlen($this->view_obj->err) > 0)
@@ -28,7 +29,7 @@ namespace App\Libraries\DataView
                     
             // Saglabājam sesijā, lai uzlabotu ātrdarbību
             Request::session()->put($this->session_guid . "_view", serialize($this->view_obj));
-            Request::session()->put($this->session_guid . "_sql", $this->view_sql);            
+            Request::session()->put($this->session_guid . "_sql", $this->view_sql);           
         }
     }
 }

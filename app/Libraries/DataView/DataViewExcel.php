@@ -32,7 +32,7 @@ namespace App\Libraries\DataView
          */
         public function __construct($view_id, $filter_data, $session_guid)
         {
-            $this->initObjects($view_id, $filter_data, $session_guid);
+            $this->initObjects($view_id, $filter_data, $session_guid, 0);
         }
 
         /**

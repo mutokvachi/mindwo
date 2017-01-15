@@ -92,7 +92,7 @@ function post_grid_ajax(formData, grid_data_htm_id, form_htm_id, is_scroll)
                 if (myData['success'] == 1)
                 { 
                     $("#" + grid_data_htm_id).html(myData['html']);
-                   
+                                        
                     if (is_scroll == 1)
                     {
                         var d = $("#" + form_htm_id).find(".modal-body");
@@ -101,7 +101,11 @@ function post_grid_ajax(formData, grid_data_htm_id, form_htm_id, is_scroll)
                     }
                     
                     setTimeout(function(){ 
-                        $('.dropdown-toggle').dropdown(); 
+                        PageMain.resizePage();                     
+                    }, 100);
+                    
+                    setTimeout(function(){ 
+                        $('.dropdown-toggle').dropdown();                        
                     }, 1000);
                     
                 } 

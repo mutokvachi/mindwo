@@ -85,6 +85,11 @@ class TasksController extends Controller
      * Uzdevuma veids - kritērijs, kas nosaka, vai ir iestatīta manuālā saskaņošana
      */
     const TASK_TYPE_WF_CRITERIA = 7;
+    
+    /**
+     * Task type - custom workflow activity
+     */
+    const TASK_TYPE_ACTIVITY = 8;
 
     /**
      * Uzdevuma statuss - procesā (no tabulas dx_tasks_statuses)
@@ -1518,6 +1523,21 @@ class TasksController extends Controller
         return $this->getNextStep($next_step_nr, $step_row->list_id, $item_id, $recursion_nr);
     }
     
+    /**
+     * Performs custom workflow activity - and go to next step
+     * 
+     * @param object $step_row Current workflow step row
+     * @param integer $item_id Item ID
+     * @param integer $recursion_nr Recursion nr
+     * @return object Next step object
+     */
+    private function stepActivity($step_row, $item_id, $recursion_nr) {
+        
+        $rez = Workflows\Activities\ActivityFactory::build_activity($item_id, $step_row->list_id, $step_row->activity_code);
+        
+        return $this->getNextStep($rez ? $step_row->yes_step_nr : $step_row->no_step_nr, $step_row->list_id, $item_id, $recursion_nr);
+    }
+    
      /**
      * Nosaka nākamo soli atkarībā no kritērija - vai ir iestatīta manuālā saskaņošana
      * 
@@ -1600,6 +1620,11 @@ class TasksController extends Controller
                 // criteria task
                 return $this->stepCriteria($next_step, $item_id, $recursion_nr+1);
             }
+            else if ($next_step->task_type_id == self::TASK_TYPE_ACTIVITY)
+            {
+                // Custom workflow activity
+                return $this->stepActivity($next_step, $item_id, $recursion_nr+1);
+            }
             else if ($next_step->task_type_id == self::TASK_TYPE_WF_CRITERIA)
             {
                 // Workflow criteria task
@@ -1633,9 +1658,15 @@ class TasksController extends Controller
      */
     private function getWorkflowStepTable($list_id, $step_nr) {
         $tb =   DB::table("dx_workflows as wf")
-                ->select('wf.*', 'tp.code as perform_code', 'r.title as role_title')
+                ->select(
+                        'wf.*', 
+                        'tp.code as perform_code', 
+                        'r.title as role_title',
+                        'wa.code as activity_code'
+                )
                 ->leftJoin('dx_tasks_perform as tp', 'wf.task_perform_id', '=', 'tp.id')
                 ->leftJoin('dx_roles as r', 'wf.role_id', '=', 'r.id')
+                ->leftJoin('dx_workflows_activities as wa', 'wf.activity_id', '=', 'wa.id')
                 ->where('wf.list_id', '=', $list_id)
                 ->where('wf.workflow_def_id', '=', $this->workflow_id);
         

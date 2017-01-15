@@ -29,6 +29,12 @@ namespace App\Libraries {
 	public $grid_title = "";
         public $is_rights_check_off = 0;
         
+        /**
+         * Include hidden fields in the view model array
+         * @var boolean 1 - include, 0 - dont include 
+         */
+        public $is_hidden_in_model = 0;
+        
         public function __construct($list_id, $view_id, $user_id)
         {
             $this->list_id = $list_id;
@@ -605,7 +611,7 @@ namespace App\Libraries {
 				}
 				else
 				{
-					if ($row->is_hidden == 0)
+					if ($row->is_hidden == 0 || $this->is_hidden_in_model)
 					{
 						$arr_fld_opt = array(
 								"field_id" => $row->id,
@@ -617,7 +623,8 @@ namespace App\Libraries {
 								"width" => $row->width,
 								"search" => true,
 								"sortable" => true,
-								"type" => $row->sys_name
+								"type" => $row->sys_name,
+                                                                "is_hidden" => $row->is_hidden
 								);
 						
 						// Grand total logic

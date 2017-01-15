@@ -2,7 +2,7 @@
 <div class="cbp-item {{ $item->type_code }}">
     <div class="cbp-caption">
         <div class="cbp-caption-defaultWrap">
-            <img src="{{Request::root()}}/formated_img/gallery_thumbn/{{ ($item->picture_guid) ? $item->picture_guid : $item->placeholder_pic }}" alt="" class="dx-gallery-thumbnail">
+            <img src="{{Request::root()}}/formated_img_galery/gallery_medium/{{ ($item->picture_guid) ? $item->picture_guid : $item->placeholder_pic }}" alt="" class="dx-gallery-thumbnail">
         </div>
         <div class="cbp-caption-activeWrap">
             <div class="cbp-l-caption-alignCenter">

@@ -94,7 +94,8 @@ class NoteController extends Controller
             'note' => $note,
             'is_new' => true,
             'has_hr_access' => $this->has_hr_access,
-            'has_manager_access' => $this->has_manager_access
+            'has_manager_access' => $this->has_manager_access,
+            'users_who_see' => $this->whoCanSee($user)
                 ])->render();
 
         $result = [
@@ -171,7 +172,7 @@ class NoteController extends Controller
         // Gets manager
         $manager = \App\User::find($user->manager_id);
 
-        if ($manager && !$users_who_see[$manager->id]) {
+        if ($manager && !isset($users_who_see[$manager->id])) {
             $users_who_see[] = array(
                 'is_manager' => true,
                 'id' => $manager->id,
