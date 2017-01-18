@@ -13,7 +13,7 @@
                         @if (@$item->picture_guid)
                         <div data-p="112.50" style="display: none;">
                             <a href="{{Request::root()}}/{{$article_url}}/{{ $item->id }}">
-                            <img data-u="image" src="{{Request::root()}}/img/{{ $item->picture_guid }}" class="img-responsive img-thumbnail"/>
+                            <img data-u="image" src="{{Request::root()}}/{{ isset($folder) ? $folder : 'img' }}/{{ $item->picture_guid }}" class="img-responsive img-thumbnail"/>
                             <div data-u="caption" data-t="3" style="position: absolute; top: 30px; left: 6px; width: 350px; height: 60px; background-color: rgba(242,120,75,0.5); font-size: 20px; color: #ffffff; line-height: 30px; text-align: center;">{{ $item->title }}</div>
                             </a>
                         </div>                 

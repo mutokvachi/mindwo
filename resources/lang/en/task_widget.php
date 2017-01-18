@@ -50,4 +50,6 @@ return [
     
     'link_history' => 'History',
     'hint_history' => 'View workflow history',
+    
+    'hint_form_in_pdf' => 'View related data form as PDF',
 ];

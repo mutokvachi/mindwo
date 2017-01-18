@@ -49,4 +49,6 @@ return [
     
     'link_history' => 'Vēsture',
     'hint_history' => 'Skatīt darbplūsmas vēsturi',
+    
+    'hint_form_in_pdf' => 'Skatīt ar uzdevumu saistīto datu kartiņu kā PDF',
 ];
