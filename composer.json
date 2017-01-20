@@ -24,7 +24,8 @@
         "mariuzzo/laravel-js-localization": "^1.3",
         "adldap2/adldap2": "6.1.*",
         "phpoffice/phpword": "v0.13.*",
-        "yajra/laravel-datatables-oracle": "^6.22"
+        "yajra/laravel-datatables-oracle": "^6.22",
+        "phpmailer/phpmailer": "^5.2"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
