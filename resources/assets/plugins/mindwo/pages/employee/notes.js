@@ -212,6 +212,7 @@ window.DxEmpNotes = window.DxEmpNotes || {
 
         if (data.view) {
             $('.dx-emp-notes-chat').prepend($(data.view).fadeIn());
+            $('.dx-emp-notes-btn-whosee').popover();
         }
     },
     /**
