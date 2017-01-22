@@ -57,7 +57,10 @@ class SendMonitoringMail extends Job implements ShouldQueue
                 {
                     $message->to($this->arr_data['email'])->subject($this->arr_data['subject']);
                 }
-        );
+        );        
+                
+        sleep(2); // For Gmail there is rate-limit (1 email per second) https://productforums.google.com/forum/#!topic/apps/P9Yh0xI2fac
+
     }
 
 }

@@ -133,6 +133,7 @@ var BlockViews = function()
             }
             else
             {
+                show_page_splash(1);
                 var url = root_url + 'skats_' + $('#' + menu_id + '_viewcbo option:selected').val();
                 window.location.assign(encodeURI(url));
             }

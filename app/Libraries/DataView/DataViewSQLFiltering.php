@@ -58,6 +58,17 @@ namespace App\Libraries\DataView {
                         }
                         $val = $date;
                     }
+                    
+                    if ($field_row->type_id == 7) {
+                        // yes/no
+                        if ($val == trans('fields.yes')) {
+                            $val = 1;
+                        }
+                        
+                        if ($val == trans('fields.no')) {
+                            $val = 0;
+                        }
+                    }
 
                     // It is expected that SQL contains WHERE 1=1 as first criteria
                     $this->sql .= " AND " . $arr[$i][0] . " LIKE :" . $arr[$i][0];

@@ -51,7 +51,7 @@ return [
     'success' => "Datu importa process pabeigts!",
     'count_imported' => 'Importēto ierakstu skaits: ',
     'count_updated' => 'Laboto ierakstu skaits: ',
-    'ignored_columns' => 'Uzmanbu! Prbaudiet kolonnu nosaukumus Excel datnē.<br/><br/>Netika importēti dati no sekojošām Excel kolonnām: ',
+    'ignored_columns' => 'Uzmanību! Pārbaudiet kolonnu nosaukumus Excel datnē.<br/><br/>Netika importēti dati no sekojošām Excel kolonnām: ',
     
     'msg_marked1' => 'Iezīmējiet vismaz vienu ierakstu, kuru dzēst!',
     'msg_confirm_del1' => 'Vai tiešām dzēst iezīmēto ierakstu?',
