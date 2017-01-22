@@ -411,11 +411,11 @@ class ImportController extends Controller
      */
     private function getFieldObj($title)
     {
-
-        foreach ($this->list_fields as $field) {
-
-            if ($field->title_list_f == $title || $field->title_form_f == $title) {
-                return $field;
+        foreach ($this->list_fields as $field) {            
+            foreach($field->arr_titles as $field_title) {
+                if ($title == $field_title) {
+                    return $field;
+                }
             }
         }
 
@@ -446,8 +446,15 @@ class ImportController extends Controller
     private function addFormatedTitles()
     {
         foreach ($this->list_fields as $field) {
-            $field->title_list_f = $this->formatFieldTitle($field->title_list);
-            $field->title_form_f = $this->formatFieldTitle($field->title_form);
+            $field->arr_titles = [];
+            
+            array_push($field->arr_titles, $this->formatFieldTitle($field->title_list));
+            array_push($field->arr_titles, $this->formatFieldTitle($field->title_form));
+            
+            $view_fields = DB::table('dx_views_fields')->select('alias_name')->where('field_id', '=', $field->field_id)->whereNotNull('alias_name')->distinct()->get();
+            foreach($view_fields as $v_field) {
+                array_push($field->arr_titles, $this->formatFieldTitle($v_field->alias_name));
+            }            
         }
     }
 
