@@ -3,17 +3,18 @@
 namespace App\Libraries\FieldsImport
 {
     use App\Exceptions;
+    use Log;
     
     /**
      * Field importing from Excel - date
      */
-    class FieldImport_date extends FieldImport
+    class FieldImport_datetime extends FieldImport
     {
         /**
          * Expected date format
          */
-        const DATE_FORMAT1 = "dd.mm.yyyy";
-        const DATE_FORMAT2 = "yyyy-mm-dd";
+        const DATE_FORMAT1 = "dd.mm.yyyy HH:ii";
+        const DATE_FORMAT2 = "yyyy-mm-dd HH:ii";
         
         /**
          * Sets field value
@@ -21,6 +22,7 @@ namespace App\Libraries\FieldsImport
         public function prepareVal()
         {
             $val = $this->excel_value;
+            Log::info("origin val: " . $val);
             if (strlen($val) == 0)
             {
                 $val == null;
@@ -28,7 +30,7 @@ namespace App\Libraries\FieldsImport
             else
             {
                 $date = check_date($val, self::DATE_FORMAT1);
-            
+                
                 if (strlen($date) == 0)
                 {
                     $date = check_date($val, self::DATE_FORMAT2);
