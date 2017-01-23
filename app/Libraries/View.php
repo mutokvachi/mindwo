@@ -600,6 +600,10 @@ namespace App\Libraries {
 						{
 							$crit = $this->user_id;
 						}
+                                                
+                                                if ($row->sys_name == "bool") {
+                                                    $crit = ($row->criteria == "'" . trans('fields.yes') . "'") ? 1 : 0;
+                                                }
 						$sql_filter = $sql_filter . " AND " . $original_field . $row->operation . $crit;
 					}
 				}
