@@ -51,7 +51,7 @@ var TaskLogic = function()
         
         // izpildam AJAX pieprasījumu
         request.doRequest();
-    }
+    };
     
     /**
      * Saglabā uzdevuma izpildes/noraidīšanas rezultātu
@@ -198,7 +198,7 @@ var TaskLogic = function()
         {
             $("#dx_tasks_count_badge").html(cnt);
         }
-    }
+    };
     
     /**
      * Uzdevumam piesaistītā dokumenta atvēršanas pogas funkcionalitāte

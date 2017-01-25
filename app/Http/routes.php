@@ -102,6 +102,7 @@ Route::post('/save_delegate', array('as' => 'save_delegate',  'middleware' => 'a
 Route::post('/workflow_custom_approve', array('as' => 'workflow_custom_approve',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@getCustomApprove'));
 Route::post('/workflow_find_approver', array('as' => 'workflow_find_approver',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@getAutocompleateApprovers'));
 Route::post('/send_info_task', array('as' => 'send_info_task',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@sendInfoTask'));
+Route::post('/visual/wf_form', array('as' => 'wf_form',  'middleware' => 'auth_ajax', 'uses'=>'VisualWFController@getWFForm'));
 
 // Lietotāji - autorizācija, atslēgšanās
 Route::post('/login', 'UserController@loginUser');

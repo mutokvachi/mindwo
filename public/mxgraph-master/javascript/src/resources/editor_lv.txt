@@ -1,0 +1,5 @@
+askZoom=Norādiet tuvinājumu (%)
+properties=Parametri
+outline=Izcelt
+tasks=Uzdevumi
+help=Palīgs
