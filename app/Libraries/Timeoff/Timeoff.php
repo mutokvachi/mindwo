@@ -295,7 +295,15 @@ namespace App\Libraries\Timeoff
          */
         private function setHolidaysArray() {
             $rows = DB::table('dx_holidays as h')
-                                   ->select('h.is_several_days', 'm1.nr as month_from_nr', 'd1.code as day_from_code', 'm2.nr as month_to_nr', 'd2.code as day_to_code')
+                                   ->select(
+                                           'h.is_several_days', 
+                                           'm1.nr as month_from_nr', 
+                                           'd1.code as day_from_code', 
+                                           'm2.nr as month_to_nr', 
+                                           'd2.code as day_to_code',
+                                           'h.from_year',
+                                           'h.to_year'
+                                           )
                                    ->leftJoin('dx_months as m1', 'h.from_month_id', '=', 'm1.id')
                                    ->leftJoin('dx_month_days as d1', 'h.from_day_id', '=', 'd1.id')
                                    ->leftJoin('dx_months as m2', 'h.to_month_id', '=', 'm2.id')
@@ -308,13 +316,13 @@ namespace App\Libraries\Timeoff
             
             foreach($rows as $holiday) {                
                 
-                $holiday->date_from = \App\Libraries\Helper::getDateFromCode($holiday->day_from_code, $holiday->month_from_nr);
+                $holiday->date_from = \App\Libraries\Helper::getDateFromCode($holiday->from_year, $holiday->day_from_code, $holiday->month_from_nr);
                 
                 if (!$holiday->is_several_days) {
                     $holiday->date_to = $holiday->date_from;
                 }
                 else {
-                    $holiday->date_to = \App\Libraries\Helper::getDateFromCode($holiday->day_to_code, $holiday->month_to_nr);
+                    $holiday->date_to = \App\Libraries\Helper::getDateFromCode($holiday->to_year, $holiday->day_to_code, $holiday->month_to_nr);
                 }
             }
             

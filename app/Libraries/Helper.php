@@ -194,14 +194,19 @@ namespace App\Libraries
          * @param integer $month_nr Month number
          * @return string Date in format yyyy-mm-dd
          */
-        public static function getDateFromCode($day_code, $month_nr) {
+        public static function getDateFromCode($year, $day_code, $month_nr) {
             $now = Carbon::now(Config::get('dx.time_zone'));
+            
+            if (!($year > 0)) {
+                $year = $now->year;
+            }
+            
             if (is_numeric($day_code)) {
-                    $dat = $now->year . '-' . $month_nr . '-' . $day_code;
+                    $dat = $year . '-' . $month_nr . '-' . $day_code;
             }
             else {
                 // last day
-                $dat_month = $now->year . '-' . $month_nr . '-01';
+                $dat_month = $year . '-' . $month_nr . '-01';
                 $dat = date("Y-m-t", strtotime($dat_month));
             }
             

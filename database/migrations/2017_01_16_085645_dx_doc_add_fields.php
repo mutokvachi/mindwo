@@ -12,7 +12,7 @@ class DxDocAddFields extends Migration
      */
     public function up()
     {
-        if (!Schema::hasColumn('dx_doc', 'amount1')) {
+        if (Schema::hasColumn('dx_doc', 'amount1')) {
             return true;
         }
         
@@ -28,6 +28,7 @@ class DxDocAddFields extends Migration
      */
     public function down()
     {
+        
         Schema::table('dx_doc', function (Blueprint $table) {
             $table->dropColumn(['amount1']);
         });
