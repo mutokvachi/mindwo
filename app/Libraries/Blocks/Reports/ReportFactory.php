@@ -8,7 +8,7 @@ namespace App\Libraries\Blocks\Reports;
 class ReportFactory
 {
     /**
-     * Inicializes report
+     * Initializes report
      *
      * @param string $report_name Report's name
      * @return void

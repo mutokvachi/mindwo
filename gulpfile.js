@@ -189,6 +189,7 @@ gulp.task('mix_all', function() {
             'bootstrap-daterangepicker/daterangepicker.js',
             'mindwo/blocks/report.js',
             'flot/jquery.flot.min.js',
+            'flot/jquery.flot.orderBars.js',
             'flot/jquery.flot.resize.min.js',
             'flot/jquery.flot.axislabels.js'
         ], 'public/js/elix_block_report.js', 'resources/assets/plugins');
