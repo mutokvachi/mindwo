@@ -19,11 +19,17 @@
 	
 	// default values
 	$.fn.AppInbox.defaults = {
-		url: '/mail',
-		composeUrl: '/mail/compose',
-		uploadUrl: '/mail/upload',
-		editUrl: '/mail/update',
-		toAutocompleteUrl: '/mail/to_autocomplete'
+		url: {
+			base: '/mail',
+			sent: '/mail/sent',
+			draft: '/mail/draft',
+			scheduled: '/mail/scheduled',
+			compose: '/mail/compose',
+			store: '/mail/store',
+			upload: '/mail/upload',
+			toAutocomplete: '/mail/to_autocomplete',
+			massDelete: '/mail/mass_delete'
+		}
 	};
 	
 	// Constructor
@@ -35,6 +41,8 @@
 		this.options = opts;
 		this.root = $(root);
 		this.to = $('.inbox-input-to', this.root);
+		this.compose = $('.inbox-compose', this.root);
+		this.id = (this.compose.length && this.compose.data('id') != undefined) ? this.compose.data('id') : null;
 		
 		this.initToInput();
 		this.initEditor();
@@ -48,9 +56,9 @@
 		{
 			this.to.select2({
 				ajax: {
-					url: this.options.toAutocompleteUrl,
+					url: this.options.url.toAutocomplete,
 					dataType: 'json',
-					delay: 500,
+					delay: 700,
 					data: function(params)
 					{
 						return {
@@ -60,9 +68,13 @@
 					},
 					cache: true
 				},
-				minimumInputLength: 1,
+				minimumInputLength: 2,
 				placeholder: Lang.get('mail.to_placeholder'),
-				tags: true
+				tags: true,
+				createTag: function()
+				{
+					return undefined;
+				}
 			});
 			
 		},
@@ -77,7 +89,7 @@
 			$('#fileupload').fileupload({
 				// Uncomment the following to send cross-domain cookies:
 				//xhrFields: {withCredentials: true},
-				url: this.options.uploadUrl,
+				url: this.options.url.upload,
 				autoUpload: true
 			});
 			
@@ -85,7 +97,7 @@
 			if($.support.cors)
 			{
 				$.ajax({
-					url: this.options.uploadUrl,
+					url: this.options.url.upload,
 					type: 'HEAD'
 				}).fail(function()
 				{
@@ -106,17 +118,33 @@
 				e.preventDefault();
 				self.send();
 			});
+			
 			// draft button handler
 			this.root.on('click', '.inbox-draft-btn', function(e)
 			{
 				e.preventDefault();
 				self.draft();
 			});
+			
+			// draft button handler
+			this.root.on('click', '.inbox-discard-btn', function(e)
+			{
+				e.preventDefault();
+				self.discard();
+			});
+			
 			// view message handler
-			this.root.on('click', '.view-message', function(e)
+			this.root.on('click', '.folder-sent .view-message', function(e)
 			{
 				self.view($(this).parent().data('messageid'));
 			});
+			
+			// edit message handler
+			this.root.on('click', '.folder-draft .view-message', function(e)
+			{
+				self.edit($(this).parent().data('messageid'));
+			});
+			
 			// (un)check all handler
 			this.root.on('change', '.mail-group-checkbox', function()
 			{
@@ -129,9 +157,16 @@
 				//$.uniform.update(set);
 			});
 			
+			// handle clicks on shortcuts in sidebar
 			this.root.on('click', '.inbox-shortcut', function()
 			{
 				self.shortcut($(this));
+			});
+			
+			// mass delete handler
+			this.root.on('click', '.input-actions .inbox-delete', function()
+			{
+				self.massDelete();
 			});
 		},
 		shortcut: function(el)
@@ -151,23 +186,20 @@
 			}
 			else
 			{
-				window.location = this.options.composeUrl + '?to=' + el.data('id');
+				window.location = this.options.url.compose + '?to=' + el.data('id');
 			}
 		},
 		send: function()
 		{
+			var self = this;
 			var to = $('.inbox-input-to');
 			var subject = $('.inbox-input-subject');
 			var body = $('.inbox-wysihtml5');
 			
-			var re = /[^\s@]+@[^\s@]+\.[^\s@]+/;
-			
-			/*
-			 if(!to.val().length || !re.test(to.val()))
-			 {
-			 return;
-			 }
-			 */
+			if(!to.val().length)
+			{
+				return;
+			}
 			
 			var request = {
 				to: to.val(),
@@ -176,21 +208,18 @@
 				folder: 'sent'
 			};
 			
-			console.log(request);
-			return;
-			
 			show_page_splash(1);
 			
 			$.ajax({
 				type: 'POST',
-				url: url,
+				url: this.id ? this.options.url.base + '/' + this.id + '/update' : this.options.url.store,
 				cache: false,
 				dataType: 'json',
 				data: request,
 				success: function(data)
 				{
-					$('.inbox-nav .folder-sent').click();
 					hide_page_splash(1);
+					window.location = self.options.url.sent;
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{
@@ -202,16 +231,10 @@
 		},
 		draft: function()
 		{
+			var self = this;
 			var to = $('.inbox-input-to');
 			var subject = $('.inbox-input-subject');
 			var body = $('.inbox-wysihtml5');
-			
-			var re = /[^\s@]+@[^\s@]+\.[^\s@]+/;
-			
-			if(!to.val().length || !re.test(to.val()))
-			{
-				return;
-			}
 			
 			var request = {
 				to: to.val(),
@@ -224,13 +247,14 @@
 			
 			$.ajax({
 				type: 'POST',
-				url: url,
+				url: this.id ? this.options.url.base + '/' + this.id + '/update' : this.options.url.store,
 				cache: false,
 				dataType: 'json',
 				data: request,
 				success: function(data)
 				{
 					hide_page_splash(1);
+					toastr.success(Lang.get('mail.draft_saved'));
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{
@@ -242,11 +266,94 @@
 		},
 		discard: function()
 		{
+			if(!confirm(Lang.get('mail.confirm_discard')))
+			{
+				return;
+			}
 			
+			if(!this.id)
+			{
+				window.location = this.options.url.base;
+				return;
+			}
+			
+			var self = this;
+			
+			var request = {
+				_method: 'delete'
+			};
+			
+			$.ajax({
+				type: 'post',
+				url: this.options.url.base + '/' + this.id,
+				dataType: 'json',
+				data: request,
+				success: function(data)
+				{
+					hide_page_splash(1);
+					window.location = self.options.url.base + '/' + self.compose.data('folder');
+				},
+				error: function(jqXHR, textStatus, errorThrown)
+				{
+					console.log(textStatus);
+					console.log(jqXHR);
+					hide_page_splash(1);
+				}
+			});
+		},
+		massDelete: function()
+		{
+			var ids = [];
+			
+			$('input.mail-checkbox:checked', this.root).each(function()
+			{
+				ids.push($(this).val());
+			});
+			
+			if(!ids.length)
+			{
+				toastr.error(Lang.get('mail.mass_delete_check'));
+				return;
+			}
+			
+			if(!confirm(Lang.get('mail.confirm_mass_delete')))
+			{
+				return;
+			}
+			
+			var self = this;
+			
+			var request = {
+				_method: 'delete',
+				ids: ids
+			};
+			
+			$.ajax({
+				type: 'post',
+				url: this.options.url.massDelete,
+				dataType: 'json',
+				cache: false,
+				data: request,
+				success: function(data)
+				{
+					hide_page_splash(1);
+					window.location.reload();
+				},
+				error: function(jqXHR, textStatus, errorThrown)
+				{
+					console.log(textStatus);
+					console.log(jqXHR);
+					hide_page_splash(1);
+				}
+			});
 		},
 		view: function(id)
 		{
-			window.location = this.options.url + '/' + id;
+			window.location = this.options.url.base + '/' + id;
+		},
+		edit: function(id)
+		{
+			window.location = this.options.url.base + '/' + id + '/edit';
 		}
 	});
 })(jQuery);

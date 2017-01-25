@@ -37,4 +37,25 @@ class Mail extends Model
 		
 		return $result;
 	}
+	
+	public function getPlainRecipientsList()
+	{
+		$list = unserialize($this->to);
+		
+		$result = [];
+		
+		foreach($list as $type => $items)
+		{
+			foreach($items as $item)
+			{
+				$result[] = [
+					'id' => $type.':'.$item['id'],
+					'text' => $item['text']
+				];
+			}
+		}
+		
+		return $result;
+	}
+	
 }

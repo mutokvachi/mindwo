@@ -18,9 +18,15 @@
   <div class="inbox-view-info">
     <div class="row">
       <div class="col-md-7">
+        {{--
         <img src="../assets/pages/media/users/avatar1.jpg" class="inbox-author">
-        To <span class="sbold">{{ $message->to }}</span>
-        <span>&#60;{{ $message->to }}&#62; </span>
+        --}}
+        To
+        <span class="sbold">
+          @for($i = 0, $list = $message->getPlainRecipientsList(); $i < count($list); $i++)
+            {{ $list[$i]['text'] }}{{ ($i < count($list) - 1) ? ', ' : '' }}
+          @endfor
+        </span>
         on {{ $message->formatDate($message->sent_time) }}
       </div>
       <div class="col-md-5 inbox-info-btn">

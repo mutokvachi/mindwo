@@ -1,8 +1,8 @@
 @extends('frame')
 
 @section('main_custom_css')
-  <link href="/metronic/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-  <link href="/metronic/global/plugins/select2/css/select2.bootstrap.min.css" rel="stylesheet" type="text/css" />
+  <link href="/js/plugins/select2-4.0/css/select2.min.css" rel="stylesheet" type="text/css" />
+  <link href="/zmetronic/global/plugins/select2/css/select2.bootstrap.min.css" rel="stylesheet" type="text/css" />
   <link href="/metronic/global/plugins/bootstrap-wysihtml5/bootstrap-wysihtml5.css" rel="stylesheet" type="text/css" />
   <link href="/metronic/global/plugins/jquery-file-upload/blueimp-gallery/blueimp-gallery.min.css" rel="stylesheet" type="text/css" />
   <link href="/metronic/global/plugins/jquery-file-upload/css/jquery.fileupload.css" rel="stylesheet" type="text/css" />
@@ -16,7 +16,7 @@
 @endsection
 
 @section('main_custom_javascripts')
-  <script src="/metronic/global/plugins/select2/js/select2.min.js" type="text/javascript"></script>
+  <script src="/js/plugins/select2-4.0/js/select2.js" type="text/javascript"></script>
   <script src="/metronic/global/plugins/bootstrap-wysihtml5/wysihtml5-0.3.0.js" type="text/javascript"></script>
   <script src="/metronic/global/plugins/bootstrap-wysihtml5/bootstrap-wysihtml5.js" type="text/javascript"></script>
   <script src="/metronic/global/plugins/jquery-file-upload/js/vendor/jquery.ui.widget.js" type="text/javascript"></script>
@@ -57,7 +57,7 @@
                 <h1 class="pull-left">@yield('title')</h1>
                 <form class="form-inline pull-right" action="index.html">
                   <div class="input-group input-medium">
-                    <input class="form-control" placeholder="Password" type="text">
+                    <input class="form-control" placeholder="{{ trans('mail.search') }}" type="text">
                     <span class="input-group-btn">
                       <button type="submit" class="btn green">
                         <i class="fa fa-search"></i>

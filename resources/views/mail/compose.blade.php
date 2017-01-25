@@ -1,43 +1,52 @@
 @extends('mail.common')
 
-@section('title', trans('mail.compose'))
+@section('title', trans($mode == 'compose' ? 'mail.compose' : 'mail.edit'))
 
 @section('mail_content')
-  <form class="inbox-compose form-horizontal" id="fileupload" action="#" method="POST" enctype="multipart/form-data">
+  <form {!! $mode == 'edit' ? 'data-id="'.$message->id.'" data-folder="'.$message->folder.'"' : '' !!} class="inbox-compose form-horizontal" id="fileupload" action="#" method="POST" enctype="multipart/form-data">
     <div class="inbox-compose-btn">
       <button class="btn green inbox-send-btn">
         <i class="fa fa-check"></i> {{ trans('mail.send') }}
       </button>
       <button class="btn default inbox-discard-btn">{{ trans('mail.discard') }}</button>
-      <button class="btn default">{{ trans('mail.draft') }}</button>
+      <button class="btn default inbox-draft-btn">{{ trans('mail.draft') }}</button>
     </div>
     <div class="inbox-form-group mail-to">
       <label class="control-label">{{ trans('mail.to') }}:</label>
       <div class="controls controls-to">
         <select name="to" class="form-control inbox-input-to" multiple="multiple">
-          @if(strlen($toId))
-            <option value="{{ $toId }}" selected>{{ $toTitle }}</option>
+          @if($mode == 'compose')
+            @if(strlen($toId))
+              <option value="{{ $toId }}" selected>{{ $toTitle }}</option>
+            @endif
+          @else
+            @foreach($message->getPlainRecipientsList() as $item)
+              <option value="{{ $item['id'] }}" selected>{{ $item['text'] }}</option>
+            @endforeach
           @endif
         </select>
-        {{--
-        <input type="text" class="form-control inbox-input-to" name="to">
-        --}}
       </div>
     </div>
     <div class="inbox-form-group">
       <label class="control-label">{{ trans('mail.subject') }}:</label>
       <div class="controls">
-        <input type="text" class="form-control inbox-input-subject" name="subject"></div>
+        <input type="text" class="form-control inbox-input-subject" name="subject" value="{{ $mode == 'edit' ? $message->subject : '' }}">
+      </div>
     </div>
     <div class="inbox-form-group">
-      <textarea class="inbox-editor inbox-wysihtml5 form-control" name="message" rows="12"></textarea>
+      <textarea class="inbox-editor inbox-wysihtml5 form-control" name="message" rows="12">
+        @if($mode == 'edit')
+          {{ $message->body }}
+        @endif
+      </textarea>
     </div>
     <div class="inbox-compose-attachment">
       <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
       <span class="btn green btn-outline fileinput-button">
-              <i class="fa fa-plus"></i>
-              <span> {{ trans('mail.attach') }}... </span>
-              <input type="file" name="files[]" multiple> </span>
+        <i class="fa fa-plus"></i>
+        <span> {{ trans('mail.attach') }}... </span>
+        <input type="file" name="files[]" multiple>
+      </span>
       <!-- The table listing the files available for upload/download -->
       <table role="presentation" class="table table-striped margin-top-10">
         <tbody class="files"></tbody>
@@ -67,6 +76,8 @@
                   </button> {% } %}</td>
           </tr> {% } %}
     
+    
+    
     </script>
     <!-- The template to display files available for download -->
     <script id="template-download" type="text/x-tmpl"> {% for (var i=0, file; file=o.files[i]; i++) { %}
@@ -93,13 +104,15 @@
               </td>
           </tr> {% } %}
     
+    
+    
     </script>
     <div class="inbox-compose-btn">
       <button class="btn green inbox-send-btn">
         <i class="fa fa-check"></i> {{ trans('mail.send') }}
       </button>
       <button class="btn default inbox-discard-btn">{{ trans('mail.discard') }}</button>
-      <button class="btn default">{{ trans('mail.draft') }}</button>
+      <button class="btn default inbox-draft-btn">{{ trans('mail.draft') }}</button>
     </div>
   </form>
 @endsection

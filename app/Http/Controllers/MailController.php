@@ -24,6 +24,11 @@ class MailController extends Controller
 		'draft' => 'Draft',
 		'scheduled' => 'Scheduled',
 	];
+	protected $models = [
+		'dept' => 'App\Models\Source',
+		'team' => 'App\Models\Team',
+		'empl' => 'App\User',
+	];
 	
 	/**
 	 * Display a listing of the resource.
@@ -44,8 +49,24 @@ class MailController extends Controller
 		return $result;
 	}
 	
-	public function folder(Request $request)
+	/**
+	 * Display the specified resource.
+	 *
+	 * @param  int $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function show($id)
 	{
+		$message = Mail::findOrFail($id);
+		
+		$result = view('mail.show', [
+			'sources' => $this->getSources(),
+			'teams' => $this->getTeams(),
+			'folders' => $this->folders,
+			'message' => $message,
+		])->render();
+		
+		return $result;
 	}
 	
 	/**
@@ -89,13 +110,35 @@ class MailController extends Controller
 		}
 		
 		$result = view('mail.compose', [
+			'mode' => 'compose',
 			'sources' => $this->getSources(),
 			'teams' => $this->getTeams(),
-			'folderId' => $this->getFolderId(),
-			'folderName' => $this->getFolderName(),
 			'folders' => $this->folders,
 			'toId' => $toId,
 			'toTitle' => $toTitle,
+		])->render();
+		
+		return $result;
+	}
+	
+	/**
+	 * Show the form for editing the specified resource.
+	 *
+	 * @param  int $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function edit($id)
+	{
+		$message = Mail::findOrFail($id);
+		
+		$result = view('mail.compose', [
+			'mode' => 'edit',
+			'message' => $message,
+			'sources' => $this->getSources(),
+			'teams' => $this->getTeams(),
+			'folders' => $this->folders,
+			'folderId' => $this->getFolderId(),
+			'folderName' => $this->getFolderName(),
 		])->render();
 		
 		return $result;
@@ -107,8 +150,7 @@ class MailController extends Controller
 	 * @param  \Illuminate\Http\Request $request
 	 * @return \Illuminate\Http\Response
 	 */
-	public
-	function store(Request $request)
+	public function store(Request $request)
 	{
 		$to = $request->input('to');
 		$subject = $request->input('subject');
@@ -117,16 +159,22 @@ class MailController extends Controller
 		
 		$mail = new Mail;
 		
-		$mail->user_id = Auth::user()->id;
-		$mail->to = $to;
+		$mail->to = serialize($this->convertRecipientsList($to));
 		$mail->subject = $subject;
 		$mail->body = $body;
 		$mail->folder = $folder;
 		$mail->is_read = false;
-		$mail->sent_time = Carbon::now();
 		$mail->created_time = Carbon::now();
+		$mail->created_user_id = Auth::user()->id;
+		$mail->modified_time = Carbon::now();
+		$mail->modified_user_id = Auth::user()->id;
 		
 		$mail->save();
+		
+		if($folder == 'sent')
+		{
+			$this->sendMessage($mail);
+		}
 		
 		$result = [
 			'success' => 1,
@@ -135,10 +183,91 @@ class MailController extends Controller
 		return response($result);
 	}
 	
-	public
-	function ajaxToAutocomplete(Request $request)
+	/**
+	 * Update the specified resource in storage.
+	 *
+	 * @param  \Illuminate\Http\Request $request
+	 * @param  int $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function update(Request $request, $id)
 	{
-		$term = $request->input('term');
+		$to = $request->input('to');
+		$subject = $request->input('subject');
+		$body = $request->input('body');
+		$folder = $request->input('folder');
+		
+		$mail = Mail::findOrFail($id);
+		
+		$mail->to = serialize($this->convertRecipientsList($to));
+		$mail->subject = $subject;
+		$mail->body = $body;
+		$mail->folder = $folder;
+		$mail->modified_time = Carbon::now();
+		$mail->modified_user_id = Auth::user()->id;
+		
+		$mail->save();
+		
+		if($folder == 'sent')
+		{
+			$this->sendMessage($mail);
+		}
+		
+		$result = [
+			'success' => 1,
+		];
+		
+		return response($result);
+	}
+	
+	/**
+	 * Remove the specified resource from storage.
+	 *
+	 * @param  int $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function destroy($id)
+	{
+		Mail::destroy($id);
+		
+		$result = [
+			'success' => 1
+		];
+		
+		return response($result);
+	}
+	
+	public function massDelete(Request $request)
+	{
+		$ids = $request->input('ids', []);
+		
+		if(is_array($ids) && !empty($ids))
+		{
+			Mail::whereIn('id', $ids)->delete();
+		}
+		
+		$result = [
+			'success' => 1,
+		];
+		
+		return $result;
+	}
+	
+	public function upload(Request $request)
+	{
+	}
+	
+	public function ajaxToAutocomplete(Request $request)
+	{
+		$term = trim($request->input('term'));
+		$result = [
+			'results' => []
+		];
+		
+		if(!strlen($term))
+		{
+			return response($result);
+		}
 		
 		$departments = [];
 		foreach(Source::where('title', 'like', '%' . $term . '%')->orderBy('title')->get() as $source)
@@ -167,12 +296,15 @@ class MailController extends Controller
 			];
 		}
 		
-		$result = [];
+		$allCompany = trans('mail.all_company');
 		
-		$result['results'][] = [
-			'id' => '0',
-			'text' => trans('mail.all_company')
-		];
+		if(mb_stripos($allCompany, $term) !== false)
+		{
+			$result['results'][] = [
+				'id' => '0:0',
+				'text' => $allCompany
+			];
+		}
 		
 		if(!empty($departments))
 		{
@@ -199,111 +331,87 @@ class MailController extends Controller
 		return response($result);
 	}
 	
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public
-	function show($id)
+	protected function convertRecipientsList($to)
 	{
-		$message = Mail::find($id);
+		if(!is_array($to))
+		{
+			$to = [];
+		}
 		
-		$result = view('mail.show', [
-			'sources' => $this->getSources(),
-			'teams' => $this->getTeams(),
-			'folders' => $this->folders,
-			'message' => $message,
-		])->render();
+		$allCompany = false;
+		$recipients = false;
+		
+		$tmp = [
+			'dept' => [],
+			'team' => [],
+			'empl' => [],
+		];
+		
+		// put ids to associative array
+		foreach($to as $value)
+		{
+			if(!strpos($value, ':'))
+			{
+				continue;
+			}
+			
+			list($type, $id) = explode(':', $value);
+			
+			if($type == '0' && $id == '0')
+			{
+				$allCompany = true;
+			}
+			
+			elseif(in_array($type, array_keys($this->models)))
+			{
+				$recipients = true;
+				$tmp[$type][] = $id;
+			}
+		}
+		
+		$result = [];
+		
+		if($allCompany && !$recipients)
+		{
+			$result[0][] = [
+				'id' => 0,
+				'text' => trans('mail.all_company')
+			];
+		}
+		
+		else
+		{
+			foreach($tmp as $type => $ids)
+			{
+				if(empty($ids))
+				{
+					continue;
+				}
+				
+				$model = $this->models[$type];
+				$collection = $model::whereIn('id', $ids)->get();
+				
+				foreach($collection as $item)
+				{
+					$result[$type][] = [
+						'id' => $item->id,
+						'text' => ($type == 'empl' ? $item->display_name : $item->title),
+					];
+				}
+			}
+		}
 		
 		return $result;
 	}
 	
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public
-	function edit($id)
+	protected function sendMessage($message)
 	{
-		//
+		$message->sent_time = Carbon::now();
+		$message->sent_user_id = Auth::user()->id;
+		$message->save();
 	}
 	
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param  \Illuminate\Http\Request $request
-	 * @param  int $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public
-	function update(Request $request, $id)
-	{
-		//
-	}
-	
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param  int $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public
-	function destroy($id)
-	{
-		//
-	}
-	
-	public
-	function upload(Request $request)
-	{
-	}
-	
-	protected
-	function sendMessage($mail)
-	{
-	}
-	
-	protected
-	function getSources()
-	{
-		if(!$this->sources)
-		{
-			$this->sources = Source::orderBy('title', 'asc')->get();
-		}
-		
-		return $this->sources;
-	}
-	
-	protected
-	function getTeams()
-	{
-		if(!$this->teams)
-		{
-			$this->teams = Team::orderBy('title', 'asc')->get();
-		}
-		
-		return $this->teams;
-	}
-	
-	protected
-	function getMessages()
-	{
-		if(!$this->messages)
-		{
-			$this->messages = Mail::where('folder', '=', $this->getFolderId())
-				->orderBy('sent_time', 'desc')
-				->get();
-		}
-		
-		return $this->messages;
-	}
-	
-	protected
-	function getFolderId()
+	protected function getFolderId()
 	{
 		if(!$this->folderId)
 		{
@@ -322,8 +430,7 @@ class MailController extends Controller
 		return $this->folderId;
 	}
 	
-	protected
-	function getFolderName()
+	protected function getFolderName()
 	{
 		if(!$this->folderName)
 		{
@@ -331,5 +438,37 @@ class MailController extends Controller
 		}
 		
 		return $this->folderName;
+	}
+	
+	protected function getMessages()
+	{
+		if(!$this->messages)
+		{
+			$this->messages = Mail::where('folder', '=', $this->getFolderId())
+				->orderBy($this->getFolderId() == 'sent' ? 'sent_time' : 'modified_time', 'desc')
+				->get();
+		}
+		
+		return $this->messages;
+	}
+	
+	protected function getSources()
+	{
+		if(!$this->sources)
+		{
+			$this->sources = Source::orderBy('title', 'asc')->get();
+		}
+		
+		return $this->sources;
+	}
+	
+	protected function getTeams()
+	{
+		if(!$this->teams)
+		{
+			$this->teams = Team::orderBy('title', 'asc')->get();
+		}
+		
+		return $this->teams;
 	}
 }

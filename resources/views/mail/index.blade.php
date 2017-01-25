@@ -3,7 +3,7 @@
 @section('title', trans('mail.'.$folderId))
 
 @section('mail_content')
-  <table class="table table-striped table-advance table-hover">
+  <table class="table table-striped table-advance table-hover folder-{{ $folderId }}">
     <thead>
       <tr>
         <th colspan="3">
@@ -28,7 +28,7 @@
               <li class="divider"> </li>
               --}}
               <li>
-                <a href="javascript:;">
+                <a href="javascript:;" class="inbox-delete">
                   <i class="fa fa-trash-o"></i> {{ trans('mail.delete') }} </a>
               </li>
             </ul>
@@ -54,21 +54,35 @@
         <tr class="{{-- $message->is_read ? '' : 'unread' --}}" data-messageid="{{ $message->id }}">
           <td class="inbox-small-cells">
             <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-              <input type="checkbox" class="mail-checkbox" value="1" />
+              <input type="checkbox" class="mail-checkbox" value="{{ $message->id }}" />
               <span></span>
             </label>
           </td>
           <td class="inbox-small-cells">
             <i class="fa fa-star"></i>
           </td>
-          <td class="view-message hidden-xs">{{ $message->to }}</td>
+          <td class="view-message hidden-xs">
+            @for($i = 0, $list = $message->getPlainRecipientsList(); $i < count($list); $i++)
+              {{ $list[$i]['text'] }}{{ ($i < count($list) - 1) ? ', ' : '' }}
+            @endfor
+          </td>
           <td class="view-message ">{{ $message->subject }}</td>
           <td class="view-message inbox-small-cells">
             @if(strlen($message->attachments))
               <i class="fa fa-paperclip"></i>
             @endif
           </td>
-          <td class="view-message text-right"> {{ $message->formatDate($message->sent_time) }} </td>
+          <td class="view-message text-right">
+            @if($folderId == 'sent')
+              {{ $message->formatDate($message->sent_time) }}
+            @elseif($folderId == 'draft')
+              @if($message->modified_time)
+                {{ $message->formatDate($message->modified_time) }}
+              @else
+                {{ $message->formatDate($message->created_time) }}
+              @endif
+            @endif
+          </td>
         </tr>
       @endforeach
     </tbody>
