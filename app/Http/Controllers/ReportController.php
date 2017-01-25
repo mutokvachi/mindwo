@@ -16,21 +16,6 @@ use Config;
 class ReportController extends Controller
 {
     /**
-     * Gets employee's time off view
-     */
-    public function getView()
-    {
-        $this->getAccess();
-
-        // User with any access type can view this data
-        $this->validateAccess();
-
-        return view('blocks.reports.report', [
-                    'has_access' => ($this->has_access)
-                ])->render();
-    }
-
-    /**
      * Gets employee's time off data for chart
      * @param integer $user_id Employee's user ID
      * @param integer $timeoff_type_id Time off types id

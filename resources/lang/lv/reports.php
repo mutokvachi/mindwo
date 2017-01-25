@@ -12,4 +12,13 @@ return [
         'all' => 'Visi',
         'date_interval' => 'Datuma periods'
     ],  
+    
+    'LEAVES' => [
+        'unit' => 'Dienas',
+        'total' => 'Kopā prombūtnē',
+        'title' => 'Prombūtnes kopsavilkums',
+        'group' => 'Departments',
+        'all' => 'Visi',
+        'date_interval' => 'Datuma periods'
+    ],  
 ];
