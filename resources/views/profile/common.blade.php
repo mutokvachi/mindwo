@@ -60,6 +60,10 @@
         padding: 20px 0 0 0 !important;
       }
     }
+    
+    .dx-employee-manager a:hover {
+        text-decoration: none;
+    }
   </style>
 @endsection
 
@@ -280,6 +284,7 @@
           @include('profile.panel')
           @if($mode != 'create' && $is_edit_rights)
             <div class="tiles">
+              @include('profile.tile_leave')
               @include('profile.tile_hired')
               @include('profile.tile_manager')
             </div>

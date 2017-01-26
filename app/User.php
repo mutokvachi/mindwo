@@ -10,6 +10,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use DB;
 use Log;
 use Config;
+use Carbon\Carbon;
 
 /**
  * Model for systems users
@@ -61,7 +62,89 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	 * @var
 	 */
 	protected $lists;
+        
+        /**
+         * Array with leave info (if employee is in vacation or sick or his country have holiday)
+         * @var array
+         */
+        private $leave_info = []; 
 	
+        /**
+         * Get time after joining in textual format
+         * @return string Returns for examle 1 year 2 months and 3 days
+         */
+        public function getJoinTime() {
+            
+            if (!$this->join_date) {
+                return "";
+            }
+            
+            if (!$this->termination_date) {
+                $now = Carbon::now(Config::get('dx.time_zone'));
+            }
+            else {
+                $now = Carbon::createFromFormat("Y-m-d", $this->termination_date);
+            }
+            
+            $join = Carbon::createFromFormat("Y-m-d", $this->join_date);
+            
+            $y = $join->diffInYears($now);
+                        
+            $y_full = $join->addYears($y);
+            $m = $y_full->diffInMonths($now);
+            
+            $m_full = $y_full->addMonth($m);
+            
+            $d = $m_full->diffInDays($now);
+            
+            return ($y > 0 ? $y . " " . ($y > 1 ? trans('employee.lbl_year_n') : trans('employee.lbl_year_1')) . " " : "") . 
+                   ($m > 0 ? $m . " " . ($m > 1 ? trans('employee.lbl_month_n') : trans('employee.lbl_month_1')) . " " : "") . 
+                   ($d > 0 ? $d . " " . ($d > 1 ? trans('employee.lbl_day_n') : trans('employee.lbl_day_1')) : "");
+        }
+        
+        /**
+         * Checks and returns employee leave info array
+         * @return array
+         */
+        public function getLeaveInfo() {
+            if ($this->leave_info) {
+                return $this->leave_info;
+            }
+            
+            if (!$this->left_to || (!$this->left_holiday_id && !$this->left_reason_id)) {
+                return [];
+            }
+            
+            $this->leave_info['left_to'] = short_date($this->left_to);  
+            
+            if (!$this->left_reason_id) {
+                $this->leave_info['reason_title'] = trans('employee.lbl_holiday');
+                
+                $hol = DB::table('dx_holidays as h')
+                        ->select('h.title as holiday_title', 'c.title as country_title')
+                        ->leftJoin('dx_countries as c', 'h.country_id', '=', 'c.id')
+                        ->where('h.id', '=', $this->left_holiday_id)
+                        ->first();
+                
+                $this->leave_info['reason_details'] = (($hol->country_title) ? $hol->country_title . " - " : "") . $hol->holiday_title;
+            }
+            else {
+                $this->leave_info['reason_title'] = DB::table('dx_timeoff_types')->select('title')->where('id', '=', $this->left_reason_id)->first()->title;
+                $this->leave_info['reason_details'] = '';
+            }
+            
+            if (!$this->substit_empl_id) {
+                $this->leave_info['substitute_name'] = '';
+                $this->leave_info['substitute_id'] = 0;
+            }
+            else {
+                $this->leave_info['substitute_name'] = DB::table('dx_users')->select('display_name')->where('id', '=', $this->substit_empl_id)->first()->display_name;
+                $this->leave_info['substitute_id'] = $this->substit_empl_id;
+            }
+            
+            return $this->leave_info;
+        }
+        
 	/**
 	 * Relation to user roles
 	 *

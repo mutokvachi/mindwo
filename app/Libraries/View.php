@@ -784,7 +784,7 @@ namespace App\Libraries {
                 //DB::statement('CREATE OR REPLACE VIEW v_data_' . $this->view_id . ' as ' . $grid_sql);
 
                 //$sql = "SELECT * FROM v_data_" . $this->view_id . " WHERE 1=1 "; 
-                Log::info("GRID SQL: " . $grid_sql);
+                
                 return $grid_sql;
                 
 	}

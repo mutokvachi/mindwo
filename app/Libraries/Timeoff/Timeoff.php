@@ -117,7 +117,8 @@ namespace App\Libraries\Timeoff
             $this->employee_row = DB::table('dx_users')->where('id', '=', $this->employee_id)->first();
             $this->setPolicyRow();
             $this->setAccrualLevelsArr();
-            $this->setHolidaysArray();
+            $this->holidays_rows = \App\Libraries\Helper::getHolidaysArray($this->employee_row->doc_country_id);
+            
             $this->setRecordTypes();
             
             // get date from which to start calculation
@@ -220,7 +221,7 @@ namespace App\Libraries\Timeoff
             }
             else {                
                 $level = $this->getLevel($calc_date);
-                if ($level['period']->isAccruable($calc_date)) {
+                if ($level && $level['period']->isAccruable($calc_date)) {
                     $accrued_amount = $level['accrued_amount'];
                 }
             }
@@ -291,46 +292,6 @@ namespace App\Libraries\Timeoff
         }
         
         /**
-         * Loads holidays array
-         */
-        private function setHolidaysArray() {
-            $rows = DB::table('dx_holidays as h')
-                                   ->select(
-                                           'h.is_several_days', 
-                                           'm1.nr as month_from_nr', 
-                                           'd1.code as day_from_code', 
-                                           'm2.nr as month_to_nr', 
-                                           'd2.code as day_to_code',
-                                           'h.from_year',
-                                           'h.to_year'
-                                           )
-                                   ->leftJoin('dx_months as m1', 'h.from_month_id', '=', 'm1.id')
-                                   ->leftJoin('dx_month_days as d1', 'h.from_day_id', '=', 'd1.id')
-                                   ->leftJoin('dx_months as m2', 'h.to_month_id', '=', 'm2.id')
-                                   ->leftJoin('dx_month_days as d2', 'h.to_day_id', '=', 'd2.id')
-                                   ->whereNull('h.country_id')
-                                   ->orWhere('h.country_id', '=', $this->employee_row->doc_country_id)
-                                   ->orderBy('m1.nr')
-                                   ->orderBy('d1.code')
-                                   ->get();            
-            
-            foreach($rows as $holiday) {                
-                
-                $holiday->date_from = \App\Libraries\Helper::getDateFromCode($holiday->from_year, $holiday->day_from_code, $holiday->month_from_nr);
-                
-                if (!$holiday->is_several_days) {
-                    $holiday->date_to = $holiday->date_from;
-                }
-                else {
-                    $holiday->date_to = \App\Libraries\Helper::getDateFromCode($holiday->to_year, $holiday->day_to_code, $holiday->month_to_nr);
-                }
-            }
-            
-            $this->holidays_rows =  json_decode(json_encode($rows), true);            
-            
-        }
-        
-        /**
          * Loades leaves array
          * @param DateTime $calc_date Date from which to load leaves
          */
@@ -357,6 +318,7 @@ namespace App\Libraries\Timeoff
                                 ->leftJoin('dx_months as m', 'p.month_id', '=', 'm.id')
                                 ->leftJoin('dx_month_days as d', 'p.month_day_id', '=', 'd.id')
                                 ->where('up.timeoff_type_id', '=', $this->timeoff_type_id)
+                                ->where('up.user_id', '=', $this->employee_id)
                                 ->whereNull('up.end_date')
                                 ->first();
             
@@ -369,6 +331,7 @@ namespace App\Libraries\Timeoff
          * Fill accrual levels array
          */
         private function setAccrualLevelsArr() {
+            
             $levels = DB::table('dx_accrual_levels as al')
                                  ->select(
                                          'al.start_moment', 
@@ -387,7 +350,7 @@ namespace App\Libraries\Timeoff
                                  ->where('al.accrual_policy_id', '=', $this->policy_row->accrual_policy_id)
                                  ->orderBy('al.id')
                                  ->get();
-            
+           
             $now = Carbon::now(Config::get('dx.time_zone'))->copy()->addDay();
             $arr_lev = [];
             foreach($levels as $key => $level) {
