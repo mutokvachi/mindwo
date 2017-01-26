@@ -194,14 +194,19 @@ namespace App\Libraries
          * @param integer $month_nr Month number
          * @return string Date in format yyyy-mm-dd
          */
-        public static function getDateFromCode($day_code, $month_nr) {
+        public static function getDateFromCode($year, $day_code, $month_nr) {
             $now = Carbon::now(Config::get('dx.time_zone'));
+            
+            if (!($year > 0)) {
+                $year = $now->year;
+            }
+            
             if (is_numeric($day_code)) {
-                    $dat = $now->year . '-' . $month_nr . '-' . $day_code;
+                    $dat = $year . '-' . $month_nr . '-' . $day_code;
             }
             else {
                 // last day
-                $dat_month = $now->year . '-' . $month_nr . '-01';
+                $dat_month = $year . '-' . $month_nr . '-01';
                 $dat = date("Y-m-t", strtotime($dat_month));
             }
             
@@ -290,6 +295,54 @@ namespace App\Libraries
             }
             
             return $info_tasks;
+        }
+        
+        /**
+         * Loads holiday array
+         * @param ineger $country_id Employee country ID
+         * @return array
+         */
+        public static function getHolidaysArray($country_id) {
+            $rows = DB::table('dx_holidays as h')
+                                   ->select(
+                                           'h.is_several_days', 
+                                           'm1.nr as month_from_nr', 
+                                           'd1.code as day_from_code', 
+                                           'm2.nr as month_to_nr', 
+                                           'd2.code as day_to_code',
+                                           'h.from_year',
+                                           'h.to_year',
+                                           'h.country_id',
+                                           'h.id as holiday_id'
+                                           )
+                                   ->leftJoin('dx_months as m1', 'h.from_month_id', '=', 'm1.id')
+                                   ->leftJoin('dx_month_days as d1', 'h.from_day_id', '=', 'd1.id')
+                                   ->leftJoin('dx_months as m2', 'h.to_month_id', '=', 'm2.id')
+                                   ->leftJoin('dx_month_days as d2', 'h.to_day_id', '=', 'd2.id')
+                                   ->where(function($query) use ($country_id) {
+                                        if ($country_id) {
+                                            $query->whereNull('h.country_id')
+                                              ->orWhere('h.country_id', '=', $country_id); 
+                                        }
+                                   })                                   
+                                   ->orderBy('m1.nr')
+                                   ->orderBy('d1.code')
+                                   ->get();            
+            
+            foreach($rows as $holiday) {                
+                
+                $holiday->date_from = Helper::getDateFromCode($holiday->from_year, $holiday->day_from_code, $holiday->month_from_nr);
+                
+                if (!$holiday->is_several_days) {
+                    $holiday->date_to = $holiday->date_from;
+                }
+                else {
+                    $holiday->date_to = Helper::getDateFromCode($holiday->to_year, $holiday->day_to_code, $holiday->month_to_nr);
+                }
+            }
+            
+            return json_decode(json_encode($rows), true);            
+            
         }
     }
 

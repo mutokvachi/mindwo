@@ -20,7 +20,7 @@ namespace App\Libraries\Timeoff\AccrualPeriod
         public function isAccruable($calc_date)
         {
             $now = Carbon::now(Config::get('dx.time_zone'));
-            $dat = Carbon::createFromFormat("Y-m-d", \App\Libraries\Helper::getDateFromCode($this->level_row->day_code, $now->month));
+            $dat = Carbon::createFromFormat("Y-m-d", \App\Libraries\Helper::getDateFromCode(null, $this->level_row->day_code, $now->month));
 
             return ($calc_date->day == $dat->day && $calc_date->month == $dat->month);
         }

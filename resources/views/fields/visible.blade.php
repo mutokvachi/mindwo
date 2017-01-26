@@ -9,9 +9,7 @@
         @if ($hint)
         <i class='fa fa-question-circle dx-form-help-popup' title='{{ $hint }}' style='cursor: help;'></i>&nbsp;
         @endif
-        
-        {{ $label_title }}
-        
+        <span class='dx-fld-title'>{{ $label_title }}</span>
         @if ($is_required)
             <span style="color: red"> *</span>
         @endif

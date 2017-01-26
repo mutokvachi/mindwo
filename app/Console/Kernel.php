@@ -20,6 +20,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\FixImageSizes::class,
         \App\Console\Commands\CalculateTimeoff::class,
         \App\Console\Commands\AuditViewCounts::class,
+        \App\Console\Commands\UpdateLeftStatus::class,
     ];
 
     /**
@@ -30,6 +31,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)    {                
 
+        // Executes employee left info udpate (vacations, holidays, sick etc)
+        $schedule->command('mindwo:update_left')
+                //->weekdays()
+                ->dailyAt(7)
+                ->timezone(Config::get('dx.time_zone'));
+        
         // Executes monitoring views at 8:00 AM every day
         $schedule->command('mindwo:audit_view')
                 //->weekdays()
