@@ -48,14 +48,15 @@
     <div class="portlet-body">
       <div class="inbox">
         <div class="row">
-          <div class="col-md-2">
+          <div class="col-md-3">
             @include('mail.sidebar')
           </div>
-          <div class="col-md-10">
+          <div class="col-md-9">
             <div class="inbox-body">
               <div class="inbox-header">
                 <h1 class="pull-left">@yield('title')</h1>
-                <form class="form-inline pull-right" action="index.html">
+                {{--
+                <form class="form-inline pull-right" action="#">
                   <div class="input-group input-medium">
                     <input class="form-control" placeholder="{{ trans('mail.search') }}" type="text">
                     <span class="input-group-btn">
@@ -65,6 +66,7 @@
                     </span>
                   </div>
                 </form>
+                --}}
               </div>
               <div class="inbox-content">
                 @section('mail_content')

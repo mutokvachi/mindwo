@@ -16,17 +16,6 @@
               <i class="fa fa-angle-down"></i>
             </a>
             <ul class="dropdown-menu">
-              {{--
-              <li>
-                <a href="javascript:;">
-                  <i class="fa fa-pencil"></i> Mark as Read </a>
-              </li>
-              <li>
-                <a href="javascript:;">
-                  <i class="fa fa-ban"></i> Spam </a>
-              </li>
-              <li class="divider"> </li>
-              --}}
               <li>
                 <a href="javascript:;" class="inbox-delete">
                   <i class="fa fa-trash-o"></i> {{ trans('mail.delete') }} </a>
@@ -37,14 +26,22 @@
         <th class="pagination-control" colspan="3">
           @if($count = count($messages))
             <span class="pagination-info">
-                1-{{ $count }} of {{ $count }}
+              {{ ($start = ($page - 1) * $itemsPerPage) + 1 }}
+              -
+              {{ ($counts[$folderId] - $start) > $itemsPerPage ? $start + $itemsPerPage : $counts[$folderId] }}
+              of
+              {{ $counts[$folderId] }}
             </span>
-            <a class="btn btn-sm blue btn-outline">
-              <i class="fa fa-angle-left"></i>
-            </a>
-            <a class="btn btn-sm blue btn-outline">
-              <i class="fa fa-angle-right"></i>
-            </a>
+            @if($page > 1)
+              <a class="btn btn-sm blue btn-outline" href="{{ route(Route::currentRouteName(), ['page' => $page - 1]) }}">
+                <i class="fa fa-angle-left"></i>
+              </a>
+            @endif
+            @if($page < $pageCount)
+              <a class="btn btn-sm blue btn-outline" href="{{ route(Route::currentRouteName(), ['page' => $page + 1]) }}">
+                <i class="fa fa-angle-right"></i>
+              </a>
+            @endif
           @endif
         </th>
       </tr>

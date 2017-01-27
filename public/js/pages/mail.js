@@ -37,16 +37,19 @@
 	{
 		$.data(root, 'AppInbox', this);
 		
-		var self = this;
 		this.options = opts;
 		this.root = $(root);
+		
 		this.to = $('.inbox-input-to', this.root);
+		this.subject = $('.inbox-input-subject', this.root);
+		this.body = $('.inbox-wysihtml5', this.root);
+		
 		this.compose = $('.inbox-compose', this.root);
 		this.id = (this.compose.length && this.compose.data('id') != undefined) ? this.compose.data('id') : null;
 		
 		this.initToInput();
 		this.initEditor();
-		this.initFileUpload();
+		//this.initFileUpload();
 		this.initHandlers();
 	};
 	
@@ -81,7 +84,8 @@
 		initEditor: function()
 		{
 			$('.inbox-wysihtml5').wysihtml5({
-				"stylesheets": ["/metronic/global/plugins/bootstrap-wysihtml5/wysiwyg-color.css"]
+				stylesheets: ["/metronic/global/plugins/bootstrap-wysihtml5/wysiwyg-color.css"],
+				image: false
 			});
 		},
 		initFileUpload: function()
@@ -192,19 +196,29 @@
 		send: function()
 		{
 			var self = this;
-			var to = $('.inbox-input-to');
-			var subject = $('.inbox-input-subject');
-			var body = $('.inbox-wysihtml5');
 			
-			if(!to.val().length)
+			if(!this.to.val() || !this.to.val().length)
 			{
+				toastr.error(Lang.get('mail.validate_to'));
+				return;
+			}
+			
+			if(!this.subject.val().length)
+			{
+				toastr.error(Lang.get('mail.validate_subject'));
+				return;
+			}
+			
+			if(!this.body.val().length)
+			{
+				toastr.error(Lang.get('mail.validate_body'));
 				return;
 			}
 			
 			var request = {
-				to: to.val(),
-				subject: subject.val(),
-				body: body.val(),
+				to: this.to.val(),
+				subject: this.subject.val(),
+				body: this.body.val(),
 				folder: 'sent'
 			};
 			
@@ -232,14 +246,11 @@
 		draft: function()
 		{
 			var self = this;
-			var to = $('.inbox-input-to');
-			var subject = $('.inbox-input-subject');
-			var body = $('.inbox-wysihtml5');
 			
 			var request = {
-				to: to.val(),
-				subject: subject.val(),
-				body: body.val(),
+				to: this.to.val(),
+				subject: this.subject.val(),
+				body: this.body.val(),
 				folder: 'draft'
 			};
 			

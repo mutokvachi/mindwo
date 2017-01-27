@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Department;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Route;
 use App\Models\Source;
 use App\Models\Team;
@@ -17,6 +18,7 @@ class MailController extends Controller
 	protected $sources;
 	protected $teams;
 	protected $messages;
+	protected $counts;
 	protected $folderId;
 	protected $folderName;
 	protected $folders = [
@@ -29,6 +31,8 @@ class MailController extends Controller
 		'team' => 'App\Models\Team',
 		'empl' => 'App\User',
 	];
+	protected $pageCount;
+	protected $itemsPerPage = 20;
 	
 	/**
 	 * Display a listing of the resource.
@@ -44,6 +48,10 @@ class MailController extends Controller
 			'folderId' => $this->getFolderId(),
 			'folderName' => $this->getFolderName(),
 			'folders' => $this->folders,
+			'counts' => $this->getCounts(),
+			'pageCount' => $this->getPageCount(),
+			'page' => $request->input('page', 1),
+			'itemsPerPage' => $this->itemsPerPage,
 		])->render();
 		
 		return $result;
@@ -64,6 +72,7 @@ class MailController extends Controller
 			'teams' => $this->getTeams(),
 			'folders' => $this->folders,
 			'message' => $message,
+			'counts' => $this->getCounts(),
 		])->render();
 		
 		return $result;
@@ -114,6 +123,7 @@ class MailController extends Controller
 			'sources' => $this->getSources(),
 			'teams' => $this->getTeams(),
 			'folders' => $this->folders,
+			'counts' => $this->getCounts(),
 			'toId' => $toId,
 			'toTitle' => $toTitle,
 		])->render();
@@ -137,6 +147,7 @@ class MailController extends Controller
 			'sources' => $this->getSources(),
 			'teams' => $this->getTeams(),
 			'folders' => $this->folders,
+			'counts' => $this->getCounts(),
 			'folderId' => $this->getFolderId(),
 			'folderName' => $this->getFolderName(),
 		])->render();
@@ -404,11 +415,42 @@ class MailController extends Controller
 		return $result;
 	}
 	
-	protected function sendMessage($message)
+	protected function sendMessage(Mail $mail)
 	{
-		$message->sent_time = Carbon::now();
-		$message->sent_user_id = Auth::user()->id;
-		$message->save();
+		\Mail::send('mail.send', ['mail' => $mail], function($message) use ($mail)
+		{
+			$recipients = $mail->getRecipients();
+			
+			foreach($recipients as $recipient)
+			{
+				if(!filter_var($recipient->email, FILTER_VALIDATE_EMAIL))
+				{
+					continue;
+				}
+				
+				$message->to($recipient->email, $recipient->display_name);
+			}
+			
+			$message->from(config('mail.from.address'), config('mail.from.name'));
+			$message->subject($mail->subject);
+		});
+		
+		$mail->sent_time = Carbon::now();
+		$mail->sent_user_id = Auth::user()->id;
+		$mail->save();
+	}
+	
+	protected function getCounts()
+	{
+		if(!$this->counts)
+		{
+			foreach($this->folders as $id => $name)
+			{
+				$this->counts[$id] = Mail::where('folder', '=', $id)->count();
+			}
+		}
+		
+		return $this->counts;
 	}
 	
 	protected function getFolderId()
@@ -442,14 +484,28 @@ class MailController extends Controller
 	
 	protected function getMessages()
 	{
+		$page = \Illuminate\Support\Facades\Request::input('page', 1);
+		
 		if(!$this->messages)
 		{
 			$this->messages = Mail::where('folder', '=', $this->getFolderId())
 				->orderBy($this->getFolderId() == 'sent' ? 'sent_time' : 'modified_time', 'desc')
+				->offset(($page - 1) * $this->itemsPerPage)
+				->limit($this->itemsPerPage)
 				->get();
 		}
 		
 		return $this->messages;
+	}
+	
+	public function getPageCount()
+	{
+		if($this->pageCount === null)
+		{
+			$this->pageCount = $this->getCounts()[$this->getFolderId()] / $this->itemsPerPage;
+		}
+		
+		return $this->pageCount;
 	}
 	
 	protected function getSources()

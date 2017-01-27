@@ -52,5 +52,6 @@ class Kernel extends HttpKernel
         'public' => \App\Http\Middleware\PublicAccess::class,
         'public_ajax' => \App\Http\Middleware\AjaxPublicAccess::class,
         'auth_ajax' => \App\Http\Middleware\AjaxAuthAccess::class,
+		'mail_access' => \App\Http\Middleware\MailAccess::class,
     ];
 }

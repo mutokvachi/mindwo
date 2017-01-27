@@ -165,7 +165,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'organization'], function() {
 	Route::get('departments', ['as' => 'organization_departments', 'uses' => 'DepartmentsChartController@show']);
 });
 
-Route::group(['middleware' => 'auth', 'prefix' => 'mail'], function() {
+Route::group(['middleware' => ['auth', 'mail_access'], 'prefix' => 'mail'], function() {
 	Route::get('', 'MailController@index');
 	Route::get('sent', ['as' => 'mail_sent', 'uses' => 'MailController@index']);
 	Route::get('draft', ['as' => 'mail_draft', 'uses' => 'MailController@index']);
