@@ -326,6 +326,15 @@
                           {!! $form->renderSubgridTabButtons("_assets", [trans('empl_profile.tab_cards'), trans('empl_profile.tab_devices')], 1) !!}                        
                       </ul>
                   </li>
+                  
+                  <li class="dropdown dx-sub-tab">
+                      <a href="javascript:;" id="myTabDrop1" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> {{ trans('empl_profile.confidential_menu') }}
+                          <i class="fa fa-angle-down"></i>
+                      </a>                    
+                      <ul class="dropdown-menu dx-sub-menu-left" role="menu" aria-labelledby="myTabDrop1">
+                          {!! $form->renderSubgridTabButtons("_confidential", [trans('empl_profile.tab_polygraph'), trans('empl_profile.tab_salary'), trans('empl_profile.tab_shares')], 1) !!}                        
+                      </ul>
+                  </li>
                 @endif
             </ul>
           </div>
@@ -340,6 +349,7 @@
             @if($is_edit_rights)
                 {!! $form->renderSubgridTabContents("_qualification", [trans('empl_profile.tab_lang'), trans('empl_profile.tab_links'), trans('empl_profile.tab_educ'), trans('empl_profile.tab_cert'), trans('empl_profile.tab_cv')], 1) !!}
                 {!! $form->renderSubgridTabContents("_assets", [trans('empl_profile.tab_cards'), trans('empl_profile.tab_devices')], 1) !!}
+                {!! $form->renderSubgridTabContents("_confidential", [trans('empl_profile.tab_polygraph'), trans('empl_profile.tab_salary'), trans('empl_profile.tab_shares')], 1) !!}
             @endif
           </div>
         </div>

@@ -19,7 +19,12 @@ return [
     'tab_cdetails' => 'Contact details',
     'tab_addr' => 'Addresses',
     
+    'tab_salary' => 'Salary',
+    'tab_shares' => 'Shares',
+    'tab_polygraph' => 'Polygraph',
+    
     'qualif_menu' => 'Qualification',
+    'confidential_menu' => 'Confidential',
     
     // Subgrid tabs for qualification (must be equal with tab titles defined in CMS form - in database table dx_tabs)
     'tab_lang' => 'Languages',
