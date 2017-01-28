@@ -17509,6 +17509,47 @@ var FormLogic = function()
     };
     
     /**
+     * Handles history link click - opens history details list
+     * @param {object} section
+     * @returns {undefined}
+     */
+    var handleItemHistoryClick = function(section) {
+        $("#list_item_view_form_" + section.attr("dx_form_id")).find(".dx-cms-history-link").click(function() {
+            var item_id = $( "#item_edit_form_" + section.attr("dx_form_id")  + " input[name='item_id']").val();
+            var list_id = section.attr("dx_list_id");
+            
+            $('#popup_window .modal-header h4').html("<i class='fa fa-history'></i> " + Lang.get('form.history_form_title'));
+
+            $("#popup_body").html(getProgressInfo());
+            $('#popup_window').modal('show');
+
+            var formData = "item_id=" + item_id + "&list_id=" + list_id;
+
+            var request = new FormAjaxRequestIE9 ('get_item_history', "", "", formData);            
+            request.progress_info = "";                       
+
+            request.callback = function(data) {
+                $('#popup_body').html(data['html']);
+                handleHistoryDetailsClick($('#popup_body'));
+            };
+
+            // execute AJAX request
+            request.doRequest();
+        });
+    };
+    
+    /**
+     * Handles history details button click
+     * @param {object} frm History details container
+     * @returns {void}
+     */
+    var handleHistoryDetailsClick = function(frm) {
+        frm.find(".dx-cms-history_details").click(function() {
+           view_list_item('form', $(this).data('item_id'), $(this).data('list_id'), 0, 0, '', ''); 
+        });
+    };
+    
+    /**
      * Opens worfklow cancelation form
      * 
      * @param {object} section Form object
@@ -17796,6 +17837,7 @@ var FormLogic = function()
             handleRegBtnClick($(this));
             handleTaskHistoryMenuClick($(this));
             handleCancelWorkflowMenuClick($(this));
+            handleItemHistoryClick($(this));
             
             adjustDataTabs($(this));
             setFocusFirstField($(this));

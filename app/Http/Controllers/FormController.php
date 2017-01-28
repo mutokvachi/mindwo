@@ -11,7 +11,8 @@ use Webpatser\Uuid\Uuid;
 use App\Libraries\FormField;
 use App\Libraries\FormSave;
 use App\Libraries\Rights;
-
+use Config;
+use App\Models;
 use PDO;
 use App\Libraries\Workflows;
 
@@ -188,6 +189,31 @@ class FormController extends Controller
                  ->groupBy('r.id')
                  ->orderBy('r.title')
                  ->get();
+    }
+    
+    /**
+     * Returns JSON with item history activities
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return Response JSON with history HTML
+     */
+    public function getItemHistory(Request $request) {
+        $this->validate($request, [
+            'list_id' => 'required|integer|exists:dx_lists,id',
+            'item_id' => 'required|integer'
+        ]);
+
+        // Must have parameters for form loading
+        $item_id = $request->input('item_id', 0); // if 0 then new item creation form will be provided otherwise editing form
+        $list_id = $request->input('list_id', 0);
+                   
+        $result = view('elements.form_history', [
+			'events' => Models\Event::where('list_id', '=', $list_id)->where('item_id', '=', $item_id)->orderBy('id', 'desc')->get(),
+                        'is_profile' => (Config::get('dx.employee_profile_page_url')),
+                        'events_list_id' => \App\Libraries\DBHelper::getListByTable('dx_db_events')->id
+	])->render();
+
+        return response()->json(['success' => 1, 'html' => $result]);
     }
 
     /**

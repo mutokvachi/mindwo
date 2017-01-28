@@ -79,7 +79,7 @@
                     }}" data-list_id="{{ $event->lists->id }}" data-item_id="{{ $event->item_id }}">{{ trans('activities.btn_view') }}</a>
                   @else
                     <a href="javascript:;" class="btn btn-outline green btn-xs dx-button-history"
-                      data-list_id="{{ App\Libraries\DBHelper::getListByTable('dx_db_events')->id }}" data-item_id="{{ $event->id }}">{{ trans('activities.btn_history') }}</a>
+                      data-list_id="{{ $self->events_list_id }}" data-item_id="{{ $event->id }}">{{ trans('activities.btn_history') }}</a>
                   @endif
                 </div>
               </div>
