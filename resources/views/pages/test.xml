@@ -1,0 +1,57 @@
+<mxGraphModel>
+    <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="3" style="shape=rounded" vertex="1" parent="1">
+            <mxGeometry x="220" y="80" width="100" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="4" style="shape=ellipse" vertex="1" parent="1">
+            <mxGeometry x="250" y="20" width="40" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="5" style="shape=ellipse" vertex="1" parent="1">
+            <mxGeometry x="260" y="380" width="40" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="6" style="shape=rounded" vertex="1" parent="1">
+            <mxGeometry x="150" y="140" width="100" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="7" style="shape=rounded" vertex="1" parent="1">
+            <mxGeometry x="300" y="140" width="100" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="8" style="shape=rhombus" vertex="1" parent="1">
+            <mxGeometry x="330" y="210" width="40" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="9" style="shape=rounded" vertex="1" parent="1">
+            <mxGeometry x="400" y="280" width="100" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="10" style="shape=rounded" vertex="1" parent="1">
+            <mxGeometry x="250" y="280" width="100" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="12" style="shape=ellipse" vertex="1" parent="1">
+            <mxGeometry x="180" y="210" width="40" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="a13" edge="1" parent="1" source="4" target="3">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="14" edge="1" parent="1" source="3" target="6">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="15" edge="1" parent="1" source="3" target="7">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="16" edge="1" parent="1" source="6" target="12">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="17" edge="1" parent="1" source="7" target="8">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="18" edge="1" parent="1" source="8" target="10">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="19" edge="1" parent="1" source="8" target="9">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="20" edge="1" parent="1" source="10" target="5">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+    </root>
+</mxGraphModel>

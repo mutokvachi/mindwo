@@ -90,4 +90,7 @@ return [
     'performer_system' => 'System',
     'performer_empl' => 'Employee',
     'err_no_substitute' => "Employee '%s' is absent and the substitute person is not provided!",
-];
+
+    'yes' => 'Yes',
+    'no' => 'No',
+        ];

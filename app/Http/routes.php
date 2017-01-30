@@ -104,6 +104,16 @@ Route::post('/workflow_custom_approve', array('as' => 'workflow_custom_approve',
 Route::post('/workflow_find_approver', array('as' => 'workflow_find_approver',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@getAutocompleateApprovers'));
 Route::post('/send_info_task', array('as' => 'send_info_task',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@sendInfoTask'));
 
+Route::group(['prefix' => 'workflow'], function() {
+    Route::group(['prefix' => 'visual'], function () {
+        Route::get('/test', array('middleware' => 'auth', 'uses'=>'VisualWFController@test'));
+        
+        Route::get('/steps/{id}', array('middleware' => 'auth_ajax', 'uses'=>'VisualWFController@getSteps'));
+        Route::post('/form', array('middleware' => 'auth_ajax', 'uses'=>'VisualWFController@getWFForm'));
+    });
+});
+
+
 // Lietotāji - autorizācija, atslēgšanās
 Route::post('/login', 'UserController@loginUser');
 Route::get('/login', array('as' => 'login','uses'=>'UserController@showIndex'));

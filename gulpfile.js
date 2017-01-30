@@ -25,6 +25,9 @@ gulp.task('langjs', function () {
     
 gulp.task('mix_all', function() {
 
+    gulp.src('./resources/assets/plugins/mxgraph/**/*')
+            .pipe(gulp.dest('./public/js/plugins/mxgraph'));
+
     elixir(function(mix) {
 
         // Core styles for main page - plugins
@@ -67,7 +70,8 @@ gulp.task('mix_all', function() {
             'mindwo/css/view.css',
             'datatables/plugins/bootstrap/datatables.bootstrap.css',
             'datatables/datatables.min.css',
-            'bootstrap-daterangepicker/daterangepicker.min.css'
+            'bootstrap-daterangepicker/daterangepicker.min.css',
+            '../less/pages/visual_workflow.less'
         ], 'public/css/elix_view.css', 'resources/assets/plugins');
         
         // horizontal menu UI styles                
@@ -168,7 +172,10 @@ gulp.task('mix_all', function() {
             'mindwo/fields/bool.js',
             'datatables/datatables.all.min.js',
             'datatables/plugins/bootstrap/datatables.bootstrap.js',
-            'float-thead/dist/jquery.floatThead.js'
+            'float-thead/dist/jquery.floatThead.js',
+            
+            'mindwo/visual_ui/workflow.js',
+            'mxgraph/src/js/mxClient.js',
         ], 'public/js/elix_view.js', 'resources/assets/plugins');
         
         mix.less([
