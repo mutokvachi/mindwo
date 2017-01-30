@@ -44,4 +44,5 @@ return [
     'rule_part1' => 'Vienā saglabāšanas reizē pieļaujams vienlaicīgi augšupielādēt ne vairāk kā ',
     'rule_part2' => ' datnes.',
     
+    'btn_file_edit' => 'Rediģēt',
 ];

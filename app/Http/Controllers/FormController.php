@@ -272,6 +272,49 @@ class FormController extends Controller
     }
 
     /**
+     * Save file edited by local application (Word, Excel etc)
+     * This method works without authorization (by guid)
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return Response Saved data info in JSON format
+     * @throws Exceptions\DXCustomException
+     */
+    public function saveFile(Request $request) {
+        $this->validate($request, [
+            'download_guid' => 'required|exists:dx_downloads,guid',
+        ]);
+        
+        $guid = $request->input('download_guid');
+        
+        $down = DB::table('dx_downloads')->where('guid', '=', $guid)->first();
+        if (!$down) {
+            throw new Exceptions\DXCustomException(sprintf(trans('errors.file_record_not_found'), $guid));
+        }
+        
+        $file_field = DB::table('dx_lists_fields')->where('id', '=', $down->field_id)->first();
+        
+        Auth::loginUsingId($down->user_id, true);
+        DB::table('dx_downloads')->where('id', '=', $down->id)->update(['last_download_time' => date('Y-n-d H:i:s')]);
+        
+        $form = DB::table('dx_forms')->where('list_id', '=', $file_field->list_id);
+        $request->merge(array(
+            'edit_form_id' => $form->id,
+            'item_id' => $down->item_id,
+            'multi_list_id' => 0 // ToDo: implement multi list check
+        ));
+        
+        return saveForm($request);
+    }
+    
+    public function saveFileGet(Request $request) {
+        Log::info("GET GETGFET");
+        
+        return response()->json([
+            'success' => 1
+        ]);
+    }
+    
+    /**
      * Saglabā formas datus
      * 
      * @param \Illuminate\Http\Request $request POST pieprasījuma objekts
