@@ -1,354 +1,291 @@
-/**
- * Workflows designer JavaScript functionality
- * 
- * @type _L4.Anonym$0|Function
- */
-var UI_WorkFlow = function()
-{         
-    var is_script_loaded = false;
-    
-    var myDiagram = null;
-    var myPalette = null;
-    
-    var lightText = 'whitesmoke';
+mxBasePath = '/js/plugins/mxgraph/src';
 
-
-    var saveWorkflow = function(frm){            
-        var form_id = 'list_item_view_form_' + frm.data('frm-uniq-id');
-        //myDiagram.model.toJson();
-
-        var formData = getTaskSavingData(form_id, save_url);
-        
-        if (formData == null) {
-            return;
-        }
-        
-        var request = new FormAjaxRequest(save_url, form_id, frm.data('grid-htm-id'), formData);
-
-        request.callback = function(data) {
-            displaySavingInfo(frm, data);
-        };
-
-        // izpildam AJAX pieprasījumu
-        request.doRequest();
-    };
-    
-    var displaySavingInfo = function(frm, data) {
-        
-        if (data['success'] == 1){                  
-            var form_id = 'list_item_view_form_' + frm.data('frm-uniq-id');
-
-            var grid_htm_id = frm.data('grid-htm-id');
-            if (grid_htm_id)
-            {
-                reload_grid(grid_htm_id);
-            }
-
-            notify_info(Lang.get('task_form.notify_saved'));
-        } 
-        else
-        {             	
-            notify_err(data['error']);
-        }
-        
-    };
-    
+(function ($)
+{
     /**
-     * Uzstāda ritjoslu modālajam uzdevuma logam
-     * 
-     * @param {object} frm Uzdevuma formas elements
-     * @returns {undefined}
+     * Creates jQuery plugin for workflow form
+     * @returns DxWorkflow
      */
-    var handleModalScrollbar = function(frm) {
-        frm.on('show.bs.modal', function () {
-            frm.find('.modal-body').css('overflow-y', 'auto');
-	});
-    };
-    
-    /**
-     * Apstrādā uzdevuma formas aizvēršanu - izņem pārlūkā ielādēto HTML
-     * Ja forma bija atvērta no saraksta, tad iespējo saraksta funkcionalitāti
-     * 
-     * @param {object} frm Uzdevuma formas elements
-     * @returns {undefined}
-     */
-    var handleModalHide = function(frm) {
-        frm.on('hidden.bs.modal', function (e) {			
-	
-            var grid_id = frm.data('grid-htm-id');
-            
-            if (grid_id) {
-                stop_executing(grid_id);
-            }
-             
-            setTimeout(function() {                
-                frm.remove();
-            }, 200);
-	});  
-    };
-    
-    // helper definitions for node templates
-
-    var nodeStyle = function() {
-        
-        return [
-        // The Node.location comes from the "loc" property of the node data,
-        // converted by the Point.parse static method.
-        // If the Node.location is changed, it updates the "loc" property of the node data,
-        // converting back using the Point.stringify static method.
-        new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+    $.fn.DxWorkflow = function ()
+    {
+        return this.each(function ()
         {
-          // the Node.location is at the center of each node
-          locationSpot: go.Spot.Center,
-          //isShadowed: true,
-          //shadowColor: "#888",
-          // handle mouse enter/leave events to show/hide the ports
-          mouseEnter: function (e, obj) { showPorts(obj.part, true); },
-          mouseLeave: function (e, obj) { showPorts(obj.part, false); }
-        }
-      ];
+            new $.DxWorkflow($(this));
+        });
     };
 
-// Define a function for creating a "port" that is normally transparent.
-    // The "name" is used as the GraphObject.portId, the "spot" is used to control how links connect
-    // and where the port is positioned on the node, and the boolean "output" and "input" arguments
-    // control whether the user can draw links from or to the port.
-    var makePort = function(name, spot, output, input) {
-      var gojs = go.GraphObject.make;  // for conciseness in defining templates
-      // the port is basically just a small circle that has a white stroke when it is made visible
-      return gojs(go.Shape, "Circle",
-               {
-                  fill: "transparent",
-                  stroke: null,  // this is changed to "white" in the showPorts function
-                  desiredSize: new go.Size(8, 8),
-                  alignment: spot, alignmentFocus: spot,  // align the port on the main Shape
-                  portId: name,  // declare this object to be a "port"
-                  fromSpot: spot, toSpot: spot,  // declare where links may connect at this port
-                  fromLinkable: output, toLinkable: input,  // declare whether the user may draw links to/from here
-                  cursor: "pointer"  // show a different cursor to indicate potential link point
-               });
-    };
+    /**
+     * Class for managing workflow form
+     * @type Window.DxWorkflow 
+     */
+    $.DxWorkflow = function (domObject) {
+        /**
+         * Worflow control's DOM object which is related to this class
+         */
+        this.domObject = domObject;
 
-    // Make link labels visible if coming out of a "conditional" node.
-    // This listener is called by the "LinkDrawn" and "LinkRelinked" DiagramEvents.
-    var showLinkLabel = function(e) {
-      var label = e.subject.findObject("LABEL");
-      if (label !== null) label.visible = (e.subject.fromNode.data.figure === "Diamond");
-    };
-    
-     // Make all ports on a node visible when the mouse is over the node
-    var showPorts = function(node, show) {
-        var diagram = node.diagram;
-        if (!diagram || diagram.isReadOnly || !diagram.allowLink) return;
-        node.ports.each(function(port) {
-            port.stroke = (show ? "white" : null);
-          });
-    };
+        /**
+         * Graphs model
+         */
+        this.model = null;
 
+        /**
+         * Graph
+         */
+        this.graph = null;
 
-    var init_workflow = function() {        
-        
-        var gojs = go.GraphObject.make;  // for conciseness in defining templates
-        
-        myDiagram =
-            gojs(go.Diagram, "dx-cms-wf-area",  // must name or refer to the DIV HTML element
-            {
-              initialContentAlignment: go.Spot.Center,
-              allowDrop: true,  // must be true to accept drops from the Palette
-              "LinkDrawn": showLinkLabel,  // this DiagramEvent listener is defined below
-              "LinkRelinked": showLinkLabel,
-              "animationManager.duration": 800, // slightly longer than default (600ms) animation
-              "undoManager.isEnabled": true  // enable undo & redo
+        // Initializes class
+        this.init();
+    }
+
+    /**
+     * Initializes component
+     * @returns {undefined}
+     */
+    $.extend($.DxWorkflow.prototype, {
+        init: function () {
+            var self = this;
+
+            $('#set_xml').click(function () {
+                var xm = document.getElementById('txt_xml');
+                self.setXML(self, xm.value)
+            });
+            $('#get_xml').click(function () {
+                self.getXML(self)
             });
 
-        // when the document is modified, add a "*" to the title and enable the "Save" button
-        myDiagram.addDiagramListener("Modified", function(e) {
-          var button = document.getElementById("SaveButton");
-          if (button) button.disabled = !myDiagram.isModified;
-          var idx = document.title.indexOf("*");
-          if (myDiagram.isModified) {
-            if (idx < 0) document.title += "*";
-          } else {
-            if (idx >= 0) document.title = document.title.substr(0, idx);
-          }
-        });
+            var container = self.domObject.find('.dx-wf-graph')[0];
+            var tbContainer = self.domObject.find('.dx-wf-toolbar')[0];
 
-        myDiagram.nodeTemplateMap.add("",  // the default category
-        gojs(go.Node, "Spot", nodeStyle(),
-          // the main object is a Panel that surrounds a TextBlock with a rectangular Shape
-          gojs(go.Panel, "Auto",
-            gojs(go.Shape, "Rectangle",
-              { fill: "#00A9C9", stroke: null },
-              new go.Binding("figure", "figure")),
-            gojs(go.TextBlock,
-              {
-                font: "bold 11pt Helvetica, Arial, sans-serif",
-                stroke: lightText,
-                margin: 8,
-                maxSize: new go.Size(160, NaN),
-                wrap: go.TextBlock.WrapFit,
-                editable: true
-              },
-              new go.Binding("text").makeTwoWay())
-          ),
-          // four named ports, one on each side:
-          makePort("T", go.Spot.Top, false, true),
-          makePort("L", go.Spot.Left, true, true),
-          makePort("R", go.Spot.Right, true, true),
-          makePort("B", go.Spot.Bottom, true, false)
-        ));
-
-        myDiagram.nodeTemplateMap.add("Start",
-          gojs(go.Node, "Spot", nodeStyle(),
-            gojs(go.Panel, "Auto",
-              gojs(go.Shape, "Circle",
-                { minSize: new go.Size(40, 40), fill: "#79C900", stroke: null }),
-              gojs(go.TextBlock, "Start",
-                { font: "bold 11pt Helvetica, Arial, sans-serif", stroke: lightText },
-                new go.Binding("text"))
-            ),
-            // three named ports, one on each side except the top, all output only:
-            makePort("L", go.Spot.Left, true, false),
-            makePort("R", go.Spot.Right, true, false),
-            makePort("B", go.Spot.Bottom, true, false)
-          ));
-
-        myDiagram.nodeTemplateMap.add("End",
-          gojs(go.Node, "Spot", nodeStyle(),
-            gojs(go.Panel, "Auto",
-              gojs(go.Shape, "Circle",
-                { minSize: new go.Size(40, 40), fill: "#DC3C00", stroke: null }),
-              gojs(go.TextBlock, "End",
-                { font: "bold 11pt Helvetica, Arial, sans-serif", stroke: lightText },
-                new go.Binding("text"))
-            ),
-            // three named ports, one on each side except the bottom, all input only:
-            makePort("T", go.Spot.Top, false, true),
-            makePort("L", go.Spot.Left, false, true),
-            makePort("R", go.Spot.Right, false, true)
-          ));
-
-        myDiagram.nodeTemplateMap.add("Comment",
-          gojs(go.Node, "Auto", nodeStyle(),
-            gojs(go.Shape, "File",
-              { fill: "#EFFAB4", stroke: null }),
-            gojs(go.TextBlock,
-              {
-                margin: 5,
-                maxSize: new go.Size(200, NaN),
-                wrap: go.TextBlock.WrapFit,
-                textAlign: "center",
-                editable: true,
-                font: "bold 12pt Helvetica, Arial, sans-serif",
-                stroke: '#454545'
-              },
-              new go.Binding("text").makeTwoWay())
-            // no ports, because no links are allowed to connect with a comment
-          ));
-
-
-        // replace the default Link template in the linkTemplateMap
-        myDiagram.linkTemplate =
-          gojs(go.Link,  // the whole link panel
+            // Checks if browser is supported
+            if (!mxClient.isBrowserSupported())
             {
-              routing: go.Link.AvoidsNodes,
-              curve: go.Link.JumpOver,
-              corner: 5, toShortLength: 4,
-              relinkableFrom: true,
-              relinkableTo: true,
-              reshapable: true,
-              resegmentable: true,
-              // mouse-overs subtly highlight links:
-              mouseEnter: function(e, link) { link.findObject("HIGHLIGHT").stroke = "rgba(30,144,255,0.2)"; },
-              mouseLeave: function(e, link) { link.findObject("HIGHLIGHT").stroke = "transparent"; }
-            },
-            new go.Binding("points").makeTwoWay(),
-            gojs(go.Shape,  // the highlight shape, normally transparent
-              { isPanelMain: true, strokeWidth: 8, stroke: "transparent", name: "HIGHLIGHT" }),
-            gojs(go.Shape,  // the link path shape
-              { isPanelMain: true, stroke: "gray", strokeWidth: 2 }),
-            gojs(go.Shape,  // the arrowhead
-              { toArrow: "standard", stroke: null, fill: "gray"}),
-            gojs(go.Panel, "Auto",  // the link label, normally not visible
-              { visible: false, name: "LABEL", segmentIndex: 2, segmentFraction: 0.5},
-              new go.Binding("visible", "visible").makeTwoWay(),
-              gojs(go.Shape, "RoundedRectangle",  // the label shape
-                { fill: "#F8F8F8", stroke: null }),
-              gojs(go.TextBlock, "Yes",  // the label
+                // Displays an error message if the browser is
+                // not supported.
+                mxUtils.error('Browser is not supported!', 200, false);
+            }
+            else
+            {
+                // Defines an icon for creating new connections in the connection handler.
+                // This will automatically disable the highlighting of the source vertex.
+                mxConnectionHandler.prototype.connectImage = new mxImage(mxBasePath + '/images/connector.gif', 16, 16);
+                /*
+                 // Creates the div for the toolbar
+                 var tbContainer = document.createElement('div');
+                 tbContainer.style.position = 'absolute';
+                 tbContainer.style.overflow = 'hidden';
+                 tbContainer.style.padding = '2px';
+                 tbContainer.style.left = '0px';
+                 tbContainer.style.top = '0px';
+                 tbContainer.style.width = '24px';
+                 tbContainer.style.bottom = '0px';
+                 
+                 document.body.appendChild(tbContainer);
+                 */
+
+                // Creates new toolbar without event processing
+
+                var toolbar = new mxToolbar(tbContainer);
+                toolbar.enabled = false
+
+                /*
+                 // Creates the div for the graph
+                 var container = document.createElement('div');
+                 container.style.position = 'absolute';
+                 container.style.overflow = 'hidden';
+                 container.style.left = '24px';
+                 container.style.top = '0px';
+                 container.style.right = '0px';
+                 container.style.bottom = '0px';
+                 container.style.background = 'url("editors/images/grid.gif")';
+                 
+                 document.body.appendChild(container);
+                 */
+
+                // Workaround for Internet Explorer ignoring certain styles
+                if (mxClient.IS_QUIRKS)
                 {
-                  textAlign: "center",
-                  font: "10pt helvetica, arial, sans-serif",
-                  stroke: "#333333",
-                  editable: true
-                },
-                new go.Binding("text").makeTwoWay())
-            )
-          );
+                    document.body.style.overflow = 'hidden';
+                    new mxDivResizer(tbContainer);
+                    new mxDivResizer(container);
+                }
 
-        // temporary links used by LinkingTool and RelinkingTool are also orthogonal:
-        myDiagram.toolManager.linkingTool.temporaryLink.routing = go.Link.Orthogonal;
-        myDiagram.toolManager.relinkingTool.temporaryLink.routing = go.Link.Orthogonal;
-        
-        // initialize the Palette that is on the left side of the page
-        myPalette =
-        gojs(go.Palette, "dx_cms-wf-palette",  // must name or refer to the DIV HTML element
-          {
-            "animationManager.duration": 800, // slightly longer than default (600ms) animation
-            nodeTemplateMap: myDiagram.nodeTemplateMap,  // share the templates used by myDiagram
-            model: new go.GraphLinksModel([  // specify the contents of the Palette
-              { category: "Start", text: "Start" },
-              { text: "Step" },
-              { text: "???", figure: "Diamond" },
-              { category: "End", text: "End" },
-              { category: "Comment", text: "Comment" }
-            ])
-          });
+                // Creates the model and the graph inside the container
+                // using the fastest rendering available on the browser
+                self.model = new mxGraphModel();
+                self.graph = new mxGraph(container, self.model);
 
-    }
-    
-    var draw_workflow = function(json) {
-        
-        myDiagram.model = go.Model.fromJson(json);
-    };
-    
-    /**
-     * Apstrādā un inicializē vēl neinicializētās formas
-     * 
-     * @returns {undefined}
-     */
-    var initForm = function()
-    { 
+                // Sets parameter that allow text wrap
+                self.graph.setHtmlLabels(true);
 
-        $(".dx-cms-workflow-form[data-is-init='0']").each(function() {
-            var json = $(this).data("json-model");
-            
-            if (!is_script_loaded) {
-                $.getScript( DX_CORE.site_url + "gojs_workflow/release/go.js", function( data, textStatus, jqxhr ) {
-                   is_script_loaded = true;
-                   init_workflow();
-                   draw_workflow(json);
+                // Enables new connections in the graph
+                self.graph.setConnectable(true);
+                self.graph.setMultigraph(false);
+
+                // Stops editing on enter or escape keypress
+                var keyHandler = new mxKeyHandler(self.graph);
+                var rubberband = new mxRubberband(self.graph);
+
+                var addVertex = function (icon, w, h, style)
+                {
+                    var vertex = new mxCell(null, new mxGeometry(0, 0, w, h), style);
+                    vertex.setVertex(true);
+
+                    var img = self.addToolbarItem(self.graph, toolbar, vertex, icon);
+                    img.enabled = true;
+
+                    self.graph.getSelectionModel().addListener(mxEvent.CHANGE, function ()
+                    {
+                        var tmp = self.graph.isSelectionEmpty();
+                        mxUtils.setOpacity(img, (tmp) ? 100 : 20);
+                        img.enabled = tmp;
+                    });
+                };
+
+
+                addVertex(mxBasePath + '/images/rounded.gif', 100, 40, 'shape=rounded');
+                addVertex(mxBasePath + '/images/ellipse.gif', 40, 40, 'shape=ellipse');
+                addVertex(mxBasePath + '/images/rhombus.gif', 40, 40, 'shape=rhombus');
+
+                var keyHandler = new mxKeyHandler(self.graph);
+                keyHandler.bindKey(46, function (evt)
+                {
+                    if (self.graph.isEnabled())
+                    {
+                        self.graph.removeCells();
+                    }
                 });
-            }
-            else {
-                draw_workflow(json);
-            }
-        
-            handleModalScrollbar($(this));
-            handleModalHide($(this));
-                        
-            $(this).data('is-init', 1);            
-            $(this).modal('show');
-        });
-        
-    };
 
-    return {
-        init: function() {
-            initForm();
+                self.loadData();
+            }
+
+            var modal = $('.dx-wf-container').closest('.modal');
+
+            /**
+             * Uzstāda ritjoslu modālajam uzdevuma logam
+             * 
+             * @param {object} frm Uzdevuma formas elements
+             * @returns {undefined}
+             */
+            var handleModalScrollbar = function (frm) {
+                frm.on('show.bs.modal', function () {
+                    frm.find('.modal-body').css('overflow-y', 'auto');
+                    frm.find('.modal-body').css('max-height', 'none');
+                });
+            };
+
+            /**
+             * Apstrādā uzdevuma formas aizvēršanu - izņem pārlūkā ielādēto HTML
+             * Ja forma bija atvērta no saraksta, tad iespējo saraksta funkcionalitāti
+             * 
+             * @param {object} frm Uzdevuma formas elements
+             * @returns {undefined}
+             */
+            var handleModalHide = function (frm) {
+                frm.on('hidden.bs.modal', function (e) {
+
+                    var grid_id = frm.data('grid-htm-id');
+
+                    if (grid_id) {
+                        stop_executing(grid_id);
+                    }
+
+                    setTimeout(function () {
+                        frm.remove();
+                    }, 200);
+                });
+            };
+
+            if (modal) {
+                handleModalScrollbar(modal);
+                handleModalHide(modal);
+
+                modal.data('is-init', 1);
+                modal.modal('show');
+            }
+        },
+        addToolbarItem: function (graph, toolbar, prototype, image)
+        {
+            // Function that is executed when the image is dropped on
+            // the graph. The cell argument points to the cell under
+            // the mousepointer if there is one.
+            var funct = function (graph, evt, cell, x, y)
+            {
+                graph.stopEditing(false);
+
+                var vertex = graph.getModel().cloneCell(prototype);
+                vertex.geometry.x = x;
+                vertex.geometry.y = y;
+
+                graph.addCell(vertex);
+                graph.setSelectionCell(vertex);
+            }
+
+            // Creates the image which is used as the drag icon (preview)
+            var img = toolbar.addMode(null, image, function (evt, cell)
+            {
+                var pt = this.graph.getPointForEvent(evt);
+                funct(graph, evt, cell, pt.x, pt.y);
+            });
+
+            // Disables dragging if element is disabled. This is a workaround
+            // for wrong event order in IE. Following is a dummy listener that
+            // is invoked as the last listener in IE.
+            mxEvent.addListener(img, 'mousedown', function (evt)
+            {
+                // do nothing
+            });
+
+            // This listener is always called first before any other listener
+            // in all browsers.
+            mxEvent.addListener(img, 'mousedown', function (evt)
+            {
+                if (img.enabled == false)
+                {
+                    mxEvent.consume(evt);
+                }
+            });
+
+            mxUtils.makeDraggable(img, graph, funct);
+
+            return img;
+        },
+        loadData: function () {
+            var xml = this.domObject.data('xml_data');
+
+            this.setXML(this, xml);
+        },
+        getXML: function (self) {
+            var encoder = new mxCodec();
+            var node = encoder.encode(self.graph.getModel());
+            xm = document.getElementById('txt_xml');
+            xm.value = mxUtils.getPrettyXml(node);
+        },
+        setXML: function (self, xml) {
+            // Gets the default parent for inserting new cells. This
+            // is normally the first child of the root (ie. layer 0).
+            var parent = self.graph.getDefaultParent();
+
+            self.graph.getModel().beginUpdate();
+            try
+            {
+                var doc = mxUtils.parseXml(xml);
+                var dec = new mxCodec(doc);
+                var model = dec.decode(doc.documentElement);
+
+                self.graph.getModel().mergeChildren(model.getRoot().getChildAt(0), parent);
+            }
+            finally
+            {
+                // Updates the display
+                self.graph.getModel().endUpdate();
+            }
+
         }
-    };
-}();
+    });
+})(jQuery);
 
-$(document).ajaxComplete(function(event, xhr, settings) {            
-    UI_WorkFlow.init();           
+$(document).ajaxComplete(function () {
+    // Initializes all found worklfow containers
+    $('.dx-wf-container').DxWorkflow();
 });

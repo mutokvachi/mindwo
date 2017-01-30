@@ -89,4 +89,7 @@ return [
     'performer_system' => 'Sistēma',
     'performer_empl' => 'Darbinieks',
     'err_no_substitute' => "Prombūtnē esošam darbiniekam '%s' nav norādīts aizvietotājs!",
+    
+    'yes' => 'Jā',
+    'no' => 'Nē',
 ];
