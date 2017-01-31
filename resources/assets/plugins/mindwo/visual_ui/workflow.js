@@ -1,79 +1,5 @@
 mxBasePath = '/js/plugins/mxgraph/src';
 
-function mxIconSet(state)
-{
-    this.images = [];
-    var graph = state.view.graph;
-
-    // Icon1
-    var img = mxUtils.createImage('images/copy.png');
-    img.setAttribute('title', 'Duplicate');
-    img.style.position = 'absolute';
-    img.style.cursor = 'pointer';
-    img.style.width = '16px';
-    img.style.height = '16px';
-    img.style.left = (state.x + state.width) + 'px';
-    img.style.top = (state.y + state.height) + 'px';
-
-    mxEvent.addGestureListeners(img,
-            mxUtils.bind(this, function (evt)
-            {
-                var s = graph.gridSize;
-                graph.setSelectionCells(graph.moveCells([state.cell], s, s, true));
-                mxEvent.consume(evt);
-                this.destroy();
-            })
-            );
-
-    state.view.graph.container.appendChild(img);
-    this.images.push(img);
-
-    // Delete
-    var img = mxUtils.createImage('images/delete2.png');
-    img.setAttribute('title', 'Delete');
-    img.style.position = 'absolute';
-    img.style.cursor = 'pointer';
-    img.style.width = '16px';
-    img.style.height = '16px';
-    img.style.left = (state.x + state.width) + 'px';
-    img.style.top = (state.y - 16) + 'px';
-
-    mxEvent.addGestureListeners(img,
-            mxUtils.bind(this, function (evt)
-            {
-                // Disables dragging the image
-                mxEvent.consume(evt);
-            })
-            );
-
-    mxEvent.addListener(img, 'click',
-            mxUtils.bind(this, function (evt)
-            {
-                graph.removeCells([state.cell]);
-                mxEvent.consume(evt);
-                this.destroy();
-            })
-            );
-
-    state.view.graph.container.appendChild(img);
-    this.images.push(img);
-}
-;
-
-mxIconSet.prototype.destroy = function ()
-{
-    if (this.images != null)
-    {
-        for (var i = 0; i < this.images.length; i++)
-        {
-            var img = this.images[i];
-            img.parentNode.removeChild(img);
-        }
-    }
-
-    this.images = null;
-};
-
 (function ($)
 {
     /**
@@ -108,6 +34,8 @@ mxIconSet.prototype.destroy = function ()
          */
         this.graph = null;
 
+        this.listWfStepsId = 0;
+
         // Initializes class
         this.init();
     }
@@ -117,15 +45,111 @@ mxIconSet.prototype.destroy = function ()
      * @returns {undefined}
      */
     $.extend($.DxWorkflow.prototype, {
+        mxIconSet: function (self, state)
+        {
+            this.images = [];
+            var graph = state.view.graph;
+
+            var isEditable = state.cell.style.indexOf('shape=ellipse') == -1;
+
+            if (isEditable) {
+                // Edit Icon
+                var img = mxUtils.createImage(mxBasePath + '/images/gear.png');
+                img.setAttribute('title', 'Edit');
+                img.style.position = 'absolute';
+                img.style.cursor = 'pointer';
+                img.style.width = '16px';
+                img.style.height = '16px';
+                img.style.left = (state.x + state.width + 4) + 'px';
+                img.style.top = (state.y + (state.height / 2) - 20) + 'px';
+
+                mxEvent.addGestureListeners(img,
+                        mxUtils.bind(this, function (evt)
+                        {
+                            self.editWorkflowStep(self, state.cell.workflow_step_id);
+
+                            mxEvent.consume(evt);
+                            this.destroy();
+                        })
+                        );
+
+                state.view.graph.container.appendChild(img);
+                this.images.push(img);
+            }
+
+            // Delete Icon
+            var img = mxUtils.createImage(mxBasePath + '/images/delete2.png');
+            img.setAttribute('title', 'Delete');
+            img.style.position = 'absolute';
+            img.style.cursor = 'pointer';
+            img.style.width = '16px';
+            img.style.height = '16px';
+            img.style.left = (state.x + state.width + 4) + 'px';
+
+            if (isEditable) {
+                img.style.top = (state.y + (state.height / 2) + 4) + 'px';
+            } else {
+                img.style.top = (state.y + (state.height / 2) - 8) + 'px';
+            }
+
+            mxEvent.addGestureListeners(img,
+                    mxUtils.bind(this, function (evt)
+                    {
+                        // Disables dragging the image
+                        mxEvent.consume(evt);
+                    })
+                    );
+
+            mxEvent.addListener(img, 'click',
+                    mxUtils.bind(this, function (evt)
+                    {
+                        graph.removeCells([state.cell]);
+                        mxEvent.consume(evt);
+                        this.destroy();
+                    })
+                    );
+
+            state.view.graph.container.appendChild(img);
+            this.images.push(img);
+
+            this.destroy = function ()
+            {
+                if (this.images != null)
+                {
+                    for (var i = 0; i < this.images.length; i++)
+                    {
+                        var img = this.images[i];
+                        img.parentNode.removeChild(img);
+                    }
+                }
+
+                this.images = null;
+            };
+        },
+        editWorkflowStep: function (self, step_id) {
+            if (typeof step_id === 'undefined' || step_id < 0) {
+                step_id = 0;
+            }
+
+            open_form('form', step_id, self.wf_steps_list_id, 0, 0, '', 1, '');
+
+        },
         init: function () {
             var self = this;
 
+            self.wf_steps_list_id = self.domObject.data('list_wf_steps_id');
+
             $('#set_xml').click(function () {
                 var xm = document.getElementById('txt_xml');
-                self.setXML(self, xm.value)
+                self.setXML(self, xm.value);
             });
             $('#get_xml').click(function () {
-                self.getXML(self)
+                var xm = document.getElementById('txt_xml');
+                xm.value = self.getXML(self);
+            });
+
+            $('#save_xml').click(function () {
+                self.save(self);
             });
 
             var container = self.domObject.find('.dx-wf-graph')[0];
@@ -137,8 +161,7 @@ mxIconSet.prototype.destroy = function ()
                 // Displays an error message if the browser is
                 // not supported.
                 mxUtils.error('Browser is not supported!', 200, false);
-            }
-            else
+            } else
             {
                 // Defines an icon for creating new connections in the connection handler.
                 // This will automatically disable the highlighting of the source vertex.
@@ -199,6 +222,79 @@ mxIconSet.prototype.destroy = function ()
                 // Changes the default edge style
                 // self.graph.getStylesheet().getDefaultEdgeStyle()['edgeStyle'] = 'orthogonalEdgeStyle';
 
+                // Defines the tolerance before removing the icons
+                var iconTolerance = 20;
+
+                // Shows icons if the mouse is over a cell
+                self.graph.addMouseListener(
+                        {
+                            currentState: null,
+                            currentIconSet: null,
+                            mouseDown: function (sender, me)
+                            {
+                                // Hides icons on mouse down
+                                if (this.currentState != null)
+                                {
+                                    this.dragLeave(me.getEvent(), this.currentState);
+                                    this.currentState = null;
+                                }
+                            },
+                            mouseMove: function (sender, me)
+                            {
+                                if (this.currentState != null && (me.getState() == this.currentState ||
+                                        me.getState() == null))
+                                {
+                                    var tol = iconTolerance;
+                                    var tmp = new mxRectangle(me.getGraphX() - tol,
+                                            me.getGraphY() - tol, 2 * tol, 2 * tol);
+
+                                    if (mxUtils.intersects(tmp, this.currentState))
+                                    {
+                                        return;
+                                    }
+                                }
+
+                                var tmp = self.graph.view.getState(me.getCell());
+
+                                // Ignores everything but vertices
+                                if (self.graph.isMouseDown || (tmp != null && !self.graph.getModel().isVertex(tmp.cell)))
+                                {
+                                    tmp = null;
+                                }
+
+                                if (tmp != this.currentState)
+                                {
+                                    if (this.currentState != null)
+                                    {
+                                        this.dragLeave(me.getEvent(), this.currentState);
+                                    }
+
+                                    this.currentState = tmp;
+
+                                    if (this.currentState != null)
+                                    {
+                                        this.dragEnter(me.getEvent(), this.currentState);
+                                    }
+                                }
+                            },
+                            mouseUp: function (sender, me) { },
+                            dragEnter: function (evt, state)
+                            {
+                                if (this.currentIconSet == null)
+                                {
+                                    this.currentIconSet = new self.mxIconSet(self, state);
+                                }
+                            },
+                            dragLeave: function (evt, state)
+                            {
+                                if (this.currentIconSet != null)
+                                {
+                                    this.currentIconSet.destroy();
+                                    this.currentIconSet = null;
+                                }
+                            }
+                        });
+
                 // Stops editing on enter or escape keypress
                 var keyHandler = new mxKeyHandler(self.graph);
                 var rubberband = new mxRubberband(self.graph);
@@ -220,8 +316,8 @@ mxIconSet.prototype.destroy = function ()
                 };
 
 
-                addVertex(mxBasePath + '/images/rounded.gif', 100, 40, 'shape=rounded');
-                addVertex(mxBasePath + '/images/ellipse.gif', 40, 40, 'shape=ellipse');
+                addVertex(mxBasePath + '/images/rounded.gif', 100, 60, 'shape=rounded');
+                addVertex(mxBasePath + '/images/ellipse.gif', 20, 20, 'shape=ellipse');
                 addVertex(mxBasePath + '/images/rhombus.gif', 40, 40, 'shape=rhombus');
 
                 var keyHandler = new mxKeyHandler(self.graph);
@@ -294,7 +390,7 @@ mxIconSet.prototype.destroy = function ()
 
                 graph.addCell(vertex);
                 graph.setSelectionCell(vertex);
-            }
+            };
 
             // Creates the image which is used as the drag icon (preview)
             var img = toolbar.addMode(null, image, function (evt, cell)
@@ -333,8 +429,13 @@ mxIconSet.prototype.destroy = function ()
         getXML: function (self) {
             var encoder = new mxCodec();
             var node = encoder.encode(self.graph.getModel());
-            xm = document.getElementById('txt_xml');
-            xm.value = mxUtils.getPrettyXml(node);
+            
+            return  mxUtils.getPrettyXml(node);
+        },
+        save: function (self) {
+            var xml = self.getXML(self);
+
+            
         },
         setXML: function (self, xml) {
             // Gets the default parent for inserting new cells. This
@@ -349,19 +450,22 @@ mxIconSet.prototype.destroy = function ()
                 var model = dec.decode(doc.documentElement);
 
                 self.graph.getModel().mergeChildren(model.getRoot().getChildAt(0), parent);
-            }
-            finally
+            } finally
             {
                 // Updates the display
                 self.graph.getModel().endUpdate();
             }
-
         }
     });
 })(jQuery);
 
 // ajaxComplete ready
 $(document).ready(function () {
+    // Initializes all found worklfow containers
+    $('.dx-wf-container').DxWorkflow();
+});
+
+$(document).ajaxComplete(function () {
     // Initializes all found worklfow containers
     $('.dx-wf-container').DxWorkflow();
 });

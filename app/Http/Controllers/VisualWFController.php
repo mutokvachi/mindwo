@@ -62,7 +62,7 @@ class VisualWFController extends Controller
 
         $is_first = true;
 
-        $this->createMxCell($root, false, 2, $workflow_step->step_nr, 0, 'ellipse', 20, 20);
+        $this->createMxCell($root, false, $workflow_step->id, 2, $workflow_step->step_nr, 0, 'ellipse', 20, 20);
 
         //  $this->createMxCell($root, $workflow_step->step_nr, $workflow_step->yes_step_nr, $workflow_step->no_step_nr, ($workflow_step->task_type_id == 5 ? 'rhombus' : 'rounded'));
         // Removes 'xml version="1.0"' at the beginning of the xml
@@ -70,7 +70,7 @@ class VisualWFController extends Controller
         return $dom->ownerDocument->saveXML($dom->ownerDocument->documentElement);
     }
 
-    private function createMxCell(&$root, $value, $step_nr, $yes_step_nr, $no_step_nr, $shape, $x, $y)
+    private function createMxCell(&$root, $value, $step_id, $step_nr, $yes_step_nr, $no_step_nr, $shape, $x, $y)
     {
         // Exit if cell already exist
         if (in_array($step_nr, $this->xml_cell_list)) {
@@ -81,9 +81,10 @@ class VisualWFController extends Controller
 
         $mxCell = $root->addChild('mxCell');
 
-        $mxCell->addAttribute('id', $step_nr);
+        $mxCell->addAttribute('id', 's' . $step_nr);
         $mxCell->addAttribute('vertex', '1');
         $mxCell->addAttribute('parent', '1');
+        $mxCell->addAttribute('workflow_step_id', $step_id);
         $mxCell->addAttribute('style', 'overflow=hidden;html=1;whiteSpace=wrap;shape=' . $shape);
 
         if ($value) {
@@ -116,7 +117,7 @@ class VisualWFController extends Controller
         // Creates last element
         if ($yes_step_nr == 0 && $shape != 'ellipse') {
 
-            $this->createMxCell($root, false, ($step_nr + 1), 0, 0, 'ellipse', $x, $y + $height + 30);
+            $this->createMxCell($root, false, -1, ($step_nr + 1), 0, 0, 'ellipse', $x, $y + $height + 30);
             $this->createArrow($root, $step_nr, ($step_nr + 1), '');
         } else {
             if ($yes_step_nr > 0) {
@@ -126,7 +127,7 @@ class VisualWFController extends Controller
 
                 $new_shape = ($workflow_step->task_type_id == 5 ? 'rhombus' : 'rounded');
 
-                $this->createMxCell($root, $workflow_step->step_title, $workflow_step->step_nr, $workflow_step->yes_step_nr, $workflow_step->no_step_nr, $new_shape, $x, $y + $height + 30);
+                $this->createMxCell($root, $workflow_step->step_title, $workflow_step->id, $workflow_step->step_nr, $workflow_step->yes_step_nr, $workflow_step->no_step_nr, $new_shape, $x, $y + $height + 30);
 
                 $arrow_value = '';
                 if ($shape == 'rhombus') {
@@ -143,7 +144,7 @@ class VisualWFController extends Controller
 
                 $new_shape = ($workflow_step->task_type_id == 5 ? 'rhombus' : 'rounded');
 
-                $this->createMxCell($root, $workflow_step->step_title, $workflow_step->step_nr, $workflow_step->yes_step_nr, $workflow_step->no_step_nr, $new_shape, $x + $width + 40, $y + $height + 30);
+                $this->createMxCell($root, $workflow_step->step_title, $workflow_step->id, $workflow_step->step_nr, $workflow_step->yes_step_nr, $workflow_step->no_step_nr, $new_shape, $x + $width + 40, $y + $height + 30);
 
                 $arrow_value = '';
                 if ($shape == 'rhombus') {
@@ -159,11 +160,11 @@ class VisualWFController extends Controller
     {
         $mxCell = $root->addChild('mxCell');
 
-        $mxCell->addAttribute('id', 'arrow' . $this->arrow_counter++);
+        // $mxCell->addAttribute('id', 'arrow' . $this->arrow_counter++);
         $mxCell->addAttribute('edge', '1');
         $mxCell->addAttribute('parent', '1');
-        $mxCell->addAttribute('source', $parent);        
-        $mxCell->addAttribute('target', $child);
+        $mxCell->addAttribute('source', 's' . $parent);        
+        $mxCell->addAttribute('target', 's' . $child);
         // labelBackgroundColor=white
         $mxCell->addAttribute('style', 'fontColor=black;labelPosition=right;align=left;');
         
