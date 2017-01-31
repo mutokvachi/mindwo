@@ -4,6 +4,8 @@ namespace App\Libraries\FieldsHtm
 {
     use DB;
     use File;
+    use Auth;
+    use Webpatser\Uuid\Uuid;
     
     /**
      * Datnes lauka attēlošanas klase. Attēlo 3 veida laukus: multi datņu pievienošana, attēls vai parasta datne
@@ -34,7 +36,24 @@ namespace App\Libraries\FieldsHtm
             }           
             
             $view_name = ($this->fld_attr->is_image_file == 1) ? "image" : "file";
+            $down_guid = "";
+            $is_pdf = false;
             
+            if ($view_name == "file") {
+                $is_pdf = $this->isPDF($this->item_value);
+                
+                if (!$is_pdf) {
+                    $down_guid = Uuid::generate(4);
+                    DB::table('dx_downloads')->insertGetId([
+                        'user_id' => Auth::user()->id,
+                        'field_id' => $this->fld_attr->field_id,
+                        'item_id' => $this->item_id,
+                        'guid' => $down_guid,
+                        'init_time' => date('Y-n-d H:i:s')
+                    ]);
+                }
+            }
+                        
             return view('fields.' . $view_name, [
                         'item_id' => $this->item_id, 
                         'list_id' => $this->list_id,
@@ -47,7 +66,9 @@ namespace App\Libraries\FieldsHtm
                         'class_exist' => $class_exist,
                         'is_required' => $this->fld_attr->is_required,
                         'ext' => $this->getAllowedExt(),
-                        'is_pdf' => $this->isPDF($this->item_value)
+                        'is_pdf' => $is_pdf,
+                        'down_guid' => $down_guid,
+                        'is_item_editable' => $this->is_item_editable
             ])->render();
         }
         

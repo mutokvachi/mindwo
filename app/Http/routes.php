@@ -33,6 +33,10 @@ if (Config::get('database.log', false)) {
     });
 }
 
+Route::get('/download_by_guid_{guid}', array('as' => 'download_file_guid', 'middleware' => 'public_file', 'uses'=>'FileController@getFileByGuid'));
+Route::post('/public/save_file_by_guid', array('as' => 'save_file_by_guid', 'middleware' => 'public_file', 'uses'=>'FormController@saveFile'));
+//Route::get('/public/save_file_by_guid', array('as' => 'save_file_by_guid_get', 'middleware' => 'public_file', 'uses'=>'FormController@saveFileGet'));
+
 /**
  * Failu pārlūks - satura redaktora komponente
  */

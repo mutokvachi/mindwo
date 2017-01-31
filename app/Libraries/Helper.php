@@ -235,7 +235,7 @@ namespace App\Libraries
                 return true; // is authentificated
             }
             else {
-                Log::info("AUTH: all info must have authorized access but this user is not loged in");
+                Log::info("AUTH: all info must have authorized access but this user is not loged in. URL: " . Request::url() . " METHOD: " . Request::method());
                 return false; // all info must have authorized access but this user is not loged in
             }
         }
