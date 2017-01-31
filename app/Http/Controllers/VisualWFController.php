@@ -165,7 +165,7 @@ class VisualWFController extends Controller
         $mxCell->addAttribute('source', $parent);        
         $mxCell->addAttribute('target', $child);
         // labelBackgroundColor=white
-        $mxCell->addAttribute('style', 'fontColor=black;');
+        $mxCell->addAttribute('style', 'fontColor=black;labelPosition=right;align=left;');
         
         if ($value) {
             $mxCell->addAttribute('value', htmlspecialchars($value, ENT_QUOTES, 'UTF-8'));

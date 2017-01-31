@@ -1,5 +1,79 @@
 mxBasePath = '/js/plugins/mxgraph/src';
 
+function mxIconSet(state)
+{
+    this.images = [];
+    var graph = state.view.graph;
+
+    // Icon1
+    var img = mxUtils.createImage('images/copy.png');
+    img.setAttribute('title', 'Duplicate');
+    img.style.position = 'absolute';
+    img.style.cursor = 'pointer';
+    img.style.width = '16px';
+    img.style.height = '16px';
+    img.style.left = (state.x + state.width) + 'px';
+    img.style.top = (state.y + state.height) + 'px';
+
+    mxEvent.addGestureListeners(img,
+            mxUtils.bind(this, function (evt)
+            {
+                var s = graph.gridSize;
+                graph.setSelectionCells(graph.moveCells([state.cell], s, s, true));
+                mxEvent.consume(evt);
+                this.destroy();
+            })
+            );
+
+    state.view.graph.container.appendChild(img);
+    this.images.push(img);
+
+    // Delete
+    var img = mxUtils.createImage('images/delete2.png');
+    img.setAttribute('title', 'Delete');
+    img.style.position = 'absolute';
+    img.style.cursor = 'pointer';
+    img.style.width = '16px';
+    img.style.height = '16px';
+    img.style.left = (state.x + state.width) + 'px';
+    img.style.top = (state.y - 16) + 'px';
+
+    mxEvent.addGestureListeners(img,
+            mxUtils.bind(this, function (evt)
+            {
+                // Disables dragging the image
+                mxEvent.consume(evt);
+            })
+            );
+
+    mxEvent.addListener(img, 'click',
+            mxUtils.bind(this, function (evt)
+            {
+                graph.removeCells([state.cell]);
+                mxEvent.consume(evt);
+                this.destroy();
+            })
+            );
+
+    state.view.graph.container.appendChild(img);
+    this.images.push(img);
+}
+;
+
+mxIconSet.prototype.destroy = function ()
+{
+    if (this.images != null)
+    {
+        for (var i = 0; i < this.images.length; i++)
+        {
+            var img = this.images[i];
+            img.parentNode.removeChild(img);
+        }
+    }
+
+    this.images = null;
+};
+
 (function ($)
 {
     /**
@@ -86,7 +160,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 // Creates new toolbar without event processing
 
                 var toolbar = new mxToolbar(tbContainer);
-                toolbar.enabled = false
+                toolbar.enabled = false;
 
                 /*
                  // Creates the div for the graph
@@ -121,6 +195,9 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 // Enables new connections in the graph
                 self.graph.setConnectable(true);
                 self.graph.setMultigraph(false);
+
+                // Changes the default edge style
+                // self.graph.getStylesheet().getDefaultEdgeStyle()['edgeStyle'] = 'orthogonalEdgeStyle';
 
                 // Stops editing on enter or escape keypress
                 var keyHandler = new mxKeyHandler(self.graph);
@@ -161,48 +238,46 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
             var modal = $('.dx-wf-container').closest('.modal');
 
-            /**
-             * Uzstāda ritjoslu modālajam uzdevuma logam
-             * 
-             * @param {object} frm Uzdevuma formas elements
-             * @returns {undefined}
-             */
-            var handleModalScrollbar = function (frm) {
-                frm.on('show.bs.modal', function () {
-                    frm.find('.modal-body').css('overflow-y', 'auto');
-                    frm.find('.modal-body').css('max-height', 'none');
-                });
-            };
-
-            /**
-             * Apstrādā uzdevuma formas aizvēršanu - izņem pārlūkā ielādēto HTML
-             * Ja forma bija atvērta no saraksta, tad iespējo saraksta funkcionalitāti
-             * 
-             * @param {object} frm Uzdevuma formas elements
-             * @returns {undefined}
-             */
-            var handleModalHide = function (frm) {
-                frm.on('hidden.bs.modal', function (e) {
-
-                    var grid_id = frm.data('grid-htm-id');
-
-                    if (grid_id) {
-                        stop_executing(grid_id);
-                    }
-
-                    setTimeout(function () {
-                        frm.remove();
-                    }, 200);
-                });
-            };
-
             if (modal) {
-                handleModalScrollbar(modal);
-                handleModalHide(modal);
+                self.handleModalScrollbar(modal);
+                self.handleModalHide(modal);
 
                 modal.data('is-init', 1);
                 modal.modal('show');
             }
+        },
+        /**
+         * Uzstāda ritjoslu modālajam uzdevuma logam
+         * 
+         * @param {object} frm Uzdevuma formas elements
+         * @returns {undefined}
+         */
+        handleModalScrollbar: function (frm) {
+            frm.on('show.bs.modal', function () {
+                frm.find('.modal-body').css('overflow-y', 'auto');
+                frm.find('.modal-body').css('max-height', 'none');
+            });
+        },
+        /**
+         * Apstrādā uzdevuma formas aizvēršanu - izņem pārlūkā ielādēto HTML
+         * Ja forma bija atvērta no saraksta, tad iespējo saraksta funkcionalitāti
+         * 
+         * @param {object} frm Uzdevuma formas elements
+         * @returns {undefined}
+         */
+        handleModalHide: function (frm) {
+            frm.on('hidden.bs.modal', function (e) {
+
+                var grid_id = frm.data('grid-htm-id');
+
+                if (grid_id) {
+                    stop_executing(grid_id);
+                }
+
+                setTimeout(function () {
+                    frm.remove();
+                }, 200);
+            });
         },
         addToolbarItem: function (graph, toolbar, prototype, image)
         {
@@ -285,7 +360,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
     });
 })(jQuery);
 
-$(document).ajaxComplete(function () {
+// ajaxComplete ready
+$(document).ready(function () {
     // Initializes all found worklfow containers
     $('.dx-wf-container').DxWorkflow();
 });
