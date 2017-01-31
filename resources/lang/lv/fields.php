@@ -45,4 +45,5 @@ return [
     'rule_part2' => ' datnes.',
     
     'btn_file_edit' => 'Rediģēt',
+    'btn_file_view' => 'Skatīt', 
 ];

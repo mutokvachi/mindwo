@@ -67,7 +67,8 @@ namespace App\Libraries\FieldsHtm
                         'is_required' => $this->fld_attr->is_required,
                         'ext' => $this->getAllowedExt(),
                         'is_pdf' => $is_pdf,
-                        'down_guid' => $down_guid
+                        'down_guid' => $down_guid,
+                        'is_item_editable' => $this->is_item_editable
             ])->render();
         }
         

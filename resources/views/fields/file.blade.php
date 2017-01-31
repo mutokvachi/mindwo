@@ -13,8 +13,11 @@
                 @endif
             </span>
     </div>
-    @if ($is_disabled && Auth::user()->mindwo_exe && $down_guid)
-        <a href='{{ Auth::user()->mindwo_exe}}?url={{Request::root()}}/download_by_guid_{{ $down_guid }}?file_name={{ $item_value }}?field_name={{ $item_field }}?mode=write' class='input-group-addon btn btn-default fileinput-exists'>{{ trans('fields.btn_file_edit') }}</a>
+    @if ($is_disabled && $down_guid)
+        @if ($is_item_editable)
+        <a href='mindwo://?url={{Request::root()}}/download_by_guid_{{ $down_guid }}?file_name={{ $item_value }}?field_name={{ $item_field }}?mode=write?download_guid={{ $down_guid }}' class='input-group-addon btn btn-default fileinput-exists'>{{ trans('fields.btn_file_edit') }}</a>
+        @endif
+        <a href='mindwo://?url={{Request::root()}}/download_by_guid_{{ $down_guid }}?file_name={{ $item_value }}?field_name={{ $item_field }}?mode=readonly?download_guid={{ $down_guid }}' class='input-group-addon btn btn-default fileinput-exists'>{{ trans('fields.btn_file_view') }}</a>
     @else
         <span class='input-group-addon btn btn-default btn-file'>
                 <span class='fileinput-new'>{{ trans('fields.btn_set') }}</span>

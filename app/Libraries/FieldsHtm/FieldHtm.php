@@ -53,6 +53,13 @@ namespace App\Libraries\FieldsHtm
         public $is_disabled_mode = 0;
         
         /**
+         * Indicates if user have rights to edit item
+         * 
+         * @var boolean
+         */
+        public $is_item_editable = 0;
+        
+        /**
          * Atgriež lauka attēlošanas HTML
          */
         abstract function getHtm();
@@ -73,7 +80,7 @@ namespace App\Libraries\FieldsHtm
          * @param  Array $fld_attr Masīvs ar lauka parametriem 
          * @return void
          */
-        public function __construct($fld_attr, $item_id, $item_value, $list_id, $frm_uniq_id, $is_disabled_mode)
+        public function __construct($fld_attr, $item_id, $item_value, $list_id, $frm_uniq_id, $is_disabled_mode, $is_item_editable)
         {
             $this->fld_attr = $fld_attr;
             $this->item_id = $item_id;
@@ -81,6 +88,7 @@ namespace App\Libraries\FieldsHtm
             $this->frm_uniq_id = $frm_uniq_id;
             $this->is_disabled_mode = $is_disabled_mode;
             $this->item_value = $item_value;
+            $this->is_item_editable = $is_item_editable;
             
             $this->setDefaultVal();
         }

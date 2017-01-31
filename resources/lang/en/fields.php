@@ -45,4 +45,5 @@ return [
     'rule_part2' => ' files.',
     
     'btn_file_edit' => 'Edit',
+    'btn_file_view' => 'View', 
 ];
