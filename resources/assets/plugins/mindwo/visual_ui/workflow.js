@@ -30,11 +30,19 @@ mxBasePath = '/js/plugins/mxgraph/src';
         this.model = null;
 
         /**
-         * Graph
+         * Graph object
          */
         this.graph = null;
 
-        this.listWfStepsId = 0;
+        /**
+         * Workflow steps' list ID
+         */
+        this.wfStepsListId = 0;
+        
+        /**
+         * Workflow ID which is loaded
+         */
+        this.workflowId = 0;
 
         // Initializes class
         this.init();
@@ -126,18 +134,20 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 this.images = null;
             };
         },
-        editWorkflowStep: function (self, step_id) {
-            if (typeof step_id === 'undefined' || step_id < 0) {
-                step_id = 0;
+        editWorkflowStep: function (self, stepId) {
+            if (typeof stepId === 'undefined' || stepId < 0) {
+                stepId = 0;
             }
 
-            open_form('form', step_id, self.wf_steps_list_id, 0, 0, '', 1, '');
+            open_form('form', stepId, self.wfStepsListId, 0, 0, '', 1, '');
 
         },
         init: function () {
             var self = this;
 
-            self.wf_steps_list_id = self.domObject.data('list_wf_steps_id');
+            // Sets parameters
+            self.workflowId = self.domObject.data('wf_id');
+            self.wfStepsListId = self.domObject.data('wf_steps_list_id');
 
             $('#set_xml').click(function () {
                 var xm = document.getElementById('txt_xml');
@@ -277,7 +287,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
                                     }
                                 }
                             },
-                            mouseUp: function (sender, me) { },
+                            mouseUp: function (sender, me) {
+                            },
                             dragEnter: function (evt, state)
                             {
                                 if (this.currentIconSet == null)
@@ -421,21 +432,44 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
             return img;
         },
+        /**
+         * Loads XML data into graph
+         */
         loadData: function () {
             var xml = this.domObject.data('xml_data');
 
             this.setXML(this, xml);
         },
+        /**
+         * Retrieve XML from graph
+         */
         getXML: function (self) {
             var encoder = new mxCodec();
             var node = encoder.encode(self.graph.getModel());
-            
+
             return  mxUtils.getPrettyXml(node);
         },
         save: function (self) {
             var xml = self.getXML(self);
-
             
+            var data = [
+                'workflow_id' => self.workflowId,
+                'xml_data' => xml
+            ];
+
+            $.ajax({
+                url: DX_CORE.site_url + 'workflow/visual/save',
+                type: "post",
+                data: data,
+                success: self.onSaveSuccess,
+                error: self.onSaveError
+            });
+        },
+        onSaveSuccess:function(data){
+            alert('succ');
+        },
+        onSaveError:function(data){
+            alert('error');
         },
         setXML: function (self, xml) {
             // Gets the default parent for inserting new cells. This
