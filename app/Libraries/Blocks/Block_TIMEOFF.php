@@ -54,8 +54,9 @@ class Block_TIMEOFF extends Block
 			<script>
 				$(document).ready(function(){
 					$(".dx-timeoff-balance .dx-btn-leave-request").click(function() {   
-                                            show_page_splash();
-                                            view_list_item("form", 0, $(this).data('leaves-list-id'), $(this).data('user-field-id'), $(this).data('user-id'), "", ""); 
+                                            show_page_splash();            
+                                            view_list_item("form", 0, $(this).data('leaves-list-id'), $(this).data('user-field-id'), $(this).data('user-id'), "", "");
+
                                         });
 				});
 			</script>

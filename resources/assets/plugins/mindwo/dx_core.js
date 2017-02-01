@@ -6,6 +6,8 @@ var DX_CORE = {
     last_execs: [],
     last_times: [],
     forms_ids: [],
+    forms_guids: [],
+    forms_callbacks: [],
     items_ids: [],
     form_height_ratio: 0.9,
     valid_elements: "",
@@ -121,6 +123,36 @@ function is_executing(guid) {
     }
 
     return false;
+}
+
+function add_form_callbacks(form_guid, arr_callbacks) {    
+    if (form_guid.length == 0) {
+        return;
+    }
+    
+    var index = DX_CORE.forms_guids.indexOf(form_guid);
+    
+    if (index == -1) {
+        DX_CORE.forms_guids.push(form_guid);
+        DX_CORE.forms_callbacks.push(arr_callbacks);
+        return;
+    }
+    
+    DX_CORE.forms_callbacks[index] = arr_callbacks;
+}
+
+function get_form_callbacks(form_guid) {
+    if (form_guid.length == 0) {
+        return;
+    }
+    
+    var index = DX_CORE.forms_guids.indexOf(form_guid);
+    
+    if (index == -1) {
+        return;
+    }
+    
+    return DX_CORE.forms_callbacks[index];
 }
 
 function start_executing(guid) {

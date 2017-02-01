@@ -89,7 +89,14 @@
                             @if ($grid_htm_id)
                                 stop_executing('{{ $grid_htm_id }}');
                             @endif
-
+                            
+                            var arr_callbacks = get_form_callbacks('{{ $frm_uniq_id }}');
+                            if (typeof arr_callbacks != 'undefined') {
+                                if (typeof arr_callbacks.after_close != 'undefined' && $( '#list_item_view_form_{{ $frm_uniq_id }}' ).length > 0) {                                    
+                                    arr_callbacks.after_close.call(this, $( '#list_item_view_form_{{ $frm_uniq_id }}' ));
+                                }
+                            }
+                    
                             unregister_form('list_item_view_form_{{ $frm_uniq_id }}');
 
                             $('#list_item_view_form_{{ $frm_uniq_id }}').remove();
@@ -107,9 +114,19 @@
 
                         $('#btn_save_{{ $frm_uniq_id }}').click(function( event ) {
                             event.stopPropagation();
+                            
+                            var arr_callbacks = get_form_callbacks('{{ $frm_uniq_id }}');
+                            if (typeof arr_callbacks != 'undefined') {
+                                if (typeof arr_callbacks.before_save != 'undefined') {
+                                    if (!arr_callbacks.before_save.call(this, $( '#list_item_view_form_{{ $frm_uniq_id }}' ))) {
+                                        return false;
+                                    }
+                                }
+                            }
+                            
                             $('#item_edit_form_{{ $frm_uniq_id }}').validator('validate');
 
-                            save_list_item('item_edit_form_{{ $frm_uniq_id }}', '{{ $grid_htm_id }}',{{ $list_id }}, {{ $parent_field_id }}, {{ $parent_item_id }}, '{{ $parent_form_htm_id }}');//replace
+                            save_list_item('item_edit_form_{{ $frm_uniq_id }}', '{{ $grid_htm_id }}',{{ $list_id }}, {{ $parent_field_id }}, {{ $parent_item_id }}, '{{ $parent_form_htm_id }}', arr_callbacks);//replace
                         });
 
                         $('#item_edit_form_{{ $frm_uniq_id }}').validator({
@@ -138,7 +155,14 @@
                             }
                         });                    
                     @endif
-
+                    
+                    var arr_callbacks = get_form_callbacks('{{ $frm_uniq_id }}');
+                    if (typeof arr_callbacks != 'undefined') {
+                        if (typeof arr_callbacks.before_show != 'undefined') {
+                            arr_callbacks.before_show.call(this, $( '#list_item_view_form_{{ $frm_uniq_id }}' ));
+                        }
+                    }
+                    
                     @if ($is_form_reloaded === 0)                
                         $( '#list_item_view_form_{{ $frm_uniq_id }}' ).modal('show');
                     @endif
