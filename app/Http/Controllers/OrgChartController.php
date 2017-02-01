@@ -313,7 +313,7 @@ class OrgChartController extends Controller
 					'title' => trans('organization.company'),
 					'avatar' => url(config('dx.company.logo')),
 					'subordinates' => count($subnode),
-					'href' => route('organization_chart'),
+					'href' => route('organization_departments'),
 					'relationship' => '001',
 					'hasParent' => false,
 					'top' => true
