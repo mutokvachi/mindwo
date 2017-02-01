@@ -14,7 +14,7 @@
     <div class="inbox-form-group mail-to">
       <label class="control-label">{{ trans('mail.to') }}:</label>
       <div class="controls controls-to">
-        <select name="to" class="form-control inbox-input-to" multiple="multiple">
+        <select name="to" class="form-control inbox-input-to" multiple="multiple" style="width: 100%">
           @if($mode == 'compose')
             @if(strlen($toId))
               <option value="{{ $toId }}" selected>{{ $toTitle }}</option>
@@ -31,6 +31,12 @@
       <label class="control-label">{{ trans('mail.subject') }}:</label>
       <div class="controls">
         <input type="text" class="form-control inbox-input-subject" name="subject" value="{{ $mode == 'edit' ? $message->subject : '' }}">
+      </div>
+    </div>
+    <div class="inbox-form-group">
+      <label class="control-label">{{ trans('mail.send_time') }}:</label>
+      <div class="controls">
+        <input type="text" class="form-control inbox-input-send_time" name="send_time" value="{{ $mode == 'edit' ? $message->send_time : '' }}">
       </div>
     </div>
     <div class="inbox-form-group">

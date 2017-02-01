@@ -1,38 +1,11 @@
 @extends('frame')
 
 @section('main_custom_css')
-  <link href="/js/plugins/select2-4.0/css/select2.min.css" rel="stylesheet" type="text/css" />
-  <link href="/zmetronic/global/plugins/select2/css/select2.bootstrap.min.css" rel="stylesheet" type="text/css" />
-  <link href="/metronic/global/plugins/bootstrap-wysihtml5/bootstrap-wysihtml5.css" rel="stylesheet" type="text/css" />
-  <link href="/metronic/global/plugins/jquery-file-upload/blueimp-gallery/blueimp-gallery.min.css" rel="stylesheet" type="text/css" />
-  <link href="/metronic/global/plugins/jquery-file-upload/css/jquery.fileupload.css" rel="stylesheet" type="text/css" />
-  <link href="/metronic/global/plugins/jquery-file-upload/css/jquery.fileupload-ui.css" rel="stylesheet" type="text/css" />
-  <link href="{{ url('metronic/apps/css/inbox.min.css') }}" rel="stylesheet" type="text/css"/>
-  <style>
-    .inbox .mt-checkbox {
-      margin-bottom: 15px;
-    }
-  </style>
+  <link href="{{ elixir('css/elix_mail.css') }}" rel="stylesheet"/>
 @endsection
 
 @section('main_custom_javascripts')
-  <script src="/js/plugins/select2-4.0/js/select2.js" type="text/javascript"></script>
-  <script src="/metronic/global/plugins/bootstrap-wysihtml5/wysihtml5-0.3.0.js" type="text/javascript"></script>
-  <script src="/metronic/global/plugins/bootstrap-wysihtml5/bootstrap-wysihtml5.js" type="text/javascript"></script>
-  <script src="/metronic/global/plugins/jquery-file-upload/js/vendor/jquery.ui.widget.js" type="text/javascript"></script>
-  <script src="/metronic/global/plugins/jquery-file-upload/js/vendor/tmpl.min.js" type="text/javascript"></script>
-  <script src="/metronic/global/plugins/jquery-file-upload/js/vendor/load-image.min.js" type="text/javascript"></script>
-  <script src="/metronic/global/plugins/jquery-file-upload/js/vendor/canvas-to-blob.min.js" type="text/javascript"></script>
-  <script src="/metronic/global/plugins/jquery-file-upload/blueimp-gallery/jquery.blueimp-gallery.min.js" type="text/javascript"></script>
-  <script src="/metronic/global/plugins/jquery-file-upload/js/jquery.iframe-transport.js" type="text/javascript"></script>
-  <script src="/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload.js" type="text/javascript"></script>
-  <script src="/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-process.js" type="text/javascript"></script>
-  <script src="/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-image.js" type="text/javascript"></script>
-  <script src="/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-audio.js" type="text/javascript"></script>
-  <script src="/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-video.js" type="text/javascript"></script>
-  <script src="/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-validate.js" type="text/javascript"></script>
-  <script src="/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-ui.js" type="text/javascript"></script>
-  <script src="{{ url('js/pages/mail.js') }}"></script>
+  <script src="{{ elixir('js/elix_mail.js') }}" type='text/javascript'></script>
 @endsection
 
 @section('main_content')

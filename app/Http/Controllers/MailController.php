@@ -165,6 +165,7 @@ class MailController extends Controller
 	{
 		$to = $request->input('to');
 		$subject = $request->input('subject');
+		$sendTime = $request->input('sendTime');
 		$body = $request->input('body');
 		$folder = $request->input('folder');
 		
@@ -180,6 +181,11 @@ class MailController extends Controller
 		$mail->modified_time = Carbon::now();
 		$mail->modified_user_id = Auth::user()->id;
 		
+		if($sendTime)
+		{
+			$mail->send_time = Carbon::parse($sendTime)->toDateTimeString();
+		}
+		
 		$mail->save();
 		
 		if($folder == 'sent')
@@ -189,6 +195,7 @@ class MailController extends Controller
 		
 		$result = [
 			'success' => 1,
+			'id' => $mail->id,
 		];
 		
 		return response($result);
@@ -205,6 +212,7 @@ class MailController extends Controller
 	{
 		$to = $request->input('to');
 		$subject = $request->input('subject');
+		$sendTime = $request->input('sendTime');
 		$body = $request->input('body');
 		$folder = $request->input('folder');
 		
@@ -216,6 +224,11 @@ class MailController extends Controller
 		$mail->folder = $folder;
 		$mail->modified_time = Carbon::now();
 		$mail->modified_user_id = Auth::user()->id;
+		
+		if($sendTime)
+		{
+			$mail->send_time = Carbon::parse($sendTime)->toDateTimeString();
+		}
 		
 		$mail->save();
 		

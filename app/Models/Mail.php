@@ -5,7 +5,6 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use JMS\Serializer\Tests\Fixtures\Discriminator\Car;
 
 class Mail extends Model
 {

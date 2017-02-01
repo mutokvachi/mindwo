@@ -43,11 +43,13 @@
 		this.to = $('.inbox-input-to', this.root);
 		this.subject = $('.inbox-input-subject', this.root);
 		this.body = $('.inbox-wysihtml5', this.root);
+		this.sendTime = $('.inbox-input-send_time', this.root);
 		
 		this.compose = $('.inbox-compose', this.root);
 		this.id = (this.compose.length && this.compose.data('id') != undefined) ? this.compose.data('id') : null;
 		
 		this.initToInput();
+		this.initDateInput();
 		this.initEditor();
 		//this.initFileUpload();
 		this.initHandlers();
@@ -80,6 +82,13 @@
 				}
 			});
 			
+		},
+		initDateInput: function()
+		{
+			this.sendTime.datetimepicker({
+				timepicker: true,
+				format: 'Y-m-d H:i'
+			});
 		},
 		initEditor: function()
 		{
@@ -156,9 +165,8 @@
 				var checked = $(this).is(":checked");
 				set.each(function()
 				{
-					$(this).attr("checked", checked);
+					$(this).prop("checked", checked);
 				});
-				//$.uniform.update(set);
 			});
 			
 			// handle clicks on shortcuts in sidebar
@@ -218,6 +226,7 @@
 			var request = {
 				to: this.to.val(),
 				subject: this.subject.val(),
+				sendTime: this.sendTime.val(),
 				body: this.body.val(),
 				folder: 'sent'
 			};
@@ -250,6 +259,7 @@
 			var request = {
 				to: this.to.val(),
 				subject: this.subject.val(),
+				sendTime: this.sendTime.val(),
 				body: this.body.val(),
 				folder: 'draft'
 			};
@@ -265,6 +275,7 @@
 				success: function(data)
 				{
 					hide_page_splash(1);
+					self.id = data.id;
 					toastr.success(Lang.get('mail.draft_saved'));
 				},
 				error: function(jqXHR, textStatus, errorThrown)

@@ -27,6 +27,7 @@ return [
 	'scheduled' => 'Scheduled',
 	'search' => 'Search mail',
 	'send' => 'Send',
+	'send_time' => 'Send time',
 	'sent' => 'Sent',
 	'spam' => 'Spam',
 	'subject' => 'Subject',
