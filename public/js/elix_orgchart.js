@@ -5717,6 +5717,9 @@ var e=a(c[d]);if(e.hasClass("select2-result-selectable")&&!e.hasClass("select2-d
 				+ '?displayLevels=' + $('.dx-orgchart-levels').val();
 		});
 		
+		if(!orgchartData.displayLevels)
+			orgchartData.displayLevels = 999;
+		
 		// init orgchart plugin
 		var orgchart = new OrgChart({
 			chartContainer: '#dx-orgchart-container',

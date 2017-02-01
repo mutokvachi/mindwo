@@ -25,6 +25,9 @@
 				+ '?displayLevels=' + $('.dx-orgchart-levels').val();
 		});
 		
+		if(!orgchartData.displayLevels)
+			orgchartData.displayLevels = 999;
+		
 		// init orgchart plugin
 		var orgchart = new OrgChart({
 			chartContainer: '#dx-orgchart-container',

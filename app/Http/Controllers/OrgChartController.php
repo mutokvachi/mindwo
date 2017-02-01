@@ -66,8 +66,8 @@ class OrgChartController extends Controller
 		$this->parentsIndex = $this->getParentsIndex();
 		
 		$id = Facades\Route::current()->getParameter('id', 0);
-		$this->rootId = $id ? $id : $this->index[0][0];
-		$this->displayLevels = Facades\Request::input('displayLevels', 2);
+		$this->rootId = $id ? $id : 0;
+		$this->displayLevels = (integer) Facades\Request::input('displayLevels', config('dx.orgchart.default_levels'));
 		
 		$this->tree = $this->getTree($this->rootId);
 	}
@@ -99,7 +99,7 @@ class OrgChartController extends Controller
 	 */
 	public function getEmployees()
 	{
-		$users = App\User::whereNotIn('id', Config::get('dx.empl_ignore_ids', [1]))
+		$users = App\User::whereNotIn('id', config('dx.empl_ignore_ids', [1]))
 			->orderBy('display_name')
 			->get();
 		
@@ -242,7 +242,7 @@ class OrgChartController extends Controller
 		
 		$tree = [];
 		
-		$buildTree($this->index[0][0], $tree);
+		$buildTree(0, $tree);
 		
 		return [$rootId => $tree];
 	}
@@ -257,11 +257,21 @@ class OrgChartController extends Controller
 	{
 		$top = $node ? false : true;
 		
+		// first pass - top element
 		if(!$node)
 		{
 			if(isset($this->treeIndex[$this->rootId]))
 			{
-				$node = [$this->rootId => $this->treeIndex[$this->rootId]];
+				// there is only one top-level employee in hierarchy (without manager)
+				if(($this->rootId == 0) && (count($this->treeIndex[0]) == 1))
+				{
+					$node = $this->treeIndex[0];
+				}
+				// more than one employees without manager
+				else
+				{
+					$node = [$this->rootId => $this->treeIndex[$this->rootId]];
+				}
 			}
 			
 			else
@@ -277,22 +287,40 @@ class OrgChartController extends Controller
 			$hasParent = ($id == $this->index[0][0]) ? '0' : '1';
 			$hasChildren = empty($subnode) ? '0' : '1';
 			$hasSiblings = count($node) > 1 ? '1' : '0';
+
+			if($id)
+			{
+				$employee = $this->employees[$id];
+				
+				$tmp = [
+					'id' => $employee->id,
+					'name' => $employee->display_name,
+					'title' => $employee->position_title ?: '',
+					'avatar' => $employee->getAvatar(),
+					'subordinates' => count($subnode),
+					'href' => route('profile', $employee->id),
+					'relationship' => $hasParent . $hasSiblings . $hasChildren,
+					'hasParent' => $hasParent == '1',
+					'top' => $top
+				];
+			}
+			// if there is more than one top managers, generate a fake "Company" top-level element
+			else
+			{
+				$tmp = [
+					'id' => 0,
+					'name' => config('dx.company.short_title'),
+					'title' => trans('organization.company'),
+					'avatar' => url(config('dx.company.logo')),
+					'subordinates' => count($subnode),
+					'href' => route('organization_departments'),
+					'relationship' => '001',
+					'hasParent' => false,
+					'top' => true
+				];
+			}
 			
-			$employee = $this->employees[$id];
-			
-			$tmp = [
-				'id' => $employee->id,
-				'name' => $employee->display_name,
-				'title' => $employee->position_title ?: '',
-				'avatar' => $employee->getAvatar(),
-				'subordinates' => count($subnode),
-				'href' => route('profile', $employee->id),
-				'relationship' => $hasParent . $hasSiblings . $hasChildren,
-				'hasParent' => $hasParent == '1',
-				'top' => $top
-			];
-			
-			if($top)
+			if($top && $id)
 			{
 				$tmp['parentUrl'] = route('organization_chart', $this->parentsIndex[$id]);
 			}
