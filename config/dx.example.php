@@ -297,4 +297,13 @@ return [
     |--------------------------------------------------------------------------
     */
     'time_zone' => 'Europe/Riga',
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Indicates if there is posibility to edit files with Word/OpenOffice etc - will be launched MindwoApp.exe (via protocol mindwo:// )
+    | This means, users must have installed MindwoApp on their computers
+    | This works only for Microsoft Windows OS.
+    |--------------------------------------------------------------------------
+    */
+    'is_files_editor' => false,
 ];
