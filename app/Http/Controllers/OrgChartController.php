@@ -304,7 +304,7 @@ class OrgChartController extends Controller
 					'top' => $top
 				];
 			}
-			// if there is more than one top managers, generate a fake "Company" top-level element
+			// if there are more than one top managers, generate a fake "Company" top-level element
 			else
 			{
 				$tmp = [
@@ -313,7 +313,7 @@ class OrgChartController extends Controller
 					'title' => trans('organization.company'),
 					'avatar' => url(config('dx.company.logo')),
 					'subordinates' => count($subnode),
-					'href' => route('organization_departments'),
+					'href' => route('organization_chart'),
 					'relationship' => '001',
 					'hasParent' => false,
 					'top' => true
