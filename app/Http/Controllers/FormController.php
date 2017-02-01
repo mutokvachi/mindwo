@@ -247,7 +247,7 @@ class FormController extends Controller
 
         $fields_htm = $this->getFormFieldsHTML($frm_uniq_id, $list_id, $item_id, $parent_item_id, $parent_field_id, $params);
 
-        return response()->json(['success' => 1, 'html' => $fields_htm, 'tabs' => $this->arr_data_tabs, 'is_fullscreen' => $params->is_full_screen_mode]);
+        return response()->json(['success' => 1, 'frm_uniq_id' => "" . $frm_uniq_id, 'html' => $fields_htm, 'tabs' => $this->arr_data_tabs, 'is_fullscreen' => $params->is_full_screen_mode]);
     }
 
     /**
