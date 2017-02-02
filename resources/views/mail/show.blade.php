@@ -3,17 +3,19 @@
 @section('title', trans('mail.view_message'))
 
 @section('mail_content')
-  <div class="inbox-header inbox-view-header">
+  <div class="inbox-header inbox-view-header" data-id="{{ $message->id }}">
     <h1 class="pull-left">{{ $message->subject }}
       {{--
       <a href="javascript:;"> Inbox </a>
       --}}
     </h1>
+    {{--
     <div class="pull-right">
       <a href="javascript:;" class="btn btn-icon-only dark btn-outline">
         <i class="fa fa-print"></i>
       </a>
     </div>
+    --}}
   </div>
   <div class="inbox-view-info">
     <div class="row">
@@ -31,6 +33,13 @@
       </div>
       <div class="col-md-5 inbox-info-btn">
         <div class="btn-group">
+          <button class="btn green reply-btn">
+            <i class="fa fa-trash-o"></i> {{ trans('mail.delete') }}
+            {{--
+            <i class="fa fa-angle-down"></i>
+            --}}
+          </button>
+          {{--
           <button data-messageid="23" class="btn green reply-btn">
             <i class="fa fa-reply"></i> {{ trans('mail.reply') }}
             <i class="fa fa-angle-down"></i>
@@ -58,6 +67,7 @@
                 <i class="fa fa-trash-o"></i> {{ trans('mail.delete') }}</a>
             </li>
           </ul>
+          --}}
         </div>
       </div>
     </div>
