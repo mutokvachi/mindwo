@@ -14,10 +14,12 @@
   "js/elix_articles.js": "js/elix_articles-830bea41.js",
   "css/elix_articles.css": "css/elix_articles-eeb1c7fa.css",
   "css/elix_employee_profile.css": "css/elix_employee_profile-d85ebf7b.css",
-  "js/elix_orgchart.js": "js/elix_orgchart-e1720049.js",
+  "js/elix_orgchart.js": "js/elix_orgchart-819d7136.js",
   "css/elix_orgchart.css": "css/elix_orgchart-f8578184.css",
   "js/elix_orgdepartments.js": "js/elix_orgdepartments-a79364f0.js",
   "css/elix_orgdepartments.css": "css/elix_orgdepartments-6cb34593.css",
   "js/elix_block_report.js": "js/elix_block_report-9fcd335c.js",
-  "css/elix_block_report.css": "css/elix_block_report-b94f328a.css"
+  "css/elix_block_report.css": "css/elix_block_report-fec778d9.css",
+  "js/elix_mail.js": "js/elix_mail-c74ba29b.js",
+  "css/elix_mail.css": "css/elix_mail-0abd4bc8.css"
 }
