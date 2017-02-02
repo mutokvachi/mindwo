@@ -3,7 +3,7 @@
   "js/elix_plugins.js": "js/elix_plugins-f92e74e0.js",
   "js/elix_view.js": "js/elix_view-e226aab7.js",
   "js/elix_employees.js": "js/elix_employees-922c9b11.js",
-  "js/elix_profile.js": "js/elix_profile-474c4d61.js",
+  "js/elix_profile.js": "js/elix_profile-3e341131.js",
   "css/elix_plugins.css": "css/elix_plugins-113d4511.css",
   "css/elix_mindwo.css": "css/elix_mindwo-4650af29.css",
   "css/elix_view.css": "css/elix_view-208e2ff3.css",
@@ -19,5 +19,5 @@
   "js/elix_orgdepartments.js": "js/elix_orgdepartments-a79364f0.js",
   "css/elix_orgdepartments.css": "css/elix_orgdepartments-6cb34593.css",
   "js/elix_block_report.js": "js/elix_block_report-9fcd335c.js",
-  "css/elix_block_report.css": "css/elix_block_report-fec778d9.css"
+  "css/elix_block_report.css": "css/elix_block_report-b94f328a.css"
 }
