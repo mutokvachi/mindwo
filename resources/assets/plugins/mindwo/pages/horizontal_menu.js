@@ -118,7 +118,7 @@ var HMenuUI = function()
 	 */
 	var initUI = function()
 	{
-		hideErrorImages();
+		//hideErrorImages();
 		setActiveMenu();
 		setContentMargin();
 		handleScroll();
