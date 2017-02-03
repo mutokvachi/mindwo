@@ -69,6 +69,11 @@ class OrgChartController extends Controller
 		$this->rootId = $id ? $id : 0;
 		$this->displayLevels = (integer) Facades\Request::input('displayLevels', config('dx.orgchart.default_levels'));
 		
+		if($this->displayLevels < 3)
+		{
+			$this->displayLevels = 3;
+		}
+		
 		$this->tree = $this->getTree($this->rootId);
 	}
 	
@@ -287,7 +292,7 @@ class OrgChartController extends Controller
 			$hasParent = ($id == $this->index[0][0]) ? '0' : '1';
 			$hasChildren = empty($subnode) ? '0' : '1';
 			$hasSiblings = count($node) > 1 ? '1' : '0';
-
+			
 			if($id)
 			{
 				$employee = $this->employees[$id];
@@ -296,7 +301,7 @@ class OrgChartController extends Controller
 					'id' => $employee->id,
 					'name' => $employee->display_name,
 					'title' => $employee->position_title ?: '',
-					'avatar' => $employee->getAvatar(),
+					//'avatar' => $employee->getAvatar(),
 					'subordinates' => count($subnode),
 					'href' => route('profile', $employee->id),
 					'relationship' => $hasParent . $hasSiblings . $hasChildren,
@@ -311,7 +316,7 @@ class OrgChartController extends Controller
 					'id' => 0,
 					'name' => config('dx.company.short_title'),
 					'title' => trans('organization.company'),
-					'avatar' => url(config('dx.company.logo')),
+					//'avatar' => url(config('dx.company.logo')),
 					'subordinates' => count($subnode),
 					'href' => route('organization_departments'),
 					'relationship' => '001',

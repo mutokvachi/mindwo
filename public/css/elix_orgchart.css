@@ -1732,7 +1732,7 @@ html[dir="rtl"] .select2-container-multi .select2-search-choice-close {
 }
 
 .orgchart .node {
-	width: 170px;
+	width: 150px;
 	border: 0px none !important;
 	background-color: transparent;
 	padding: 3px;
@@ -1759,10 +1759,10 @@ html[dir="rtl"] .select2-container-multi .select2-search-choice-close {
 }
 
 .orgchart .node .content {
-	height: 140px;
+	height: 50px;
 	white-space: normal;
 	border-top: none;
-	padding: 5px;
+	padding: 0 5px;
 	border: 1px solid #ccc;
 	border-top: none;
 }
@@ -1771,7 +1771,6 @@ html[dir="rtl"] .select2-container-multi .select2-search-choice-close {
 	height: 32px;
 	line-height: 15px;
 	vertical-align: middle;
-	padding-top: 8px;
 }
 
 .orgchart .node a.link {

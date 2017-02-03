@@ -41,7 +41,8 @@
 			{
 				var content = $(node).children('.content');
 				content.wrapInner('<div class="text"></div>');
-				content.prepend('<a class="link" href="' + data.href + '"><img src="' + data.avatar + '" alt=""></a>');
+				
+				//content.prepend('<a class="link" href="' + data.href + '"><img src="' + data.avatar + '" alt=""></a>');
 				
 				if(data.subordinates > 0)
 					content.append('<div class="subordinates" title="' + Lang.get('organization.hint_subord') + '">' + data.subordinates + '</div>');
