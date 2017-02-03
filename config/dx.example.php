@@ -306,4 +306,33 @@ return [
     |--------------------------------------------------------------------------
     */
     'is_files_editor' => false,
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Company name and logo which will be displayed in org chart in case if multiple root employees    | 
+    |--------------------------------------------------------------------------
+    */
+    'company' => [
+        'title' => 'ACME Corporation',
+        'short_title' => 'ACME Corp.',
+        'logo' => 'assets/global/avatars/default_avatar_big.jpg',
+    ],
+ 
+    /*
+    |--------------------------------------------------------------------------
+    | Org chart parameters - how much levels will be opened by default and which employee will be used as root by default
+    | If no default employee then will be loaded all employees with no manager
+    |--------------------------------------------------------------------------
+    */
+    'orgchart' => [
+        'default_levels' => 2,
+        'default_root_employee_id' => 212
+    ],
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Here we provide role ID (from table dx_roles) which can use email sending functionality
+    |--------------------------------------------------------------------------
+    */
+    'email_access_role_id' => 1,
 ];

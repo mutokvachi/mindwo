@@ -66,7 +66,7 @@ class OrgChartController extends Controller
 		$this->parentsIndex = $this->getParentsIndex();
 		
 		$id = Facades\Route::current()->getParameter('id', 0);
-		$this->rootId = $id ? $id : 0;
+		$this->rootId = $id ? $id : Config::get('dx.orgchart.default_root_employee_id', 0);
 		$this->displayLevels = (integer) Facades\Request::input('displayLevels', config('dx.orgchart.default_levels'));
 		
 		if($this->displayLevels < 3)
