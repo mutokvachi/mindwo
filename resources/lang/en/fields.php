@@ -20,6 +20,7 @@ return [
     'btn_set' => 'Set',
     'btn_change' => 'Change',
     'btn_remove' => 'Remove',
+    'btn_set_change' => 'Set/choose picture',
     'err_choose_val' => 'Please, choose employee to view profile!',
     
     // Tree
