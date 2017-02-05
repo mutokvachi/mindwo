@@ -50,6 +50,8 @@
 				// add up arrow button to top node
 				if(data.hasParent)
 					$(node).append('<i class="edge verticalEdge topEdge fa"></i>');
+				
+				$('.title', node).wrapInner('<a href="' + data.href + '"></a>');
 			}
 		};
 		

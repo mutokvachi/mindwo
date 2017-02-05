@@ -5,9 +5,7 @@
     @foreach($folders as $id => $name)
       <li>
         <a href="{{ url('/mail/'.$id) }}" class="folder-{{ $id }}" data-type="{{ $id }}" data-title="{{ trans('mail.'.$id) }}">{{ trans('mail.'.$id) }}
-          @if($counts[$id] > 0)
-            <span class="badge badge-success">{{ $counts[$id] }}</span>
-          @endif
+            <span class="badge badge-success" style="{{ $counts[$id] == 0 ? 'display: none': '' }}">{{ $counts[$id] }}</span>
         </a>
       </li>
     @endforeach

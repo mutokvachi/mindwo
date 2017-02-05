@@ -174,7 +174,6 @@ class MailController extends Controller
 		$mail->to = serialize($this->convertRecipientsList($to));
 		$mail->subject = $subject;
 		$mail->body = $body;
-		$mail->folder = $folder;
 		$mail->is_read = false;
 		$mail->created_time = Carbon::now();
 		$mail->created_user_id = Auth::user()->id;
@@ -184,18 +183,26 @@ class MailController extends Controller
 		if($sendTime)
 		{
 			$mail->send_time = Carbon::parse($sendTime)->toDateTimeString();
+			
+			if($folder != 'draft')
+			{
+				$folder = 'scheduled';
+			}
 		}
 		
+		$mail->folder = $folder;
 		$mail->save();
 		
 		if($folder == 'sent')
 		{
-			$this->sendMessage($mail);
+			$mail->send();
 		}
 		
 		$result = [
 			'success' => 1,
 			'id' => $mail->id,
+			'folder' => $folder,
+			'count' => $this->getCounts()[$folder],
 		];
 		
 		return response($result);
@@ -221,24 +228,31 @@ class MailController extends Controller
 		$mail->to = serialize($this->convertRecipientsList($to));
 		$mail->subject = $subject;
 		$mail->body = $body;
-		$mail->folder = $folder;
 		$mail->modified_time = Carbon::now();
 		$mail->modified_user_id = Auth::user()->id;
 		
 		if($sendTime)
 		{
 			$mail->send_time = Carbon::parse($sendTime)->toDateTimeString();
+			
+			if($folder != 'draft')
+			{
+				$folder = 'scheduled';
+			}
 		}
 		
+		$mail->folder = $folder;
 		$mail->save();
 		
 		if($folder == 'sent')
 		{
-			$this->sendMessage($mail);
+			$mail->send();
 		}
 		
 		$result = [
 			'success' => 1,
+			'folder' => $folder,
+			'count' => $this->getCounts()[$folder],
 		];
 		
 		return response($result);

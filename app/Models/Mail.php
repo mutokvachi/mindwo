@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class Mail extends Model
@@ -18,6 +19,36 @@ class Mail extends Model
 	const CREATED_AT = 'created_time';
 	protected $table = 'dx_mail';
 	protected $addresses = [];
+	
+	public function send()
+	{
+		$delay = 0;
+		
+		$recipients = $this->getRecipients();
+		
+		foreach($recipients as $recipient)
+		{
+			if(!filter_var($recipient->email, FILTER_VALIDATE_EMAIL))
+			{
+				continue;
+			}
+			\Mail::later($delay, 'mail.send', ['mail' => $this], function ($message) use ($recipient)
+			{
+				$message->to($recipient->email, $recipient->display_name);
+				$message->from(config('mail.from.address'), config('mail.from.name'));
+				$message->subject($this->subject);
+			});
+			$delay += 2;
+		}
+		
+		$this->sent_time = Carbon::now();
+		if(Auth::user())
+		{
+			$this->sent_user_id = Auth::user()->id;
+		}
+		$this->folder = 'sent';
+		$this->save();
+	}
 	
 	public function formatDate($date)
 	{
