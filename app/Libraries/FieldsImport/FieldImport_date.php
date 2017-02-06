@@ -12,8 +12,8 @@ namespace App\Libraries\FieldsImport
         /**
          * Expected date format
          */
-        const DATE_FORMAT1 = "yyyy-mm-dd";
-        const DATE_FORMAT2 = "dd.mm.yyyy";
+        const DATE_FORMAT1 = "dd.mm.yyyy";
+        const DATE_FORMAT2 = "yyyy-mm-dd";
         
         /**
          * Sets field value

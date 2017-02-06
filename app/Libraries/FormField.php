@@ -1,12 +1,5 @@
 <?php
 namespace App\Libraries {
-	
-	use DB;
-	use Log;
-	use Auth;
-	use PDO;
-	use App\Libraries\Rights;
-	use App\Exceptions;
 	use App\Libraries\FieldsHtm;
 	
 	class FormField
@@ -19,6 +12,13 @@ namespace App\Libraries {
 		 * @var boolean
 		 */
 		public $is_editable_wf = false;
+                
+                /**
+                 * Pazīme, vai lietotājam ir tiesības rediģēt ierakstu
+                 * @var type 
+                 */
+                public $is_item_editable = false;
+                
 		public $binded_field_id = 0;
 		public $binded_rel_field_id = 0;
 		public $binded_rel_field_value = 0;
@@ -66,7 +66,7 @@ namespace App\Libraries {
 		}
 		
 		/**
-		 * Get bare HTML of a field, without grid and label tags.
+		 * Get base HTML of a field, without grid and label tags.
 		 *
 		 * @return mixed
 		 */
@@ -82,7 +82,7 @@ namespace App\Libraries {
 			}
 			
 			$field_htm = FieldsHtm\FieldHtmFactory::build_field($this->fld_attr, $this->item_id, $this->item_value,
-				$this->list_id, $this->frm_uniq_id, $this->is_disabled_mode);
+				$this->list_id, $this->frm_uniq_id, $this->is_disabled_mode, $this->is_item_editable);
 			
 			if(property_exists($field_htm, "value_guid"))
 			{
@@ -108,7 +108,7 @@ namespace App\Libraries {
 				$fld_height = $this->fld_attr->height_px + 10;
 				
 				$field_htm = FieldsHtm\FieldHtmFactory::build_field($this->fld_attr, $this->item_id, $this->item_value,
-					$this->list_id, $this->frm_uniq_id, $this->is_disabled_mode);
+					$this->list_id, $this->frm_uniq_id, $this->is_disabled_mode, $this->is_item_editable);
 				
 				if(property_exists($field_htm, "binded_field_id") && $this->binded_field_id > 0)
 				{

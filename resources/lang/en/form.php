@@ -35,4 +35,9 @@ return [
     'lbl_data' => 'Data',
     'lbl_id' => 'Record ID',
     'lbl_print_date' => 'Data as of',
+    
+    'link_history' => 'History',
+    'hint_history' => 'View item changes history',
+    'history_form_title' => 'History',
+    'btn_changes' => 'See changes',
 ];

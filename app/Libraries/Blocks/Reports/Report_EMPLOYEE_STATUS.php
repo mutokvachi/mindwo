@@ -5,10 +5,77 @@ namespace App\Libraries\Blocks\Reports;
 use DB;
 use Config;
 
+/**
+ * Report widget for employee status
+ */
 class Report_EMPLOYEE_STATUS extends Report
 {
-
+    /**
+     * DB table name which is used in reports
+     * @var string 
+     */
     protected $table_name = 'dx_users';
+
+    /**
+     * Class consturctor. Initialization for chart columns
+     * @param string $report_name Report's name
+     */
+    public function __construct($report_name)
+    {
+        $this->report_columns = [
+            'gain' => [
+                'color' => '#26c281',
+                'title' => trans('reports.' . $report_name . '.gain'),
+                'is_bar' => true
+            ],
+            'loss' => [
+                'color' => '#e7505a',
+                'title' => trans('reports.' . $report_name . '.loss'),
+                'is_bar' => true
+            ],
+            'total' => [
+                'color' => '#3598dc',
+                'title' => trans('reports.' . $report_name . '.total'),
+                'is_bar' => false
+            ],
+        ];
+
+        parent::__construct($report_name);
+    }
+
+    /**
+     * Prepare overall data
+     * @param array $res Results
+     * @return array Prepared overall results
+     */
+    public function getOverallData($res)
+    {
+        $result = array();
+
+        foreach ($this->report_columns as $key => $col) {
+            $result[$key] = 0;
+        }
+
+        // Navigate to last position
+        end($this->report_columns);
+        $last_key = key($this->report_columns);
+
+        foreach ($res as $row) {
+            // Skips last column, because it is total column which is not summed
+            foreach ($this->report_columns as $key => $col) {
+                if ($last_key === $key) {
+                    break;
+                }
+
+                $result[$key] += $row->$key;
+            }
+        }
+
+        // Last result's row total value 
+        $result[$last_key] = end($res)->$last_key;
+
+        return $result;
+    }
 
     /**
      * Gets employee's time off data for chart
@@ -73,6 +140,6 @@ class Report_EMPLOYEE_STATUS extends Report
 
         $resOverall = $this->getOverallData($res);
 
-        return response()->json(['success' => 1, 'res' => $res, 'total' => $resOverall]);
+        return response()->json(['success' => 1, 'res' => $res, 'total' => $resOverall, 'is_hours' => 1]);
     }
 }

@@ -5,22 +5,25 @@
     <li class="active">
       <a href="#tab_info" data-toggle="tab" aria-expanded="true"> Info </a>
     </li>
-    
+    {{--
     @if($is_my_profile)      
       <li class="">
         <a href="#tab_bonuses" data-toggle="tab" aria-expanded="false" data-dynamic="true"> Bonuses </a>
       </li>
     @endif
-    
+   
     <li class="">
       <a href="#tab_team" data-toggle="tab" aria-expanded="false" data-dynamic="true"> Team </a>
     </li>
+    --}}
+    {{--
     <li class="">
       <a href="#tab_achievements" data-toggle="tab" aria-expanded="false" data-dynamic="true"> Achievements </a>
     </li>
     <li class="">
       <a href="#tab_skills" data-toggle="tab" aria-expanded="false" data-dynamic="true"> Skills </a>
     </li>
+    --}}
   @else
     @if(isset($has_users_documents_access) && $has_users_documents_access)
       <li class="">
@@ -60,33 +63,22 @@
       <p data-name="description" data-type="text">{{ $employee->description }}</p>
       
       <div class="tiles">
+        @include('profile.tile_leave')
         @include('profile.tile_hired')
         @include('profile.tile_manager')
-        @if($is_my_profile)                   
-          <div class="tile bg-yellow-saffron">
-            <div class="tile-body">
-              <i class="fa fa-gift"></i>
-            </div>
-            <div class="tile-object">
-              <div class="name"> Bonuses</div>
-              <div class="number"> 2</div>
-            </div>
-          </div>
-        @endif
+        
       </div>
+      @include('profile.tab_team')
     </div>
     
-    @if ($is_my_profile)        
-        <div class="tab-pane fade" id="tab_bonuses">
-        </div>
-    @endif
-
+    {{--
     <div class="tab-pane fade" id="tab_team">
-    </div>
+    </div>    
     <div class="tab-pane fade" id="tab_achievements">
     </div>
     <div class="tab-pane fade" id="tab_skills">
     </div>
+    --}}
   @else
     @if(isset($has_users_documents_access) && $has_users_documents_access)
       <div class="tab-pane fade" id="tab_personal_docs">

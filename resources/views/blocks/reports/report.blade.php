@@ -4,6 +4,7 @@
      data-date_from="{{ (new DateTime('first day of january'))->getTimestamp() * 1000 }}"
      data-date_To="{{ (new DateTime('last day of december'))->getTimestamp() * 1000 }}"
      data-report_name="{{ $report_name }}"
+     data-report_columns="{{ json_encode($report_columns) }}"
      data-uid="{{ $uid }}">   
     <div class="portlet light">
         <div class="portlet-title">
@@ -45,18 +46,12 @@
         </div>
         <div class="portlet-body">            
             <div class="row dx-widget-report-period">
+                @foreach($report_columns as $key => $col)
                 <div class="col-md-3 col-sm-4 col-xs-12 text-stat">
-                    <span class="label label-sm bg-blue"> {{ trans('reports.' . $report_name . '.total') }}: </span>
-                    <h3 class="dx-widget-report-period-balance">0</h3>
-                </div>
-                <div class="col-md-3 col-sm-4 col-xs-12 text-stat">
-                    <span class="label label-sm bg-green-jungle"> {{ trans('reports.' . $report_name . '.gain') }}: </span>
-                    <h3 class="dx-widget-report-period-accrued">0</h3>
-                </div>
-                <div class="col-md-3 col-sm-4 col-xs-12 text-stat">
-                    <span class="label label-sm bg-red"> {{ trans('reports.' . $report_name . '.loss') }}: </span>
-                    <h3 class="dx-widget-report-period-used">0</h3>
-                </div>
+                    <span class="label label-sm" style="background-color: {{ $col['color'] }}"> {{ $col['title'] }}: </span>
+                    <h3 class="dx-widget-report-period-{{ $key }}">0</h3>
+                </div>                
+                @endforeach
             </div>
             <div id="dx-widget-report-chart-{{ $uid }}" class='dx-widget-report-chart' style="width: 100%; height: 400px;"></div>
         </div>

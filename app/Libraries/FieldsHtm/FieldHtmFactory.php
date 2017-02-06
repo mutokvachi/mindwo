@@ -18,10 +18,10 @@ namespace App\Libraries\FieldsHtm
          * @param integer   $list_id            Ieraksta reģistra ID
          * @param string    $frm_uniq_id        Formas HTML identifikators
          * @param string    $is_disabled_mode   Vai forma ir atvērta nerediģējama
-         * 
+         * @param boolean   $is_item_editable   Vai lietotājam ir rediģēšanas tiesības uz ierakstu
          * @return \App\Libraries\FieldsHtm\class
          */
-        public static function build_field($fld_attr, $item_id, $item_value, $list_id, $frm_uniq_id, $is_disabled_mode)
+        public static function build_field($fld_attr, $item_id, $item_value, $list_id, $frm_uniq_id, $is_disabled_mode, $is_item_editable)
         {
             $class = "App\\Libraries\\FieldsHtm\\FieldHtm_" . $fld_attr->type_sys_name;
 
@@ -29,7 +29,7 @@ namespace App\Libraries\FieldsHtm
                 $class = "App\\Libraries\\FieldsHtm\\FieldHtm_varchar";
             }
 
-            return new $class($fld_attr, $item_id, $item_value, $list_id, $frm_uniq_id, $is_disabled_mode);
+            return new $class($fld_attr, $item_id, $item_value, $list_id, $frm_uniq_id, $is_disabled_mode, $is_item_editable);
         }
 
     }

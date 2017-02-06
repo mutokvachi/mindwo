@@ -12,4 +12,13 @@ return [
         'all' => 'All',
         'date_interval' => 'Date interval'
     ],  
+    
+    'LEAVES' => [
+        'unit' => 'Days',
+        'total' => 'Total left',
+        'title' => 'Leaves summary',
+        'group' => 'Department',
+        'all' => 'All',
+        'date_interval' => 'Date interval'
+    ], 
 ];

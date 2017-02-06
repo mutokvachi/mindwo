@@ -1,351 +1,428 @@
-/**
- * Contains logic for viewing and editing employee's time off data
- * @type Window.DxBlockReport|window.DxBlockReport 
- */
-window.DxBlockReport = window.DxBlockReport || {
-    reportName: '',
-    domObject: null,
-    uid: 0,
+(function ($)
+{
     /**
-     * Parameter if control is loaded
+     * Creates jQuery plugin for report widget
+     * @returns DxBlockReport
      */
-    isLoaded: false,
+    $.fn.DxBlockReport = function ()
+    {
+        return this.each(function ()
+        {
+            new $.DxBlockReport($(this));
+        });
+    };
+
     /**
-     * Parameter if data is sending to server
+     * Class for managing repot widget
+     * @type Window.DxBlockReport 
      */
-    isSending: false,
-    /**
-     * Parameter if table has been initialized
-     */
-    isTableInit: false,
-    /**
-     * Parameter if chart has been initialized
-     */
-    isChartInit: false,
-    /**
-     * Current filter's date from value
-     */
-    dateFrom: '',
-    /**
-     * Current filter's date to value
-     */
-    dateTo: '',
-    /**
-     * Current filter's time off value
-     */
-    groupId: 0,
-    /**
-     * Current filter's time off types title
-     */
-    groupTitle: '',
-    /**
-     * Parameter if current filter's time off type is in hours or days
-     */
-    timeoffIsAccrualHours: 1,
-    /**
-     * Date format used in system. This format is used to initialize date picker
-     */
-    dateFormat: '',
-    /**
-     * Working days length in hours
-     */
-    workingDayH: '',
+    $.DxBlockReport = function (domObject) {
+        /**
+         * Report controls DOM object which is related to this class
+         */
+        this.domObject = domObject;
+
+        /**
+         * Report's name
+         */
+        this.reportName = '';
+
+        /**
+         * Report column's data
+         */
+        this.reportColumns = [];
+
+        /**
+         * Unique ID for control
+         */
+        this.uid = 0;
+
+        /**
+         * Parameter if control is loaded
+         */
+        this.isLoaded = false;
+
+        /**
+         * Parameter if data is sending to server
+         */
+        this.isSending = false;
+
+        /**
+         * Parameter if table has been initialized
+         */
+        this.isTableInit = false;
+
+        /**
+         * Parameter if chart has been initialized
+         */
+        this.isChartInit = false;
+
+        /**
+         * Current filter's date from value
+         */
+        this.dateFrom = '';
+
+        /**
+         * Current filter's date to value
+         */
+        this.dateTo = '';
+
+        /**
+         * Current filter's time off value
+         */
+        this.groupId = 0;
+
+        /**
+         * Current filter's time off types title
+         */
+        this.groupTitle = '';
+
+        /**
+         * Parameter if current filter's time off type is in hours or days
+         */
+        this.timeoffIsAccrualHours = 1;
+
+        /**
+         * Date format used in system. This format is used to initialize date picker
+         */
+        this.dateFormat = '';
+
+        /**
+         * Working days length in hours
+         */
+        this.workingDayH = '';
+
+        // Initializes class
+        this.init();
+    }
+
     /**
      * Initializes component
      * @returns {undefined}
      */
-    init: function (domObject) {
-        window.DxBlockReport.domObject = domObject;
-
-        if (window.DxBlockReport.isLoaded) {
-            return;
-        }
-
-        window.DxBlockReport.showLoading();
-
-        window.DxBlockReport.uid = window.DxBlockReport.domObject.data('uid');
-        window.DxBlockReport.reportName = window.DxBlockReport.domObject.data('report_name');
-        window.DxBlockReport.workingDayH = window.DxBlockReport.domObject.data('working_day_h');
-        window.DxBlockReport.dateFormat = window.DxBlockReport.domObject.data('date_format').toUpperCase();
-        window.DxBlockReport.dateFrom = new Date(window.DxBlockReport.domObject.data('date_from'));
-        window.DxBlockReport.dateTo = new Date(window.DxBlockReport.domObject.data('date_to'));
-
-        window.DxBlockReport.domObject.find('.dx-widget-report-sel-group').click(window.DxBlockReport.groupSelect);
-
-        window.DxBlockReport.initFilterDatePicker();
-
-        // Load chart
-        window.DxBlockReport.loadChart();
-
-        window.DxBlockReport.isLoaded = true;
-    },
-    /**
-     * Get filter parameters for adding to request when getting chart
-     * @returns {String} Reteived URL part containign parameters
-     */
-    getFilterParams: function () {
-        return window.DxBlockReport.reportName + '/' + window.DxBlockReport.groupId + '/' + (window.DxBlockReport.dateFrom / 1000) + '/' + (window.DxBlockReport.dateTo / 1000);
-    },
-    /**
-     * Reload chart data. Initializes component if needed
-     * @returns {undefined}
-     */
-    loadChart: function () {
-        if (!window.DxBlockReport.isChartInit) {
-            window.DxBlockReport.initChart();
-            window.DxBlockReport.isChartInit = true;
-        }
-    },
-    /**
-     * Initializes chart
-     * @returns {undefined}
-     */
-    initChart: function () {
-        window.DxBlockReport.showLoading();
-
-        $("<div id='dx-widget-report-chart-tooltip-" + window.DxBlockReport.uid + "' class='dx-widget-report-chart-tooltip'></div>").appendTo("body");
-
-        $("#dx-widget-report-chart-" + window.DxBlockReport.uid).bind("plothover", window.DxBlockReport.onPlotHover);
-
-        window.DxBlockReport.refreshChart();
-    },
-    /**
-     * Refreshes chart data
-     * @returns {undefined}
-     */
-    refreshChart: function () {
-        window.DxBlockReport.showLoading();
-
-        $.ajax({
-            url: DX_CORE.site_url + 'widget/report/get/chart/' + window.DxBlockReport.getFilterParams(),
-            type: "get",
-            success: window.DxBlockReport.onGetChartDataSuccess,
-            error: window.DxBlockReport.onAjaxError
-        });
-    },
-    /**
-     * Gets unit name for current filtered value
-     * @returns {string} Units name
-     */
-    getUnit: function () {
-        return Lang.get('reports.' + window.DxBlockReport.reportName + '.unit');
-    },
-    /**
-     * Load total values for specified period into panel
-     * @param {array} data Data contaning period total data
-     * @returns {undefined}
-     */
-    loadTotalData: function (data) {
-        if (data) {
-            // window.DxBlockReport.timeoffIsAccrualHours = data[0].is_accrual_hours; !!!!!!!!!!!!!!!!!!
-            var unit = window.DxBlockReport.getUnit();
-            window.DxBlockReport.domObject.find('.dx-widget-report-period-balance').html(window.DxBlockReport.calculateChartHours(data.total) + ' ' + unit);
-            window.DxBlockReport.domObject.find('.dx-widget-report-period-accrued').html(window.DxBlockReport.calculateChartHours(data.gain) + ' ' + unit);
-            window.DxBlockReport.domObject.find('.dx-widget-report-period-used').html(window.DxBlockReport.calculateChartHours(data.loss) + ' ' + unit);
-        } else {
-            window.DxBlockReport.domObject.find('.dx-widget-report-period-balance').html(0);
-            window.DxBlockReport.domObject.find('.dx-widget-report-period-accrued').html(0);
-            window.DxBlockReport.domObject.find('.dx-widget-report-period-used').html(0);
-        }
-    },
-    /**
-     * If needed convert hours to days
-     * @param {Number} value Input hours
-     * @returns {Number} Output value, could be in days or hours
-     */
-    calculateChartHours: function (value) {
-        if (window.DxBlockReport.timeoffIsAccrualHours == 1) {
-            return value;
-        } else {
-            // Adding 0.00001 removes problem in javascript floating round problem
-            return Math.round(((value / window.DxBlockReport.workingDayH) + 0.00001) * 100) / 100;
-        }
-    },
-    /**
-     * Event on usccessful data retrieval for chart 
-     * @param {object} data Data retrieved form server
-     * @returns {undefined}
-     */
-    onGetChartDataSuccess: function (data) {
-        window.DxBlockReport.loadTotalData(data.total);
-
-        var barsGain = [];
-        var barsLoss = [];
-        var lineTotal = [];
-        var categories = [];
-
-        for (var i = 0; i < data.res.length; i++) {
-            var row = data.res[i];
-
-            categories.push([i, row.year + '/' + row.month]);
-
-            if (Number(row.gain) > 0) {
-                barsGain.push([i, window.DxBlockReport.calculateChartHours(row.gain)]);
+    $.extend($.DxBlockReport.prototype, {
+        init: function () {
+            var self = this;
+            
+            if (this.isLoaded) {
+                return;
             }
 
-            if (Number(row.loss) > 0) {
-                barsLoss.push([i, window.DxBlockReport.calculateChartHours(row.loss)]);
+            this.showLoading();
+
+            this.uid = this.domObject.data('uid');
+            this.reportName = this.domObject.data('report_name');
+            this.reportColumns = this.domObject.data('report_columns');
+            this.workingDayH = this.domObject.data('working_day_h');
+            this.dateFormat = this.domObject.data('date_format').toUpperCase();
+            this.dateFrom = new Date(this.domObject.data('date_from'));
+            this.dateTo = new Date(this.domObject.data('date_to'));
+
+            this.domObject.find('.dx-widget-report-sel-group').click(function(e){
+                self.groupSelect(e, self);            
+            });
+
+            this.initFilterDatePicker();
+
+            // Load chart
+            this.loadChart();
+
+            this.isLoaded = true;
+        },
+        /**
+         * Get filter parameters for adding to request when getting chart
+         * @returns {String} Reteived URL part containign parameters
+         */
+        getFilterParams: function () {
+            return this.reportName + '/' + this.groupId + '/' + (this.dateFrom / 1000) + '/' + (this.dateTo / 1000);
+        },
+        /**
+         * Reload chart data. Initializes component if needed
+         * @returns {undefined}
+         */
+        loadChart: function () {
+            if (!this.isChartInit) {
+                this.initChart();
+                this.isChartInit = true;
             }
+        },
+        /**
+         * Initializes chart
+         * @returns {undefined}
+         */
+        initChart: function () {
+            var self = this;
 
-            lineTotal.push([i, window.DxBlockReport.calculateChartHours(row.total)]);
-        }
+            this.showLoading();
 
-        $.plot("#dx-widget-report-chart-" + window.DxBlockReport.uid, [
-            {
-                data: barsLoss,
-                bars: {
-                    show: true,
-                    barWidth: 0.4,
-                    align: "left"
-                },
-                color: '#E7505A',
-                label: Lang.get('reports.' + window.DxBlockReport.reportName + '.loss')
-            },
-            {
-                data: barsGain,
-                bars: {
-                    show: true,
-                    barWidth: 0.4,
-                    align: "right"
-                },
-                color: '#26C281',
-                label: Lang.get('reports.' + window.DxBlockReport.reportName + '.gain')
-            }, {
-                data: lineTotal,
-                lines: {show: true},
-                points: {show: true},
-                color: '#3598DC',
-                label: Lang.get('reports.' + window.DxBlockReport.reportName + '.total'),
-                animator: {start: 100, steps: data.res.length, duration: 1000, direction: "right"}
-            }],
-                {
-                    axisLabels: {
-                        show: true
-                    },
-                    yaxis: {
-                        axisLabel: window.DxBlockReport.getUnit(),
-                        tickDecimals: 0,
-                        minTickSize: 1
-                    },
-                    xaxis: {
-                        ticks: categories
-                    },
-                    grid: {
-                        hoverable: true
-                    }
+            $("<div id='dx-widget-report-chart-tooltip-" + this.uid + "' class='dx-widget-report-chart-tooltip'></div>").appendTo("body");
+
+            $("#dx-widget-report-chart-" + this.uid).bind("plothover", function (event, pos, item) {
+                self.onPlotHover(event, pos, item, self);
+            });
+
+            this.refreshChart();
+        },
+        /**
+         * Refreshes chart data
+         * @returns {undefined}
+         */
+        refreshChart: function () {
+            this.showLoading();
+
+            $.ajax({
+                url: DX_CORE.site_url + 'widget/report/get/chart/' + this.getFilterParams(),
+                type: "get",
+                context: this,
+                success: this.onGetChartDataSuccess,
+                error: this.onAjaxError
+            });
+        },
+        /**
+         * Gets unit name for current filtered value
+         * @returns {string} Units name
+         */
+        getUnit: function () {
+            return Lang.get('reports.' + this.reportName + '.unit');
+        },
+        /**
+         * Load total values for specified period into panel
+         * @param {array} data Data contaning period total data
+         * @returns {undefined}
+         */
+        loadTotalData: function (data) {
+            var self = this;
+
+            if (data) {
+                var unit = self.getUnit();
+
+                $.each(self.reportColumns, function (key, value) {
+                    self.domObject.find('.dx-widget-report-period-' + key).html(self.calculateChartHours(data[key]) + ' ' + unit);
                 });
+            } else {
+                $.each(self.reportColumns, function (key, value) {
+                    self.domObject.find('.dx-widget-report-period-' + key).html();
+                });
+            }
+        },
+        /**
+         * If needed convert hours to days
+         * @param {Number} value Input hours
+         * @returns {Number} Output value, could be in days or hours
+         */
+        calculateChartHours: function (value) {
+            if (this.timeoffIsAccrualHours == 1) {
+                return value;
+            } else {
+                // Adding 0.00001 removes problem in javascript floating round problem
+                return Math.round(((value / this.workingDayH) + 0.00001) * 100) / 100;
+            }
+        },
+        /**
+         * Event on usccessful data retrieval for chart 
+         * @param {object} data Data retrieved form server
+         * @returns {undefined}
+         */
+        onGetChartDataSuccess: function (data) {
+            var self = this;
 
-        window.DxBlockReport.hideLoading();
-    },
-    /**
-     * Shows tooltip on chart hover
-     * @param {object} event Event caller
-     * @param {object} pos Mouse position
-     * @param {object} item Hovered item
-     * @returns {undefined}
-     */
-    onPlotHover: function (event, pos, item) {
-        if (item) {
-            var y = item.datapoint[1].toFixed(0);
+            this.timeoffIsAccrualHours = data.is_hours;
 
-            $("#dx-widget-report-chart-tooltip-" + window.DxBlockReport.uid).html(item.series.label + ": " + y + ' ' + window.DxBlockReport.getUnit())
-                    .css({top: pos.pageY + 20, left: pos.pageX + 5})
-                    .fadeIn(200);
-        } else {
-            $("#dx-widget-report-chart-tooltip-" + window.DxBlockReport.uid).hide();
+            self.loadTotalData(data.total);
+
+            var categories = [];
+
+            var chart_options = [];
+
+            var order = 1;
+
+            var bar_width = (0.8) / (Object.keys(self.reportColumns).length - 1);
+
+            $.each(self.reportColumns, function (col_key, col) {
+                // Sets color and text for bar or line
+                var option = {
+                    color: col.color,
+                    label: col.title
+                };
+
+                // Fills data
+                option.data = [];
+
+                for (var i = 0; i < data.res.length; i++) {
+                    var row = data.res[i];
+
+                    if (col.is_bar && Number(row[col_key]) > 0) {
+                        option.data.push([i, self.calculateChartHours(row[col_key])]);
+                    } else {
+                        option.data.push([i, self.calculateChartHours(row[col_key])]);
+                    }
+                }
+
+                // Set bar or line settings
+                if (col.is_bar) {
+                    option.bars = {
+                        show: true,
+                        barWidth: bar_width,
+                        order: order++
+                    };
+                } else {
+                    option.lines = {show: true};
+                    option.points = {show: true};
+                }
+
+                chart_options.push(option);
+            });
+
+            for (var i = 0; i < data.res.length; i++) {
+                var row = data.res[i];
+
+                categories.push([i, row.year + '/' + row.month]);
+            }
+
+            $.plot("#dx-widget-report-chart-" + self.uid, chart_options,
+                    {
+                        axisLabels: {
+                            show: true
+                        },
+                        yaxis: {
+                            axisLabel: self.getUnit(),
+                            tickDecimals: 0,
+                            minTickSize: 1,
+                            min: 0
+                        },
+                        xaxis: {
+                            ticks: categories
+                        },
+                        grid: {
+                            hoverable: true
+                        }
+                    });
+
+            self.hideLoading();
+        },
+        /**
+         * Shows tooltip on chart hover
+         * @param {object} event Event caller
+         * @param {object} pos Mouse position
+         * @param {object} item Hovered item
+         * @param {DxBlockReport} self Report object
+         * @returns {undefined}
+         */
+        onPlotHover: function (event, pos, item, self) {
+            if (item) {
+                var y = item.datapoint[1];
+                
+                // If days then do not round 
+                if(this.timeoffIsAccrualHours ==  1){
+                    y = y.toFixed(0);
+                }
+
+                $("#dx-widget-report-chart-tooltip-" + self.uid).html(item.series.label + ": " + y + ' ' + self.getUnit())
+                        .css({top: pos.pageY + 20, left: pos.pageX + 5})
+                        .fadeIn(200);
+            } else {
+                $("#dx-widget-report-chart-tooltip-" + self.uid).hide();
+            }
+        },
+        /**
+         * Initiates date picker for filter
+         * @returns {undefined}
+         */
+        initFilterDatePicker: function () {
+            var self = this;
+
+            this.domObject.find('.dx-widget-report-filter-year-btn').click(function (event) {
+                self.domObject.find('.dx-widget-report-filter-year-input').data('daterangepicker').toggle();
+            });
+
+            this.domObject.find('.dx-widget-report-filter-year-input').daterangepicker({
+                locale: {
+                    "format": this.dateFormat,
+                    "separator": " - ",
+                    "applyLabel": Lang.get('date_range.btn_set'),
+                    "cancelLabel": Lang.get('date_range.btn_cancel'),
+                    "fromLabel": Lang.get('date_range.lbl_from'),
+                    "toLabel": Lang.get('date_range.lbl_to'),
+                    "customRangeLabel": Lang.get('date_range.lbl_interval'),
+                    "daysOfWeek": [
+                        Lang.get('date_range.d_7'),
+                        Lang.get('date_range.d_1'),
+                        Lang.get('date_range.d_2'),
+                        Lang.get('date_range.d_3'),
+                        Lang.get('date_range.d_4'),
+                        Lang.get('date_range.d_5'),
+                        Lang.get('date_range.d_6')
+                    ],
+                    "monthNames": [Lang.get('date_range.m_jan'), Lang.get('date_range.m_feb'), Lang.get('date_range.m_mar'), Lang.get('date_range.m_apr'), Lang.get('date_range.m_may'), Lang.get('date_range.m_jun'), Lang.get('date_range.m_jul'), Lang.get('date_range.m_aug'), Lang.get('date_range.m_sep'), Lang.get('date_range.m_oct'), Lang.get('date_range.m_nov'), Lang.get('date_range.m_dec')],
+                    "firstDay": 1
+                },
+                "startDate": this.dateFrom,
+                "endDate": this.dateTo,
+                "showDropdowns": true
+            }, function (start, end, label) {
+                self.yearSelect(start, end, label, self);
+            });
+        },
+        /**
+         * Event callback when filter's year value is selected
+         * @param {string} start Starting date
+         * @param {string} end Ending date
+         * @param {string} label Label
+         * @param {DxBlockReport} self Report object
+         * @returns {undefined}
+         */
+        yearSelect: function (start, end, label, self) {
+            self.dateFrom = start;
+            self.dateTo = end;
+
+            self.domObject.find('.dx-widget-report-curr-year').html(start.format(self.dateFormat) + ' - ' + end.format(self.dateFormat));
+
+            self.refreshChart();
+        },
+        /**
+         * Event callback when filter's time off type value is selected
+         * @param {object} e Event caller
+         * @param {DxBlockReport} self Report object
+         * @returns {undefined}
+         */
+        groupSelect: function (e, self) {
+            var btn = $(e.target);
+
+            self.groupId = btn.data('value');
+            self.groupTitle = btn.data('title');
+
+            self.domObject.find('.dx-widget-report-curr-group').html(self.groupTitle);
+
+            self.refreshChart();
+        },
+        /**
+         * Shows loading box
+         * @returns {undefined}
+         */
+        showLoading: function () {
+            this.inProgressCount++;
+            show_page_splash(1);
+        },
+        /**
+         * Hides loading box
+         * @returns {undefined}
+         */
+        hideLoading: function () {
+            this.isSending = false;
+            hide_page_splash(1);
+        },
+        /**
+         * Event when ajax request gets error
+         * @param {array} data Data containing error information
+         * @returns {undefined}
+         */
+        onAjaxError: function (data) {
+            this.hideLoading();
         }
-    },
-    /**
-     * Initiates date picker for filter
-     * @returns {undefined}
-     */
-    initFilterDatePicker: function () {
-        window.DxBlockReport.domObject.find('.dx-widget-report-filter-year-btn').click(function (event) {
-            window.DxBlockReport.domObject.find('.dx-widget-report-filter-year-input').data('daterangepicker').toggle();
-        });
-
-        window.DxBlockReport.domObject.find('.dx-widget-report-filter-year-input').daterangepicker({
-            locale: {
-                "format": window.DxBlockReport.dateFormat,
-                "separator": " - ",
-                "applyLabel": Lang.get('date_range.btn_set'),
-                "cancelLabel": Lang.get('date_range.btn_cancel'),
-                "fromLabel": Lang.get('date_range.lbl_from'),
-                "toLabel": Lang.get('date_range.lbl_to'),
-                "customRangeLabel": Lang.get('date_range.lbl_interval'),
-                "daysOfWeek": [
-                    Lang.get('date_range.d_7'),
-                    Lang.get('date_range.d_1'),
-                    Lang.get('date_range.d_2'),
-                    Lang.get('date_range.d_3'),
-                    Lang.get('date_range.d_4'),
-                    Lang.get('date_range.d_5'),
-                    Lang.get('date_range.d_6')
-                ],
-                "monthNames": [Lang.get('date_range.m_jan'), Lang.get('date_range.m_feb'), Lang.get('date_range.m_mar'), Lang.get('date_range.m_apr'), Lang.get('date_range.m_may'), Lang.get('date_range.m_jun'), Lang.get('date_range.m_jul'), Lang.get('date_range.m_aug'), Lang.get('date_range.m_sep'), Lang.get('date_range.m_oct'), Lang.get('date_range.m_nov'), Lang.get('date_range.m_dec')],
-                "firstDay": 1
-            },
-            "startDate": window.DxBlockReport.dateFrom,
-            "endDate": window.DxBlockReport.dateTo,
-            "showDropdowns": true
-        }, window.DxBlockReport.yearSelect);
-    },
-    /**
-     * Event callback when filter's year value is selected
-     * @param {object} e Event caller
-     * @returns {undefined}
-     */
-    yearSelect: function (start, end, label) {
-        window.DxBlockReport.dateFrom = start;
-        window.DxBlockReport.dateTo = end;
-
-        window.DxBlockReport.domObject.find('.dx-widget-report-curr-year').html(start.format(window.DxBlockReport.dateFormat) + ' - ' + end.format(window.DxBlockReport.dateFormat));
-
-        window.DxBlockReport.refreshChart();
-    },
-    /**
-     * Event callback when filter's time off type value is selected
-     * @param {object} e Event caller
-     * @returns {undefined}
-     */
-    groupSelect: function (e) {
-        var btn = $(e.target);
-
-        window.DxBlockReport.groupId = btn.data('value');
-        window.DxBlockReport.groupTitle = btn.data('title');
-
-        window.DxBlockReport.domObject.find('.dx-widget-report-curr-group').html(window.DxBlockReport.groupTitle);
-
-        window.DxBlockReport.refreshChart();
-    },
-    /**
-     * Shows loading box
-     * @returns {undefined}
-     */
-    showLoading: function () {
-        window.DxBlockReport.inProgressCount++;
-        show_page_splash(1);
-    },
-    /**
-     * Hides loading box
-     * @returns {undefined}
-     */
-    hideLoading: function () {
-        window.DxBlockReport.isSending = false;
-        hide_page_splash(1);
-    },
-    /**
-     * Event when ajax request gets error
-     * @param {array} data Data containing error information
-     * @returns {undefined}
-     */
-    onAjaxError: function (data) {
-        window.DxBlockReport.hideLoading();
-    }
-};
+    });
+})(jQuery);
 
 $(document).ready(function () {
-    $('.dx-widget-report-panel').each(function (index) {
-        window.DxBlockReport.init($(this));
-    });
+    // Initializes all report widgets
+    $('.dx-widget-report-panel').DxBlockReport();
 });

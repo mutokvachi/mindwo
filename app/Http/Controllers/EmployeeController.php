@@ -338,7 +338,7 @@ class EmployeeController extends Controller
                                 case when day(em.birth_date) = day(now()) and month(em.birth_date) = month(now()) then 1 else 0 end as is_today,
                                 man.' . Config::get('dx.empl_fields.empl_name') . ' as manager_name,
                                 le.title as left_reason,
-                                case when now() between em.left_from and em.left_to then em.left_to else null end as left_to_date,
+                                case when DATE(now()) between em.left_from and em.left_to then em.left_to else null end as left_to_date,
                                 subst.' . Config::get('dx.empl_fields.empl_name') . ' as subst_empl_name,
                                 in_departments.title as department,
                                 em.id

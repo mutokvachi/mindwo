@@ -101,6 +101,27 @@ class FileController extends Controller
         return $this->performFileDownload($file);
     }
     
+    /**
+     * Downloads file by provided GUID (without authorization)
+     * 
+     * @param string $guid GUID which was generated while preparing HTML for form
+     * @return Response File
+     * @throws Exceptions\DXCustomException
+     */
+    public function getFileByGuid($guid) {
+        $down = DB::table('dx_downloads')->where('guid', '=', $guid)->first();
+        if (!$down) {
+            throw new Exceptions\DXCustomException(sprintf(trans('errors.file_record_not_found'), $guid));
+        }
+        
+        $file_field = DB::table('dx_lists_fields')->where('id', '=', $down->field_id)->first();
+        
+        Auth::loginUsingId($down->user_id, true);
+        DB::table('dx_downloads')->where('id', '=', $down->id)->update(['last_download_time' => date('Y-n-d H:i:s')]);
+        
+        return $this->getFileByField($down->item_id, $file_field->list_id, $file_field->db_name);
+    }
+    
      /**
      * Lejuplādē PDF datni pēc norādītā datnes lauka nosaukuma
      * 

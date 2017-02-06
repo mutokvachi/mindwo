@@ -107,7 +107,8 @@ class FreeFormController extends FormController
 			
 			$field = new FormField($row, $list_id, $item_id, $parent_item_id, $parent_field_id, $row_data,
 				$frm_uniq_id);
-			
+			$field->is_item_editable = ($this->is_edit_rights && $this->is_editable_wf);
+                        
 			$html = $field->get_field_input_htm();
 			
 			$result['fields'][] = [

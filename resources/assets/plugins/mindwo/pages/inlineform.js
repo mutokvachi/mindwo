@@ -412,7 +412,7 @@
 						return;
 					}
 					
-					window.location = data.redirect;
+					window.history.back();
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{

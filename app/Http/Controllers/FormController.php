@@ -11,7 +11,8 @@ use Webpatser\Uuid\Uuid;
 use App\Libraries\FormField;
 use App\Libraries\FormSave;
 use App\Libraries\Rights;
-
+use Config;
+use App\Models;
 use PDO;
 use App\Libraries\Workflows;
 
@@ -189,6 +190,31 @@ class FormController extends Controller
                  ->orderBy('r.title')
                  ->get();
     }
+    
+    /**
+     * Returns JSON with item history activities
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return Response JSON with history HTML
+     */
+    public function getItemHistory(Request $request) {
+        $this->validate($request, [
+            'list_id' => 'required|integer|exists:dx_lists,id',
+            'item_id' => 'required|integer'
+        ]);
+
+        // Must have parameters for form loading
+        $item_id = $request->input('item_id', 0); // if 0 then new item creation form will be provided otherwise editing form
+        $list_id = $request->input('list_id', 0);
+                   
+        $result = view('elements.form_history', [
+			'events' => Models\Event::where('list_id', '=', $list_id)->where('item_id', '=', $item_id)->orderBy('id', 'desc')->get(),
+                        'is_profile' => (Config::get('dx.employee_profile_page_url')),
+                        'events_list_id' => \App\Libraries\DBHelper::getListByTable('dx_db_events')->id
+	])->render();
+
+        return response()->json(['success' => 1, 'html' => $result]);
+    }
 
     /**
      * Atgriež atjauninātus formas laukus
@@ -221,7 +247,7 @@ class FormController extends Controller
 
         $fields_htm = $this->getFormFieldsHTML($frm_uniq_id, $list_id, $item_id, $parent_item_id, $parent_field_id, $params);
 
-        return response()->json(['success' => 1, 'html' => $fields_htm, 'tabs' => $this->arr_data_tabs, 'is_fullscreen' => $params->is_full_screen_mode]);
+        return response()->json(['success' => 1, 'frm_uniq_id' => "" . $frm_uniq_id, 'html' => $fields_htm, 'tabs' => $this->arr_data_tabs, 'is_fullscreen' => $params->is_full_screen_mode]);
     }
 
     /**
@@ -245,6 +271,54 @@ class FormController extends Controller
         return response()->json(['success' => 1, 'data' => $this->getBindedFieldsItems($binded_field_id, $binded_rel_field_id, $binded_rel_field_value)]);
     }
 
+    /**
+     * Save file edited by local application (Word, Excel etc)
+     * This method works without authorization (by guid)
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return Response Saved data info in JSON format
+     * @throws Exceptions\DXCustomException
+     */
+    public function saveFile(Request $request) {
+        
+        Log::info("SAVING FILE: " . json_encode($request->all()));
+        /*
+        $this->validate($request, [
+            'download_guid' => 'required|exists:dx_downloads,guid',
+        ]);
+        */
+        $guid = $request->input('download_guid');
+        Log::info("GUID: '" . $guid."'");
+        $down = DB::table('dx_downloads')->where('guid', '=', $guid)->first();
+        if (!$down) {
+            throw new Exceptions\DXCustomException(sprintf(trans('errors.file_record_not_found'), $guid));
+        }
+        
+        $file_field = DB::table('dx_lists_fields')->where('id', '=', $down->field_id)->first();
+        
+        Auth::loginUsingId($down->user_id, true);
+        DB::table('dx_downloads')->where('id', '=', $down->id)->update(['last_download_time' => date('Y-n-d H:i:s')]);
+        
+        $form = DB::table('dx_forms')->where('list_id', '=', $file_field->list_id)->first();
+        $request->merge(array(
+            'edit_form_id' => $form->id,
+            'item_id' => $down->item_id,
+            'multi_list_id' => 0 // ToDo: implement multi list check
+        ));
+        Log::info("SAVING FILE OGOO");
+        $rez = $this->saveForm($request);
+        Log::info(json_encode($rez));
+        return $rez;
+    }
+    
+    public function saveFileGet(Request $request) {
+        Log::info("GET GETGFET");
+        
+        return response()->json([
+            'success' => 1
+        ]);
+    }
+    
     /**
      * Saglabā formas datus
      * 
@@ -667,7 +741,8 @@ class FormController extends Controller
 
             $fld_obj = new FormField($row, $list_id, $item_id, $parent_item_id, $parent_field_id, $row_data, $frm_uniq_id);
             $fld_obj->is_disabled_mode = $this->is_disabled;
-
+            $fld_obj->is_item_editable = ($this->is_edit_rights && $this->is_editable_wf);
+            
             $fld_obj->binded_field_id = $binded_field_id;
             $fld_obj->binded_rel_field_id = $binded_rel_field_id;
             $fld_obj->binded_rel_field_value = $binded_rel_field_value;

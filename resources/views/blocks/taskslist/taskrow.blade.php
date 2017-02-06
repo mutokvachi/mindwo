@@ -3,7 +3,7 @@
         @if ($task->item_empl_id)
         <a href="{{ url('employee/profile/' . $task->item_empl_id)}}"><img src="{{Request::root()}}/{{ \App\Libraries\Helper::getEmployeeAvatarBig($task->picture_guid) }}" title="{{ $task->item_employee }}" style="width: 50px; height: 50px; border-radius: 50%!important;"></a>
         @else
-            <a class='btn btn-circle outline' title="{{ trans('task_widget.hint_view_file') }}" href="{{ url('download_first_file_'. $task->item_id . '_' . $task->list_id) }}"><i class='fa fa-file-o'></i></a>
+            <a class='btn btn-circle outline' title="{{ trans('task_widget.hint_view_file') }}" href="{{ url('download_first_file_'. $task->item_id . '_' . $task->list_id) }}"><i class='fa fa-file-o'></i></a>            
         @endif
     </div>
     <div class="mt-action-body">
@@ -13,13 +13,8 @@
                     <i class="icon-magnet"></i>
                 </div>
                 <div class="mt-action-details ">
-                    <span class="mt-action-author">{{ $task->list_title }}: <a href="javascript:;" class='dx-form-link' data-item-id="{{ $task->item_id }}" data-list-id="{{ $task->list_id }}" data-is-edit="{{ ($task->task_type_id == 3) ? 1 : 0 }}" title="{{ trans('task_widget.hint_view_form') }}">
-                            @if ($task->item_empl_id)
-                                {{ $task->item_employee }}
-                            @else
-                                {{ $task->item_reg_nr }}
-                            @endif
-                        </a></span>
+                    <span class="mt-action-author">{{ $task->list_title }}: <a href="javascript:;" class='dx-form-link' data-item-id="{{ $task->item_id }}" data-list-id="{{ $task->list_id }}" data-is-edit="{{ ($task->task_type_id == 3) ? 1 : 0 }}" title="{{ trans('task_widget.hint_view_form') }}">{{ ($task->item_empl_id) ? $task->item_employee : $task->item_reg_nr }}</a></span>&nbsp;
+                    <a href="{{Request::root()}}/web/viewer.html?file={{Request::root()}}/get_form_pdf_{{ $task->item_id }}_{{ $task->list_id }}.pdf" target="_blank" title="{{ trans('task_widget.hint_form_in_pdf') }}"><i class="fa fa-file-pdf-o"></i></a>
                     <p class="mt-action-desc">{{ $task->item_info }}</p>
                     <div class="mt-action-datetime"
                     @if (!$task->due_date || $task->task_type_id == 6)

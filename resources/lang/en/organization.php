@@ -12,6 +12,7 @@ return [
 	'btn_zoom_out' => 'Zoom out',
 	
 	'chart_title' => 'Org chart',
+	'company' => 'Company',
 	
 	'hint_subord' => 'Number of subordinates',
 	'hint_count' => 'Total employees count',

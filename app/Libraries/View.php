@@ -600,6 +600,10 @@ namespace App\Libraries {
 						{
 							$crit = $this->user_id;
 						}
+                                                
+                                                if ($row->sys_name == "bool") {
+                                                    $crit = ($row->criteria == "'" . trans('fields.yes') . "'") ? 1 : 0;
+                                                }
 						$sql_filter = $sql_filter . " AND " . $original_field . $row->operation . $crit;
 					}
 				}
@@ -780,7 +784,7 @@ namespace App\Libraries {
                 //DB::statement('CREATE OR REPLACE VIEW v_data_' . $this->view_id . ' as ' . $grid_sql);
 
                 //$sql = "SELECT * FROM v_data_" . $this->view_id . " WHERE 1=1 "; 
-                Log::info("GRID SQL: " . $grid_sql);
+                
                 return $grid_sql;
                 
 	}
