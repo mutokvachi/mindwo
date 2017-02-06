@@ -21588,7 +21588,7 @@ var widget = $.widget;
 			store: '/mail/store',
 			upload: '/mail/upload',
 			toAutocomplete: '/mail/to_autocomplete',
-			massDelete: '/mail/mass_delete'
+			deleteMany: '/mail/mass_delete'
 		}
 	};
 	
@@ -21605,8 +21605,8 @@ var widget = $.widget;
 		this.body = $('.inbox-wysihtml5', this.root);
 		this.sendTime = $('.inbox-input-send_time', this.root);
 		
-		this.compose = $('.inbox-compose', this.root);
-		this.id = (this.compose.length && this.compose.data('id') != undefined) ? this.compose.data('id') : null;
+		this.wrapper = $('.inbox-wrapper', this.root);
+		this.id = (this.wrapper.length && this.wrapper.data('id') != undefined) ? this.wrapper.data('id') : null;
 		
 		this.initToInput();
 		this.initDateInput();
@@ -21699,11 +21699,18 @@ var widget = $.widget;
 				self.draft();
 			});
 			
-			// draft button handler
+			// discard draft button handler
 			this.root.on('click', '.inbox-discard-btn', function(e)
 			{
 				e.preventDefault();
 				self.discard();
+			});
+			
+			// delete message button handler
+			this.root.on('click', '.inbox-delete-btn', function(e)
+			{
+				e.preventDefault();
+				self.deleteOne();
 			});
 			
 			// view message handler
@@ -21738,7 +21745,7 @@ var widget = $.widget;
 			// mass delete handler
 			this.root.on('click', '.input-actions .inbox-delete', function()
 			{
-				self.massDelete();
+				self.deleteMany();
 			});
 		},
 		shortcut: function(el)
@@ -21802,7 +21809,7 @@ var widget = $.widget;
 				success: function(data)
 				{
 					hide_page_splash(1);
-					window.location = self.options.url.sent;
+					window.location = data.folder; //self.options.url.sent;
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{
@@ -21836,6 +21843,8 @@ var widget = $.widget;
 				{
 					hide_page_splash(1);
 					self.id = data.id;
+					$('.inbox-nav .folder-draft .badge', self.root).text(data.count).show();
+					
 					toastr.success(Lang.get('mail.draft_saved'));
 				},
 				error: function(jqXHR, textStatus, errorThrown)
@@ -21873,7 +21882,7 @@ var widget = $.widget;
 				success: function(data)
 				{
 					hide_page_splash(1);
-					window.location = self.options.url.base + '/' + self.compose.data('folder');
+					window.location = self.options.url.base + '/' + self.wrapper.data('folder');
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{
@@ -21883,7 +21892,38 @@ var widget = $.widget;
 				}
 			});
 		},
-		massDelete: function()
+		deleteOne: function()
+		{
+			if(!confirm(Lang.get('mail.confirm_delete')))
+			{
+				return;
+			}
+			
+			var self = this;
+			
+			var request = {
+				_method: 'delete'
+			};
+			
+			$.ajax({
+				type: 'post',
+				url: this.options.url.base + '/' + this.id,
+				dataType: 'json',
+				data: request,
+				success: function(data)
+				{
+					hide_page_splash(1);
+					window.location = self.options.url.base + '/' + self.wrapper.data('folder');
+				},
+				error: function(jqXHR, textStatus, errorThrown)
+				{
+					console.log(textStatus);
+					console.log(jqXHR);
+					hide_page_splash(1);
+				}
+			});
+		},
+		deleteMany: function()
 		{
 			var ids = [];
 			
@@ -21912,7 +21952,7 @@ var widget = $.widget;
 			
 			$.ajax({
 				type: 'post',
-				url: this.options.url.massDelete,
+				url: this.options.url.deleteMany,
 				dataType: 'json',
 				cache: false,
 				data: request,

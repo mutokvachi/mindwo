@@ -5096,13 +5096,15 @@ class OrgChart {
     .then((canvas) => {
       let downloadBtn = chartContainer.querySelector('.oc-download-btn');
       
+      // custom modification
 	  if (!downloadBtn) {
 		  downloadBtn = document.createElement('a');
 		  downloadBtn.setAttribute('class', 'oc-download-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''));
 		  downloadBtn.setAttribute('download', opts.exportFilename + '.png');
 		  chartContainer.appendChild(downloadBtn);
 	  }
-
+      // end custom modification
+      
       chartContainer.querySelector('.mask').classList.add('hidden');
       downloadBtn.setAttribute('href', canvas.toDataURL());
       downloadBtn.click();

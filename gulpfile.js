@@ -245,7 +245,7 @@ gulp.task('mix_all', function() {
         // Scripts for organization chart
         mix.scripts([
             'html2canvas/html2canvas.js',
-            'orgchart/OrgChart.js',
+            'orgchart/orgchart.js',
 			'select2/select2.min.js',
 			'select2/select2_locale_multi.js',
             'mindwo/pages/organization_chart.js'
@@ -262,7 +262,7 @@ gulp.task('mix_all', function() {
         // Scripts for departments chart
         mix.scripts([
                 'html2canvas/html2canvas.js',
-                'orgchart/OrgChart.js',
+                'orgchart/orgchart.js',
                 'mindwo/pages/organization_departments.js'
         ], 'public/js/elix_orgdepartments.js', 'resources/assets/plugins');
 
