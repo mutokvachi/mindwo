@@ -7,7 +7,7 @@
     <form class="inbox-compose form-horizontal" id="fileupload" action="#" method="POST" enctype="multipart/form-data">
       <div class="inbox-compose-btn">
         <button class="btn green inbox-send-btn">
-          <i class="fa fa-check"></i> {{ trans('mail.send') }}
+          <i class="fa fa-check"></i> {{ trans($mode == 'edit' && $message->folder == 'scheduled' ? 'mail.save' : 'mail.send') }}
         </button>
         <button class="btn default inbox-discard-btn">{{ trans('mail.discard') }}</button>
         <button class="btn default inbox-draft-btn">{{ trans('mail.draft') }}</button>
@@ -133,7 +133,8 @@
       --}}
       <div class="inbox-compose-btn">
         <button class="btn green inbox-send-btn">
-          <i class="fa fa-check"></i> {{ trans('mail.send') }}
+          <i class="fa fa-check"></i>
+            {{ trans($mode == 'edit' && $message->folder == 'scheduled' ? 'mail.save' : 'mail.send') }}
         </button>
         <button class="btn default inbox-discard-btn">{{ trans('mail.discard') }}</button>
         <button class="btn default inbox-draft-btn">{{ trans('mail.draft') }}</button>

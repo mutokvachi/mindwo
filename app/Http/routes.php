@@ -181,7 +181,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'organization'], function() {
 });
 
 Route::group(['middleware' => ['auth', 'mail_access'], 'prefix' => 'mail'], function() {
-	Route::get('', 'MailController@index');
+	Route::get('', ['as' => 'mail_index', 'uses' => 'MailController@index']);
 	Route::get('sent', ['as' => 'mail_sent', 'uses' => 'MailController@index']);
 	Route::get('draft', ['as' => 'mail_draft', 'uses' => 'MailController@index']);
 	Route::get('scheduled', ['as' => 'mail_scheduled', 'uses' => 'MailController@index']);

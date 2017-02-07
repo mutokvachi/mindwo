@@ -48,7 +48,7 @@
     </thead>
     <tbody>
       @foreach($messages as $message)
-        <tr class="{{-- $message->is_read ? '' : 'unread' --}}" data-messageid="{{ $message->id }}">
+        <tr class="{{-- $message->is_read ? '' : 'unread' --}}" data-id="{{ $message->id }}">
           <td class="inbox-small-cells">
             <label class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
               <input type="checkbox" class="mail-checkbox" value="{{ $message->id }}" />
@@ -78,6 +78,8 @@
               @else
                 {{ $message->formatDate($message->created_time) }}
               @endif
+            @elseif($folderId == 'scheduled')
+              {{ $message->formatDate($message->send_time) }}
             @endif
           </td>
         </tr>

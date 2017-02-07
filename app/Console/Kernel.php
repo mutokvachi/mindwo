@@ -48,12 +48,12 @@ class Kernel extends ConsoleKernel
         $schedule->command('mindwo:check_listener')
                  ->everyTenMinutes();
         
+        // Send scheduled emails
         $schedule->call(function()
 		{
 			$job = new SendScheduledEmails();
-			
 			dispatch($job);
-		})->everyMinute();
+		})->everyFiveMinutes();
 
     }
 }

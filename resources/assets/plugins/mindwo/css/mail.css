@@ -25,3 +25,7 @@
 	border-left: solid 1px #eee !important;
 	border-right: solid 1px #eee !important;
 }
+
+.inbox td.text-right {
+	width: 150px !important;
+}
