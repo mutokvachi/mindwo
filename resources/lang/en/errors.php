@@ -103,4 +103,14 @@ return [
     'no_represent_field' => "There is not set field representation for the workflow view! Please, contact IT support.",
     
     'no_respo_empl_field' => "There is an monotoring rule defined for the view '%s', but the field provided in roole is not included in the view!",
+    
+    'workflow' => [
+        'not_saved' => 'Workflow is not saved',
+        'step_not_connected' => 'Workflow contains steps which are not connected to workflow',
+        'step_dont_have_child' => "Workflow contains steps which don't have next or last workflow's step",
+        'end_point_in_middle' => 'Workflow contains starting or ending points which are in the middle of workflow',
+        'multiple_starting_points' => 'Workflow contains multiple starting points',
+        'no_starting_points' => 'Workflow does not contain any starting points',
+        'no_finish_points' => 'Workflow does not contain any starting points',
+    ],
 ];

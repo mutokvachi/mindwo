@@ -93,4 +93,5 @@ return [
 
     'yes' => 'Yes',
     'no' => 'No',
+    'success' => 'Workflow saved',
         ];

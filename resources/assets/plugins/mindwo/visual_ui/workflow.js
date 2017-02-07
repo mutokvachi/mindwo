@@ -38,11 +38,16 @@ mxBasePath = '/js/plugins/mxgraph/src';
          * Workflow steps' list ID
          */
         this.wfStepsListId = 0;
-        
+
         /**
          * Workflow ID which is loaded
          */
         this.workflowId = 0;
+
+        /**
+         * Parameter if ajax request is on the go
+         */
+        this.isSending = false;
 
         // Initializes class
         this.init();
@@ -145,6 +150,11 @@ mxBasePath = '/js/plugins/mxgraph/src';
         init: function () {
             var self = this;
 
+            // Exit if component already initialized
+            if (self.domObject.data('is_init') == 1) {
+                return;
+            }
+
             // Sets parameters
             self.workflowId = self.domObject.data('wf_id');
             self.wfStepsListId = self.domObject.data('wf_steps_list_id');
@@ -226,14 +236,40 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 self.graph.setHtmlLabels(true);
 
                 // Enables new connections in the graph
-                self.graph.setConnectable(true);
+                self.graph.setConnectable(false);
                 self.graph.setMultigraph(false);
 
                 // Changes the default edge style
                 // self.graph.getStylesheet().getDefaultEdgeStyle()['edgeStyle'] = 'orthogonalEdgeStyle';
+                // Sets default edge style 
+                var defaultEdgeStyle = self.graph.getStylesheet().getDefaultEdgeStyle();
+                defaultEdgeStyle[mxConstants.STYLE_FONTCOLOR] = 'black';
+                defaultEdgeStyle[mxConstants.STYLE_LABEL_POSITION] = 'right';
+                defaultEdgeStyle[mxConstants.STYLE_ALIGN] = 'left';
 
                 // Defines the tolerance before removing the icons
                 var iconTolerance = 20;
+
+                // Sets yes or no arrrows
+                self.graph.connectionHandler.addListener(mxEvent.CONNECT, function (event, sender) {
+                    // Counts arrows which has value "yes"
+                    var edgeCount = self.countOutgoingEdges(sender.properties.cell.source, true);
+
+                    // If no arrows with value "yes" has been found then set current edge as yes
+                    if (edgeCount == 0) {
+                        sender.properties.cell.is_yes = 1;
+
+                        if (sender.properties.cell.source.has_arrow_labels == 1) {
+                            sender.properties.cell.value = Lang.get('workflow.yes');
+                        }
+                    } else if (edgeCount == 1) {
+                        // If one "yes" arrow has been found then set current edge as "no" arrow
+                        sender.properties.cell.is_yes = 0;
+                        if (sender.properties.cell.source.has_arrow_labels == 1) {
+                            sender.properties.cell.value = Lang.get('workflow.no');
+                        }
+                    }
+                });
 
                 // Shows icons if the mouse is over a cell
                 self.graph.addMouseListener(
@@ -291,6 +327,13 @@ mxBasePath = '/js/plugins/mxgraph/src';
                             },
                             dragEnter: function (evt, state)
                             {
+                                var outEdgesCount = self.countOutgoingEdges(state.cell, false);
+
+                                // Allow new edges if limit has not yet been reached
+                                if (outEdgesCount < state.cell.arrow_count) {
+                                    self.graph.setConnectable(true);
+                                }
+
                                 if (this.currentIconSet == null)
                                 {
                                     this.currentIconSet = new self.mxIconSet(self, state);
@@ -298,6 +341,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
                             },
                             dragLeave: function (evt, state)
                             {
+                                self.graph.setConnectable(false);
                                 if (this.currentIconSet != null)
                                 {
                                     this.currentIconSet.destroy();
@@ -310,8 +354,16 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 var keyHandler = new mxKeyHandler(self.graph);
                 var rubberband = new mxRubberband(self.graph);
 
-                var addVertex = function (icon, w, h, style)
+                var addVertex = function (icon, w, h, shape)
                 {
+                    var style = 'shape=' + shape + ';';
+
+                    if (shape === 'ellipse') {
+                        style += 'editable=0;';
+                    }
+
+                    style += 'html=1;whiteSpace=wrap;';
+
                     var vertex = new mxCell(null, new mxGeometry(0, 0, w, h), style);
                     vertex.setVertex(true);
 
@@ -327,9 +379,9 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 };
 
 
-                addVertex(mxBasePath + '/images/rounded.gif', 100, 60, 'shape=rounded');
-                addVertex(mxBasePath + '/images/ellipse.gif', 20, 20, 'shape=ellipse');
-                addVertex(mxBasePath + '/images/rhombus.gif', 40, 40, 'shape=rhombus');
+                addVertex(mxBasePath + '/images/rounded.gif', 100, 60, 'rounded');
+                addVertex(mxBasePath + '/images/ellipse.gif', 20, 20, 'ellipse');
+                addVertex(mxBasePath + '/images/rhombus.gif', 100, 100, 'rhombus');
 
                 var keyHandler = new mxKeyHandler(self.graph);
                 keyHandler.bindKey(46, function (evt)
@@ -349,9 +401,35 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 self.handleModalScrollbar(modal);
                 self.handleModalHide(modal);
 
-                modal.data('is-init', 1);
+                self.domObject.data('is_init', 1);
                 modal.modal('show');
             }
+        },
+        /**
+         * Count out going edges for cell
+         * @param {object} cell Cell under mouse cursor 
+         * @returns {int} Count of outgoing edges
+         */
+        countOutgoingEdges: function (cell, count_only_yes) {
+            var edges = cell.edges;
+            var edgesCount = edges.length;
+
+
+            var outEdgesCount = 0;
+            for (var i = 0; i < edgesCount; i++) {
+                var edge = edges[i];
+
+                if (edge.target.id !== cell.id) {
+                    // If counts only "yes" arrows and current arrow is "no" arrow then go to next edge
+                    if (count_only_yes && (edge.is_yes == null || typeof edge.is_yes === 'undefined' || edge.is_yes == 0)) {
+                        continue;
+                    }
+
+                    outEdgesCount++;
+                }
+            }
+
+            return outEdgesCount;
         },
         /**
          * Uzstāda ritjoslu modālajam uzdevuma logam
@@ -450,26 +528,68 @@ mxBasePath = '/js/plugins/mxgraph/src';
             return  mxUtils.getPrettyXml(node);
         },
         save: function (self) {
+            if (self.isSending) {
+                return;
+            }
+
+            self.isSending = true;
+            show_page_splash(1);
+
             var xml = self.getXML(self);
-            
-            var data = [
-                'workflow_id' => self.workflowId,
-                'xml_data' => xml
-            ];
+
+            var data = {
+                workflow_id: self.workflowId,
+                xml_data: xml
+            };
 
             $.ajax({
                 url: DX_CORE.site_url + 'workflow/visual/save',
                 type: "post",
                 data: data,
+                dataType: "json",
+                context: self,
                 success: self.onSaveSuccess,
                 error: self.onSaveError
             });
         },
-        onSaveSuccess:function(data){
-            alert('succ');
+        onSaveSuccess: function (data) {
+            var self = this;
+
+            if (data && data.success == 1) {
+                notify_info(Lang.get('workflow.success'));
+            } else {
+                self.showError(data);
+            }
+
+            self.isSending = false;
+            hide_page_splash(1);
+
         },
-        onSaveError:function(data){
-            alert('error');
+        onSaveError: function (data) {
+            var self = this;
+
+            self.showError(data);
+
+            self.isSending = false;
+            hide_page_splash(1);
+        },
+        /**
+         * Shows error
+         * @param {JSON} data
+         * @returns {undefined}
+         */
+        showError: function (data) {
+            if (data && data.errors) {
+                var errMsg = '<ul>';
+
+                for (var i = 0; i < data.errors.length; i++) {
+                    errMsg += '<li>' + data.errors[i] + '</li>';
+                }
+
+                errMsg += '</ul>';
+
+                toastr.error(Lang.get('errors.workflow.not_saved') + ': ' + errMsg);
+            }
         },
         setXML: function (self, xml) {
             // Gets the default parent for inserting new cells. This

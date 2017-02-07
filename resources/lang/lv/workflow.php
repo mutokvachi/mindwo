@@ -92,4 +92,5 @@ return [
     
     'yes' => 'Jā',
     'no' => 'Nē',
+    'success' => 'Darbplūsma saglabāta',
 ];

@@ -102,4 +102,13 @@ return [
     
     'no_respo_empl_field' => "Skatam '%s' definēts kontroles nosacījums, bet nosacījumā norādītais atbildīgā darbinieka lauks nav ietverts skatā!",
     
+    'workflow' => [
+        'not_saved' => 'Darbplūsma netika saglabta',
+        'step_not_connected' => 'Darbplūsma satur soļus, kas nav sasaistīti ar darbplūsmu',
+        'step_dont_have_child' => "Darbplūsma satur soļus, kuriem nav nākošā vai noslēdzošā darbplūsmas soļa",
+        'end_point_in_middle' => 'Darbplūsma satur sākuma vai beigu punktus, kas atrodas darbplūsmas vidū',
+        'multiple_starting_points' => 'Darbplūsma satur vairākus sākuma punktus',
+        'no_starting_points' => 'Darbplūsma nesatur nevienu sākuma punktu',
+        'no_finish_points' => 'Darbplūsma nesatur nevienu beigu punktu',
+    ],
 ];
