@@ -331,121 +331,141 @@
 				folder: 'draft'
 			};
 			
-			if(this.folder == 'scheduled' && !confirm(Lang.get('mail.confirm_move_to_draft')))
+			var func = function()
 			{
-				return;
-			}
-			
-			show_page_splash(1);
-			
-			$.ajax({
-				type: 'post',
-				url: this.id ? this.options.url.base + '/' + this.id + '/update' : this.options.url.store,
-				cache: false,
-				dataType: 'json',
-				data: request,
-				success: function(data)
-				{
-					hide_page_splash(1);
-					self.id = data.id;
-					
-					$('.inbox-nav .folder-draft .badge', self.root).text(data.count).show();
-					
-					if(self.folder == 'scheduled')
+				show_page_splash(1);
+				
+				$.ajax({
+					type: 'post',
+					url: self.id ? self.options.url.base + '/' + self.id + '/update' : self.options.url.store,
+					cache: false,
+					dataType: 'json',
+					data: request,
+					success: function(data)
 					{
-						var badge = $('.inbox-nav .folder-scheduled .badge', self.root);
-						var count = parseInt(badge.text());
-						badge.text(--count);
-						if(!count)
+						hide_page_splash(1);
+						self.id = data.id;
+						self.folder = data.folder;
+						
+						$('.inbox-nav .folder-draft .badge', self.root).text(data.count).show();
+						
+						if(self.folder == 'scheduled')
 						{
-							badge.hide();
+							var badge = $('.inbox-nav .folder-scheduled .badge', self.root);
+							var count = parseInt(badge.text());
+							badge.text(--count);
+							if(!count)
+							{
+								badge.hide();
+							}
+							self.folder = 'draft';
 						}
-						self.folder = 'draft';
+						
+						toastr.success(Lang.get('mail.draft_saved'));
+					},
+					error: function(jqXHR, textStatus, errorThrown)
+					{
+						console.log(textStatus);
+						console.log(jqXHR);
+						hide_page_splash(1);
 					}
-					
-					toastr.success(Lang.get('mail.draft_saved'));
-				},
-				error: function(jqXHR, textStatus, errorThrown)
-				{
-					console.log(textStatus);
-					console.log(jqXHR);
-					hide_page_splash(1);
-				}
-			});
+				});
+			};
+			
+			if(this.folder == 'scheduled')
+			{
+				PageMain.showConfirm(func, null,
+					Lang.get('mail.confirm_action'),
+					Lang.get('mail.confirm_move_to_draft'),
+					''
+				);
+			}
+			else
+			{
+				func();
+			}
 		},
 		/**
 		 * Discard message. Close the compose form and delete draft if it was saved before.
 		 */
 		discard: function()
 		{
-			if(!confirm(Lang.get('mail.confirm_discard')))
-			{
-				return;
-			}
-			
-			if(!this.id)
-			{
-				window.location = this.options.url.base;
-				return;
-			}
-			
 			var self = this;
-			
-			var request = {
-				_method: 'delete'
+
+			var func = function()
+			{
+				if(!self.id)
+				{
+					window.location = self.options.url.base;
+					return;
+				}
+				
+				var request = {
+					_method: 'delete'
+				};
+				
+				$.ajax({
+					type: 'post',
+					url: self.options.url.base + '/' + self.id,
+					dataType: 'json',
+					data: request,
+					success: function(data)
+					{
+						hide_page_splash(1);
+						window.location = self.options.url.base + '/' + self.folder;
+					},
+					error: function(jqXHR, textStatus, errorThrown)
+					{
+						console.log(textStatus);
+						console.log(jqXHR);
+						hide_page_splash(1);
+					}
+				});
 			};
 			
-			$.ajax({
-				type: 'post',
-				url: this.options.url.base + '/' + this.id,
-				dataType: 'json',
-				data: request,
-				success: function(data)
-				{
-					hide_page_splash(1);
-					window.location = self.options.url.base + '/' + self.wrapper.data('folder');
-				},
-				error: function(jqXHR, textStatus, errorThrown)
-				{
-					console.log(textStatus);
-					console.log(jqXHR);
-					hide_page_splash(1);
-				}
-			});
+			PageMain.showConfirm(func, null,
+				Lang.get('mail.confirm_action'),
+				Lang.get('mail.confirm_discard'),
+				''
+			);
 		},
 		/**
 		 * Delete single message.
 		 */
 		deleteOne: function()
 		{
-			if(!confirm(Lang.get('mail.confirm_delete')))
-			{
-				return;
-			}
-			
 			var self = this;
 			
-			var request = {
-				_method: 'delete'
+			var func = function()
+			{
+				var request = {
+					_method: 'delete'
+				};
+				
+				$.ajax({
+					type: 'post',
+					url: self.options.url.base + '/' + self.id,
+					dataType: 'json',
+					data: request,
+					success: function(data)
+					{
+						hide_page_splash(1);
+						window.location = self.options.url.base + '/' + self.folder;
+					},
+					error: function(jqXHR, textStatus, errorThrown)
+					{
+						console.log(textStatus);
+						console.log(jqXHR);
+						hide_page_splash(1);
+					}
+				});
 			};
 			
-			$.ajax({
-				type: 'post',
-				url: this.options.url.base + '/' + this.id,
-				dataType: 'json',
-				data: request,
-				success: function(data)
-				{
-					hide_page_splash(1);
-					window.location = self.options.url.base + '/' + self.wrapper.data('folder');
-				},
-				error: function(jqXHR, textStatus, errorThrown)
-				{
-					console.log(textStatus);
-					console.log(jqXHR);
-					hide_page_splash(1);
-				}
-			});
+			PageMain.showConfirm(func, null,
+				Lang.get('mail.confirm_action'),
+				Lang.get('mail.confirm_delete'),
+				''
+			);
 		},
 		/**
 		 * Delete arbitrary number of messages by their ids.
@@ -465,36 +485,40 @@
 				return;
 			}
 			
-			if(!confirm(Lang.get('mail.confirm_mass_delete')))
-			{
-				return;
-			}
-			
 			var self = this;
 			
-			var request = {
-				_method: 'delete',
-				ids: ids
+			var func = function()
+			{
+				var request = {
+					_method: 'delete',
+					ids: ids
+				};
+				
+				$.ajax({
+					type: 'post',
+					url: self.options.url.deleteMany,
+					dataType: 'json',
+					cache: false,
+					data: request,
+					success: function(data)
+					{
+						hide_page_splash(1);
+						window.location.reload();
+					},
+					error: function(jqXHR, textStatus, errorThrown)
+					{
+						console.log(textStatus);
+						console.log(jqXHR);
+						hide_page_splash(1);
+					}
+				});
 			};
 			
-			$.ajax({
-				type: 'post',
-				url: this.options.url.deleteMany,
-				dataType: 'json',
-				cache: false,
-				data: request,
-				success: function(data)
-				{
-					hide_page_splash(1);
-					window.location.reload();
-				},
-				error: function(jqXHR, textStatus, errorThrown)
-				{
-					console.log(textStatus);
-					console.log(jqXHR);
-					hide_page_splash(1);
-				}
-			});
+			PageMain.showConfirm(func, null,
+				Lang.get('mail.confirm_action'),
+				Lang.get('mail.confirm_mass_delete'),
+				''
+			);
 		},
 		/**
 		 * Show message (redirect).

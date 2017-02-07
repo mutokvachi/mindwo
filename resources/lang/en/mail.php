@@ -7,6 +7,7 @@ return [
 	'attachments' => 'Attachments',
 	'cancel' => 'Cancel',
 	'compose' => 'Compose',
+	'confirm_action' => 'Confirm action',
 	'confirm_delete' => 'Are you sure want to delete message?',
 	'confirm_discard' => 'Are you sure want to discard message?',
 	'confirm_mass_delete' => 'Are you sure want to delete selected messages?',
