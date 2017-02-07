@@ -21,7 +21,7 @@ return [
     'lbl_cabinet' => 'cab.',
     'lbl_supervisor' => 'Direct supervisor', //Direct supervisor
     'lbl_absent' => 'Absent',
-    'lbl_to' => 'to',
+    'lbl_to' => 'till',
     'lbl_substititutes' => 'Substitute',
     'lbl_open_profile' => 'Open profile',
     
@@ -32,4 +32,17 @@ return [
     'lbl_search_placeholder' => 'Criteria',
     'lbl_count' => 'Record count:',
     'lbl_nothing_found' => 'No record found by provided search criteria.',
+    
+    'lbl_holiday' => 'Holiday',
+    'lbl_hired' => 'Hire date',
+    'lbl_term_date' => 'Terminated',
+    
+    'lbl_year_1' => 'year',
+    'lbl_year_n' => 'years',
+    
+    'lbl_month_1' => 'month',
+    'lbl_month_n' => 'months',
+    
+    'lbl_day_1' => 'day',
+    'lbl_day_n' => 'days',
 ];

@@ -94,7 +94,7 @@ class FormPDFController extends FormController
 
             $item_value = $this->getItemValue($row);
             
-            $field_htm = FieldsHtm\FieldHtmFactory::build_field($row, $this->item_id, $item_value, $this->list_id, '', 1);
+            $field_htm = FieldsHtm\FieldHtmFactory::build_field($row, $this->item_id, $item_value, $this->list_id, '', 1, false);
             $tab_id = ($row->tab_id) ? $row->tab_id : 0;
             
             if (!isset($this->arr_data_tabs[$tab_id])) {

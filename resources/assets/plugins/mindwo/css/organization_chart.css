@@ -1,3 +1,9 @@
+#dx-orgchart-container {
+	position: relative;
+	margin-top: 20px;
+	border: 1px dashed #ccc;
+}
+
 .dx-orgchart-select {
 	min-width: 300px;
 	margin-right: 20px;
@@ -19,7 +25,7 @@
 }
 
 .orgchart .node {
-	width: 170px;
+	width: 150px;
 	border: 0px none !important;
 	background-color: transparent;
 	padding: 3px;
@@ -46,10 +52,10 @@
 }
 
 .orgchart .node .content {
-	height: 140px;
+	height: 50px;
 	white-space: normal;
 	border-top: none;
-	padding: 5px;
+	padding: 0 5px;
 	border: 1px solid #ccc;
 	border-top: none;
 }
@@ -58,7 +64,6 @@
 	height: 32px;
 	line-height: 15px;
 	vertical-align: middle;
-	padding-top: 8px;
 }
 
 .orgchart .node a.link {
@@ -71,7 +76,11 @@
 	border-radius: 50% !important;
 }
 
-.orgchart tr.lines td {
+.orgchart tr.lines td,
+.orgchart .verticalNodes > td::before,
+.orgchart .verticalNodes ul > li::before,
+.orgchart .verticalNodes ul > li::after
+{
 	border-color: #ccc !important;
 }
 

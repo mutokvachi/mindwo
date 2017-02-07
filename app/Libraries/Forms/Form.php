@@ -10,6 +10,7 @@ use App\Libraries\FormField;
 use App\Libraries\Workflows;
 use Webpatser\Uuid\Uuid;
 use PDO;
+use Log;
 
 class Form
 {
@@ -140,6 +141,7 @@ class Form
 				continue;
 			
 			$field = new FormField($row, $this->listId, $this->itemId, 0, 0, $this->itemData, $this->formUid);
+                        $field->is_item_editable = ($this->editable);
 			$field->is_disabled_mode = $this->disabled;
 			$field->is_editable_wf = $this->editable;
 			
@@ -147,7 +149,7 @@ class Form
 
 			break;
 		}
-		
+		Log::info("Field: " . $name . " HTML: " . $result);
 		return $result;
 	}
 	

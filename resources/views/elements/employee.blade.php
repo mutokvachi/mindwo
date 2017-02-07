@@ -65,7 +65,8 @@
                     @if ($item->left_to_date)
                         <span class="label label-danger" style="display:block;margin-bottom:2px;width:90px;padding: 4px 6px 4px;">{{ trans('employee.lbl_absent') }}</span>
                         <div class="font-red">
-                            <small>{{ $item->left_reason }} {{ trans('employee.lbl_to') }} {{ short_date($item->left_to_date) }}</small>
+                            
+                            <small>{{ ($item->left_reason) ? $item->left_reason : trans('employee.lbl_holiday') }} {{ trans('employee.lbl_to') }} {{ short_date($item->left_to_date) }}</small>
 
                             @if ($item->subst_empl_name)
                                 <br />

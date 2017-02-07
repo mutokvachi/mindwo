@@ -611,7 +611,7 @@ class TasksController extends Controller
                 'date_format' => Config::get('dx.txt_date_format', 'd.m.Y')
                 ])->render();
 
-        return response()->json(['success' => 1, 'html' => $form_htm]);
+        return response()->json(['success' => 1, 'frm_uniq_id' => $frm_uniq_id, 'html' => $form_htm]);
 
     }
     

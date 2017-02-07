@@ -36,4 +36,9 @@ return [
     'lbl_id' => 'Ieraksta ID',
     'lbl_print_date' => 'Izdrukāts',
     
+    'link_history' => 'Vēsture',
+    'hint_history' => 'Skatīt ieraksta izmaiņu vēsturi',
+    'history_form_title' => 'Ieraksta izmaiņu vēsture',
+    'btn_changes' => 'Izmaiņas',
+    
 ];

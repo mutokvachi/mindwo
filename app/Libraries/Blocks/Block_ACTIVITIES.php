@@ -23,6 +23,13 @@ class Block_ACTIVITIES extends Block
 	 * @var type
 	 */
 	public $is_profile = false;
+        
+        /**
+         * Events register ID
+         * @var integer 
+         */
+        public $events_list_id = 0;
+        
 	/**
 	 * @var App\User Current logged in user
 	 */
@@ -273,6 +280,7 @@ END;
 		}
 		
 		$this->is_profile = (Config::get('dx.employee_profile_page_url'));
+                $this->events_list_id = App\Libraries\DBHelper::getListByTable('dx_db_events')->id;
 	}
 	
 	/**

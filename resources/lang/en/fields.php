@@ -20,6 +20,7 @@ return [
     'btn_set' => 'Set',
     'btn_change' => 'Change',
     'btn_remove' => 'Remove',
+    'btn_set_change' => 'Set/choose picture',
     'err_choose_val' => 'Please, choose employee to view profile!',
     
     // Tree
@@ -43,4 +44,7 @@ return [
     'title_mouse_click' => 'Or click to open file browser.',
     'rule_part1' => 'Maximum upload file count is ',
     'rule_part2' => ' files.',
+    
+    'btn_file_edit' => 'Edit',
+    'btn_file_view' => 'View', 
 ];

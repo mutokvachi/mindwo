@@ -33,6 +33,10 @@ if (Config::get('database.log', false)) {
     });
 }
 
+Route::get('/download_by_guid_{guid}', array('as' => 'download_file_guid', 'middleware' => 'public_file', 'uses'=>'FileController@getFileByGuid'));
+Route::post('/public/save_file_by_guid', array('as' => 'save_file_by_guid', 'middleware' => 'public_file', 'uses'=>'FormController@saveFile'));
+//Route::get('/public/save_file_by_guid', array('as' => 'save_file_by_guid_get', 'middleware' => 'public_file', 'uses'=>'FormController@saveFileGet'));
+
 /**
  * Failu pārlūks - satura redaktora komponente
  */
@@ -79,6 +83,7 @@ route::post('/register_document', array('as' => 'register_item',  'middleware' =
 Route::post('/get_tasks_history', array('as' => 'get_tasks_history',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@getTasksHistory'));
 Route::post('/cancel_workflow', array('as' => 'cancel_workflow',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@cancelWorkflow'));
 Route::get('/get_form_pdf_{item_id}_{list_id}.pdf', array('as' => 'form_get_pdf',  'middleware' => 'auth_ajax', 'uses'=>'FormPDFController@getPDF'));
+Route::post('/get_item_history', array('as' => 'get_item_history',  'middleware' => 'auth_ajax', 'uses'=>'FormController@getItemHistory'));
 
 // Startē procesu forsēti
 Route::get('/force_process/{id}', array('as' => 'force_process',  'middleware' => 'auth', 'uses'=>'ProcessController@forceProcess'));
@@ -174,6 +179,23 @@ Route::group(['middleware' => 'auth_ajax', 'prefix' => 'inlineform'], function()
 Route::group(['middleware' => 'auth', 'prefix' => 'organization'], function() {
 	Route::get('chart/{id?}', ['as' => 'organization_chart', 'uses' => 'OrgChartController@show']);
 	Route::get('departments', ['as' => 'organization_departments', 'uses' => 'DepartmentsChartController@show']);
+});
+
+Route::group(['middleware' => ['auth', 'mail_access'], 'prefix' => 'mail'], function() {
+	Route::get('', 'MailController@index');
+	Route::get('sent', ['as' => 'mail_sent', 'uses' => 'MailController@index']);
+	Route::get('draft', ['as' => 'mail_draft', 'uses' => 'MailController@index']);
+	Route::get('scheduled', ['as' => 'mail_scheduled', 'uses' => 'MailController@index']);
+	Route::get('compose', ['as' => 'mail_compose', 'uses' => 'MailController@create']);
+	Route::post('store', ['as' => 'mail_store', 'middleware' => 'auth_ajax', 'uses' => 'MailController@store']);
+	Route::get('upload', ['as' => 'mail_upload', 'middleware' => 'auth_ajax', 'uses' => 'MailController@upload']);
+	Route::post('upload', ['as' => 'mail_upload', 'middleware' => 'auth_ajax', 'uses' => 'MailController@upload']);
+	Route::get('to_autocomplete', ['as' => 'mail_to_autocomplete', 'middleware' => 'auth_ajax', 'uses' => 'MailController@ajaxToAutocomplete']);
+	Route::delete('mass_delete', ['as' => 'mail_mass_delete', 'middleware' => 'auth_ajax', 'uses' => 'MailController@massDelete']);
+	Route::post('{id}/update', ['as' => 'mail_update', 'middleware' => 'auth_ajax', 'uses' => 'MailController@update']);
+	Route::get('{id}/edit', ['as' => 'mail_edit', 'uses' => 'MailController@edit']);
+	Route::get('{id}', ['as' => 'mail_show', 'uses' => 'MailController@show']);
+	Route::delete('{id}', ['as' => 'mail_delete', 'middleware' => 'auth_ajax', 'uses' => 'MailController@destroy']);
 });
 
 // Lapas

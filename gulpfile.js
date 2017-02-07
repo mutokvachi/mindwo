@@ -196,6 +196,7 @@ gulp.task('mix_all', function() {
             'bootstrap-daterangepicker/daterangepicker.js',
             'mindwo/blocks/report.js',
             'flot/jquery.flot.min.js',
+            'flot/jquery.flot.orderBars.js',
             'flot/jquery.flot.resize.min.js',
             'flot/jquery.flot.axislabels.js'
         ], 'public/js/elix_block_report.js', 'resources/assets/plugins');
@@ -244,13 +245,13 @@ gulp.task('mix_all', function() {
         // Scripts for organization chart
         mix.scripts([
             'html2canvas/html2canvas.js',
-            'orgchart/OrgChart.js',
+            'orgchart/orgchart.js',
 			'select2/select2.min.js',
 			'select2/select2_locale_multi.js',
             'mindwo/pages/organization_chart.js'
         ], 'public/js/elix_orgchart.js', 'resources/assets/plugins');
 	
-		// Styles for organization chart
+        // Styles for organization chart
         mix.styles([
             'orgchart/orgchart.css',
 			'select2/select2.css',
@@ -258,23 +259,59 @@ gulp.task('mix_all', function() {
             'mindwo/css/organization_chart.css'
 		], 'public/css/elix_orgchart.css', 'resources/assets/plugins');
 	
-		// Scripts for departments chart
-		mix.scripts([
-			'html2canvas/html2canvas.js',
-			'orgchart/OrgChart.js',
-			'mindwo/pages/organization_departments.js'
-		], 'public/js/elix_orgdepartments.js', 'resources/assets/plugins');
+        // Scripts for departments chart
+        mix.scripts([
+                'html2canvas/html2canvas.js',
+                'orgchart/orgchart.js',
+                'mindwo/pages/organization_departments.js'
+        ], 'public/js/elix_orgdepartments.js', 'resources/assets/plugins');
+
+        // Styles for departments chart
+        mix.styles([
+                'orgchart/orgchart.css',
+                'select2/select2.css',
+                'select2/select2-bootstrap.css',
+                'mindwo/css/organization_chart.css',
+                'mindwo/css/organization_departments.css'
+        ], 'public/css/elix_orgdepartments.css', 'resources/assets/plugins');
 	
-		// Styles for departments chart
-		mix.styles([
-			'orgchart/orgchart.css',
-			'select2/select2.css',
-			'select2/select2-bootstrap.css',
-			'mindwo/css/organization_chart.css',
-			'mindwo/css/organization_departments.css'
-		], 'public/css/elix_orgdepartments.css', 'resources/assets/plugins');
-	
-		// Minify all scripts
+	// Styles for mail interface
+        mix.styles([
+                'resources/assets/plugins/select2-4.0/css/select2.css',
+                'resources/assets/plugins/datetimepicker/jquery.datetimepicker.css',
+                'public/metronic/global/plugins/select2/css/select2-bootstrap.min.css',
+                'public/metronic/global/plugins/bootstrap-wysihtml5/bootstrap-wysihtml5.css',
+                'public/metronic/global/plugins/jquery-file-upload/blueimp-gallery/blueimp-gallery.min.css',
+                'public/metronic/global/plugins/jquery-file-upload/css/jquery.fileupload.css',
+                'public/metronic/global/plugins/jquery-file-upload/css/jquery.fileupload-ui.css',
+                'public/metronic/apps/css/inbox.css',
+                'resources/assets/plugins/mindwo/css/mail.css'
+        ], 'public/css/elix_mail.css', './');
+
+        // Scripts for mail interface
+        mix.scripts([
+                'resources/assets/plugins/select2-4.0/js/select2.js',
+                'resources/assets/plugins/datetimepicker/jquery.datetimepicker.js',
+                'resources/assets/plugins/mindwo/fields/datetime.js',
+                'public/metronic/global/plugins/bootstrap-wysihtml5/wysihtml5-0.3.0.js',
+                'public/metronic/global/plugins/bootstrap-wysihtml5/bootstrap-wysihtml5.js',
+                'public/metronic/global/plugins/jquery-file-upload/js/vendor/jquery.ui.widget.js',
+                'public/metronic/global/plugins/jquery-file-upload/js/vendor/tmpl.min.js',
+                'public/metronic/global/plugins/jquery-file-upload/js/vendor/load-image.min.js',
+                'public/metronic/global/plugins/jquery-file-upload/js/vendor/canvas-to-blob.min.js',
+                'public/metronic/global/plugins/jquery-file-upload/blueimp-gallery/jquery.blueimp-gallery.min.js',
+                'public/metronic/global/plugins/jquery-file-upload/js/jquery.iframe-transport.js',
+                'public/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload.js',
+                'public/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-process.js',
+                'public/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-image.js',
+                'public/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-audio.js',
+                'public/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-video.js',
+                'public/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-validate.js',
+                'public/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-ui.js',
+                'resources/assets/plugins/mindwo/pages/mail.js'
+        ], 'public/js/elix_mail.js', './');
+                
+        // Minify all scripts
         mix.version([
             'js/elix_userlinks.js', 
             'js/elix_plugins.js', 
@@ -293,10 +330,12 @@ gulp.task('mix_all', function() {
             'css/elix_employee_profile.css',
             'js/elix_orgchart.js',
             'css/elix_orgchart.css',
-			'js/elix_orgdepartments.js',
-			'css/elix_orgdepartments.css',
-	'js/elix_block_report.js', 
-            'css/elix_block_report.css'
+            'js/elix_orgdepartments.js',
+            'css/elix_orgdepartments.css',
+            'js/elix_block_report.js', 
+            'css/elix_block_report.css',
+            'js/elix_mail.js',
+            'css/elix_mail.css'
         ]);
     });
 });

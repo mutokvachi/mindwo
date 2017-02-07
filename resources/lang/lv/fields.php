@@ -20,6 +20,7 @@ return [
     'btn_set' => 'Pievienot',
     'btn_change' => 'Mainīt',
     'btn_remove' => 'Noņemt',
+    'btn_set_change' => 'Uzstādīt/izvēlēties attēlu',
     'err_choose_val' => 'Lai skatītu darbinieka profilu, vispirms jānorāda darbinieks!',
     
     // Tree
@@ -44,4 +45,6 @@ return [
     'rule_part1' => 'Vienā saglabāšanas reizē pieļaujams vienlaicīgi augšupielādēt ne vairāk kā ',
     'rule_part2' => ' datnes.',
     
+    'btn_file_edit' => 'Rediģēt',
+    'btn_file_view' => 'Skatīt', 
 ];

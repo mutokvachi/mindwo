@@ -30,6 +30,9 @@ return [
     'lbl_day' => 'Day',
     'lbl_day_from' => 'From day',
     
+    'lbl_year' => 'Year',
+    'lbl_year_from' => 'From year',
+    
     'hours' => "hours",
     'days' => 'days'
 ];
