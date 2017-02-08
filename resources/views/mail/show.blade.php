@@ -19,13 +19,22 @@
     <div class="inbox-view-info">
       <div class="row">
         <div class="col-md-7">
-          To
+            To
           <span class="sbold">
             @for($i = 0, $list = $message->getPlainRecipientsList(); $i < count($list); $i++)
               {{ $list[$i]['text'] }}{{ ($i < count($list) - 1) ? ', ' : '' }}
             @endfor
           </span>
-          on {{ $message->formatDate($message->sent_time) }}
+          @if($message->folder == 'scheduled')
+            {{ trans('mail.scheduled_on') }}
+            {{ $message->formatDate($message->send_time) }}
+          @elseif($message->folder == 'draft')
+            {{ trans('mail.saved_on') }}
+            {{ $message->formatDate($message->modified_time) }}
+          @else
+            {{ trans('mail.sent_on') }}
+            {{ $message->formatDate($message->sent_time) }}
+          @endif
         </div>
         <div class="col-md-5 inbox-info-btn">
           <div class="btn-group">

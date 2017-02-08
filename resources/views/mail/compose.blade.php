@@ -37,7 +37,7 @@
       <div class="inbox-form-group">
         <label class="control-label">{{ trans('mail.send_time') }}:</label>
         <div class="controls">
-          <input type="text" class="form-control inbox-input-send_time" name="send_time" value="{{ $mode == 'edit' ? $message->send_time : '' }}">
+          <input type="text" class="form-control inbox-input-send_time" name="send_time" value="{{ $mode == 'edit' ? $message->formatDate($message->send_time, true) : '' }}">
         </div>
       </div>
       <div class="inbox-form-group">
