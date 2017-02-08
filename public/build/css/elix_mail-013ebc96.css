@@ -1502,4 +1502,8 @@ ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
 	border-left: solid 1px #eee !important;
 	border-right: solid 1px #eee !important;
 }
+
+.inbox td.text-right {
+	width: 150px !important;
+}
 /*# sourceMappingURL=elix_mail.css.map */

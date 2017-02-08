@@ -21566,7 +21566,12 @@ var widget = $.widget;
 
 (function($)
 {
-	// Plugin wrapper
+	/**
+	 * Wrapper function which allows to run this plugin as jQuery method.
+	 *
+	 * @param opts
+	 * @constructor
+	 */
 	$.fn.AppInbox = function(opts)
 	{
 		var options = $.extend({}, $.fn.AppInbox.defaults, opts);
@@ -21577,7 +21582,11 @@ var widget = $.widget;
 		});
 	};
 	
-	// default values
+	/**
+	 * Default values of options.
+	 *
+	 * @type {{url: {base: string, sent: string, draft: string, scheduled: string, compose: string, store: string, upload: string, toAutocomplete: string, deleteMany: string}}}
+	 */
 	$.fn.AppInbox.defaults = {
 		url: {
 			base: '/mail',
@@ -21592,9 +21601,16 @@ var widget = $.widget;
 		}
 	};
 	
-	// Constructor
+	/**
+	 * Constructor of Mail application.
+	 *
+	 * @param root
+	 * @param opts
+	 * @constructor
+	 */
 	$.AppInbox = function(root, opts)
 	{
+		// Save object instance along with root element. Get access to it using $(root).data('AppInbox').
 		$.data(root, 'AppInbox', this);
 		
 		this.options = opts;
@@ -21606,7 +21622,10 @@ var widget = $.widget;
 		this.sendTime = $('.inbox-input-send_time', this.root);
 		
 		this.wrapper = $('.inbox-wrapper', this.root);
+		// Message ID
 		this.id = (this.wrapper.length && this.wrapper.data('id') != undefined) ? this.wrapper.data('id') : null;
+		// Current folder ('sent', 'draft' or 'scheduled')
+		this.folder = (this.wrapper.length && this.wrapper.data('folder') != undefined) ? this.wrapper.data('folder') : null;
 		
 		this.initToInput();
 		this.initDateInput();
@@ -21617,6 +21636,9 @@ var widget = $.widget;
 	
 	// Methods
 	$.extend($.AppInbox.prototype, {
+		/**
+		 * Initialize Select2 plugin for recipients list, which provides autocompletion and tagged input.
+		 */
 		initToInput: function()
 		{
 			this.to.select2({
@@ -21636,6 +21658,7 @@ var widget = $.widget;
 				minimumInputLength: 2,
 				placeholder: Lang.get('mail.to_placeholder'),
 				tags: true,
+				// disable entering arbitrary tags
 				createTag: function()
 				{
 					return undefined;
@@ -21643,6 +21666,9 @@ var widget = $.widget;
 			});
 			
 		},
+		/**
+		 * Initialize dateTimePicker plugin for input field which contains scheduled time of sending email message.
+		 */
 		initDateInput: function()
 		{
 			this.sendTime.datetimepicker({
@@ -21650,6 +21676,9 @@ var widget = $.widget;
 				format: 'Y-m-d H:i'
 			});
 		},
+		/**
+		 * Initialize wysiwyg editor.
+		 */
 		initEditor: function()
 		{
 			$('.inbox-wysihtml5').wysihtml5({
@@ -21657,6 +21686,9 @@ var widget = $.widget;
 				image: false
 			});
 		},
+		/**
+		 * Initialize file upload widget.
+		 */
 		initFileUpload: function()
 		{
 			$('#fileupload').fileupload({
@@ -21681,6 +21713,9 @@ var widget = $.widget;
 				});
 			}
 		},
+		/**
+		 * Bind event handlers to buttons.
+		 */
 		initHandlers: function()
 		{
 			var self = this;
@@ -21707,6 +21742,13 @@ var widget = $.widget;
 			});
 			
 			// delete message button handler
+			this.root.on('click', '.inbox-edit-btn', function(e)
+			{
+				e.preventDefault();
+				self.edit(self.id);
+			});
+			
+			// delete message button handler
 			this.root.on('click', '.inbox-delete-btn', function(e)
 			{
 				e.preventDefault();
@@ -21716,13 +21758,19 @@ var widget = $.widget;
 			// view message handler
 			this.root.on('click', '.folder-sent .view-message', function(e)
 			{
-				self.view($(this).parent().data('messageid'));
+				self.view($(this).parent().data('id'));
 			});
 			
 			// edit message handler
 			this.root.on('click', '.folder-draft .view-message', function(e)
 			{
-				self.edit($(this).parent().data('messageid'));
+				self.edit($(this).parent().data('id'));
+			});
+			
+			// view scheduled message handler
+			this.root.on('click', '.folder-scheduled .view-message', function(e)
+			{
+				self.view($(this).parent().data('id'));
 			});
 			
 			// (un)check all handler
@@ -21748,6 +21796,12 @@ var widget = $.widget;
 				self.deleteMany();
 			});
 		},
+		/**
+		 * Handle click on department or team name in sidebar. Open compose form and/or add corresponding recipient to
+		 * the To field.
+		 *
+		 * @param el
+		 */
 		shortcut: function(el)
 		{
 			if(this.to.length)
@@ -21768,6 +21822,9 @@ var widget = $.widget;
 				window.location = this.options.url.compose + '?to=' + el.data('id');
 			}
 		},
+		/**
+		 * Send message.
+		 */
 		send: function()
 		{
 			var self = this;
@@ -21809,7 +21866,7 @@ var widget = $.widget;
 				success: function(data)
 				{
 					hide_page_splash(1);
-					window.location = data.folder;
+					window.location = self.options.url.base + '/' + data.folder;
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{
@@ -21819,6 +21876,9 @@ var widget = $.widget;
 				}
 			});
 		},
+		/**
+		 * Save draft.
+		 */
 		draft: function()
 		{
 			var self = this;
@@ -21831,98 +21891,145 @@ var widget = $.widget;
 				folder: 'draft'
 			};
 			
-			show_page_splash(1);
+			var func = function()
+			{
+				show_page_splash(1);
+				
+				$.ajax({
+					type: 'post',
+					url: self.id ? self.options.url.base + '/' + self.id + '/update' : self.options.url.store,
+					cache: false,
+					dataType: 'json',
+					data: request,
+					success: function(data)
+					{
+						hide_page_splash(1);
+						self.id = data.id;
+						self.folder = data.folder;
+						
+						$('.inbox-nav .folder-draft .badge', self.root).text(data.count).show();
+						
+						if(self.folder == 'scheduled')
+						{
+							var badge = $('.inbox-nav .folder-scheduled .badge', self.root);
+							var count = parseInt(badge.text());
+							badge.text(--count);
+							if(!count)
+							{
+								badge.hide();
+							}
+							self.folder = 'draft';
+						}
+						
+						toastr.success(Lang.get('mail.draft_saved'));
+					},
+					error: function(jqXHR, textStatus, errorThrown)
+					{
+						console.log(textStatus);
+						console.log(jqXHR);
+						hide_page_splash(1);
+					}
+				});
+			};
 			
-			$.ajax({
-				type: 'POST',
-				url: this.id ? this.options.url.base + '/' + this.id + '/update' : this.options.url.store,
-				cache: false,
-				dataType: 'json',
-				data: request,
-				success: function(data)
-				{
-					hide_page_splash(1);
-					self.id = data.id;
-					$('.inbox-nav .folder-draft .badge', self.root).text(data.count).show();
-					
-					toastr.success(Lang.get('mail.draft_saved'));
-				},
-				error: function(jqXHR, textStatus, errorThrown)
-				{
-					console.log(textStatus);
-					console.log(jqXHR);
-					hide_page_splash(1);
-				}
-			});
+			if(this.folder == 'scheduled')
+			{
+				PageMain.showConfirm(func, null,
+					Lang.get('mail.confirm_action'),
+					Lang.get('mail.confirm_move_to_draft'),
+					''
+				);
+			}
+			else
+			{
+				func();
+			}
 		},
+		/**
+		 * Discard message. Close the compose form and delete draft if it was saved before.
+		 */
 		discard: function()
 		{
-			if(!confirm(Lang.get('mail.confirm_discard')))
-			{
-				return;
-			}
-			
-			if(!this.id)
-			{
-				window.location = this.options.url.base;
-				return;
-			}
-			
 			var self = this;
-			
-			var request = {
-				_method: 'delete'
+
+			var func = function()
+			{
+				if(!self.id)
+				{
+					window.location = self.options.url.base;
+					return;
+				}
+				
+				var request = {
+					_method: 'delete'
+				};
+				
+				$.ajax({
+					type: 'post',
+					url: self.options.url.base + '/' + self.id,
+					dataType: 'json',
+					data: request,
+					success: function(data)
+					{
+						hide_page_splash(1);
+						window.location = self.options.url.base + '/' + self.folder;
+					},
+					error: function(jqXHR, textStatus, errorThrown)
+					{
+						console.log(textStatus);
+						console.log(jqXHR);
+						hide_page_splash(1);
+					}
+				});
 			};
 			
-			$.ajax({
-				type: 'post',
-				url: this.options.url.base + '/' + this.id,
-				dataType: 'json',
-				data: request,
-				success: function(data)
-				{
-					hide_page_splash(1);
-					window.location = self.options.url.base + '/' + self.wrapper.data('folder');
-				},
-				error: function(jqXHR, textStatus, errorThrown)
-				{
-					console.log(textStatus);
-					console.log(jqXHR);
-					hide_page_splash(1);
-				}
-			});
+			PageMain.showConfirm(func, null,
+				Lang.get('mail.confirm_action'),
+				Lang.get('mail.confirm_discard'),
+				''
+			);
 		},
+		/**
+		 * Delete single message.
+		 */
 		deleteOne: function()
 		{
-			if(!confirm(Lang.get('mail.confirm_delete')))
-			{
-				return;
-			}
-			
 			var self = this;
 			
-			var request = {
-				_method: 'delete'
+			var func = function()
+			{
+				var request = {
+					_method: 'delete'
+				};
+				
+				$.ajax({
+					type: 'post',
+					url: self.options.url.base + '/' + self.id,
+					dataType: 'json',
+					data: request,
+					success: function(data)
+					{
+						hide_page_splash(1);
+						window.location = self.options.url.base + '/' + self.folder;
+					},
+					error: function(jqXHR, textStatus, errorThrown)
+					{
+						console.log(textStatus);
+						console.log(jqXHR);
+						hide_page_splash(1);
+					}
+				});
 			};
 			
-			$.ajax({
-				type: 'post',
-				url: this.options.url.base + '/' + this.id,
-				dataType: 'json',
-				data: request,
-				success: function(data)
-				{
-					hide_page_splash(1);
-					window.location = self.options.url.base + '/' + self.wrapper.data('folder');
-				},
-				error: function(jqXHR, textStatus, errorThrown)
-				{
-					console.log(textStatus);
-					console.log(jqXHR);
-					hide_page_splash(1);
-				}
-			});
+			PageMain.showConfirm(func, null,
+				Lang.get('mail.confirm_action'),
+				Lang.get('mail.confirm_delete'),
+				''
+			);
 		},
+		/**
+		 * Delete arbitrary number of messages by their ids.
+		 */
 		deleteMany: function()
 		{
 			var ids = [];
@@ -21938,41 +22045,53 @@ var widget = $.widget;
 				return;
 			}
 			
-			if(!confirm(Lang.get('mail.confirm_mass_delete')))
-			{
-				return;
-			}
-			
 			var self = this;
 			
-			var request = {
-				_method: 'delete',
-				ids: ids
+			var func = function()
+			{
+				var request = {
+					_method: 'delete',
+					ids: ids
+				};
+				
+				$.ajax({
+					type: 'post',
+					url: self.options.url.deleteMany,
+					dataType: 'json',
+					cache: false,
+					data: request,
+					success: function(data)
+					{
+						hide_page_splash(1);
+						window.location.reload();
+					},
+					error: function(jqXHR, textStatus, errorThrown)
+					{
+						console.log(textStatus);
+						console.log(jqXHR);
+						hide_page_splash(1);
+					}
+				});
 			};
 			
-			$.ajax({
-				type: 'post',
-				url: this.options.url.deleteMany,
-				dataType: 'json',
-				cache: false,
-				data: request,
-				success: function(data)
-				{
-					hide_page_splash(1);
-					window.location.reload();
-				},
-				error: function(jqXHR, textStatus, errorThrown)
-				{
-					console.log(textStatus);
-					console.log(jqXHR);
-					hide_page_splash(1);
-				}
-			});
+			PageMain.showConfirm(func, null,
+				Lang.get('mail.confirm_action'),
+				Lang.get('mail.confirm_mass_delete'),
+				''
+			);
 		},
+		/**
+		 * Show message (redirect).
+		 * @param id
+		 */
 		view: function(id)
 		{
 			window.location = this.options.url.base + '/' + id;
 		},
+		/**
+		 * Edit message (redirect).
+		 * @param id
+		 */
 		edit: function(id)
 		{
 			window.location = this.options.url.base + '/' + id + '/edit';
