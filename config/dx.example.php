@@ -328,11 +328,18 @@ return [
         'default_levels' => 2,
         'default_root_employee_id' => 212
     ],
-    
-    /*
-    |--------------------------------------------------------------------------
-    | Here we provide role ID (from table dx_roles) which can use email sending functionality
+
+	/*
+	|--------------------------------------------------------------------------
+	| Email interface options
     |--------------------------------------------------------------------------
     */
-    'email_access_role_id' => 1,
+	'email' => [
+		// Here we provide role ID (from table dx_roles) which can use email sending functionality
+		'access_role_id' => 1,
+		// Number of emails to show in folder index
+		'items_per_page' => 20,
+		// Delay between sending emails
+		'send_delay' => 0,
+	],
 ];

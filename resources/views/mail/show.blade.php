@@ -6,9 +6,7 @@
   <div class="inbox-wrapper" data-id="{{ $message->id }}" data-folder="{{ $message->folder }}">
     <div class="inbox-header inbox-view-header">
       <h1 class="pull-left">{{ $message->subject }}
-        {{--
-        <a href="javascript:;"> Inbox </a>
-        --}}
+        <a href="{{ route('mail_'.$message->folder) }}"> {{ trans('mail.'.$message->folder) }} </a>
       </h1>
       {{--
       <div class="pull-right">
@@ -21,9 +19,6 @@
     <div class="inbox-view-info">
       <div class="row">
         <div class="col-md-7">
-          {{--
-          <img src="../assets/pages/media/users/avatar1.jpg" class="inbox-author">
-          --}}
           To
           <span class="sbold">
             @for($i = 0, $list = $message->getPlainRecipientsList(); $i < count($list); $i++)
@@ -34,41 +29,19 @@
         </div>
         <div class="col-md-5 inbox-info-btn">
           <div class="btn-group">
-            <button class="btn green inbox-delete-btn">
-              <i class="fa fa-trash-o"></i> {{ trans('mail.delete') }}
-              {{--
+            <a class="btn btn-sm blue dropdown-toggle sbold" href="javascript:;" data-toggle="dropdown"> {{ trans('mail.actions') }}
               <i class="fa fa-angle-down"></i>
-              --}}
-            </button>
-            {{--
-            <button data-messageid="23" class="btn green reply-btn">
-              <i class="fa fa-reply"></i> {{ trans('mail.reply') }}
-              <i class="fa fa-angle-down"></i>
-            </button>
+            </a>
             <ul class="dropdown-menu pull-right">
+              @if($message->folder == 'scheduled')
+                <li>
+                  <a href="javascript:;" class="inbox-edit-btn"><i class="fa fa-edit"></i> {{ trans('mail.edit') }}</a>
+                </li>
+              @endif
               <li>
-                <a href="javascript:;" data-messageid="23" class="reply-btn">
-                  <i class="fa fa-reply"></i> {{ trans('mail.reply') }}</a>
-              </li>
-              <li>
-                <a href="javascript:;">
-                  <i class="fa fa-arrow-right reply-btn"></i> {{ trans('mail.forward') }}</a>
-              </li>
-              <li>
-                <a href="javascript:;">
-                  <i class="fa fa-print"></i> {{ trans('mail.print') }}</a>
-              </li>
-              <li class="divider"></li>
-              <li>
-                <a href="javascript:;">
-                  <i class="fa fa-ban"></i> {{ trans('mail.spam') }}</a>
-              </li>
-              <li>
-                <a href="javascript:;">
-                  <i class="fa fa-trash-o"></i> {{ trans('mail.delete') }}</a>
+                <a href="javascript:;" class="inbox-delete-btn"><i class="fa fa-trash-o"></i> {{ trans('mail.delete') }}</a>
               </li>
             </ul>
-            --}}
           </div>
         </div>
       </div>

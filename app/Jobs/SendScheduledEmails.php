@@ -9,19 +9,16 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
+/**
+ * Class SendScheduledEmails
+ *
+ * A job which checks for scheduled emails and sends them when their time is reached.
+ *
+ * @package App\Jobs
+ */
 class SendScheduledEmails extends Job implements ShouldQueue
 {
 	use InteractsWithQueue, SerializesModels;
-	
-	/**
-	 * Create a new job instance.
-	 *
-	 * @return void
-	 */
-	public function __construct()
-	{
-		//
-	}
 	
 	/**
 	 * Execute the job.
