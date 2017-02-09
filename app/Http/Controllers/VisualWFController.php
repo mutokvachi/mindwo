@@ -29,10 +29,15 @@ class VisualWFController extends Controller
 
     public function test()
     {
+        $workflow_id = 5;
+        $wf_register_id = \App\Models\Workflow\Workflow::find($workflow_id)->list_id;
+
         return view('pages.wf_test', ['json_data' => '',
                     'portal_name' => 'Mindwo',
                     'form_title' => 'Workflow',
-                    'xml_data' => $this->prepareXML(5)])->render();
+                    'item_id' => $workflow_id,
+                    'wf_register_id' => $wf_register_id,
+                    'xml_data' => $this->prepareXML($workflow_id)])->render();
     }
 
     public function getFirstStep($workflow)
@@ -360,12 +365,15 @@ class VisualWFController extends Controller
         $frm_uniq_id = Uuid::generate(4);
         $is_disabled = 1; //read-only rights by default
 
+        $wf_register_id = \App\Models\Workflow\Workflow::find($workflow_id)->list_id;
+
         $form_htm = view('workflow.visual_ui.wf_form', [
             'frm_uniq_id' => $frm_uniq_id,
             'form_title' => trans('task_form.form_title'),
             'is_disabled' => $is_disabled,
             'grid_htm_id' => $grid_htm_id,
             'item_id' => $workflow_id,
+            'wf_register_id' => $wf_register_id,
             'xml_data' => $this->prepareXML($workflow_id)
                 ])->render();
 

@@ -45,6 +45,16 @@ mxBasePath = '/js/plugins/mxgraph/src';
         this.workflowId = 0;
 
         /**
+         * Workflow associated register list ID
+         */
+        this.wfRegisterListId = 0;
+
+        /**
+         * Task type classifier list with all registered task types from the system.
+         */
+        this.wfTaskTypes = [];
+
+        /**
          * Parameter if ajax request is on the go
          */
         this.isSending = false;
@@ -79,7 +89,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 mxEvent.addGestureListeners(img,
                         mxUtils.bind(this, function (evt)
                         {
-                            self.editWorkflowStep(self, state.cell.workflow_step_id);
+                            self.editWorkflowStep(self, state.cell.workflow_step_id, state.cell);
 
                             mxEvent.consume(evt);
                             this.destroy();
@@ -139,12 +149,19 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 this.images = null;
             };
         },
-        editWorkflowStep: function (self, stepId) {
+        editWorkflowStep: function (self, stepId, vertex) {
             if (typeof stepId === 'undefined' || stepId < 0) {
                 stepId = 0;
             }
 
-            open_form('form', stepId, self.wfStepsListId, 0, 0, '', 1, '');
+            open_form('form', stepId, self.wfStepsListId, 0, 0, '', 1, '', {
+                before_show: function (form) {
+                    self.onBeforeFormShow(form, self, stepId);
+                },
+                after_close: function (form) {
+                    self.onAfterFormClose(form, self, vertex);
+                }
+            });
 
         },
         init: function () {
@@ -157,7 +174,14 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
             // Sets parameters
             self.workflowId = self.domObject.data('wf_id');
+            self.wfRegisterListId = self.domObject.data('wf_register_id');
             self.wfStepsListId = self.domObject.data('wf_steps_list_id');
+
+            var wfTaskTypesObj = self.domObject.data('wf_task_types');
+
+            for (var i = 0; i < wfTaskTypesObj.length; i++) {
+                self.wfTaskTypes[wfTaskTypesObj[i].id] = wfTaskTypesObj[i].code;
+            }
 
             $('#set_xml').click(function () {
                 var xm = document.getElementById('txt_xml');
@@ -354,20 +378,20 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 var keyHandler = new mxKeyHandler(self.graph);
                 var rubberband = new mxRubberband(self.graph);
 
-                var addVertex = function (icon, w, h, shape)
+                var addVertex = function (icon, w, h, is_endpoint)
                 {
-                    var style = 'shape=' + shape + ';';
+                    var style;
 
-                    if (shape === 'ellipse') {
-                        style += 'editable=0;';
+                    if (is_endpoint) {
+                        style = 'shape=ellipse;editable=0;html=1;whiteSpace=wrap;';
+                    } else {
+                        style = 'shape=rounded;html=1;whiteSpace=wrap;';
                     }
-
-                    style += 'html=1;whiteSpace=wrap;';
 
                     var vertex = new mxCell(null, new mxGeometry(0, 0, w, h), style);
                     vertex.setVertex(true);
 
-                    var img = self.addToolbarItem(self.graph, toolbar, vertex, icon);
+                    var img = self.addToolbarItem(self, self.graph, toolbar, vertex, icon, is_endpoint);
                     img.enabled = true;
 
                     self.graph.getSelectionModel().addListener(mxEvent.CHANGE, function ()
@@ -379,9 +403,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 };
 
 
-                addVertex(mxBasePath + '/images/rounded.gif', 100, 60, 'rounded');
-                addVertex(mxBasePath + '/images/ellipse.gif', 20, 20, 'ellipse');
-                addVertex(mxBasePath + '/images/rhombus.gif', 100, 100, 'rhombus');
+                addVertex(mxBasePath + '/images/rounded.gif', 100, 60, false);
+                addVertex(mxBasePath + '/images/ellipse.gif', 20, 20, true);
 
                 var keyHandler = new mxKeyHandler(self.graph);
                 keyHandler.bindKey(46, function (evt)
@@ -405,6 +428,59 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 modal.modal('show');
             }
         },
+        onBeforeFormShow: function (form, self) {
+            form.find('div[dx_fld_name_form=id]').hide();
+            form.find('div[dx_fld_name_form=step_nr]').hide();
+            form.find('div[dx_fld_name_form=yes_step_nr]').hide();
+            form.find('div[dx_fld_name_form=no_step_nr]').hide();
+            form.find('div[dx_fld_name_form=workflow_def_id]').hide();
+            form.find('div[dx_fld_name_form=list_id]').hide();
+
+            form.find('select[dx_fld_name=workflow_def_id]').val(self.workflowId);
+            form.find('select[dx_fld_name=list_id]').val(self.wfRegisterListId);
+
+
+        },
+        onAfterFormClose: function (form, self, vertex) {
+            var stepId = form.find('input[name=id]').val();
+            var taskTypeId = form.find('input[name=task_type_id]').val();
+            var stepNr = form.find('input[name=step_nr]').val();
+            var stepTitle = form.find('input[name=step_title]').val();
+
+            //var taskTypeCode = self.
+
+            self.setCellProperties(self, vertex, stepId, taskTypeId, stepNr, stepTitle);
+
+        },
+        setCellProperties: function (self, vertex, stepId, taskTypeId, stepNr, stepTitle) {
+            var hasArrowLabels = 0;
+            var shape, arrowCount;
+            var typeCode = self.wfTaskTypes[taskTypeId];
+
+            if (typeCode == 'CRIT' || typeCode == 'CRITM') {
+                hasArrowLabels = 1;
+                arrowCount = 2;
+                shape = 'rhombus';
+            } else if (typeCode == 'ENDPOINT') {
+                arrowCount = 1;
+                shape = 'ellipse';
+            } else if (typeCode == 'SET') {
+                arrowCount = 1;
+                shape = 'rounded';
+            } else {
+                arrowCount = 2;
+                shape = 'rounded';
+            }
+
+            vertex.id = 's'.stepNr;
+            vertex.workflow_step_id = stepId;
+            vertex.type_code = typeCode;
+            vertex.has_arrow_labels = hasArrowLabels;
+            vertex.arrow_count = arrowCount;
+            vertex.value = stepTitle;
+
+            self.graph.refresh();
+        },
         /**
          * Count out going edges for cell
          * @param {object} cell Cell under mouse cursor 
@@ -412,7 +488,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
          */
         countOutgoingEdges: function (cell, count_only_yes) {
             var edges = cell.edges;
-            var edgesCount = edges.length;
+            var edgesCount = (edges == null ? 0 : edges.length);
 
 
             var outEdgesCount = 0;
@@ -464,12 +540,12 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 }, 200);
             });
         },
-        addToolbarItem: function (graph, toolbar, prototype, image)
+        addToolbarItem: function (self, graph, toolbar, prototype, image, is_endpoint)
         {
             // Function that is executed when the image is dropped on
             // the graph. The cell argument points to the cell under
             // the mousepointer if there is one.
-            var funct = function (graph, evt, cell, x, y)
+            var funct = function (graph, evt, cell, x, y, is_endpoint)
             {
                 graph.stopEditing(false);
 
@@ -479,13 +555,17 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
                 graph.addCell(vertex);
                 graph.setSelectionCell(vertex);
+
+                if (!is_endpoint) {
+                    self.editWorkflowStep(self, 0, vertex);
+                }
             };
 
             // Creates the image which is used as the drag icon (preview)
             var img = toolbar.addMode(null, image, function (evt, cell)
             {
                 var pt = this.graph.getPointForEvent(evt);
-                funct(graph, evt, cell, pt.x, pt.y);
+                funct(graph, evt, cell, pt.x, pt.y, is_endpoint);
             });
 
             // Disables dragging if element is disabled. This is a workaround
