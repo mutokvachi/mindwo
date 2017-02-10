@@ -519,8 +519,8 @@ class OrgChart {
     });
     let lines = [];
 
-    for (let node of animatedNodes) {
-      let temp = this._closest(node, function (el) {
+    for (let _node of animatedNodes) {
+      let temp = this._closest(_node, function (el) {
         return el.classList.contains('nodes');
       }).previousElementSibling;
 

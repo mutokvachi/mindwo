@@ -244,18 +244,18 @@ gulp.task('mix_all', function() {
         
         // Scripts for organization chart
         mix.scripts([
-            'html2canvas/html2canvas.js',
-            'orgchart/orgchart.js',
 			'select2/select2.min.js',
 			'select2/select2_locale_multi.js',
+            'html2canvas/html2canvas.js',
+			'orgchart/orgchart.js',
             'mindwo/pages/organization_chart.js'
         ], 'public/js/elix_orgchart.js', 'resources/assets/plugins');
 	
         // Styles for organization chart
         mix.styles([
-            'orgchart/orgchart.css',
 			'select2/select2.css',
             'select2/select2-bootstrap.css',
+			'orgchart/orgchart.css',
             'mindwo/css/organization_chart.css'
 		], 'public/css/elix_orgchart.css', 'resources/assets/plugins');
 	
