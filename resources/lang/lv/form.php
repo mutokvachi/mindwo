@@ -15,6 +15,8 @@ return [
     'view' => 'Skats',
     'btn_edit' => 'Rediģēt',
     'btn_delete' => 'Dzēst',
+    'btn_copy' => 'Kopēt',
+    'btn_save_as' => 'Saglabāt kā jaunu',
     'btn_pdf' => 'Uz PDF',
     'btn_start_workflow' => 'Uz izpildi',
     'btn_info' => 'Informācijai',

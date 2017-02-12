@@ -16117,6 +16117,243 @@ var BlockViews = function()
             reloadBlockGrid(grid_id, tab_id);
         });
     };
+    
+    /**
+     * Opend view editing form
+     * 
+     * @param {object} view_container Grid view main object's HTML element
+     * @returns {undefined}
+     */
+    var handleBtnEditView = function(view_container) {
+        view_container.find('.dx-view-edit-btn').click(function() {
+            
+            var view_id = view_container.find('select.dx-views-cbo option:selected').val();
+            var frm_el = $("#" + view_container.attr("id") + "_popup");
+            
+            frm_el.find(".modal-body").html(getProgressInfo());
+            frm_el.modal('show');
+
+            var formData = "view_id=" + view_id;
+
+            var request = new FormAjaxRequestIE9 ('view/open', "", "", formData);            
+            request.progress_info = "";                       
+
+            request.callback = function(data) {
+                frm_el.find(".modal-body").html(data['html']);
+                frm_el.find(".modal-body .dx-cms-nested-list").nestable();
+                setFldEventHandlers(frm_el, frm_el);
+                handleSearchField();
+                handleIsMyCheck(frm_el);
+                
+                frm_el.find(".dx-view-btn-copy").show();
+                frm_el.find(".dx-view-btn-delete").show();
+                frm_el.find("span.badge").html(Lang.get('grid.badge_edit'));
+            };
+
+            // execute AJAX request
+            request.doRequest();
+        });
+    };
+    
+    /**
+     * Sets handles for checkboxies (is default and is my view only)
+     * 
+     * @param {object} frm_el Fields UI forms HTML object
+     * @returns {undefined}
+     */
+    var handleIsMyCheck = function(frm_el) {
+        frm_el.find("input[name=is_my_view]").change(function() {
+           if ($(this).prop('checked')) {
+               frm_el.find("input[name=is_default]").prop('checked', '').closest('span').hide();
+           }
+           else {
+               frm_el.find("input[name=is_default]").closest('span').show();
+           }
+        });
+        
+        frm_el.find("input[name=is_default]").change(function() {
+           if ($(this).prop('checked')) {
+               frm_el.find("input[name=is_my_view]").prop('checked', '').closest('span').hide();
+           }
+           else {
+               frm_el.find("input[name=is_my_view]").closest('span').show();
+           }
+        });
+    };
+    
+     /**
+     * Moves field from used section to available fields section
+     * 
+     * @param {object} frm_el Fields UI forms HTML object
+     * @param {object} fld_el Field element HTML object
+     * @returns {undefined}
+     */
+    var removeFld = function(frm_el, fld_el) {
+        frm_el.find('.dx-fields-container .dx-available ol.dd-list').append(fld_el.closest('.dd-item').clone());
+        fld_el.closest('.dd-item').remove();
+
+        var new_el = frm_el.find('.dx-fields-container .dx-available ol.dd-list .dd-item').last();
+        setFldEventHandlers(frm_el, new_el);
+        
+        clearSearchIfLast(frm_el, 'dx-used');
+    };
+    
+    /**
+     * Moves field from available section to used fields section
+     * 
+     * @param {object} frm_el Fields UI forms HTML object
+     * @param {object} fld_el Field element HTML object
+     * @returns {undefined}
+     */
+    var addFld = function(frm_el, fld_el) {
+        frm_el.find('.dx-fields-container .dx-used ol.dd-list').append(fld_el.closest('.dd-item').clone());
+        fld_el.closest('.dd-item').remove();
+
+        var new_el = frm_el.find('.dx-fields-container .dx-used ol.dd-list .dd-item').last();
+        setFldEventHandlers(frm_el, new_el);
+        
+        clearSearchIfLast(frm_el, 'dx-available');        
+    };
+    
+    /**
+     * Clear fields search input in case if no more fields in container (and show again all fields in container)
+     *      * 
+     * @param {object} frm_el Fields UI forms HTML object
+     * @param {string} fields_class HTML class name of fields container (dx-used or dx-available)
+     * @returns {undefined}
+     */
+    var clearSearchIfLast = function(frm_el, fields_class) {
+        if (frm_el.find('.dx-fields-container .' + fields_class + ' ol.dd-list .dd-item:visible').length == 0) {
+            var txt = frm_el.find('.dx-fields-container .' + fields_class).closest('.portlet').find('input.dx-search');
+            if (txt.val().length > 0) {
+                txt.val('');
+                txt.closest(".portlet").find(".dx-fields-container .dd-item").show();
+                txt.focus();
+            }
+        }
+    };
+    
+    /**
+     * Sets events for added/moved field
+     * 
+     * @param {object} frm_el Fields UI forms HTML object
+     * @param {object} fld_el Field element HTML object
+     * @returns {undefined}
+     */
+    var setFldEventHandlers = function(frm_el, fld_el) {
+        fld_el.find('.dx-cms-field-remove').click(function() {
+            removeFld(frm_el, $(this));
+        });
+        
+        fld_el.find('.dx-cms-field-add').click(function() {
+            addFld(frm_el, $(this));
+        });
+    };
+    
+    /**
+     * Handles fields searching functionality
+     * @returns {undefined}
+     */
+    var handleSearchField = function() {
+        $("input.dx-search").on("keyup", function() {
+            if (!$(this).val()) {
+                $(this).closest(".portlet").find(".dx-fields-container .dd-item").show();
+                return;
+            }
+            $(this).closest(".portlet").find(".dx-fields-container .dd-item").hide();
+            $(this).closest(".portlet").find(".dx-fields-container .dx-fld-title:contains('" + $(this).val() + "')").closest(".dd-item").show();
+            
+        });
+    };
+    
+    /**
+     * Handles view copy function
+     * 
+     * @param {object} view_container Grid view main object's HTML element
+     * @returns {undefined}
+     */
+    var handleBtnCopy = function(view_container) {
+        var pop_el = $("#" + view_container.attr("id") + "_popup");
+        pop_el.find(".dx-view-btn-copy").click(function() {
+            var frm_el = pop_el.find(".dx-view-edit-form");
+            frm_el.data('view-id', 0);
+            pop_el.find(".dx-view-btn-copy").hide();
+            pop_el.find(".dx-view-btn-delete").hide();
+            pop_el.find("span.badge").html(Lang.get('grid.badge_new'));
+            frm_el.find("input[name=view_title]").val(frm_el.find("input[name=view_title]").val() + " - " + Lang.get('grid.title_copy')).focus();
+            
+            frm_el.find('input[name=is_default]').prop("checked", '').show().closest('span').show();
+            frm_el.find('input[name=is_my_view]').prop("checked", '').closest('span').show();
+        });
+    };
+    
+    /**
+     * Handles button event - save view data
+     * 
+     * @param {string} menu_id Grid view TOP toolbar HTML element id
+     * @param {string} grid_id Grid view HTML element id
+     * @param {string} tab_id If opened from sub-grid then form's tab HTML element id
+     * @returns {undefined}
+     */
+    var handleBtnSaveView = function(view_container) {        
+        var pop_el = $("#" + view_container.attr("id") + "_popup");
+        pop_el.find(".dx-view-btn-save").click(function() {
+            
+            var frm_el = pop_el.find(".dx-view-edit-form");
+            var view_id = frm_el.data('view-id');
+            var grid_el = view_container.find('.dx-grid-table').last();
+            
+            var formData = new FormData();
+            formData.append("view_id", view_id);
+            formData.append("list_id", frm_el.data('list-id'));
+            formData.append("view_title", frm_el.find('input[name=view_title]').val());
+            formData.append("is_default", frm_el.find('input[name=is_default]').is(":checked") ? 1 : 0);
+            formData.append("is_my_view", frm_el.find('input[name=is_my_view]').is(":checked") ? 1 : 0);
+            formData.append("fields", getFieldsState(frm_el.find('.dx-fields-container .dx-used')));
+            formData.append('grid_id', grid_el.attr('id'));
+            
+            var request = new FormAjaxRequest ('view/save', "", "", formData);
+            request.progress_info = "";                       
+            
+            request.callback = function(data) {
+                if (data["success"] == 1) {
+                    
+                    pop_el.modal('hide');
+                    pop_el.attr("id", pop_el.attr("id") + "_" + $(".dx-popup-modal").length);
+                    
+                    if (view_id ==0) {
+                        var url = root_url + 'skats_' + data["view_id"];
+                        window.location.assign(encodeURI(url));
+                    }
+                    else {
+                        reloadBlockGrid(grid_el.attr('id'), grid_el.data('tab_id'));
+                    }
+                }
+            };
+            
+            show_form_splash();
+            // execute AJAX request
+            request.doRequest();
+    
+        });
+    };
+    
+    /**
+    * Prepares JSON string with all fields included in view (in correct order)
+    * 
+    * @param {object} block Fields container HTML element
+    * @returns {string}
+    */
+   var getFieldsState = function(block) {
+       var ret_arr = new Array();
+       
+       block.find(".dd-item").each(function() {
+           var item = {"field_id": $(this).attr('data-id')};
+           ret_arr.push(item);
+       });
+       
+       return JSON.stringify(ret_arr);
+   };
 
     /**
      * Exports grid data to the Excel
@@ -16196,7 +16433,6 @@ var BlockViews = function()
      * Starts data importing from Excel
      * 
      * @param {string} menu_id Menu item HTML id
-     * @param {integer} list_id List ID
      * @returns {undefined}
      */
     var handleBtnStartImport = function(menu_id)
@@ -16279,12 +16515,12 @@ var BlockViews = function()
         }
         
         return msg;
-    }
+    };
     
     /**
      * Validated uploaded file extension - is it supported
      * 
-     * @param {object} import_form Importing HTML form's element
+     * @param {object} import_frm Importing HTML form's element
      * @param {string} file_name File name
      * @returns {Boolean}   True - if extension is valid, False - if invalid
      */
@@ -16333,7 +16569,8 @@ var BlockViews = function()
     /**
      * Prepare message with error rows
      * @param {object} import_frm Importing form HTML element
-     * @param {string} duplicate Row numbers delimited by coma
+     * @param {string} rows Row numbers delimited by coma
+     * @param {string} err_attribute Error data attribute of importing from
      * @returns {Function|_L19.String|String}
      */
     var concatErr = function(import_frm, rows, err_attribute) {
@@ -16523,9 +16760,11 @@ var BlockViews = function()
     };
 
     /**
-     * Nodrošina reģistra iestatījumu formas atvēršanu
+     * Opens settings form for register
      * 
-     * @param {string} grid_id Reģistra ID
+     * @param {string} block_el HTML element id
+     * @param {string} grid_id  Register grid HTML element id
+     * @param {integer} list_id  Register id (from db table dx_lists)
      * @returns {undefined}
      */
     var handleRegisterSettings = function(block_el, grid_id, list_id) {        
@@ -16609,6 +16848,11 @@ var BlockViews = function()
             handleBtnImport(menu_id, rel_field_id, rel_field_value, form_htm_id);
             handleBtnStartImport(menu_id);
             
+            // view editing
+            handleBtnEditView($(this));
+            handleBtnSaveView($(this));
+            handleBtnCopy($(this));
+            
             // Saraksta kolonnu funkcionalitāte
             handleFilter(grid_id, tab_id);
             handleSorting(grid_id, tab_id);
@@ -16657,6 +16901,13 @@ var BlockViews = function()
         }
     };
 }();
+
+// Overide default jQuery "contains" function to search case insensitive
+$.expr[":"].contains = $.expr.createPseudo(function(arg) {
+    return function( elem ) {
+        return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+    };
+});
 
 $(function() {        
     BlockViews.init();    

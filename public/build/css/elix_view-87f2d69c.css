@@ -1410,6 +1410,56 @@ span.CodeMirror-selectedtext { background: none; }
 .modal-scrollable {
     overflow: hidden!important;
 }
+
+// view edit form
+
+.dx-view-edit-form .dx-used .dx-cms-field-remove {
+    display: block;
+}
+
+.dx-view-edit-form .dx-available .dx-cms-field-remove {
+    display: none;
+}
+
+.dx-view-edit-form .dx-used .dx-cms-field-add {
+    display: none;
+}
+
+.dx-view-edit-form .dx-available .dx-cms-field-add {
+    display: block;
+}
+
+.dx-view-edit-form .dx-fields-body {     
+    overflow-y: auto; 
+    overflow-x: hidden;
+}
+
+#view_edit_popup .modal-footer {
+    border-top: 1px solid silver;
+}
+
+@media screen and (min-height: 200px) {
+    .dx-view-edit-form .dx-fields-body {
+       height: 240px; 
+    }
+}
+
+@media screen and (min-height: 800px) {
+    .dx-view-edit-form .dx-fields-body {
+       height: 440px; 
+    }
+}
+
+.dx-view-popup-footer {
+    border-top: 1px #e5e5e5 solid!important;
+}
+
+.dx-view-edit-form .portlet-title .actions input {
+    color: black;
+    padding-left: 5px;
+    width: 100px;
+}
+    
 table.dataTable {
     clear: both;
     margin-top: 6px !important;

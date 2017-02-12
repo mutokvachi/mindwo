@@ -24,7 +24,7 @@
                 @endif
                 </div>
                 
-                @include('blocks.view_settings_btn', ['pull_class' => 'pull-right'])
+                @include('blocks.view.view_settings_btn', ['pull_class' => 'pull-right'])
             </div>
             <div class='portlet-body'>
     @endif
@@ -54,7 +54,7 @@
                             @endif
                             
                             @if ($tab_id)
-                                @include('blocks.view_settings_btn', ['pull_class' => ''])
+                                @include('blocks.view.view_settings_btn', ['pull_class' => ''])
                             @endif
                         </div>
 
@@ -63,17 +63,45 @@
                                 <div class='form-group'>
                                     <label class='col-sm-2 control-label'>{{ trans('grid.view') }}:</label>
                                     <div class='col-sm-10'>
-                                        <select class='form-control' id="{{ $menu_id }}_viewcbo">                
-                                            @foreach($combo_items as $item)
-                                                <option 
+                                        <div class='input-group'>
+                                            <select class='form-control dx-views-cbo' id="{{ $menu_id }}_viewcbo">
+                                                @if (count($combo_items_my) > 0)
+                                                    <optgroup label="{{ trans('grid.lbl_public') }}">
+                                                @endif
+                                                @foreach($combo_items as $item)
+                                                    <option 
 
-                                                    @if ($item->id == $view_id)
-                                                        selected
-                                                    @endif                                                
+                                                        @if ($item->id == $view_id)
+                                                            selected
+                                                        @endif                                                
 
-                                                    value="{{ ($item->url && !$tab_id) ? $item->url : $item->id }}">{{ $item->title }}</option>
-                                            @endforeach
-                                        </select>
+                                                        value="{{ ($item->url && !$tab_id) ? $item->url : $item->id }}">{{ $item->title }}</option>
+                                                @endforeach
+                                                @if (count($combo_items_my) > 0)
+                                                    </optgroup>
+                                                @endif
+                                                
+                                                @if (count($combo_items_my) > 0)
+                                                    <optgroup label="{{ trans('grid.lbl_private') }}">
+                                                @endif
+                                                @foreach($combo_items_my as $item)
+                                                    <option 
+
+                                                        @if ($item->id == $view_id)
+                                                            selected
+                                                        @endif                                                
+
+                                                        value="{{ ($item->url && !$tab_id) ? $item->url : $item->id }}">{{ $item->title }}</option>
+                                                @endforeach
+                                                @if (count($combo_items_my) > 0)
+                                                    </optgroup>
+                                                @endif
+                                                
+                                            </select>
+                                            <span class="input-group-btn" style="padding-left: 2px;">
+                                                <button class='btn btn-white dx-view-edit-btn' type='button' id ='{{ $menu_id}}_view_edit_btn'><i class='fa fa-list'></i></button>
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -92,7 +120,10 @@
             </div>        
         </div>
     @endif
+    
+    @include('blocks.view.view_edit_popup')
+    
+    @if ($show_new_button)
+        @include('blocks.view.view_import')
+    @endif
 </div>
-@if ($show_new_button)
-    @include('blocks.view_import')
-@endif

@@ -102,4 +102,5 @@ return [
     
     'no_respo_empl_field' => "Skatam '%s' definēts kontroles nosacījums, bet nosacījumā norādītais atbildīgā darbinieka lauks nav ietverts skatā!",
     
+    'duplicate_view_title' => 'Dublējas skata nosaukums! Lūdzu, norādiet citu skata nosaukumu.',
 ];

@@ -10,6 +10,7 @@ use App\Libraries\DataView;
 use App\Libraries\Blocks;
 use App\Libraries\FormSave;
 use Maatwebsite\Excel\Facades\Excel;
+use Auth;
 use Log;
 
 /**
@@ -102,8 +103,12 @@ class GridController extends Controller
         $block_grid->form_htm_id = $request->input('form_htm_id', '');
         $block_grid->tab_id = $tab_id;
         $block_grid->tab_prefix = $tab_prefix;
-        $block_grid->grid->grid_data_htm_id = $request->input('grid_data_htm_id', '');
-
+        
+        $grid_data_id = $request->input('grid_data_htm_id', '');
+        if (strlen($grid_data_id) > 0) {
+            $block_grid->grid->grid_data_htm_id = $grid_data_id;
+        }
+        
         return response()->json(['success' => 1, 'html' => $block_grid->getHTML() . $block_grid->getJS()]);
     }
 
@@ -196,6 +201,366 @@ class GridController extends Controller
 
         return $form_row;
     }
+    
+    /**
+     * Gets JSON with view columns re-ordering interface (HTML)
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getViewEditForm(Request $request) {
+        $this->validate($request, [
+            'view_id' => 'required|integer|exists:dx_views,id'
+        ]);
+        
+        $view_id = $request->input('view_id');
+        
+        $view = DB::table('dx_views')->where('id', '=', $view_id)->first();              
+        
+        $list_fields = DB::table('dx_lists_fields as lf')
+                        ->select('lf.id', 'title_list as title')
+                        ->where('lf.list_id', '=', $view->list_id)
+                        ->where(function($que) use ($view_id) {
+                            $que->whereNotExists(function($query) use ($view_id) {
+                                    $query->select(DB::raw(1))
+                                          ->from('dx_views_fields as vf')
+                                          ->where('vf.view_id', '=', $view_id)
+                                          ->whereRaw('vf.field_id = lf.id');
+                                    })
+                                ->orWhere(function($query) use ($view_id) {
+                                    $query->whereExists(function($que) use ($view_id){
+                                        $que->select(DB::raw(1))
+                                            ->from('dx_views_fields as vf')
+                                            ->where('vf.view_id', '=', $view_id)
+                                            ->where('vf.is_hidden', '=', 1)
+                                            ->whereRaw('vf.field_id = lf.id');
+                                    });
+                                });
+                        })                        
+                        ->orderBy('lf.title_list')
+                        ->get();        
+        
+        $view_fields = DB::table('dx_views_fields as vf')
+                    ->join('dx_lists_fields as lf', 'vf.field_id', '=', 'lf.id')
+                    ->select('lf.id', 'lf.title_list as title')
+                    ->where('vf.view_id', '=', $view_id)
+                    ->where('vf.is_hidden', '=', 0)
+                    ->orderBy('vf.order_index')
+                    ->get();        
+        
+        $htm = view('blocks.view.view_edit_form', [
+                'list_fields' => $list_fields,
+                'view_fields' => $view_fields,
+                'view_title' => $view->title,
+                'view_id' => $view_id,
+                'list_id' => $view->list_id,
+                'is_default' => $view->is_default,
+                'is_my_view' => ($view->me_user_id == Auth::user()->id)
+        ])->render();
+        
+        return response()->json(['success' => 1, 'html' => $htm]);
+    }
+    
+    /**
+     * Saves view columns state and some views defaults (available for ordinary users)
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function saveView(Request $request) {
+        $this->validate($request, [ 
+            'list_id' => 'required|integer|exists:dx_lists,id',
+            'fields' => 'required',
+            'view_title' => 'required',
+            'grid_id' => 'required'
+        ]);        
+        
+        $view_id = $request->input('view_id', 0); // if 0 then new item
+        
+        if ($view_id == 0) {
+            $view_id = $this->saveNewView($request);
+        }
+        else {
+            $this->updateExistingView($request, $view_id);
+        }
+        
+        // clear grid data from session
+        $grid_id = $request->input('grid_id');        
+        $request->session()->remove($grid_id . "_view");
+        $request->session()->remove($grid_id . "_sql");
+        
+        return response()->json(['success' => 1, 'view_id' => $view_id]);
+    }
+    
+    /**
+     * Save new view with fields and returns view ID
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return int View ID
+     */
+    private function saveNewView($request) {        
+        
+        $json_data = json_decode($request->input('fields'));
+        $list_id = $request->input('list_id');
+        
+        $this->validateTitleUniq($request, "", 0, $list_id);
+        
+        $id_field_id = DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'id')->first()->id;
+        $new_view_id = 0;
+        
+        DB::transaction(function () use ($list_id, $json_data, $request, &$new_view_id, $id_field_id){
+            // insert new view
+            $new_view_id = DB::table('dx_views')->insertGetId([
+                'list_id' => $list_id,
+                'title' => $request->input('view_title'), 
+                'is_default' => $request->input('is_default', 0),
+                'me_user_id' => ($request->input('is_my_view', 0)) ? Auth::user()->id : null,
+                'view_type_id' => 1
+            ]);
+            
+            $is_id = false;
+            $idx = 0;
+            
+            // asign fields to view
+            foreach($json_data as $item){
+                $idx++;
+                
+                DB::table('dx_views_fields')->insert([
+                        'order_index' => $idx*10,
+                        'list_id' => $list_id,
+                        'view_id' => $new_view_id,
+                        'field_id' => $item->field_id
+                ]);
+                
+                if ($item->field_id == $id_field_id) {
+                    $is_id = true;
+                }
+            }
+            
+            // add id as hidden field if it was not included in view visible fields
+            if (!$is_id) {
+                DB::table('dx_views_fields')->insert([                        
+                        'list_id' => $list_id,
+                        'view_id' => $new_view_id,
+                        'field_id' => $id_field_id,
+                        'is_hidden' => 1
+                ]);
+            }
+              
+        });
+        
+        return $new_view_id;
+    }
+    
+    /**
+     * Update existing view fields
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @param integer $view_id View ID
+     */
+    private function updateExistingView($request, $view_id) {
+                
+        $view = DB::table('dx_views')->where('id', '=', $view_id)->first();
+        $this->validateTitleUniq($request, $view->title, $view->id, $view->list_id);
+        
+        $arr = $this->getViewFieldsValArrays($request, $view);
+        
+        DB::transaction(function () use ($view, $request, $arr, $view_id){
+            
+            // delete unused fields
+            DB::table('dx_views_fields')
+            ->where('view_id', '=', $view_id)
+            ->whereNotIn('field_id', $arr["arr_all"])
+            ->where('field_id', '!=', $arr["id_field_id"]) // ID field is must have
+            ->delete();
+
+            // update existing fields vals
+            foreach($arr["arr_upd"] as $upd) {
+                DB::table('dx_views_fields')
+                    ->where('field_id', '=', $upd["field_id"])
+                    ->where('view_id', '=', $view_id)
+                    ->update($upd["vals"]);
+            }            
+            
+            // insert new fields
+            foreach($arr["arr_new"] as $new) {
+                DB::table('dx_views_fields')->insert($new["vals"]);
+            }
+            
+            $this->resetDefault($request, $view);            
+            
+            // update view metadata
+            DB::table('dx_views')->where('id', '=', $view_id)->update([
+                'title' => $request->input('view_title'), 
+                'is_default' => $request->input('is_default', 0),
+                'me_user_id' => ($request->input('is_my_view', 0)) ? Auth::user()->id : null
+            ]);
+            
+        });
+    }
+    
+    /**
+     * Re-sets default view option
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @param object $view View row (table dx_views)
+     * @throws Exceptions\DXCustomException
+     */
+    private function resetDefault($request, $view) {
+        $is_default = $request->input('is_default', 0);
+        if ($is_default && !$view->is_default) {
+            DB::table('dx_views')
+                    ->where('list_id', '=', $view->list_id)
+                    ->where('id', '!=', $view->id)
+                    ->whereNull('me_user_id')
+                    ->update(['is_default' => 0]);
+            // update menu last change time - because view can be attached to menu item
+            DB::table('in_last_changes')->where('code', '=', 'MENU')->update(['change_time'=>date('Y-n-d H:i:s')]);
+        }
+    }
+    
+    /**
+     * Validates if new title for view is unique
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @param object $view View row (table dx_views)
+     * @throws Exceptions\DXCustomException
+     */
+    private function validateTitleUniq($request, $old_title, $view_id, $list_id) {
+        $title = $request->input('view_title');
+        
+        if ($title != $old_title) {
+            $is_existing = DB::table('dx_views')
+                            ->where('list_id', '=', $list_id)
+                            ->where('id', '!=', $view_id)
+                            ->where('title', '=', $title)
+                            ->where(function($query) {
+                                $query->whereNull('me_user_id')
+                                      ->orWhere('me_user_id', '=', Auth::user()->id);
+                            })
+                            ->exists();
+
+            if ($is_existing) {
+                throw new Exceptions\DXCustomException(trans('errors.duplicate_view_title'));
+            }
+        }
+    }
+    
+    /**
+     * Prepare arrays for update/insert operations - for views columns updating
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @param object $view View row (table dx_view)
+     * @return array Data for db update/insert
+     */
+    private function getViewFieldsValArrays($request, $view) {
+        $arr_all = [];
+        $arr_upd = [];
+        $arr_new = [];
+
+        $json_data = json_decode($request->input('fields'));            
+        $idx = 0;
+
+        foreach($json_data as $item){
+            $idx++;
+            $view_field = DB::table('dx_views_fields')
+                          ->where('view_id', '=', $view->id)
+                          ->where('field_id', '=', $item->field_id)
+                          ->first();
+
+            if ($view_field) {
+                if ($view_field->order_index != $idx*10 || $view_field->is_hidden == 1) {
+                    array_push($arr_upd, [
+                        "field_id" => $item->field_id,
+                        "vals" => [
+                            'order_index' => $idx*10,
+                            'is_hidden' => 0
+                        ]
+                    ]);
+                }
+            }
+            else {
+                array_push($arr_new, [
+                    "field_id" => $item->field_id,
+                    "vals" => [
+                        'order_index' => $idx*10,
+                        'list_id' => $view->list_id,
+                        'view_id' => $view->id,
+                        'field_id' => $item->field_id
+                    ]
+                ]);
+            }
+
+            array_push($arr_all, $item->field_id);
+        }
+        
+        return $this->checkIDField($view, $arr_all, $arr_upd, $arr_new);
+    }
+    
+    /**
+     * Check if view have ID field. If not - insert it as hidden field
+     * 
+     * @param object $view View row (from table dx_views)
+     * @param array $arr_all Array with all visible fields
+     * @param array $arr_upd Array with fields to be updated
+     * @param array $arr_new Array with fields to be inserted
+     * @return array Data for db update/insert
+     */
+    private function checkIDField($view, $arr_all, $arr_upd, $arr_new) {
+         
+        $id_field_id = DB::table('dx_lists_fields')->where('list_id', '=', $view->list_id)->where('db_name', '=', 'id')->first()->id;
+        
+        $fld = DB::table('dx_views_fields')->where('view_id', '=', $view->id)->where('field_id', '=', $id_field_id)->first();
+        
+        if (!$fld) {
+            array_push($arr_new, [
+                    "field_id" => $id_field_id,
+                    "vals" => [
+                        'list_id' => $view->list_id,
+                        'view_id' => $view->id,
+                        'field_id' => $id_field_id,
+                        'is_hidden' => 1
+                    ]
+            ]);
+            DB::table('dx_views_fields')->insert(['list_id' => $view->list_id, 'view_id' => $view->id, 'field_id' => $id_field_id, 'is_hidden' => 1]);
+        }
+        else {
+            // check if there is intention to hide ID field in view
+            if (!$this->isIDVisible($arr_all, $fld)) {
+                array_push($arr_upd, [
+                        "field_id" => $fld->field_id,
+                        "vals" => [
+                            'order_index' => 0,
+                            'is_hidden' => 1
+                        ]
+                    ]);
+            }            
+        }
+        
+        return [
+            "arr_all" => $arr_all,
+            "arr_upd" => $arr_upd,
+            "arr_new" => $arr_new,
+            "id_field_id" => $id_field_id
+        ];
+    }
+    
+    /**
+     * Checks if ID field is included in views visible columns
+     * 
+     * @param array $arr_all All visible columns array
+     * @param object $fld ID field row (database table dx_views_fields)
+     * @return boolean True - ID field is included, othervise false
+     */
+    private function isIDVisible($arr_all, $fld) {
+        foreach($arr_all as $fld_id) {
+            if ($fld_id == $fld->field_id) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
 
     /**
      * Izgūst reģistra noklusēto skatu, kas ir atļauts attēlošanai formas sadaļā
@@ -206,7 +571,16 @@ class GridController extends Controller
      */
     private function getDefaultTabView($list_id)
     {
-        $view_row = DB::table("dx_views")->where("list_id", "=", $list_id)->where("is_hidden_from_tabs", "=", 0)->orderBy('is_default', 'DESC')->first();
+        $view_row = DB::table("dx_views")
+                    ->where("list_id", "=", $list_id)
+                    ->where("is_hidden_from_tabs", "=", 0)
+                    ->where(function($query) {
+                        $query->whereNull('me_user_id')
+                              ->orWhere('me_user_id', '=', Auth::user()->id);
+                    })
+                    ->orderBy('is_default', 'DESC')
+                    ->orderBy('me_user_id', 'DESC')
+                    ->first();
 
         if (!$view_row) {
             throw new Exceptions\DXCustomException("Reģistram ar ID " . $list_id . " nav nodefinēts neviens skats, kuru attēlot formas sadaļā!");

@@ -58,4 +58,18 @@ return [
     'msg_confirm_del_all' => 'Vai tiešām dzēst %s iezīmētos ierakstus?',
     'nothing_imported' => 'Netika importēts vai labots neviens ieraksts.',
     
+    'view_editor_form_title' => 'Skats',
+    'ch_is_default' => 'Ir noklusētais', //Is default
+    'ch_is_for_me' => 'Pieejams tikai man', //Is only for me
+    'lbl_view_title' => 'Skata nosaukums',//View title
+    'lbl_available' => 'Pieejamie lauki', //Available fields
+    'lbl_used' => 'Izmantotie lauki',// Used fields
+    'btn_remove_fld' => 'Noņemt',
+    'btn_add_fld' => 'Pievienot',
+    'lbl_search' => 'Meklēt...',
+    'badge_new' => 'Jauns',
+    'badge_edit' => 'Rediģēšana',
+    'title_copy' => "kopija",
+    'lbl_public' => 'Publiskie skati',
+    'lbl_private' => "Mani skati",
 ];
