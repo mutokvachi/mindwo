@@ -128,6 +128,7 @@ gulp.task('mix_all', function() {
             'fullcalendar/moment.min.js',
             'fullcalendar/fullcalendar.min.js',
             'fullcalendar/lang-all.js',
+            'mindwo/blocks/calendar.js',
             'metronic/layout.js',
             'metronic/demo.js',
             'metronic/quick-sidebar.js',            

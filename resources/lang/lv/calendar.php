@@ -34,5 +34,9 @@ return [
     'lbl_year_from' => 'Gads no',
     
     'hours' => "stundas",
-    'days' => 'dienas'
+    'days' => 'dienas',
+    
+    'international' => 'Starptautiska',
+    'holiday' => 'Brīvdiena',
+    'birthdays' => 'Dzimšanas dienas',
 ];
