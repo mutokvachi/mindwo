@@ -1,1 +1,0 @@
-{"version":3,"sources":["metronic_ui.css","metronic_ui.less"],"names":[],"mappings":"AAAA;;GAEE;ACEF;EACI,WAAA;EDAH","file":"elix_metronic.css","sourcesContent":[null,"/*\r\nFix Metronic theme\r\n*/\r\n\r\n.dx-employees-quick {\r\n    top: 68px;\r\n}"]}
