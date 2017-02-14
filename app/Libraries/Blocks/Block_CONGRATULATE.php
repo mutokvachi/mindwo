@@ -24,6 +24,12 @@ class Block_CONGRATULATE extends Block
          */
         public $is_profile = false;
         
+        /**
+         * Shows how many days back and forward must be shown 
+         * @var int 
+         */
+        public $show_days_interval = 0;
+        
 	/**
 	 * Render widget and return its HTML.
 	 *
@@ -47,28 +53,38 @@ class Block_CONGRATULATE extends Block
 	 */
 	public function getTypeOfEvent($employee)
 	{
+             $birth = $employee->birth_date ? Carbon::createFromFormat('Y-m-d', $employee->birth_date)->format('m.d') : '';
+            $join =$employee->join_date ? Carbon::createFromFormat('Y-m-d', $employee->join_date)->format('m.d') : '';
+            
 		if($employee->birth_date && !$employee->join_date)
 		{
-			return trans('congratulate.lbl_birthday');
+			return trans('congratulate.lbl_birthday') . ($this->show_days_interval > 0 ? ' (' . $birth . ')' : '');
 		}
 		
 		if(!$employee->birth_date && $employee->join_date)
 		{
-			return $this->getAnniversTxt($employee->join_date);
+			return $this->getAnniversTxt($employee->join_date) . ($this->show_days_interval > 0 ? ' (' . $join . ')' : '');
 		}
 		
 		$now = Carbon::now(Config::get('dx.time_zone'));
 		
-		$birth = Carbon::createFromFormat('Y-m-d', $employee->birth_date);
 		
-		if($birth->month == $now->month && $birth->day == $now->day)
+                
+                $start = new \DateTime($now->subDays($this->show_days_interval)->toDateString()); 
+                  $end = new \DateTime($now->addDays($this->show_days_interval*2)->toDateString()); 
+                  
+                 $arr_emp = [$employee]; 
+                  
+                $emp1 = $this->getBirthdaysInRange($arr_emp , 'birth_date',  $start, $end);
+		
+		if(count($emp1) > 0)
 		{
-			return trans('congratulate.lbl_birthday');
+			return trans('congratulate.lbl_birthday') . ($this->show_days_interval > 0 ? ' (' . $birth . ')' : '');
 		}
 		
 		else
 		{
-			return $this->getAnniversTxt($employee->join_date);
+			return $this->getAnniversTxt($employee->join_date). ($this->show_days_interval > 0 ? ' (' . $join . ')' : '');
 		}
 	}
 	
@@ -113,6 +129,46 @@ END;
 	{
 		// TODO: Implement getJSONData() method.
 	}
+        
+         /**
+     * Filters birthdays in specified date range
+     * @param object $res Results with user data from data base
+     * @param string $start Filter starting date in string format
+     * @param string $end Filter ending date in string format
+     * @return array Filtered results
+     */
+    private function getBirthdaysInRange($res, $date_col,  $start, $end)
+    {
+        $new_res = array();
+
+        foreach ($res as $record) {
+            if (!$record->$date_col) {
+                continue;
+            }
+
+            $birthday = new \DateTime($record->$date_col);
+
+            $diffYears = ($start->format("Y") - $birthday->format("Y"));
+
+            if ($diffYears > 0) {
+                $temp = $birthday->add(new \DateInterval('P' . $diffYears . 'Y'));
+            } else {
+                $temp = $birthday->sub(new \DateInterval('P' . ($diffYears * -1) . 'Y'));
+            }
+
+            if ($temp < $start) {
+                $temp->add(new \DateInterval('P1Y'));
+            }
+
+            if ($birthday <= $end && $temp >= $start && $temp <= $end) {
+                $record->$date_col = $temp->format("Y-m-d");
+
+                $new_res[] = $record;
+            }
+        }
+
+        return $new_res;
+    }
 	
 	/**
 	 * Find employees that have birthday or work anniversary today.
@@ -129,7 +185,7 @@ END;
 		$now = Carbon::now(Config::get('dx.time_zone'));
 		$user = App\User::find(Auth::user()->id);
 		
-		$this->employees = App\User::where(function ($query) use ($now)
+		$this->employees = App\User::all()/*where(function ($query) use ($now)
 		{
 			$query
 				->whereMonth('birth_date', '=', $now->month)
@@ -141,7 +197,7 @@ END;
 					->whereMonth('join_date', '=', $now->month)
 					->whereDay('join_date', '=', $now->day);
 			})
-			->get()
+			->get()*/
 			// check permissions
 			->filter(function ($employee) use ($user)
 			{
@@ -173,13 +229,35 @@ END;
 				
 				return false;
 			});
+                        
+                  $start = new \DateTime($now->subDays($this->show_days_interval)->toDateString()); 
+                  $end = new \DateTime($now->addDays($this->show_days_interval*2)->toDateString()); 
+                        
+                $emp1 = $this->getBirthdaysInRange($this->employees , 'birth_date',  $start, $end);
+                $emp2 = $this->getBirthdaysInRange($this->employees , 'join_date',  $start, $end);
+               
+                \Log::info('res:'. count($emp1) . ' res2:' . count($emp2));
+                
+                $emps = (object)array_merge($emp1, $emp2);
 		
-		return $this->employees;
+		return $emps;
 	}
 	
 	protected function parseParams()
 	{
             $this->is_profile = (Config::get('dx.employee_profile_page_url'));
+            
+            $dat_arr = explode('|', $this->params);
+
+            foreach ($dat_arr as $item) {
+                $val_arr = explode('=', $item);
+
+                if ($val_arr[0] == "SHOW_DAYS_INTERVAL") {
+                    $this->show_days_interval = getBlockParamVal($val_arr);
+                }  else if (strlen($val_arr[0]) > 0) {
+                    throw new PagesException("Norādīts blokam neatbilstošs parametra nosaukums (" . $val_arr[0] . ")!");
+                }
+            }
 	}
 	
 	/**
