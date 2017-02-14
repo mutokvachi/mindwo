@@ -83,7 +83,6 @@ Route::post('/get_tasks_history', array('as' => 'get_tasks_history',  'middlewar
 Route::post('/cancel_workflow', array('as' => 'cancel_workflow',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@cancelWorkflow'));
 Route::get('/get_form_pdf_{item_id}_{list_id}.pdf', array('as' => 'form_get_pdf',  'middleware' => 'auth_ajax', 'uses'=>'FormPDFController@getPDF'));
 Route::post('/get_item_history', array('as' => 'get_item_history',  'middleware' => 'auth_ajax', 'uses'=>'FormController@getItemHistory'));
-//Route::post('/get_view_edit_form', array('as' => 'get_view_edit_form',  'middleware' => 'auth_ajax', 'uses'=>'GridController@getViewEditForm'));
 
 Route::group(['middleware' => 'auth_ajax', 'prefix' => 'view'], function() {
     Route::post('open', 'GridController@getViewEditForm');
