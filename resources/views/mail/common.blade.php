@@ -5,6 +5,11 @@
 @endsection
 
 @section('main_custom_javascripts')
+  <script type="text/javascript">
+    var inboxOptions = {
+    	dateFormat: '{{ config('dx.txt_datetime_format', 'Y-m-d H:i') }}'
+    };
+  </script>
   <script src="{{ elixir('js/elix_mail.js') }}" type='text/javascript'></script>
 @endsection
 

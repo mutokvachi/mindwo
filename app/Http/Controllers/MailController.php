@@ -190,7 +190,7 @@ class MailController extends Controller
 		
 		if($sendTime)
 		{
-			$mail->send_time = Carbon::parse($sendTime)->toDateTimeString();
+			$mail->send_time = Carbon::createFromFormat(config('dx.txt_datetime_format', 'Y-m-d H:i'), $sendTime)->toDateTimeString();
 			
 			if($folder != 'draft')
 			{
@@ -241,7 +241,7 @@ class MailController extends Controller
 		
 		if($sendTime)
 		{
-			$mail->send_time = Carbon::parse($sendTime)->toDateTimeString();
+			$mail->send_time = Carbon::createFromFormat(config('dx.txt_datetime_format', 'Y-m-d H:i'), $sendTime)->toDateTimeString();
 			
 			if($folder != 'draft')
 			{

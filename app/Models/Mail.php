@@ -63,12 +63,12 @@ class Mail extends Model
 	 * @param $date
 	 * @return string
 	 */
-	public function formatDate($date)
+	public function formatDate($date, $full = false)
 	{
 		$now = new Carbon('now');
 		$date = new Carbon($date);
 		
-		if($date->diffInHours($now) < 24)
+		if(!$full && $date->diffInHours($now) < 24)
 		{
 			$result = $date->toTimeString();
 		}

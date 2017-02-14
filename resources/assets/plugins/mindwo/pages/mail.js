@@ -113,7 +113,7 @@
 		{
 			this.sendTime.datetimepicker({
 				timepicker: true,
-				format: 'Y-m-d H:i'
+				format: inboxOptions.dateFormat
 			});
 		},
 		/**
@@ -344,8 +344,6 @@
 					success: function(data)
 					{
 						hide_page_splash(1);
-						self.id = data.id;
-						self.folder = data.folder;
 						
 						$('.inbox-nav .folder-draft .badge', self.root).text(data.count).show();
 						
@@ -353,13 +351,16 @@
 						{
 							var badge = $('.inbox-nav .folder-scheduled .badge', self.root);
 							var count = parseInt(badge.text());
-							badge.text(--count);
+							--count;
+							badge.text(count);
 							if(!count)
 							{
 								badge.hide();
 							}
-							self.folder = 'draft';
 						}
+						
+						self.id = data.id;
+						self.folder = data.folder;
 						
 						toastr.success(Lang.get('mail.draft_saved'));
 					},
