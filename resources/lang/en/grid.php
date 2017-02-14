@@ -21,6 +21,8 @@ return [
     'menu_mark_all' => 'Select all',
     'menu_delete_marked' => 'Delete selected',
     
+    'menu_admin_settings' => 'Settings',
+    
     'paginator_page' => 'Page',
     'paginator_from' => 'from',
     
@@ -54,4 +56,30 @@ return [
     'msg_confirm_del1' => 'Do you really want to delete the selected row?',
     'msg_confirm_del_all' => 'Do you really want to delete the selected %s rows?',
     'nothing_imported' => 'No record was imported or updated.',
+    
+    'view_editor_form_title' => 'View',
+    'ch_is_default' => 'Is default', //Is default
+    'ch_is_for_me' => 'Is only for me', //Is only for me
+    'lbl_view_title' => 'View title',//View title
+    'lbl_available' => 'Available fields', //Available fields
+    'lbl_used' => 'Used fields',// Used fields
+    'btn_remove_fld' => 'Remove',
+    'btn_add_fld' => 'Add',
+    'lbl_search' => 'Search...',
+    'badge_new' => 'New',
+    'badge_edit' => 'Editing',
+    'title_copy' => 'copy',
+    'lbl_public' => 'Public views',
+    'lbl_private' => "My views",
+    'confirm_delete' => 'Do you really want to delete the view?',
+    'tooltip_filter' => 'Filter',
+    'tooltip_hidden' => 'Hidden',
+    
+    'field_settings_form_title' => 'Field settings',
+    'lbl_field_title' => 'Field',
+    'ch_is_hidden' => 'Hidden',
+    'lbl_field_operation' => 'Filtering criteria',
+    'lbl_criteria_title' => 'Criteria value',
+    'error_filter_must_be_set' =>"Filtering value must be set!",
+    
 ];

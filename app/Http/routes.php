@@ -71,18 +71,26 @@ Route::post('/excel', array('as' => 'excel', 'middleware' => 'auth_ajax', 'uses'
 Route::post('/import_excel', array('as' => 'import_data', 'middleware' => 'auth_ajax', 'uses' => 'ImportController@importData'));
 
 // SVS formas
-Route::post('/form', array('as' => 'form', 'middleware' => 'auth_ajax', 'uses' => 'FormController@getForm'));
-Route::post('/refresh_form', array('as' => 'refresh_form', 'middleware' => 'auth_ajax', 'uses' => 'FormController@refreshFormFields'));
-Route::post('/fill_autocompleate', array('as' => 'fill_autocompleate', 'middleware' => 'auth_ajax', 'uses' => 'FormController@getAutocompleateData'));
-Route::post('/load_binded_field', array('as' => 'load_binded_field', 'middleware' => 'auth_ajax', 'uses' => 'FormController@getBindedFieldData'));
-Route::post('/save_form', array('as' => 'save_form', 'middleware' => 'auth_ajax', 'uses' => 'FormController@saveForm'));
-Route::post('/delete_item', array('as' => 'delete_item', 'middleware' => 'auth_ajax', 'uses' => 'FormController@deleteItem'));
-Route::post('/generate_word', array('as' => 'generate_word', 'middleware' => 'auth_ajax', 'uses' => 'WordController@generateWord'));
-route::post('/register_document', array('as' => 'register_item', 'middleware' => 'auth_ajax', 'uses' => 'RegisterController@registerDocument'));
-Route::post('/get_tasks_history', array('as' => 'get_tasks_history', 'middleware' => 'auth_ajax', 'uses' => 'TasksController@getTasksHistory'));
-Route::post('/cancel_workflow', array('as' => 'cancel_workflow', 'middleware' => 'auth_ajax', 'uses' => 'TasksController@cancelWorkflow'));
-Route::get('/get_form_pdf_{item_id}_{list_id}.pdf', array('as' => 'form_get_pdf', 'middleware' => 'auth_ajax', 'uses' => 'FormPDFController@getPDF'));
-Route::post('/get_item_history', array('as' => 'get_item_history', 'middleware' => 'auth_ajax', 'uses' => 'FormController@getItemHistory'));
+Route::post('/form', array('as' => 'form',  'middleware' => 'auth_ajax', 'uses'=>'FormController@getForm'));
+Route::post('/refresh_form', array('as' => 'refresh_form',  'middleware' => 'auth_ajax', 'uses'=>'FormController@refreshFormFields'));
+Route::post('/fill_autocompleate', array('as' => 'fill_autocompleate',  'middleware' => 'auth_ajax', 'uses'=>'FormController@getAutocompleateData'));
+Route::post('/load_binded_field', array('as' => 'load_binded_field',  'middleware' => 'auth_ajax', 'uses'=>'FormController@getBindedFieldData'));
+Route::post('/save_form', array('as' => 'save_form',  'middleware' => 'auth_ajax', 'uses'=>'FormController@saveForm'));
+Route::post('/delete_item', array('as' => 'delete_item',  'middleware' => 'auth_ajax', 'uses'=>'FormController@deleteItem'));
+Route::post('/generate_word', array('as' => 'generate_word',  'middleware' => 'auth_ajax', 'uses'=>'WordController@generateWord'));
+route::post('/register_document', array('as' => 'register_item',  'middleware' => 'auth_ajax', 'uses'=>'RegisterController@registerDocument'));
+Route::post('/get_tasks_history', array('as' => 'get_tasks_history',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@getTasksHistory'));
+Route::post('/cancel_workflow', array('as' => 'cancel_workflow',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@cancelWorkflow'));
+Route::get('/get_form_pdf_{item_id}_{list_id}.pdf', array('as' => 'form_get_pdf',  'middleware' => 'auth_ajax', 'uses'=>'FormPDFController@getPDF'));
+Route::post('/get_item_history', array('as' => 'get_item_history',  'middleware' => 'auth_ajax', 'uses'=>'FormController@getItemHistory'));
+//Route::post('/get_view_edit_form', array('as' => 'get_view_edit_form',  'middleware' => 'auth_ajax', 'uses'=>'GridController@getViewEditForm'));
+
+Route::group(['middleware' => 'auth_ajax', 'prefix' => 'view'], function() {
+    Route::post('open', 'GridController@getViewEditForm');
+    Route::post('save', 'GridController@saveView');
+    Route::post('delete', 'GridController@deleteView');
+    Route::post('auto_data', 'GridController@getAutocompleateData');
+});
 
 // Startē procesu forsēti
 Route::get('/force_process/{id}', array('as' => 'force_process', 'middleware' => 'auth', 'uses' => 'ProcessController@forceProcess'));
