@@ -260,12 +260,12 @@ class GridController extends Controller
      */
     public function getViewEditForm(Request $request) {
         $this->validate($request, [
-            'view_id' => 'required|integer|exists:dx_views,id'
+            'view_id' => 'required'
         ]);
         
         $view_id = $request->input('view_id');
         
-        $view = DB::table('dx_views')->where('id', '=', $view_id)->first();              
+        $view = getViewRowByID($view_id, $view_id);          
         
         $list_fields = DB::table('dx_lists_fields as lf')
                         ->leftJoin('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
@@ -277,10 +277,10 @@ class GridController extends Controller
                                 'lf.rel_display_field_id'
                         )
                         ->where('lf.list_id', '=', $view->list_id)
-                        ->whereNotExists(function($query) use ($view_id) {
+                        ->whereNotExists(function($query) use ($view) {
                             $query->select(DB::raw(1))
                                   ->from('dx_views_fields as vf')
-                                  ->where('vf.view_id', '=', $view_id)
+                                  ->where('vf.view_id', '=', $view->id)
                                   ->whereRaw('vf.field_id = lf.id');
                         })                   
                         ->orderBy('lf.title_list')
@@ -301,7 +301,7 @@ class GridController extends Controller
                             'lf.rel_list_id',
                             'lf.rel_display_field_id'
                     )
-                    ->where('vf.view_id', '=', $view_id)                    
+                    ->where('vf.view_id', '=', $view->id)                    
                     ->orderBy('vf.order_index')
                     ->get();        
         
@@ -309,7 +309,7 @@ class GridController extends Controller
                 'list_fields' => $list_fields,
                 'view_fields' => $view_fields,
                 'view_title' => $view->title,
-                'view_id' => $view_id,
+                'view_id' => $view->id,
                 'list_id' => $view->list_id,
                 'is_default' => $view->is_default,
                 'is_my_view' => ($view->me_user_id == Auth::user()->id),                
