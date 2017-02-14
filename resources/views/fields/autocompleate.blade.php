@@ -12,6 +12,8 @@
         data-item-text = "{{ $txt_display }}"
         data-is-profile = '{{ ($rel_list_id == Config::get('dx.employee_list_id',0) && Config::get('dx.employee_profile_page_url', '')) }}'
         data-profile-url = '{{ Request::root() }}{{ Config::get('dx.employee_profile_page_url', '') }}'
+        data-is-manual-init = "{{ isset($is_manual_init) ? $is_manual_init : 0 }}"
+        data-min-length = "{{ isset($min_length) ? $min_length : 3 }}"
 >
     @if ($is_disabled)
 

@@ -24,6 +24,8 @@ return [
     'menu_mark_all' => 'Iezīmēt visus',
     'menu_delete_marked' => 'Dzēst iezīmētos',
     
+    'menu_admin_settings' => 'Iestatījumi',
+    
     'paginator_page' => 'Lapa',
     'paginator_from' => 'no',
     
@@ -72,4 +74,15 @@ return [
     'title_copy' => "kopija",
     'lbl_public' => 'Publiskie skati',
     'lbl_private' => "Mani skati",
+    'confirm_delete' => 'Vai tiešām dzēst skatu?',
+    'tooltip_filter' => 'Filtrs',
+    'tooltip_hidden' => 'Neredzams',
+    
+    'field_settings_form_title' => 'Lauka iestatījumi',
+    'lbl_field_title' => 'Lauks',
+    'ch_is_hidden' => 'Neredzams',
+    'lbl_field_operation' => 'Filtrēšanas kritērijs',
+    'lbl_criteria_title' => 'Filtrēšanas vērtība',
+    'error_filter_must_be_set' =>"Nav uzstādīta filtrēšanas vērtība!",
+    
 ];

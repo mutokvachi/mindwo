@@ -247,24 +247,23 @@ var BlockViews = function()
             var view_id = view_container.find('select.dx-views-cbo option:selected').val();
             var frm_el = $("#" + view_container.attr("id") + "_popup");
             
-            frm_el.find(".modal-body").html(getProgressInfo());
-            frm_el.modal('show');
-
             var formData = "view_id=" + view_id;
 
             var request = new FormAjaxRequestIE9 ('view/open', "", "", formData);            
-            request.progress_info = "";                       
-
+            request.progress_info = true;                       
+            
             request.callback = function(data) {
                 frm_el.find(".modal-body").html(data['html']);
                 frm_el.find(".modal-body .dx-cms-nested-list").nestable();
-                setFldEventHandlers(frm_el, frm_el);
+                setFldEventHandlers(frm_el, frm_el, view_container);
                 handleSearchField();
                 handleIsMyCheck(frm_el);
                 
                 frm_el.find(".dx-view-btn-copy").show();
                 frm_el.find(".dx-view-btn-delete").show();
                 frm_el.find("span.badge").html(Lang.get('grid.badge_edit'));
+                
+                frm_el.modal('show');
             };
 
             // execute AJAX request
@@ -303,14 +302,15 @@ var BlockViews = function()
      * 
      * @param {object} frm_el Fields UI forms HTML object
      * @param {object} fld_el Field element HTML object
+     * @param {object} view_container Grid view main object's HTML element
      * @returns {undefined}
      */
-    var removeFld = function(frm_el, fld_el) {
+    var removeFld = function(frm_el, fld_el, view_container) {
         frm_el.find('.dx-fields-container .dx-available ol.dd-list').append(fld_el.closest('.dd-item').clone());
         fld_el.closest('.dd-item').remove();
 
         var new_el = frm_el.find('.dx-fields-container .dx-available ol.dd-list .dd-item').last();
-        setFldEventHandlers(frm_el, new_el);
+        setFldEventHandlers(frm_el, new_el, view_container);
         
         clearSearchIfLast(frm_el, 'dx-used');
     };
@@ -320,14 +320,15 @@ var BlockViews = function()
      * 
      * @param {object} frm_el Fields UI forms HTML object
      * @param {object} fld_el Field element HTML object
+     * @param {object} view_container Grid view main object's HTML element
      * @returns {undefined}
      */
-    var addFld = function(frm_el, fld_el) {
+    var addFld = function(frm_el, fld_el, view_container) {
         frm_el.find('.dx-fields-container .dx-used ol.dd-list').append(fld_el.closest('.dd-item').clone());
         fld_el.closest('.dd-item').remove();
 
         var new_el = frm_el.find('.dx-fields-container .dx-used ol.dd-list .dd-item').last();
-        setFldEventHandlers(frm_el, new_el);
+        setFldEventHandlers(frm_el, new_el, view_container);
         
         clearSearchIfLast(frm_el, 'dx-available');        
     };
@@ -355,16 +356,151 @@ var BlockViews = function()
      * 
      * @param {object} frm_el Fields UI forms HTML object
      * @param {object} fld_el Field element HTML object
+     * @param {object} view_container Grid view main object's HTML element
      * @returns {undefined}
      */
-    var setFldEventHandlers = function(frm_el, fld_el) {
+    var setFldEventHandlers = function(frm_el, fld_el, view_container) {
         fld_el.find('.dx-cms-field-remove').click(function() {
-            removeFld(frm_el, $(this));
+            removeFld(frm_el, $(this), view_container);
         });
         
         fld_el.find('.dx-cms-field-add').click(function() {
-            addFld(frm_el, $(this));
+            addFld(frm_el, $(this), view_container);
         });
+        
+        fld_el.find('.dx-fld-title').click(function() {
+           openSettings($(this), view_container);
+        });
+    };
+    
+    /**
+     * Opens field's setting form
+     * 
+     * @param {object} title_el Field item title HTML element
+     * @param {object} view_container Grid view main object's HTML element
+     * @returns {undefined}
+     */
+    var openSettings = function (title_el, view_container) {
+        if (title_el.closest('.dx-cms-nested-list').hasClass('dx-used')) {
+            var item = title_el.closest('.dd-item');
+            var sett_el = view_container.find('.dx-popup-modal-settings');
+                        
+            sett_el.find("input[name=is_hidden]").prop("checked", (item.attr("data-is-hidden")=="1") ? "checked" : "");
+            sett_el.find("input[name=field_title]").val(title_el.text());
+            sett_el.find("select[name=field_operation]").val(item.attr("data-operation-id"));
+            
+            if (item.attr("data-field-type") == "autocompleate" || item.attr("data-field-type") == "rel_id") {
+                sett_el.find("select[name=field_operation]").attr("data-criteria", "auto");
+                
+                var auto_fld = sett_el.find("div.dx-autocompleate-field");
+                auto_fld.attr("data-rel-list-id", item.attr('data-rel-list-id'));
+                auto_fld.attr("data-rel-field-id", item.attr('data-rel-field-id'));
+                auto_fld.attr("data-item-value", item.attr('data-criteria'));
+                auto_fld.attr("data-field-id", item.attr('data-id'));
+                
+                if (item.attr('data-criteria')!="0" && item.attr('data-criteria').length > 0) {
+                    var formData = new FormData();
+                    formData.append("list_id", item.attr('data-rel-list-id'));
+                    formData.append("txt_field_id", item.attr('data-rel-field-id'));
+                    formData.append("txt_field_id", item.attr('data-rel-field-id'));
+                    formData.append("value_id", item.attr('data-criteria'));
+                    show_form_splash();
+                    $.ajax({ 
+                        type: 'POST',
+                        url: DX_CORE.site_url  + "view/auto_data",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        dataType: "json",
+                        async: false,
+                        success : function(data) {
+                            hide_form_splash();
+                            auto_fld.attr("data-min-length", data['count']);
+                            auto_fld.attr("data-item-text", data['txt']);
+                        }
+                    });
+                }
+                else {
+                    auto_fld.attr("data-min-length", 0); //ToDo: detect how many rows. If more than 100 then set 3
+                    auto_fld.attr("data-item-text", ""); //ToDo: get from db
+                }
+                AutocompleateField.initSelect(auto_fld);
+            }
+            else {
+                sett_el.find("select[name=field_operation]").attr("data-criteria", "text");
+                sett_el.find("input[name=criteria_value]").val(item.attr("data-criteria"));
+            }
+            
+            showHideCriteria(sett_el, sett_el.find("select[name=field_operation]"));
+            
+            var btn_save = sett_el.find('.dx-settings-btn-save');
+            
+            btn_save.off("click");
+            btn_save.click(function() {
+                var oper_el = sett_el.find('select[name=field_operation]');
+                
+                var crit_val = "";
+                if (oper_el.attr("data-criteria") == "text") {
+                    crit_val = sett_el.find('input[name=criteria_value]').val();
+                }
+                else {
+                    crit_val = parseInt(sett_el.find('input.dx-auto-input-id').val());
+                }
+                
+                if (oper_el.val() && oper_el.find('option:selected').attr('data-is-criteria') != "0" && !crit_val) {
+                    notify_err(Lang.get('grid.error_filter_must_be_set'));
+                    return false;
+                }
+                
+                item.attr("data-criteria", crit_val);
+                item.attr("data-is-hidden", sett_el.find('input[name=is_hidden]').is(":checked") ? 1 : 0);
+                item.attr("data-operation-id", oper_el.val());
+                
+                sett_el.modal('hide');
+            });
+            
+            sett_el.modal('show');
+        }
+    };
+    
+    /**
+     * Handles event for show or hide criteria field depending on selected operation
+     * 
+     * @param {object} view_container Grid view main object's HTML element
+     * @returns {undefined}
+     */
+    var handleFieldOperation = function(view_container) {
+        var sett_el = view_container.find('.dx-popup-modal-settings');
+        sett_el.find('select[name=field_operation]').change(function() {
+            showHideCriteria(sett_el, $(this));            
+        });
+    };
+    
+    /**
+     * Shoe or hide criteria field depending on selected operation
+     * @param {object} sett_el Setting popup form HTML element
+     * @param {object} sel_el Operation select HTML element
+     * @returns {undefined}
+     */
+    var showHideCriteria = function(sett_el, sel_el) {
+        if (sel_el.find('option:selected').attr('data-is-criteria') != "0") {
+            if (sel_el.attr("data-criteria") == "text") {
+                sett_el.find(".dx-criteria-text").show();
+                sett_el.find(".dx-criteria-auto").hide();
+                sett_el.find("input[name=criteria_value]").focus();
+            }
+            else {
+                sett_el.find(".dx-criteria-text").hide();
+                sett_el.find(".dx-criteria-auto").show();                
+            }
+        }
+        else {
+            sett_el.find("input[name=criteria_value]").val('');
+            sett_el.find(".dx-criteria-auto").hide();
+            sett_el.find(".dx-criteria-text").hide();
+            sett_el.find('.dx-auto-input-select2').select2('data', {id:0, text:""});
+            sett_el.find("input.dx-auto-input-id").val(0);
+        }
     };
     
     /**
@@ -405,11 +541,51 @@ var BlockViews = function()
     };
     
     /**
+     * Handles button "Delete" pressing
+     * 
+     * @param {object} view_container Grid view main object's HTML element
+     * @returns {undefined}
+     */
+    var handleBtnDelete = function(view_container) {
+        var pop_el = $("#" + view_container.attr("id") + "_popup");
+        pop_el.find(".dx-view-btn-delete").click(function() {
+            PageMain.showConfirm(deleteView, view_container, null, Lang.get('grid.confirm_delete'), Lang.get('form.btn_yes'), Lang.get('form.btn_no'));           
+        });
+    };
+    
+    /**
+     * Handles view deletion functionality
+     * 
+     * @param {object} view_container Grid view main object's HTML element
+     * @returns {undefined}
+     */
+    var deleteView = function(view_container) {
+        var pop_el = $("#" + view_container.attr("id") + "_popup");
+        var frm_el = pop_el.find(".dx-view-edit-form");
+                
+        var formData = new FormData();
+        formData.append("view_id", frm_el.data('view-id'));
+        formData.append("list_id", frm_el.data('list-id'));
+        formData.append('tab_id', view_container.attr('dx_tab_id'));
+        
+        var request = new FormAjaxRequest ('view/delete', "", "", formData);
+        request.progress_info = true;                       
+
+        request.callback = function(data) {
+            if (data["success"] == 1) {
+                pop_el.modal('hide');
+                reloadAnotherView(view_container, data["view_id"]);                
+            }
+        };
+
+        // execute AJAX request
+        request.doRequest();
+    };
+    
+    /**
      * Handles button event - save view data
      * 
-     * @param {string} menu_id Grid view TOP toolbar HTML element id
-     * @param {string} grid_id Grid view HTML element id
-     * @param {string} tab_id If opened from sub-grid then form's tab HTML element id
+     * @param {object} view_container Grid view main object's HTML element
      * @returns {undefined}
      */
     var handleBtnSaveView = function(view_container) {        
@@ -430,7 +606,7 @@ var BlockViews = function()
             formData.append('grid_id', grid_el.attr('id'));
             
             var request = new FormAjaxRequest ('view/save', "", "", formData);
-            request.progress_info = "";                       
+            request.progress_info = true;                       
             
             request.callback = function(data) {
                 if (data["success"] == 1) {
@@ -439,8 +615,7 @@ var BlockViews = function()
                     pop_el.attr("id", pop_el.attr("id") + "_" + $(".dx-popup-modal").length);
                     
                     if (view_id ==0) {
-                        var url = root_url + 'skats_' + data["view_id"];
-                        window.location.assign(encodeURI(url));
+                        reloadAnotherView(view_container, data["view_id"]);                        
                     }
                     else {
                         reloadBlockGrid(grid_el.attr('id'), grid_el.data('tab_id'));
@@ -448,11 +623,28 @@ var BlockViews = function()
                 }
             };
             
-            show_form_splash();
             // execute AJAX request
             request.doRequest();
     
         });
+    };
+    
+    /**
+     * Loads view after previous view deletion or new view creation
+     * 
+     * @param {object} view_container Grid view main object's HTML element
+     * @param {integer} view_id View ID
+     * @returns {undefined}
+     */
+    var reloadAnotherView = function(view_container, view_id) {
+        if (view_container.attr('dx_tab_id')) {
+            load_tab_grid(view_container.attr('dx_tab_id'), view_container.attr('dx_list_id'), view_id, view_container.attr('dx_rel_field_id'), view_container.attr('dx_rel_field_value'), view_container.attr('dx_form_htm_id'), 1, 5, 1);
+        }
+        else {
+            show_page_splash(1);
+            var url = root_url + 'skats_' + view_id;
+            window.location.assign(encodeURI(url));                
+        }
     };
     
     /**
@@ -465,7 +657,12 @@ var BlockViews = function()
        var ret_arr = new Array();
        
        block.find(".dd-item").each(function() {
-           var item = {"field_id": $(this).attr('data-id')};
+            var item = {
+               "field_id": $(this).attr('data-id'),
+               "is_hidden": $(this).attr('data-is-hidden'),
+               "operation_id": $(this).attr('data-operation-id'),
+               "criteria": $(this).attr('data-criteria')
+            };
            ret_arr.push(item);
        });
        
@@ -969,6 +1166,8 @@ var BlockViews = function()
             handleBtnEditView($(this));
             handleBtnSaveView($(this));
             handleBtnCopy($(this));
+            handleBtnDelete($(this));
+            handleFieldOperation($(this));
             
             // Saraksta kolonnu funkcionalitāte
             handleFilter(grid_id, tab_id);

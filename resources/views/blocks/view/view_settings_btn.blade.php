@@ -4,7 +4,7 @@
             <i class='fa fa-cog'></i> <i class='fa fa-caret-down'></i>
         </button>
         <ul class='dropdown-menu pull-right' style="z-index: 50000;">
-            <li><a href='#' class="dx-register-settings">Iestatījumi</a></li>
+            <li><a href='#' class="dx-register-settings">{{ trans('grid.menu_admin_settings') }}</a></li>
         </ul>
     </div>
 @endif

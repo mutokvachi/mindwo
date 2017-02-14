@@ -626,7 +626,7 @@ function FormAjaxRequest (url, form_htm_id, grid_htm_id, formData) {
                 
             },
             beforeSend: function () {
-                if (progress_info != ""){
+                if (progress_info){
                     show_page_splash();
                     show_form_splash();
                 }

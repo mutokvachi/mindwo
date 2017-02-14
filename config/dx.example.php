@@ -342,4 +342,14 @@ return [
             // Delay between sending emails
             'send_delay' => 0,
     ],
+    
+    /*
+    |--------------------------------------------------------------------------
+    | How much rows can be returned for autocompleate without any criteria
+    |
+    | Autocompleate for small classifiers can show all values (this setting declares what is treated as "small") 
+    | For large tables there will be search criteria required (at least 3 characters)
+    |--------------------------------------------------------------------------
+    */
+    'autocompleate_max_count' => 20,
 ];

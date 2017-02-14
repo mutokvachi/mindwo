@@ -25,6 +25,8 @@ return [
     'btn_close' => 'Aizvērt',
     'btn_cancel' => 'Atcelt',
     'btn_accept' => 'Apstiprināt',
+    'btn_yes' => 'Jā',
+    'btn_no' => 'Nē',
     'modal_confirm_title' => 'Darbības apstiprināšana',
     'modal_confirm_body' => 'Vai vēlaties apstiprināt darbību?',
     'err_value_not_set' => 'Nav norādīta vērtība!',

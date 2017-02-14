@@ -89,6 +89,8 @@ Route::post('/get_item_history', array('as' => 'get_item_history',  'middleware'
 Route::group(['middleware' => 'auth_ajax', 'prefix' => 'view'], function() {
     Route::post('open', 'GridController@getViewEditForm');
     Route::post('save', 'GridController@saveView');
+    Route::post('delete', 'GridController@deleteView');
+    Route::post('auto_data', 'GridController@getAutocompleateData');
 });
 
 // Startē procesu forsēti

@@ -103,4 +103,6 @@ return [
     'no_respo_empl_field' => "Skatam '%s' definēts kontroles nosacījums, bet nosacījumā norādītais atbildīgā darbinieka lauks nav ietverts skatā!",
     
     'duplicate_view_title' => 'Dublējas skata nosaukums! Lūdzu, norādiet citu skata nosaukumu.',
+    
+    'cant_delete_default_view' => "Skatu nav iespējams dzēst, jo nav norādīts neviens cits noklusētais skats! Lūdzu, vispirms norādiet citu skatu kā noklusēto.",
 ];

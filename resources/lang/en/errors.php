@@ -105,4 +105,6 @@ return [
     'no_respo_empl_field' => "There is an monotoring rule defined for the view '%s', but the field provided in roole is not included in the view!",
     
     'duplicate_view_title' => 'Duplicate view title! Please provide another title.',
+    
+    'cant_delete_default_view' => "The view can't be deleted because there is no default view set! Please set another view as default.",
 ];

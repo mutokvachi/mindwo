@@ -24,6 +24,8 @@ return [
     'btn_close' => 'Close',
     'btn_cancel' => 'Cancel',
     'btn_accept' => 'Accept',
+    'btn_yes' => 'Yes',
+    'btn_no' => 'No',
     'modal_confirm_title' => 'Confirmation',
     'modal_confirm_body' => 'Do you want to confirm the action?',
     'err_value_not_set' => 'Value not set!',

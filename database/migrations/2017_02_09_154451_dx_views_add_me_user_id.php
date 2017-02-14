@@ -27,7 +27,8 @@ class DxViewsAddMeUserId extends Migration
      */
     public function down()
     {
-        Schema::table('dx_views', function (Blueprint $table) {            
+        Schema::table('dx_views', function (Blueprint $table) { 
+            $table->dropForeign(['me_user_id']);
             $table->dropColumn(['me_user_id']);
         });
     }

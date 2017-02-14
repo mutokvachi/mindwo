@@ -43,6 +43,7 @@ var AutocompleateField = function()
             if (fld_elem.data("is-profile")) {
                 fld_elem.find(".dx-rel-id-add-btn").hide();
             }
+            
         });
     };
     
@@ -86,7 +87,7 @@ var AutocompleateField = function()
     var initSelect2 = function(fld_elem) {
         fld_elem.find('.dx-auto-input-select2').select2({
             placeholder: fld_elem.attr("data-trans-search"),
-            minimumInputLength: 3,
+            minimumInputLength: fld_elem.attr("data-min-length"),
             ajax: {
                 type: 'POST',
                 url: DX_CORE.site_url  + 'fill_autocompleate',
@@ -117,11 +118,12 @@ var AutocompleateField = function()
                     {
                         if (data.error)
                         {
-                                notify_err(data.error);
+                            notify_err(data.error);
                         }
                         else
                         {
-                                notify_err(DX_CORE.trans_general_error);
+                            console.log("Some unknown autocompleate error!")    
+                            notify_err(DX_CORE.trans_general_error);
                         }
                     }
                 }       
@@ -166,7 +168,7 @@ var AutocompleateField = function()
      * @returns {undefined}
      */
     var initField = function() {
-        $(".dx-autocompleate-field[data-is-init=0]").each(function() {            
+        $(".dx-autocompleate-field[data-is-init=0][data-is-manual-init=0]").each(function() {            
             handleBtnAdd($(this));
             handleBtnDel($(this));
             initSelect2($(this));
@@ -181,6 +183,15 @@ var AutocompleateField = function()
         },
         update_callback: function(fld_htm_id, val_id, val_title) {
             update_callback(fld_htm_id, val_id, val_title);
+        },
+        initSelect: function(fld_el) {
+            fld_el.find('button.dx-rel-id-add-btn').hide();
+            initSelect2(fld_el);
+            
+            if (fld_el.attr('data-is-init') != "1") {
+                handleBtnDel(fld_el);
+            }
+            fld_el.attr('data-is-init', 1);
         }
     };
 }();

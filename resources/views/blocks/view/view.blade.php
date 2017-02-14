@@ -122,6 +122,7 @@
     @endif
     
     @include('blocks.view.view_edit_popup')
+    @include('blocks.view.field_settings')
     
     @if ($show_new_button)
         @include('blocks.view.view_import')

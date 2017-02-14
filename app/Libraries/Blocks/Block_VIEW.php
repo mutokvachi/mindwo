@@ -71,7 +71,8 @@ namespace App\Libraries\Blocks
                         'hint' => $this->getListHint($this->grid->list_id),
                         'is_setting_rights' => $this->getSettingRights(),
                         'open_item_id' => Input::get('open_item_id', 0),
-                        'form_type_id' => $this->grid->form_type_id
+                        'form_type_id' => $this->grid->form_type_id,
+                        'operations' => DB::table('dx_field_operations')->orderBy('title')->get()
                     ])->render();
         }
 
