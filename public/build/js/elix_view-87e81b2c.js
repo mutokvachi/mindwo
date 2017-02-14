@@ -16281,32 +16281,28 @@ var BlockViews = function()
                 auto_fld.attr("data-item-value", item.attr('data-criteria'));
                 auto_fld.attr("data-field-id", item.attr('data-id'));
                 
-                if (item.attr('data-criteria')!="0" && item.attr('data-criteria').length > 0) {
-                    var formData = new FormData();
-                    formData.append("list_id", item.attr('data-rel-list-id'));
-                    formData.append("txt_field_id", item.attr('data-rel-field-id'));
-                    formData.append("txt_field_id", item.attr('data-rel-field-id'));
-                    formData.append("value_id", item.attr('data-criteria'));
-                    show_form_splash();
-                    $.ajax({ 
-                        type: 'POST',
-                        url: DX_CORE.site_url  + "view/auto_data",
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        dataType: "json",
-                        async: false,
-                        success : function(data) {
-                            hide_form_splash();
-                            auto_fld.attr("data-min-length", data['count']);
-                            auto_fld.attr("data-item-text", data['txt']);
-                        }
-                    });
-                }
-                else {
-                    auto_fld.attr("data-min-length", 0); //ToDo: detect how many rows. If more than 100 then set 3
-                    auto_fld.attr("data-item-text", ""); //ToDo: get from db
-                }
+                var formData = new FormData();
+                formData.append("list_id", item.attr('data-rel-list-id'));
+                formData.append("txt_field_id", item.attr('data-rel-field-id'));
+                formData.append("txt_field_id", item.attr('data-rel-field-id'));
+                formData.append("value_id", item.attr('data-criteria'));
+                
+                show_form_splash();
+                $.ajax({ 
+                    type: 'POST',
+                    url: DX_CORE.site_url  + "view/auto_data",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: "json",
+                    async: false,
+                    success : function(data) {
+                        hide_form_splash();
+                        auto_fld.attr("data-min-length", data['count']);
+                        auto_fld.attr("data-item-text", data['txt']);
+                    }
+                });
+                
                 AutocompleateField.initSelect(auto_fld);
             }
             else {
@@ -16374,7 +16370,8 @@ var BlockViews = function()
             }
             else {
                 sett_el.find(".dx-criteria-text").hide();
-                sett_el.find(".dx-criteria-auto").show();                
+                sett_el.find(".dx-criteria-auto").show(); 
+                sett_el.find('.dx-auto-input-select2').select2("open");
             }
         }
         else {

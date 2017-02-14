@@ -213,13 +213,12 @@ class GridController extends Controller
     {
         $this->validate($request, [
             'list_id' => 'required|integer|exists:dx_lists,id',
-            'txt_field_id' => 'required|integer|exists:dx_lists_fields,id',
-            'value_id' => 'required|integer'
+            'txt_field_id' => 'required|integer|exists:dx_lists_fields,id'
         ]);
         
         $list_id = $request->input('list_id');
         $txt_field_id = $request->input('txt_field_id');        
-        $value_id = $request->input('value_id');
+        $value_id = $request->input('value_id', 0);
         
         $table_item = DB::table('dx_lists')
                 ->join('dx_objects', 'dx_lists.object_id', '=', 'dx_objects.id')
@@ -232,22 +231,25 @@ class GridController extends Controller
                 ->where('id', '=', $txt_field_id)
                 ->first();
         
-        $data = DB::table($table_item->table_name)
+        $txt = "";
+        if ($value_id) {
+            $data = DB::table($table_item->table_name)
                 ->select($field_item->rel_field_name . ' as txt')
                 ->where('id', '=', $value_id)
                 ->first();
+            $txt = $data->txt;
+        }
         
         $cnt = DB::table($table_item->table_name)->count();
-        Log::info("CUNT: " . $cnt);
+        
         if ($cnt > Config::get('dx.autocompleate_max_count', 20)) {
-            $cnt = 3;
-            Log::info("SMAL");
+            $cnt = 3;            
         }
         else {
             $cnt = 0;
-            Log::info("BIF");
         }
-        return response()->json(['success' => 1, 'txt' => $data->txt, 'count' => $cnt]);
+        
+        return response()->json(['success' => 1, 'txt' => $txt, 'count' => $cnt]);
     }
     
     /**
