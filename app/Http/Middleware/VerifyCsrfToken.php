@@ -32,7 +32,7 @@ class VerifyCsrfToken extends BaseVerifier
         if (!$this->isReading($request) && Auth::check())
         {
             $public_user_id = Config::get('dx.public_user_id');
-            if (!$public_user_id)
+            if (!$public_user_id && !Config::get('dx.is_all_login_required', true))
             {
                 throw new Exceptions\DXCustomException("Resursam '" . $request->url() . "' nav iespējams piekļūt, jo sistēmas iestatījumos nav norādīts publiskais lietotājs!");
             }
@@ -46,7 +46,7 @@ class VerifyCsrfToken extends BaseVerifier
                 }
                 
                 //throw new TokenMismatchException;
-                return response()->json(['success' => 0, 'error' => 'Lietotāja sesija ir beigusies!'], 401);
+                return response()->json(['success' => 0, 'error' => trans('errors.session_ended')], 401);
             }
         }
         

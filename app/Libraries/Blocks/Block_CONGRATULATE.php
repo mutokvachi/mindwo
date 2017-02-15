@@ -73,6 +73,13 @@ class Block_CONGRATULATE extends Block
 		}
 	}
         
+        /**
+         * Prepares birthday/anniversary dates for sorting
+         * 
+         * @param DateTime $birth_date
+         * @param DateTime $join_date
+         * @return string Value to be inserted in sorting array
+         */
         private function getDateInfo($birth_date, $join_date) {
             if($birth_date && !$join_date)
             {
