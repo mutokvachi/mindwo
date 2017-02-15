@@ -29,7 +29,7 @@
                         @endif
                     </span>
                     <div class="mt-action-desc">
-                      {{ $self->getTypeOfEvent($employee) }}
+                      {!! $self->getTypeOfEvent($employee) !!}
                     </div>
                   </div>
                 </div>

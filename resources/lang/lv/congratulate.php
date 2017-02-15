@@ -14,5 +14,6 @@ return [
     'lbl_year' => 'gads', // year
     'lbl_years' => 'gadi', // years
     'widget_title' => 'APSVEICAM', //CONGRATULATE
-    
+    'lbl_today' => 'šodien',
+    'lbl_will_join' => 'Sāks strādāt no',
 ];
