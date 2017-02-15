@@ -16,6 +16,7 @@ return [
     'lbl_meta' => 'Informācija par ierakstiem',
     'lbl_reg_nr' => 'ID/Reģ. nr.',
     'lbl_about' => 'Saturs',
+    'lbl_info' => 'Informācija',
         
     // %s - email
     'info_sent' => 'Informācija par kontroles nosacījuma izpildi tika nosūtīta uz e-pastu %s. Ja šo e-pastu saņēmāt kļūdas pēc, lūdzu, informējiet par to uzņēmuma IT personālu.',

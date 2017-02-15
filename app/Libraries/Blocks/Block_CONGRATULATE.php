@@ -6,6 +6,8 @@ use App;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Config;
+use DB;
+use Log;
 
 /**
  * Class Block_CONGRATULATE
@@ -49,7 +51,7 @@ class Block_CONGRATULATE extends Block
 	{
 		if($employee->birth_date && !$employee->join_date)
 		{
-			return trans('congratulate.lbl_birthday');
+			return $this->getBirthdayTxt($employee->birth_date);
 		}
 		
 		if(!$employee->birth_date && $employee->join_date)
@@ -59,18 +61,68 @@ class Block_CONGRATULATE extends Block
 		
 		$now = Carbon::now(Config::get('dx.time_zone'));
 		
-		$birth = Carbon::createFromFormat('Y-m-d', $employee->birth_date);
-		
-		if($birth->month == $now->month && $birth->day == $now->day)
+		$birth = Carbon::createFromFormat('Y-m-d', $now->year . Carbon::createFromFormat('Y-m-d', $employee->birth_date)->format('-m-d'));
+                
+		if(abs($now->diffInDays($birth)) < 3)
 		{
-			return trans('congratulate.lbl_birthday');
-		}
-		
+                    return $this->getBirthdayTxt($employee->birth_date);                                       
+		}		
 		else
 		{
-			return $this->getAnniversTxt($employee->join_date);
+                    return $this->getAnniversTxt($employee->join_date);
 		}
 	}
+        
+        /**
+         * Prepares birthday/anniversary dates for sorting
+         * 
+         * @param DateTime $birth_date
+         * @param DateTime $join_date
+         * @return string Value to be inserted in sorting array
+         */
+        private function getDateInfo($birth_date, $join_date) {
+            if($birth_date && !$join_date)
+            {
+                return Carbon::createFromFormat('Y-m-d', $birth_date)->format("m-d");
+            }
+
+            if(!$birth_date && $join_date)
+            {
+                return Carbon::createFromFormat('Y-m-d', $join_date)->format("m-d");
+            }
+
+            $now = Carbon::now(Config::get('dx.time_zone'));
+
+            $birth = Carbon::createFromFormat('Y-m-d', $now->year . Carbon::createFromFormat('Y-m-d', $birth_date)->format('-m-d'));
+
+            if(abs($now->diffInDays($birth)) < 3)
+            {
+                return Carbon::createFromFormat('Y-m-d', $birth_date)->format("m-d");                                
+            }		
+            else
+            {
+                return Carbon::createFromFormat('Y-m-d', $join_date)->format("m-d");  
+            }
+        }
+        
+        /**
+         * Returns birthay text and date (day and month)
+         * 
+         * @param DateTime $birth_date Birthday in db date format
+         * @return string Birthday text
+         */
+        private function getBirthdayTxt($birth_date) {
+            $now = Carbon::now(Config::get('dx.time_zone'));
+            $birth = Carbon::createFromFormat('Y-m-d', $birth_date);
+            
+            if ($birth->month == $now->month && $birth->day == $now->day) {
+                $txt = "<font color=red>" . trans('congratulate.lbl_birthday') . " " . trans('congratulate.lbl_today') . "</font>";
+            }
+            else {
+                $txt = trans('congratulate.lbl_birthday') . " " . $birth->format("d M");
+            }
+            return $txt;
+        }
 	
 	/**
 	 * Returns JavaScript that calculates appropriate height of a widget.
@@ -135,46 +187,82 @@ END;
 				->whereMonth('birth_date', '=', $now->month)
 				->whereDay('birth_date', '=', $now->day);
 		})
-			->orWhere(function ($query) use ($now)
-			{
-				$query
-					->whereMonth('join_date', '=', $now->month)
-					->whereDay('join_date', '=', $now->day);
-			})
-			->get()
-			// check permissions
-			->filter(function ($employee) use ($user)
-			{
-				// logged user is admin
-				if($user->id == 1)
-				{
-					return true;
-				}
-				
-				// employee doesn't have any access rights specified
-				if(!count($employee->access))
-				{
-					return true;
-				}
-				
-				// check if logged in user has the same access role
-				foreach($employee->access as $role)
-				{
-					$tmp = $user->access->filter(function ($item) use ($role)
-					{
-						return $item->id == $role->id;
-					});
-					
-					if(count($tmp))
-					{
-						return true;
-					}
-				}
-				
-				return false;
-			});
-		
-		return $this->employees;
+                ->orWhere(function ($query) use ($now)
+                {
+                        $now1 = $now->copy()->addDay();
+                        $query
+                                ->whereMonth('birth_date', '=', $now1->month)
+                                ->whereDay('birth_date', '=', $now1->day);
+                })                
+                ->orWhere(function ($query) use ($now)
+                {
+                        $now2 = $now->copy()->addDays(2);
+                        $query
+                                ->whereMonth('birth_date', '=', $now2->month)
+                                ->whereDay('birth_date', '=', $now2->day);
+                })
+                ->orWhere(function ($query) use ($now)
+                {
+                        $now_1 = $now->copy()->subDay();
+                        
+                        $query
+                                ->whereMonth('birth_date', '=', $now_1->month)
+                                ->whereDay('birth_date', '=', $now_1->day);
+                })
+                ->orWhere(function ($query) use ($now)
+                {
+                        $now_2 = $now->copy()->subDays(2);
+                        $query
+                                ->whereMonth('birth_date', '=', $now_2->month)
+                                ->whereDay('birth_date', '=', $now_2->day);
+                })                
+                ->orWhere(function ($query) use ($now)
+                {
+                        $query
+                                ->whereMonth('join_date', '=', $now->month)
+                                ->whereDay('join_date', '=', $now->day);
+                })
+                ->orWhere(function ($query) use ($now)
+                {
+                        $now1 = $now->copy()->addDay();
+                        $query
+                                ->whereMonth('join_date', '=', $now1->month)
+                                ->whereDay('join_date', '=', $now1->day);
+                })                
+                ->orWhere(function ($query) use ($now)
+                {
+                        $now2 = $now->copy()->addDays(2);
+                        $query
+                                ->whereMonth('join_date', '=', $now2->month)
+                                ->whereDay('join_date', '=', $now2->day);
+                })
+                ->orWhere(function ($query) use ($now)
+                {
+                        $now_1 = $now->copy()->subDay();
+                        $query
+                                ->whereMonth('join_date', '=', $now_1->month)
+                                ->whereDay('join_date', '=', $now_1->day);
+                })
+                ->orWhere(function ($query) use ($now)
+                {
+                        $now_2 = $now->copy()->subDays(2);
+                        $query
+                                ->whereMonth('join_date', '=', $now_2->month)
+                                ->whereDay('join_date', '=', $now_2->day);
+                })                
+                ->get();
+                
+                $srt = array();
+                $empl_arr = array();
+                foreach ($this->employees as $key => $row)
+                {
+                    $srt[$key] = $this->getDateInfo($row->birth_date, $row->join_date);
+                    $empl_arr[$key] = $row;
+                }
+                                
+                array_multisort($srt, SORT_ASC, $empl_arr);
+                
+		return $empl_arr;
 	}
 	
 	protected function parseParams()
@@ -192,28 +280,37 @@ END;
 	{
 		$now = Carbon::now(Config::get('dx.time_zone'));
 		$join = Carbon::createFromFormat('Y-m-d', $join_date);
-		if($join->month == $now->month && $join->day == $now->day)
-		{
-			$yrs = $now->year - $join->year;
-			$txt = trans('congratulate.lbl_anniversary');
-			if($yrs == 0)
-			{
-				$txt = trans('congratulate.lbl_joined_today');
-			}
-			else
-			{
-				if($yrs == 1)
-				{
-					$txt .= $yrs . " " . trans('congratulate.lbl_year');
-				}
-				else
-				{
-					$txt .= $yrs . " " . trans('congratulate.lbl_years');
-				}
-			}
-			return $txt;
-		}
+		
+                $join_fix = Carbon::createFromFormat('Y-m-d', $now->year . Carbon::createFromFormat('Y-m-d', $join_date)->format('-m-d'));
+                
+                $day_dif = $now->diffInDays($join_fix);
+                
+                $join_fix2 = $join->copy()->addDays($day_dif);
+                
+                $yrs = $now->year - $join_fix2->year;
+                $txt = trans('congratulate.lbl_anniversary');
+                if($yrs == 0)
+                {
+                    if ($day_dif == 0) {    
+                        $txt = "<font color=red>" . trans('congratulate.lbl_joined_today') . "</font>";
+                    }
+                    else {
+                        $txt = trans('congratulate.lbl_will_join') . " " . $join->format("d M");
+                    }
+                }
+                else
+                {				
+                        if($yrs == 1)
+                        {
+                                $txt .= $yrs . " " . trans('congratulate.lbl_year');
+                        }
+                        else
+                        {
+                                $txt .= $yrs . " " . trans('congratulate.lbl_years');
+                        }
+                        $txt .= ", " . $join->format("d M");
+                }
+                return $txt;
+		
 	}
 }
-
-?>

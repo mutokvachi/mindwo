@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Class Mail
+ *
+ * A model which represents email message.
+ *
+ * @package App\Models
+ */
 class Mail extends Model
 {
 	/**
@@ -18,14 +25,14 @@ class Mail extends Model
 	 */
 	const CREATED_AT = 'created_time';
 	protected $table = 'dx_mail';
-	protected $addresses = [];
 	
+	/**
+	 * Send email to each recipient individually. Sending is done via queue.
+	 */
 	public function send()
 	{
-		$delay = 0;
-		
 		$recipients = $this->getRecipients();
-		
+		$delay = 0;
 		foreach($recipients as $recipient)
 		{
 			if(!filter_var($recipient->email, FILTER_VALIDATE_EMAIL))
@@ -38,7 +45,7 @@ class Mail extends Model
 				$message->from(config('mail.from.address'), config('mail.from.name'));
 				$message->subject($this->subject);
 			});
-			$delay += 2;
+			$delay += config('dx.email.send_delay', 0);
 		}
 		
 		$this->sent_time = Carbon::now();
@@ -50,18 +57,24 @@ class Mail extends Model
 		$this->save();
 	}
 	
-	public function formatDate($date)
+	/**
+	 * Format date according to configuration settings.
+	 *
+	 * @param $date
+	 * @return string
+	 */
+	public function formatDate($date, $full = false)
 	{
 		$now = new Carbon('now');
 		$date = new Carbon($date);
 		
-		if($date->diffInHours($now) < 24)
+		if(!$full && $date->diffInHours($now) < 24)
 		{
 			$result = $date->toTimeString();
 		}
 		else
 		{
-			$result = $date->toDateTimeString();
+			$result = $date->format(config('dx.txt_datetime_format', 'Y-m-d H:i:s'));
 		}
 		
 		return $result;
@@ -138,6 +151,13 @@ class Mail extends Model
 					$query->orWhereIn('id', $ids['empl']);
 				}
 			});
+		}
+		
+		$ignore = config('dx.empl_ignore_ids', []);
+		
+		if(!empty($ignore))
+		{
+			//$query->whereNotIn('id', $ignore);
 		}
 		
 		return $query->distinct()->get();

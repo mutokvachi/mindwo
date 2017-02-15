@@ -149,7 +149,7 @@ class Form
 
 			break;
 		}
-		Log::info("Field: " . $name . " HTML: " . $result);
+		
 		return $result;
 	}
 	

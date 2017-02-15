@@ -328,11 +328,28 @@ return [
         'default_levels' => 2,
         'default_root_employee_id' => 212
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Email interface options
+    |--------------------------------------------------------------------------
+    */
+    'email' => [
+            // Here we provide role ID (from table dx_roles) which can use email sending functionality
+            'access_role_id' => 1,
+            // Number of emails to show in folder index
+            'items_per_page' => 20,
+            // Delay between sending emails
+            'send_delay' => 0,
+    ],
     
     /*
     |--------------------------------------------------------------------------
-    | Here we provide role ID (from table dx_roles) which can use email sending functionality
+    | How much rows can be returned for autocompleate without any criteria
+    |
+    | Autocompleate for small classifiers can show all values (this setting declares what is treated as "small") 
+    | For large tables there will be search criteria required (at least 3 characters)
     |--------------------------------------------------------------------------
     */
-    'email_access_role_id' => 1,
+    'autocompleate_max_count' => 20,
 ];
