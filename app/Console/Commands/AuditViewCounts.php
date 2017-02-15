@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use DB;
 use App\Exceptions;
 use Auth;
+use Config;
 use Log;
 
 /**
@@ -301,6 +302,10 @@ class AuditViewCounts extends Command
         
         $view_id = ($def_view) ? $def_view->id : $view->id;
         
+        $is_profile = false;
+        if ($view->list_id == Config::get('dx.employee_list_id', 0) && Config::get('dx.employee_profile_page_url', '')) {
+            $is_profile = true;
+        }
         foreach ($arr as $empl) {
 
             $arr_data = [];
@@ -309,7 +314,8 @@ class AuditViewCounts extends Command
             $arr_data['items'] = $empl['items'];
             $arr_data['view_title'] = $view->title;
             $arr_data['view_id'] = $view_id;
-
+            $arr_data['is_profile'] = $is_profile;
+            
             dispatch(new \App\Jobs\SendMonitoringMail($arr_data, 'emails.monitor_detailed'));
         }
     }

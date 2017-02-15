@@ -285,7 +285,7 @@
                                                         
                                                         <tr style="margin: 0;padding: 0;font-family: &quot;Helvetica Neue&quot;, &quot;Helvetica&quot;, Helvetica, Arial, sans-serif;box-sizing: border-box;font-size: 14px;">
                                                                 <td style="margin: 0;padding: 15px;font-family: &quot;Helvetica Neue&quot;, &quot;Helvetica&quot;, Helvetica, Arial, sans-serif;box-sizing: border-box;font-size: 14px;vertical-align: top;border: 1px solid #ddd;text-align: left;">
-                                                                    <b>{{ trans('monitor_email.lbl_reg_nr') }}</b>
+                                                                    <b>{{ ($is_profile) ? trans('monitor_email.lbl_info') : trans('monitor_email.lbl_reg_nr') }}</b>
                                                                 </td>
                                                                 <td style="margin: 0;padding: 15px;font-family: &quot;Helvetica Neue&quot;, &quot;Helvetica&quot;, Helvetica, Arial, sans-serif;box-sizing: border-box;font-size: 14px;vertical-align: top;border: 1px solid #ddd;text-align: left;">
                                                                         <b>{{ trans('monitor_email.lbl_about') }}</b>
@@ -295,7 +295,11 @@
                                                         @foreach($items as $item)
                                                         <tr style="margin: 0;padding: 0;font-family: &quot;Helvetica Neue&quot;, &quot;Helvetica&quot;, Helvetica, Arial, sans-serif;box-sizing: border-box;font-size: 14px;">
                                                                 <td style="margin: 0;padding: 15px;font-family: &quot;Helvetica Neue&quot;, &quot;Helvetica&quot;, Helvetica, Arial, sans-serif;box-sizing: border-box;font-size: 14px;vertical-align: top;border: 1px solid #ddd;text-align: left;">
+                                                                    @if ($is_profile)
+                                                                        <a href="{{ $portal_url }}{{ ltrim(Config::get('dx.employee_profile_page_url'), '/') }}{{ $item['item_id'] }}" class="btn-primary" style="margin: 0;padding: 0;font-family: &quot;Helvetica Neue&quot;, &quot;Helvetica&quot;, Helvetica, Arial, sans-serif;box-sizing: border-box;font-size: 14px;color: #FFF;text-decoration: none;background-color: #2D5F8B;border: solid #2D5F8B;border-width: 5px 10px;line-height: 2;font-weight: bold;text-align: center;cursor: pointer;display: inline-block;border-radius: 5px; min-width: 130px;">{{ trans('employee.lbl_open_profile') }}</a>
+                                                                    @else
                                                                         <a href="{{ $portal_url }}skats_{{ $view_id }}?open_item_id={{ $item['item_id'] }}" class="btn-primary" style="margin: 0;padding: 0;font-family: &quot;Helvetica Neue&quot;, &quot;Helvetica&quot;, Helvetica, Arial, sans-serif;box-sizing: border-box;font-size: 14px;color: #FFF;text-decoration: none;background-color: #2D5F8B;border: solid #2D5F8B;border-width: 5px 10px;line-height: 2;font-weight: bold;text-align: center;cursor: pointer;display: inline-block;border-radius: 5px; min-width: 130px;">{{ $item['reg_nr'] }}</a>
+                                                                    @endif
                                                                 </td>
                                                                 <td style="margin: 0;padding: 15px;font-family: &quot;Helvetica Neue&quot;, &quot;Helvetica&quot;, Helvetica, Arial, sans-serif;box-sizing: border-box;font-size: 14px;vertical-align: top;border: 1px solid #ddd;text-align: left;">
                                                                         {{ $item['about'] }}
