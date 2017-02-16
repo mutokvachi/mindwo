@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Jobs\SendScheduledEmails;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Config;
@@ -46,6 +47,13 @@ class Kernel extends ConsoleKernel
         // Checks if queue listener is running. Starts queue listener if not started
         $schedule->command('mindwo:check_listener')
                  ->everyTenMinutes();
+        
+        // Send scheduled emails
+        $schedule->call(function()
+		{
+			$job = new SendScheduledEmails();
+			dispatch($job);
+		})->everyFiveMinutes();
 
     }
 }

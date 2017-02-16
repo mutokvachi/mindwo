@@ -55,6 +55,15 @@ namespace App\Libraries\DataView {
                         
             $this->generateWord();
             
+            $down_guid = Uuid::generate(4);
+            DB::table('dx_downloads')->insertGetId([
+                'user_id' => Auth::user()->id,
+                'field_id' => $this->file_field->id,
+                'item_id' => $this->item_id,
+                'guid' => $down_guid,
+                'init_time' => date('Y-n-d H:i:s')
+            ]);
+                    
             return  view('fields.file', [
                          'item_id' => $this->item_id, 
                          'list_id' => $this->list_id,
@@ -64,7 +73,10 @@ namespace App\Libraries\DataView {
                          'item_value' => $this->file_name,
                          'is_disabled' => 1,
                          'class_exist' => "exists",
-                         'is_required' => $this->file_field->is_required
+                         'is_required' => $this->file_field->is_required,
+                         'is_pdf' => false,
+                         'down_guid' => $down_guid,
+                         'is_item_editable' => true
                     ])->render(); 
         }
         

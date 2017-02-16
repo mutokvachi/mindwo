@@ -297,4 +297,59 @@ return [
     |--------------------------------------------------------------------------
     */
     'time_zone' => 'Europe/Riga',
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Indicates if there is posibility to edit files with Word/OpenOffice etc - will be launched MindwoApp.exe (via protocol mindwo:// )
+    | This means, users must have installed MindwoApp on their computers
+    | This works only for Microsoft Windows OS.
+    |--------------------------------------------------------------------------
+    */
+    'is_files_editor' => false,
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Company name and logo which will be displayed in org chart in case if multiple root employees    | 
+    |--------------------------------------------------------------------------
+    */
+    'company' => [
+        'title' => 'ACME Corporation',
+        'short_title' => 'ACME Corp.',
+        'logo' => 'assets/global/avatars/default_avatar_big.jpg',
+    ],
+ 
+    /*
+    |--------------------------------------------------------------------------
+    | Org chart parameters - how much levels will be opened by default and which employee will be used as root by default
+    | If no default employee then will be loaded all employees with no manager
+    |--------------------------------------------------------------------------
+    */
+    'orgchart' => [
+        'default_levels' => 2,
+        'default_root_employee_id' => 212
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Email interface options
+    |--------------------------------------------------------------------------
+    */
+    'email' => [
+            // Here we provide role ID (from table dx_roles) which can use email sending functionality
+            'access_role_id' => 1,
+            // Number of emails to show in folder index
+            'items_per_page' => 20,
+            // Delay between sending emails
+            'send_delay' => 0,
+    ],
+    
+    /*
+    |--------------------------------------------------------------------------
+    | How much rows can be returned for autocompleate without any criteria
+    |
+    | Autocompleate for small classifiers can show all values (this setting declares what is treated as "small") 
+    | For large tables there will be search criteria required (at least 3 characters)
+    |--------------------------------------------------------------------------
+    */
+    'autocompleate_max_count' => 20,
 ];

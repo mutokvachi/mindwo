@@ -39,7 +39,7 @@ namespace App\Libraries\FieldsHtm
             $down_guid = "";
             $is_pdf = false;
             
-            if ($view_name == "file") {
+            if ($view_name == "file" && $this->item_id > 0) {
                 $is_pdf = $this->isPDF($this->item_value);
                 
                 if (!$is_pdf) {

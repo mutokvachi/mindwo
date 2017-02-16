@@ -34,5 +34,9 @@ return [
     'lbl_year_from' => 'From year',
     
     'hours' => "hours",
-    'days' => 'days'
+    'days' => 'days',
+    
+    'international' => 'International',
+    'holiday' => 'Holiday',
+    'birthdays' => 'Birthdays',
 ];

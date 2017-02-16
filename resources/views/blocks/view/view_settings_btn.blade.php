@@ -1,0 +1,10 @@
+@if ($is_setting_rights)
+    <div class='btn-group {{ $pull_class }} dx-register-tools'>
+        <button  type='button' class='btn btn-white dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
+            <i class='fa fa-cog'></i> <i class='fa fa-caret-down'></i>
+        </button>
+        <ul class='dropdown-menu pull-right' style="z-index: 50000;">
+            <li><a href='#' class="dx-register-settings">{{ trans('grid.menu_admin_settings') }}</a></li>
+        </ul>
+    </div>
+@endif

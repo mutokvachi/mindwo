@@ -2,12 +2,10 @@
   <a href="{{ url('/mail/compose') }}" data-title="{{ trans('mail.compose') }}" class="btn red compose-btn btn-block">
     <i class="fa fa-edit"></i> {{ trans('mail.compose') }}</a>
   <ul class="inbox-nav">
-    @foreach($folders as $id => $name)
+    @foreach($folders as $id)
       <li>
         <a href="{{ url('/mail/'.$id) }}" class="folder-{{ $id }}" data-type="{{ $id }}" data-title="{{ trans('mail.'.$id) }}">{{ trans('mail.'.$id) }}
-          {{--
-          <span class="badge badge-warning">2</span>
-          --}}
+          <span class="badge badge-success" style="{{ $counts[$id] == 0 ? 'display: none': '' }}">{{ $counts[$id] }}</span>
         </a>
       </li>
     @endforeach
@@ -15,7 +13,7 @@
   <ul class="inbox-contacts">
     <li class="divider margin-bottom-30"></li>
     <li>
-      <a href="javascript:;" class="inbox-shortcut" data-id="0">
+      <a href="javascript:;" class="inbox-shortcut" data-id="0:0">
         <i class="fa fa-envelope-o"></i><span class="contact-name"> {{ trans('mail.all_company') }}</span>
       </a>
     </li>
