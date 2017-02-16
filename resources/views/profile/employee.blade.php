@@ -66,8 +66,8 @@
         @include('profile.tile_leave')
         @include('profile.tile_hired')
         @include('profile.tile_manager')
-        
       </div>
+      @include('profile.tile_direct_reporters')
       @include('profile.tab_team')
     </div>
     

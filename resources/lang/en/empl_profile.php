@@ -38,6 +38,8 @@ return [
     'tab_cards' => 'Corporate cards',
     'tab_devices' => 'Devices',
     
+    'direct_reporters' => 'Direct reporters',
+    
     'personal_docs' => [
         'new_doc' => 'New document',
         'clear_doc' => 'Clear document data',
