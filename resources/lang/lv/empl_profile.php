@@ -39,6 +39,8 @@ return [
     'tab_cards' => 'Corporate cards',
     'tab_devices' => 'Devices',
     
+    'direct_reporters' => 'Tiešajā pakļautībā',
+    
     'personal_docs' => [
         'new_doc' => 'Jauns dokuments',
         'clear_doc' => 'Notīrīt dokumenta datus',
