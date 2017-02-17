@@ -1736,8 +1736,18 @@ hh:"%d hours",d:"a day",dd:"%d days",M:"a month",MM:"%d months",y:"a year",yy:"%
             var chart_options = [];
 
             var order = 1;
+            
+            var barCount = 0;
+            
+            // Count how many bars will be visualised
+            $.each(self.reportColumns, function (col_key, col) {
+                if(col.is_bar){
+                    barCount++;
+                }
+            });
 
-            var bar_width = (0.8) / (Object.keys(self.reportColumns).length - 1);
+            // Determine bar width from how many bars there are
+            var bar_width = (0.8) / barCount;
 
             $.each(self.reportColumns, function (col_key, col) {
                 // Sets color and text for bar or line
@@ -1752,11 +1762,7 @@ hh:"%d hours",d:"a day",dd:"%d days",M:"a month",MM:"%d months",y:"a year",yy:"%
                 for (var i = 0; i < data.res.length; i++) {
                     var row = data.res[i];
 
-                    if (col.is_bar && Number(row[col_key]) > 0) {
-                        option.data.push([i, self.calculateChartHours(row[col_key])]);
-                    } else {
-                        option.data.push([i, self.calculateChartHours(row[col_key])]);
-                    }
+                    option.data.push([i, self.calculateChartHours(row[col_key])]);
                 }
 
                 // Set bar or line settings

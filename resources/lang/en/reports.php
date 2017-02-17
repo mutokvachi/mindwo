@@ -6,8 +6,16 @@ return [
         'unit' => '',
         'gain' => 'Joined',
         'loss' => 'Left',
-        'total' => 'Active',
         'title' => 'Employees by status',
+        'group' => 'Department',
+        'all' => 'All',
+        'date_interval' => 'Date interval'
+    ],  
+    
+    'EMPLOYEE_ACTIVE' => [
+        'unit' => '',
+        'total' => 'Active',
+        'title' => 'Active employees',
         'group' => 'Department',
         'all' => 'All',
         'date_interval' => 'Date interval'
