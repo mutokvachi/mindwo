@@ -12,6 +12,7 @@
 var gulp = require('gulp');
 var exec = require('child_process').exec;
 var elixir = require('laravel-elixir');
+var babel = require('laravel-elixir-babel');
 
 gulp.task('langjs', function () {
     // cd command is needed to navigate to path where gulp was executed because on some environments there is problem with incorrect starting path 
@@ -242,15 +243,22 @@ gulp.task('mix_all', function() {
             'mindwo/pages/articles.js'
         ], 'public/js/elix_articles.js', 'resources/assets/plugins');
         
+        // Translate OrgChart plugin source from ES6 to ES5
+        // uncomment this after editing orgchart.js
+        //mix.babel(['orgchart.js'],
+		//	'resources/assets/plugins/orgchart/orgchart.es5.js',
+        //    'resources/assets/plugins/orgchart'
+        //);
+        
         // Scripts for organization chart
         mix.scripts([
 			'select2/select2.min.js',
 			'select2/select2_locale_multi.js',
             'html2canvas/html2canvas.js',
-			'orgchart/orgchart.js',
+			'orgchart/orgchart.es5.js',
             'mindwo/pages/organization_chart.js'
         ], 'public/js/elix_orgchart.js', 'resources/assets/plugins');
-	
+        
         // Styles for organization chart
         mix.styles([
 			'select2/select2.css',
@@ -262,7 +270,7 @@ gulp.task('mix_all', function() {
         // Scripts for departments chart
         mix.scripts([
                 'html2canvas/html2canvas.js',
-                'orgchart/orgchart.js',
+                'orgchart/orgchart.es5.js',
                 'mindwo/pages/organization_departments.js'
         ], 'public/js/elix_orgdepartments.js', 'resources/assets/plugins');
 
@@ -274,7 +282,7 @@ gulp.task('mix_all', function() {
                 'mindwo/css/organization_chart.css',
                 'mindwo/css/organization_departments.css'
         ], 'public/css/elix_orgdepartments.css', 'resources/assets/plugins');
-	
+        
 	// Styles for mail interface
         mix.styles([
                 'resources/assets/plugins/select2-4.0/css/select2.css',
@@ -287,7 +295,7 @@ gulp.task('mix_all', function() {
                 'public/metronic/apps/css/inbox.css',
                 'resources/assets/plugins/mindwo/css/mail.css'
         ], 'public/css/elix_mail.css', './');
-
+        
         // Scripts for mail interface
         mix.scripts([
                 'resources/assets/plugins/select2-4.0/js/select2.js',
@@ -310,7 +318,7 @@ gulp.task('mix_all', function() {
                 'public/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-ui.js',
                 'resources/assets/plugins/mindwo/pages/mail.js'
         ], 'public/js/elix_mail.js', './');
-                
+        
         // Minify all scripts
         mix.version([
             'js/elix_userlinks.js', 
