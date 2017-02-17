@@ -6,9 +6,9 @@ use DB;
 use Config;
 
 /**
- * Report widget for employee status
+ * Report widget for total active employees
  */
-class Report_EMPLOYEE_STATUS extends Report
+class Report_EMPLOYEE_ACTIVE extends Report
 {
     /**
      * DB table name which is used in reports
@@ -23,15 +23,10 @@ class Report_EMPLOYEE_STATUS extends Report
     public function __construct($report_name)
     {
         $this->report_columns = [
-            'gain' => [
-                'color' => '#26c281',
-                'title' => trans('reports.' . $report_name . '.gain'),
-                'is_bar' => true
-            ],
-            'loss' => [
-                'color' => '#e7505a',
-                'title' => trans('reports.' . $report_name . '.loss'),
-                'is_bar' => true
+            'total' => [
+                'color' => '#3598dc',
+                'title' => trans('reports.' . $report_name . '.total'),
+                'is_bar' => false
             ],
         ];
 
@@ -47,15 +42,7 @@ class Report_EMPLOYEE_STATUS extends Report
     {
         $result = array();
 
-        foreach ($this->report_columns as $key => $col) {
-            $result[$key] = 0;
-        }
-
-        foreach ($res as $row) {
-            foreach ($this->report_columns as $key => $col) {
-                $result[$key] += $row->$key;
-            }
-        }
+        $result['total'] = end($res)->total;
 
         return $result;
     }
@@ -91,8 +78,28 @@ class Report_EMPLOYEE_STATUS extends Report
         $res = DB::select("SELECT 
             cl.year, 
             cl.month, 
-            (SELECT COUNT(*) FROM dx_users u " . $group_query_join . " WHERE " . $sql_where . " YEAR(ifnull(u.join_date,'1970-01-01')) = cl.year AND MONTH(ifnull(u.join_date,'1970-01-01')) = cl.month AND ifnull(u.join_date,'1970-01-01') >= :fromDate AND ifnull(u.join_date,'1970-01-01') <= :toDate) as gain,
-            (SELECT COUNT(*) FROM dx_users u " . $group_query_join . " WHERE " . $sql_where . " YEAR(u.termination_date) = cl.year AND MONTH(u.termination_date) = cl.month AND u.termination_date >= :fromDate AND u.termination_date <= :toDate) as loss
+            (SELECT COUNT(*) FROM dx_users u " . $group_query_join . "
+                    WHERE " . $sql_where . "
+                    (
+                            ifnull(u.join_date,'1970-01-01') <=  :toDate
+                            AND (YEAR(ifnull(u.join_date,'1970-01-01')) < cl.year 
+                                    OR (YEAR(ifnull(u.join_date,'1970-01-01')) = cl.year 
+                                            AND (MONTH(ifnull(u.join_date,'1970-01-01')) <= cl.month 
+                                            )
+                                    )
+                            )
+                            AND (u.termination_date IS NULL 
+                                    OR YEAR(u.termination_date) > cl.year 
+                                    OR (YEAR(u.termination_date) = cl.year 
+                                            AND (MONTH(u.termination_date) > cl.month 
+                                                    OR (MONTH(u.termination_date) = cl.month 
+                                                            AND (MONTH(u.termination_date) = MONTH(:toDate) AND u.termination_date > :toDate)
+                                                    )
+                                            )
+                                    )
+                            )
+                    )
+            ) as total
             FROM dx_date_classifiers cl
             WHERE cl.year >= YEAR(:fromDate)
             AND cl.year <= YEAR(:toDate)
