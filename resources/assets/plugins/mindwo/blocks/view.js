@@ -869,7 +869,14 @@ var BlockViews = function()
             }
 
             err_txt = err_txt + err_arr[$i];
-        }               
+        }
+        
+        if (data["errors"].length > 0) {
+            if (err_txt.length > 0) {
+                err_txt = err_txt + "<br /><br />";
+            }
+            err_txt = err_txt + data["errors"];
+        }
 
 
         if (err_txt.length > 0) {

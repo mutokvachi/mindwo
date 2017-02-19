@@ -168,9 +168,10 @@ class FileController extends Controller
         foreach($file_fields as $filefield) {
             $file = $this->getFileData($item_id, $list_id, $filefield->id);
 
-            if ($file && $file->file_name) {
+            if ($file && $file->file_name) {                
                 break;
             }
+            $file = null;
         }
         
         if (!$file) {

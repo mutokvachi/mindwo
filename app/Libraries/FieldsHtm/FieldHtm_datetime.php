@@ -36,12 +36,33 @@ namespace App\Libraries\FieldsHtm
             return ($this->item_value) ? long_date($this->item_value) : "";
         }
 
-        /**
-         * Uzstāda noklusēto vērtību jauna ieraksta gadījumā - šim laukam nav noklusētā vērtība
+         /**
+         * Uzstāda noklusēto vērtību jauna ieraksta gadījumā
          */
         protected function setDefaultVal()
         {
-            
+            if ($this->item_id > 0) {
+                return;
+            }
+
+            $this->item_value = $this->generateDate();
+        }
+
+        /**
+         * Generated today's date
+         * @return Date Today's date
+         */
+        private function generateDate()
+        {
+            if (strlen($this->fld_attr->default_value) == 0) {
+                return null;
+            }
+
+            if ($this->fld_attr->default_value == "[NOW]") {
+                return date(Config::get('dx.txt_datetime_format', 'd.m.Y H:i'));
+            }
+
+            return null;
         }
 
     }

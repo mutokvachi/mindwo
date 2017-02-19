@@ -763,37 +763,10 @@ class TasksController extends Controller
         
         $this->checkRights($list_id);
        
-        $this->setActiveWorkflow($list_id);
+        $is_paralel = $request->input('is_paralel', 0);
+        $custom_approvers = $request->input('approvers', '');
         
-        $first_step_nr = $this->getFirstStepNr($list_id);
-        
-        DB::transaction(function () use ($list_id, $item_id, $first_step_nr, $request) {
-            
-            $is_paralel = $request->input('is_paralel', 0);
-            
-            $this->wf_info_id = DB::table('dx_workflows_info')
-                                ->insertGetId([
-                                    'init_user_id' => Auth::user()->id,
-                                    'workflow_def_id' => $this->workflow_id,
-                                    'init_time' => date("Y-m-d H:i:s"),
-                                    'is_paralel_approve' => $is_paralel
-                                ]);
-            
-            $custom_approvers = $request->input('approvers', '');
-            
-            if (strlen($custom_approvers) > 0) {
-                $this->saveCustomApprovers($custom_approvers);
-            }
-            
-            // we start again with the 1st step (can be n paralel)
-            $steps = $this->getNextStep($first_step_nr, $list_id, $item_id, 1); // get next closest acceptance task (or n tasks in paralel)
-
-            if (count($steps) > 0)
-            {
-                $this->newAcceptanceTaskDocInfo($steps, $item_id);
-            }
-
-        });
+        $this->startWorkflow($list_id, $item_id, $is_paralel, $custom_approvers);
         
         // Current doc status, send as response to update interface
         return response()->json([
@@ -809,6 +782,44 @@ class TasksController extends Controller
     }
     
     /**
+     * Starts the workflow
+     * 
+     * @param integer $list_id List ID
+     * @param integer $item_id Item ID
+     * @param boolean $is_paralel Indicates if there is paralel approval
+     * @param string $custom_approvers JSON as string - custom approvers (if not provided then zero lenght)
+     */
+    public function startWorkflow($list_id, $item_id, $is_paralel, $custom_approvers) {
+        $this->setActiveWorkflow($list_id);
+        
+        $first_step_nr = $this->getFirstStepNr($list_id);
+        
+        DB::transaction(function () use ($list_id, $item_id, $first_step_nr, $is_paralel, $custom_approvers) {
+            
+            $this->wf_info_id = DB::table('dx_workflows_info')
+                                ->insertGetId([
+                                    'init_user_id' => Auth::user()->id,
+                                    'workflow_def_id' => $this->workflow_id,
+                                    'init_time' => date("Y-m-d H:i:s"),
+                                    'is_paralel_approve' => $is_paralel
+                                ]);
+            
+            if (strlen($custom_approvers) > 0) {
+                $this->saveCustomApprovers($custom_approvers);
+            }
+            
+            // we start again with the 1st step (can be n paralel)
+            $steps = $this->getNextStep($first_step_nr, $list_id, $item_id, 1); // get next closest acceptance task (or n tasks in paralel)
+
+            if (count($steps) > 0)
+            {
+                $this->newAcceptanceTaskDocInfo($steps, $item_id);
+            }
+
+        });
+    }
+    
+    /**
      * Gets HTML for forms top menu left side buttons
      * 
      * @param integer $list_id List ID
@@ -819,9 +830,31 @@ class TasksController extends Controller
     private function getFormTopMenuLeft($list_id, $item_id, $workflow_btn) {
         $table_name = \App\Libraries\DBHelper::getListObject($list_id)->db_name;
         
+        if ($workflow_btn == 3) {
+            // cancel wf
+            $list_right = Rights::getRightsOnList($list_id);
+            if ($list_right == null) {
+                $is_edit_rights = 0;
+                $is_delete_rights = 0;                
+            }
+            else {
+                $is_edit_rights = $list_right->is_edit_rights;
+                $is_delete_rights = $list_right->is_delete_rights;
+            }
+            
+            if ($is_edit_rights == 0) { 
+                $workflow_btn = 2; // if no edit rights then why rights to start wf.. so hide wf starting button
+            }
+        }
+        else {
+            //start wf
+            $is_edit_rights = 1; // because was able to start workflow
+            $is_delete_rights = 1; // because was able to start workflow
+            
+        }
         return  view('elements.form_left_btns', [
-                                'is_edit_rights' => 1, // because was able to start workflow
-                                'is_delete_rights' => 1, // because was able to start workflow
+                                'is_edit_rights' => $is_edit_rights,
+                                'is_delete_rights' => $is_delete_rights,
                                 'form_is_edit_mode' => 0,
                                 'workflow_btn' => $workflow_btn,
                                 'item_id' => $item_id,

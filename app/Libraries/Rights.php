@@ -31,9 +31,21 @@ namespace App\Libraries
 
             $doc_table = Workflows\Helper::getListTableName($list_id);
 
+            // Pagaidu risinājums - lai tomēr reģistram var iekonfigurēt neņemt vērā darbplūsmas statusu tiesību noteikšanā
+            $fld_row = DB::table('dx_lists_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('db_name', '=', 'dx_item_status_id')
+                    ->first();
+            
+            if (!$fld_row) {
+                return true;
+            }
+            
+            /*
             if (!Schema::hasColumn($doc_table, 'dx_item_status_id')) {
                 return true; // reģistra tabulā nav lauks dx_item_status_id, bez kura nav iespējamas darbplūsmas, tāpēc ierakstu var rediģēt
-            }
+            }            
+            */
 
             if (Rights::isEditTaskRights($list_id, $item_id)) {
                 return true; // user have active task for editing this item

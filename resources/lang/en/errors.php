@@ -107,4 +107,10 @@ return [
     'duplicate_view_title' => 'Duplicate view title! Please provide another title.',
     
     'cant_delete_default_view' => "The view can't be deleted because there is no default view set! Please set another view as default.",
+    
+    'employee_name_exception' => "Employee name '%s' can't be splited as first name and last name",
+    
+    'unsuported_action_code' => "Unsuported form's action code '%s'!",
+    
+    'helpdesk_responsible_not_set' => "There is not set responsible %s for HelpDesk request type '%s'!",
 ];
