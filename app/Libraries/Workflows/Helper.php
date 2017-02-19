@@ -277,6 +277,13 @@ namespace App\Libraries\Workflows
 
             $val_row = DB::table($table_name)->select(DB::raw($fld_val_row->db_name . " as val"))->where('id', '=', $item_id)->first();
 
+            if ($val_row->val && ($fld_val_row->type_id == \App\Libraries\DBHelper::FIELD_TYPE_LOOKUP || $fld_val_row->type_id == \App\Libraries\DBHelper::FIELD_TYPE_RELATED)) {
+                $obj_row = \App\Libraries\DBHelper::getListObject($fld_val_row->rel_list_id);
+                $fld_row = DB::table("dx_lists_fields")->where("id", "=", $fld_val_row->rel_display_field_id)->first();
+                
+                $val_row = DB::table($obj_row->db_name)->select(DB::raw($fld_row->db_name . " as val"))->where('id', '=', $val_row->val)->first();
+            }
+            
             return $val_row->val;
         }
        
