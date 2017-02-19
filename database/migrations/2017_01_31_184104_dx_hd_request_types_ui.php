@@ -31,6 +31,23 @@ class DxHdRequestTypesUi extends Migration
 
             // reorganize view fields - hide or remove unneeded
             \App\Libraries\DBHelper::removeFieldsFromAllViews($table_name, ['id'], true); // hide ID field
+            
+            // adjust form look & feel
+            DB::table('dx_forms_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('field_id', '=', DB::table('dx_lists_fields')
+                                                ->where('list_id', '=', $list_id)
+                                                ->where('db_name', '=', 'full_path')
+                                                ->first()->id)
+                    ->update(['is_hidden' => 1]);
+            
+            DB::table('dx_lists_fields')
+            ->where('list_id', '=', $list_id)
+            ->where('db_name', '=', 'full_path')
+            ->update([
+                'type_id' => \App\Libraries\DBHelper::FIELD_TYPE_LONG_TEXT,
+                'max_lenght' => 4000
+            ]);
                     
             // user rights
             DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1]); // Sys admins
@@ -54,8 +71,9 @@ class DxHdRequestTypesUi extends Migration
     public function down()
     {
         DB::transaction(function () {
-            \App\Libraries\DBHelper::deleteRegister('dx_salary_types');
-            DB::table('dx_objects')->where('db_name', '=', 'dx_salary_types')->delete();
+            \App\Libraries\DBHelper::deleteRegister('dx_hd_request_types');
+            DB::table('dx_objects')->where('db_name', '=', 'dx_hd_request_types')->delete();
+            DB::table('dx_menu')->where('title', '=', 'Atbalsts')->delete();
         });
     }
 }
