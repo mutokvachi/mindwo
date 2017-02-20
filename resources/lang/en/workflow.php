@@ -83,7 +83,7 @@ return [
     
     'err_no_direct_manager' => "The workflow can not be started because the employee '%s' do not have dirrect manager!",
     
-    'err_unsuported_activity' => 'Unsuported custom workflow activity code %s!',
+    'err_unsuported_activity' => 'Unsupported custom workflow activity code %s!',
     
     'fld_activity' => 'Activity',
     
@@ -93,4 +93,4 @@ return [
 
     'yes' => 'Yes',
     'no' => 'No',
-        ];
+];

@@ -112,5 +112,5 @@ return [
     
     'unsuported_action_code' => "Unsuported form's action code '%s'!",
     
-    'helpdesk_responsible_not_set' => "There is not set responsible %s for HelpDesk request type '%s'!",
+    'wrong_date_format' => "Data can't be saved! Wrong date format for the field '%s'. Date must be in format %s!",
 ];

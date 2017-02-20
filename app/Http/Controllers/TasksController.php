@@ -1509,15 +1509,21 @@ class TasksController extends Controller
     private function stepSetValue($step_row, $item_id, $recursion_nr)
     {             
         // get list db table name
-        $list_row = DB::table("dx_lists")->where("id", "=", $step_row->list_id)->first();
-        $obj_row = DB::table("dx_objects")->where("id", "=", $list_row->object_id)->first();
+        $obj_row = \App\Libraries\DBHelper::getListObject($step_row->list_id);
         
         // get table field name
-        $fld_row = DB::table("dx_lists_fields")->where("id", "=", $step_row->field_id)->first();
+        $fld_row = DB::table("dx_lists_fields as lf")
+                   ->join('dx_field_types as t', 'lf.type_id', '=', 't.id')
+                   ->select(
+                           'lf.db_name as fld_name',
+                           't.sys_name as fld_type'
+                   )
+                   ->where("lf.id", "=", $step_row->field_id)
+                   ->first();
         
         // update item field value
-        DB::table($obj_row->db_name)->where('id', '=', $item_id)->update([$fld_row->db_name => $step_row->field_value]);
-        
+        Workflows\ValueSetters\ValueSetterFactory::build_setter($item_id, $obj_row->db_name, $fld_row, $step_row->field_value);
+                
         // go to yes step
         return $this->getNextStep($step_row->yes_step_nr, $step_row->list_id, $item_id, $recursion_nr);
     }

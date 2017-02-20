@@ -50,7 +50,7 @@ namespace App\Libraries\FieldsSave
             
             if (strlen($date) == 0)
             {
-                throw new Exceptions\DXCustomException("Nevar saglabāt datus! Nekorekts datuma formāts laukam '" . $this->fld->title_form . "'! Datumam jābūt formātā " . $this->date_format . "!");
+                throw new Exceptions\DXCustomException(sprintf(trans('errors.wrong_date_format'), $this->fld->title_form, $this->date_format));
             }
             
             $this->is_val_set = 1;
