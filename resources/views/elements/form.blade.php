@@ -65,7 +65,7 @@
             </div>
             
             <div class='modal-footer' style='border-top: 1px solid #c1c1c1;'>
-                <a href='javascript:;' class='dx-cms-history-link pull-left' style='margin-top: 5px; {{ $item_id == 0 ? "display: none" : ""}}' title='{{ trans('form.hint_history') }}'><i class='fa fa-history'></i> {{ trans('form.link_history') }}</a>
+                <a href='javascript:;' class='dx-cms-history-link pull-left' style='margin-top: 5px; {{ $item_id == 0 ? "display: none" : ""}}' title='{{ trans('form.hint_history') }}'><i class='fa fa-history'></i> {{ trans('form.link_history') }}&nbsp;</a><span class="badge badge-default pull-left dx-history-badge" style="display: {{ ($history_count) ? 'block' : 'none'}};">{{ $history_count }}</span>
                 @if ($is_disabled == 0)
                     <button  type='button' class='btn btn-primary' id='btn_save_{{ $frm_uniq_id }}'>{{ trans('form.btn_save') }}</button>
                 @endif

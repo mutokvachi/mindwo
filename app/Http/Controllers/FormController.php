@@ -170,7 +170,8 @@ class FormController extends Controller
             'is_word_generation_btn' => \App\Libraries\Helper::getWordGenerBtn($list_id),
             'info_tasks' => \App\Libraries\Helper::getInfoTasks($list_id, $item_id, $table_name),
             'is_workflow_defined' => ($this->workflow),
-            'self' => $this
+            'self' => $this,
+            'history_count' => DB::table('dx_db_events')->where('list_id', '=', $list_id)->where('item_id', '=', $item_id)->count()
         ])->render();
         
         return response()->json(['success' => 1, 'frm_uniq_id' => "" . $frm_uniq_id, 'html' => $form_htm, 'is_fullscreen' => $params->is_full_screen_mode]);
@@ -247,7 +248,14 @@ class FormController extends Controller
 
         $fields_htm = $this->getFormFieldsHTML($frm_uniq_id, $list_id, $item_id, $parent_item_id, $parent_field_id, $params);
 
-        return response()->json(['success' => 1, 'frm_uniq_id' => "" . $frm_uniq_id, 'html' => $fields_htm, 'tabs' => $this->arr_data_tabs, 'is_fullscreen' => $params->is_full_screen_mode]);
+        return response()->json([
+            'success' => 1, 
+            'frm_uniq_id' => "" . $frm_uniq_id, 
+            'html' => $fields_htm, 
+            'tabs' => $this->arr_data_tabs, 
+            'is_fullscreen' => $params->is_full_screen_mode,
+            'history_count' => DB::table('dx_db_events')->where('list_id', '=', $list_id)->where('item_id', '=', $item_id)->count()
+        ]);
     }
 
     /**

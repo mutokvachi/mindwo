@@ -14970,6 +14970,13 @@ function refresh_form_fields(edit_form_htm_id, form_htm_id, item_id, list_id, re
                         }
                     }
         
+                    var footer = $("#" + form_htm_id).find(".modal-footer");
+                    footer.find(".dx-history-badge").html(myData['history_count']);
+                    
+                    if (myData['history_count']) {
+                        footer.find(".dx-history-badge").show();
+                    }
+                    
                     notify_info(DX_CORE.trans_data_saved);
                     stop_executing(edit_form_htm_id);
 

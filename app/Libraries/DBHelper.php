@@ -20,6 +20,11 @@ namespace App\Libraries
          * Reģistra lauka tips - teksts (no tabulas dx_field_types)
          */
         const FIELD_TYPE_TEXT = 1;
+        
+        /**
+        * Reģistra lauka tips - datums un laiks (no tabulas dx_field_types)
+        */
+        const FIELD_TYPE_DATETIME = 2;
 
         /**
          * Reģistra lauka tips - saistītais ieraksts (no tabulas dx_field_types)

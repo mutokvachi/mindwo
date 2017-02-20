@@ -111,4 +111,6 @@ return [
     'unsuported_action_code' => "Neatbalstīts formas aktivitātes kods '%s'!",
     
     'helpdesk_responsible_not_set' => "Nav uzstādīta IT atbalsta pieteikuma veida atbildīgā persona! Ir jānorāda %s pieteikuma veidam '%s'.",
+    
+    'wrong_date_format' => "Nevar saglabāt datus! Nekorekts datuma formāts laukam '%s'! Datumam jābūt formātā %s!"
 ];

@@ -43,4 +43,6 @@ return [
     'hint_history' => 'View item changes history',
     'history_form_title' => 'History',
     'btn_changes' => 'See changes',
+    
+    'history_not_found' => 'This item does not have any changes history record.',
 ];
