@@ -7561,8 +7561,8 @@ Date.parseFunctions={count:0};Date.parseRegexes=[];Date.formatFunctions={count:0
                 },
                 success: function (result) {
                     if (result && result.success && result.success == 1) {
-                        $('dx-widget-employeecount-body').html(result.view);
-                        $('dx-widget-employeecount-total').html(result.total_count);
+                        $('.dx-widget-employeecount-body', self.domObject).html(result.view);
+                        $('.dx-widget-employeecount-total', self.domObject).html(result.total_count);
                     }
                     hide_page_splash(1);
                 },
@@ -7578,11 +7578,11 @@ Date.parseFunctions={count:0};Date.parseRegexes=[];Date.formatFunctions={count:0
             var yyyy = today.getFullYear();
 
             if (dd < 10) {
-                dd = '0' + dd
+                dd = '0' + dd;
             }
 
             if (mm < 10) {
-                mm = '0' + mm
+                mm = '0' + mm;
             }
 
             today = yyyy + '-' + mm + '-' + dd;

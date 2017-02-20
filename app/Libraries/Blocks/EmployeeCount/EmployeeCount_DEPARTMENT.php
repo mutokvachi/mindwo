@@ -24,7 +24,7 @@ class EmployeeCount_DEPARTMENT extends EmployeeCount
             return $this->counts;
         }
         
-        if ($date == new \DateTime() || $date != new \DateTime()) {
+        if ($date == new \DateTime()) {
             $counts = DB::table('dx_users')
                     ->select(DB::raw('department_id, COUNT(*) AS count'))
                     ->whereNotIn('id', Config::get('dx.empl_ignore_ids', [1]))
@@ -32,26 +32,75 @@ class EmployeeCount_DEPARTMENT extends EmployeeCount
                     ->groupBy('department_id')
                     ->get();
         } else {
-            /*$counts = DB::table(DB::Raw('(select e.item_id, max(e.event_time) as event_time
-                        from dx_db_history h
-                        left join dx_db_events e ON e.id = h.event_id
-                        where e.list_id = ?
-                        AND h.field_id = ?
-                        AND e.event_time <= ?
-                        group by item_id) AS e_new', [259, 1642, $date]))
-                    ->select(DB::raw('h.new_val_rel_id as department_id, COUNT(e.item_id) as count'))
-                    ->leftJoin('dx_db_events AS e', function($join) {
-                        $join->on('e_new.item_id', '=', 'e.item_id');
-                        $join->on('e_new.event_time', '=', 'e.event_time');
-                    })
-                    ->leftJoin('dx_db_history AS h', 'e.id', '=', 'h.event_id')
-                    ->whereNotIn('id', Config::get('dx.empl_ignore_ids', [1]))
-                    ->where('e.list_id', 259)
-                    ->where('h.field_id', 1642)
-                    ->groupBy('h.new_val_rel_id');*/
+            $empl_ignore_ids = implode(',',  Config::get('dx.empl_ignore_ids', [1]));
+            
+            $list_id =  Config::get('dx.employee_list_id');   
+            
+            $field_id = DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'department_id')->first()->id;
+            
+            $args = [
+                'list_id' => $list_id, 
+                'field_id' => $field_id,
+                'fltr_date' =>$date->format('Y-m-d'),
+                'empl_ignore_ids' => $empl_ignore_ids];
+            
+            $counts = DB::select('SELECT t.department_id, SUM(t.count) as count
+                FROM(
+                                (SELECT u.department_id, COUNT(u.id) AS count
+                                FROM dx_users u
+                                WHERE (u.termination_date IS NULL OR u.termination_date > :fltr_date)
+                                        AND NOT FIND_IN_SET(u.id, :empl_ignore_ids)
+                                        AND (u.join_date IS NULL OR u.join_date <= :fltr_date)
+                                        AND u.id NOT IN 	(select e.item_id AS user_id
+                                 from 
+                                     (select e.item_id, max(e.event_time) as event_time
+                                     from dx_db_history h
+                                     left join dx_db_events e ON e.id = h.event_id
+                                     left join dx_users u ON e.item_id = u.id
+                                     where e.list_id = :list_id
+                                         AND h.field_id = :field_id
+                                         AND e.event_time <= :fltr_date
+                                         AND NOT FIND_IN_SET(e.item_id, :empl_ignore_ids)
+                                         AND (u.termination_date IS NULL OR u.termination_date > :fltr_date)
+                                         AND (u.join_date IS NULL OR u.join_date <= :fltr_date)
+                                     group by item_id) as e_new
 
-         //   \Log::info($counts->toSql());
-            $counts = $counts->get();
+                                 left join dx_db_events e ON e_new.item_id = e.item_id AND e_new.event_time = e.event_time
+                                 left join  dx_db_history h  ON e.id = h.event_id
+                                 right join dx_users u ON u.id = e.item_id
+                                 where e.list_id = :list_id
+                                     AND h.field_id = :field_id)
+                                GROUP BY u.department_id
+                                )
+                        UNION
+                                (select h.new_val_rel_id AS department_id, COUNT(e.item_id) AS count
+                                 from 
+                                     (select e.item_id, max(e.event_time) as event_time
+                                     from dx_db_history h
+                                     left join dx_db_events e ON e.id = h.event_id
+                                     left join dx_users u ON e.item_id = u.id
+                                     where e.list_id = :list_id
+                                         AND h.field_id = :field_id
+                                         AND e.event_time <= :fltr_date
+                                         AND NOT FIND_IN_SET(e.item_id, :empl_ignore_ids)
+                                         AND (u.termination_date IS NULL OR u.termination_date > :fltr_date)
+                                         AND (u.join_date IS NULL OR u.join_date <= :fltr_date)
+                                     group by item_id) as e_new
+
+                                 left join dx_db_events e ON e_new.item_id = e.item_id AND e_new.event_time = e.event_time
+                                 left join  dx_db_history h  ON e.id = h.event_id
+                                 right join dx_users u ON u.id = e.item_id
+                                 where e.list_id = :list_id
+                                     AND h.field_id = :field_id
+                                GROUP BY h.new_val_rel_id)) AS t
+                GROUP BY t.department_id', $args);
+              
+            //\Log::info('data: ' . json_encode($counts));
+            // DB::getQueryLog()
+            /*var_dump($counts);
+            var_dump(DB::getQueryLog());
+            DB::disableQueryLog();*/
+            //\Log::info('query: ' . );   
         }
 
         $total_count = $this->getTotalCount($counts);

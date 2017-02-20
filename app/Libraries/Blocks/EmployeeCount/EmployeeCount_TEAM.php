@@ -10,6 +10,7 @@ use Config;
  */
 class EmployeeCount_TEAM extends EmployeeCount
 {
+
     private $counts;
     private $teams;
 
@@ -42,12 +43,16 @@ class EmployeeCount_TEAM extends EmployeeCount
             return $this->counts;
         }
 
-        $counts = DB::table('dx_users')
-                ->select(DB::raw('team_id, COUNT(*) AS count'))
-                ->whereNotIn('id', Config::get('dx.empl_ignore_ids', [1]))
-                ->whereNull('termination_date')
-                ->groupBy('team_id')
-                ->get();
+        if ($date == new \DateTime()) {
+            $counts = DB::table('dx_users')
+                    ->select(DB::raw('team_id, COUNT(*) AS count'))
+                    ->whereNotIn('id', Config::get('dx.empl_ignore_ids', [1]))
+                    ->whereNull('termination_date')
+                    ->groupBy('team_id')
+                    ->get();
+        } else {
+            
+        }
 
         $total_count = $this->getTotalCount($counts);
 

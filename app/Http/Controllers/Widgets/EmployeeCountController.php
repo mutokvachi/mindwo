@@ -32,6 +32,6 @@ class EmployeeCountController extends Controller
         
         $widget = \App\Libraries\Blocks\EmployeeCount\EmployeeCountFactory::initializeWidget($widget_name);
          
-         return $widget->getViewUpdate($date);
+         return $widget->getViewUpdate(new \DateTime($date));
     }
 }
