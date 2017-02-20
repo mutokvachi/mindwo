@@ -20,6 +20,9 @@ return [
 		'title' => 'Employees by team',
 		'unassigned' => 'Unassigned',
 	],
+        'employee_count' => [
+            'filter' => 'Filtrs'
+        ],
 	'offers' => [
 		'title' => 'Piedāvājumi',
 		'subscribe' => 'Pieteikties',
