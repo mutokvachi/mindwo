@@ -20745,6 +20745,23 @@ mxBasePath = '/js/plugins/mxgraph/src';
      * @returns {undefined}
      */
     $.extend($.DxWorkflow.prototype, {
+        vertexStyle: {
+            ellipse: {
+                style: 'shape=ellipse;editable=0;html=1;whiteSpace=wrap;',
+                width: 20,
+                height: 20
+            },
+            rounded: {
+                style: 'shape=rounded;html=1;whiteSpace=wrap;',
+                width: 100,
+                height: 60
+            },
+            rhombus: {
+                style: 'shape=rhombus;html=1;whiteSpace=wrap;',
+                width: 100,
+                height: 100
+            }
+        },
         mxIconSet: function (self, state)
         {
             this.images = [];
@@ -20835,7 +20852,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 before_show: function (form) {
                     self.onBeforeFormShow(form, self, stepId);
                 },
-                after_close: function (form) {
+                after_save: function (form) {
                     self.onAfterFormClose(form, self, vertex);
                 }
             });
@@ -21055,14 +21072,18 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 var keyHandler = new mxKeyHandler(self.graph);
                 var rubberband = new mxRubberband(self.graph);
 
-                var addVertex = function (icon, w, h, is_endpoint)
+                var addVertex = function (icon, is_endpoint)
                 {
-                    var style;
+                    var style, w, h;
 
                     if (is_endpoint) {
-                        style = 'shape=ellipse;editable=0;html=1;whiteSpace=wrap;';
+                        style = self.vertexStyle.ellipse.style;
+                        w = self.vertexStyle.ellipse.width;
+                        h = self.vertexStyle.ellipse.height;
                     } else {
-                        style = 'shape=rounded;html=1;whiteSpace=wrap;';
+                        style = self.vertexStyle.rounded.style;
+                        w = self.vertexStyle.rounded.width;
+                        h = self.vertexStyle.rounded.height;
                     }
 
                     var vertex = new mxCell(null, new mxGeometry(0, 0, w, h), style);
@@ -21080,8 +21101,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 };
 
 
-                addVertex(mxBasePath + '/images/rounded.gif', 100, 60, false);
-                addVertex(mxBasePath + '/images/ellipse.gif', 20, 20, true);
+                addVertex(mxBasePath + '/images/rounded.gif', false);
+                addVertex(mxBasePath + '/images/ellipse.gif', true);
 
                 var keyHandler = new mxKeyHandler(self.graph);
                 keyHandler.bindKey(46, function (evt)
@@ -21131,30 +21152,43 @@ mxBasePath = '/js/plugins/mxgraph/src';
         },
         setCellProperties: function (self, vertex, stepId, taskTypeId, stepNr, stepTitle) {
             var hasArrowLabels = 0;
-            var shape, arrowCount;
             var typeCode = self.wfTaskTypes[taskTypeId];
+            
+            var geometry = vertex.getGeometry();
 
             if (typeCode == 'CRIT' || typeCode == 'CRITM') {
                 hasArrowLabels = 1;
-                arrowCount = 2;
-                shape = 'rhombus';
+                vertex.arrow_count = 2;
+                vertex.setStyle(self.vertexStyle.rhombus);
+                geometry.width = self.vertexStyle.rhombus.width;
+                geometry.height = self.vertexStyle.rhombus.height;
             } else if (typeCode == 'ENDPOINT') {
-                arrowCount = 1;
-                shape = 'ellipse';
+                vertex.arrow_count = 1;
+                vertex.setStyle(self.vertexStyle.ellipse);
+                geometry.width = self.vertexStyle.ellipse.width;
+                geometry.height = self.vertexStyle.ellipse.height;
             } else if (typeCode == 'SET') {
-                arrowCount = 1;
-                shape = 'rounded';
+                vertex.arrow_count = 1;
+                vertex.setStyle(self.vertexStyle.rounded);
+                geometry.width = self.vertexStyle.rounded.width;
+                geometry.height = self.vertexStyle.rounded.height;
             } else {
-                arrowCount = 2;
-                shape = 'rounded';
+                vertex.arrow_count = 2;
+                vertex.setStyle(self.vertexStyle.rounded);
+                geometry.width = self.vertexStyle.rounded.width;
+                geometry.height = self.vertexStyle.rounded.height;
             }
 
-            vertex.id = 's'.stepNr;
+            vertex.setGeometry(geometry);
+            vertex.id = 's' + stepNr;
             vertex.workflow_step_id = stepId;
             vertex.type_code = typeCode;
             vertex.has_arrow_labels = hasArrowLabels;
-            vertex.arrow_count = arrowCount;
             vertex.value = stepTitle;
+
+            var model = self.graph.getModel();
+            
+            
 
             self.graph.refresh();
         },
