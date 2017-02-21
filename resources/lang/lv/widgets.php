@@ -11,15 +11,12 @@ return [
 	'congratulate' => [
 		'title' => 'Congratulate',
 	],
-	'emplbydep' => [
-		'title' => 'Employees by department',
-		'unassigned' => 'Unassigned',
-                'today' => 'Today',
-	],
-	'emplbyteam' => [
-		'title' => 'Employees by team',
-		'unassigned' => 'Unassigned',
-	],
+        'employee_count' => [
+            'filter' => 'Filtrs',
+            'unassigned' => 'Nav piešķirts departaments',
+            'title_DPEARTMENT' => 'Darbinieki pēc departamenta',
+            'title_TEAM' => 'Darbinieki pēc komandas',
+        ],
 	'offers' => [
 		'title' => 'Piedāvājumi',
 		'subscribe' => 'Pieteikties',

@@ -165,10 +165,14 @@ Route::group(['middleware' => 'auth', 'prefix' => 'employee'], function() {
     Route::get('new', 'EmplProfileController@create');
 });
 
-Route::group(['middleware' => 'auth', 'prefix' => 'widget'], function() {
+Route::group(['middleware' => 'auth_ajax', 'prefix' => 'widget'], function() {
     Route::group(['prefix' => 'report'], function () {
         Route::get('/get/chart/{report_name}/{group_id}/{date_from}/{date_to}', 'ReportController@getChartData');
     });
+    
+     Route::group(['prefix' => 'eployeecount', 'namespace' => 'Widgets'], function () {
+         Route::post('/get/view', 'EmployeeCountController@getView');
+    });      
 });
 
 Route::group(['middleware' => 'auth_ajax', 'prefix' => 'freeform'], function() {
