@@ -136,6 +136,15 @@
 				//xhrFields: {withCredentials: true},
 				url: this.options.url.upload,
 				autoUpload: true
+				/*
+				progressall: function (e, data) {
+					var progress = parseInt(data.loaded / data.total * 100, 10);
+					$('#progress .bar').css(
+						'width',
+						progress + '%'
+					);
+				}
+				*/
 			});
 			
 			// Upload server status check for browsers with CORS support:

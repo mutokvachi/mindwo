@@ -5,6 +5,7 @@ namespace App\Libraries\Blocks
 
     use DB;
     use Input;
+    use Request;
     use Config;
     use App\Libraries\Rights;
     
@@ -101,7 +102,8 @@ namespace App\Libraries\Blocks
                         'sources' => DB::table('in_sources')->where('is_for_search', '=', 1)->get(),
                         'date_from' => $this->date_from,
                         'date_to' => $this->date_to,
-                        'profile_url' => (($is_list_rights) ? '/employee_profile' : "/")
+                        'profile_url' => Config::get('dx.employee_profile_page_url', ''),
+                        'is_post' => Request::isMethod('post')
                     ])->render();
         }
 
@@ -157,13 +159,7 @@ namespace App\Libraries\Blocks
 
             $this->countEmployees();
 
-            $this->addJSInclude('metronic/global/plugins/moment.min.js');
-            $this->addJSInclude('metronic/global/plugins/bootstrap-daterangepicker/daterangepicker.min.js');
-            $this->addJSInclude('plugins/tree/jstree.min.js');
-            $this->addJSInclude('js/pages/employees_links.js');
-            $this->addJSInclude('js/pages/search_tools.js');
-            $this->addJSInclude('js/pages/date_range.js');
-            $this->addJSInclude('js/blocks/emplbirth.js');
+            $this->addJSInclude(elixir('js/elix_birth.js'));
         }
 
         /**

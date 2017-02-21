@@ -34,7 +34,7 @@ namespace App\Libraries\FieldsImport
                     $date = check_date($val, self::DATE_FORMAT2);
                     
                     if (strlen($date) == 0) {
-                        throw new Exceptions\DXCustomException(sprintf(trans('errors.import_wrong_date'), $this->fld->title_form, $val, self::DATE_FORMAT1));
+                        throw new Exceptions\DXCustomException(sprintf(trans('errors.import_wrong_date'), $this->fld->title_form, $val, self::DATE_FORMAT1, self::DATE_FORMAT2));
                     }
                 }
                 

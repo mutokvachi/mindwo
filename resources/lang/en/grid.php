@@ -44,6 +44,7 @@ return [
     'btn_start_import' => 'Start import',
     'lbl_file' => 'Excel file',
     'import_hint' => "Upload an Excel file in which the column names and register data input form field names coincide. The columns, whose names do not coincide, will not be imported.", 
+    'import_date_hint' => "Supported dates formats: 'dd.mm.yyyy' or 'yyyy-mm-dd'.",
     'file_hint' => 'The file must be in XLSX or XLS file format.',
     'invalid_file' => "The data cannot be imported! Please provide the correct importable Excel file.",
     'invalid_file_format' => "The data cannot be imported! Please provide the importable Excel file in *.xlsx or *.xls file format.",

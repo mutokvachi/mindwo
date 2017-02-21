@@ -20,150 +20,37 @@ use Illuminate\Support\Facades\DB;
  *
  * @package App\Libraries\Blocks
  */
-class Block_EMPLBYDEP extends Block
+class Block_EMPLBYGROUP extends Block
 {
-	protected $totalCount;
-	protected $sources;
-	protected $departments;
-	protected $counts;
-	
-	/**
-	 * Render widget.
-	 * @return string
-	 */
-	function getHtml()
-	{
-		$result = view('blocks.widget_emplbydep', [
-			'sources' => $this->getSources(),
-			'totalCount' => $this->getTotalCount(),
-			'counts' => $this->getCounts()
-		])->render();
-		
-		return $result;
-	}
-	
-	/**
-	 * Get total number of employees.
-	 * @return mixed
-	 */
-	public function getTotalCount()
-	{
-		if($this->totalCount)
-		{
-			return $this->totalCount;
-		}
-		
-		$this->totalCount = User::whereNotIn('id', Config::get('dx.empl_ignore_ids', [1]))
-                                    ->whereNull('termination_date')
-                                    ->count();
-		
-		return $this->totalCount;
-	}
-	
-	/**
-	 * Get a list of sources.
-	 * @return mixed
-	 */
-	public function getSources()
-	{
-		if($this->sources)
-		{
-			return $this->sources;
-		}
-		
-		$sources = Source::orderBy('title')->get();
-		
-		foreach($sources as $source)
-		{
-			$this->sources[$source->id] = $source;
-		}
-		
-		return $this->sources;
-	}
-	
-	/**
-	 * Get a list of departments.
-	 * @return mixed
-	 */
-	public function getDepartments()
-	{
-		if($this->departments)
-		{
-			return $this->departments;
-		}
-		
-		$departments = Department::orderBy('title')->get();
-		
-		foreach($departments as $department)
-		{
-			$this->departments[$department->id] = $department;
-		}
-		
-		return $this->departments;
-	}
-	
-	/**
-	 * Get count of employees in each source.
-	 * @return mixed
-	 */
-	public function getCounts()
-	{
-		if($this->counts)
-		{
-			return $this->counts;
-		}
-		
-		$counts = DB::table('dx_users')
-			->select(DB::raw('department_id, COUNT(*) AS count'))
-			->whereNotIn('id', Config::get('dx.empl_ignore_ids', [1]))
-                        ->whereNull('termination_date')
-			->groupBy('department_id')
-			->get();
-		
-		$unassignedCount = 0;
-		
-		foreach($counts as $item)
-		{
-			if(!$item->department_id || !isset($this->getDepartments()[$item->department_id]))
-			{
-				$unassignedCount = $item->count;
-				continue;
-			}
-			
-			$source = $this->getDepartments()[$item->department_id]->source_id;
-			
-			if(!isset($this->counts[$source]))
-			{
-				$this->counts[$source]['count'] = $item->count;
-			}
-			
-			else
-			{
-				$this->counts[$source]['count'] += $item->count;
-			}
-			
-			$this->counts[$source]['percent'] = ($this->counts[$source]['count'] / $this->getTotalCount()) * 100;
-		}
-		
-		if($unassignedCount)
-		{
-			$this->counts['unassigned'] = [
-				'count' => $unassignedCount,
-				'percent' => ($unassignedCount / $this->getTotalCount()) * 100
-			];
-		}
-		
-		return $this->counts;
-	}
-	
-	function getJS()
-	{
-		// TODO: Implement getJS() method.
-	}
-	
-	function getCSS()
-	{
-		return <<<END
+    /**
+     * Groups name
+     * @var integer 
+     */
+    public $group_name = 0;
+
+    /**
+     * Widgets class
+     * @var EmployeeCount\EmployeeCount 
+     */
+    private $widget;
+
+    /**
+     * Render widget.
+     * @return string
+     */
+    function getHtml()
+    {
+        return $this->widget->getView();
+    }
+
+    function getJS()
+    {
+        // TODO: Implement getJS() method.
+    }
+
+    function getCSS()
+    {
+        return <<<END
 			<style>
 				.widget-emplbydep .progress {
 					position: relative;
@@ -181,15 +68,27 @@ class Block_EMPLBYDEP extends Block
 				}
 			</style>
 END;
-	}
-	
-	function getJSONData()
-	{
-		// TODO: Implement getJSONData() method.
-	}
-	
-	protected function parseParams()
-	{
-		// TODO: Implement parseParams() method.
-	}
+    }
+
+    function getJSONData()
+    {
+        // TODO: Implement getJSONData() method.
+    }
+
+    protected function parseParams()
+    {
+        $dat_arr = explode('|', $this->params);
+
+        foreach ($dat_arr as $item) {
+            $val_arr = explode('=', $item);
+
+            if ($val_arr[0] == "GROUP") {
+                $this->group_name = getBlockParamVal($val_arr);
+            } else if (strlen($val_arr[0]) > 0) {
+                throw new Exceptions\DXCustomException("Invalid block parameter's naem (" . $val_arr[0] . ")!");
+            }
+        }
+
+        $this->widget = EmployeeCount\EmployeeCountFactory::initializeWidget($this->group_name);
+    }
 }

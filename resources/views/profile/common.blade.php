@@ -288,6 +288,7 @@
               @include('profile.tile_hired')
               @include('profile.tile_manager')
             </div>
+            @include('profile.tile_direct_reporters')
           @endif
         </div>
         <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12">

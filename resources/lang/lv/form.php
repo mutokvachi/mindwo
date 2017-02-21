@@ -45,4 +45,6 @@ return [
     'history_form_title' => 'Ieraksta izmaiņu vēsture',
     'btn_changes' => 'Izmaiņas',
     
+    'history_not_found' => 'Sistēmā nav uzkrāta informācija par šī ieraksta izmaiņu vēsturi.',
+    
 ];

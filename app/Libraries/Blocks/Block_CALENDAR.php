@@ -4,7 +4,8 @@ namespace mindwo\pages\Blocks {
 
     use DB;
     use mindwo\pages\Exceptions\PagesException;
-
+    use Config;
+    
     /**
      *
      * Calendar widget's class 
@@ -48,7 +49,8 @@ namespace mindwo\pages\Blocks {
                         'block_title' => $this->block_title,
                         'source_id' => $this->source_id,
                         'show_holidays' => $this->show_holidays,
-                        'show_birthdays' => $this->show_birthdays
+                        'show_birthdays' => $this->show_birthdays,
+                        'profile_url' => Config::get('dx.employee_profile_page_url', '')
                     ])->render();
         }
 

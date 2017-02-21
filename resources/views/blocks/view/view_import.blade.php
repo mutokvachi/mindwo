@@ -15,6 +15,9 @@
                     <div class='modal-body' style="overflow-y: auto; max-height: 500px; padding-left: 40px;">
                         <div class="ŗow">
                             {{ trans('grid.import_hint') }}
+                            <br />
+                            <br />
+                            {{ trans('grid.import_date_hint') }}
                         </div>
                         <div class="row">
                             <div class="col-md-12" style="min-height: 70px; margin-top: 20px;">

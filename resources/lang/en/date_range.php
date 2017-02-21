@@ -36,6 +36,8 @@ return [
     'flt_7' => 'Before 7 days',
     'flt_thism' => 'This month',
     'flt_prevm' => 'Previous month',
+    'flt_tomorrow' => 'Tomorrow',
+    'flt_nextm' => 'Next month',
     
     'btn_set' => 'Set',
     'btn_cancel' => 'Cancel',

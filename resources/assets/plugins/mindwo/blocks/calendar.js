@@ -37,6 +37,11 @@
          * Parameter if birthdays are shown
          */
         this.show_birthdays = 1;
+        
+        /**
+         * Parameter of employee profile url
+         */
+        this.profile_url = "";
 
         // Initializes class
         this.init();
@@ -210,7 +215,12 @@
                     var content = '';
                     for (var b = 0; b < birthdayUsers.length; b++) {
                         var birthdayUser = birthdayUsers[b];
-                        content += '<div><a href=\'' + DX_CORE.site_url + 'employee/profile/' + birthdayUser.id + '\'>' + birthdayUser.name + '</a></div>';
+                        if (this.profile_url.length > 0) {
+                            content += '<div><a href=\'' + DX_CORE.site_url + 'employee/profile/' + birthdayUser.id + '\'>' + birthdayUser.name + '</a></div>';
+                        }
+                        else {
+                            content += '<div>' +  birthdayUser.name + '</div>';
+                        }
                     }
 
                     var eventHtml = '<div class="popovers dx-widget-calendar-event" style="width:100%" \n\
@@ -248,7 +258,8 @@
             this.source_id = this.domObject.data('source_id');
             this.show_holidays = this.domObject.data('show_holidays');
             this.show_birthdays = this.domObject.data('show_birthdays');
-
+            this.profile_url = this.domObject.data('profile-url');
+            
             this.renderCalendar();
 
             this.domObject.data('dx_block_init', 1);
