@@ -13,6 +13,7 @@ use Config;
  */
 abstract class EmployeeCount
 {
+
     /**
      * Name which indentifies report object
      * @var string 
