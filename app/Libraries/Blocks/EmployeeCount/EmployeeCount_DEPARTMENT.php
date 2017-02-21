@@ -15,6 +15,13 @@ class EmployeeCount_DEPARTMENT extends EmployeeCount
     private $sources;
     private $departments;
 
+    public function __construct($report_name)
+    {
+        $this->search_column = 'source_id';
+
+        parent::__construct($report_name);
+    }
+    
     /**
      * Get count of employees in each source.
      * @return mixed

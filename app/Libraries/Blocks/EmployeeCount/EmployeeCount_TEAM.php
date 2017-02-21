@@ -13,6 +13,13 @@ class EmployeeCount_TEAM extends EmployeeCount
 
     private $counts;
     private $teams;
+    
+     public function __construct($report_name)
+    {
+        $this->search_column = 'team_id';
+
+        parent::__construct($report_name);
+    }
 
     /**
      * Get a list of all teams.
