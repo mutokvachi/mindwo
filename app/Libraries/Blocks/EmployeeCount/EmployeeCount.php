@@ -19,6 +19,8 @@ abstract class EmployeeCount
      * @var string 
      */
     public $widget_name = '';
+    
+    public $search_column = '';
 
     /**
      * Gets employee's time off data for chart
@@ -58,7 +60,8 @@ abstract class EmployeeCount
                     'groups' => $groups,
                     'totalCount' => $count_data['total_count'],
                     'counts' => $count_data['counts'],
-                    'widgetName' => $this->widget_name
+                    'widgetName' => $this->widget_name,
+                    'searchColumn' => $this->search_column
                 ])->render();
     }
 
@@ -70,7 +73,8 @@ abstract class EmployeeCount
 
         $view = view('blocks.widget_employee_count_body', [
             'groups' => $groups,
-            'counts' => $count_data['counts']
+            'counts' => $count_data['counts'],
+            'searchColumn' => $this->search_column
                 ])->render();
 
         return ['success' => 1, 'view' => $view, 'total_count' => $count_data['total_count']];
