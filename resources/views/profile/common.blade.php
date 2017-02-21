@@ -260,6 +260,14 @@
             load_tab_grid(this.getAttribute('tab_id') ,this.getAttribute('grid_list_id'), 0, this.getAttribute('grid_list_field_id'), {{ $mode == 'create' ? 0 : $employee->id }}, $(".dx-employee-profile").attr("id"), 1, 5, 1);
         }
       });
+      
+      $('.dx-tile-direct-reporters').slimScroll({
+            height: '250px',
+            color: 'darkgray',
+            size: '10px',
+            disableFadeOut: true,
+            alwaysVisible: true
+      });
     });
   </script>
 @endsection
