@@ -8,7 +8,7 @@
         <p> {{ $employee->manager->position_title }}<br/> {{ $employee->manager->department_title }}  </p>
       </div>
       <div class="tile-object">
-        <div class="name">Direct supervisor</div>
+        <div class="dx-employee-widget-tile-object">Direct supervisor</div>
         <div class="number"></div>
       </div>
     </div>

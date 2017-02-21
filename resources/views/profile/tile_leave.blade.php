@@ -9,16 +9,17 @@
                     @if ($employee->getLeaveInfo()['reason_details'])
                     &nbsp;<i class='fa fa-question-circle' title='{{ $employee->getLeaveInfo()['reason_details'] }}'></i>
                     @endif
-                </p>
-                <br>
-                <p>{{ trans('employee.lbl_absent') }} {{ trans('employee.lbl_to') }} {{ $employee->getLeaveInfo()['left_to'] }}</p>                        
+                </p>                                    
             </div>
-        </div>
-        @if ($employee->getLeaveInfo()['substitute_id'])
-        <div class="tile-object">
-            <div class="name">Substitute: <a href='{{ url(Config::get('dx.employee_profile_page_url'))}}/{{ $employee->getLeaveInfo()['substitute_id'] }}' style='color: #fff;' title='Open profile'>{{ $employee->getLeaveInfo()['substitute_name'] }} <i class='fa fa-external-link'></i></a></div>
-        </div>                   
-        @endif          
+        </div>        
+        <div class="tile-object"> 
+            <div class="dx-employee-widget-tile-object">
+                {{ trans('employee.lbl_absent') }} {{ trans('employee.lbl_to') }} {{ $employee->getLeaveInfo()['left_to'] }}<br/>
+                @if ($employee->getLeaveInfo()['substitute_id'])
+                Substitute: <a href='{{ url(Config::get('dx.employee_profile_page_url'))}}/{{ $employee->getLeaveInfo()['substitute_id'] }}' style='color: #fff;' title='Open profile'>{{ $employee->getLeaveInfo()['substitute_name'] }} <i class='fa fa-external-link'></i></a>
+                @endif   
+            </div>
+        </div>    
     </div> 
     @endif
 </div>
