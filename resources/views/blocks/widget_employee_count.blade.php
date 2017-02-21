@@ -4,10 +4,10 @@
      data-widget_name="{{ $widgetName }}">
     <div class="portlet-title">
         <div class="caption font-grey-cascade uppercase">
-            {{ trans('widgets.emplbydep.title') }} <small style="font-size: 60%;">{{ trans('widgets.emplbydep.today') }}</small> 
+            {{ trans('widgets.employee_count.title_' . $widgetName) }} <small style="font-size: 60%;" class="dx-widget-employeecount-filter-label">{{ trans('date_range.flt_today') }}</small> 
             <span class="badge badge-success dx-widget-employeecount-total">{{ $totalCount }}</span>  
             <a class="btn btn-sm btn-circle btn-default dx-widget-employeecount-filter" href="javascript:;" >
-                <i class='fa fa-calendar'></i> {{ trans('widgets.employee_count.filter') }}: <sapn class="dx-widget-employeecount-filter-label">{{ trans('date_range.flt_today') }}</span>
+                <i class='fa fa-calendar'></i> {{ trans('widgets.employee_count.filter') }}
             </a>
         </div>
         <div class="tools">        

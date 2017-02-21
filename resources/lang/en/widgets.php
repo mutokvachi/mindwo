@@ -11,17 +11,11 @@ return [
 	'congratulate' => [
 		'title' => 'Congratulate',
 	],
-	'emplbydep' => [
-		'title' => 'Employees by department',
-		'unassigned' => 'Unassigned',
-                'today' => 'Today',
-	],
-	'emplbyteam' => [
-		'title' => 'Employees by team',
-		'unassigned' => 'Unassigned',
-	],
         'employee_count' => [
-            'filter' => 'Filter'
+            'filter' => 'Filter',
+            'unassigned' => 'Unassigned',
+            'title_DEPARTMENT' => 'Employees by department',
+            'title_TEAM' => 'Employees by team',
         ],
 	'offers' => [
 		'title' => 'Offers',
