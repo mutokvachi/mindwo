@@ -59,7 +59,7 @@ var BlockEmplbirth = function()
                 btn_choose.tooltipster({
                     theme: 'tooltipster-light',
                     animation: 'grow',
-                    content: 'Lai izvēlētos struktūrvienību, vispirms ir jānorāda uzņēmums!'
+                    content: Lang.get('employee_fields.unit_hint')
                 });
             }
             else
@@ -208,15 +208,16 @@ var BlockEmplbirth = function()
             el_date_to: "date_to",
             page_selector: ".dx-employees-birth-block",
             form_selector: ".search-tools-form",
-            arr_ranges: {
-                    'Šodien': [moment(), moment()],
-                    'Vakar': [moment().subtract('days', 1), moment().subtract('days', 1)],
-                    'Rīt': [moment().add('days', 1), moment().add('days', 1)],
-                    'Nākamo 7 dienu laikā': [moment(), moment().subtract('days', -6)],
-                    'Šis mēnesis': [moment().startOf('month'), moment().endOf('month')],
-                    'Iepriekšējais mēnesis': [moment().subtract('month', 1).startOf('month'), moment().subtract('month', 1).endOf('month')]
-                }
+            arr_ranges: {}
         };
+        
+        arr_date_param["arr_ranges"][Lang.get('date_range.flt_today')] = [moment(), moment()];
+        arr_date_param["arr_ranges"][Lang.get('date_range.flt_tomorrow')] = [moment().add('days', 1), moment().add('days', 1)];
+        arr_date_param["arr_ranges"][Lang.get('date_range.flt_yesterday')] = [moment().subtract('days', 1), moment().subtract('days', 1)];
+        arr_date_param["arr_ranges"][Lang.get('date_range.flt_7')] = [moment().subtract('days', 6), moment()];
+        arr_date_param["arr_ranges"][Lang.get('date_range.flt_thism')] = [moment().startOf('month'), moment().endOf('month')];
+        arr_date_param["arr_ranges"][Lang.get('date_range.flt_nextm')] = [moment().add('month', 1).startOf('month'), moment().add('month', 1).endOf('month')];
+        arr_date_param["arr_ranges"][Lang.get('date_range.flt_prevm')] = [moment().subtract('month', 1).startOf('month'), moment().subtract('month', 1).endOf('month')];
         
         DateRange.init(arr_date_param, clearLinkShowHide);
     }

@@ -233,6 +233,24 @@ gulp.task('mix_all', function() {
             'pages/employee/timeoff.less'
         ], 'public/css/elix_employee_profile.css');
         
+        // script for birthdays searching widget
+        //$this->addJSInclude('metronic/global/plugins/moment.min.js');
+            //$this->addJSInclude('metronic/global/plugins/bootstrap-daterangepicker/daterangepicker.min.js');
+            //$this->addJSInclude('plugins/tree/jstree.min.js');
+            //$this->addJSInclude('js/pages/employees_links.js');
+            //$this->addJSInclude('js/pages/search_tools.js');
+            //$this->addJSInclude('js/pages/date_range.js');
+            //$this->addJSInclude('js/blocks/emplbirth.js');
+            
+        mix.scripts([
+           'moment.min.js',
+           'bootstrap-daterangepicker/daterangepicker.js',
+           'tree/jstree.min.js',           
+           'mindwo/pages/search_tools.js',
+           'mindwo/pages/date_range.js',
+           'mindwo/blocks/emplbirth.js'
+        ], 'public/js/elix_birth.js', 'resources/assets/plugins'); 
+        
         // Scripts for articles search page functionality
         mix.scripts([
             'cubeportfolio/js/jquery.cubeportfolio.js',
@@ -344,7 +362,8 @@ gulp.task('mix_all', function() {
             'js/elix_block_report.js', 
             'css/elix_block_report.css',
             'js/elix_mail.js',
-            'css/elix_mail.css'
+            'css/elix_mail.css',
+            'js/elix_birth.js'
         ]);
     });
 });
