@@ -47,6 +47,7 @@ return [
     'btn_start_import' => 'Sākt importu',
     'lbl_file' => 'Excel datne',
     'import_hint' => 'Augšupielādējiet Excel datni, kurā kolonnu nosaukumi sakrīt ar reģistra datu ievades formas lauku nosaukumiem. Kolonnas, kuru nosaukumiem nebūs precīza atbilstība, netiks importētas.',
+    'import_date_hint' => "Pieļaujamie datumu formāti: 'dd.mm.yyyy' vai 'yyyy-mm-dd'.",
     'file_hint' => 'Datnei jābūt XLSX vai XLS formātā.',
     'invalid_file' => 'Datus nevar importēt! Lūdzu, norādiet korektu importējamo datni.',
     'invalid_file_format' => "Datus nevar importēt! Lūdzu, norādiet importējamo datni *.xlsx, *.xls, *.csv vai *.zip formātā.",

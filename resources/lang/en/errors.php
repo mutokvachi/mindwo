@@ -54,7 +54,7 @@ return [
     'import_wrong_bool' => "Invalid value '%s' provided in the importable Excel file in Yes/No field '%s'! The field can only have values '%s' or '%s'.",
     
     // here and further needs to revalidate translation (2016-10-04)
-    'import_wrong_date' => "In the Excel file date field '%s' provided wrong value '%s'! Dates must be in format '%s'.",
+    'import_wrong_date' => "In the Excel file date field '%s' provided wrong value '%s'! Dates must be in format '%s' or '%s'.",
     
     'excel_row' => 'Some rows were not imported because of duplicate values. The skipped Excel row numbers: ',
     

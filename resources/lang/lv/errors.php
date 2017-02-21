@@ -52,7 +52,7 @@ return [
     'cant_create_folder' => "Nav iespējams izveidot katalogu '%s' uz servera diska!",
     'import_wrong_bool' => "Importējamajā Excel datnē Jā/Nē laukā '%s' norādīta nekorekta vērtība '%s'! Laukā pieļaujams norādīt tikai vērtības '%s' vai '%s'.",
     
-    'import_wrong_date' => "Importējamajā datuma laukā '%s' norādīta nekorekta vērtība '%s'! Datumam jābūt formātā '%s'.",
+    'import_wrong_date' => "Importējamajā datuma laukā '%s' norādīta nekorekta vērtība '%s'! Datumam jābūt formātā '%s' vai '%s'.",
     
     'excel_row' => 'Dažas Excel rindas netika importētas, jo dublējās reģistra ieraksti. Dublējošo un neimportēto Excel rindu numuri: ',
     
