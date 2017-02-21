@@ -20,13 +20,13 @@ use Illuminate\Support\Facades\DB;
  *
  * @package App\Libraries\Blocks
  */
-class Block_EMPLBYGROUP extends Block
+class Block_EMPLOYEE_COUNT extends Block
 {
     /**
      * Groups name
      * @var integer 
      */
-    public $group_name = 0;
+    public $group_name = '';
 
     /**
      * Widgets class
@@ -40,7 +40,7 @@ class Block_EMPLBYGROUP extends Block
      */
     function getHtml()
     {
-        return $this->widget->getView();
+        return $this->widget->getView(new \DateTime());
     }
 
     function getJS()
@@ -52,20 +52,24 @@ class Block_EMPLBYGROUP extends Block
     {
         return <<<END
 			<style>
-				.widget-emplbydep .progress {
+				.dx-widget-employeecount .progress {
 					position: relative;
 					background-color: #ddd;
 				}
-				.widget-emplbydep .progress, .widget-emplbydep .progress-bar {
+				.dx-widget-employeecount .progress, .dx-widget-employeecount .progress-bar {
 					height: 20px;
 				}
-				.widget-emplbydep .progress-bar span, .widget-emplbydep .progress-bar a {
+				.dx-widget-employeecount .progress-bar span, .dx-widget-employeecount .progress-bar a {
 					color: #26344b;
 					display: block;
 					position: absolute;
 					text-align: left;
 					margin-left: 20px;
 				}
+        
+                                .dx-widget-employeecount-filter, .dx-widget-employeecount-filter:hover{
+                                   
+                                }
 			</style>
 END;
     }
@@ -85,7 +89,7 @@ END;
             if ($val_arr[0] == "GROUP") {
                 $this->group_name = getBlockParamVal($val_arr);
             } else if (strlen($val_arr[0]) > 0) {
-                throw new Exceptions\DXCustomException("Invalid block parameter's naem (" . $val_arr[0] . ")!");
+                throw new Exceptions\DXCustomException("Invalid block parameter's name (" . $val_arr[0] . ")!");
             }
         }
 
