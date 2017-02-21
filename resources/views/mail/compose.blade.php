@@ -47,6 +47,7 @@
           @endif
         </textarea>
       </div>
+      {{--
       <div class="inbox-compose-attachment">
         <span class="btn green btn-outline fileinput-button">
           <i class="fa fa-plus"></i>
@@ -129,6 +130,7 @@
           </tr>
         {% } %}
       </script>
+      --}}
       <div class="inbox-compose-btn">
         <button class="btn green inbox-send-btn">
           <i class="fa fa-check"></i>

@@ -70,7 +70,7 @@
 		this.initToInput();
 		this.initDateInput();
 		this.initEditor();
-		this.initFileUpload();
+		//this.initFileUpload();
 		this.initHandlers();
 	};
 	
