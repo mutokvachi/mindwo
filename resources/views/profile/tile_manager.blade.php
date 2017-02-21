@@ -5,10 +5,10 @@
       <div class="tile-body tile-body dx-employee-widget-tile-body">
         <img src="{{ $employee->manager->getAvatar() }}" alt="">
         <h4>{{ $employee->manager->display_name }}</h4>
-        <p> {{ $employee->manager->position_title }}<br/> {{ $employee->manager->department_title }}  </p>
+        <p> {{ $employee->manager->position_title }}<br/> {{ $employee->manager->department_title }}  <br/> Direct supervisor</p>
       </div>
       <div class="tile-object">
-        <div class="dx-employee-widget-tile-object">Direct supervisor</div>
+        <div class="dx-employee-widget-tile-object"></div>
         <div class="number"></div>
       </div>
     </div>
