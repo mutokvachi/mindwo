@@ -15,6 +15,8 @@ return [
     'view' => 'Skats',
     'btn_edit' => 'Rediģēt',
     'btn_delete' => 'Dzēst',
+    'btn_copy' => 'Kopēt',
+    'btn_save_as' => 'Saglabāt kā jaunu',
     'btn_pdf' => 'Uz PDF',
     'btn_start_workflow' => 'Uz izpildi',
     'btn_info' => 'Informācijai',
@@ -23,6 +25,8 @@ return [
     'btn_close' => 'Aizvērt',
     'btn_cancel' => 'Atcelt',
     'btn_accept' => 'Apstiprināt',
+    'btn_yes' => 'Jā',
+    'btn_no' => 'Nē',
     'modal_confirm_title' => 'Darbības apstiprināšana',
     'modal_confirm_body' => 'Vai vēlaties apstiprināt darbību?',
     'err_value_not_set' => 'Nav norādīta vērtība!',
@@ -40,5 +44,7 @@ return [
     'hint_history' => 'Skatīt ieraksta izmaiņu vēsturi',
     'history_form_title' => 'Ieraksta izmaiņu vēsture',
     'btn_changes' => 'Izmaiņas',
+    
+    'history_not_found' => 'Sistēmā nav uzkrāta informācija par šī ieraksta izmaiņu vēsturi.',
     
 ];

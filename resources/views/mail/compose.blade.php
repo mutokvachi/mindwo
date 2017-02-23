@@ -7,7 +7,7 @@
     <form class="inbox-compose form-horizontal" id="fileupload" action="#" method="POST" enctype="multipart/form-data">
       <div class="inbox-compose-btn">
         <button class="btn green inbox-send-btn">
-          <i class="fa fa-check"></i> {{ trans('mail.send') }}
+          <i class="fa fa-check"></i> {{ trans($mode == 'edit' && $message->folder == 'scheduled' ? 'mail.save' : 'mail.send') }}
         </button>
         <button class="btn default inbox-discard-btn">{{ trans('mail.discard') }}</button>
         <button class="btn default inbox-draft-btn">{{ trans('mail.draft') }}</button>
@@ -37,7 +37,7 @@
       <div class="inbox-form-group">
         <label class="control-label">{{ trans('mail.send_time') }}:</label>
         <div class="controls">
-          <input type="text" class="form-control inbox-input-send_time" name="send_time" value="{{ $mode == 'edit' ? $message->send_time : '' }}">
+          <input type="text" class="form-control inbox-input-send_time" name="send_time" value="{{ $mode == 'edit' ? $message->formatDate($message->send_time, true) : '' }}">
         </div>
       </div>
       <div class="inbox-form-group">
@@ -133,7 +133,8 @@
       --}}
       <div class="inbox-compose-btn">
         <button class="btn green inbox-send-btn">
-          <i class="fa fa-check"></i> {{ trans('mail.send') }}
+          <i class="fa fa-check"></i>
+            {{ trans($mode == 'edit' && $message->folder == 'scheduled' ? 'mail.save' : 'mail.send') }}
         </button>
         <button class="btn default inbox-discard-btn">{{ trans('mail.discard') }}</button>
         <button class="btn default inbox-draft-btn">{{ trans('mail.draft') }}</button>

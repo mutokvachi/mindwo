@@ -14,5 +14,6 @@ return [
     'lbl_year' => 'year', // year
     'lbl_years' => 'years', // years
     'widget_title' => 'CONGRATULATE', //CONGRATULATE
-    
+    'lbl_today' => 'today',
+    'lbl_will_join' => 'Will join at',
 ];

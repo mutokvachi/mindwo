@@ -250,10 +250,16 @@ namespace App\Libraries
                 return; // Lauks nav iekļauts formas datos, nav izmaiņu ko salīdzināt
             }
             
+            if ($field->type_sys_name == 'datetime' && $current_arr[$field->db_name]) {
+                // remove seconds because in UI is only minutes
+                $timestamp = strtotime($current_arr[$field->db_name]);
+                $current_arr[$field->db_name] = date('Y-m-d H:i', $timestamp);
+            }
+            
             if ($this->data_arr[":" . $field->db_name] == $current_arr[$field->db_name]) {                
                 return; // Lauka vērtība nav mainīta
             }
-
+            
             $this->insertHistory($field, $current_arr[$field->db_name], $this->data_arr[":" . $field->db_name], $current_arr);
             
             $this->is_update_change = 1;

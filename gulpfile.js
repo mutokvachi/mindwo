@@ -12,6 +12,7 @@
 var gulp = require('gulp');
 var exec = require('child_process').exec;
 var elixir = require('laravel-elixir');
+var babel = require('laravel-elixir-babel');
 
 gulp.task('langjs', function () {
     // cd command is needed to navigate to path where gulp was executed because on some environments there is problem with incorrect starting path 
@@ -37,6 +38,7 @@ gulp.task('mix_all', function() {
             'morris/morris.css', 
             'jqvmap/jqvmap/jqvmap.css',
             'fullcalendar/fullcalendar.min.css', 
+            'resources/assets/plugins/datetimepicker/jquery.datetimepicker.css',
             'metronic/css/faq.min.css', 
             'metronic/css/components-md.css',
             'metronic/css/components.css',
@@ -128,6 +130,9 @@ gulp.task('mix_all', function() {
             'fullcalendar/moment.min.js',
             'fullcalendar/fullcalendar.min.js',
             'fullcalendar/lang-all.js',
+            'mindwo/blocks/calendar.js',
+            'resources/assets/plugins/datetimepicker/jquery.datetimepicker.js',
+            'mindwo/blocks/employee_count.js',
             'metronic/layout.js',
             'metronic/demo.js',
             'metronic/quick-sidebar.js',            
@@ -231,6 +236,24 @@ gulp.task('mix_all', function() {
             'pages/employee/timeoff.less'
         ], 'public/css/elix_employee_profile.css');
         
+        // script for birthdays searching widget
+        //$this->addJSInclude('metronic/global/plugins/moment.min.js');
+            //$this->addJSInclude('metronic/global/plugins/bootstrap-daterangepicker/daterangepicker.min.js');
+            //$this->addJSInclude('plugins/tree/jstree.min.js');
+            //$this->addJSInclude('js/pages/employees_links.js');
+            //$this->addJSInclude('js/pages/search_tools.js');
+            //$this->addJSInclude('js/pages/date_range.js');
+            //$this->addJSInclude('js/blocks/emplbirth.js');
+            
+        mix.scripts([
+           'moment.min.js',
+           'bootstrap-daterangepicker/daterangepicker.js',
+           'tree/jstree.min.js',           
+           'mindwo/pages/search_tools.js',
+           'mindwo/pages/date_range.js',
+           'mindwo/blocks/emplbirth.js'
+        ], 'public/js/elix_birth.js', 'resources/assets/plugins'); 
+        
         // Scripts for articles search page functionality
         mix.scripts([
             'cubeportfolio/js/jquery.cubeportfolio.js',
@@ -242,27 +265,34 @@ gulp.task('mix_all', function() {
             'mindwo/pages/articles.js'
         ], 'public/js/elix_articles.js', 'resources/assets/plugins');
         
+        // Translate OrgChart plugin source from ES6 to ES5
+        // uncomment this after editing orgchart.js
+        //mix.babel(['orgchart.js'],
+		//	'resources/assets/plugins/orgchart/orgchart.es5.js',
+        //    'resources/assets/plugins/orgchart'
+        //);
+        
         // Scripts for organization chart
         mix.scripts([
-            'html2canvas/html2canvas.js',
-            'orgchart/orgchart.js',
 			'select2/select2.min.js',
 			'select2/select2_locale_multi.js',
+            'html2canvas/html2canvas.js',
+			'orgchart/orgchart.es5.js',
             'mindwo/pages/organization_chart.js'
         ], 'public/js/elix_orgchart.js', 'resources/assets/plugins');
-	
+        
         // Styles for organization chart
         mix.styles([
-            'orgchart/orgchart.css',
 			'select2/select2.css',
             'select2/select2-bootstrap.css',
+			'orgchart/orgchart.css',
             'mindwo/css/organization_chart.css'
 		], 'public/css/elix_orgchart.css', 'resources/assets/plugins');
 	
         // Scripts for departments chart
         mix.scripts([
                 'html2canvas/html2canvas.js',
-                'orgchart/orgchart.js',
+                'orgchart/orgchart.es5.js',
                 'mindwo/pages/organization_departments.js'
         ], 'public/js/elix_orgdepartments.js', 'resources/assets/plugins');
 
@@ -274,7 +304,7 @@ gulp.task('mix_all', function() {
                 'mindwo/css/organization_chart.css',
                 'mindwo/css/organization_departments.css'
         ], 'public/css/elix_orgdepartments.css', 'resources/assets/plugins');
-	
+        
 	// Styles for mail interface
         mix.styles([
                 'resources/assets/plugins/select2-4.0/css/select2.css',
@@ -287,7 +317,7 @@ gulp.task('mix_all', function() {
                 'public/metronic/apps/css/inbox.css',
                 'resources/assets/plugins/mindwo/css/mail.css'
         ], 'public/css/elix_mail.css', './');
-
+        
         // Scripts for mail interface
         mix.scripts([
                 'resources/assets/plugins/select2-4.0/js/select2.js',
@@ -310,7 +340,7 @@ gulp.task('mix_all', function() {
                 'public/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-ui.js',
                 'resources/assets/plugins/mindwo/pages/mail.js'
         ], 'public/js/elix_mail.js', './');
-                
+        
         // Minify all scripts
         mix.version([
             'js/elix_userlinks.js', 
@@ -335,7 +365,8 @@ gulp.task('mix_all', function() {
             'js/elix_block_report.js', 
             'css/elix_block_report.css',
             'js/elix_mail.js',
-            'css/elix_mail.css'
+            'css/elix_mail.css',
+            'js/elix_birth.js'
         ]);
     });
 });

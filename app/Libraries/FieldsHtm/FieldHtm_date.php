@@ -43,7 +43,7 @@ namespace App\Libraries\FieldsHtm
         }
 
         /**
-         * Uzstāda noklusēto vērtību jauna ieraksta gadījumā - šim laukam nav noklusētā vērtība
+         * Uzstāda noklusēto vērtību jauna ieraksta gadījumā
          */
         protected function setDefaultVal()
         {

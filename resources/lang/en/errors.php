@@ -54,7 +54,7 @@ return [
     'import_wrong_bool' => "Invalid value '%s' provided in the importable Excel file in Yes/No field '%s'! The field can only have values '%s' or '%s'.",
     
     // here and further needs to revalidate translation (2016-10-04)
-    'import_wrong_date' => "In the Excel file date field '%s' provided wrong value '%s'! Dates must be in format '%s'.",
+    'import_wrong_date' => "In the Excel file date field '%s' provided wrong value '%s'! Dates must be in format '%s' or '%s'.",
     
     'excel_row' => 'Some rows were not imported because of duplicate values. The skipped Excel row numbers: ',
     
@@ -103,6 +103,16 @@ return [
     'no_represent_field' => "There is not set field representation for the workflow view! Please, contact IT support.",
     
     'no_respo_empl_field' => "There is an monotoring rule defined for the view '%s', but the field provided in roole is not included in the view!",
+    
+    'duplicate_view_title' => 'Duplicate view title! Please provide another title.',
+    
+    'cant_delete_default_view' => "The view can't be deleted because there is no default view set! Please set another view as default.",
+    
+    'employee_name_exception' => "Employee name '%s' can't be splited as first name and last name",
+    
+    'unsuported_action_code' => "Unsuported form's action code '%s'!",
+    
+    'wrong_date_format' => "Data can't be saved! Wrong date format for the field '%s'. Date must be in format %s!",
     
     'workflow' => [
         'not_saved' => 'Workflow is not saved',

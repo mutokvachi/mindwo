@@ -6,6 +6,7 @@ namespace App\Libraries\FieldsHtm
     use File;
     use Auth;
     use Webpatser\Uuid\Uuid;
+    use Config;
     
     /**
      * Datnes lauka attēlošanas klase. Attēlo 3 veida laukus: multi datņu pievienošana, attēls vai parasta datne
@@ -42,7 +43,7 @@ namespace App\Libraries\FieldsHtm
             if ($view_name == "file" && $this->item_id > 0) {
                 $is_pdf = $this->isPDF($this->item_value);
                 
-                if (!$is_pdf) {
+                if (!$is_pdf && Config::get('dx.is_files_editor', false)) {
                     $down_guid = Uuid::generate(4);
                     DB::table('dx_downloads')->insertGetId([
                         'user_id' => Auth::user()->id,

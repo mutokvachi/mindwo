@@ -52,7 +52,7 @@ return [
     'cant_create_folder' => "Nav iespējams izveidot katalogu '%s' uz servera diska!",
     'import_wrong_bool' => "Importējamajā Excel datnē Jā/Nē laukā '%s' norādīta nekorekta vērtība '%s'! Laukā pieļaujams norādīt tikai vērtības '%s' vai '%s'.",
     
-    'import_wrong_date' => "Importējamajā datuma laukā '%s' norādīta nekorekta vērtība '%s'! Datumam jābūt formātā '%s'.",
+    'import_wrong_date' => "Importējamajā datuma laukā '%s' norādīta nekorekta vērtība '%s'! Datumam jābūt formātā '%s' vai '%s'.",
     
     'excel_row' => 'Dažas Excel rindas netika importētas, jo dublējās reģistra ieraksti. Dublējošo un neimportēto Excel rindu numuri: ',
     
@@ -101,6 +101,18 @@ return [
     'no_represent_field' => "Darbplūsmas skatam nav norādīts, kurus dokumenta laukus attēlot uzdevumā! Sazinieties ar sistēmas uzturētāju.",
     
     'no_respo_empl_field' => "Skatam '%s' definēts kontroles nosacījums, bet nosacījumā norādītais atbildīgā darbinieka lauks nav ietverts skatā!",
+    
+    'duplicate_view_title' => 'Dublējas skata nosaukums! Lūdzu, norādiet citu skata nosaukumu.',
+    
+    'cant_delete_default_view' => "Skatu nav iespējams dzēst, jo nav norādīts neviens cits noklusētais skats! Lūdzu, vispirms norādiet citu skatu kā noklusēto.",
+    
+    'employee_name_exception' => "Darbinieka nosaukumu '%s' nav iespējams sadalīt kā vārdu un uzvārdu",
+    
+    'unsuported_action_code' => "Neatbalstīts formas aktivitātes kods '%s'!",
+    
+    'helpdesk_responsible_not_set' => "Nav uzstādīta IT atbalsta pieteikuma veida atbildīgā persona! Ir jānorāda %s pieteikuma veidam '%s'.",
+    
+    'wrong_date_format' => "Nevar saglabāt datus! Nekorekts datuma formāts laukam '%s'! Datumam jābūt formātā %s!",
     
     'workflow' => [
         'not_saved' => 'Darbplūsma netika saglabta',

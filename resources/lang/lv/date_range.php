@@ -36,6 +36,8 @@ return [
     'flt_7' => 'Pirms 7 dienām',
     'flt_thism' => 'Šis mēnesis',
     'flt_prevm' => 'Iepriekšējais mēnesis',
+    'flt_tomorrow' => 'Rīt',
+    'flt_nextm' => 'Nākamais mēnesis',
     
     'btn_set' => 'Labi',
     'btn_cancel' => 'Atcelt',

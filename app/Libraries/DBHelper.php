@@ -20,6 +20,11 @@ namespace App\Libraries
          * Reģistra lauka tips - teksts (no tabulas dx_field_types)
          */
         const FIELD_TYPE_TEXT = 1;
+        
+        /**
+        * Reģistra lauka tips - datums un laiks (no tabulas dx_field_types)
+        */
+        const FIELD_TYPE_DATETIME = 2;
 
         /**
          * Reģistra lauka tips - saistītais ieraksts (no tabulas dx_field_types)
@@ -55,6 +60,11 @@ namespace App\Libraries
          * Register field type - file (from table dx_field_types)
          */
         const FIELD_TYPE_FILE = 12;
+        
+        /**
+         * Register field type - multilevel (from table dx_field_types)
+         */
+        const FIELD_TYPE_MULTILEVEL = 14;
         
         /**
          * Register field type - color picker (from table dx_field_types)
@@ -250,10 +260,15 @@ namespace App\Libraries
         /**
          * Delete register by table name
          * 
-         * @param string $table_name DB table name
+         * @param mixed $table_name Table name or list_id
          */
         public static function deleteRegister($table_name) {
-            $list = DBHelper::getListByTable($table_name);
+            if (is_numeric($table_name)) {
+                $list = DB::table('dx_lists')->where('id', '=', $table_name)->first();
+            }
+            else {
+                $list = DBHelper::getListByTable($table_name);
+            }
             
             if (!$list) {
                 return;
@@ -267,12 +282,18 @@ namespace App\Libraries
         /**
          * Removes or hides fields from the lists all views (if found)
          * 
-         * @param string $table_name List's table name
+         * @param mixed $table_name List's table name or list's ID
          * @param array $flds_arr Array with field names to be removed
          * @param boolean $is_hide_only True - field will be hidden, False - field will be deleted from view
          */
         public static function removeFieldsFromAllViews($table_name, $flds_arr, $is_hide_only) {
-            $list = DBHelper::getListByTable($table_name);
+            
+            if (is_numeric($table_name)) {
+                $list = DB::table('dx_lists')->where('id', '=', $table_name)->first();
+            }
+            else {
+                $list = DBHelper::getListByTable($table_name);
+            }
             
             if (!$list) {
                 return;
@@ -297,12 +318,17 @@ namespace App\Libraries
          /**
          * Removes or hides fields from the lists all forms (if found)
          *
-         * @param string $table_name List's table name
+         * @param mixed $table_name List's table name or list's ID
          * @param array $flds_arr Array with field names to be removed
          * @param boolean $is_hide_only True - field will be hidden, False - field will be deleted from form
          */
         public static function removeFieldsFromAllForms($table_name, $flds_arr, $is_hide_only) {
-            $list = DBHelper::getListByTable($table_name);
+            if (is_numeric($table_name)) {
+                $list = DB::table('dx_lists')->where('id', '=', $table_name)->first();
+            }
+            else {
+                $list = DBHelper::getListByTable($table_name);
+            }
             
             if (!$list) {
                 return;
@@ -327,12 +353,17 @@ namespace App\Libraries
         /**
          * Ads JavaScript to the list form
          * 
-         * @param string $table_name List's table name
+         * @param mixed $table_name List's table name or list's ID
          * @param string $file_name File name which is stored in the folder storage/app/updates
          * @param string $description JavaScript short description
          */
         public static function addJavaScriptToForm($table_name, $file_name, $description) {
-            $list = DBHelper::getListByTable($table_name);
+            if (is_numeric($table_name)) {
+                $list = DB::table('dx_lists')->where('id', '=', $table_name)->first();
+            }
+            else {
+                $list = DBHelper::getListByTable($table_name);
+            }
             
             if (!$list) {
                 return;
@@ -355,11 +386,16 @@ namespace App\Libraries
         /**
          * Removes JavaScript from form
          * 
-         * @param string $table_name List's table name
+         * @param mixed $table_name List's table name or list's ID
          * @param string $description JavaScript short description
          */
         public static function removeJavaScriptFromForm($table_name, $description) {
-            $list = DBHelper::getListByTable($table_name);
+            if (is_numeric($table_name)) {
+                $list = DB::table('dx_lists')->where('id', '=', $table_name)->first();
+            }
+            else {
+                $list = DBHelper::getListByTable($table_name);
+            }
             
             if (!$list) {
                 return;

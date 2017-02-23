@@ -121,6 +121,12 @@ class ImportController extends Controller
     private $file_import = null;
     
     /**
+     * Errors mesage - concatenated all errors
+     * @var string 
+     */   
+    private $errors = "";
+    
+    /**
      * Imports uploaded file data into database
      * 
      * @param \Illuminate\Http\Request $request
@@ -166,7 +172,8 @@ class ImportController extends Controller
             'not_match' => $this->arr_not_match, 
             'duplicate' => $this->duplicate,
             'dependency' => $this->dependency,
-            'updated_count' => $this->update_count
+            'updated_count' => $this->update_count,
+            'errors' => $this->errors
         ]);
     }
     
@@ -220,6 +227,13 @@ class ImportController extends Controller
                 $fld = $this->getFieldObj($title);
                 $this->prepareValue($fld, $val);
             });
+        }      
+        catch (Exceptions\DXImportEmployeeNameException $e) {
+            if (strlen($this->errors) > 0) {
+                $this->errors .= ", ";
+            }
+            $this->errors .= "[" . $row_nr . "] " . $e->getMessage();
+            $this->save_arr = [];
         }
         catch (Exceptions\DXImportLookupException $e) {
             if (!isset($this->dep_arr[$row_nr])) {

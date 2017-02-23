@@ -13,6 +13,13 @@ use App\Models\Source;
 use App\Models\Team;
 use App\Models\Mail;
 
+/**
+ * Class MailController
+ *
+ * Controller for email sending interface.
+ *
+ * @package App\Http\Controllers\
+ */
 class MailController extends Controller
 {
 	protected $sources;
@@ -21,18 +28,19 @@ class MailController extends Controller
 	protected $counts;
 	protected $folderId;
 	protected $folderName;
-	protected $folders = [
-		'sent' => 'Sent',
-		'draft' => 'Draft',
-		'scheduled' => 'Scheduled',
-	];
+	protected $pageCount;
+	protected $itemsPerPage;
+	protected $folders = ['sent', 'draft', 'scheduled'];
 	protected $models = [
 		'dept' => 'App\Models\Source',
 		'team' => 'App\Models\Team',
 		'empl' => 'App\User',
 	];
-	protected $pageCount;
-	protected $itemsPerPage = 20;
+	
+	public function __construct()
+	{
+		$this->itemsPerPage = config('dx.email.items_per_page', 20);
+	}
 	
 	/**
 	 * Display a listing of the resource.
@@ -182,7 +190,7 @@ class MailController extends Controller
 		
 		if($sendTime)
 		{
-			$mail->send_time = Carbon::parse($sendTime)->toDateTimeString();
+			$mail->send_time = Carbon::createFromFormat(config('dx.txt_datetime_format', 'Y-m-d H:i'), $sendTime)->toDateTimeString();
 			
 			if($folder != 'draft')
 			{
@@ -233,7 +241,7 @@ class MailController extends Controller
 		
 		if($sendTime)
 		{
-			$mail->send_time = Carbon::parse($sendTime)->toDateTimeString();
+			$mail->send_time = Carbon::createFromFormat(config('dx.txt_datetime_format', 'Y-m-d H:i'), $sendTime)->toDateTimeString();
 			
 			if($folder != 'draft')
 			{
@@ -251,6 +259,7 @@ class MailController extends Controller
 		
 		$result = [
 			'success' => 1,
+			'id' => $mail->id,
 			'folder' => $folder,
 			'count' => $this->getCounts()[$folder],
 		];
@@ -275,6 +284,12 @@ class MailController extends Controller
 		return response($result);
 	}
 	
+	/**
+	 * Delete arbitrary number of messages by their ids.
+	 *
+	 * @param Request $request
+	 * @return array
+	 */
 	public function massDelete(Request $request)
 	{
 		$ids = $request->input('ids', []);
@@ -293,8 +308,16 @@ class MailController extends Controller
 	
 	public function upload(Request $request)
 	{
+		
 	}
 	
+	/**
+	 * Search departments, teams and user names for pattern entered by user in To field, and return results in format
+	 * required by Select2 plugin.
+	 *
+	 * @param Request $request
+	 * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+	 */
 	public function ajaxToAutocomplete(Request $request)
 	{
 		$term = trim($request->input('term'));
@@ -369,6 +392,12 @@ class MailController extends Controller
 		return response($result);
 	}
 	
+	/**
+	 * Convert value of the To field to an associative array, suitable to store in database.
+	 *
+	 * @param $to
+	 * @return array
+	 */
 	protected function convertRecipientsList($to)
 	{
 		if(!is_array($to))
@@ -442,36 +471,16 @@ class MailController extends Controller
 		return $result;
 	}
 	
-	protected function sendMessage(Mail $mail)
-	{
-		\Mail::send('mail.send', ['mail' => $mail], function($message) use ($mail)
-		{
-			$recipients = $mail->getRecipients();
-			
-			foreach($recipients as $recipient)
-			{
-				if(!filter_var($recipient->email, FILTER_VALIDATE_EMAIL))
-				{
-					continue;
-				}
-				
-				$message->to($recipient->email, $recipient->display_name);
-			}
-			
-			$message->from(config('mail.from.address'), config('mail.from.name'));
-			$message->subject($mail->subject);
-		});
-		
-		$mail->sent_time = Carbon::now();
-		$mail->sent_user_id = Auth::user()->id;
-		$mail->save();
-	}
-	
+	/**
+	 * Get number of messages in folders.
+	 *
+	 * @return mixed
+	 */
 	protected function getCounts()
 	{
 		if(!$this->counts)
 		{
-			foreach($this->folders as $id => $name)
+			foreach($this->folders as $id)
 			{
 				$this->counts[$id] = Mail::where('folder', '=', $id)->count();
 			}
@@ -480,13 +489,18 @@ class MailController extends Controller
 		return $this->counts;
 	}
 	
+	/**
+	 * Get ID of current folder.
+	 *
+	 * @return string
+	 */
 	protected function getFolderId()
 	{
 		if(!$this->folderId)
 		{
 			$id = basename(Route::current()->uri());
 			
-			if(!$id || !isset($this->folders[$id]))
+			if(!$id || !in_array($id, $this->folders))
 			{
 				$this->folderId = 'sent';
 			}
@@ -499,16 +513,26 @@ class MailController extends Controller
 		return $this->folderId;
 	}
 	
+	/**
+	 * Get name of current folder.
+	 *
+	 * @return string|\Symfony\Component\Translation\TranslatorInterface
+	 */
 	protected function getFolderName()
 	{
 		if(!$this->folderName)
 		{
-			$this->folderName = $this->folders[$this->getFolderId()];
+			$this->folderName = trans('mail.'.$this->getFolderId());
 		}
 		
 		return $this->folderName;
 	}
 	
+	/**
+	 * Get messages, taking into account current folder, page and number of items per page.
+	 *
+	 * @return mixed
+	 */
 	protected function getMessages()
 	{
 		$page = \Illuminate\Support\Facades\Request::input('page', 1);
@@ -525,6 +549,11 @@ class MailController extends Controller
 		return $this->messages;
 	}
 	
+	/**
+	 * Get number of pages in current folder.
+	 *
+	 * @return float|int
+	 */
 	public function getPageCount()
 	{
 		if($this->pageCount === null)
@@ -535,6 +564,11 @@ class MailController extends Controller
 		return $this->pageCount;
 	}
 	
+	/**
+	 * Get departments ordered by title.
+	 *
+	 * @return mixed
+	 */
 	protected function getSources()
 	{
 		if(!$this->sources)
@@ -545,6 +579,11 @@ class MailController extends Controller
 		return $this->sources;
 	}
 	
+	/**
+	 * Get teams ordered by title.
+	 *
+	 * @return mixed
+	 */
 	protected function getTeams()
 	{
 		if(!$this->teams)

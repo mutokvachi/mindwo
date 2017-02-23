@@ -16,6 +16,7 @@ return [
     'lbl_meta' => 'Records information',
     'lbl_reg_nr' => 'ID/Reg. nr.',
     'lbl_about' => 'Details',
+    'lbl_info' => 'Info',
         
     // %s - email
     'info_sent' => 'Information regarding records/documents was sent to this e-mail: %s. If you received this email by mistake, please inform IT support.',

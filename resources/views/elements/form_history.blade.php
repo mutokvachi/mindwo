@@ -1,3 +1,4 @@
+@if (count($events))
 <div class="mt-actions" style='padding-left: 20px; padding-right: 20px;'>
     @foreach($events as $event)
       <div class="mt-action" data-id="{{ $event->id }}">
@@ -46,3 +47,6 @@
       </div>
     @endforeach
   </div>
+@else
+    <div class="alert alert-info" role="alert" style='margin: 20px;'>{{ trans('form.history_not_found') }}</div>
+@endif
