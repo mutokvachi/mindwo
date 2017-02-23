@@ -6,22 +6,21 @@
 </div>
 <div class="form-group">
     <div class="dx-cms-workflow-form-label-title">{{ trans('workflow.title') }}</div>
-    <textarea class="form-control" id="dx-cms-workflow-form-input-title" name="title" rows="4" maxlength="255" {{ ($is_disabled) ? 'disabled' : '' }} >{{ ($workflow ? $workflow->title : '') }}</textarea>
+    <textarea class="form-control dx-cms-workflow-form-input-title" name="title" rows="4" maxlength="255" {{ ($is_disabled) ? 'disabled' : '' }} >{{ ($workflow ? $workflow->title : '') }}</textarea>
 </div>
 <div class="form-group">
     <div class="dx-cms-workflow-form-label-description">{{ trans('workflow.description') }}</div>
-    <textarea class="form-control" id="dx-cms-workflow-form-input-description" name="title" rows="4" maxlength="255" {{ ($is_disabled) ? 'disabled' : '' }} >{{($workflow ? $workflow->description : '')}}</textarea>
+    <textarea class="form-control dx-cms-workflow-form-input-description" name="title" rows="4" {{ ($is_disabled) ? 'disabled' : '' }} >{{($workflow ? $workflow->description : '')}}</textarea>
 </div>
 <div class="form-group">
     <div class="dx-cms-workflow-form-label-is_custom_approve">{{ trans('workflow.is_custom_approve') }}</div>
     <div>
         <input {{ ($is_disabled) ? 'disabled' : '' }} 
             type="checkbox" 
-            class="dx-bool" 
+            class="dx-bool dx-cms-workflow-form-input-is_custom_approve" 
             {{ ($workflow && $workflow->is_custom_approve ? 'checked' : '') }}
-        data-off-text="{{ trans('fields.no') }}" 
-        data-on-text="{{ trans('fields.yes') }}" 
-        id='dx-cms-workflow-form-input-is_custom_approve'/>
+            data-off-text="{{ trans('fields.no') }}" 
+            data-on-text="{{ trans('fields.yes') }}" />
     </div>
 </div>
 <div class="form-group">
@@ -30,7 +29,7 @@
         <span class='input-group-btn'>
             <button type='button' class='btn btn-white dx-cms-workflow-form-input-valid_from-calc'><i class='fa fa-calendar'></i></button>
         </span>
-        <input class='form-control dx-cms-workflow-form-input-valid_from' type='text' {{ ($is_disabled) ? 'disabled' : '' }} value="{{($workflow ? $workflow->valid_from : '') }}" />
+        <input class='form-control dx-cms-workflow-form-input-valid_from' type='text' {{ ($is_disabled) ? 'disabled' : '' }} value="{{($workflow && $workflow->valid_from ? (new DateTime($workflow->valid_from))->format(config('dx.txt_date_format')) : '') }}" />
     </div>
 </div>
 <div class="form-group">
@@ -39,6 +38,6 @@
         <span class='input-group-btn'>
             <button type='button' class='btn btn-white dx-cms-workflow-form-input-valid_to-calc'><i class='fa fa-calendar'></i></button>
         </span>
-        <input class='form-control dx-cms-workflow-form-input-valid_to' type='text' {{ ($is_disabled) ? 'disabled' : '' }} value="{{($workflow ? $workflow->valid_to : '') }}" />
+        <input class='form-control dx-cms-workflow-form-input-valid_to' type='text' {{ ($is_disabled) ? 'disabled' : '' }} value="{{($workflow && $workflow->valid_to ? (new DateTime($workflow->valid_to))->format(config('dx.txt_date_format')) : '') }}" />
     </div>
 </div>

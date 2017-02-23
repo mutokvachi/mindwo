@@ -18,7 +18,6 @@ use Sunra\PhpSimple\HtmlDomParser;
 
 class VisualWFController extends Controller
 {
-
     private $xml_cell_list = [];
     private $xml_cell_levels = [];
     private $current_x = 20;
@@ -29,11 +28,11 @@ class VisualWFController extends Controller
 
     public function test()
     {
-        $workflow_id = 5;
+        $workflow_id = 0;
 
         $workflow = \App\Models\Workflow\Workflow::find($workflow_id);
 
-        $wf_register_id = $workflow->list_id;
+        $wf_register_id = 60; //$workflow->list_id;
 
         /*
           'is_disabled' => $is_disabled,
@@ -45,6 +44,8 @@ class VisualWFController extends Controller
           'xml_data' => $this->prepareXML($workflow_id)
          */
 
+        $xml_data = ''; //$this->prepareXML($workflow_id);
+
         return view('pages.wf_test', ['json_data' => '',
                     'portal_name' => 'Mindwo',
                     'form_title' => 'Workflow',
@@ -54,7 +55,7 @@ class VisualWFController extends Controller
                     'wf_register_id' => $wf_register_id,
                     'wf_register_name' => 'Laba liste',
                     'workflow' => $workflow,
-                    'xml_data' => $this->prepareXML($workflow_id)])->render();
+                    'xml_data' => $xml_data])->render();
     }
 
     public function getFirstStep($workflow)
@@ -83,6 +84,10 @@ class VisualWFController extends Controller
 
         $workflow_step = $this->getFirstStep($workflow);
 
+        if (!$workflow_step) {
+            return;
+        }
+
         $xml = new \SimpleXMLElement('<mxGraphModel />');
 
         $root = $xml->addChild('root');
@@ -94,7 +99,7 @@ class VisualWFController extends Controller
         $mxCell->addAttribute('id', '1');
         $mxCell->addAttribute('parent', '0');
 
-        $this->createMxCell($root, false, -1, 2, $workflow_step->step_nr, 0, 'ENDPOINT', 20, 20);
+        $this->createMxCell($root, false, -1, 2, $workflow_step->step_nr, 0, 'ENDPOINT', 30, 30);
 
         //  $this->createMxCell($root, $workflow_step->step_nr, $workflow_step->yes_step_nr, $workflow_step->no_step_nr, ($workflow_step->task_type_id == 5 ? 'rhombus' : 'rounded'));
         // Removes 'xml version="1.0"' at the beginning of the xml
@@ -151,8 +156,8 @@ class VisualWFController extends Controller
         $height = 0;
 
         if ($shape == 'ellipse') {
-            $width = '20';
-            $height = '20';
+            $width = '30';
+            $height = '30';
         } elseif ($shape == 'rhombus') {
             $width = '100';
             $height = '100';
@@ -229,7 +234,7 @@ class VisualWFController extends Controller
         $this->error_stack = [];
 
         $this->validate($request, [
-            'workflow_id' => 'required|integer|exists:dx_workflows_def,id',
+            'workflow_id' => 'required',
         ]);
 
         $workflow_id = $request->input('workflow_id');
@@ -246,10 +251,19 @@ class VisualWFController extends Controller
         $workflow->title = $request->input('title');
         $workflow->description = $request->input('description');
         $workflow->is_custom_approve = $request->input('is_custom_approve');
-        $workflow->valid_to = $request->input('valid_to');
-        $workflow->valid_from = $request->input('valid_from');
 
-        if ($xlm_data) {
+        $date_format = config('dx.txt_date_format');
+        $valid_to = $request->input('valid_to');
+        if ($valid_to && strlen(trim($valid_to)) > 0) {
+            $workflow->valid_to = date_create_from_format($date_format, $request->input('valid_to'));
+        }
+
+        $valid_from = $request->input('valid_from');
+        if ($valid_from && strlen(trim($valid_from)) > 0) {
+            $workflow->valid_from = date_create_from_format($date_format, $request->input('valid_from'));
+        }
+
+        if ($xlm_data && strlen(trim($xlm_data)) > 0) {
             $workflow->visual_xml = $xlm_data;
             $xml = HtmlDomParser::str_get_html($workflow->visual_xml);
 
@@ -266,7 +280,7 @@ class VisualWFController extends Controller
 
         $workflow->save();
 
-        return response()->json(['success' => 1, 'html' => 'succ']);
+        return response()->json(['success' => 1, 'html' => $workflow->id]);
     }
 
     private function validateEndpoints($xml)
@@ -387,7 +401,7 @@ class VisualWFController extends Controller
             'item_id' => 'required|integer|exists:dx_workflows_def,id'
         ]);
 
-        \Log::info(json_endoce(Request::all()));
+        //\Log::info(json_endoce(Request::all()));
 
         $workflow_id = $request->input('item_id', 0);
         $list_id = $request->input('list_id', 0);
