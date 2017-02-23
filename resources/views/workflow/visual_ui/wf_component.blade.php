@@ -10,4 +10,3 @@
 <textarea id="txt_xml" ></textarea>
 <button id="set_xml" >Set XML</button>
 <button id="get_xml" >Get XML</button>
-<button id="save_xml" >Save</button>

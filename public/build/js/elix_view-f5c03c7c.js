@@ -21214,6 +21214,12 @@ mxBasePath = '/js/plugins/mxgraph/src';
          */
         this.isSending = false;
 
+        this.isGraphInit = false;
+
+        this.dateFormat = '';
+
+        this.locale = 'en';
+
         // Initializes class
         this.init();
     }
@@ -21333,7 +21339,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 after_save: function (form) {
                     form.modal("hide");
                     self.onAfterFormClose(form, self, vertex);
-                    
+
                 }
             });
 
@@ -21350,6 +21356,49 @@ mxBasePath = '/js/plugins/mxgraph/src';
             self.workflowId = self.domObject.data('wf_id');
             self.wfRegisterListId = self.domObject.data('wf_register_id');
             self.wfStepsListId = self.domObject.data('wf_steps_list_id');
+            self.dateFormat = self.domObject.data('data-date-format');
+            self.locale = self.domObject.data('data-locale');
+
+            self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_from');
+            self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_to');
+
+            $('#dx-cms-workflow-form-btn-save').click(function () {
+                self.save({self: self, initGraph: false});
+            });
+
+            $('.dx-cms-workflow-form-tab-steps-btn', self.domObject).click(function () {
+                self.onStepsTabClick(self);
+            });
+        },
+        onStepsTabClick: function (self) {
+            if (!self.isGraphInit) {
+                if (self.workflowId > 0) {
+                    self.initGraph(self);
+                } else {
+                    //callback, callbackParameters, title, bodyText, acceptText, declineText
+                    PageMain.showConfirm(self.save, {self: self, initGraph: true}, Lang.get('workflow.must_save_title'), Lang.get('workflow.must_save_text'));
+                }
+            }
+        },
+        initDatePickers: function (self, picker_name) {
+            var picker = $(picker_name, self.domObject);
+
+            picker.datetimepicker({
+                lang: self.locale,
+                format: self.dateFormat,
+                timepicker: 0,
+                dayOfWeekStart: 1,
+                closeOnDateSelect: true
+            });
+
+            $(picker_name + '-calc', self.domObject).click(function (e) {
+                $(picker_name, self.domObject).datetimepicker('show');
+            });
+        },
+        initGraph: function () {
+            var self = this;
+
+            self.isGraphInit = true;
 
             var wfTaskTypesObj = self.domObject.data('wf_task_types');
 
@@ -21364,10 +21413,6 @@ mxBasePath = '/js/plugins/mxgraph/src';
             $('#get_xml').click(function () {
                 var xm = document.getElementById('txt_xml');
                 xm.value = self.getXML(self);
-            });
-
-            $('#save_xml').click(function () {
-                self.save(self);
             });
 
             var container = self.domObject.find('.dx-wf-graph')[0];
@@ -21618,8 +21663,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
             form.find('select[dx_fld_name=workflow_def_id]').val(self.workflowId);
             form.find('select[dx_fld_name=list_id]').val(self.wfRegisterListId);
-            
-            form.find('select[dx_fld_name=task_type_id]').on('change', function(e, o){
+
+            form.find('select[dx_fld_name=task_type_id]').on('change', function (e, o) {
                 form.find('div[dx_fld_name_form=no_step_nr]').hide();
             });
         },
@@ -21745,7 +21790,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
             // Function that is executed when the image is dropped on
             // the graph. The cell argument points to the cell under
             // the mousepointer if there is one.
-            var funct = function (graph, evt, cell, x, y, is_endpoint)
+            var funct = function (graph, evt, cell, x, y)
             {
                 graph.stopEditing(false);
 
@@ -21765,7 +21810,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
             var img = toolbar.addMode(null, image, function (evt, cell)
             {
                 var pt = this.graph.getPointForEvent(evt);
-                funct(graph, evt, cell, pt.x, pt.y, is_endpoint);
+                funct(graph, evt, cell, pt.x, pt.y);
             });
 
             // Disables dragging if element is disabled. This is a workaround
@@ -21807,7 +21852,10 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
             return  mxUtils.getPrettyXml(node);
         },
-        save: function (self) {
+        save: function (data) {
+            var self = data.self;
+            var initGraph = data.initGraph;
+
             if (self.isSending) {
                 return;
             }
@@ -21815,11 +21863,22 @@ mxBasePath = '/js/plugins/mxgraph/src';
             self.isSending = true;
             show_page_splash(1);
 
-            var xml = self.getXML(self);
+
+            var xml = '';
+
+            if (self.initGraph && self.workflowId > 0) {
+                xml = self.getXML(self);
+            }
 
             var data = {
                 workflow_id: self.workflowId,
-                xml_data: xml
+                xml_data: xml,
+                list_id: $('.dx-cms-workflow-form-input-list_id').val(),
+                title: $('.dx-cms-workflow-form-input-title').val(),
+                description: $('.dx-cms-workflow-form-input-description').val(),
+                is_custom_approve: $('.dx-cms-workflow-form-input-is_custom_approve').val(),
+                valid_from: $('.dx-cms-workflow-form-input-valid_from').val(),
+                valid_to: $('.dx-cms-workflow-form-input-valid_to').val()
             };
 
             $.ajax({
@@ -21828,11 +21887,13 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 data: data,
                 dataType: "json",
                 context: self,
-                success: self.onSaveSuccess,
+                success: function (data) {
+                    self.onSaveSuccess(data, initGraph);
+                },
                 error: self.onSaveError
             });
         },
-        onSaveSuccess: function (data) {
+        onSaveSuccess: function (data, initGraph) {
             var self = this;
 
             if (data && data.success == 1) {
@@ -21842,6 +21903,11 @@ mxBasePath = '/js/plugins/mxgraph/src';
             }
 
             self.isSending = false;
+
+            if (initGraph && !self.isGraphInit) {
+                self.initGraph();
+            }
+
             hide_page_splash(1);
 
         },

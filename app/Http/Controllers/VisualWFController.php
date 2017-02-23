@@ -30,13 +30,30 @@ class VisualWFController extends Controller
     public function test()
     {
         $workflow_id = 5;
-        $wf_register_id = \App\Models\Workflow\Workflow::find($workflow_id)->list_id;
+
+        $workflow = \App\Models\Workflow\Workflow::find($workflow_id);
+
+        $wf_register_id = $workflow->list_id;
+
+        /*
+          'is_disabled' => $is_disabled,
+          'grid_htm_id' => $grid_htm_id,
+          'item_id' => $workflow_id,
+          'wf_register_id' => $wf_register_id,
+          'wf_register_name' => $list_title,
+          'wf_data' => $workflow,
+          'xml_data' => $this->prepareXML($workflow_id)
+         */
 
         return view('pages.wf_test', ['json_data' => '',
                     'portal_name' => 'Mindwo',
                     'form_title' => 'Workflow',
                     'item_id' => $workflow_id,
                     'wf_register_id' => $wf_register_id,
+                    'is_disabled' => false,
+                    'wf_register_id' => $wf_register_id,
+                    'wf_register_name' => 'Laba liste',
+                    'workflow' => $workflow,
                     'xml_data' => $this->prepareXML($workflow_id)])->render();
     }
 
@@ -213,28 +230,39 @@ class VisualWFController extends Controller
 
         $this->validate($request, [
             'workflow_id' => 'required|integer|exists:dx_workflows_def,id',
-            'xml_data' => 'required'
         ]);
 
         $workflow_id = $request->input('workflow_id');
 
-        $workflow = \App\Models\Workflow\Workflow::find($workflow_id);
+        if ($workflow_id && $workflow_id > 0) {
+            $workflow = \App\Models\Workflow\Workflow::find($workflow_id);
+        } else {
+            $workflow = new \App\Models\Workflow\Workflow();
+        }
 
         $xlm_data = $request->input('xml_data');
 
-        $workflow->visual_xml = $xlm_data;
+        $workflow->list_id = $request->input('list_id');
+        $workflow->title = $request->input('title');
+        $workflow->description = $request->input('description');
+        $workflow->is_custom_approve = $request->input('is_custom_approve');
+        $workflow->valid_to = $request->input('valid_to');
+        $workflow->valid_from = $request->input('valid_from');
 
-        $xml = HtmlDomParser::str_get_html($workflow->visual_xml);
+        if ($xlm_data) {
+            $workflow->visual_xml = $xlm_data;
+            $xml = HtmlDomParser::str_get_html($workflow->visual_xml);
 
-        $this->validateEndpoints($xml);
+            $this->validateEndpoints($xml);
 
-        $this->validateStepsConnections($workflow, $xml);
+            $this->validateStepsConnections($workflow, $xml);
 
-        if (count($this->error_stack) > 0) {
-            return response()->json(['success' => 0, 'errors' => $this->error_stack]);
+            if (count($this->error_stack) > 0) {
+                return response()->json(['success' => 0, 'errors' => $this->error_stack]);
+            }
+
+            $this->saveRelations($workflow, $xml);
         }
-
-        $this->saveRelations($workflow, $xml);
 
         $workflow->save();
 
@@ -359,13 +387,27 @@ class VisualWFController extends Controller
             'item_id' => 'required|integer|exists:dx_workflows_def,id'
         ]);
 
-        $workflow_id = $request->input('item_id');
+        \Log::info(json_endoce(Request::all()));
+
+        $workflow_id = $request->input('item_id', 0);
+        $list_id = $request->input('list_id', 0);
+
+        $list = \App\Models\Lists::find($list_id);
+        if ($list) {
+            $list_title = $list->list_title;
+            $wf_register_id = $list->id;
+        } else {
+            $list_title = '';
+            $wf_register_id = 0;
+        }
+
+        if ($workflow_id > 0) {
+            $workflow = \App\Models\Workflow\Workflow::find($workflow_id);
+        }
 
         $grid_htm_id = $request->input('grid_htm_id', '');
         $frm_uniq_id = Uuid::generate(4);
-        $is_disabled = 1; //read-only rights by default
-
-        $wf_register_id = \App\Models\Workflow\Workflow::find($workflow_id)->list_id;
+        $is_disabled = false; //read-only rights by default
 
         $form_htm = view('workflow.visual_ui.wf_form', [
             'frm_uniq_id' => $frm_uniq_id,
@@ -374,6 +416,8 @@ class VisualWFController extends Controller
             'grid_htm_id' => $grid_htm_id,
             'item_id' => $workflow_id,
             'wf_register_id' => $wf_register_id,
+            'wf_register_name' => $list_title,
+            'workflow' => $workflow,
             'xml_data' => $this->prepareXML($workflow_id)
                 ])->render();
 
