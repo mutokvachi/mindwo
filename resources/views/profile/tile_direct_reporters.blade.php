@@ -2,10 +2,13 @@
 <div class="mt-element-list">
     <div class="mt-list-head list-simple font-white bg-green-jungle">
         <div class="list-head-title-container">
-            <h4 class="list-title">{{ trans('empl_profile.direct_reporters') }}</h4>
+            <h4 class="list-title">
+                {{ trans('empl_profile.direct_reporters') }}
+                <span class="badge badge-primary">{{ count($employee->subordinates) }}</span>
+            </h4>             
         </div>
     </div>
-    <div class="mt-list-container list-simple ">
+    <div class="mt-list-container list-simple dx-tile-direct-reporters" style="max-height: 250px; overflow-y: scroll">
         <ul>
             @foreach($employee->subordinates as $directReporter)
             <li class="mt-list-item">
@@ -19,5 +22,5 @@
             @endforeach
         </ul>
     </div>
-</div>
+</div>   
 @endif

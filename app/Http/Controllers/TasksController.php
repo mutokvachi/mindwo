@@ -1716,9 +1716,22 @@ class TasksController extends Controller
         return $tb;
     }
     
+    /**
+     * Evaluate criteria result - true or false
+     * 
+     * @param mixed $item_val Current item val
+     * @param integer $operation_id Comparision operation ID
+     * @param mixed $condition_val Condition value to be tested
+     * @return boolean
+     * @throws Exceptions\DXCustomException
+     */
     private function getCriteriaResult($item_val, $operation_id, $condition_val)
     {
-         switch ($operation_id) {
+        if ($condition_val == "[ME]") {
+            $condition_val = Auth::user()->id;
+        }
+        
+        switch ($operation_id) {
                 case 1:
                     return ($item_val == $condition_val);
                 case 2:
