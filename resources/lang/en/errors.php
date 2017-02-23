@@ -113,4 +113,14 @@ return [
     'unsuported_action_code' => "Unsuported form's action code '%s'!",
     
     'wrong_date_format' => "Data can't be saved! Wrong date format for the field '%s'. Date must be in format %s!",
+    
+    'workflow' => [
+        'not_saved' => 'Workflow is not saved',
+        'step_not_connected' => 'Workflow contains steps which are not connected to workflow',
+        'step_dont_have_child' => "Workflow contains steps which don't have next or last workflow's step",
+        'end_point_in_middle' => 'Workflow contains starting or ending points which are in the middle of workflow',
+        'multiple_starting_points' => 'Workflow contains multiple starting points',
+        'no_starting_points' => 'Workflow does not contain any starting points',
+        'no_finish_points' => 'Workflow does not contain any starting points',
+    ],
 ];

@@ -4,6 +4,9 @@ namespace App\Models\Workflow;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Model for workflow object
+ */
 class Workflow extends Model
 {
     /**
@@ -16,6 +19,10 @@ class Workflow extends Model
      */
     public $timestamps = false;
 
+    /**
+     * All belonging workflow steps
+     * @return \App\Models\Workflow\WorkflowStep
+     */
     public function workflowSteps()
     {
         return $this->hasMany('\App\Models\Workflow\WorkflowStep', 'workflow_def_id');
