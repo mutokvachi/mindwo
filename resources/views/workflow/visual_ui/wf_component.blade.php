@@ -5,7 +5,7 @@
      data-wf_task_types = '{{ App\Models\Workflow\TaskType::select('id', 'code')->get()->toJson() }}' 
      data-wf_steps_list_id="{{ App\Libraries\DBHelper::getListByTable('dx_workflows')->id }}">
     <div class='dx-wf-toolbar' style="height:20px; background-color: lightgray;"></div>
-    <div class='dx-wf-graph'></div>
+    <div class='dx-wf-graph' style="background-color: white;"></div>
 </div>
 <textarea id="txt_xml" ></textarea>
 <button id="set_xml" >Set XML</button>

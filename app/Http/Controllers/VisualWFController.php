@@ -121,7 +121,7 @@ class VisualWFController extends Controller
         $mxCell->addAttribute('has_arrow_labels', $has_arrow_labels);
         $mxCell->addAttribute('arrow_count', $arrow_count);
 
-        $mxCell->addAttribute('style', 'html=1;whiteSpace=wrap;shape=' . $shape);
+        $mxCell->addAttribute('style', 'fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;html=1;whiteSpace=wrap;shape=' . $shape);
 
         if ($value) {
             $mxCell->addAttribute('value', htmlspecialchars($value, ENT_QUOTES, 'UTF-8'));
@@ -195,7 +195,7 @@ class VisualWFController extends Controller
         $mxCell->addAttribute('source', 's' . $parent);
         $mxCell->addAttribute('target', 's' . $child);
         // labelBackgroundColor=white
-        $mxCell->addAttribute('style', 'fontColor=black;labelPosition=right;align=left;');
+        $mxCell->addAttribute('style', 'fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;labelPosition=right;align=left;');
         $mxCell->addAttribute('is_yes', $is_yes_arrrow ? '1' : '0');
 
         if ($value) {

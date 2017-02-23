@@ -70,17 +70,17 @@ mxBasePath = '/js/plugins/mxgraph/src';
     $.extend($.DxWorkflow.prototype, {
         vertexStyle: {
             ellipse: {
-                style: 'shape=ellipse;editable=0;html=1;whiteSpace=wrap;',
+                style: 'shape=ellipse;editable=0;html=1;whiteSpace=wrap;fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;',
                 width: 20,
                 height: 20
             },
             rounded: {
-                style: 'shape=rounded;html=1;whiteSpace=wrap;',
+                style: 'shape=rounded;html=1;whiteSpace=wrap;fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;',
                 width: 100,
                 height: 60
             },
             rhombus: {
-                style: 'shape=rhombus;html=1;whiteSpace=wrap;',
+                style: 'shape=rhombus;html=1;whiteSpace=wrap;fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;',
                 width: 100,
                 height: 100
             }
@@ -176,7 +176,9 @@ mxBasePath = '/js/plugins/mxgraph/src';
                     self.onBeforeFormShow(form, self, stepId);
                 },
                 after_save: function (form) {
+                    form.modal("hide");
                     self.onAfterFormClose(form, self, vertex);
+                    
                 }
             });
 
@@ -284,6 +286,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 // self.graph.getStylesheet().getDefaultEdgeStyle()['edgeStyle'] = 'orthogonalEdgeStyle';
                 // Sets default edge style 
                 var defaultEdgeStyle = self.graph.getStylesheet().getDefaultEdgeStyle();
+                defaultEdgeStyle[mxConstants.STYLE_FILLCOLOR] = '#E1E5EC';
+                defaultEdgeStyle[mxConstants.STYLE_STROKECOLOR] = '#4B77BE';
                 defaultEdgeStyle[mxConstants.STYLE_FONTCOLOR] = 'black';
                 defaultEdgeStyle[mxConstants.STYLE_LABEL_POSITION] = 'right';
                 defaultEdgeStyle[mxConstants.STYLE_ALIGN] = 'left';
@@ -459,8 +463,10 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
             form.find('select[dx_fld_name=workflow_def_id]').val(self.workflowId);
             form.find('select[dx_fld_name=list_id]').val(self.wfRegisterListId);
-
-
+            
+            form.find('select[dx_fld_name=task_type_id]').on('change', function(e, o){
+                form.find('div[dx_fld_name_form=no_step_nr]').hide();
+            });
         },
         onAfterFormClose: function (form, self, vertex) {
             var stepId = form.find('input[name=id]').val();
@@ -476,42 +482,47 @@ mxBasePath = '/js/plugins/mxgraph/src';
         setCellProperties: function (self, vertex, stepId, taskTypeId, stepNr, stepTitle) {
             var hasArrowLabels = 0;
             var typeCode = self.wfTaskTypes[taskTypeId];
-            
+
             var geometry = vertex.getGeometry();
+            var style = '', arrow_count = 0;
+            ;
 
             if (typeCode == 'CRIT' || typeCode == 'CRITM') {
                 hasArrowLabels = 1;
-                vertex.arrow_count = 2;
-                vertex.setStyle(self.vertexStyle.rhombus);
+                arrow_count = 2;
+                style = self.vertexStyle.rhombus.style;
                 geometry.width = self.vertexStyle.rhombus.width;
                 geometry.height = self.vertexStyle.rhombus.height;
             } else if (typeCode == 'ENDPOINT') {
-                vertex.arrow_count = 1;
-                vertex.setStyle(self.vertexStyle.ellipse);
+                arrow_count = 1;
+                style = self.vertexStyle.ellipse.style;
                 geometry.width = self.vertexStyle.ellipse.width;
                 geometry.height = self.vertexStyle.ellipse.height;
             } else if (typeCode == 'SET') {
-                vertex.arrow_count = 1;
-                vertex.setStyle(self.vertexStyle.rounded);
+                arrow_count = 1;
+                style = self.vertexStyle.rounded.style;
                 geometry.width = self.vertexStyle.rounded.width;
                 geometry.height = self.vertexStyle.rounded.height;
             } else {
-                vertex.arrow_count = 2;
-                vertex.setStyle(self.vertexStyle.rounded);
+                arrow_count = 2;
+                style = self.vertexStyle.rounded.style;
                 geometry.width = self.vertexStyle.rounded.width;
                 geometry.height = self.vertexStyle.rounded.height;
             }
 
             vertex.setGeometry(geometry);
-            vertex.id = 's' + stepNr;
+            vertex.setId('s' + stepNr);
             vertex.workflow_step_id = stepId;
+            vertex.arrow_count = arrow_count;
             vertex.type_code = typeCode;
             vertex.has_arrow_labels = hasArrowLabels;
-            vertex.value = stepTitle;
+            vertex.setValue(stepTitle);
 
-            var model = self.graph.getModel();
-            
-            
+            self.graph.getModel().setStyle(vertex, style);
+
+            //   var model = self.graph.getModel();
+
+
 
             self.graph.refresh();
         },
@@ -529,7 +540,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
             for (var i = 0; i < edgesCount; i++) {
                 var edge = edges[i];
 
-                if (edge.target.id !== cell.id) {
+                if (edge.target === null || edge.target.id !== cell.id) {
                     // If counts only "yes" arrows and current arrow is "no" arrow then go to next edge
                     if (count_only_yes && (edge.is_yes == null || typeof edge.is_yes === 'undefined' || edge.is_yes == 0)) {
                         continue;
