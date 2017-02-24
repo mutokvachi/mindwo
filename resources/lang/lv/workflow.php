@@ -96,6 +96,7 @@ return [
     'wf_details' => "Darbplūsmas detaļas",
     'wf_steps' => "Darbplūsmas soļi",
     
+    'form_title' => 'Darbplūsma',
     'list' => 'Reģistrs',
     'title' => 'Nosaukums',
     'description' => 'Apraksts',

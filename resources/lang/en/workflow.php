@@ -97,6 +97,7 @@ return [
     'wf_details' => "Workflow details",
     'wf_steps' => "Workflow steps",
     
+    'form_title' => 'Workflow',
     'list' => 'Register',
     'title' => 'Name',
     'description' => 'Description',

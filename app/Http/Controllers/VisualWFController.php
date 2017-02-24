@@ -425,7 +425,7 @@ class VisualWFController extends Controller
 
         $form_htm = view('workflow.visual_ui.wf_form', [
             'frm_uniq_id' => $frm_uniq_id,
-            'form_title' => trans('task_form.form_title'),
+            'form_title' => trans('workflow.form_title'),
             'is_disabled' => $is_disabled,
             'grid_htm_id' => $grid_htm_id,
             'item_id' => $workflow_id,
