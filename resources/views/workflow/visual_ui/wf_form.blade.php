@@ -34,7 +34,7 @@
                 </div>
             </div>
             <div class="modal-footer">       
-                <button type="button" class="btn btn-primary dx-cms-workflow-form-btn-save">&nbsp;{{ trans('mail.save') }}</button>
+                <button type="button" class="btn btn-primary dx-cms-workflow-form-btn-save">&nbsp;{{ trans('workflow.save') }}</button>
                 <button type='button' class='btn btn-white' data-dismiss='modal'><i class='fa fa-sign-out'></i>&nbsp;{{ trans('task_form.btn_close') }}</button>
             </div>
         </div>
