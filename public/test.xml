@@ -1,0 +1,81 @@
+<mxGraphModel>
+    <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="s2" style="html=1;whiteSpace=wrap;shape=ellipse" vertex="1" workflow_step_id="-1" type_code="ENDPOINT" has_arrow_labels="0" arrow_count="1" parent="1">
+            <mxGeometry x="20" y="20" width="20" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="s10" value="Uzstāda statusu uz &quot;Procesā&quot;" style="html=1;whiteSpace=wrap;shape=rounded" vertex="1" workflow_step_id="26" type_code="SET" has_arrow_labels="0" arrow_count="1" parent="1">
+            <mxGeometry x="20" y="70" width="100" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="s20" value="Vai ir nepieciešams sagatavot atbildes dokumentu?" style="html=1;whiteSpace=wrap;shape=rhombus" vertex="1" workflow_step_id="27" type_code="CRIT" has_arrow_labels="1" arrow_count="2" parent="1">
+            <mxGeometry x="20" y="160" width="100" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="s25" value="Uzstāda pazīmi, ka ir uz kontroli" style="html=1;whiteSpace=wrap;shape=rounded" vertex="1" workflow_step_id="34" type_code="SET" has_arrow_labels="0" arrow_count="1" parent="1">
+            <mxGeometry x="20" y="290" width="100" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="s30" value="Uzdevums pievienot nosūtāmo dokumentu" style="html=1;whiteSpace=wrap;shape=rounded" vertex="1" workflow_step_id="28" type_code="SUPP" has_arrow_labels="0" arrow_count="2" parent="1">
+            <mxGeometry x="20" y="380" width="100" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="s50" value="Noņem saņemto dokumentu no kontroles" style="html=1;whiteSpace=wrap;shape=rounded" vertex="1" workflow_step_id="30" type_code="SET" has_arrow_labels="0" arrow_count="1" parent="1">
+            <mxGeometry x="20" y="470" width="100" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="s60" value="Uzstāda statusu uz &quot;Pabeigts&quot;" style="html=1;whiteSpace=wrap;shape=rounded" vertex="1" workflow_step_id="31" type_code="SET" has_arrow_labels="0" arrow_count="1" parent="1">
+            <mxGeometry x="20" y="560" width="100" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="s61" style="html=1;whiteSpace=wrap;shape=ellipse" vertex="1" workflow_step_id="-1" type_code="ENDPOINT" has_arrow_labels="0" arrow_count="1" parent="1">
+            <mxGeometry x="20" y="650" width="20" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="2" style="fontColor=black;labelPosition=right;align=left;" edge="1" is_yes="1" source="s60" target="s61" parent="1">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="3" style="fontColor=black;labelPosition=right;align=left;" edge="1" is_yes="1" source="s50" target="s60" parent="1">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="4" style="fontColor=black;labelPosition=right;align=left;" edge="1" is_yes="1" source="s30" target="s50" parent="1">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="s100" value="Uzstāda statusu &quot;Noraidīts&quot;" style="html=1;whiteSpace=wrap;shape=rounded" vertex="1" workflow_step_id="32" type_code="SET" has_arrow_labels="0" arrow_count="1" parent="1">
+            <mxGeometry x="160" y="470" width="100" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="s110" value="Informatīvs uzdevums dokumenta sagatavotājam par noraidīšanu" style="html=1;whiteSpace=wrap;shape=rounded" vertex="1" workflow_step_id="33" type_code="INFO" has_arrow_labels="0" arrow_count="2" parent="1">
+            <mxGeometry x="160" y="560" width="100" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="s111" style="html=1;whiteSpace=wrap;shape=ellipse" vertex="1" workflow_step_id="-1" type_code="ENDPOINT" has_arrow_labels="0" arrow_count="1" parent="1">
+            <mxGeometry x="160" y="650" width="20" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="5" style="fontColor=black;labelPosition=right;align=left;" edge="1" is_yes="1" source="s110" target="s111" parent="1">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="6" style="fontColor=black;labelPosition=right;align=left;" edge="1" is_yes="1" source="s100" target="s110" parent="1">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="7" style="fontColor=black;labelPosition=right;align=left;" edge="1" is_yes="0" source="s30" target="s100" parent="1">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="8" style="fontColor=black;labelPosition=right;align=left;" edge="1" is_yes="1" source="s25" target="s30" parent="1">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="9" value="Jā" style="fontColor=black;labelPosition=right;align=left;" edge="1" is_yes="1" source="s20" target="s25" parent="1">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="s40" value="Uzdevums veikt darbības saskaņā ar saņemto dokumentu" style="html=1;whiteSpace=wrap;shape=rounded" vertex="1" workflow_step_id="29" type_code="EXEC" has_arrow_labels="0" arrow_count="2" parent="1">
+            <mxGeometry x="160" y="290" width="100" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="10" style="fontColor=black;labelPosition=right;align=left;" edge="1" is_yes="1" source="s40" target="s50" parent="1">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="11" style="fontColor=black;labelPosition=right;align=left;" edge="1" is_yes="0" source="s40" target="s100" parent="1">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="12" value="Nē" style="fontColor=black;labelPosition=right;align=left;" edge="1" is_yes="0" source="s20" target="s40" parent="1">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="13" style="fontColor=black;labelPosition=right;align=left;" edge="1" is_yes="1" source="s10" target="s20" parent="1">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="14" style="fontColor=black;labelPosition=right;align=left;" edge="1" is_yes="1" source="s2" target="s10" parent="1">
+            <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+    </root>
+</mxGraphModel>

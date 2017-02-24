@@ -92,4 +92,17 @@ return [
     
     'yes' => 'Jā',
     'no' => 'Nē',
+    'success' => 'Darbplūsma saglabāta',
+    'wf_details' => "Darbplūsmas detaļas",
+    'wf_steps' => "Darbplūsmas soļi",
+    
+    'form_title' => 'Darbplūsma',
+    'list' => 'Reģistrs',
+    'title' => 'Nosaukums',
+    'description' => 'Apraksts',
+    'is_custom_approve' => 'Ir manuālie saskaņotāji',
+    'valid_from' => 'Spēkā no',
+    'valid_to' => 'Spēkā līdz',
+    'must_save_title' => 'Darbplūsmas saglabāšana',
+    'must_save_text' => 'Darbplūsmu nepieciešams saglabāt pirms tās soļu rediģēšanas. Vai saglabāt darbplūsmu?',
 ];

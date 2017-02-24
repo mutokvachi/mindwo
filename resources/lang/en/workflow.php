@@ -93,4 +93,17 @@ return [
 
     'yes' => 'Yes',
     'no' => 'No',
+    'success' => 'Workflow saved',
+    'wf_details' => "Workflow details",
+    'wf_steps' => "Workflow steps",
+    
+    'form_title' => 'Workflow',
+    'list' => 'Register',
+    'title' => 'Name',
+    'description' => 'Description',
+    'is_custom_approve' => 'Is custom approve',
+    'valid_from' => 'Valid from',
+    'valid_to' => 'Valid to',
+     'must_save_title' => 'Save workflow',
+    'must_save_text' => "Workflow must be saved before editting wokrflow's steps. Do You want to save workflow?",
 ];
