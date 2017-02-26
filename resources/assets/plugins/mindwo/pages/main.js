@@ -864,3 +864,8 @@ $(document).ajaxComplete(function(event, xhr, settings) {
     PageMain.initHelpPopups();
     PageMain.initFilesIcons();
 });
+
+$(".dx-main-menu a").not(".dx-main-menu a.dropdown-toggle").click(function() {
+    $('.splash').css('display', 'block');
+    $('body').css('overflow', 'hidden');
+});

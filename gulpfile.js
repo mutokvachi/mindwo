@@ -73,7 +73,7 @@ gulp.task('mix_all', function() {
             'datatables/plugins/bootstrap/datatables.bootstrap.css',
             'datatables/datatables.min.css',
             'bootstrap-daterangepicker/daterangepicker.min.css',
-            '../less/pages/visual_workflow.less'
+            //'../less/pages/visual_workflow.less'
         ], 'public/css/elix_view.css', 'resources/assets/plugins');
         
         // horizontal menu UI styles                
@@ -179,8 +179,8 @@ gulp.task('mix_all', function() {
             'datatables/plugins/bootstrap/datatables.bootstrap.js',
             'float-thead/dist/jquery.floatThead.js',
             
-            'mindwo/visual_ui/workflow.js',
-            'mxgraph/src/js/mxClient.js',
+            //'mindwo/visual_ui/workflow.js',
+            //'mxgraph/src/js/mxClient.js',
         ], 'public/js/elix_view.js', 'resources/assets/plugins');
         
         mix.less([
