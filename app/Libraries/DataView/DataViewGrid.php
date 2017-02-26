@@ -248,7 +248,7 @@ namespace App\Libraries\DataView {
             foreach($rows as $key => $row)
             {   
                 $dropup = "";
-                if ($key > 0)
+                if ($key > 1)
                 {
                     $dropup = "dropup";
                 }
@@ -320,7 +320,8 @@ namespace App\Libraries\DataView {
             return  view('grid.heading_row', [
                          'grid_id' => $this->grid_id,
                          'filters' => $htm_flt,
-                         'headings' => $htm_head
+                         'headings' => $htm_head,
+                         'is_filter' => ($this->filter_data && $this->filter_data != '[]')
                     ])->render();
         }
         

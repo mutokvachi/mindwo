@@ -1,4 +1,4 @@
-<th class='t_header' style="background-color: white;
+<th class='t_header' style="
 @if ($width > 0)
     width: {{ $width }}px;
 @endif
