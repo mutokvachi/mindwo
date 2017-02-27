@@ -308,29 +308,32 @@ function refresh_form_fields(edit_form_htm_id, form_htm_id, item_id, list_id, re
                         $("#" + form_htm_id).find("div[dx_tab_id=" + id + "]").html(htm);                        
                     });
                     
-                    // Lets execute again custom javascript so they applay to refreshed fields
-                    var script = $("body").find("div[dx_attr='" + form_htm_id + "']");
-                    if (script.html())
-                    {
-                        var tmp = script.html();
-                        tmp = tmp.replace('<script type="text/javascript">');
-                        tmp = tmp.replace('</script>');
-                        eval(tmp);
-                    }
-                    
-                    FormLogic.adjustDataTabs($("#item_edit_form_" + frm_uniq_id).find(".dx-cms-form-fields-section").first());
-                    
+                    var callback_result = true;
                     if (typeof arr_callbacks != 'undefined') {
                         if (typeof arr_callbacks.after_save != 'undefined') {
-                            arr_callbacks.after_save.call(this, $("#list_item_view_form_" + frm_uniq_id));
+                            callback_result = arr_callbacks.after_save.call(this, $("#list_item_view_form_" + frm_uniq_id));                           
                         }
                     }
-        
-                    var footer = $("#" + form_htm_id).find(".modal-footer");
-                    footer.find(".dx-history-badge").html(myData['history_count']);
                     
-                    if (myData['history_count']) {
-                        footer.find(".dx-history-badge").show();
+                    if (callback_result) {
+                        // Lets execute again custom javascript so they applay to refreshed fields
+                        var script = $("body").find("div[dx_attr='" + form_htm_id + "']");
+                        if (script.html())
+                        {
+                            var tmp = script.html();
+                            tmp = tmp.replace('<script type="text/javascript">');
+                            tmp = tmp.replace('</script>');
+                            eval(tmp);
+                        }
+
+                        FormLogic.adjustDataTabs($("#item_edit_form_" + frm_uniq_id).find(".dx-cms-form-fields-section").first());                                       
+
+                        var footer = $("#" + form_htm_id).find(".modal-footer");
+                        footer.find(".dx-history-badge").html(myData['history_count']);
+
+                        if (myData['history_count']) {
+                            footer.find(".dx-history-badge").show();
+                        }
                     }
                     
                     notify_info(DX_CORE.trans_data_saved);
@@ -388,49 +391,52 @@ function reload_edited_form(ajax_url, item_id, list_id, rel_field_id, rel_field_
         if (typeof arr_callbacks != 'undefined') {
             add_form_callbacks(old_form_htm_id, arr_callbacks);
         }
-                
-        $("#list_item_view_form_" + old_form_htm_id).find(".modal-content").html(htm);
         
-        if (get_last_form_id() != ("list_item_view_form_" + old_form_htm_id)) {
-            var dom = $(htm);
-            dom.find("script").each(function() {
-                $.globalEval(this.text || this.textContent || this.innerHTML || '');
-            });
-
-            dom.filter('script').each(function(){           
-                $.globalEval(this.text || this.textContent || this.innerHTML || '');
-            });
-        }
-        
-        var tool_height = $("#top_toolbar_list_item_view_form_" + old_form_htm_id).height();
-
-        $("#list_item_view_form_" + old_form_htm_id).find(".modal-body").height(height_content - tool_height-21);
-                
-        var height = $(window).height()*DX_CORE.form_height_ratio;
-        var form_body = $("#list_item_view_form_" + old_form_htm_id).find(".modal-body");
-        
-        form_body.css('overflow-y', 'auto');    
-        
-        var scroll_height = form_body.find(".dx-form-row")[0].scrollHeight;
-        var heading_height = $("#list_item_view_form_" + old_form_htm_id).find(".modal-header").outerHeight();
-        var footer_height = $("#list_item_view_form_" + old_form_htm_id).find(".modal-header").outerHeight();
-        
-        if (scroll_height > (height_content - tool_height - 21) && scroll_height < (height - tool_height - heading_height - footer_height)) {
-            form_body.height(scroll_height);
-        }
-        else {
-            form_body.height(height_content);
-        }
-        
-        form_body.css('max-height', height + 'px');
-        
-        FormLogic.adjustDataTabs($("#item_edit_form_" + old_form_htm_id).find(".dx-cms-form-fields-section").first());
-        
+        var callback_result = true;
         if (typeof arr_callbacks != 'undefined') {
             if (typeof arr_callbacks.after_save != 'undefined') {
-                arr_callbacks.after_save.call(this, $("#list_item_view_form_" + old_form_htm_id));
+                callback_result = arr_callbacks.after_save.call(this, $("#list_item_view_form_" + old_form_htm_id));                           
             }
         }
+        
+        if (callback_result) {
+            $("#list_item_view_form_" + old_form_htm_id).find(".modal-content").html(htm);
+
+            if (get_last_form_id() != ("list_item_view_form_" + old_form_htm_id)) {
+                var dom = $(htm);
+                dom.find("script").each(function() {
+                    $.globalEval(this.text || this.textContent || this.innerHTML || '');
+                });
+
+                dom.filter('script').each(function(){           
+                    $.globalEval(this.text || this.textContent || this.innerHTML || '');
+                });
+            }
+
+            var tool_height = $("#top_toolbar_list_item_view_form_" + old_form_htm_id).height();
+
+            $("#list_item_view_form_" + old_form_htm_id).find(".modal-body").height(height_content - tool_height-21);
+
+            var height = $(window).height()*DX_CORE.form_height_ratio;
+            var form_body = $("#list_item_view_form_" + old_form_htm_id).find(".modal-body");
+
+            form_body.css('overflow-y', 'auto');    
+
+            var scroll_height = form_body.find(".dx-form-row")[0].scrollHeight;
+            var heading_height = $("#list_item_view_form_" + old_form_htm_id).find(".modal-header").outerHeight();
+            var footer_height = $("#list_item_view_form_" + old_form_htm_id).find(".modal-header").outerHeight();
+
+            if (scroll_height > (height_content - tool_height - 21) && scroll_height < (height - tool_height - heading_height - footer_height)) {
+                form_body.height(scroll_height);
+            }
+            else {
+                form_body.height(height_content);
+            }
+
+            form_body.css('max-height', height + 'px');
+
+            FormLogic.adjustDataTabs($("#item_edit_form_" + old_form_htm_id).find(".dx-cms-form-fields-section").first());
+        }        
                     
         notify_info(DX_CORE.trans_data_saved);
         hide_form_splash(1);

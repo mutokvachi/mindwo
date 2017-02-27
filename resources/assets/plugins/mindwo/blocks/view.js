@@ -236,6 +236,45 @@ var BlockViews = function()
     };
     
     /**
+     * Show or hide filtering fields
+     * 
+     * @param {string} menu_id Grid's toolbar section HTML element's ID
+     * @param {string} grid_id Grid's HTML element ID
+     * @param {string} tab_id  Tab's HTML element ID in case if this is subgrid in an form
+     * @param {object} el_block View's block HTML element
+     * @returns {undefined}
+     */
+    var handleMenuFilter = function(menu_id, grid_id, tab_id, el_block) {
+        $('#' + menu_id + '_filter').click(function() {
+            var el_icon = $(this).find("i.fa-check");
+            var el_filters = $("#filter_" + grid_id);
+            if (el_icon.is(':visible')) {
+                // hide filters row
+                                
+                var el_filt_data = el_block.find('input[name=filter_data]');
+                
+                if (el_filt_data.val().length > 0 && el_filt_data.val() != '[]') {
+                    // was filtered grid - lets reload with clear data
+                    el_filt_data.val('');
+                    el_filters.find('input').val('');
+                    reloadBlockGrid(grid_id, tab_id);
+                }
+                else {
+                    el_filters.hide();
+                    el_icon.hide();
+                    PageMain.resizePage();
+                }
+            }
+            else {
+                // show filters row
+                el_filters.show();
+                el_icon.show();
+                PageMain.resizePage();
+            }
+        });
+    };
+    
+    /**
      * Opend view editing form
      * 
      * @param {object} view_container Grid view main object's HTML element
@@ -1123,18 +1162,40 @@ var BlockViews = function()
      * @returns {undefined}
      */
     var initHeight = function() {
-        var grid_el = $("#td_data .dx-grid-outer-div");
-        var grid_top = grid_el.offset().top;                
-        var win_h = $( window ).height();
-        var max_h = win_h - grid_top-100;
-        grid_el.css('max-height', max_h + 'px');
-        
-        var page_h = $("#td_data").offset().top;
-        var page_min = win_h - page_h;
-        $("#td_data").css('min-height', page_min + 'px');
-        
-        $(".dx-page-container").css('padding-bottom', '0px');
-        $("#td_data .dx-paginator-butons").css('margin-right', 'auto');
+        try {
+            var grid_el = $("#td_data .dx-grid-outer-div");
+            var grid_top = grid_el.offset().top;                
+            var win_h = $( window ).height();
+            
+            var scrl = 0;
+            
+            if (grid_el.hasScrollBar('horizontal')) {
+                scrl = 8;                
+            }
+            
+            var adjust_h = 80;
+            
+            if ($("body").hasClass("dx-horizontal-menu-ui")) {
+                adjust_h = 70;
+            }
+            
+            var max_h = win_h - grid_top - adjust_h + scrl; //bija 100 / 70
+            grid_el.css('max-height', max_h + 'px');
+
+            var page_h = $("#td_data").offset().top;
+            var page_min = win_h - page_h;
+            $("#td_data").css('min-height', page_min + 'px');
+
+            $(".dx-page-container").css('padding-bottom', '0px');
+            $("#td_data .dx-paginator-butons").css('margin-right', 'auto');
+        }
+        catch(e){
+            console.log("Init Height error");
+        }
+    };
+    
+    var addHoverDropdowns = function(el_block) {
+        el_block.find(".dropdown-toggle").dropdownHover();
     };
     
     /**
@@ -1165,6 +1226,9 @@ var BlockViews = function()
             handleRegisterSettings($(this), grid_id, list_id);
             handleBtnImport(menu_id, rel_field_id, rel_field_value, form_htm_id);
             handleBtnStartImport(menu_id);
+            handleMenuFilter(menu_id, grid_id, tab_id, $(this));
+            
+            addHoverDropdowns($(this));
             
             // view editing
             handleBtnEditView($(this));
@@ -1192,6 +1256,10 @@ var BlockViews = function()
             
             openItemByID($(this), grid_form, grid_id, list_id, rel_field_id, rel_field_value, form_htm_id);
             
+            if (!tab_id) {
+                $("body").addClass("dx-grid-in-page");
+            }
+            
             PageMain.addResizeCallback(initHeight);
             
             initHeight();
@@ -1207,6 +1275,8 @@ var BlockViews = function()
             PageMain.addResizeCallback(function() {
                 $table.floatThead('reflow');
             });
+            
+            
             
             $(this).attr('dx_block_init', 1); // uzstādam pazīmi, ka skata bloks ir inicializēts
         });  
@@ -1228,6 +1298,19 @@ $.expr[":"].contains = $.expr.createPseudo(function(arg) {
         return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
     };
 });
+
+$.fn.hasScrollBar = function(direction){
+  if (direction == 'vertical')
+  {
+    return this.get(0).scrollHeight > this.innerHeight();
+  }
+  else if (direction == 'horizontal')
+  {
+    return this.get(0).scrollWidth > this.innerWidth();
+  }
+  return false;
+
+};
 
 $(function() {        
     BlockViews.init();    
