@@ -221,8 +221,7 @@ namespace App\Libraries
         public static function isUserPublicAccessOk() {
             $is_all_login_required = Config::get('dx.is_all_login_required', false);
             
-            if (!$is_all_login_required) {
-                Log::info("AUTH: no login required for public access info");
+            if (!$is_all_login_required) {                
                 return true; // no login required for public access info
             }
             

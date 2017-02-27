@@ -735,6 +735,8 @@ var PageMain = function()
         
         setFilesLinksIcons();
         
+        handleMainMenuSplash();
+        
         if ($("body").hasClass("dx-horizontal-menu-ui")) {            
             handleWindowResizeHorUI();
             resizePage();
@@ -759,7 +761,29 @@ var PageMain = function()
      * @returns {undefined}
      */
     var addResizeCallback = function(callback) {
-        resize_functions_arr.push(callback);
+        resize_functions_arr.pu
+     * @returns {undefined}sh(callback);
+    };
+    
+    /**
+     * Show splash screen on main menu link click
+     */
+    var handleMainMenuSplash = function() {
+        
+        if ($("body").hasClass("dx-horizontal-menu-ui")) {
+            // horizontal menu ui
+            $(".dx-main-menu a").not(".dx-main-menu a.dropdown-toggle").click(function() {
+                $('.splash').css('display', 'block');
+                $('body').css('overflow', 'hidden');
+            });
+        }
+        else {
+            // vertical menu ui
+            $("ul.page-sidebar-menu a").not("ul.page-sidebar-menu a.nav-toggle").click(function() {
+                $('.splash').css('display', 'block');
+                $('body').css('overflow', 'hidden');
+            });
+        }
     };
     
     /**
@@ -863,9 +887,4 @@ $(document).ajaxComplete(function(event, xhr, settings) {
     PageMain.modalsDraggable();
     PageMain.initHelpPopups();
     PageMain.initFilesIcons();
-});
-
-$(".dx-main-menu a").not(".dx-main-menu a.dropdown-toggle").click(function() {
-    $('.splash').css('display', 'block');
-    $('body').css('overflow', 'hidden');
 });

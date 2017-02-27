@@ -4,5 +4,8 @@ Fix Metronic theme
 .dx-employees-quick {
   top: 68px;
 }
+.dx-grid-in-page #td_data .portlet {
+  margin-bottom: 0px!important;
+}
 
 /*# sourceMappingURL=elix_metronic.css.map */

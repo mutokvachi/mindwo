@@ -17069,7 +17069,13 @@ var BlockViews = function()
                 scrl = 8;                
             }
             
-            var max_h = win_h - grid_top - 70 + scrl; //bija 100
+            var adjust_h = 80;
+            
+            if ($("body").hasClass("dx-horizontal-menu-ui")) {
+                adjust_h = 70;
+            }
+            
+            var max_h = win_h - grid_top - adjust_h + scrl; //bija 100 / 70
             grid_el.css('max-height', max_h + 'px');
 
             var page_h = $("#td_data").offset().top;

@@ -236,6 +236,25 @@ button.navbar-toggle span.icon-bar {
 .fc-center h2 {
   margin-top: 10px;
 }
+.dx-grid-in-page .dx-page-container {
+  padding: 0px!important;
+}
+.dx-grid-in-page #td_data {
+  padding: 0px!important;
+}
+.dx-grid-in-page #td_data .portlet {
+  padding: 20px!important;
+  margin-bottom: 0px!important;
+}
+.dx-grid-in-page #td_data th,
+.dx-grid-in-page #td_data td {
+  white-space: nowrap;
+}
+@-moz-document url-prefix() {
+  i.dx-filter-on-mark {
+    margin-top: -17px;
+  }
+}
 
 /*
 Colors for horizontal menu UI
