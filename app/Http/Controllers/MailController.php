@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Libraries\Image\Image;
+use App\Models\Mail;
+use App\Models\MailAttachment;
+use App\Models\Source;
+use App\Models\Team;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Route;
-use App\Models\Source;
-use App\Models\Team;
-use App\Models\Mail;
+use Webpatser\Uuid\Uuid;
 
 /**
  * Class MailController
@@ -80,6 +81,7 @@ class MailController extends Controller
 			'teams' => $this->getTeams(),
 			'folders' => $this->folders,
 			'message' => $message,
+			'attachments' => $message->attachments()->get(),
 			'counts' => $this->getCounts(),
 		])->render();
 		
@@ -134,6 +136,7 @@ class MailController extends Controller
 			'counts' => $this->getCounts(),
 			'toId' => $toId,
 			'toTitle' => $toTitle,
+			'formAction' => route('mail_compose')
 		])->render();
 		
 		return $result;
@@ -152,12 +155,14 @@ class MailController extends Controller
 		$result = view('mail.compose', [
 			'mode' => 'edit',
 			'message' => $message,
+			'attachments' => $message->attachments()->get(),
 			'sources' => $this->getSources(),
 			'teams' => $this->getTeams(),
 			'folders' => $this->folders,
 			'counts' => $this->getCounts(),
 			'folderId' => $this->getFolderId(),
 			'folderName' => $this->getFolderName(),
+			'formAction' => route('mail_update', ['id' => $id]),
 		])->render();
 		
 		return $result;
@@ -171,7 +176,7 @@ class MailController extends Controller
 	 */
 	public function store(Request $request)
 	{
-		$to = $request->input('to');
+		$to = json_decode($request->input('to', '[]'));
 		$subject = $request->input('subject');
 		$sendTime = $request->input('sendTime');
 		$body = $request->input('body');
@@ -190,7 +195,8 @@ class MailController extends Controller
 		
 		if($sendTime)
 		{
-			$mail->send_time = Carbon::createFromFormat(config('dx.txt_datetime_format', 'Y-m-d H:i'), $sendTime)->toDateTimeString();
+			$mail->send_time = Carbon::createFromFormat(config('dx.txt_datetime_format', 'Y-m-d H:i'), $sendTime)
+				->toDateTimeString();
 			
 			if($folder != 'draft')
 			{
@@ -200,6 +206,9 @@ class MailController extends Controller
 		
 		$mail->folder = $folder;
 		$mail->save();
+		
+		// process file uploads
+		$files = $this->processUploads($request, $mail);
 		
 		if($folder == 'sent')
 		{
@@ -211,6 +220,7 @@ class MailController extends Controller
 			'id' => $mail->id,
 			'folder' => $folder,
 			'count' => $this->getCounts()[$folder],
+			'files' => $files,
 		];
 		
 		return response($result);
@@ -225,7 +235,7 @@ class MailController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
-		$to = $request->input('to');
+		$to = json_decode($request->input('to', '[]'));
 		$subject = $request->input('subject');
 		$sendTime = $request->input('sendTime');
 		$body = $request->input('body');
@@ -241,7 +251,8 @@ class MailController extends Controller
 		
 		if($sendTime)
 		{
-			$mail->send_time = Carbon::createFromFormat(config('dx.txt_datetime_format', 'Y-m-d H:i'), $sendTime)->toDateTimeString();
+			$mail->send_time = Carbon::createFromFormat(config('dx.txt_datetime_format', 'Y-m-d H:i'), $sendTime)
+				->toDateTimeString();
 			
 			if($folder != 'draft')
 			{
@@ -251,6 +262,9 @@ class MailController extends Controller
 		
 		$mail->folder = $folder;
 		$mail->save();
+		
+		// process file uploads
+		$files = $this->processUploads($request, $mail);
 		
 		if($folder == 'sent')
 		{
@@ -262,6 +276,7 @@ class MailController extends Controller
 			'id' => $mail->id,
 			'folder' => $folder,
 			'count' => $this->getCounts()[$folder],
+			'files' => $files,
 		];
 		
 		return response($result);
@@ -275,7 +290,8 @@ class MailController extends Controller
 	 */
 	public function destroy($id)
 	{
-		Mail::destroy($id);
+		$mail = Mail::find($id);
+		$mail->delete();
 		
 		$result = [
 			'success' => 1
@@ -296,7 +312,10 @@ class MailController extends Controller
 		
 		if(is_array($ids) && !empty($ids))
 		{
-			Mail::whereIn('id', $ids)->delete();
+			foreach(Mail::whereIn('id', $ids)->get() as $mail)
+			{
+				$mail->delete();
+			}
 		}
 		
 		$result = [
@@ -308,7 +327,6 @@ class MailController extends Controller
 	
 	public function upload(Request $request)
 	{
-		
 	}
 	
 	/**
@@ -390,6 +408,77 @@ class MailController extends Controller
 		}
 		
 		return response($result);
+	}
+	
+	/**
+	 * Get number of pages in current folder.
+	 *
+	 * @return float|int
+	 */
+	public function getPageCount()
+	{
+		if($this->pageCount === null)
+		{
+			$this->pageCount = $this->getCounts()[$this->getFolderId()] / $this->itemsPerPage;
+		}
+		
+		return $this->pageCount;
+	}
+	
+	public function deleteAttachment($id)
+	{
+		$attachment = MailAttachment::find($id);
+		$attachment->delete();
+		
+		$result = [
+			'success' => 1
+		];
+		
+		return response($result);
+	}
+	
+	protected function processUploads($request, $mail)
+	{
+		$result = '';
+		$attachments = [];
+		$path = base_path(config('assets.private_file_path')) . '/';
+		$thumb_path = public_path(config('dx.email.thumbnail_path')) . '/';
+		
+		if($request->hasFile('files'))
+		{
+			foreach($request->file('files') as $file)
+			{
+				if(!$file->isValid())
+				{
+					continue;
+				}
+				
+				$guid = Uuid::generate(4) . '.' . $file->getClientOriginalExtension();
+				$attachment = new MailAttachment;
+				$attachment->file_name = $file->getClientOriginalName();
+				$attachment->file_guid = $guid;
+				$attachment->file_size = $file->getClientSize();
+				$attachment->mime_type = $file->getMimeType();
+				$attachment->is_image = $is_image = (strpos($file->getMimeType(), 'image/') !== false);
+				$mail->attachments()->save($attachment);
+				
+				$file->move($path, $guid);
+				
+				if($is_image)
+				{
+					$image = new Image;
+					$image->resize($path, $guid, 120, 120, $thumb_path);
+				}
+				
+				$attachments[] = $attachment;
+			}
+			
+			$result = view('mail.files', [
+				'attachments' => $attachments
+			])->render();
+		}
+		
+		return $result;
 	}
 	
 	/**
@@ -522,7 +611,7 @@ class MailController extends Controller
 	{
 		if(!$this->folderName)
 		{
-			$this->folderName = trans('mail.'.$this->getFolderId());
+			$this->folderName = trans('mail.' . $this->getFolderId());
 		}
 		
 		return $this->folderName;
@@ -547,21 +636,6 @@ class MailController extends Controller
 		}
 		
 		return $this->messages;
-	}
-	
-	/**
-	 * Get number of pages in current folder.
-	 *
-	 * @return float|int
-	 */
-	public function getPageCount()
-	{
-		if($this->pageCount === null)
-		{
-			$this->pageCount = $this->getCounts()[$this->getFolderId()] / $this->itemsPerPage;
-		}
-		
-		return $this->pageCount;
 	}
 	
 	/**

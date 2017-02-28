@@ -289,9 +289,6 @@ gulp.task('mix_all', function() {
                 'resources/assets/plugins/datetimepicker/jquery.datetimepicker.css',
                 'public/metronic/global/plugins/select2/css/select2-bootstrap.min.css',
                 'public/metronic/global/plugins/bootstrap-wysihtml5/bootstrap-wysihtml5.css',
-                'public/metronic/global/plugins/jquery-file-upload/blueimp-gallery/blueimp-gallery.min.css',
-                'public/metronic/global/plugins/jquery-file-upload/css/jquery.fileupload.css',
-                'public/metronic/global/plugins/jquery-file-upload/css/jquery.fileupload-ui.css',
                 'public/metronic/apps/css/inbox.css',
                 'resources/assets/plugins/mindwo/css/mail.css'
         ], 'public/css/elix_mail.css', './');
@@ -303,19 +300,6 @@ gulp.task('mix_all', function() {
                 'resources/assets/plugins/mindwo/fields/datetime.js',
                 'public/metronic/global/plugins/bootstrap-wysihtml5/wysihtml5-0.3.0.js',
                 'public/metronic/global/plugins/bootstrap-wysihtml5/bootstrap-wysihtml5.js',
-                'public/metronic/global/plugins/jquery-file-upload/js/vendor/jquery.ui.widget.js',
-                'public/metronic/global/plugins/jquery-file-upload/js/vendor/tmpl.min.js',
-                'public/metronic/global/plugins/jquery-file-upload/js/vendor/load-image.min.js',
-                'public/metronic/global/plugins/jquery-file-upload/js/vendor/canvas-to-blob.min.js',
-                'public/metronic/global/plugins/jquery-file-upload/blueimp-gallery/jquery.blueimp-gallery.min.js',
-                'public/metronic/global/plugins/jquery-file-upload/js/jquery.iframe-transport.js',
-                'public/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload.js',
-                'public/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-process.js',
-                'public/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-image.js',
-                'public/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-audio.js',
-                'public/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-video.js',
-                'public/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-validate.js',
-                'public/metronic/global/plugins/jquery-file-upload/js/jquery.fileupload-ui.js',
                 'resources/assets/plugins/mindwo/pages/mail.js'
         ], 'public/js/elix_mail.js', './');
         

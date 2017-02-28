@@ -60,6 +60,12 @@
     </div>
     <hr>
     <div class="inbox-attached">
+      <table role="presentation" class="table table-striped margin-top-10">
+        <tbody class="files">
+          @include('mail.files')
+        </tbody>
+      </table>
+      
       <!--
       <div class="margin-bottom-15">
         <span>{{ trans('mail.attachments') }} — </span>

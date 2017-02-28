@@ -37,7 +37,8 @@
 			store: '/mail/store',
 			upload: '/mail/upload',
 			toAutocomplete: '/mail/to_autocomplete',
-			deleteMany: '/mail/mass_delete'
+			deleteMany: '/mail/mass_delete',
+			attachment: '/mail/attachment'
 		}
 	};
 	
@@ -67,10 +68,11 @@
 		// Current folder ('sent', 'draft' or 'scheduled')
 		this.folder = (this.wrapper.length && this.wrapper.data('folder') != undefined) ? this.wrapper.data('folder') : null;
 		
+		this.filesTable = $('tbody.files', this.root);
+		
 		this.initToInput();
 		this.initDateInput();
 		this.initEditor();
-		this.initFileUpload();
 		this.initHandlers();
 	};
 	
@@ -125,42 +127,6 @@
 				stylesheets: ["/metronic/global/plugins/bootstrap-wysihtml5/wysiwyg-color.css"],
 				image: false
 			});
-		},
-		/**
-		 * Initialize file upload widget.
-		 */
-		initFileUpload: function()
-		{
-			$('#fileupload').fileupload({
-				// Uncomment the following to send cross-domain cookies:
-				//xhrFields: {withCredentials: true},
-				url: this.options.url.upload,
-				autoUpload: true
-				/*
-				progressall: function (e, data) {
-					var progress = parseInt(data.loaded / data.total * 100, 10);
-					$('#progress .bar').css(
-						'width',
-						progress + '%'
-					);
-				}
-				*/
-			});
-			
-			// Upload server status check for browsers with CORS support:
-			if($.support.cors)
-			{
-				$.ajax({
-					url: this.options.url.upload,
-					type: 'HEAD'
-				}).fail(function()
-				{
-					$('<span class="alert alert-error"/>')
-						.text(Lang.get('mail.upload_unavailable') + ' - ' +
-							new Date())
-						.appendTo('#fileupload');
-				});
-			}
 		},
 		/**
 		 * Bind event handlers to buttons.
@@ -244,6 +210,17 @@
 			{
 				self.deleteMany();
 			});
+			
+			this.root.on('click', '.add-files-button', function()
+			{
+				self.addFileUpload();
+			});
+			
+			this.root.on('click', '.delete-attachment-button', function(e)
+			{
+				e.preventDefault();
+				self.deleteAttachment($(this));
+			});
 		},
 		/**
 		 * Handle click on department or team name in sidebar. Open compose form and/or add corresponding recipient to
@@ -296,22 +273,31 @@
 				return;
 			}
 			
-			var request = {
-				to: this.to.val(),
-				subject: this.subject.val(),
-				sendTime: this.sendTime.val(),
-				body: this.body.val(),
-				folder: 'sent'
-			};
+			var formData = new FormData();
+			formData.append('to', JSON.stringify(this.to.val()));
+			formData.append('subject', this.subject.val());
+			formData.append('sendTime', this.sendTime.val());
+			formData.append('body', this.body.val());
+			formData.append('folder', 'sent');
+			
+			$('input[type="file"]', this.root).each(function()
+			{
+				for(var i = 0; i < this.files.length; i++)
+				{
+					formData.append('files[]', this.files[i]);
+				}
+			});
 			
 			show_page_splash(1);
 			
 			$.ajax({
-				type: 'POST',
+				type: 'post',
 				url: this.id ? this.options.url.base + '/' + this.id + '/update' : this.options.url.store,
 				cache: false,
 				dataType: 'json',
-				data: request,
+				data: formData,
+				contentType: false,
+				processData: false,
 				success: function(data)
 				{
 					hide_page_splash(1);
@@ -331,14 +317,21 @@
 		draft: function()
 		{
 			var self = this;
+
+			var formData = new FormData();
+			formData.append('to', JSON.stringify(this.to.val()));
+			formData.append('subject', this.subject.val());
+			formData.append('sendTime', this.sendTime.val());
+			formData.append('body', this.body.val());
+			formData.append('folder', 'draft');
 			
-			var request = {
-				to: this.to.val(),
-				subject: this.subject.val(),
-				sendTime: this.sendTime.val(),
-				body: this.body.val(),
-				folder: 'draft'
-			};
+			$('input[type="file"]', this.root).each(function()
+			{
+				for(var i = 0; i < this.files.length; i++)
+				{
+					formData.append('files[]', this.files[i]);
+				}
+			});
 			
 			var func = function()
 			{
@@ -348,8 +341,10 @@
 					type: 'post',
 					url: self.id ? self.options.url.base + '/' + self.id + '/update' : self.options.url.store,
 					cache: false,
+					data: formData,
 					dataType: 'json',
-					data: request,
+					contentType: false,
+					processData: false,
 					success: function(data)
 					{
 						hide_page_splash(1);
@@ -370,6 +365,9 @@
 						
 						self.id = data.id;
 						self.folder = data.folder;
+						
+						$('.template-upload').remove();
+						self.filesTable.append(data.files);
 						
 						toastr.success(Lang.get('mail.draft_saved'));
 					},
@@ -401,7 +399,7 @@
 		discard: function()
 		{
 			var self = this;
-
+			
 			var func = function()
 			{
 				if(!self.id)
@@ -545,6 +543,62 @@
 		edit: function(id)
 		{
 			window.location = this.options.url.base + '/' + id + '/edit';
+		},
+		
+		addFileUpload: function()
+		{
+			var html = '<tr class="template-upload">' +
+			'<td class="name" width="30%">' +
+			'<span><input type="file" name="files[]" multiple></span>' +
+			'</td>' +
+			'<td class="size" width="40%">' +
+			'<span></span>' +
+			'</td>' +
+			'<td colspan="2"></td>' +
+			'<td class="delete" width="10%" align="right">' +
+			'<button class="btn default btn-sm cancel-upload-button">' +
+			'<i class="fa fa-times"></i>' +
+			'</button>' +
+			'</td>' +
+			'</tr>';
+			$(html).appendTo(this.filesTable);
+		},
+		
+		deleteAttachment: function(element)
+		{
+			var self = this;
+			
+			var func = function()
+			{
+				var request = {
+					_method: 'delete'
+				};
+				
+				$.ajax({
+					type: 'post',
+					url: element.data('url'),
+					dataType: 'json',
+					data: request,
+					success: function(data)
+					{
+						hide_page_splash(1);
+						element.parent().parent().remove();
+						toastr.success(Lang.get('mail.attachment_deleted'));
+					},
+					error: function(jqXHR, textStatus, errorThrown)
+					{
+						console.log(textStatus);
+						console.log(jqXHR);
+						hide_page_splash(1);
+					}
+				});
+			};
+			
+			PageMain.showConfirm(func, null,
+				Lang.get('mail.confirm_action'),
+				Lang.get('mail.confirm_delete_attachment'),
+				''
+			);
 		}
 	});
 })(jQuery);

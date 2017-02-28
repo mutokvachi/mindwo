@@ -26,12 +26,28 @@ class Mail extends Model
 	const CREATED_AT = 'created_time';
 	protected $table = 'dx_mail';
 	
+	public function delete()
+	{
+		foreach($this->attachments()->get() as $attachment)
+		{
+			$attachment->delete();
+		}
+		
+		return parent::delete();
+	}
+	
+	public function attachments()
+	{
+		return $this->hasMany('App\Models\MailAttachment', 'mail_id', 'id');
+	}
+	
 	/**
 	 * Send email to each recipient individually. Sending is done via queue.
 	 */
 	public function send()
 	{
 		$recipients = $this->getRecipients();
+		$attachments = $this->attachments()->get();
 		$delay = 0;
 		foreach($recipients as $recipient)
 		{
@@ -39,11 +55,19 @@ class Mail extends Model
 			{
 				continue;
 			}
-			\Mail::later($delay, 'mail.send', ['mail' => $this], function ($message) use ($recipient)
+			\Mail::later($delay, 'mail.send', ['mail' => $this], function ($message) use ($recipient, $attachments)
 			{
 				$message->to($recipient->email, $recipient->display_name);
 				$message->from(config('mail.from.address'), config('mail.from.name'));
 				$message->subject($this->subject);
+				
+				foreach($attachments as $attachment)
+				{
+					$message->attach($attachment->getFilePath(), [
+						'as' => $attachment->file_name,
+						'mime' => $attachment->mime_type
+					]);
+				}
 			});
 			$delay += config('dx.email.send_delay', 0);
 		}
