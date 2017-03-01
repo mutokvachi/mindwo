@@ -298,6 +298,7 @@ gulp.task('mix_all', function() {
                 'resources/assets/plugins/select2-4.0/js/select2.js',
                 'resources/assets/plugins/datetimepicker/jquery.datetimepicker.js',
                 'resources/assets/plugins/mindwo/fields/datetime.js',
+				'resources/assets/plugins/numeral-js/numeral.js',
                 'public/metronic/global/plugins/bootstrap-wysihtml5/wysihtml5-0.3.0.js',
                 'public/metronic/global/plugins/bootstrap-wysihtml5/bootstrap-wysihtml5.js',
                 'resources/assets/plugins/mindwo/pages/mail.js'

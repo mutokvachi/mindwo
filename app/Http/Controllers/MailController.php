@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Libraries\Image\Image;
 use App\Models\Mail;
 use App\Models\MailAttachment;
 use App\Models\Source;
@@ -11,8 +10,8 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-use Webpatser\Uuid\Uuid;
 
 /**
  * Class MailController
@@ -136,7 +135,9 @@ class MailController extends Controller
 			'counts' => $this->getCounts(),
 			'toId' => $toId,
 			'toTitle' => $toTitle,
-			'formAction' => route('mail_compose')
+			'formAction' => route('mail_compose'),
+			'allowedExtensions' => self::getAllowedExtensions(),
+			'allowedMimeTypes' => self::getAllowedMimeTypes()
 		])->render();
 		
 		return $result;
@@ -163,6 +164,8 @@ class MailController extends Controller
 			'folderId' => $this->getFolderId(),
 			'folderName' => $this->getFolderName(),
 			'formAction' => route('mail_update', ['id' => $id]),
+			'allowedExtensions' => self::getAllowedExtensions(),
+			'allowedMimeTypes' => self::getAllowedMimeTypes()
 		])->render();
 		
 		return $result;
@@ -206,9 +209,7 @@ class MailController extends Controller
 		
 		$mail->folder = $folder;
 		$mail->save();
-		
-		// process file uploads
-		$files = $this->processUploads($request, $mail);
+		$files = $mail->processUploads($request);
 		
 		if($folder == 'sent')
 		{
@@ -262,9 +263,7 @@ class MailController extends Controller
 		
 		$mail->folder = $folder;
 		$mail->save();
-		
-		// process file uploads
-		$files = $this->processUploads($request, $mail);
+		$files = $mail->processUploads($request);
 		
 		if($folder == 'sent')
 		{
@@ -323,10 +322,6 @@ class MailController extends Controller
 		];
 		
 		return $result;
-	}
-	
-	public function upload(Request $request)
-	{
 	}
 	
 	/**
@@ -437,50 +432,6 @@ class MailController extends Controller
 		return response($result);
 	}
 	
-	protected function processUploads($request, $mail)
-	{
-		$result = '';
-		$attachments = [];
-		$path = base_path(config('assets.private_file_path')) . '/';
-		$thumb_path = public_path(config('dx.email.thumbnail_path')) . '/';
-		
-		if($request->hasFile('files'))
-		{
-			foreach($request->file('files') as $file)
-			{
-				if(!$file->isValid())
-				{
-					continue;
-				}
-				
-				$guid = Uuid::generate(4) . '.' . $file->getClientOriginalExtension();
-				$attachment = new MailAttachment;
-				$attachment->file_name = $file->getClientOriginalName();
-				$attachment->file_guid = $guid;
-				$attachment->file_size = $file->getClientSize();
-				$attachment->mime_type = $file->getMimeType();
-				$attachment->is_image = $is_image = (strpos($file->getMimeType(), 'image/') !== false);
-				$mail->attachments()->save($attachment);
-				
-				$file->move($path, $guid);
-				
-				if($is_image)
-				{
-					$image = new Image;
-					$image->resize($path, $guid, 120, 120, $thumb_path);
-				}
-				
-				$attachments[] = $attachment;
-			}
-			
-			$result = view('mail.files', [
-				'attachments' => $attachments
-			])->render();
-		}
-		
-		return $result;
-	}
-	
 	/**
 	 * Convert value of the To field to an associative array, suitable to store in database.
 	 *
@@ -535,6 +486,7 @@ class MailController extends Controller
 			];
 		}
 		
+		// if all company is specified along with concrete recipient(s), then ignore all company
 		else
 		{
 			foreach($tmp as $type => $ids)
@@ -666,5 +618,39 @@ class MailController extends Controller
 		}
 		
 		return $this->teams;
+	}
+	
+	/**
+	 * Get a list of file extensions allowed for upload from dx_files_headers table.
+	 *
+	 * @return array
+	 */
+	static public function getAllowedExtensions()
+	{
+		$result = [];
+		
+		foreach(DB::table('dx_files_headers')->select('extention')->get() as $row)
+		{
+			$result[] = $row->extention;
+		}
+		
+		return $result;
+	}
+	
+	/**
+	 * Get a list of mime types allowed for upload from dx_files_headers table.
+	 *
+	 * @return array
+	 */
+	static public function getAllowedMimeTypes()
+	{
+		$result = [];
+		
+		foreach(DB::table('dx_files_headers')->select('content_type')->get() as $row)
+		{
+			$result[] = $row->content_type;
+		}
+		
+		return $result;
 	}
 }

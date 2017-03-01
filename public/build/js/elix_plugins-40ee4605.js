@@ -6746,7 +6746,7 @@ var PageMain = function()
         DX_CORE.valid_elements = page_elem.attr("dx_valid_html_elements");
         DX_CORE.valid_styles = page_elem.attr("dx_valid_html_styles");
         DX_CORE.max_upload_size = page_elem.attr("dx_max_file_size").replace("M", "");
-        DX_CORE.post_max_size = page_elem.attr("dx_post_max_size");
+        DX_CORE.post_max_size = page_elem.attr("dx_post_max_size").replace("M", "");
         
         DX_CORE.trans_data_processing = page_elem.attr("trans_data_processing");
         DX_CORE.trans_please_wait = page_elem.attr("trans_please_wait");

@@ -1410,12 +1410,7 @@ ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
 	width: 150px !important;
 }
 
-.inbox .upload-inputs {
-	list-style-type: none;
-	padding: 0;
-}
-
-.inbox .upload-inputs li {
-	margin-bottom: 10px;
+.inbox .inbox-view {
+	min-height: 250px;
 }
 /*# sourceMappingURL=elix_mail.css.map */

@@ -211,15 +211,23 @@
 				self.deleteMany();
 			});
 			
+			// handle click on 'Add files' button
 			this.root.on('click', '.add-files-button', function()
 			{
 				self.addFileUpload();
 			});
 			
+			// handle attachment deletion
 			this.root.on('click', '.delete-attachment-button', function(e)
 			{
 				e.preventDefault();
 				self.deleteAttachment($(this));
+			});
+			
+			this.root.on('click', '.cancel-upload-button', function(e)
+			{
+				e.preventDefault();
+				$(this).parent().parent().remove();
 			});
 		},
 		/**
@@ -253,6 +261,11 @@
 		 */
 		send: function()
 		{
+			if(!this.validateFiles())
+			{
+				return;
+			}
+			
 			var self = this;
 			
 			if(!this.to.val() || !this.to.val().length)
@@ -288,36 +301,50 @@
 				}
 			});
 			
-			show_page_splash(1);
+			var func = function()
+			{
+				show_page_splash(1);
+				
+				$.ajax({
+					type: 'post',
+					url: self.id ? self.options.url.base + '/' + self.id + '/update' : self.options.url.store,
+					cache: false,
+					dataType: 'json',
+					data: formData,
+					contentType: false,
+					processData: false,
+					success: function(data)
+					{
+						hide_page_splash(1);
+						window.location = self.options.url.base + '/' + data.folder;
+					},
+					error: function(jqXHR, textStatus, errorThrown)
+					{
+						console.log(textStatus);
+						console.log(jqXHR);
+						hide_page_splash(1);
+					}
+				});
+			};
 			
-			$.ajax({
-				type: 'post',
-				url: this.id ? this.options.url.base + '/' + this.id + '/update' : this.options.url.store,
-				cache: false,
-				dataType: 'json',
-				data: formData,
-				contentType: false,
-				processData: false,
-				success: function(data)
-				{
-					hide_page_splash(1);
-					window.location = self.options.url.base + '/' + data.folder;
-				},
-				error: function(jqXHR, textStatus, errorThrown)
-				{
-					console.log(textStatus);
-					console.log(jqXHR);
-					hide_page_splash(1);
-				}
-			});
+			PageMain.showConfirm(func, null,
+				Lang.get('mail.confirm_action'),
+				Lang.get('mail.confirm_send'),
+				''
+			);
 		},
 		/**
 		 * Save draft.
 		 */
 		draft: function()
 		{
+			if(!this.validateFiles())
+			{
+				return;
+			}
+			
 			var self = this;
-
+			
 			var formData = new FormData();
 			formData.append('to', JSON.stringify(this.to.val()));
 			formData.append('subject', this.subject.val());
@@ -547,21 +574,75 @@
 		
 		addFileUpload: function()
 		{
-			var html = '<tr class="template-upload">' +
-			'<td class="name" width="30%">' +
-			'<span><input type="file" name="files[]" multiple></span>' +
-			'</td>' +
-			'<td class="size" width="40%">' +
-			'<span></span>' +
-			'</td>' +
-			'<td colspan="2"></td>' +
-			'<td class="delete" width="10%" align="right">' +
-			'<button class="btn default btn-sm cancel-upload-button">' +
-			'<i class="fa fa-times"></i>' +
-			'</button>' +
-			'</td>' +
-			'</tr>';
-			$(html).appendTo(this.filesTable);
+			var accept = '.' + inboxOptions.allowedExtensions.join(',.');
+				//+ ', ' + inboxOptions.allowedMimeTypes.join(',');
+			var html = $('<tr class="template-upload">' +
+				'<td class="name" width="30%">' +
+				'<span><input type="file" name="files[]" accept="' + accept + '" multiple></span>' +
+				'</td>' +
+				'<td class="size" width="40%">' +
+				'<span></span>' +
+				'</td>' +
+				'<td colspan="2"></td>' +
+				'<td class="delete" width="10%" align="right">' +
+				'<button class="btn default btn-sm cancel-upload-button">' +
+				'<i class="fa fa-times"></i>' +
+				'</button>' +
+				'</td>' +
+				'</tr>');
+			
+			html.appendTo(this.filesTable);
+			
+			$('input', html).change(function()
+			{
+				var totalSize = 0;
+				
+				for(var i = 0; i < this.files.length; i++)
+				{
+					totalSize += this.files[i].size;
+				}
+				
+				$('.size span', html).text(numeral(totalSize).format('0.00 ib'));
+			});
+		},
+		
+		validateFiles: function()
+		{
+			var maxFileSize = DX_CORE.max_upload_size * 1024 * 1024;
+			var maxPostSize = DX_CORE.post_max_size * 1024 * 1024;
+			var valid = true;
+			var totalSize = 0;
+			
+			$('input[type="file"]', this.root).each(function()
+			{
+				for(var i = 0; i < this.files.length; i++)
+				{
+					var file = this.files[i];
+					
+					if(file.size > maxFileSize)
+					{
+						toastr.error(Lang.get('mail.error_file_size', {
+							file: file.name,
+							size: DX_CORE.max_upload_size + ' MiB'
+						}));
+						
+						valid = false;
+					}
+					
+					totalSize += file.size;
+				}
+			});
+			
+			if(totalSize > maxPostSize)
+			{
+				toastr.error(Lang.get('mail.error_post_size', {
+					size: DX_CORE.post_max_size + ' MiB'
+				}));
+				
+				valid = false;
+			}
+			
+			return valid;
 		},
 		
 		deleteAttachment: function(element)

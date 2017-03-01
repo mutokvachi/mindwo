@@ -9,7 +9,7 @@
       </td>
       <td colspan="2"></td>
       <td class="delete" width="10%" align="right">
-        @if(isset($mode))
+        @if(isset($mode) || isset($deleteButton))
           <button class="btn default btn-sm delete-attachment-button" data-url="{{ route('mail_delete_attachment', ['id' => $attachment->id]) }}">
             <i class="fa fa-times"></i>
           </button>

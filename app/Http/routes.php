@@ -187,8 +187,6 @@ Route::group(['middleware' => ['auth', 'mail_access'], 'prefix' => 'mail'], func
 	Route::get('scheduled', ['as' => 'mail_scheduled', 'uses' => 'MailController@index']);
 	Route::get('compose', ['as' => 'mail_compose', 'uses' => 'MailController@create']);
 	Route::post('store', ['as' => 'mail_store', 'middleware' => 'auth_ajax', 'uses' => 'MailController@store']);
-	Route::get('upload', ['as' => 'mail_upload', 'middleware' => 'auth_ajax', 'uses' => 'MailController@upload']);
-	Route::post('upload', ['as' => 'mail_upload', 'middleware' => 'auth_ajax', 'uses' => 'MailController@upload']);
 	Route::get('to_autocomplete', ['as' => 'mail_to_autocomplete', 'middleware' => 'auth_ajax', 'uses' => 'MailController@ajaxToAutocomplete']);
 	Route::delete('mass_delete', ['as' => 'mail_mass_delete', 'middleware' => 'auth_ajax', 'uses' => 'MailController@massDelete']);
 	Route::delete('attachment/{id}', ['as' => 'mail_delete_attachment', 'middleware' => 'auth_ajax', 'uses' => 'MailController@deleteAttachment']);
