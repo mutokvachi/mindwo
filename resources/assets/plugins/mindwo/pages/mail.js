@@ -224,6 +224,7 @@
 				self.deleteAttachment($(this));
 			});
 			
+			// handle deletion of a file input that haven't been uploaded yet
 			this.root.on('click', '.cancel-upload-button', function(e)
 			{
 				e.preventDefault();
@@ -571,7 +572,9 @@
 		{
 			window.location = this.options.url.base + '/' + id + '/edit';
 		},
-		
+		/**
+		 * Append a new file input.
+		 */
 		addFileUpload: function()
 		{
 			var accept = '.' + inboxOptions.allowedExtensions.join(',.');
@@ -605,7 +608,10 @@
 				$('.size span', html).text(numeral(totalSize).format('0.00 ib'));
 			});
 		},
-		
+		/**
+		 * Check sizes of selected files against maximum allowed values.
+		 * @returns {boolean}
+		 */
 		validateFiles: function()
 		{
 			var maxFileSize = DX_CORE.max_upload_size * 1024 * 1024;
@@ -613,6 +619,7 @@
 			var valid = true;
 			var totalSize = 0;
 			
+			// check size of individual files
 			$('input[type="file"]', this.root).each(function()
 			{
 				for(var i = 0; i < this.files.length; i++)
@@ -633,6 +640,7 @@
 				}
 			});
 			
+			// check total size of all selected files
 			if(totalSize > maxPostSize)
 			{
 				toastr.error(Lang.get('mail.error_post_size', {
@@ -644,11 +652,12 @@
 			
 			return valid;
 		},
-		
+		/**
+		 * Delete attached file from server.
+		 * @param element
+		 */
 		deleteAttachment: function(element)
 		{
-			var self = this;
-			
 			var func = function()
 			{
 				var request = {

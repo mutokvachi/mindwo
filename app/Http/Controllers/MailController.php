@@ -96,6 +96,7 @@ class MailController extends Controller
 	{
 		$toId = $toTitle = '';
 		
+		// check if recipient is specified as parameter
 		if(($to = $request->input('to', null)) !== null)
 		{
 			if($to == '0')
@@ -275,6 +276,7 @@ class MailController extends Controller
 			'id' => $mail->id,
 			'folder' => $folder,
 			'count' => $this->getCounts()[$folder],
+			// uploaded files rendered as table rows, to replace file inputs
 			'files' => $files,
 		];
 		
@@ -420,6 +422,12 @@ class MailController extends Controller
 		return $this->pageCount;
 	}
 	
+	/**
+	 * Delete an attached file from file system and its record from database.
+	 *
+	 * @param $id
+	 * @return \Illuminate\Contracts\Routing\ResponseFactory|\Symfony\Component\HttpFoundation\Response
+	 */
 	public function deleteAttachment($id)
 	{
 		$attachment = MailAttachment::find($id);
