@@ -761,8 +761,7 @@ var PageMain = function()
      * @returns {undefined}
      */
     var addResizeCallback = function(callback) {
-        resize_functions_arr.pu
-     * @returns {undefined}sh(callback);
+        resize_functions_arr.push(callback);
     };
     
     /**
