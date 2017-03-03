@@ -267,14 +267,39 @@ class GridController extends Controller
         
         $view = getViewRowByID($view_id, $view_id);          
         
+        $aggr_view_fields = DB::table('dx_views_fields as vf')
+                    ->join('dx_lists_fields as lf', 'vf.field_id', '=', 'lf.id')
+                    ->leftJoin('dx_field_operations as fo', 'vf.operation_id', '=', 'fo.id')
+                    ->leftJoin('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
+                    ->leftJoin('dx_views as v', 'vf.view_id', '=', 'v.id')
+                    ->select(
+                            'lf.id',
+                            'lf.list_id',
+                            'lf.title_list as title',
+                            'ft.sys_name as field_type',
+                            'lf.rel_list_id',
+                            'lf.rel_display_field_id',
+                            'vf.aggregation_id'
+                    )
+                    ->where('v.list_id', '=', $view->list_id)
+                    ->whereNotExists(function($query) use ($view) {
+                            $query->select(DB::raw(1))
+                                  ->from('dx_views_fields as vf')
+                                  ->where('vf.view_id', '=', $view->id)
+                                  ->whereRaw('vf.field_id = lf.id');
+                    }) 
+                    ->whereNotNull('vf.aggregation_id');
+        
         $list_fields = DB::table('dx_lists_fields as lf')
                         ->leftJoin('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
                         ->select(
-                                'lf.id', 
+                                'lf.id',
+                                'lf.list_id',
                                 'title_list as title',
                                 'ft.sys_name as field_type',
                                 'lf.rel_list_id',
-                                'lf.rel_display_field_id'
+                                'lf.rel_display_field_id',
+                                DB::raw('null as aggregation_id')
                         )
                         ->where('lf.list_id', '=', $view->list_id)
                         ->whereNotExists(function($query) use ($view) {
@@ -282,8 +307,10 @@ class GridController extends Controller
                                   ->from('dx_views_fields as vf')
                                   ->where('vf.view_id', '=', $view->id)
                                   ->whereRaw('vf.field_id = lf.id');
-                        })                   
-                        ->orderBy('lf.title_list')
+                        }) 
+                        ->union($aggr_view_fields)                       
+                        ->orderBy('title')
+                        ->distinct()
                         ->get();        
         
         $view_fields = DB::table('dx_views_fields as vf')
@@ -291,7 +318,8 @@ class GridController extends Controller
                     ->leftJoin('dx_field_operations as fo', 'vf.operation_id', '=', 'fo.id')
                     ->leftJoin('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
                     ->select(
-                            'lf.id', 
+                            'lf.id',
+                            'lf.list_id',
                             'lf.title_list as title',
                             'vf.operation_id',
                             'fo.title as operation_title',
@@ -299,7 +327,8 @@ class GridController extends Controller
                             'vf.is_hidden',
                             'ft.sys_name as field_type',
                             'lf.rel_list_id',
-                            'lf.rel_display_field_id'
+                            'lf.rel_display_field_id',
+                            'vf.aggregation_id'
                     )
                     ->where('vf.view_id', '=', $view->id)                    
                     ->orderBy('vf.order_index')
@@ -440,12 +469,13 @@ class GridController extends Controller
                 
                 DB::table('dx_views_fields')->insert([
                         'order_index' => $idx*10,
-                        'list_id' => $list_id,
+                        'list_id' => $item->list_id,
                         'view_id' => $new_view_id,
                         'field_id' => $item->field_id,
                         'is_hidden' => $item->is_hidden,
+                        'aggregation_id' => ($item->aggregation_id > 0) ? $item->aggregation_id : null,
                         'operation_id' => ($item->operation_id > 0) ? $item->operation_id : null,
-                        'criteria' => $item->criteria
+                        'criteria' => ($item->criteria) ? $item->criteria : null
                 ]);
                 
                 if ($item->field_id == $id_field_id) {
@@ -593,7 +623,7 @@ class GridController extends Controller
                             'order_index' => $idx*10,
                             'is_hidden' => $item->is_hidden,
                             'operation_id' => ($item->operation_id > 0) ? $item->operation_id : null,
-                            'criteria' => $item->criteria
+                            'criteria' => ($item->criteria) ? $item->criteria : null
                         ]
                     ]);
                 }
@@ -603,12 +633,13 @@ class GridController extends Controller
                     "field_id" => $item->field_id,
                     "vals" => [
                         'order_index' => $idx*10,
-                        'list_id' => $view->list_id,
+                        'list_id' => $item->list_id,
                         'view_id' => $view->id,
                         'field_id' => $item->field_id,
                         'is_hidden' => $item->is_hidden,
                         'operation_id' => ($item->operation_id > 0) ? $item->operation_id : null,
-                        'criteria' => $item->criteria
+                        'criteria' => ($item->criteria) ? $item->criteria : null,                        
+                        'aggregation_id' => ($item->aggregation_id > 0) ? $item->aggregation_id : null
                     ]
                 ]);
             }

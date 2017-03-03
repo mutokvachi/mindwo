@@ -695,6 +695,8 @@ var BlockViews = function()
        block.find(".dd-item").each(function() {
             var item = {
                "field_id": $(this).attr('data-id'),
+               "aggregation_id": $(this).attr('data-aggregation-id'),
+               "list_id": $(this).attr('data-list-id'),
                "is_hidden": $(this).attr('data-is-hidden'),
                "operation_id": $(this).attr('data-operation-id'),
                "criteria": $(this).attr('data-criteria')
