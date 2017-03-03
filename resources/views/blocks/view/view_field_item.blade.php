@@ -1,11 +1,13 @@
 <li class="dd-item" 
-    data-id="{{ $field->id }}" 
+    data-id="{{ $field->id }}"
+    data-list-id="{{ $field->list_id }}"
     data-is-hidden="{{ (isset($field->is_hidden)) ? $field->is_hidden : 0 }}"
     data-operation-id="{{ (isset($field->operation_id)) ? $field->operation_id : 0 }}"
     data-criteria="{{ (isset($field->criteria)) ? $field->criteria : '' }}"
     data-field-type="{{ $field->field_type }}"
     data-rel-list-id="{{ $field->rel_list_id }}"
     data-rel-field-id="{{ $field->rel_display_field_id }}"
+    data-aggregation-id="{{ (isset($field->aggregation_id)) ? $field->aggregation_id : 0 }}"
     >
     <div class="dd-handle dd3-handle"> </div>
     <div class="dd3-content">
