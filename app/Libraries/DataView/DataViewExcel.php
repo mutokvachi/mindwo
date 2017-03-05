@@ -118,7 +118,11 @@ namespace App\Libraries\DataView
                     if ($this->isFieldIncludable($view->model[$i])) {
                         $cell_obj = Formatters\FormatFactory::build_field($this->resetFieldType($view->model[$i], $row), $row);
 
-                        $cell_htm .= view('excel.data_col', ['align' => $cell_obj->align, 'cell_value' => $cell_obj->value])->render();
+                        $cell_htm .= view('excel.data_col', [
+                            'align' => $cell_obj->align, 
+                            'cell_value' => $cell_obj->value,
+                            'is_val_html' => $cell_obj->is_html
+                        ])->render();
                     }
                 }
 
