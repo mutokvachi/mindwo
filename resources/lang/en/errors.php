@@ -123,4 +123,7 @@ return [
         'no_starting_points' => 'Workflow does not contain any starting points',
         'no_finish_points' => 'Workflow does not contain any starting points',
     ],
+    
+    'field_not_found' => "View does not contain field named '%s'!",
+    'field_not_found_id' => "View does not contain field with ID %s!",
 ];
