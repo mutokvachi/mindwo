@@ -4,6 +4,7 @@ namespace App\Libraries\DataView {
     use App\Exceptions;    
     use DB;
     use Config;
+    use Log;
     
     class DataViewSQLFiltering
     {        
@@ -20,6 +21,7 @@ namespace App\Libraries\DataView {
         public $arr_filt = array();
         public $arr_val = array();
         
+        private $view = null;
         /**
         * Inicializē filtrēšanas parametru apstrādes klases objektu.
         * 
@@ -27,18 +29,19 @@ namespace App\Libraries\DataView {
         * @param int    $list_id        Reģistra identifikators
         * @return void
         */  
-        public function __construct($filter_json, $list_id)
+        public function __construct($filter_json, $list_id, $view)
         {            
             if (strlen($filter_json) == 0) {
                 return;
             }
-            
-            $arr = array();
+            $this->view = $view;
             
             $arr = json_decode($filter_json);
             
             for ($i = 0; $i < count($arr); $i++)
             {
+                $alias_name = ($arr[$i][0]) ? $arr[$i][0] : $this->getModelFieldName($arr[$i][2]);
+                
                 if ($arr[$i][0] == "id") {
                     $this->sql .= " AND " . $arr[$i][0] . " = :" . $arr[$i][0];
                     $this->arr_filt[":" . $arr[$i][0]] = $arr[$i][1];
@@ -71,11 +74,28 @@ namespace App\Libraries\DataView {
                     }
 
                     // It is expected that SQL contains WHERE 1=1 as first criteria
-                    $this->sql .= " AND " . $arr[$i][0] . " LIKE :" . $arr[$i][0];
-                    $this->arr_filt[":" . $arr[$i][0]] = "%" . $val . "%";
+                    $this->sql .= " AND " . $alias_name . " LIKE :" . $alias_name;
+                    $this->arr_filt[":" . $alias_name] = "%" . $val . "%";
                 }
-                $this->arr_val[":" . $arr[$i][0]] = "%" . $arr[$i][1] . "%"; // Saglabājam atsevišķā masīvā oriģinālo neformatēto filtra kritērija vērtību
+                $this->arr_val[":" . $alias_name] = "%" . $arr[$i][1] . "%"; // Saglabājam atsevišķā masīvā oriģinālo neformatēto filtra kritērija vērtību
             }
+        }
+        
+        /**
+         * Returns field alias name which is used in view's SQL
+         * 
+         * @param integer $field_id Field ID
+         * @return string Fields alias name
+         * @throws Exceptions\DXCustomException
+         */
+        private function getModelFieldName($field_id) {
+            foreach($this->view->view_obj->model as $model) {
+                if ($model['field_id'] == $field_id) {
+                    return $model['name'];
+                }
+            }
+            
+            throw new Exceptions\DXCustomException(sprintf(trans('errors.field_not_found_id'), $field_id));
         }
         
         /**
@@ -86,7 +106,7 @@ namespace App\Libraries\DataView {
         * @return Array Masīvs ar lauka atribūtiem
         */ 
         private function getFieldRow($field_id, $list_id)
-        {
+        {            
             $field_row = DB::table('dx_lists_fields')->where('id','=',$field_id)->first();
             
             if (!$field_row)
