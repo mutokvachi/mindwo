@@ -12,10 +12,16 @@ class DxUsersSalariesAddJobTitleUi extends Migration
      */
     public function up()
     {
-        DB::transaction(function () {
-           
-            $list_id = App\Libraries\DBHelper::getListByTable('dx_users_salaries')->id;
-            
+        $list = App\Libraries\DBHelper::getListByTable('dx_users_salaries');
+        
+        if (!$list) {
+            return;
+        }
+        
+        $list_id = $list->id;
+        
+        DB::transaction(function () use ($list_id){
+                    
             $fld_id = DB::table('dx_lists_fields')->insertGetId([
                 'list_id' => $list_id,
                 'db_name' => 'job_title',
@@ -37,11 +43,16 @@ class DxUsersSalariesAddJobTitleUi extends Migration
      */
     public function down()
     {
-        DB::transaction(function () {
-            $list_id = App\Libraries\DBHelper::getListByTable('dx_users_salaries')->id;
-            
+        $list = App\Libraries\DBHelper::getListByTable('dx_users_salaries');
+        
+        if (!$list) {
+            return;
+        }
+        
+        $list_id = $list->id;
+        
+        DB::transaction(function () use ($list_id){            
             App\Libraries\DBHelper::removeFieldCMS($list_id, 'job_title');
-
         });
     }
 }
