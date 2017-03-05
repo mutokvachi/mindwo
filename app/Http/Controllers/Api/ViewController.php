@@ -54,7 +54,8 @@ class ViewController extends Controller
         $filter_data = json_encode([[
             0 => "", 
             1 => $criteria,
-            2 => $field_row->id
+            2 => $field_row->id,
+            3 => 1
         ]]);        
         
         $view = new \App\Libraries\DataView\DataViewJSON($this->view_row->id, $filter_data, "");

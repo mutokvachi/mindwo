@@ -72,10 +72,17 @@ namespace App\Libraries\DataView {
                             $val = 0;
                         }
                     }
-
-                    // It is expected that SQL contains WHERE 1=1 as first criteria
-                    $this->sql .= " AND " . $alias_name . " LIKE :" . $alias_name;
-                    $this->arr_filt[":" . $alias_name] = "%" . $val . "%";
+                    
+                    if (isset($arr[$i][3]) &&  $arr[$i][3]) {
+                        // it is set equal operator
+                        $this->sql .= " AND " . $alias_name . " = :" . $alias_name;
+                        $this->arr_filt[":" . $alias_name] = $val;
+                    }
+                    else {
+                        // It is expected that SQL contains WHERE 1=1 as first criteria
+                        $this->sql .= " AND " . $alias_name . " LIKE :" . $alias_name;
+                        $this->arr_filt[":" . $alias_name] = "%" . $val . "%";
+                    }
                 }
                 $this->arr_val[":" . $alias_name] = "%" . $arr[$i][1] . "%"; // Saglabājam atsevišķā masīvā oriģinālo neformatēto filtra kritērija vērtību
             }
