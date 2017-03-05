@@ -715,61 +715,23 @@ namespace App\Libraries {
                 
                 // Here we join sqls for related lists
 		$sql_join = $sql_join . " " . $sql_rights_join;
-		$spec_access = $sql_rights_where;
-		
-		/*
-		// Autocompleate view formula check
-		if (strlen($this->rel_formula) > 0)
-		{
-			$formula = $this->rel_formula;
-			
-			preg_match_all('/\[(.*?)\]/', $formula, $out_arr);
-			
-			//str_replace("]","'",str_replace("[","'",implode(",", $out_arr[0])))
-			$qMarks = str_repeat('?,', count($out_arr[1]) - 1) . '?';
-			
-			$sql_f = "SELECT db_name, title_list from dx_views_fields vf inner join dx_lists_fields lf on vf.field_id = lf.id WHERE vf.view_id = " . $this->view_id . " AND isnull(vf.alias_name, lf.title_list) in (" . $qMarks  . ")";
-			$sth_f = $this->db_con->prepare($sql_f);
-			$result_f = $sth_f->execute($out_arr[1]);
-			
-			if (!$result_f)
-			{
-				$this->err = "Wrong SQL for formula fields!";
-				return "";
-			}
-			
-			
-			while ($row_f = $sth_f->fetch(PDO::FETCH_ASSOC))
-			{
-				$formula = str_replace("[" . $row_f["title_list"] . "]", $this->list_obj_db_name . "." . $row_f["db_name"], $formula);
-			}
-
-		}
-		*/
-		
-		//$grid_sql = "SELECT * FROM (SELECT " . $sql_fields . " FROM " . $this->list_obj_db_name . $sql_join . " WHERE 1=1 " . $sql_multi . $sql_tab_where . $this->sql_user_rights . $spec_access . ") tb WHERE 1=1 " . $sql_filter;
-                                
+		$spec_access = $sql_rights_where;		
+		                                
                 $grid_sql = "";
                 if ($view_row->view_type_id != 9 || strlen($this->sql_user_rights) > 0)
-                {
-                    /*
-                    if ($view_row->is_hidden_from_tabs == 1)
-                    {
-                        $grid_sql = "SELECT " . $sql_fields . " FROM " . $this->list_obj_db_name . $sql_join . " WHERE 1=1 " . $sql_multi . $sql_tab_where . $this->sql_user_rights . $spec_access . $sql_filter;
-                        
-                        DB::statement('CREATE OR REPLACE VIEW v_data_' . $this->view_id . ' as ' . $grid_sql);
-                        $grid_sql = "SELECT * FROM v_data_" . $this->view_id . " WHERE 1=1 "; 
-                    }
-                    else
-                    {
-                    */
+                {                    
                     $superv_sql = "";
                     
                     if ($this->list_id != Config::get('dx.employee_list_id', 0) || !$this->is_rights_check_off) {
                         $superv_sql = Rights::getSQLSuperviseRights($this->list_id, $this->list_obj_db_name);
                     }
                     
-                    $grid_sql = "SELECT * FROM (SELECT " . $sql_fields . " FROM " . $this->list_obj_db_name . $sql_join . " WHERE 1=1 " . $this->getListLevelFilter() . $sql_multi . $sql_tab_where . $superv_sql . Rights::getSQLSourceRights($this->list_id, $this->list_obj_db_name) . $this->sql_user_rights . $spec_access . ") tb WHERE 1=1 " . $sql_filter;
+                    $source_rights = "";
+                    if (strlen($superv_sql) == 0) { // supervision domains is primary over source rights
+                        $source_rights = Rights::getSQLSourceRights($this->list_id, $this->list_obj_db_name);
+                    }
+                    
+                    $grid_sql = "SELECT * FROM (SELECT " . $sql_fields . " FROM " . $this->list_obj_db_name . $sql_join . " WHERE 1=1 " . $this->getListLevelFilter() . $sql_multi . $sql_tab_where . $superv_sql . $source_rights . $this->sql_user_rights . $spec_access . ") tb WHERE 1=1 " . $sql_filter;
                     
                 }
                 else
