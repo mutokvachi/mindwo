@@ -87,25 +87,22 @@ class ViewController extends Controller
      * @throws Exceptions\DXCustomException
      */
     private function getFieldRow($field) {
-        $field_row = null;
-        
+                
         if (is_numeric($field))
         {
-            $field_row = DB::table('dx_lists_fields')
-                    ->where('id', '=', $field)
-                    ->first();
+            $fld = "id";
         }
         else
         {
-            if (strlen($field) > 0)
-            {
-                $field_row = DB::table('dx_lists_fields')
-                        ->where('db_name', '=', $field)
-                        ->first();
-            }
+            $fld = "db_name";
         }
+        
+        $field_row = DB::table('dx_lists_fields')
+                    ->where($fld, '=', $field)
+                    ->where('list_id', '=', $this->view_row->list_id)
+                    ->first();
 
-        if ($field_row == null)
+        if (!$field_row)
         {
             throw new Exceptions\DXCustomException(sprintf(trans('errors.field_not_found'), $field));
         }
