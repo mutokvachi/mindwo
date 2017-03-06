@@ -69,6 +69,7 @@
 		this.folder = (this.wrapper.length && this.wrapper.data('folder') != undefined) ? this.wrapper.data('folder') : null;
 		
 		this.filesTable = $('tbody.files', this.root);
+		this.files = [];
 		
 		this.initToInput();
 		this.initDateInput();
@@ -228,6 +229,17 @@
 			this.root.on('click', '.cancel-upload-button', function(e)
 			{
 				e.preventDefault();
+				
+				var name = $(this).parent().prevAll('.name').children('span').text();
+				
+				for(var i = 0; i < self.files.length; i++)
+				{
+					if(self.files[i].name == name)
+					{
+						self.files.splice(i, 1);
+					}
+				}
+				
 				$(this).parent().parent().remove();
 			});
 		},
@@ -294,13 +306,10 @@
 			formData.append('body', this.body.val());
 			formData.append('folder', 'sent');
 			
-			$('input[type="file"]', this.root).each(function()
+			for(var i = 0; i < this.files.length; i++)
 			{
-				for(var i = 0; i < this.files.length; i++)
-				{
-					formData.append('files[]', this.files[i]);
-				}
-			});
+				formData.append('files[]', this.files[i]);
+			}
 			
 			var func = function()
 			{
@@ -353,13 +362,10 @@
 			formData.append('body', this.body.val());
 			formData.append('folder', 'draft');
 			
-			$('input[type="file"]', this.root).each(function()
+			for(var i = 0; i < this.files.length; i++)
 			{
-				for(var i = 0; i < this.files.length; i++)
-				{
-					formData.append('files[]', this.files[i]);
-				}
-			});
+				formData.append('files[]', this.files[i]);
+			}
 			
 			var func = function()
 			{
@@ -577,36 +583,42 @@
 		 */
 		addFileUpload: function()
 		{
+			var self = this;
 			var accept = '.' + inboxOptions.allowedExtensions.join(',.');
 				//+ ', ' + inboxOptions.allowedMimeTypes.join(',');
-			var html = $('<tr class="template-upload">' +
-				'<td class="name" width="30%">' +
-				'<span><input type="file" name="files[]" accept="' + accept + '" multiple></span>' +
-				'</td>' +
-				'<td class="size" width="40%">' +
-				'<span></span>' +
-				'</td>' +
-				'<td colspan="2"></td>' +
-				'<td class="delete" width="10%" align="right">' +
-				'<button class="btn default btn-sm cancel-upload-button">' +
-				'<i class="fa fa-times"></i>' +
-				'</button>' +
-				'</td>' +
-				'</tr>');
+			var input = $('<input style="height: 0; position: absolute;" type="file" name="files[]" accept="' + accept + '" multiple>');
 			
-			html.appendTo(this.filesTable);
+			input.appendTo('body');
 			
-			$('input', html).change(function()
+			input.change(function()
 			{
-				var totalSize = 0;
-				
 				for(var i = 0; i < this.files.length; i++)
 				{
-					totalSize += this.files[i].size;
+					var html = $('<tr class="template-upload">' +
+						'<td class="name" width="30%">' +
+						'<span>' +
+							this.files[i].name +
+						'</span>' +
+						'</td>' +
+						'<td class="size" width="40%">' +
+						'<span>' +
+							numeral(this.files[i].size).format('0.00 ib') +
+						'</span>' +
+						'</td>' +
+						'<td colspan="2"></td>' +
+						'<td class="delete" width="10%" align="right">' +
+						'<button class="btn default btn-sm bg-red-flamingo cancel-upload-button">' +
+						'<i class="fa fa-times"></i>' +
+						'</button>' +
+						'</td>' +
+						'</tr>');
+					
+					html.appendTo(self.filesTable);
+					self.files.push(this.files[i]);
 				}
-				
-				$('.size span', html).text(numeral(totalSize).format('0.00 ib'));
 			});
+			
+			input.click();
 		},
 		/**
 		 * Check sizes of selected files against maximum allowed values.
@@ -620,25 +632,22 @@
 			var totalSize = 0;
 			
 			// check size of individual files
-			$('input[type="file"]', this.root).each(function()
+			for(var i = 0; i < this.files.length; i++)
 			{
-				for(var i = 0; i < this.files.length; i++)
+				var file = this.files[i];
+				
+				if(file.size > maxFileSize)
 				{
-					var file = this.files[i];
+					toastr.error(Lang.get('mail.error_file_size', {
+						file: file.name,
+						size: DX_CORE.max_upload_size + ' MiB'
+					}));
 					
-					if(file.size > maxFileSize)
-					{
-						toastr.error(Lang.get('mail.error_file_size', {
-							file: file.name,
-							size: DX_CORE.max_upload_size + ' MiB'
-						}));
-						
-						valid = false;
-					}
-					
-					totalSize += file.size;
+					valid = false;
 				}
-			});
+				
+				totalSize += file.size;
+			}
 			
 			// check total size of all selected files
 			if(totalSize > maxPostSize)

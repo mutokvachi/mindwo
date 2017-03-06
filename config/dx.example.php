@@ -341,5 +341,7 @@ return [
 		'items_per_page' => 20,
 		// Delay between sending emails
 		'send_delay' => 0,
+		// Path for storing thumbnails, relative to public directory
+		'thumbnail_path' => 'img/mail',
 	],
 ];
