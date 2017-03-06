@@ -81,12 +81,12 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 height: 30
             },
             rounded: {
-                style: 'shape=rounded;html=1;whiteSpace=wrap;fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;',
+                style: 'shape=rounded;editable=0;html=1;whiteSpace=wrap;fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;',
                 width: 100,
                 height: 60
             },
             rhombus: {
-                style: 'shape=rhombus;html=1;whiteSpace=wrap;fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;',
+                style: 'shape=rhombus;editable=0;html=1;whiteSpace=wrap;fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;',
                 width: 100,
                 height: 100
             }
@@ -96,31 +96,35 @@ mxBasePath = '/js/plugins/mxgraph/src';
             this.images = [];
             var graph = state.view.graph;
 
-            var isEditable = state.cell.style.indexOf('shape=ellipse') == -1;
+            var isEdge = !graph.getModel().isVertex(state.cell);
 
-            if (isEditable) {
-                // Edit Icon
-                var img = mxUtils.createImage(mxBasePath + '/images/gear.png');
-                img.setAttribute('title', 'Edit');
-                img.style.position = 'absolute';
-                img.style.cursor = 'pointer';
-                img.style.width = '16px';
-                img.style.height = '16px';
-                img.style.left = (state.x + state.width + 4) + 'px';
-                img.style.top = (state.y + (state.height / 2) - 20) + 'px';
+            if (!isEdge) {
+                var isEditable = state.cell.style.indexOf('shape=ellipse') == -1;
 
-                mxEvent.addGestureListeners(img,
-                        mxUtils.bind(this, function (evt)
-                        {
-                            self.editWorkflowStep(self, state.cell.workflow_step_id, state.cell);
+                if (isEditable) {
+                    // Edit Icon
+                    var img = mxUtils.createImage(mxBasePath + '/images/gear.png');
+                    img.setAttribute('title', 'Edit');
+                    img.style.position = 'absolute';
+                    img.style.cursor = 'pointer';
+                    img.style.width = '16px';
+                    img.style.height = '16px';
+                    img.style.left = (state.x + state.width + 4) + 'px';
+                    img.style.top = (state.y + (state.height / 2) - 20) + 'px';
 
-                            mxEvent.consume(evt);
-                            this.destroy();
-                        })
-                        );
+                    mxEvent.addGestureListeners(img,
+                            mxUtils.bind(this, function (evt)
+                            {
+                                self.editWorkflowStep(self, state.cell.workflow_step_id, state.cell);
 
-                state.view.graph.container.appendChild(img);
-                this.images.push(img);
+                                mxEvent.consume(evt);
+                                this.destroy();
+                            })
+                            );
+
+                    state.view.graph.container.appendChild(img);
+                    this.images.push(img);
+                }
             }
 
             // Delete Icon
@@ -130,11 +134,15 @@ mxBasePath = '/js/plugins/mxgraph/src';
             img.style.cursor = 'pointer';
             img.style.width = '16px';
             img.style.height = '16px';
-            img.style.left = (state.x + state.width + 4) + 'px';
 
             if (isEditable) {
+                img.style.left = (state.x + state.width + 4) + 'px';
                 img.style.top = (state.y + (state.height / 2) + 4) + 'px';
+            } else if (isEdge) {
+                img.style.left = (state.x + state.width / 2 - 8) + 'px';
+                img.style.top = (state.y + (state.height / 2) - 8) + 'px';
             } else {
+                img.style.left = (state.x + state.width + 4) + 'px';
                 img.style.top = (state.y + (state.height / 2) - 8) + 'px';
             }
 
@@ -149,9 +157,13 @@ mxBasePath = '/js/plugins/mxgraph/src';
             mxEvent.addListener(img, 'click',
                     mxUtils.bind(this, function (evt)
                     {
-                        graph.removeCells([state.cell]);
-                        mxEvent.consume(evt);
-                        this.destroy();
+                        mxEvent.removeAllListeners(img);
+
+                        PageMain.showConfirm(function (data) {
+                            data.graph.removeCells([data.cell]);
+                            mxEvent.consume(data.evt);
+                            data.self.destroy();
+                        }, {graph: graph, cell: state.cell, evt: evt, self: this}, Lang.get('workflow.delete_confirm_title'), Lang.get('workflow.delete_confirm_text'));
                     })
                     );
 
@@ -165,6 +177,9 @@ mxBasePath = '/js/plugins/mxgraph/src';
                     for (var i = 0; i < this.images.length; i++)
                     {
                         var img = this.images[i];
+
+                        mxEvent.removeAllListeners(img);
+
                         img.parentNode.removeChild(img);
                     }
                 }
@@ -254,6 +269,39 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 $(picker_name, self.domObject).datetimepicker('show');
             });
         },
+        /**
+         * Sets step's positions automatically by generating them from database
+         * @returns {undefined}
+         */
+        setXmlAutomatically: function (self) {
+            PageMain.showConfirm(function () {
+                show_form_splash(1);
+
+                $.ajax({
+                    url: DX_CORE.site_url + 'workflow/visual/xml/' + self.workflowId,
+                    type: "get",
+                    dataType: "json",
+                    context: self,
+                    success: function (data) {
+                        if (data && data.success == 1) {
+                            self.setXML(self, data.html);
+                            notify_info(Lang.get('workflow.success_arrange'));
+                        } else {
+                            notify_err(Lang.get('errors.unknown_error'));
+                        }
+
+                        hide_form_splash(1);
+                    },
+                    error: function () {
+                        notify_err(Lang.get('errors.unknown_error'));
+                    }
+                });
+            }, {self: self}, Lang.get('workflow.arrange'), Lang.get('workflow.arrange_text'));
+        },
+        /**
+         * Initializes graph
+         * @returns {undefined}
+         */
         initGraph: function () {
             show_form_splash(1);
 
@@ -266,6 +314,10 @@ mxBasePath = '/js/plugins/mxgraph/src';
             for (var i = 0; i < wfTaskTypesObj.length; i++) {
                 self.wfTaskTypes[wfTaskTypesObj[i].id] = wfTaskTypesObj[i].code;
             }
+
+            $('.dx-cms-workflow-form-btn-arrange', self.domObject).click(function () {
+                self.setXmlAutomatically(self);
+            });
 
             $('#set_xml').click(function () {
                 var xm = document.getElementById('txt_xml');
@@ -352,6 +404,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 defaultEdgeStyle[mxConstants.STYLE_FONTCOLOR] = 'black';
                 defaultEdgeStyle[mxConstants.STYLE_LABEL_POSITION] = 'right';
                 defaultEdgeStyle[mxConstants.STYLE_ALIGN] = 'left';
+                defaultEdgeStyle[mxConstants.STYLE_EDITABLE] = '0';
+                
 
                 // Defines the tolerance before removing the icons
                 var iconTolerance = 20;
@@ -399,7 +453,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
                                     var tol = iconTolerance;
                                     var scroll_y = $('.dx-cms-workflow-form-body', self.domObject)[0].scrollTop;
                                     var scroll_x = $('.dx-cms-workflow-form-body', self.domObject)[0].scrollLeft;
-                                    
+
                                     var tmp = new mxRectangle(me.getGraphX() - tol - scroll_x,
                                             me.getGraphY() - tol - scroll_y, 2 * tol, 2 * tol);
 
@@ -412,7 +466,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
                                 var tmp = self.graph.view.getState(me.getCell());
 
                                 // Ignores everything but vertices
-                                if (self.graph.isMouseDown || (tmp != null && !self.graph.getModel().isVertex(tmp.cell)))
+                                // || (tmp != null && !self.graph.getModel().isVertex(tmp.cell))
+                                if (self.graph.isMouseDown)
                                 {
                                     tmp = null;
                                 }
@@ -436,11 +491,13 @@ mxBasePath = '/js/plugins/mxgraph/src';
                             },
                             dragEnter: function (evt, state)
                             {
-                                var outEdgesCount = self.countOutgoingEdges(state.cell, false);
+                                if (self.graph.getModel().isVertex(state.cell)) {
+                                    var outEdgesCount = self.countOutgoingEdges(state.cell, false);
 
-                                // Allow new edges if limit has not yet been reached
-                                if (outEdgesCount < state.cell.arrow_count) {
-                                    self.graph.setConnectable(true);
+                                    // Allow new edges if limit has not yet been reached
+                                    if (outEdgesCount < state.cell.arrow_count) {
+                                        self.graph.setConnectable(true);
+                                    }
                                 }
 
                                 if (this.currentIconSet == null)
@@ -450,7 +507,10 @@ mxBasePath = '/js/plugins/mxgraph/src';
                             },
                             dragLeave: function (evt, state)
                             {
-                                self.graph.setConnectable(false);
+                                if (self.graph.getModel().isVertex(state.cell)) {
+                                    self.graph.setConnectable(false);
+                                }
+
                                 if (this.currentIconSet != null)
                                 {
                                     this.currentIconSet.destroy();
@@ -506,7 +566,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
                 self.loadData();
             }
-            
+
             hide_form_splash(1);
         },
         onBeforeFormShow: function (form, self) {
@@ -577,7 +637,20 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
             //   var model = self.graph.getModel();
 
+            var edges = vertex.edges;
+            var edgesCount = (edges == null ? 0 : edges.length);
 
+            for (var i = 0; i < edgesCount; i++) {
+                var edge = edges[i];
+
+                if (edge.source && edge.source.id == vertex.id) {
+                    if (hasArrowLabels == 0) {
+                        edge.value = '';
+                    } else {
+                        edge.value = edge.is_yes ? Lang.get('workflow.yes') : Lang.get('workflow.no');
+                    }
+                }
+            }
 
             self.graph.refresh();
         },
@@ -810,6 +883,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 var doc = mxUtils.parseXml(xml);
                 var dec = new mxCodec(doc);
                 var model = dec.decode(doc.documentElement);
+                
+                self.graph.removeCells(self.graph.getChildVertices(self.graph.getDefaultParent()))
 
                 if (typeof model.getRoot != 'undefined') {
                     self.graph.getModel().mergeChildren(model.getRoot().getChildAt(0), parent);

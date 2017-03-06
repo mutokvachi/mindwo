@@ -5,34 +5,42 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
-use App\Libraries\Rights;
-use App\Libraries\FieldsHtm;
-use App\Libraries\DataView;
-use App\Exceptions;
-use Auth;
-use DB;
-use Config;
-use Hash;
-use Log;
 use Sunra\PhpSimple\HtmlDomParser;
 
+/**
+ * Visual workflows controller
+ */
 class VisualWFController extends Controller
 {
+    /**
+     * List of cell's Ids
+     * @var array 
+     */
     private $xml_cell_list = [];
-    private $xml_cell_levels = [];
-    private $current_x = 20;
-    private $current_y = 20;
+
+    /**
+     * Current workflow's Id
+     * @var int 
+     */
     private $workflow_id = 0;
-    private $arrow_counter = 0;
+
+    /**
+     * Array of error found in validation process
+     * @var array 
+     */
     private $error_stack = [];
 
+    /**
+     * Test method to draw graph
+     * @return type
+     */
     public function test()
     {
-        $workflow_id = 0;
+        $workflow_id = 5;
 
         $workflow = \App\Models\Workflow\Workflow::find($workflow_id);
 
-        $wf_register_id = 60; //$workflow->list_id;
+        $wf_register_id = $workflow->list_id; //60
 
         /*
           'is_disabled' => $is_disabled,
@@ -44,7 +52,7 @@ class VisualWFController extends Controller
           'xml_data' => $this->prepareXML($workflow_id)
          */
 
-        $xml_data = ''; //$this->prepareXML($workflow_id);
+        $xml_data = $this->prepareXML($workflow_id);
 
         return view('pages.wf_test', ['json_data' => '',
                     'portal_name' => 'Mindwo',
@@ -58,6 +66,11 @@ class VisualWFController extends Controller
                     'xml_data' => $xml_data])->render();
     }
 
+    /**
+     * Gets first step of workflow
+     * @param \App\Models\Workflow\Workflow $workflow Workflow object
+     * @return \App\Models\Workflow\WorkflowStep First workflow's step
+     */
     public function getFirstStep($workflow)
     {
         if ($workflow) {
@@ -67,25 +80,52 @@ class VisualWFController extends Controller
         }
     }
 
-    private function prepareXML($workflow_id)
+    /**
+     * Prepares Xml from database
+     * @param string $xml_str Xml in string format
+     * @return string Prepared Xml string
+     */
+    private function prepareXmlFromDb($xml_str)
     {
-        $workflow = \App\Models\Workflow\Workflow::find($workflow_id);
+        // Machination to overcome problem when node contains texts with "", then xml is echoed in html like this -> value="This is sample "text""
+        $xml = simplexml_load_string($xml_str);
+
+        $cells = $xml->xpath('/mxGraphModel/root/mxCell');
+
+        foreach ($cells as $cell) {
+            $cell['value'] = htmlspecialchars($cell['value'], ENT_QUOTES, 'UTF-8');
+        }
+
+        $dom = dom_import_simplexml($xml);
+        return $dom->ownerDocument->saveXML($dom->ownerDocument->documentElement);
+    }
+
+    /**
+     * Prepares Xml for specified workflow
+     * @param int $workflowId Workflow's Id
+     * @param boolean $getFromDb Parameter if get Xml from database if it is available
+     * @return string Prepared Xml
+     */
+    private function prepareXML($workflowId, $getFromDb = true)
+    {
+        $workflow = \App\Models\Workflow\Workflow::find($workflowId);
 
         if (!$workflow) {
             return '';
         }
 
-        if ($workflow->visual_xml) {
+        if ($getFromDb && $workflow->visual_xml) {
             // Varbūt pirms notiek saglabāšana varam iziet visiem elmentiem cauti un izpildīt encode, lai salabo ielādētās pēdiņas.
-            //return $workflow->visual_xml;
+            // return $workflow->visual_xml;
+            return $this->prepareXmlFromDb($workflow->visual_xml);
         }
 
-        $this->workflow_id = $workflow_id;
+        $this->workflow_id = $workflowId;
 
         $workflow_step = $this->getFirstStep($workflow);
 
         if (!$workflow_step) {
-            return;
+            return '';
         }
 
         $xml = new \SimpleXMLElement('<mxGraphModel />');
@@ -107,6 +147,19 @@ class VisualWFController extends Controller
         return $dom->ownerDocument->saveXML($dom->ownerDocument->documentElement);
     }
 
+    /**
+     * 
+     * @param SimpleXMLElement $root Xml object
+     * @param string $value Value of the cell
+     * @param string $step_id Step's ID
+     * @param string $step_nr Step's number
+     * @param string $yes_step_nr Yes step's number
+     * @param string $no_step_nr No step's number
+     * @param string $type_code Steps type
+     * @param int $x Position X
+     * @param int $y Position Y
+     * @return void
+     */
     private function createMxCell(&$root, $value, $step_id, $step_nr, $yes_step_nr, $no_step_nr, $type_code, $x, $y)
     {
         // Exit if cell already exist
@@ -143,7 +196,7 @@ class VisualWFController extends Controller
         $mxCell->addAttribute('has_arrow_labels', $has_arrow_labels);
         $mxCell->addAttribute('arrow_count', $arrow_count);
 
-        $mxCell->addAttribute('style', 'fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;html=1;whiteSpace=wrap;shape=' . $shape);
+        $mxCell->addAttribute('style', 'fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;editable=0;html=1;whiteSpace=wrap;shape=' . $shape);
 
         if ($value) {
             $mxCell->addAttribute('value', htmlspecialchars($value, ENT_QUOTES, 'UTF-8'));
@@ -183,6 +236,16 @@ class VisualWFController extends Controller
         }
     }
 
+    /**
+     * 
+     * @param SimpleXMLElement $root Xml object
+     * @param string $next_step_nr Next steps number
+     * @param int $x Position X
+     * @param int $y Position Y
+     * @param string $parent_shape Type of parent shape
+     * @param string $parent_step_nr Parent's step number
+     * @param bool $is_yes_arrrow Parameter whichc shows if arrow is with value yes or no
+     */
     private function createNextCell($root, $next_step_nr, $x, $y, $parent_shape, $parent_step_nr, $is_yes_arrrow)
     {
         if ($next_step_nr > 0) {
@@ -207,17 +270,24 @@ class VisualWFController extends Controller
         }
     }
 
+    /**
+     * Creates arrow graph object 
+     * @param SimpleXMLElement $root Xml object
+     * @param string $parent Parents Id
+     * @param string $child Childs Id
+     * @param string $value Text of the arrow
+     * @param bool $is_yes_arrrow Parameter whichc shows if arrow is with value yes or no
+     */
     private function createArrow(&$root, $parent, $child, $value, $is_yes_arrrow)
     {
         $mxCell = $root->addChild('mxCell');
 
-        // $mxCell->addAttribute('id', 'arrow' . $this->arrow_counter++);
         $mxCell->addAttribute('edge', '1');
         $mxCell->addAttribute('parent', '1');
         $mxCell->addAttribute('source', 's' . $parent);
         $mxCell->addAttribute('target', 's' . $child);
         // labelBackgroundColor=white
-        $mxCell->addAttribute('style', 'fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;labelPosition=right;align=left;');
+        $mxCell->addAttribute('style', 'editable=0;fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;labelPosition=right;align=left;');
         $mxCell->addAttribute('is_yes', $is_yes_arrrow ? '1' : '0');
 
         if ($value) {
@@ -229,6 +299,11 @@ class VisualWFController extends Controller
         $mxGeometry->addAttribute('as', 'geometry');
     }
 
+    /**
+     * Saves workflow's data
+     * @param Request $request Data request
+     * @return string Json response
+     */
     public function save(Request $request)
     {
         $this->error_stack = [];
@@ -283,6 +358,10 @@ class VisualWFController extends Controller
         return response()->json(['success' => 1, 'html' => $workflow->id]);
     }
 
+    /**
+     * Validate if endpoints are correct in workflow
+     * @param HtmlDomParser $xml Xml object
+     */
     private function validateEndpoints($xml)
     {
         $end_points = $xml->find('mxCell[type_code=ENDPOINT]');
@@ -325,6 +404,11 @@ class VisualWFController extends Controller
         }
     }
 
+    /**
+     * Validate workflows step's connections
+     * @param \App\Models\Workflow\Workflow $workflow Workflow model
+     * @param HtmlDomParser $xml Xml object
+     */
     private function validateStepsConnections($workflow, $xml)
     {
         $steps_cells = $xml->find('mxCell[workflow_step_id]');
@@ -367,6 +451,11 @@ class VisualWFController extends Controller
         }
     }
 
+    /**
+     * Saves relations between steps
+     * @param \App\Models\Workflow\Workflow $workflow Workflow model
+     * @param HtmlDomParser $xml Xml object
+     */
     private function saveRelations($workflow, $xml)
     {
         $arrows = $xml->find('mxCell[is_yes]');
@@ -395,6 +484,23 @@ class VisualWFController extends Controller
         }
     }
 
+    /**
+     * Gets graph's Xml arranged automatically
+     * @param int $workflow_id Workflow's identifier
+     * @return string Workflows XML for graph
+     */
+    public function getXml($workflow_id)
+    {
+        $xml = $this->prepareXML($workflow_id, false);
+
+        return response()->json(['success' => 1, 'html' => $xml]);
+    }
+
+    /**
+     * Get forms HTML
+     * @param Request $request Data request
+     * @return string Json response containing HTML
+     */
     public function getWFForm(Request $request)
     {
         $this->validate($request, [

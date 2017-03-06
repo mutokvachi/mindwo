@@ -96,8 +96,12 @@ return [
     'success' => 'Workflow saved',
     'wf_details' => "Workflow details",
     'wf_steps' => "Workflow steps",
+    'success_arrange' => 'Workflow successfully arranged!',
     
     'save' => 'Save',
+    'arrange' => 'Arrange automatically',
+    'arrange_text' => "Do You want to arrange workflow's steps automatically?",
+    'arrangee_tooltip' => "Arranging workflow's steps automatically will delete all visual positionioning changes made by user",
     'form_title' => 'Workflow',
     'list' => 'Register',
     'title' => 'Name',
@@ -107,4 +111,6 @@ return [
     'valid_to' => 'Valid to',
      'must_save_title' => 'Save workflow',
     'must_save_text' => "Workflow must be saved before editting wokrflow's steps. Do You want to save workflow?",
+    'delete_confirm_title' => 'Delete element',
+    'delete_confirm_text' => "Do You want to delete this workflow's element?",
 ];

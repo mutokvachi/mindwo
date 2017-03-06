@@ -392,6 +392,19 @@ function reload_edited_form(ajax_url, item_id, list_id, rel_field_id, rel_field_
             add_form_callbacks(old_form_htm_id, arr_callbacks);
         }
         
+        $("#list_item_view_form_" + old_form_htm_id).find(".modal-content").html(htm);
+
+        if (get_last_form_id() != ("list_item_view_form_" + old_form_htm_id)) {
+            var dom = $(htm);
+            dom.find("script").each(function() {
+                $.globalEval(this.text || this.textContent || this.innerHTML || '');
+            });
+
+            dom.filter('script').each(function(){           
+                $.globalEval(this.text || this.textContent || this.innerHTML || '');
+            });
+        }
+        
         var callback_result = true;
         if (typeof arr_callbacks != 'undefined') {
             if (typeof arr_callbacks.after_save != 'undefined') {
@@ -399,20 +412,7 @@ function reload_edited_form(ajax_url, item_id, list_id, rel_field_id, rel_field_
             }
         }
         
-        if (callback_result) {
-            $("#list_item_view_form_" + old_form_htm_id).find(".modal-content").html(htm);
-
-            if (get_last_form_id() != ("list_item_view_form_" + old_form_htm_id)) {
-                var dom = $(htm);
-                dom.find("script").each(function() {
-                    $.globalEval(this.text || this.textContent || this.innerHTML || '');
-                });
-
-                dom.filter('script').each(function(){           
-                    $.globalEval(this.text || this.textContent || this.innerHTML || '');
-                });
-            }
-
+        if (callback_result) {  
             var tool_height = $("#top_toolbar_list_item_view_form_" + old_form_htm_id).height();
 
             $("#list_item_view_form_" + old_form_htm_id).find(".modal-body").height(height_content - tool_height-21);
