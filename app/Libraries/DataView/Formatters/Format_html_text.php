@@ -2,7 +2,7 @@
 
 namespace App\Libraries\DataView\Formatters
 {    
-    class Format_default extends FormatAbstract
+    class Format_html_text extends FormatAbstract
     {
         /**
         * Noklusētā lauka formatēšana - datu tipiem, kuriem nav definētas formatēšanas klases
