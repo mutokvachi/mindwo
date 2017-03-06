@@ -106,4 +106,6 @@ return [
     'valid_to' => 'Spēkā līdz',
     'must_save_title' => 'Darbplūsmas saglabāšana',
     'must_save_text' => 'Darbplūsmu nepieciešams saglabāt pirms tās soļu rediģēšanas. Vai saglabāt darbplūsmu?',
+    
+    'lbl_deny' => 'NORAIDĪJA',
 ];
