@@ -174,6 +174,12 @@ class TasksController extends Controller
     private $workflow = null;
     
     /**
+     * In case of deny - here we store comment
+     * @var string 
+     */
+    private $deny_comment = "";
+    
+    /**
      * If item rejected - rejection info data
      * @var object 
      */
@@ -653,6 +659,8 @@ class TasksController extends Controller
         if (strlen($comment) == 0) {
             throw new Exceptions\DXCustomException(trans('task_form.err_comment_required'));
         }
+        
+        $this->deny_comment = $comment;
         
         $this->performTask($item_id, 0, $comment);
         
@@ -1494,6 +1502,12 @@ class TasksController extends Controller
         if (strlen($resolution_txt) == 0) {
             $resolution_txt = $step_row->notes;
         }
+        
+        if ($this->deny_comment) {
+            $resolution_txt .= ' ' . trans('workflow.lbl_deny') . ' ' . Auth::user()->display_name . ': ' . $this->deny_comment;
+        }
+        
+        $resolution_txt = trim($resolution_txt);
         
         return $resolution_txt;
     }

@@ -23,7 +23,8 @@ namespace App\Libraries\DataView\Formatters
                                      'field_id' => $model_row["field_id"],
                                      'cell_value' => $data_row[$model_row["name"]],
                                      'is_pdf' => $this->isPDF($data_row[$model_row["name"]])
-                                ])->render();            
+                                ])->render();  
+                $this->values['is_html'] = true;
             }
             else
             {

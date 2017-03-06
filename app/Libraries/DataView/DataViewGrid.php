@@ -263,7 +263,11 @@ namespace App\Libraries\DataView {
                         
                         $cell_obj = $this->formatLinkValue($cell_obj, $view->model[$i], $row);
 
-                        $cell_htm .= view('grid.data_col', ['align' => $cell_obj->align, 'cell_value' => $cell_obj->value])->render();
+                        $cell_htm .= view('grid.data_col', [
+                            'align' => $cell_obj->align, 
+                            'cell_value' => $cell_obj->value,
+                            'is_val_html' => $cell_obj->is_html
+                        ])->render();
                     }
                 }
 
@@ -448,6 +452,7 @@ namespace App\Libraries\DataView {
                                          'item_id' => $data_row["id"],                                         
                                          'cell_value' => $cell_obj->value
                                     ])->render();
+                $cell_obj->is_html = true;
             }
             
             return $cell_obj;
