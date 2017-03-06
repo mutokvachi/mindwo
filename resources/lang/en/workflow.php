@@ -107,4 +107,6 @@ return [
     'valid_to' => 'Valid to',
      'must_save_title' => 'Save workflow',
     'must_save_text' => "Workflow must be saved before editting wokrflow's steps. Do You want to save workflow?",
+    
+    'lbl_deny' => 'DENIED',
 ];
