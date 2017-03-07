@@ -19086,6 +19086,7 @@ wysihtml5.views.Textarea = wysihtml5.views.View.extend(
 						
 						$('.template-upload').remove();
 						self.filesTable.append(data.files);
+						self.files = [];
 						
 						toastr.success(Lang.get('mail.draft_saved'));
 					},
