@@ -60,22 +60,11 @@
     </div>
     <hr>
     <div class="inbox-attached">
-      <!--
-      <div class="margin-bottom-15">
-        <span>{{ trans('mail.attachments') }} — </span>
-        <a href="javascript:;">{{ trans('mail.download_all') }}</a>
-        <a href="javascript:;">{{ trans('mail.view_all_images') }}</a>
-      </div>
-      <div class="margin-bottom-25">
-        <img src="../assets/pages/media/gallery/image4.jpg">
-        <div>
-          <strong>image4.jpg</strong>
-          <span>173K </span>
-          <a href="javascript:;">{{ trans('mail.view') }}</a>
-          <a href="javascript:;">{{ trans('mail.download') }}</a>
-        </div>
-      </div>
-      -->
+      <table role="presentation" class="table table-striped margin-top-10">
+        <tbody class="files">
+          @include('mail.files')
+        </tbody>
+      </table>
     </div>
   </div>
 @endsection

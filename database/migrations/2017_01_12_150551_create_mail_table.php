@@ -22,7 +22,6 @@ class CreateMailTable extends Migration
 			$table->string('bcc');
 			$table->string('subject', 2000);
 			$table->text('body');
-			$table->string('attachments', 1000);
 			$table->boolean('is_read');
 			$table->boolean('is_starred');
 			

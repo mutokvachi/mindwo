@@ -9,6 +9,12 @@
     var inboxOptions = {
     	dateFormat: '{{ config('dx.txt_datetime_format', 'Y-m-d H:i') }}'
     };
+    @if(isset($allowedExtensions))
+      inboxOptions.allowedExtensions = ['{!! implode("', '", $allowedExtensions) !!}'];
+    @endif
+    @if(isset($allowedMimeTypes))
+      inboxOptions.allowedMimeTypes = ['{!! implode("', '", $allowedMimeTypes) !!}'];
+    @endif
   </script>
   <script src="{{ elixir('js/elix_mail.js') }}" type='text/javascript'></script>
 @endsection

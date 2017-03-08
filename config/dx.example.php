@@ -326,7 +326,8 @@ return [
     */
     'orgchart' => [
         'default_levels' => 2,
-        'default_root_employee_id' => 212
+        'default_root_employee_id' => 212,
+        'access_role_id' => 1,
     ],
 
     /*
@@ -341,6 +342,8 @@ return [
             'items_per_page' => 20,
             // Delay between sending emails
             'send_delay' => 0,
+            // Path for storing thumbnails, relative to public directory
+            'thumbnail_path' => 'formated_img/mail_thumbn',
     ],
     
     /*

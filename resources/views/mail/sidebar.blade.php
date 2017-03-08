@@ -13,23 +13,23 @@
   <ul class="inbox-contacts">
     <li class="divider margin-bottom-30"></li>
     <li>
-      <a href="javascript:;" class="inbox-shortcut" data-id="0:0">
-        <i class="fa fa-envelope-o"></i><span class="contact-name"> {{ trans('mail.all_company') }}</span>
+      <a href="javascript:;" class="inbox-shortcut" data-id="0:0" title="{{ trans('mail.hint_all_company') }}">
+        <span class="contact-name"><i class="fa fa-envelope-o"></i> {{ trans('mail.all_company') }}</span>
       </a>
     </li>
     <li class="divider"></li>
     @foreach($sources as $source)
       <li>
-        <a href="javascript:;" class="inbox-shortcut" data-id="dept:{{ $source->id }}">
-          <i class="fa fa-envelope-o"></i><span class="contact-name"> {{ $source->title }}</span>
+        <a href="javascript:;" class="inbox-shortcut" data-id="dept:{{ $source->id }}" title="{{ trans('mail.hint_department') }}">
+          <span class="contact-name"><i class="fa fa-envelope-o"></i> {{ $source->title }}</span>
         </a>
       </li>
     @endforeach
     <li class="divider"></li>
     @foreach($teams as $team)
       <li>
-        <a href="javascript:;" class="inbox-shortcut" data-id="team:{{ $team->id }}">
-          <i class="fa fa-envelope-o"></i><span class="contact-name"> {{ $team->title }}</span>
+        <a href="javascript:;" class="inbox-shortcut" data-id="team:{{ $team->id }}" title="{{ trans('mail.hint_team') }}">
+          <span class="contact-name"><i class="fa fa-envelope-o"></i> {{ $team->title }}</span>
         </a>
       </li>
     @endforeach
