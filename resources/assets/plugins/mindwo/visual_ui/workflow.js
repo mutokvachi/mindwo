@@ -65,6 +65,11 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
         this.locale = 'en';
 
+        /**
+         * Max step number. Required so new steps number would be incrementead by 10
+         */
+        this.max_step_nr = 0;
+
         // Initializes class
         this.init();
     }
@@ -222,6 +227,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
             self.wfStepsListId = self.domObject.data('wf_steps_list_id');
             self.dateFormat = self.domObject.data('date-format');
             self.locale = self.domObject.data('locale');
+            self.max_step_nr = self.domObject.data('max_step_nr');
 
             self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_from');
             self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_to');
@@ -230,9 +236,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 self.save({self: self, initGraph: false});
             });
 
-            $('.dx-cms-workflow-form-tab-steps-btn', self.domObject).click(function () {
-                return self.onStepsTabClick(self);
-            });
+            self.initGraph(self);
 
             if (self.domObject) {
                 self.handleModalScrollbar(self.domObject);
@@ -241,18 +245,6 @@ mxBasePath = '/js/plugins/mxgraph/src';
             }
 
             hide_form_splash(1);
-        },
-        onStepsTabClick: function (self) {
-            if (!self.isGraphInit) {
-                if (self.workflowId > 0) {
-                    self.initGraph(self);
-                } else {
-                    //callback, callbackParameters, title, bodyText, acceptText, declineText
-                    PageMain.showConfirm(self.save, {self: self, initGraph: true}, Lang.get('workflow.must_save_title'), Lang.get('workflow.must_save_text'));
-
-                    return false;
-                }
-            }
         },
         initDatePickers: function (self, picker_name) {
             var picker = $(picker_name, self.domObject);
@@ -317,15 +309,6 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
             $('.dx-cms-workflow-form-btn-arrange', self.domObject).click(function () {
                 self.setXmlAutomatically(self);
-            });
-
-            $('#set_xml').click(function () {
-                var xm = document.getElementById('txt_xml');
-                self.setXML(self, xm.value);
-            });
-            $('#get_xml').click(function () {
-                var xm = document.getElementById('txt_xml');
-                xm.value = self.getXML(self);
             });
 
             var container = self.domObject.find('.dx-wf-graph')[0];
@@ -405,7 +388,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 defaultEdgeStyle[mxConstants.STYLE_LABEL_POSITION] = 'right';
                 defaultEdgeStyle[mxConstants.STYLE_ALIGN] = 'left';
                 defaultEdgeStyle[mxConstants.STYLE_EDITABLE] = '0';
-                
+
 
                 // Defines the tolerance before removing the icons
                 var iconTolerance = 20;
@@ -569,19 +552,24 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
             hide_form_splash(1);
         },
-        onBeforeFormShow: function (form, self) {
-            form.find('div[dx_fld_name_form=id]').hide();
-            form.find('div[dx_fld_name_form=step_nr]').hide();
-            form.find('div[dx_fld_name_form=yes_step_nr]').hide();
-            form.find('div[dx_fld_name_form=no_step_nr]').hide();
-            form.find('div[dx_fld_name_form=workflow_def_id]').hide();
-            form.find('div[dx_fld_name_form=list_id]').hide();
+        onBeforeFormShow: function (form, self, stepId) {
+            //  form.find('div[dx_fld_name_form=id]').hide();
+            //  form.find('div[dx_fld_name_form=step_nr]').hide();
+            //  form.find('div[dx_fld_name_form=yes_step_nr]').hide();
+            //  form.find('div[dx_fld_name_form=no_step_nr]').hide();
+            // form.find('div[dx_fld_name_form=workflow_def_id]').hide();
+            //     form.find('div[dx_fld_name_form=list_id]').hide();
 
+            if (stepId <= 0) {
+                self.max_step_nr += 10;
+
+                form.find('input[name=step_nr]').val(self.max_step_nr);
+            }
             form.find('select[dx_fld_name=workflow_def_id]').val(self.workflowId);
             form.find('select[dx_fld_name=list_id]').val(self.wfRegisterListId);
 
             form.find('select[dx_fld_name=task_type_id]').on('change', function (e, o) {
-                form.find('div[dx_fld_name_form=no_step_nr]').hide();
+                //   form.find('div[dx_fld_name_form=no_step_nr]').hide();
             });
         },
         onAfterFormClose: function (form, self, vertex) {
@@ -883,7 +871,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 var doc = mxUtils.parseXml(xml);
                 var dec = new mxCodec(doc);
                 var model = dec.decode(doc.documentElement);
-                
+
                 self.graph.removeCells(self.graph.getChildVertices(self.graph.getDefaultParent()))
 
                 if (typeof model.getRoot != 'undefined') {

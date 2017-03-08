@@ -180,7 +180,7 @@ gulp.task('mix_all', function() {
             'float-thead/dist/jquery.floatThead.js',
             
             'mindwo/visual_ui/workflow.js',
-            'mxgraph/src/js/mxClient.js',
+            'mxgraph/mxClient.min.js',
         ], 'public/js/elix_view.js', 'resources/assets/plugins');
         
         mix.less([

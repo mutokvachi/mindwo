@@ -12,6 +12,7 @@ use Sunra\PhpSimple\HtmlDomParser;
  */
 class VisualWFController extends Controller
 {
+
     /**
      * List of cell's Ids
      * @var array 
@@ -36,7 +37,7 @@ class VisualWFController extends Controller
      */
     public function test()
     {
-        $workflow_id = 5;
+        $workflow_id = 1;
 
         $workflow = \App\Models\Workflow\Workflow::find($workflow_id);
 
@@ -54,6 +55,14 @@ class VisualWFController extends Controller
 
         $xml_data = $this->prepareXML($workflow_id);
 
+        $max_step = $this->getLastStep($workflow);
+
+        if ($max_step) {
+            $max_step_nr = $max_step->step_nr;
+        } else {
+            $max_step_nr = 0;
+        }
+
         return view('pages.wf_test', ['json_data' => '',
                     'portal_name' => 'Mindwo',
                     'form_title' => 'Workflow',
@@ -63,7 +72,8 @@ class VisualWFController extends Controller
                     'wf_register_id' => $wf_register_id,
                     'wf_register_name' => 'Laba liste',
                     'workflow' => $workflow,
-                    'xml_data' => $xml_data])->render();
+                    'xml_data' => $xml_data,
+                    'max_step_nr' => $max_step_nr])->render();
     }
 
     /**
@@ -75,6 +85,20 @@ class VisualWFController extends Controller
     {
         if ($workflow) {
             return $workflow->workflowSteps()->orderBy('step_nr', 'ASC')->first();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Gets last step of workflow
+     * @param \App\Models\Workflow\Workflow $workflow Workflow object
+     * @return \App\Models\Workflow\WorkflowStep First workflow's step
+     */
+    public function getLastStep($workflow)
+    {
+        if ($workflow) {
+            return $workflow->workflowSteps()->orderBy('step_nr', 'DESC')->first();
         } else {
             return null;
         }
@@ -100,6 +124,30 @@ class VisualWFController extends Controller
         return $dom->ownerDocument->saveXML($dom->ownerDocument->documentElement);
     }
 
+    private function deleteNotConnected($workflow, $first_step)
+    {
+        //$workflow->workflowSteps()->where()
+
+        $workflow_steps = \DB::Select('select d.id
+            from dx_workflows d
+            left join dx_workflows dc on d.workflow_def_id = dc.workflow_def_id
+                    AND (d.step_nr = dc.yes_step_nr OR d.step_nr = dc.no_step_nr)
+            where d.workflow_def_id = ?
+            group by d.id
+            having count(dc.id) <= 0', [$workflow->id]);
+
+        $first_step_id = ($first_step ? $first_step->id : 0);
+
+        $workflow_steps_ids = [];
+        foreach ($workflow_steps as $step) {
+            if ($step->id != $first_step_id) {
+                $workflow_steps_ids[] = $step->id;
+            }
+        }
+
+        \App\Models\Workflow\WorkflowStep::destroy($workflow_steps_ids);
+    }
+
     /**
      * Prepares Xml for specified workflow
      * @param int $workflowId Workflow's Id
@@ -114,6 +162,10 @@ class VisualWFController extends Controller
             return '';
         }
 
+        $workflow_step = $this->getFirstStep($workflow);
+
+        $this->deleteNotConnected($workflow, $workflow_step);
+
         if ($getFromDb && $workflow->visual_xml) {
             // Varbūt pirms notiek saglabāšana varam iziet visiem elmentiem cauti un izpildīt encode, lai salabo ielādētās pēdiņas.
             // return $workflow->visual_xml;
@@ -121,8 +173,6 @@ class VisualWFController extends Controller
         }
 
         $this->workflow_id = $workflowId;
-
-        $workflow_step = $this->getFirstStep($workflow);
 
         if (!$workflow_step) {
             return '';
@@ -525,6 +575,14 @@ class VisualWFController extends Controller
             $workflow = \App\Models\Workflow\Workflow::find($workflow_id);
         }
 
+        $max_step = $this->getLastStep($workflow);
+
+        if ($max_step) {
+            $max_step_nr = $max_step->step_nr;
+        } else {
+            $max_step_nr = 0;
+        }
+
         $grid_htm_id = $request->input('grid_htm_id', '');
         $frm_uniq_id = Uuid::generate(4);
         $is_disabled = false; //read-only rights by default
@@ -538,7 +596,8 @@ class VisualWFController extends Controller
             'wf_register_id' => $wf_register_id,
             'wf_register_name' => $list_title,
             'workflow' => $workflow,
-            'xml_data' => $this->prepareXML($workflow_id)
+            'xml_data' => $this->prepareXML($workflow_id),
+            'max_step_nr' => $max_step_nr
                 ])->render();
 
         return response()->json(['success' => 1, 'html' => $form_htm]);
