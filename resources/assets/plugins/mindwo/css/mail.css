@@ -29,3 +29,11 @@
 .inbox td.text-right {
 	width: 150px !important;
 }
+
+.inbox .inbox-view {
+	min-height: 250px;
+}
+
+.inbox .template-upload .cancel-upload-button {
+	color: white;
+}

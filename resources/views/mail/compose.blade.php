@@ -4,7 +4,7 @@
 
 @section('mail_content')
   <div class="inbox-wrapper" {!! $mode == 'edit' ? 'data-id="'.$message->id.'" data-folder="'.$message->folder.'"' : '' !!}>
-    <form class="inbox-compose form-horizontal" id="fileupload" action="#" method="POST" enctype="multipart/form-data">
+    <form class="inbox-compose form-horizontal" id="composeform" action="{{ $formAction }}" method="POST" enctype="multipart/form-data">
       <div class="inbox-compose-btn">
         <button class="btn green inbox-send-btn">
           <i class="fa fa-check"></i> {{ trans($mode == 'edit' && $message->folder == 'scheduled' ? 'mail.save' : 'mail.send') }}
@@ -31,13 +31,15 @@
       <div class="inbox-form-group">
         <label class="control-label">{{ trans('mail.subject') }}:</label>
         <div class="controls">
-          <input type="text" class="form-control inbox-input-subject" name="subject" value="{{ $mode == 'edit' ? $message->subject : '' }}">
+          <input type="text" class="form-control inbox-input-subject" name="subject"
+            value="{{ $mode == 'edit' ? $message->subject : '' }}">
         </div>
       </div>
       <div class="inbox-form-group">
         <label class="control-label">{{ trans('mail.send_time') }}:</label>
         <div class="controls">
-          <input type="text" class="form-control inbox-input-send_time" name="send_time" value="{{ $mode == 'edit' ? $message->formatDate($message->send_time, true) : '' }}">
+          <input type="text" class="form-control inbox-input-send_time" name="send_time"
+            value="{{ ($mode == 'edit' && $message->send_time ) ? $message->formatDate($message->send_time, true) : '' }}">
         </div>
       </div>
       <div class="inbox-form-group">
@@ -49,88 +51,18 @@
       </div>
       {{--
       <div class="inbox-compose-attachment">
-        <span class="btn green btn-outline fileinput-button">
+        <table role="presentation" class="table table-striped margin-top-10">
+          <tbody class="files">
+            @if($mode == 'edit')
+              @include('mail.files')
+            @endif
+          </tbody>
+        </table>
+        <span class="btn green btn-outline add-files-button">
           <i class="fa fa-plus"></i>
           <span> {{ trans('mail.attach') }}... </span>
-          <input type="file" name="files[]" multiple>
         </span>
-        <table role="presentation" class="table table-striped margin-top-10">
-          <tbody class="files"></tbody>
-        </table>
       </div>
-      <script id="template-upload" type="text/x-tmpl">
-        {% for (var i=0, file; file=o.files[i]; i++) { %}
-          <tr class="template-upload fade">
-            <td class="name" width="30%">
-                <span>{%=file.name%}</span>
-            </td>
-            <td class="size" width="40%">
-                <span>{%=o.formatFileSize(file.size)%}</span>
-            </td>
-            {% if (file.error) { %}
-              <td class="error" width="20%" colspan="2">
-                <span class="label label-danger">{{ trans('mail.error') }}</span>
-                {%=file.error%}
-              </td>
-            {% } else if (o.files.valid && !i) { %}
-              <td>
-                <p class="size">{%=o.formatFileSize(file.size)%}</p>
-                <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-                  <div class="progress-bar progress-bar-success" style="width:0%;"></div>
-                </div>
-              </td>
-            {% } else { %}
-              <td colspan="2"></td>
-            {% } %}
-            <td class="cancel" width="10%" align="right">
-              {% if (!i) { %}
-                <button class="btn btn-sm red cancel">
-                  <i class="fa fa-ban"></i>
-                  <span>{{ trans('mail.cancel') }}</span>
-                </button>
-              {% } %}
-            </td>
-          </tr>
-        {% } %}
-      </script>
-      <!-- The template to display files available for download -->
-      <script id="template-download" type="text/x-tmpl">
-        {% for (var i=0, file; file=o.files[i]; i++) { %}
-          <tr class="template-download fade">
-            {% if (file.error) { %}
-              <td class="name" width="30%">
-                  <span>{%=file.name%}</span>
-              </td>
-              <td class="size" width="40%">
-                  <span>{%=o.formatFileSize(file.size)%}</span>
-              </td>
-              <td class="error" width="30%" colspan="2">
-                <span class="label label-danger">{{ trans('mail.error') }}</span>
-                {%=file.error%}
-              </td>
-            {% } else { %}
-              <td class="name" width="30%">
-                <a href="{%=file.url%}" title="{%=file.name%}" data-gallery="{%=file.thumbnail_url&&'gallery'%}" download="{%=file.name%}">{%=file.name%}</a>
-              </td>
-              <td class="size" width="40%">
-                <span>{%=o.formatFileSize(file.size)%}</span>
-              </td>
-              <td colspan="2"></td>
-            {% } %}
-            <td class="delete" width="10%" align="right">
-              <button class="btn default btn-sm"
-                data-type="{%=file.delete_type%}"
-                data-url="{%=file.delete_url%}"
-                {% if (file.delete_with_credentials) { %}
-                  data-xhr-fields='{"withCredentials":true}'
-                {% } %}>
-                <i class="fa fa-times"></i>
-              </button>
-            </td>
-          </tr>
-        {% } %}
-      </script>
-      --}}
       <div class="inbox-compose-btn">
         <button class="btn green inbox-send-btn">
           <i class="fa fa-check"></i>

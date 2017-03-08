@@ -201,20 +201,19 @@ Route::group(['middleware' => 'auth', 'prefix' => 'organization'], function() {
 });
 
 Route::group(['middleware' => ['auth', 'mail_access'], 'prefix' => 'mail'], function() {
-    Route::get('', ['as' => 'mail_index', 'uses' => 'MailController@index']);
-    Route::get('sent', ['as' => 'mail_sent', 'uses' => 'MailController@index']);
-    Route::get('draft', ['as' => 'mail_draft', 'uses' => 'MailController@index']);
-    Route::get('scheduled', ['as' => 'mail_scheduled', 'uses' => 'MailController@index']);
-    Route::get('compose', ['as' => 'mail_compose', 'uses' => 'MailController@create']);
-    Route::post('store', ['as' => 'mail_store', 'middleware' => 'auth_ajax', 'uses' => 'MailController@store']);
-    Route::get('upload', ['as' => 'mail_upload', 'middleware' => 'auth_ajax', 'uses' => 'MailController@upload']);
-    Route::post('upload', ['as' => 'mail_upload', 'middleware' => 'auth_ajax', 'uses' => 'MailController@upload']);
-    Route::get('to_autocomplete', ['as' => 'mail_to_autocomplete', 'middleware' => 'auth_ajax', 'uses' => 'MailController@ajaxToAutocomplete']);
-    Route::delete('mass_delete', ['as' => 'mail_mass_delete', 'middleware' => 'auth_ajax', 'uses' => 'MailController@massDelete']);
-    Route::post('{id}/update', ['as' => 'mail_update', 'middleware' => 'auth_ajax', 'uses' => 'MailController@update']);
-    Route::get('{id}/edit', ['as' => 'mail_edit', 'uses' => 'MailController@edit']);
-    Route::get('{id}', ['as' => 'mail_show', 'uses' => 'MailController@show']);
-    Route::delete('{id}', ['as' => 'mail_delete', 'middleware' => 'auth_ajax', 'uses' => 'MailController@destroy']);
+	Route::get('', ['as' => 'mail_index', 'uses' => 'MailController@index']);
+	Route::get('sent', ['as' => 'mail_sent', 'uses' => 'MailController@index']);
+	Route::get('draft', ['as' => 'mail_draft', 'uses' => 'MailController@index']);
+	Route::get('scheduled', ['as' => 'mail_scheduled', 'uses' => 'MailController@index']);
+	Route::get('compose', ['as' => 'mail_compose', 'uses' => 'MailController@create']);
+	Route::post('store', ['as' => 'mail_store', 'middleware' => 'auth_ajax', 'uses' => 'MailController@store']);
+	Route::get('to_autocomplete', ['as' => 'mail_to_autocomplete', 'middleware' => 'auth_ajax', 'uses' => 'MailController@ajaxToAutocomplete']);
+	Route::delete('mass_delete', ['as' => 'mail_mass_delete', 'middleware' => 'auth_ajax', 'uses' => 'MailController@massDelete']);
+	Route::delete('attachment/{id}', ['as' => 'mail_delete_attachment', 'middleware' => 'auth_ajax', 'uses' => 'MailController@deleteAttachment']);
+	Route::post('{id}/update', ['as' => 'mail_update', 'middleware' => 'auth_ajax', 'uses' => 'MailController@update']);
+	Route::get('{id}/edit', ['as' => 'mail_edit', 'uses' => 'MailController@edit']);
+	Route::get('{id}', ['as' => 'mail_show', 'uses' => 'MailController@show']);
+	Route::delete('{id}', ['as' => 'mail_delete', 'middleware' => 'auth_ajax', 'uses' => 'MailController@destroy']);
 });
 
 // Lapas

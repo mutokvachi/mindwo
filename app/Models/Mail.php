@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Http\Controllers\MailController;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -24,7 +26,77 @@ class Mail extends Model
 	 * Changes default column name for column created_at
 	 */
 	const CREATED_AT = 'created_time';
+	/**
+	 * Database table for mail messages.
+	 *
+	 * @var string
+	 */
 	protected $table = 'dx_mail';
+	
+	/**
+	 * Relationship to mail attachments.
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function attachments()
+	{
+		return $this->hasMany('App\Models\MailAttachment', 'mail_id', 'id');
+	}
+	
+	/**
+	 * Override delete() method so that it removes attachments along with the message.
+	 *
+	 * @return bool|null
+	 */
+	public function delete()
+	{
+		foreach($this->attachments()->get() as $attachment)
+		{
+			$attachment->delete();
+		}
+		
+		return parent::delete();
+	}
+	
+	/**
+	 * Check request data for uploaded files and process them.
+	 *
+	 * @param Request $request
+	 * @return string
+	 */
+	public function processUploads(Request $request)
+	{
+		if(!$request->hasFile('files'))
+		{
+			return '';
+		}
+		
+		$attachments = [];
+		$mimeTypes = MailController::getAllowedMimeTypes();
+		
+		foreach($request->file('files') as $file)
+		{
+			if(!$file->isValid())
+			{
+				continue;
+			}
+			
+			// skip files with wrong mime type
+			if(!in_array($file->getMimeType(), $mimeTypes))
+			{
+				continue;
+			}
+			
+			$attachment = MailAttachment::createFromUploadedFile($file);
+			$this->attachments()->save($attachment);
+			$attachments[] = $attachment;
+		}
+		
+		return view('mail.files', [
+			'attachments' => $attachments,
+			'deleteButton' => true
+		])->render();
+	}
 	
 	/**
 	 * Send email to each recipient individually. Sending is done via queue.
@@ -32,6 +104,7 @@ class Mail extends Model
 	public function send()
 	{
 		$recipients = $this->getRecipients();
+		$attachments = $this->attachments()->get();
 		$delay = 0;
 		foreach($recipients as $recipient)
 		{
@@ -39,11 +112,19 @@ class Mail extends Model
 			{
 				continue;
 			}
-			\Mail::later($delay, 'mail.send', ['mail' => $this], function ($message) use ($recipient)
+			\Mail::later($delay, 'mail.send', ['mail' => $this], function ($message) use ($recipient, $attachments)
 			{
 				$message->to($recipient->email, $recipient->display_name);
 				$message->from(config('mail.from.address'), config('mail.from.name'));
 				$message->subject($this->subject);
+				
+				foreach($attachments as $attachment)
+				{
+					$message->attach($attachment->getFilePath(), [
+						'as' => $attachment->file_name,
+						'mime' => $attachment->mime_type
+					]);
+				}
 			});
 			$delay += config('dx.email.send_delay', 0);
 		}
