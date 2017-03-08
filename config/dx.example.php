@@ -326,7 +326,8 @@ return [
     */
     'orgchart' => [
         'default_levels' => 2,
-        'default_root_employee_id' => 212
+        'default_root_employee_id' => 212,
+        'access_role_id' => 1,
     ],
 
     /*

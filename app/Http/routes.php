@@ -195,7 +195,7 @@ Route::group(['middleware' => 'auth_ajax', 'prefix' => 'inlineform'], function()
     Route::delete('{id}', 'InlineFormController@destroy');
 });
 
-Route::group(['middleware' => 'auth', 'prefix' => 'organization'], function() {
+Route::group(['middleware' => ['auth', 'orgchart_access'], 'prefix' => 'organization'], function() {
     Route::get('chart/{id?}', ['as' => 'organization_chart', 'uses' => 'OrgChartController@show']);
     Route::get('departments', ['as' => 'organization_departments', 'uses' => 'DepartmentsChartController@show']);
 });
