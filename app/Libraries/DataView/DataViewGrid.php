@@ -248,7 +248,7 @@ namespace App\Libraries\DataView {
             foreach($rows as $key => $row)
             {   
                 $dropup = "";
-                if ($key > 0)
+                if ($key > 1)
                 {
                     $dropup = "dropup";
                 }
@@ -263,7 +263,11 @@ namespace App\Libraries\DataView {
                         
                         $cell_obj = $this->formatLinkValue($cell_obj, $view->model[$i], $row);
 
-                        $cell_htm .= view('grid.data_col', ['align' => $cell_obj->align, 'cell_value' => $cell_obj->value])->render();
+                        $cell_htm .= view('grid.data_col', [
+                            'align' => $cell_obj->align, 
+                            'cell_value' => $cell_obj->value,
+                            'is_val_html' => $cell_obj->is_html
+                        ])->render();
                     }
                 }
 
@@ -320,7 +324,8 @@ namespace App\Libraries\DataView {
             return  view('grid.heading_row', [
                          'grid_id' => $this->grid_id,
                          'filters' => $htm_flt,
-                         'headings' => $htm_head
+                         'headings' => $htm_head,
+                         'is_filter' => ($this->filter_data && $this->filter_data != '[]')
                     ])->render();
         }
         
@@ -447,6 +452,7 @@ namespace App\Libraries\DataView {
                                          'item_id' => $data_row["id"],                                         
                                          'cell_value' => $cell_obj->value
                                     ])->render();
+                $cell_obj->is_html = true;
             }
             
             return $cell_obj;

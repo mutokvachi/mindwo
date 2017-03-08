@@ -17,15 +17,7 @@
     >
     @if (!$tab_id)
         <div class='portlet' style='background-color: white; padding: 10px;'>
-            <div class='portlet-title'>
-                <div class="caption font-grey-cascade uppercase">{{ $grid_title }}
-                @if ($hint)
-                    &nbsp;<i class='fa fa-question-circle dx-form-help-popup' title='{{ $hint }}' style='cursor: help; float: none; font-size: 18px;'></i>
-                @endif
-                </div>
-                
-                @include('blocks.view.view_settings_btn', ['pull_class' => 'pull-right'])
-            </div>
+            
             <div class='portlet-body'>
     @endif
 
@@ -35,10 +27,12 @@
                         <div class='col-lg-6'>
                             <div class='btn-group dx-grid-butons'>
                                 <button  type='button' class='btn btn-white dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' title="{{ trans('grid.data_hint') }}">
-                                    {{trans('grid.data') }} <i class='fa fa-caret-down'></i>
+                                    {{ ($tab_id) ? trans('grid.data') : $grid_title }} <i class='fa fa-caret-down'></i>
                                 </button>
                                 <ul class='dropdown-menu' style="z-index: 50000;">
                                     <li><a href='javascript:;' id="{{ $menu_id }}_refresh" dx_attr="refresh"><i class='fa fa-refresh'></i>&nbsp;{{ trans('grid.reload') }}</a></li>
+                                    <li><a href='javascript:;' id="{{ $menu_id }}_filter" title='{{ trans('grid.filter_hint') }}'><i class='fa fa-filter'></i>&nbsp;{{ trans('grid.filter') }}<i class="fa fa-check pull-right dx-filter-on-mark" style="display: {{ ($filter_data && $filter_data != '[]') ? 'block' : 'none' }}"></i></a></li>
+                                    <li role="separator" class="divider"></li>
                                     <li><a href='javascript:;' id="{{ $menu_id }}_excel" title='{{ trans('grid.excel_hint') }}'><i class='fa fa-file-excel-o'></i>&nbsp;{{ trans('grid.excel') }}</a></li>
                                     @if ($show_new_button)
                                         <li><a href='javascript:;' id="{{ $menu_id }}_import"><i class="fa fa-upload"></i>&nbsp;{{ trans('grid.import') }}</a></li>
@@ -53,9 +47,8 @@
                                 @endif                                
                             @endif
                             
-                            @if ($tab_id)
-                                @include('blocks.view.view_settings_btn', ['pull_class' => ''])
-                            @endif
+                            @include('blocks.view.view_settings_btn', ['pull_class' => ''])
+                            
                         </div>
 
                         @if (count($combo_items))

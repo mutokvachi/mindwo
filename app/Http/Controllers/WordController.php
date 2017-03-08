@@ -42,7 +42,7 @@ class WordController extends Controller
         $rights = Rights::getRightsOnList($list_id);
 
         if ($rights == null || $rights->is_edit_rights == 0) {
-            throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību šajā reģistrā!");
+            throw new Exceptions\DXCustomException(trans('errors.no_rights_on_register'));
         }
 
         // pārbaudam vai ierakstu drīkst rediģēt - tas nav darbplūsmā un nav Apstiprināts

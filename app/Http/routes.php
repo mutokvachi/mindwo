@@ -91,6 +91,13 @@ Route::group(['middleware' => 'auth_ajax', 'prefix' => 'view'], function() {
     Route::post('auto_data', 'GridController@getAutocompleateData');
 });
 
+Route::group(['middleware' => 'auth_api', 'prefix' => 'api'], function() {    
+    Route::group(['prefix' => 'view', 'namespace' => 'Api'], function () {
+        Route::get('{view_id}/data/all', 'ViewController@getAllData');
+        Route::get('{view_id}/data/filtered/{field}/{criteria}', 'ViewController@getFilteredData');
+    });
+});
+
 // Startē procesu forsēti
 Route::get('/force_process/{id}', array('as' => 'force_process', 'middleware' => 'auth', 'uses' => 'ProcessController@forceProcess'));
 
@@ -172,7 +179,7 @@ Route::group(['middleware' => 'auth_ajax', 'prefix' => 'widget'], function() {
         Route::get('/get/chart/{report_name}/{group_id}/{date_from}/{date_to}', 'ReportController@getChartData');
     });
     
-     Route::group(['prefix' => 'eployeecount', 'namespace' => 'Widgets'], function () {
+    Route::group(['prefix' => 'eployeecount', 'namespace' => 'Widgets'], function () {
          Route::post('/get/view', 'EmployeeCountController@getView');
     });      
 });

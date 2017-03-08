@@ -9469,6 +9469,8 @@ var PageMain = function ()
 
         setFilesLinksIcons();
 
+        handleMainMenuSplash();
+        
         if ($("body").hasClass("dx-horizontal-menu-ui")) {
             handleWindowResizeHorUI();
             resizePage();
@@ -9496,6 +9498,27 @@ var PageMain = function ()
         resize_functions_arr.push(callback);
     };
 
+    /**
+     * Show splash screen on main menu link click
+     */
+    var handleMainMenuSplash = function() {
+        
+        if ($("body").hasClass("dx-horizontal-menu-ui")) {
+            // horizontal menu ui
+            $(".dx-main-menu a").not(".dx-main-menu a.dropdown-toggle").click(function() {
+                $('.splash').css('display', 'block');
+                $('body').css('overflow', 'hidden');
+            });
+        }
+        else {
+            // vertical menu ui
+            $("ul.page-sidebar-menu a").not("ul.page-sidebar-menu a.nav-toggle").click(function() {
+                $('.splash').css('display', 'block');
+                $('body').css('overflow', 'hidden');
+            });
+        }
+    };
+    
     /**
      * Opens modal confirmation dialog. If modal's title, body or buttons text is not specified then function useses default texts.
      * @param {function} callback Callback function executed after accept
@@ -9602,7 +9625,6 @@ $(document).ajaxComplete(function (event, xhr, settings) {
     PageMain.initHelpPopups();
     PageMain.initFilesIcons();
 });
-
 /**
  * Atrasto darbinieku saišu JavaScript funkcionalitāte
  * 

@@ -78,7 +78,7 @@
                 </div> 
             </div>
         </div>
-        @if ($profile_url || $is_list_rights)
+        @if ($profile_url || (isset($is_list_rights) && $is_list_rights))
             <div>
                 @if ($profile_url)
                     <a class="btn btn-primary pull-right btn-sm"  href='{{Request::root()}}{{ $profile_url}}{{ $item->id }}'>

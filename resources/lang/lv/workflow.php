@@ -112,4 +112,5 @@ return [
     'must_save_text' => 'Darbplūsmu nepieciešams saglabāt pirms tās soļu rediģēšanas. Vai saglabāt darbplūsmu?',
     'delete_confirm_title' => 'Elementa dzēšana',
     'delete_confirm_text' => 'Vai vēlaties dzēst šo darbplūsmas elementu?',
+    'lbl_deny' => 'NORAIDĪJA',
 ];

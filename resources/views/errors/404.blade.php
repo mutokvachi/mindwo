@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>MEDUS</title>
+        <title>MINDWO</title>
 
         <style>
             html, body {
@@ -39,8 +39,8 @@
     <body>
         <div class="container">
             <div class="content">
-                <div class="title">Pieprasītā lapa nav atrodama!</div>
-                <div style="text-align: center"><a href="/">Uz sākuma lapu</a></div>
+                <div class="title">Page not found!</div>
+                <div style="text-align: center"><a href="/">Home</a></div>
             </div>
         </div>
     </body>

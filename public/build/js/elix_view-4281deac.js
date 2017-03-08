@@ -14952,24 +14952,34 @@ function refresh_form_fields(edit_form_htm_id, form_htm_id, item_id, list_id, re
                         $("#" + form_htm_id).find("div[dx_tab_id=" + id + "]").html(htm);                        
                     });
                     
-                    // Lets execute again custom javascript so they applay to refreshed fields
-                    var script = $("body").find("div[dx_attr='" + form_htm_id + "']");
-                    if (script.html())
-                    {
-                        var tmp = script.html();
-                        tmp = tmp.replace('<script type="text/javascript">');
-                        tmp = tmp.replace('</script>');
-                        eval(tmp);
-                    }
-                    
-                    FormLogic.adjustDataTabs($("#item_edit_form_" + frm_uniq_id).find(".dx-cms-form-fields-section").first());
-                    
+                    var callback_result = true;
                     if (typeof arr_callbacks != 'undefined') {
                         if (typeof arr_callbacks.after_save != 'undefined') {
-                            arr_callbacks.after_save.call(this, $("#list_item_view_form_" + frm_uniq_id));
+                            callback_result = arr_callbacks.after_save.call(this, $("#list_item_view_form_" + frm_uniq_id));                           
                         }
                     }
-        
+                    
+                    if (callback_result) {
+                        // Lets execute again custom javascript so they applay to refreshed fields
+                        var script = $("body").find("div[dx_attr='" + form_htm_id + "']");
+                        if (script.html())
+                        {
+                            var tmp = script.html();
+                            tmp = tmp.replace('<script type="text/javascript">');
+                            tmp = tmp.replace('</script>');
+                            eval(tmp);
+                        }
+
+                        FormLogic.adjustDataTabs($("#item_edit_form_" + frm_uniq_id).find(".dx-cms-form-fields-section").first());                                       
+
+                        var footer = $("#" + form_htm_id).find(".modal-footer");
+                        footer.find(".dx-history-badge").html(myData['history_count']);
+
+                        if (myData['history_count']) {
+                            footer.find(".dx-history-badge").show();
+                        }
+                    }
+                    
                     notify_info(DX_CORE.trans_data_saved);
                     stop_executing(edit_form_htm_id);
 
@@ -15025,49 +15035,52 @@ function reload_edited_form(ajax_url, item_id, list_id, rel_field_id, rel_field_
         if (typeof arr_callbacks != 'undefined') {
             add_form_callbacks(old_form_htm_id, arr_callbacks);
         }
-                
-        $("#list_item_view_form_" + old_form_htm_id).find(".modal-content").html(htm);
         
-        if (get_last_form_id() != ("list_item_view_form_" + old_form_htm_id)) {
-            var dom = $(htm);
-            dom.find("script").each(function() {
-                $.globalEval(this.text || this.textContent || this.innerHTML || '');
-            });
-
-            dom.filter('script').each(function(){           
-                $.globalEval(this.text || this.textContent || this.innerHTML || '');
-            });
-        }
-        
-        var tool_height = $("#top_toolbar_list_item_view_form_" + old_form_htm_id).height();
-
-        $("#list_item_view_form_" + old_form_htm_id).find(".modal-body").height(height_content - tool_height-21);
-                
-        var height = $(window).height()*DX_CORE.form_height_ratio;
-        var form_body = $("#list_item_view_form_" + old_form_htm_id).find(".modal-body");
-        
-        form_body.css('overflow-y', 'auto');    
-        
-        var scroll_height = form_body.find(".dx-form-row")[0].scrollHeight;
-        var heading_height = $("#list_item_view_form_" + old_form_htm_id).find(".modal-header").outerHeight();
-        var footer_height = $("#list_item_view_form_" + old_form_htm_id).find(".modal-header").outerHeight();
-        
-        if (scroll_height > (height_content - tool_height - 21) && scroll_height < (height - tool_height - heading_height - footer_height)) {
-            form_body.height(scroll_height);
-        }
-        else {
-            form_body.height(height_content);
-        }
-        
-        form_body.css('max-height', height + 'px');
-        
-        FormLogic.adjustDataTabs($("#item_edit_form_" + old_form_htm_id).find(".dx-cms-form-fields-section").first());
-        
+        var callback_result = true;
         if (typeof arr_callbacks != 'undefined') {
             if (typeof arr_callbacks.after_save != 'undefined') {
-                arr_callbacks.after_save.call(this, $("#list_item_view_form_" + old_form_htm_id));
+                callback_result = arr_callbacks.after_save.call(this, $("#list_item_view_form_" + old_form_htm_id));                           
             }
         }
+        
+        if (callback_result) {
+            $("#list_item_view_form_" + old_form_htm_id).find(".modal-content").html(htm);
+
+            if (get_last_form_id() != ("list_item_view_form_" + old_form_htm_id)) {
+                var dom = $(htm);
+                dom.find("script").each(function() {
+                    $.globalEval(this.text || this.textContent || this.innerHTML || '');
+                });
+
+                dom.filter('script').each(function(){           
+                    $.globalEval(this.text || this.textContent || this.innerHTML || '');
+                });
+            }
+
+            var tool_height = $("#top_toolbar_list_item_view_form_" + old_form_htm_id).height();
+
+            $("#list_item_view_form_" + old_form_htm_id).find(".modal-body").height(height_content - tool_height-21);
+
+            var height = $(window).height()*DX_CORE.form_height_ratio;
+            var form_body = $("#list_item_view_form_" + old_form_htm_id).find(".modal-body");
+
+            form_body.css('overflow-y', 'auto');    
+
+            var scroll_height = form_body.find(".dx-form-row")[0].scrollHeight;
+            var heading_height = $("#list_item_view_form_" + old_form_htm_id).find(".modal-header").outerHeight();
+            var footer_height = $("#list_item_view_form_" + old_form_htm_id).find(".modal-header").outerHeight();
+
+            if (scroll_height > (height_content - tool_height - 21) && scroll_height < (height - tool_height - heading_height - footer_height)) {
+                form_body.height(scroll_height);
+            }
+            else {
+                form_body.height(height_content);
+            }
+
+            form_body.css('max-height', height + 'px');
+
+            FormLogic.adjustDataTabs($("#item_edit_form_" + old_form_htm_id).find(".dx-cms-form-fields-section").first());
+        }        
                     
         notify_info(DX_CORE.trans_data_saved);
         hide_form_splash(1);
@@ -16117,6 +16130,476 @@ var BlockViews = function()
             reloadBlockGrid(grid_id, tab_id);
         });
     };
+    
+    /**
+     * Show or hide filtering fields
+     * 
+     * @param {string} menu_id Grid's toolbar section HTML element's ID
+     * @param {string} grid_id Grid's HTML element ID
+     * @param {string} tab_id  Tab's HTML element ID in case if this is subgrid in an form
+     * @param {object} el_block View's block HTML element
+     * @returns {undefined}
+     */
+    var handleMenuFilter = function(menu_id, grid_id, tab_id, el_block) {
+        $('#' + menu_id + '_filter').click(function() {
+            var el_icon = $(this).find("i.fa-check");
+            var el_filters = $("#filter_" + grid_id);
+            if (el_icon.is(':visible')) {
+                // hide filters row
+                                
+                var el_filt_data = el_block.find('input[name=filter_data]');
+                
+                if (el_filt_data.val().length > 0 && el_filt_data.val() != '[]') {
+                    // was filtered grid - lets reload with clear data
+                    el_filt_data.val('');
+                    el_filters.find('input').val('');
+                    reloadBlockGrid(grid_id, tab_id);
+                }
+                else {
+                    el_filters.hide();
+                    el_icon.hide();
+                    PageMain.resizePage();
+                }
+            }
+            else {
+                // show filters row
+                el_filters.show();
+                el_icon.show();
+                PageMain.resizePage();
+            }
+        });
+    };
+    
+    /**
+     * Opend view editing form
+     * 
+     * @param {object} view_container Grid view main object's HTML element
+     * @returns {undefined}
+     */
+    var handleBtnEditView = function(view_container) {
+        view_container.find('.dx-view-edit-btn').click(function() {
+            
+            var view_id = view_container.find('select.dx-views-cbo option:selected').val();
+            var frm_el = $("#" + view_container.attr("id") + "_popup");
+            
+            var formData = "view_id=" + view_id;
+
+            var request = new FormAjaxRequestIE9 ('view/open', "", "", formData);            
+            request.progress_info = true;                       
+            
+            request.callback = function(data) {
+                frm_el.find(".modal-body").html(data['html']);
+                frm_el.find(".modal-body .dx-cms-nested-list").nestable();
+                setFldEventHandlers(frm_el, frm_el, view_container);
+                handleSearchField();
+                handleIsMyCheck(frm_el);
+                
+                frm_el.find(".dx-view-btn-copy").show();
+                frm_el.find(".dx-view-btn-delete").show();
+                frm_el.find("span.badge").html(Lang.get('grid.badge_edit'));
+                
+                frm_el.modal('show');
+            };
+
+            // execute AJAX request
+            request.doRequest();
+        });
+    };
+    
+    /**
+     * Sets handles for checkboxies (is default and is my view only)
+     * 
+     * @param {object} frm_el Fields UI forms HTML object
+     * @returns {undefined}
+     */
+    var handleIsMyCheck = function(frm_el) {
+        frm_el.find("input[name=is_my_view]").change(function() {
+           if ($(this).prop('checked')) {
+               frm_el.find("input[name=is_default]").prop('checked', '').closest('span').hide();
+           }
+           else {
+               frm_el.find("input[name=is_default]").closest('span').show();
+           }
+        });
+        
+        frm_el.find("input[name=is_default]").change(function() {
+           if ($(this).prop('checked')) {
+               frm_el.find("input[name=is_my_view]").prop('checked', '').closest('span').hide();
+           }
+           else {
+               frm_el.find("input[name=is_my_view]").closest('span').show();
+           }
+        });
+    };
+    
+     /**
+     * Moves field from used section to available fields section
+     * 
+     * @param {object} frm_el Fields UI forms HTML object
+     * @param {object} fld_el Field element HTML object
+     * @param {object} view_container Grid view main object's HTML element
+     * @returns {undefined}
+     */
+    var removeFld = function(frm_el, fld_el, view_container) {
+        frm_el.find('.dx-fields-container .dx-available ol.dd-list').append(fld_el.closest('.dd-item').clone());
+        fld_el.closest('.dd-item').remove();
+
+        var new_el = frm_el.find('.dx-fields-container .dx-available ol.dd-list .dd-item').last();
+        setFldEventHandlers(frm_el, new_el, view_container);
+        
+        clearSearchIfLast(frm_el, 'dx-used');
+    };
+    
+    /**
+     * Moves field from available section to used fields section
+     * 
+     * @param {object} frm_el Fields UI forms HTML object
+     * @param {object} fld_el Field element HTML object
+     * @param {object} view_container Grid view main object's HTML element
+     * @returns {undefined}
+     */
+    var addFld = function(frm_el, fld_el, view_container) {
+        frm_el.find('.dx-fields-container .dx-used ol.dd-list').append(fld_el.closest('.dd-item').clone());
+        fld_el.closest('.dd-item').remove();
+
+        var new_el = frm_el.find('.dx-fields-container .dx-used ol.dd-list .dd-item').last();
+        setFldEventHandlers(frm_el, new_el, view_container);
+        
+        clearSearchIfLast(frm_el, 'dx-available');        
+    };
+    
+    /**
+     * Clear fields search input in case if no more fields in container (and show again all fields in container)
+     *      * 
+     * @param {object} frm_el Fields UI forms HTML object
+     * @param {string} fields_class HTML class name of fields container (dx-used or dx-available)
+     * @returns {undefined}
+     */
+    var clearSearchIfLast = function(frm_el, fields_class) {
+        if (frm_el.find('.dx-fields-container .' + fields_class + ' ol.dd-list .dd-item:visible').length == 0) {
+            var txt = frm_el.find('.dx-fields-container .' + fields_class).closest('.portlet').find('input.dx-search');
+            if (txt.val().length > 0) {
+                txt.val('');
+                txt.closest(".portlet").find(".dx-fields-container .dd-item").show();
+                txt.focus();
+            }
+        }
+    };
+    
+    /**
+     * Sets events for added/moved field
+     * 
+     * @param {object} frm_el Fields UI forms HTML object
+     * @param {object} fld_el Field element HTML object
+     * @param {object} view_container Grid view main object's HTML element
+     * @returns {undefined}
+     */
+    var setFldEventHandlers = function(frm_el, fld_el, view_container) {
+        fld_el.find('.dx-cms-field-remove').click(function() {
+            removeFld(frm_el, $(this), view_container);
+        });
+        
+        fld_el.find('.dx-cms-field-add').click(function() {
+            addFld(frm_el, $(this), view_container);
+        });
+        
+        fld_el.find('.dx-fld-title').click(function() {
+           openSettings($(this), view_container);
+        });
+    };
+    
+    /**
+     * Opens field's setting form
+     * 
+     * @param {object} title_el Field item title HTML element
+     * @param {object} view_container Grid view main object's HTML element
+     * @returns {undefined}
+     */
+    var openSettings = function (title_el, view_container) {
+        if (title_el.closest('.dx-cms-nested-list').hasClass('dx-used')) {
+            var item = title_el.closest('.dd-item');
+            var sett_el = view_container.find('.dx-popup-modal-settings');
+                        
+            sett_el.find("input[name=is_hidden]").prop("checked", (item.attr("data-is-hidden")=="1") ? "checked" : "");
+            sett_el.find("input[name=field_title]").val(title_el.text());
+            sett_el.find("select[name=field_operation]").val(item.attr("data-operation-id"));
+            
+            if (item.attr("data-field-type") == "autocompleate" || item.attr("data-field-type") == "rel_id") {
+                sett_el.find("select[name=field_operation]").attr("data-criteria", "auto");
+                
+                var auto_fld = sett_el.find("div.dx-autocompleate-field");
+                auto_fld.attr("data-rel-list-id", item.attr('data-rel-list-id'));
+                auto_fld.attr("data-rel-field-id", item.attr('data-rel-field-id'));
+                auto_fld.attr("data-item-value", item.attr('data-criteria'));
+                auto_fld.attr("data-field-id", item.attr('data-id'));
+                
+                var formData = new FormData();
+                formData.append("list_id", item.attr('data-rel-list-id'));
+                formData.append("txt_field_id", item.attr('data-rel-field-id'));
+                formData.append("txt_field_id", item.attr('data-rel-field-id'));
+                formData.append("value_id", item.attr('data-criteria'));
+                
+                show_form_splash();
+                $.ajax({ 
+                    type: 'POST',
+                    url: DX_CORE.site_url  + "view/auto_data",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: "json",
+                    async: false,
+                    success : function(data) {
+                        hide_form_splash();
+                        auto_fld.attr("data-min-length", data['count']);
+                        auto_fld.attr("data-item-text", data['txt']);
+                    }
+                });
+                
+                AutocompleateField.initSelect(auto_fld);
+            }
+            else {
+                sett_el.find("select[name=field_operation]").attr("data-criteria", "text");
+                sett_el.find("input[name=criteria_value]").val(item.attr("data-criteria"));
+            }
+            
+            showHideCriteria(sett_el, sett_el.find("select[name=field_operation]"));
+            
+            var btn_save = sett_el.find('.dx-settings-btn-save');
+            
+            btn_save.off("click");
+            btn_save.click(function() {
+                var oper_el = sett_el.find('select[name=field_operation]');
+                
+                var crit_val = "";
+                if (oper_el.attr("data-criteria") == "text") {
+                    crit_val = sett_el.find('input[name=criteria_value]').val();
+                }
+                else {
+                    crit_val = parseInt(sett_el.find('input.dx-auto-input-id').val());
+                }
+                
+                if (oper_el.val() && oper_el.find('option:selected').attr('data-is-criteria') != "0" && !crit_val) {
+                    notify_err(Lang.get('grid.error_filter_must_be_set'));
+                    return false;
+                }
+                
+                item.attr("data-criteria", crit_val);
+                item.attr("data-is-hidden", sett_el.find('input[name=is_hidden]').is(":checked") ? 1 : 0);
+                item.attr("data-operation-id", oper_el.val());
+                
+                sett_el.modal('hide');
+            });
+            
+            sett_el.modal('show');
+        }
+    };
+    
+    /**
+     * Handles event for show or hide criteria field depending on selected operation
+     * 
+     * @param {object} view_container Grid view main object's HTML element
+     * @returns {undefined}
+     */
+    var handleFieldOperation = function(view_container) {
+        var sett_el = view_container.find('.dx-popup-modal-settings');
+        sett_el.find('select[name=field_operation]').change(function() {
+            showHideCriteria(sett_el, $(this));            
+        });
+    };
+    
+    /**
+     * Shoe or hide criteria field depending on selected operation
+     * @param {object} sett_el Setting popup form HTML element
+     * @param {object} sel_el Operation select HTML element
+     * @returns {undefined}
+     */
+    var showHideCriteria = function(sett_el, sel_el) {
+        if (sel_el.find('option:selected').attr('data-is-criteria') != "0") {
+            if (sel_el.attr("data-criteria") == "text") {
+                sett_el.find(".dx-criteria-text").show();
+                sett_el.find(".dx-criteria-auto").hide();
+                sett_el.find("input[name=criteria_value]").focus();
+            }
+            else {
+                sett_el.find(".dx-criteria-text").hide();
+                sett_el.find(".dx-criteria-auto").show(); 
+                sett_el.find('.dx-auto-input-select2').select2("open");
+            }
+        }
+        else {
+            sett_el.find("input[name=criteria_value]").val('');
+            sett_el.find(".dx-criteria-auto").hide();
+            sett_el.find(".dx-criteria-text").hide();
+            sett_el.find('.dx-auto-input-select2').select2('data', {id:0, text:""});
+            sett_el.find("input.dx-auto-input-id").val(0);
+        }
+    };
+    
+    /**
+     * Handles fields searching functionality
+     * @returns {undefined}
+     */
+    var handleSearchField = function() {
+        $("input.dx-search").on("keyup", function() {
+            if (!$(this).val()) {
+                $(this).closest(".portlet").find(".dx-fields-container .dd-item").show();
+                return;
+            }
+            $(this).closest(".portlet").find(".dx-fields-container .dd-item").hide();
+            $(this).closest(".portlet").find(".dx-fields-container .dx-fld-title:contains('" + $(this).val() + "')").closest(".dd-item").show();
+            
+        });
+    };
+    
+    /**
+     * Handles view copy function
+     * 
+     * @param {object} view_container Grid view main object's HTML element
+     * @returns {undefined}
+     */
+    var handleBtnCopy = function(view_container) {
+        var pop_el = $("#" + view_container.attr("id") + "_popup");
+        pop_el.find(".dx-view-btn-copy").click(function() {
+            var frm_el = pop_el.find(".dx-view-edit-form");
+            frm_el.data('view-id', 0);
+            pop_el.find(".dx-view-btn-copy").hide();
+            pop_el.find(".dx-view-btn-delete").hide();
+            pop_el.find("span.badge").html(Lang.get('grid.badge_new'));
+            frm_el.find("input[name=view_title]").val(frm_el.find("input[name=view_title]").val() + " - " + Lang.get('grid.title_copy')).focus();
+            
+            frm_el.find('input[name=is_default]').prop("checked", '').show().closest('span').show();
+            frm_el.find('input[name=is_my_view]').prop("checked", '').closest('span').show();
+        });
+    };
+    
+    /**
+     * Handles button "Delete" pressing
+     * 
+     * @param {object} view_container Grid view main object's HTML element
+     * @returns {undefined}
+     */
+    var handleBtnDelete = function(view_container) {
+        var pop_el = $("#" + view_container.attr("id") + "_popup");
+        pop_el.find(".dx-view-btn-delete").click(function() {
+            PageMain.showConfirm(deleteView, view_container, null, Lang.get('grid.confirm_delete'), Lang.get('form.btn_yes'), Lang.get('form.btn_no'));           
+        });
+    };
+    
+    /**
+     * Handles view deletion functionality
+     * 
+     * @param {object} view_container Grid view main object's HTML element
+     * @returns {undefined}
+     */
+    var deleteView = function(view_container) {
+        var pop_el = $("#" + view_container.attr("id") + "_popup");
+        var frm_el = pop_el.find(".dx-view-edit-form");
+                
+        var formData = new FormData();
+        formData.append("view_id", frm_el.data('view-id'));
+        formData.append("list_id", frm_el.data('list-id'));
+        formData.append('tab_id', view_container.attr('dx_tab_id'));
+        
+        var request = new FormAjaxRequest ('view/delete', "", "", formData);
+        request.progress_info = true;                       
+
+        request.callback = function(data) {
+            if (data["success"] == 1) {
+                pop_el.modal('hide');
+                reloadAnotherView(view_container, data["view_id"]);                
+            }
+        };
+
+        // execute AJAX request
+        request.doRequest();
+    };
+    
+    /**
+     * Handles button event - save view data
+     * 
+     * @param {object} view_container Grid view main object's HTML element
+     * @returns {undefined}
+     */
+    var handleBtnSaveView = function(view_container) {        
+        var pop_el = $("#" + view_container.attr("id") + "_popup");
+        pop_el.find(".dx-view-btn-save").click(function() {
+            
+            var frm_el = pop_el.find(".dx-view-edit-form");
+            var view_id = frm_el.data('view-id');
+            var grid_el = view_container.find('.dx-grid-table').last();
+            
+            var formData = new FormData();
+            formData.append("view_id", view_id);
+            formData.append("list_id", frm_el.data('list-id'));
+            formData.append("view_title", frm_el.find('input[name=view_title]').val());
+            formData.append("is_default", frm_el.find('input[name=is_default]').is(":checked") ? 1 : 0);
+            formData.append("is_my_view", frm_el.find('input[name=is_my_view]').is(":checked") ? 1 : 0);
+            formData.append("fields", getFieldsState(frm_el.find('.dx-fields-container .dx-used')));
+            formData.append('grid_id', grid_el.attr('id'));
+            
+            var request = new FormAjaxRequest ('view/save', "", "", formData);
+            request.progress_info = true;                       
+            
+            request.callback = function(data) {
+                if (data["success"] == 1) {
+                    
+                    pop_el.modal('hide');
+                    pop_el.attr("id", pop_el.attr("id") + "_" + $(".dx-popup-modal").length);
+                    
+                    if (view_id ==0) {
+                        reloadAnotherView(view_container, data["view_id"]);                        
+                    }
+                    else {
+                        reloadBlockGrid(grid_el.attr('id'), grid_el.data('tab_id'));
+                    }
+                }
+            };
+            
+            // execute AJAX request
+            request.doRequest();
+    
+        });
+    };
+    
+    /**
+     * Loads view after previous view deletion or new view creation
+     * 
+     * @param {object} view_container Grid view main object's HTML element
+     * @param {integer} view_id View ID
+     * @returns {undefined}
+     */
+    var reloadAnotherView = function(view_container, view_id) {
+        if (view_container.attr('dx_tab_id')) {
+            load_tab_grid(view_container.attr('dx_tab_id'), view_container.attr('dx_list_id'), view_id, view_container.attr('dx_rel_field_id'), view_container.attr('dx_rel_field_value'), view_container.attr('dx_form_htm_id'), 1, 5, 1);
+        }
+        else {
+            show_page_splash(1);
+            var url = root_url + 'skats_' + view_id;
+            window.location.assign(encodeURI(url));                
+        }
+    };
+    
+    /**
+    * Prepares JSON string with all fields included in view (in correct order)
+    * 
+    * @param {object} block Fields container HTML element
+    * @returns {string}
+    */
+   var getFieldsState = function(block) {
+       var ret_arr = new Array();
+       
+       block.find(".dd-item").each(function() {
+            var item = {
+               "field_id": $(this).attr('data-id'),
+               "is_hidden": $(this).attr('data-is-hidden'),
+               "operation_id": $(this).attr('data-operation-id'),
+               "criteria": $(this).attr('data-criteria')
+            };
+           ret_arr.push(item);
+       });
+       
+       return JSON.stringify(ret_arr);
+   };
 
     /**
      * Exports grid data to the Excel
@@ -16196,7 +16679,6 @@ var BlockViews = function()
      * Starts data importing from Excel
      * 
      * @param {string} menu_id Menu item HTML id
-     * @param {integer} list_id List ID
      * @returns {undefined}
      */
     var handleBtnStartImport = function(menu_id)
@@ -16279,12 +16761,12 @@ var BlockViews = function()
         }
         
         return msg;
-    }
+    };
     
     /**
      * Validated uploaded file extension - is it supported
      * 
-     * @param {object} import_form Importing HTML form's element
+     * @param {object} import_frm Importing HTML form's element
      * @param {string} file_name File name
      * @returns {Boolean}   True - if extension is valid, False - if invalid
      */
@@ -16322,7 +16804,14 @@ var BlockViews = function()
             }
 
             err_txt = err_txt + err_arr[$i];
-        }               
+        }
+        
+        if (data["errors"].length > 0) {
+            if (err_txt.length > 0) {
+                err_txt = err_txt + "<br /><br />";
+            }
+            err_txt = err_txt + data["errors"];
+        }
 
 
         if (err_txt.length > 0) {
@@ -16333,7 +16822,8 @@ var BlockViews = function()
     /**
      * Prepare message with error rows
      * @param {object} import_frm Importing form HTML element
-     * @param {string} duplicate Row numbers delimited by coma
+     * @param {string} rows Row numbers delimited by coma
+     * @param {string} err_attribute Error data attribute of importing from
      * @returns {Function|_L19.String|String}
      */
     var concatErr = function(import_frm, rows, err_attribute) {
@@ -16523,9 +17013,11 @@ var BlockViews = function()
     };
 
     /**
-     * Nodrošina reģistra iestatījumu formas atvēršanu
+     * Opens settings form for register
      * 
-     * @param {string} grid_id Reģistra ID
+     * @param {string} block_el HTML element id
+     * @param {string} grid_id  Register grid HTML element id
+     * @param {integer} list_id  Register id (from db table dx_lists)
      * @returns {undefined}
      */
     var handleRegisterSettings = function(block_el, grid_id, list_id) {        
@@ -16566,18 +17058,40 @@ var BlockViews = function()
      * @returns {undefined}
      */
     var initHeight = function() {
-        var grid_el = $("#td_data .dx-grid-outer-div");
-        var grid_top = grid_el.offset().top;                
-        var win_h = $( window ).height();
-        var max_h = win_h - grid_top-100;
-        grid_el.css('max-height', max_h + 'px');
-        
-        var page_h = $("#td_data").offset().top;
-        var page_min = win_h - page_h;
-        $("#td_data").css('min-height', page_min + 'px');
-        
-        $(".dx-page-container").css('padding-bottom', '0px');
-        $("#td_data .dx-paginator-butons").css('margin-right', 'auto');
+        try {
+            var grid_el = $("#td_data .dx-grid-outer-div");
+            var grid_top = grid_el.offset().top;                
+            var win_h = $( window ).height();
+            
+            var scrl = 0;
+            
+            if (grid_el.hasScrollBar('horizontal')) {
+                scrl = 8;                
+            }
+            
+            var adjust_h = 80;
+            
+            if ($("body").hasClass("dx-horizontal-menu-ui")) {
+                adjust_h = 70;
+            }
+            
+            var max_h = win_h - grid_top - adjust_h + scrl; //bija 100 / 70
+            grid_el.css('max-height', max_h + 'px');
+
+            var page_h = $("#td_data").offset().top;
+            var page_min = win_h - page_h;
+            $("#td_data").css('min-height', page_min + 'px');
+
+            $(".dx-page-container").css('padding-bottom', '0px');
+            $("#td_data .dx-paginator-butons").css('margin-right', 'auto');
+        }
+        catch(e){
+            console.log("Init Height error");
+        }
+    };
+    
+    var addHoverDropdowns = function(el_block) {
+        el_block.find(".dropdown-toggle").dropdownHover();
     };
     
     /**
@@ -16608,6 +17122,16 @@ var BlockViews = function()
             handleRegisterSettings($(this), grid_id, list_id);
             handleBtnImport(menu_id, rel_field_id, rel_field_value, form_htm_id);
             handleBtnStartImport(menu_id);
+            handleMenuFilter(menu_id, grid_id, tab_id, $(this));
+            
+            addHoverDropdowns($(this));
+            
+            // view editing
+            handleBtnEditView($(this));
+            handleBtnSaveView($(this));
+            handleBtnCopy($(this));
+            handleBtnDelete($(this));
+            handleFieldOperation($(this));
             
             // Saraksta kolonnu funkcionalitāte
             handleFilter(grid_id, tab_id);
@@ -16628,6 +17152,10 @@ var BlockViews = function()
             
             openItemByID($(this), grid_form, grid_id, list_id, rel_field_id, rel_field_value, form_htm_id);
             
+            if (!tab_id) {
+                $("body").addClass("dx-grid-in-page");
+            }
+            
             PageMain.addResizeCallback(initHeight);
             
             initHeight();
@@ -16644,6 +17172,8 @@ var BlockViews = function()
                 $table.floatThead('reflow');
             });
             
+            
+            
             $(this).attr('dx_block_init', 1); // uzstādam pazīmi, ka skata bloks ir inicializēts
         });  
     };
@@ -16657,6 +17187,26 @@ var BlockViews = function()
         }
     };
 }();
+
+// Overide default jQuery "contains" function to search case insensitive
+$.expr[":"].contains = $.expr.createPseudo(function(arg) {
+    return function( elem ) {
+        return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+    };
+});
+
+$.fn.hasScrollBar = function(direction){
+  if (direction == 'vertical')
+  {
+    return this.get(0).scrollHeight > this.innerHeight();
+  }
+  else if (direction == 'horizontal')
+  {
+    return this.get(0).scrollWidth > this.innerWidth();
+  }
+  return false;
+
+};
 
 $(function() {        
     BlockViews.init();    
@@ -18266,6 +18816,7 @@ var AutocompleateField = function()
             if (fld_elem.data("is-profile")) {
                 fld_elem.find(".dx-rel-id-add-btn").hide();
             }
+            
         });
     };
     
@@ -18309,7 +18860,7 @@ var AutocompleateField = function()
     var initSelect2 = function(fld_elem) {
         fld_elem.find('.dx-auto-input-select2').select2({
             placeholder: fld_elem.attr("data-trans-search"),
-            minimumInputLength: 3,
+            minimumInputLength: fld_elem.attr("data-min-length"),
             ajax: {
                 type: 'POST',
                 url: DX_CORE.site_url  + 'fill_autocompleate',
@@ -18340,11 +18891,12 @@ var AutocompleateField = function()
                     {
                         if (data.error)
                         {
-                                notify_err(data.error);
+                            notify_err(data.error);
                         }
                         else
                         {
-                                notify_err(DX_CORE.trans_general_error);
+                            console.log("Some unknown autocompleate error!")    
+                            notify_err(DX_CORE.trans_general_error);
                         }
                     }
                 }       
@@ -18389,7 +18941,7 @@ var AutocompleateField = function()
      * @returns {undefined}
      */
     var initField = function() {
-        $(".dx-autocompleate-field[data-is-init=0]").each(function() {            
+        $(".dx-autocompleate-field[data-is-init=0][data-is-manual-init=0]").each(function() {            
             handleBtnAdd($(this));
             handleBtnDel($(this));
             initSelect2($(this));
@@ -18404,6 +18956,15 @@ var AutocompleateField = function()
         },
         update_callback: function(fld_htm_id, val_id, val_title) {
             update_callback(fld_htm_id, val_id, val_title);
+        },
+        initSelect: function(fld_el) {
+            fld_el.find('button.dx-rel-id-add-btn').hide();
+            initSelect2(fld_el);
+            
+            if (fld_el.attr('data-is-init') != "1") {
+                handleBtnDel(fld_el);
+            }
+            fld_el.attr('data-is-init', 1);
         }
     };
 }();
@@ -20736,6 +21297,12 @@ mxBasePath = '/js/plugins/mxgraph/src';
          */
         this.isSending = false;
 
+        this.isGraphInit = false;
+
+        this.dateFormat = '';
+
+        this.locale = 'en';
+
         // Initializes class
         this.init();
     }
@@ -20748,8 +21315,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
         vertexStyle: {
             ellipse: {
                 style: 'shape=ellipse;editable=0;html=1;whiteSpace=wrap;fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;',
-                width: 20,
-                height: 20
+                width: 30,
+                height: 30
             },
             rounded: {
                 style: 'shape=rounded;html=1;whiteSpace=wrap;fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;',
@@ -20855,7 +21422,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 after_save: function (form) {
                     form.modal("hide");
                     self.onAfterFormClose(form, self, vertex);
-                    
+
                 }
             });
 
@@ -20863,15 +21430,74 @@ mxBasePath = '/js/plugins/mxgraph/src';
         init: function () {
             var self = this;
 
-            // Exit if component already initialized
-            if (self.domObject.data('is_init') == 1) {
+            if (self.domObject.data('dx_is_init') == 1) {
                 return;
             }
+
+
+            show_form_splash(1);
+
+            self.domObject.data('dx_is_init', '1');
 
             // Sets parameters
             self.workflowId = self.domObject.data('wf_id');
             self.wfRegisterListId = self.domObject.data('wf_register_id');
             self.wfStepsListId = self.domObject.data('wf_steps_list_id');
+            self.dateFormat = self.domObject.data('date-format');
+            self.locale = self.domObject.data('locale');
+
+            self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_from');
+            self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_to');
+
+            $('.dx-cms-workflow-form-btn-save', self.domObject).click(function () {
+                self.save({self: self, initGraph: false});
+            });
+
+            $('.dx-cms-workflow-form-tab-steps-btn', self.domObject).click(function () {
+                return self.onStepsTabClick(self);
+            });
+
+            if (self.domObject) {
+                self.handleModalScrollbar(self.domObject);
+                self.handleModalHide(self.domObject);
+                self.domObject.modal('show');
+            }
+
+            hide_form_splash(1);
+        },
+        onStepsTabClick: function (self) {
+            if (!self.isGraphInit) {
+                if (self.workflowId > 0) {
+                    self.initGraph(self);
+                } else {
+                    //callback, callbackParameters, title, bodyText, acceptText, declineText
+                    PageMain.showConfirm(self.save, {self: self, initGraph: true}, Lang.get('workflow.must_save_title'), Lang.get('workflow.must_save_text'));
+
+                    return false;
+                }
+            }
+        },
+        initDatePickers: function (self, picker_name) {
+            var picker = $(picker_name, self.domObject);
+
+            picker.datetimepicker({
+                lang: self.locale,
+                format: self.dateFormat,
+                timepicker: 0,
+                dayOfWeekStart: 1,
+                closeOnDateSelect: true
+            });
+
+            $(picker_name + '-calc', self.domObject).click(function (e) {
+                $(picker_name, self.domObject).datetimepicker('show');
+            });
+        },
+        initGraph: function () {
+            show_form_splash(1);
+
+            var self = this;
+
+            self.isGraphInit = true;
 
             var wfTaskTypesObj = self.domObject.data('wf_task_types');
 
@@ -20886,10 +21512,6 @@ mxBasePath = '/js/plugins/mxgraph/src';
             $('#get_xml').click(function () {
                 var xm = document.getElementById('txt_xml');
                 xm.value = self.getXML(self);
-            });
-
-            $('#save_xml').click(function () {
-                self.save(self);
             });
 
             var container = self.domObject.find('.dx-wf-graph')[0];
@@ -21013,8 +21635,11 @@ mxBasePath = '/js/plugins/mxgraph/src';
                                         me.getState() == null))
                                 {
                                     var tol = iconTolerance;
-                                    var tmp = new mxRectangle(me.getGraphX() - tol,
-                                            me.getGraphY() - tol, 2 * tol, 2 * tol);
+                                    var scroll_y = $('.dx-cms-workflow-form-body', self.domObject)[0].scrollTop;
+                                    var scroll_x = $('.dx-cms-workflow-form-body', self.domObject)[0].scrollLeft;
+                                    
+                                    var tmp = new mxRectangle(me.getGraphX() - tol - scroll_x,
+                                            me.getGraphY() - tol - scroll_y, 2 * tol, 2 * tol);
 
                                     if (mxUtils.intersects(tmp, this.currentState))
                                     {
@@ -21119,16 +21744,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
                 self.loadData();
             }
-
-            var modal = $('.dx-wf-container').closest('.modal');
-
-            if (modal) {
-                self.handleModalScrollbar(modal);
-                self.handleModalHide(modal);
-
-                self.domObject.data('is_init', 1);
-                modal.modal('show');
-            }
+            
+            hide_form_splash(1);
         },
         onBeforeFormShow: function (form, self) {
             form.find('div[dx_fld_name_form=id]').hide();
@@ -21140,12 +21757,10 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
             form.find('select[dx_fld_name=workflow_def_id]').val(self.workflowId);
             form.find('select[dx_fld_name=list_id]').val(self.wfRegisterListId);
-            
-            form.find('select[dx_fld_name=task_type_id]').on('change', function(e, o){
+
+            form.find('select[dx_fld_name=task_type_id]').on('change', function (e, o) {
                 form.find('div[dx_fld_name_form=no_step_nr]').hide();
             });
-
-
         },
         onAfterFormClose: function (form, self, vertex) {
             var stepId = form.find('input[name=id]').val();
@@ -21164,7 +21779,6 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
             var geometry = vertex.getGeometry();
             var style = '', arrow_count = 0;
-            ;
 
             if (typeCode == 'CRIT' || typeCode == 'CRITM') {
                 hasArrowLabels = 1;
@@ -21269,7 +21883,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
             // Function that is executed when the image is dropped on
             // the graph. The cell argument points to the cell under
             // the mousepointer if there is one.
-            var funct = function (graph, evt, cell, x, y, is_endpoint)
+            var funct = function (graph, evt, cell, x, y)
             {
                 graph.stopEditing(false);
 
@@ -21282,6 +21896,12 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
                 if (!is_endpoint) {
                     self.editWorkflowStep(self, 0, vertex);
+                } else {
+                    vertex.workflow_step_id = -1;
+                    vertex.arrow_count = 1;
+                    vertex.type_code = 'ENDPOINT';
+                    vertex.has_arrow_labels = 0;
+                    self.graph.refresh();
                 }
             };
 
@@ -21289,7 +21909,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
             var img = toolbar.addMode(null, image, function (evt, cell)
             {
                 var pt = this.graph.getPointForEvent(evt);
-                funct(graph, evt, cell, pt.x, pt.y, is_endpoint);
+                funct(graph, evt, cell, pt.x, pt.y);
             });
 
             // Disables dragging if element is disabled. This is a workaround
@@ -21331,19 +21951,33 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
             return  mxUtils.getPrettyXml(node);
         },
-        save: function (self) {
+        save: function (data) {
+            var self = data.self;
+            var initGraph = data.initGraph;
+
             if (self.isSending) {
                 return;
             }
 
             self.isSending = true;
-            show_page_splash(1);
+            show_form_splash(1);
 
-            var xml = self.getXML(self);
+
+            var xml = '';
+
+            if (self.isGraphInit && self.workflowId > 0) {
+                xml = self.getXML(self);
+            }
 
             var data = {
                 workflow_id: self.workflowId,
-                xml_data: xml
+                xml_data: xml,
+                list_id: $('.dx-cms-workflow-form-input-list_id').val(),
+                title: $('.dx-cms-workflow-form-input-title').val(),
+                description: $('.dx-cms-workflow-form-input-description').val(),
+                is_custom_approve: $('.dx-cms-workflow-form-input-is_custom_approve').bootstrapSwitch('state') ? 1 : 0,
+                valid_from: $('.dx-cms-workflow-form-input-valid_from').val(),
+                valid_to: $('.dx-cms-workflow-form-input-valid_to').val()
             };
 
             $.ajax({
@@ -21352,21 +21986,29 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 data: data,
                 dataType: "json",
                 context: self,
-                success: self.onSaveSuccess,
+                success: function (data) {
+                    self.onSaveSuccess(data, initGraph);
+                },
                 error: self.onSaveError
             });
         },
-        onSaveSuccess: function (data) {
+        onSaveSuccess: function (data, initGraph) {
             var self = this;
 
             if (data && data.success == 1) {
+                self.workflowId = data.html;
                 notify_info(Lang.get('workflow.success'));
             } else {
                 self.showError(data);
             }
 
             self.isSending = false;
-            hide_page_splash(1);
+
+            if (initGraph && !self.isGraphInit) {
+                $('.dx-cms-workflow-form-tab-steps-btn', self.domObject).click();
+            }
+
+            hide_form_splash(1);
 
         },
         onSaveError: function (data) {
@@ -21375,7 +22017,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
             self.showError(data);
 
             self.isSending = false;
-            hide_page_splash(1);
+            hide_form_splash(1);
         },
         /**
          * Shows error
@@ -21407,7 +22049,9 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 var dec = new mxCodec(doc);
                 var model = dec.decode(doc.documentElement);
 
-                self.graph.getModel().mergeChildren(model.getRoot().getChildAt(0), parent);
+                if (typeof model.getRoot != 'undefined') {
+                    self.graph.getModel().mergeChildren(model.getRoot().getChildAt(0), parent);
+                }
             } finally
             {
                 // Updates the display
@@ -21420,12 +22064,12 @@ mxBasePath = '/js/plugins/mxgraph/src';
 // ajaxComplete ready
 $(document).ready(function () {
     // Initializes all found worklfow containers
-    $('.dx-wf-container').DxWorkflow();
+    $('.dx-cms-workflow-form[data-dx_is_init=0]').DxWorkflow();
 });
 
 $(document).ajaxComplete(function () {
     // Initializes all found worklfow containers
-    $('.dx-wf-container').DxWorkflow();
+    $('.dx-cms-workflow-form[data-dx_is_init=0]').DxWorkflow();
 });
 
 /**

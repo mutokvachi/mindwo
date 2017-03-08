@@ -131,7 +131,7 @@ namespace App\Libraries\FieldsSave {
          */
         private function checkRequired()
         {
-            if ($this->fld->is_required == 1 && !$this->is_val_set)
+            if ($this->fld->is_required == 1 && !$this->is_val_set && $this->request->has($this->fld->db_name))
             {                
                 throw new Exceptions\DXCustomException(sprintf(trans('errors.required_field'), $this->fld->title_form));                
             }

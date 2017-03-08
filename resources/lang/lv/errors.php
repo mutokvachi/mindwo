@@ -125,4 +125,7 @@ return [
         'no_starting_points' => 'Darbplūsma nesatur nevienu sākuma punktu',
         'no_finish_points' => 'Darbplūsma nesatur nevienu beigu punktu',
     ],
+    
+    'field_not_found' => "Skatam nav definēts lauks ar nosaukumu '%s'!",
+    'field_not_found_id' => "Skatam nav definēts lauks ar ID %s!",
 ];

@@ -14,8 +14,7 @@ namespace App\Libraries
      * Klase nodrošina tiesību kontroli
      */
     class Rights
-    {
-
+    {        
         /**
          * Nosaka rediģēšanas tiesības (iespēju) uz reģistra ierakstu
          * 
@@ -185,17 +184,32 @@ namespace App\Libraries
         }
         
         /**
+         * Returns supervision rows for authorized user
+         * @return object
+         */
+        private static function getSuperviseRows() {
+            
+            if (!isset($GLOBALS['supervise_rows'])) {
+                
+                $GLOBALS['supervise_rows'] = DB::table('dx_users_supervise')
+                                    ->select('supervise_id')
+                                    ->where('user_id', '=', Auth::user()->id)
+                                    ->get();                
+            }
+            
+            return $GLOBALS['supervise_rows'];
+        }
+        
+        /**
+         * Get SQL WHERE part regarding user superviosions
          * 
-         * @param type $list_id
-         * @param type $table_name
-         * @return string
+         * @param integer $list_id List ID
+         * @param string $table_name DB table name
+         * @return string WHERE part for supervisions
          */
         public static function getSQLSuperviseRights($list_id, $table_name)
         {            
-            $supervise = DB::table('dx_users_supervise')
-                   ->select('supervise_id')
-                   ->where('user_id', '=', Auth::user()->id)
-                   ->get();
+            $supervise = Rights::getSuperviseRows();
             
             if (count($supervise) == 0) {
                 // user have access to all data                
@@ -238,10 +252,7 @@ namespace App\Libraries
          * @return int 0 - no access, 1 - have access
          */
         public static function isSuperviseOnItem($supervise_id) {
-            $supervise = DB::table('dx_users_supervise')
-                   ->select('supervise_id')
-                   ->where('user_id', '=', Auth::user()->id)
-                   ->get();
+            $supervise = Rights::getSuperviseRows();
             
             if (count($supervise) == 0) {
                 // user have access to all data                
