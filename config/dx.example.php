@@ -341,6 +341,8 @@ return [
             'items_per_page' => 20,
             // Delay between sending emails
             'send_delay' => 0,
+            // Path for storing thumbnails, relative to public directory
+            'thumbnail_path' => 'formated_img/mail_thumbn',
     ],
     
     /*
@@ -352,15 +354,4 @@ return [
     |--------------------------------------------------------------------------
     */
     'autocompleate_max_count' => 20,
-    
-    'email' => [
-            // Here we provide role ID (from table dx_roles) which can use email sending functionality
-            'access_role_id' => 1,
-            // Number of emails to show in folder index
-            'items_per_page' => 20,
-            // Delay between sending emails
-            'send_delay' => 0,
-            // Path for storing thumbnails, relative to public directory
-            'thumbnail_path' => 'img/mail',
-    ],
 ];

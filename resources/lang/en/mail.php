@@ -55,4 +55,7 @@ return [
 	'view' => 'View',
 	'view_all_images' => 'View all images',
 	'view_message' => 'View Message',
+        'hint_all_company' => 'Send email to all employees',
+        'hint_department' => 'Send email to all employees from this department',
+        'hint_team' => 'Send email to all employees from this team',
 ];

@@ -49,7 +49,6 @@
           @endif
         </textarea>
       </div>
-      {{--
       <div class="inbox-compose-attachment">
         <table role="presentation" class="table table-striped margin-top-10">
           <tbody class="files">

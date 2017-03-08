@@ -64,7 +64,7 @@ class MailAttachment extends Model
 	 */
 	public function getFilePath()
 	{
-		return base_path(config('assets.private_file_path')) . '/' . $this->file_guid;
+		return storage_path(config('assets.private_file_path')) . '/' . $this->file_guid;
 	}
 	
 	/**
@@ -85,7 +85,7 @@ class MailAttachment extends Model
 	 */
 	static public function createFromUploadedFile(UploadedFile $file)
 	{
-		$filePath = base_path(config('assets.private_file_path')) . '/';
+		$filePath = storage_path(config('assets.private_file_path')) . '/';
 		$thumbPath = public_path(config('dx.email.thumbnail_path')) . '/';
 		$fileGuid = Uuid::generate(4) . '.' . $file->getClientOriginalExtension();
 		$isImage = (strpos($file->getMimeType(), 'image/') !== false);

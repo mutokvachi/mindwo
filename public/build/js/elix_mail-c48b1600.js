@@ -19391,4 +19391,5 @@ $(document).ready(function()
 {
 	$('.inbox').AppInbox();
 });
+
 //# sourceMappingURL=elix_mail.js.map
