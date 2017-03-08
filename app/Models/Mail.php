@@ -72,18 +72,21 @@ class Mail extends Model
 		}
 		
 		$attachments = [];
-		$mimeTypes = MailController::getAllowedMimeTypes();
+		$messages = [];
+		$extensions = MailController::getAllowedExtensions();
 		
 		foreach($request->file('files') as $file)
 		{
 			if(!$file->isValid())
 			{
+				$messages[] = trans('mail.error_file_invalid', ['file' => $file->getClientOriginalName()]);
 				continue;
 			}
 			
-			// skip files with wrong mime type
-			if(!in_array($file->getMimeType(), $mimeTypes))
+			// skip files with wrong extension
+			if(!in_array(strtolower($file->getClientOriginalExtension()), $extensions))
 			{
+				$messages[] = trans('mail.error_file_extension', ['file' => $file->getClientOriginalName()]);
 				continue;
 			}
 			
@@ -92,10 +95,15 @@ class Mail extends Model
 			$attachments[] = $attachment;
 		}
 		
-		return view('mail.files', [
-			'attachments' => $attachments,
-			'deleteButton' => true
-		])->render();
+		$result = [
+			'messages' => $messages,
+			'html' => view('mail.files', [
+				'attachments' => $attachments,
+				'deleteButton' => true
+			])->render()
+		];
+		
+		return $result;
 	}
 	
 	/**

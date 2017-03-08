@@ -87,7 +87,7 @@ class MailAttachment extends Model
 	{
 		$filePath = storage_path(config('assets.private_file_path')) . '/';
 		$thumbPath = public_path(config('dx.email.thumbnail_path')) . '/';
-		$fileGuid = Uuid::generate(4) . '.' . $file->getClientOriginalExtension();
+		$fileGuid = Uuid::generate(4) . '.' . strtolower($file->getClientOriginalExtension());
 		$isImage = (strpos($file->getMimeType(), 'image/') !== false);
 		
 		$attachment = new self;

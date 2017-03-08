@@ -19088,6 +19088,11 @@ wysihtml5.views.Textarea = wysihtml5.views.View.extend(
 						self.filesTable.append(data.files);
 						self.files = [];
 						
+						for(var i = 0; i < data.messages.length; i++)
+						{
+							toastr.error(data.messages[i]);
+						}
+						
 						toastr.success(Lang.get('mail.draft_saved'));
 					},
 					error: function(jqXHR, textStatus, errorThrown)

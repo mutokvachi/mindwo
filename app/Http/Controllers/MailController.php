@@ -222,7 +222,8 @@ class MailController extends Controller
 			'id' => $mail->id,
 			'folder' => $folder,
 			'count' => $this->getCounts()[$folder],
-			'files' => $files,
+			'files' => $files['html'],
+			'messages' => $files['messages']
 		];
 		
 		return response($result);
@@ -277,7 +278,8 @@ class MailController extends Controller
 			'folder' => $folder,
 			'count' => $this->getCounts()[$folder],
 			// uploaded files rendered as table rows, to replace file inputs
-			'files' => $files,
+			'files' => $files['html'],
+			'messages' => $files['messages']
 		];
 		
 		return response($result);

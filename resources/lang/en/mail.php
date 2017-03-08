@@ -26,6 +26,8 @@ return [
 	'edit_message' => 'Edit message',
 	'employees' => 'Employees',
 	'error' => 'Error',
+	'error_file_invalid' => 'An error occurred when uploading file ":file". Skipped.',
+	'error_file_extension' => 'Type of the file ":file" is not allowed to upload. Skipped.',
 	'error_file_size' => 'The file ":file" is too big. The maximum allowed file size is :size.',
 	'error_post_size' => 'Total size of attached files is too big. The maximum allowed total size is :size.',
 	'forward' => 'Forward',
