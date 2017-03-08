@@ -65,7 +65,7 @@
           </td>
           <td class="view-message ">{{ $message->subject }}</td>
           <td class="view-message inbox-small-cells">
-            @if(strlen($message->attachments))
+            @if($message->attachments()->count())
               <i class="fa fa-paperclip"></i>
             @endif
           </td>
