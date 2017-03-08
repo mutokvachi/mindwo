@@ -75,6 +75,37 @@ return [
     'wf_init_add_form_employee_error_already_added' => 'Saskaņotājs jau ir pievienots!',
     
     // Placeholder for position title
-    'wf_init_add_form_employee_position_placeholder' => 'Amats'
+    'wf_init_add_form_employee_position_placeholder' => 'Amats',
     
+    'wf_init_approvers_title' => 'Saskaņotāju iestatīšana',
+    
+    'wf_init_aproovers_hint' => 'Ja nepieciešams, pirms darbplūsmas uzsākšanas variet koriģēt saskaņotāju secību, noņemt saskaņotāju vai pievienot vēl citus saskaņotājus.',
+    
+    'err_no_direct_manager' => "Nav iespējams izveidot uzdevumu, jo darbiniekam '%s' nav norādīts tiešais vadītājs!",
+    
+    'err_unsuported_activity' => 'Neatbalstīts darbplūsmas pielāgotās aktivitātes kods %s!',
+    
+    'fld_activity' => 'Aktivitāte',
+    'performer_system' => 'Sistēma',
+    'performer_empl' => 'Darbinieks',
+    'err_no_substitute' => "Prombūtnē esošam darbiniekam '%s' nav norādīts aizvietotājs!",
+    
+    'yes' => 'Jā',
+    'no' => 'Nē',
+    'success' => 'Darbplūsma saglabāta',
+    'wf_details' => "Darbplūsmas detaļas",
+    'wf_steps' => "Darbplūsmas soļi",
+    
+    'save' => 'Saglabāt',
+    'form_title' => 'Darbplūsma',
+    'list' => 'Reģistrs',
+    'title' => 'Nosaukums',
+    'description' => 'Apraksts',
+    'is_custom_approve' => 'Ir manuālie saskaņotāji',
+    'valid_from' => 'Spēkā no',
+    'valid_to' => 'Spēkā līdz',
+    'must_save_title' => 'Darbplūsmas saglabāšana',
+    'must_save_text' => 'Darbplūsmu nepieciešams saglabāt pirms tās soļu rediģēšanas. Vai saglabāt darbplūsmu?',
+    
+    'lbl_deny' => 'NORAIDĪJA',
 ];

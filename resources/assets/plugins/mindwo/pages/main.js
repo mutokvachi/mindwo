@@ -40,6 +40,12 @@ var PageMain = function()
     var tab_win = null;
 
     /**
+     * Relogin modal dialog obj
+     * @type object
+     */
+    var reLoginModal = null;
+    
+    /**
      * Papildina datņu lejuplādes saites ar ikonām
      * 
      * @returns {undefined}
@@ -84,7 +90,7 @@ var PageMain = function()
      * @returns {undefined}
      */
     var resizePage = function() {
-        for (i = 0; i < resize_functions_arr.length; i++) {
+        for (i = 0; i < resize_functions_arr.length; i++) {            
             resize_functions_arr[i]();
         }
     };
@@ -254,6 +260,8 @@ var PageMain = function()
      */
     var initCoreParams = function() {
         DX_CORE.site_url = page_elem.attr("dx_root_url");
+        App.setAssetsPath(DX_CORE.site_url + "assets/");
+        
         DX_CORE.site_public_url = page_elem.attr("dx_public_root_url");
         DX_CORE.progress_gif_url = DX_CORE.site_url + "assets/global/progress/loading.gif";
         DX_CORE.valid_elements = page_elem.attr("dx_valid_html_elements");
@@ -297,10 +305,11 @@ var PageMain = function()
      */
     var initNotifications = function() {
         toastr.options = {
-            "closeButton": false,
+            "closeButton": true,
             "debug": false,
             "progressBar": true,
-            "positionClass": "toast-top-right",
+            "positionClass": "toast-top-left",
+            "preventDuplicates": true,
             "onclick": null,
             "showDuration": "300",
             "hideDuration": "1000",
@@ -324,8 +333,8 @@ var PageMain = function()
             
             setTimeout(function() {
                 $.gritter.add({
-                    title: 'Jums ir jāizpilda <font color="#F1C40F">' + user_tasks_count + '</font>' + ((user_tasks_count > 1) ? ' uzdevumi' : ' uzdevums'),
-                    text: 'Dodieties uz <a href="' + DX_CORE.site_url + 'skats_aktualie_uzdevumi" class="text-warning">uzdevumu sadaļu</a> un izpildiet uzdevumus.',
+                    title: Lang.get('task_form.lbl_notify_start') + ' <font color="#F1C40F">' + user_tasks_count + '</font> ' + ((user_tasks_count > 1) ? Lang.get('task_form.lbl_tasks_n') : Lang.get('task_form.lbl_tasks_1')),
+                    text: Lang.get('task_form.lbl_goto_start') + ' <a href="' + DX_CORE.site_url + 'skats_aktualie_uzdevumi" class="text-warning">' + Lang.get('task_form.lbl_goto_link_title') + '</a> ' + Lang.get('task_form.lbl_goto_end') + ' ' + ((user_tasks_count > 1) ? Lang.get('task_form.lbl_tasks_n') : Lang.get('task_form.lbl_tasks_1')) + '.',
                     time: 7000
                 });
             }, 3000);
@@ -492,6 +501,19 @@ var PageMain = function()
     };
     
     /**
+     * Handles window resize events for horizontal menu UI
+     * 
+     * @returns {undefined}
+     */
+    var handleWindowResizeHorUI = function() {
+        $(window).resize(function() {
+            setTimeout(function() {
+                resizePage();
+            }, 500);
+        });  
+    };
+    
+    /**
      * Uzstāda ziņu saitēm, lai tās atver jaunā pārlūka TAB un foksuē TABu.
      * Funkcionalitāte tiek uzstādīta arī mākoņa saitēm.
      * 
@@ -613,6 +635,75 @@ var PageMain = function()
     };
     
     /**
+     * Handles AJAX response status - display errors if needed
+     * @param {object} xhr AJAX response object
+     * @returns {undefined}
+     */
+    var showAjaxError = function(xhr) {
+        
+        // 401 (session ended) is handled in the file resources/assets/plugins/mindwo/pages/re_login.js
+        if (xhr.status == 200) {
+            return;
+        }
+        
+        // session ended - relogin required
+        if (xhr.status == 401) {
+            hide_page_splash(1);
+            hide_form_splash(1);
+            reLoginModal.modal("show");
+            return;
+        }
+        
+        toastr.error(getAjaxErrorText(xhr));
+        
+        hide_page_splash(1);
+        hide_form_splash(1);
+    };
+    
+    /**
+     * Gets error message from AJAX error response
+     * 
+     * @param {type} xhr
+     * @returns {string} Error message
+     */
+    var getAjaxErrorText = function(xhr) {
+        var err_txt = "";
+        var json = xhr.responseJSON;
+        
+        // Validation errors handling
+        if ( xhr.status === 422 ) 
+        {            
+            var errorsHtml= '<ul>';
+            $.each( json, function( key, value ) {
+                errorsHtml += '<li>' + value[0] + '</li>'; 
+            });
+            errorsHtml += '</ul>';
+            err_txt = errorsHtml;
+        }
+        else {
+            
+            if (typeof json == "undefined") {
+                try {
+                    json = JSON.parse(xhr.responseText);
+                }
+                catch (e) {}
+            }
+            
+            if ( typeof json != "undefined" && typeof json.success != "undefined" && json.success == 0 && typeof json.error != "undefined" )
+            {
+                err_txt = json.error;                
+            }
+        }
+        
+        if (!err_txt) {
+            // unknown error
+            err_txt = DX_CORE.trans_general_error;
+        }
+        
+        return err_txt;
+    };
+    
+    /**
      * Inicializē galvenās lapas JavaScript funkcionalitāti.
      * Izpildās, kamēr vēl nav visa lapa līdz galam ielādēta.
      * 
@@ -637,23 +728,35 @@ var PageMain = function()
      * @returns {undefined}
      */
     var initPageLoaded = function() {
-        initUserTasksPopup();
-        //initSpecialTooltips();     
+        
+        reLoginModal = reLogin.auth_popup;
+        reLoginModal.on('shown.bs.modal', function () {
+            reLoginModal.find("input[name='user_name']").val("").focus();
+            reLoginModal.find("input[name='password']").val("");
+        });
+        
+        initUserTasksPopup();     
         
         initPortletsShowHide();
         handlePortletsHideShow();
-        
-        handleBtnScreen();      
-        handleWindowResize();
         
         handleTargetedLinkClick();
         
         setFilesLinksIcons();
         
-        initPageSize();
+        handleMainMenuSplash();
         
-        setActiveMenu();
-        
+        if ($("body").hasClass("dx-horizontal-menu-ui")) {            
+            handleWindowResizeHorUI();
+            resizePage();
+        }
+        else {
+            handleBtnScreen();      
+            handleWindowResize();
+            initPageSize();
+            setActiveMenu();
+        }                
+            
         if (dx_is_slider == 1) {
             reset_margin();        
             addResizeCallback(reset_margin);
@@ -668,6 +771,73 @@ var PageMain = function()
      */
     var addResizeCallback = function(callback) {
         resize_functions_arr.push(callback);
+    };
+    
+    /**
+     * Show splash screen on main menu link click
+     */
+    var handleMainMenuSplash = function() {
+        
+        if ($("body").hasClass("dx-horizontal-menu-ui")) {
+            // horizontal menu ui
+            $(".dx-main-menu a").not(".dx-main-menu a.dropdown-toggle").click(function() {
+                $('.splash').css('display', 'block');
+                $('body').css('overflow', 'hidden');
+            });
+        }
+        else {
+            // vertical menu ui
+            $("ul.page-sidebar-menu a").not("ul.page-sidebar-menu a.nav-toggle").click(function() {
+                $('.splash').css('display', 'block');
+                $('body').css('overflow', 'hidden');
+            });
+        }
+    };
+    
+    /**
+     * Opens modal confirmation dialog. If modal's title, body or buttons text is not specified then function useses default texts.
+     * @param {function} callback Callback function executed after accept
+     * @param {object} callbackParameters Callback functions parameters
+     * @param {string} title Modal title
+     * @param {string} bodyText Modal body text
+     * @param {string} acceptText Modal accept button text
+     * @param {string} declineText Modal decline button text
+     * @returns {undefined}
+     */
+    var showConfirm = function(callback, callbackParameters, title, bodyText, acceptText, declineText){
+        if(!title){
+            title = Lang.get('form.modal_confirm_title');
+        }
+        
+        if(!bodyText){
+            bodyText = Lang.get('form.modal_confirm_body');
+        }
+        
+        if(!acceptText){
+            acceptText = Lang.get('form.btn_accept');
+        }
+        
+        if(!declineText){
+            declineText = Lang.get('form.btn_cancel');
+        }
+        
+        
+        var modal = $('#mindwo-modal');
+        
+        modal.find('#mindwo-modal-label').html(title);
+        modal.find('#mindwo-modal-body').html(bodyText);
+        modal.find('#mindwo-modal-decline').html(declineText);
+         
+        var accept_btn  = modal.find('#mindwo-modal-accept')
+        accept_btn.html(acceptText);
+       
+        accept_btn.click(function(){
+            accept_btn.off('click');
+            
+            callback(callbackParameters);
+        });
+        
+        modal.modal('show');        
     };
 
     return {
@@ -695,18 +865,33 @@ var PageMain = function()
         },
         initAjaxCSRF: function() {
             initAjaxCSRF();
+        },
+        resizePage: function() {
+            resizePage();
+        },
+        errorHandler: function(xhr) {
+            showAjaxError(xhr);
+        },
+        getAjaxErrTxt: function(xhr) {
+            return getAjaxErrorText(xhr);
+        },
+        showConfirm:function(callback, callbackParameters, title, bodyText, acceptText, declineText){
+            showConfirm(callback, callbackParameters, title, bodyText, acceptText, declineText);
         }
     };
 }();
+
 
 PageMain.init();
 
 $(document).ready(function() {
     PageMain.initPageLoaded();
     PageMain.initHelpPopups();
+    $(this).scrollTop(0,0);
 });
 
-$(document).ajaxComplete(function(event, xhr, settings) {
+$(document).ajaxComplete(function(event, xhr, settings) {      
+    PageMain.errorHandler(xhr);
     PageMain.modalsDraggable();
     PageMain.initHelpPopups();
     PageMain.initFilesIcons();

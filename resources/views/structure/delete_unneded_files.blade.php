@@ -3,7 +3,7 @@
     <p>Tiks neatgriezeniski dzēstas tās datnes, kurām nav neviena atbilstoša ieraksta datu bāzē.</p>
     <p>Ja izvēlēts veidots kopiju, tad dati tiks saglabāti servera katalogā <i>storage/logs/{yyyy_mm_dd_HH_mm_ss}</i></p>
 </div>
-<div id="{{ $form_guid }}">
+<div id="{{ $form_guid }}" style="margin: 20px;">
     <form class="form-horizontal" id='item_edit_form_{{ $form_guid }}' method='POST'>
         <div class='form-group'>
                 <label class='col-lg-6 control-label'>Izveidot dzēsto datņu kopiju:</label>

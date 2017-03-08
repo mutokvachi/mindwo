@@ -12,6 +12,7 @@ use App\Exceptions;
 use Config;
 use App\Jobs\SendTaskEmail;
 use App\Libraries\Rights;
+use App\Libraries\Workflows;
 use Log;
 
 /**
@@ -46,6 +47,16 @@ class TasksController extends Controller
     const REPRESENT_ABOUT = 7;
     
     /**
+     * Employee to which document applays
+     */
+    const REPRESENT_EMPL = 9;
+    
+    /**
+     * Employee which is responsible about document
+     */
+    const REPRESENT_RESPONSIBLE_EMPL = 10;
+    
+    /**
      * Uzdevuma veids - saskaņot
      */
     const TASK_TYPE_APPROVE = 1;
@@ -74,6 +85,11 @@ class TasksController extends Controller
      * Uzdevuma veids - kritērijs, kas nosaka, vai ir iestatīta manuālā saskaņošana
      */
     const TASK_TYPE_WF_CRITERIA = 7;
+    
+    /**
+     * Task type - custom workflow activity
+     */
+    const TASK_TYPE_ACTIVITY = 8;
 
     /**
      * Uzdevuma statuss - procesā (no tabulas dx_tasks_statuses)
@@ -158,6 +174,148 @@ class TasksController extends Controller
     private $workflow = null;
     
     /**
+     * In case of deny - here we store comment
+     * @var string 
+     */
+    private $deny_comment = "";
+    
+    /**
+     * If item rejected - rejection info data
+     * @var object 
+     */
+    //public $reject_task = null;
+    
+    /**
+     * Cancels workflow execution process
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return type
+     * @throws Exceptions\DXCustomException
+     */
+    public function cancelWorkflow(Request $request) {
+        $this->validate($request, [
+            'item_id' => 'required|integer',
+            'list_id' => 'required|integer|exists:dx_lists,id',
+            'comment' => 'required'
+        ]);
+        
+        $list_id = $request->input('list_id');
+        $item_id = $request->input('item_id');
+        $comment = $request->input('comment');
+        
+        $cur_task = Workflows\Helper::getCurrentTask($list_id, $item_id);
+        
+        if (!$cur_task) {
+            throw new Exceptions\DXCustomException(trans('task_form.err_wf_not_in_process'));
+        }
+        
+        $list_right = Rights::getRightsOnList($list_id);
+        
+        $wf_info = DB::table('dx_workflows_info')
+                    ->where('id','=',$cur_task->wf_info_id)
+                    ->first();
+
+        $is_wf_cancelable = ($wf_info->init_user_id == Auth::user()->id || ($list_right && $list_right->is_edit_rights && !$list_right->is_only_own_rows));
+        
+        if (!$is_wf_cancelable) {
+            throw new Exceptions\DXCustomException(trans('task_form.err_wf_no_rights_to_cancel'));
+        }
+        
+        $item_table = \App\Libraries\DBHelper::getListObject($list_id)->db_name;
+        
+        DB::transaction(function () use ($item_id, $list_id, $wf_info, $item_table, $cur_task, $comment) {
+            // close all inprocess tasks
+            DB::table("dx_tasks")
+                ->where('item_id', '=', $item_id)
+                ->where('list_id', '=', $list_id)
+                ->whereNull('task_closed_time')
+                ->where('task_type_id', '!=', self::TASK_TYPE_INFO)
+                ->update([
+                'task_closed_time' => date("Y-m-d H:i:s"), 
+                'task_status_id' => self::TASK_STATUS_CANCEL, 
+                'task_comment' => sprintf(trans('task_form.comment_anulated'), Auth::user()->display_name) . ' ' . $comment
+            ]);
+            
+            // set wf info about cancelation
+            DB::table('dx_workflows_info')->where('id', '=', $wf_info->id)->update([
+                'end_time' => date("Y-m-d H:i:s"),
+                'end_user_id' => Auth::user()->id,
+                'is_forced_end' => 1,
+                'comment' => $comment
+            ]);
+            
+            // reject list item
+            DB::table($item_table)->where('id', '=', $item_id)->update(['dx_item_status_id' => 3]);
+            
+        });
+        
+        return response()->json([
+            'success' => 1,
+            'left_btns' => $this->getFormTopMenuLeft($list_id, $item_id, 3)
+        ]);
+    }
+    
+    /**
+     * Returns workflow tasks history information
+     * 
+     * @param \Illuminate\Http\Request $request AJAX request
+     * @return Response JSON result
+     */
+    public function getTasksHistory(Request $request) {
+        $this->validate($request, [
+            'item_id' => 'required|integer',
+            'list_id' => 'required|integer|exists:dx_lists,id'            
+        ]);
+        
+        $list_id = $request->input('list_id');
+        $item_id = $request->input('item_id');
+                
+        $right = Rights::getRightsOnList($list_id);
+
+        if ($right == null) {
+            if (!\App\Libraries\Workflows\Helper::isRelatedTask($list_id, $item_id)) {
+                throw new Exceptions\DXCustomException(trans('task_form.err_no_list_rights'));
+            }
+        }            
+        /*
+        $status = Workflows\Helper::getItemApprovalStatus($list_id, $item_id);            
+        if ($status == 3) { // item in status rejected
+            $this->reject_task = Workflows\Helper::getWFRejectedInfo($list_id, $item_id);
+        }
+        */
+        $tasks_view = \App\Libraries\Blocks\TaskListViews\TaskListViewFactory::build_taskview("DOC_HISTORY");
+        $tasks_view->list_id = $list_id;
+        $tasks_view->item_id = $item_id;
+        
+        $html = view('workflow.task_history', [
+                'tasks' => $tasks_view->getRows(),
+                'profile_url' => Config::get('dx.employee_profile_page_url'),
+                'self' => $this
+                ])->render();
+        
+        return response()->json(['success' => 1, 'html' => $html]);
+    }
+    
+    /**
+     * Returns workflow initiator info by wf instance ID
+     * 
+     * @param integer $wf_init_id Workflow instance ID
+     * @return object Workflow init info
+     */
+    public function getWfInitInfo($wf_init_id) {
+        return DB::table('dx_workflows_info as wf')
+               ->select(
+                    'u.display_name',
+                    'u.picture_guid',
+                    'wf.init_user_id',
+                    'wf.init_time'                           
+               )
+               ->leftJoin('dx_users as u', 'wf.init_user_id', '=', 'u.id')
+               ->where('wf.id', '=', $wf_init_id)
+               ->first();
+    }
+    
+    /**
      * Saglabā deleģēto uzdevumu
      * 
      * @param \Illuminate\Http\Request $request AJAX POST pieprasījums
@@ -175,13 +333,13 @@ class TasksController extends Controller
             
         if (strlen($due_date) == 0)
         {
-            throw new Exceptions\DXCustomException("Nevar saglabāt datus! Nekorekts termiņa datuma formāts! Termiņam jābūt formātā " . Config::get('dx.date_format') . "!");
+            throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_date_format'), Config::get('dx.date_format')));
         }
         
         $task_row = $this->getTaskRow($request->input('task_id'),  Auth::user()->id);
                 
         if (strtotime($task_row->due_date) < strtotime($due_date)) {
-            throw new Exceptions\DXCustomException("Nevar saglabāt datus! Deleģētā uzdevuma terminš nevar būt lielāks par galvenā uzdevuma termiņu " . short_date($task_row->due_date) . ".");
+            throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_date_delegate'), short_date($task_row->due_date)));
         }
         
         $employee_id = $request->input('employee_id');
@@ -193,7 +351,7 @@ class TasksController extends Controller
         if ($employee_id != $subst_empl['employee_id']) {
             
             if ($subst_empl['employee_id'] == Auth::user()->id) {
-                throw new Exceptions\DXCustomException("Uzdevumu nevar deleģēt, jo ir darbinieku aizvietošana un aizvietošanas rezultātā uzdevums jāizpilda Jums. " . $subst_empl['subst_info'] . ".");
+                throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_subst_delegate'), $subst_empl['subst_info']));
             }
             // todo: iespējams jāpiedāvā izvēlēties..
             // pagaidām deleģējam aizvietotājam
@@ -246,7 +404,7 @@ class TasksController extends Controller
             'date_now' => date('Y-n-d H:i:s')
         ]);
         
-        return response()->json(['success' => 1, 'status' => 'Deleģēts']);
+        return response()->json(['success' => 1, 'status' => trans('task_form.status_delegated')]);
     }
     
     /**
@@ -258,82 +416,122 @@ class TasksController extends Controller
     public function sendInfoTask(Request $request) {
         $this->validate($request, [
             'list_id' => 'required|integer|exists:dx_lists,id',
-            'item_id' => 'required|integer',
-            'empl_id' => 'required|integer|exists:dx_users,id'
+            'item_id' => 'required|integer'
         ]);
         
         $item_id = $request->input('item_id');
         $list_id = $request->input('list_id');
-        $employee_id = $request->input('empl_id');
+        $employee_id = $request->input('empl_id', 0);
+        $role_id = $request->input('role_id', 0);
+        
+        if ($employee_id == 0 && $role_id == 0) {
+            throw new Exceptions\DXCustomException(trans('wf_info_task.err_empl_not_set'));
+        }
         
         if ($employee_id == Auth::user()->id) {
-            throw new Exceptions\DXCustomException("Jums jau ir piekļuve dokumentam - informācijas uzdevums netiks izveidots!");
+            throw new Exceptions\DXCustomException(trans('task_form.err_rights_exists'));
         }
         
         $right = Rights::getRightsOnList($list_id);
 
         if ($right == null) {
             if (!\App\Libraries\Workflows\Helper::isRelatedTask($list_id, $item_id)) {
-                throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību šajā reģistrā!");
+                throw new Exceptions\DXCustomException(trans('task_form.err_no_list_rights'));
             }
         }        
         
-        $task = DB::table('dx_tasks')
-                ->where('list_id', '=', $list_id)
-                ->where('item_id', '=', $item_id)
-                ->where('task_employee_id', '=', $employee_id)
-                ->where('task_type_id', '=', self::TASK_TYPE_INFO)
-                ->first();
-        
-        if ($task) {
-            throw new Exceptions\DXCustomException("Norādītajam darbiniekam dokuments jau ir nodots informācijai!");
+        if ($employee_id > 0 && $role_id == 0){
+            $task = DB::table('dx_tasks')
+                    ->where('list_id', '=', $list_id)
+                    ->where('item_id', '=', $item_id)
+                    ->where('task_employee_id', '=', $employee_id)
+                    ->where('task_type_id', '=', self::TASK_TYPE_INFO)
+                    ->first();
+
+            if ($task) {
+                throw new Exceptions\DXCustomException(trans('task_form.err_allready_informed'));
+            }
+            
+            $users = DB::table('dx_users as u')
+                        ->select('u.id', 'u.display_name', 'u.email')
+                        ->where('u.id', '=', $employee_id)
+                        ->get();
         }
-        
+        else {
+            
+            $users_by_id = DB::table('dx_users as u')
+                        ->select('u.id', 'u.display_name', 'u.email')
+                        ->leftJoin('dx_tasks as t', function ($join) use ($item_id) {
+                                $join->on('u.id', '=', 't.task_employee_id')
+                                     ->where('t.item_id', '=', $item_id)                                  
+                                     ->where('t.task_type_id', '=', self::TASK_TYPE_INFO);
+                        })
+                        ->whereNull('t.id')
+                        ->where('u.id', '=', $employee_id);
+            
+            $users = DB::table('dx_users_roles as ur')
+                        ->select('u.id', 'u.display_name', 'u.email')
+                        ->leftJoin('dx_users as u', 'ur.user_id', '=', 'u.id')
+                        ->leftJoin('dx_tasks as t', function ($join) use ($item_id) {
+                            $join->on('u.id', '=', 't.task_employee_id')
+                                 ->where('t.item_id', '=', $item_id)                                  
+                                 ->where('t.task_type_id', '=', self::TASK_TYPE_INFO);
+                        })
+                        ->where('ur.role_id', '=', $role_id)
+                        ->whereNull('t.id')
+                        ->union($users_by_id)
+                        ->get();
+        }
+    
         $list_table = \App\Libraries\Workflows\Helper::getListTableName($list_id);
         
         $arr_meta_vals = \App\Libraries\Workflows\Helper::getMetaFieldVal($list_table, $list_id, $item_id);
         
         $reg_nr = $arr_meta_vals[self::REPRESENT_REG_NR];
         $info = $arr_meta_vals[self::REPRESENT_ABOUT];
+        $item_empl_id = $arr_meta_vals[self::REPRESENT_EMPL];
+        $task_type_title = DB::table('dx_tasks_types')->select('title')->where('id', '=', self::TASK_TYPE_INFO)->first()->title;
+        $list_title = DB::table('dx_lists')->select('list_title')->where('id', '=', $list_id)->first()->list_title;
         
-        DB::transaction(function () use ($request, $employee_id, $list_id, $item_id, $reg_nr, $info) {
-            $this->new_task_id = DB::table('dx_tasks')->insertGetId([
-                'assigned_empl_id' => Auth::user()->id,
-                'task_details' => $request->input('task_info'),
-                'created_user_id' => Auth::user()->id,
-                'created_time' => date('Y-n-d H:i:s'),
-                'modified_user_id' => Auth::user()->id,
-                'modified_time' => date('Y-n-d H:i:s'),
-                'list_id' => $list_id,
-                'item_id' => $item_id,
-                'item_reg_nr' => $reg_nr,
-                'item_info' => $info,
-                'task_type_id' => self::TASK_TYPE_INFO,
-                'task_created_time' => date('Y-n-d H:i:s'),
-                'task_status_id' => self::TASK_STATUS_PROCESS,
-                'task_employee_id' => $employee_id
-            ]);
+        DB::transaction(function () use ($request, $users, $list_id, $item_id, $reg_nr, $info, $item_empl_id, $task_type_title, $list_title) {
+            foreach($users as $user) {
+                $new_task_id = DB::table('dx_tasks')->insertGetId([
+                    'assigned_empl_id' => Auth::user()->id,
+                    'task_details' => $request->input('task_info'),
+                    'created_user_id' => Auth::user()->id,
+                    'created_time' => date('Y-n-d H:i:s'),
+                    'modified_user_id' => Auth::user()->id,
+                    'modified_time' => date('Y-n-d H:i:s'),
+                    'list_id' => $list_id,
+                    'item_id' => $item_id,
+                    'item_reg_nr' => $reg_nr,
+                    'item_info' => $info,
+                    'task_type_id' => self::TASK_TYPE_INFO,
+                    'task_created_time' => date('Y-n-d H:i:s'),
+                    'task_status_id' => self::TASK_STATUS_PROCESS,
+                    'task_employee_id' => $user->id,
+                    'item_empl_id' => $item_empl_id
+                ]);
+            
+                if ($user->email) {
+                    $this->sendNewTaskEmail([
+                        'email' => $user->email,
+                        'subject' => sprintf(trans('task_email.subject'), trans('index.app_name')),
+                        'task_type' => $task_type_title,
+                        'task_details' => $request->input('task_info'),
+                        'assigner' => Auth::user()->display_name,
+                        'due_date' => null,
+                        'list_title' => $list_title,
+                        'doc_id' => $item_id,
+                        'doc_about' => $info,
+                        'task_id' => $new_task_id,
+                        'date_now' => date('Y-n-d H:i:s')
+                    ]);
+                }
+            }
         });
         
-        $email = DB::table('dx_users')->where('id', '=', $employee_id)->first()->email;
-        
-        if ($email) {
-            $this->sendNewTaskEmail([
-                'email' => $email,
-                'subject' => 'Jauns uzdevums sistēmā MEDUS',
-                'task_type' => DB::table('dx_tasks_types')->select('title')->where('id', '=', self::TASK_TYPE_INFO)->first()->title,
-                'task_details' => $request->input('task_info'),
-                'assigner' => Auth::user()->display_name,
-                'due_date' => null,
-                'list_title' => DB::table('dx_lists')->select('list_title')->where('id', '=', $list_id)->first()->list_title,
-                'doc_id' => $item_id,
-                'doc_about' => $info,
-                'task_id' => $this->new_task_id,
-                'date_now' => date('Y-n-d H:i:s')
-            ]);
-        }
-        
-        return response()->json(['success' => 1]);
+        return response()->json(['success' => 1, 'users' => $users]);
     }
     
     /**
@@ -406,7 +604,7 @@ class TasksController extends Controller
 
         $form_htm = view('workflow.task_form', [
                 'frm_uniq_id' => $frm_uniq_id, 
-                'form_title' => "Uzdevums",
+                'form_title' => trans('task_form.form_title'),
                 'task_row' => $task_row,
                 'is_disabled' => $is_disabled,                    
                 'grid_htm_id' => $grid_htm_id,
@@ -419,7 +617,7 @@ class TasksController extends Controller
                 'date_format' => Config::get('dx.txt_date_format', 'd.m.Y')
                 ])->render();
 
-        return response()->json(['success' => 1, 'html' => $form_htm]);
+        return response()->json(['success' => 1, 'frm_uniq_id' => $frm_uniq_id, 'html' => $form_htm]);
 
     }
     
@@ -440,7 +638,7 @@ class TasksController extends Controller
         
         $this->performTask($item_id, 1, $comment);
         
-        return response()->json(['success' => 1, 'task_status' => 'Izpildīts', 'tasks_count' => getUserActualTaskCount()]);
+        return response()->json(['success' => 1, 'task_status' => trans('task_form.status_done'), 'tasks_count' => getUserActualTaskCount()]);
     }
     
      /**
@@ -459,12 +657,14 @@ class TasksController extends Controller
         $comment = $request->input('task_comment');
         
         if (strlen($comment) == 0) {
-            throw new Exceptions\DXCustomException("Noraidīšanas gadījumā ir obligāti jānorāda komentārs!");
+            throw new Exceptions\DXCustomException(trans('task_form.err_comment_required'));
         }
+        
+        $this->deny_comment = $comment;
         
         $this->performTask($item_id, 0, $comment);
         
-        return response()->json(['success' => 1, 'task_status' => 'Noraidīts', 'tasks_count' => getUserActualTaskCount()]);
+        return response()->json(['success' => 1, 'task_status' => trans('task_form.status_rejected'), 'tasks_count' => getUserActualTaskCount()]);
         
     }
     
@@ -521,8 +721,7 @@ class TasksController extends Controller
         }
         
         $html = view('workflow.wf_init_approvers', [
-                     'approvers' => $arr_approvers,
-                     'avatar' => get_portal_config('EMPLOYEE_AVATAR')
+                     'approvers' => $arr_approvers
         ])->render();
                 
         return response()->json(['success' => 1, 'html' => $html]);
@@ -572,13 +771,38 @@ class TasksController extends Controller
         
         $this->checkRights($list_id);
        
+        $is_paralel = $request->input('is_paralel', 0);
+        $custom_approvers = $request->input('approvers', '');
+        
+        $this->startWorkflow($list_id, $item_id, $is_paralel, $custom_approvers);
+        
+        // Current doc status, send as response to update interface
+        return response()->json([
+            'success' => 1, 
+            'doc_status' => trans('task_form.doc_in_process'),
+            'status_btn' => view('workflow.wf_status_btn',[
+                                'workflow_btn' => 2, // in process
+                                'is_wf_cancelable' => 1
+                            ])->render(),
+            'left_btns' => $this->getFormTopMenuLeft($list_id, $item_id, 2)
+        ]); 
+       
+    }
+    
+    /**
+     * Starts the workflow
+     * 
+     * @param integer $list_id List ID
+     * @param integer $item_id Item ID
+     * @param boolean $is_paralel Indicates if there is paralel approval
+     * @param string $custom_approvers JSON as string - custom approvers (if not provided then zero lenght)
+     */
+    public function startWorkflow($list_id, $item_id, $is_paralel, $custom_approvers) {
         $this->setActiveWorkflow($list_id);
         
         $first_step_nr = $this->getFirstStepNr($list_id);
         
-        DB::transaction(function () use ($list_id, $item_id, $first_step_nr, $request) {
-            
-            $is_paralel = $request->input('is_paralel', 0);
+        DB::transaction(function () use ($list_id, $item_id, $first_step_nr, $is_paralel, $custom_approvers) {
             
             $this->wf_info_id = DB::table('dx_workflows_info')
                                 ->insertGetId([
@@ -587,8 +811,6 @@ class TasksController extends Controller
                                     'init_time' => date("Y-m-d H:i:s"),
                                     'is_paralel_approve' => $is_paralel
                                 ]);
-            
-            $custom_approvers = $request->input('approvers', '');
             
             if (strlen($custom_approvers) > 0) {
                 $this->saveCustomApprovers($custom_approvers);
@@ -603,10 +825,53 @@ class TasksController extends Controller
             }
 
         });
-
-        // Current doc status, send as response to update interface
-        return response()->json(['success' => 1, 'doc_status' => 'Saskaņošana']); 
-       
+    }
+    
+    /**
+     * Gets HTML for forms top menu left side buttons
+     * 
+     * @param integer $list_id List ID
+     * @param integer $item_id Item ID
+     * @param integer $workflow_btn Workflow button showing status (2 - in process/hide, other - show)
+     * @return string HTML for top menu left side buttons
+     */
+    private function getFormTopMenuLeft($list_id, $item_id, $workflow_btn) {
+        $table_name = \App\Libraries\DBHelper::getListObject($list_id)->db_name;
+        
+        if ($workflow_btn == 3) {
+            // cancel wf
+            $list_right = Rights::getRightsOnList($list_id);
+            if ($list_right == null) {
+                $is_edit_rights = 0;
+                $is_delete_rights = 0;                
+            }
+            else {
+                $is_edit_rights = $list_right->is_edit_rights;
+                $is_delete_rights = $list_right->is_delete_rights;
+            }
+            
+            if ($is_edit_rights == 0) { 
+                $workflow_btn = 2; // if no edit rights then why rights to start wf.. so hide wf starting button
+            }
+        }
+        else {
+            //start wf
+            $is_edit_rights = 1; // because was able to start workflow
+            $is_delete_rights = 1; // because was able to start workflow
+            
+        }
+        return  view('elements.form_left_btns', [
+                                'is_edit_rights' => $is_edit_rights,
+                                'is_delete_rights' => $is_delete_rights,
+                                'form_is_edit_mode' => 0,
+                                'workflow_btn' => $workflow_btn,
+                                'item_id' => $item_id,
+                                'is_editable_wf' => Rights::getIsEditRightsOnItem($list_id, $item_id),
+                                'is_info_tasks_rights' => ($table_name == "dx_doc"),
+                                'is_word_generation_btn' => \App\Libraries\Helper::getWordGenerBtn($list_id),
+                                'info_tasks' => \App\Libraries\Helper::getInfoTasks($list_id, $item_id, $table_name),
+                                'list_id' => $list_id
+                ])->render();
     }
     
     /**
@@ -637,7 +902,7 @@ class TasksController extends Controller
         $right = \mindwo\pages\Rights::getRightsOnList($list_id);
 
         if ($right == null || !$right->is_edit_rights) {
-            throw new Exceptions\DXCustomException("Jums nav nepieciešamo tiesību šajā reģistrā!");
+            throw new Exceptions\DXCustomException(trans('task_form.err_no_list_rights'));
         }
     }
     
@@ -658,7 +923,7 @@ class TasksController extends Controller
                     ->first();
                     
         if (!$this->workflow) {
-            throw new Exceptions\DXCustomException("Reģistram nav definēta neviena aktīva darbplūsma!");            
+            throw new Exceptions\DXCustomException(trans('task_form.err_no_workflow'));            
         }
         
         $this->workflow_id = $this->workflow->id;
@@ -682,7 +947,7 @@ class TasksController extends Controller
         if (!$first_step)
         {
             // can't find step
-           throw new Exceptions\DXCustomException("Darbplūsmai nav nodefinēts neviens solis! Sazinieties ar sistēmas uzturētāju.");
+           throw new Exceptions\DXCustomException(trans('task_form.err_no_wf_step'));
         }
         
         return $first_step->step_nr;
@@ -704,8 +969,9 @@ class TasksController extends Controller
         
         $reg_nr = $arr_meta_vals[self::REPRESENT_REG_NR];
         $info = $arr_meta_vals[self::REPRESENT_ABOUT];
-                
-        $this->insertAcceptanceTask($steps, $list_id, $item_id, $reg_nr, $info);
+        $item_empl_id = $arr_meta_vals[self::REPRESENT_EMPL];
+        
+        $this->insertAcceptanceTask($steps, $list_id, $item_id, $reg_nr, $info, $item_empl_id);
     }
     
     /**
@@ -728,7 +994,7 @@ class TasksController extends Controller
             
             if (!$value_row)
             {
-                throw new Exceptions\DXCustomException("Lai saskaņotu, vispirms ir jānorāda obligātais saskaņojamā dokumenta lauks '" . $fld_row->title_form . "'!");
+                throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_approve_field'), $fld_row->title_form));
             }
             
             // additional validation for some field types
@@ -737,7 +1003,7 @@ class TasksController extends Controller
                 // Numurs
                 if ($value_row->val == 0)
                 {
-                    throw new Exceptions\DXCustomException("Lai saskaņotu, vispirms ir jānorāda obligātā saskaņojamā dokumenta lauka '" . $fld_row->title_form . "' skaitliskā vērtība, kurai jābūt lielākai par 0!");
+                    throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_approve_field_num'), $fld_row->title_form));
                 }
             }
             
@@ -759,7 +1025,7 @@ class TasksController extends Controller
         // Uzmeklēšana
         if ($value_row->val == 0)
         {
-            throw new Exceptions\DXCustomException("Lai saskaņotu, vispirms ir jānorāda obligātā saskaņojamā dokumenta lauka '" . $fld_row->title_form . "' vērtība (saistītais ieraksts)!");
+            throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_approove_field_lookup'), $fld_row->title_form));
         }
 
         // Check if related list have workflow status field
@@ -791,7 +1057,7 @@ class TasksController extends Controller
                 $approved = DB::table($rel_obj_row->db_name)->select(DB::raw($rel_field->db_name . " as val"))->where('id','=',$value_row->val)->where($rel_field->db_name,'=', self::WORKFLOW_STATUS_APPROVED)->first();
                 if (!$approved)
                 {
-                    throw new Exceptions\DXCustomException("Lai saskaņotu, saskaņojamā dokumenta laukā '" . $fld_row->title_form . "' norādītajam saistītajam ierakstam ir jābūt ar statusu 'Apstiprināts'!");
+                    throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_approve_lookup_approved'), $fld_row->title_form));
                 }
             }
         }
@@ -816,7 +1082,7 @@ class TasksController extends Controller
 
         if (!$task_row)
         {
-            throw new Exceptions\DXCustomException("Nav pieļaujams rediģēt/deleģēt pabeigtu uzdevumu vai uzdevumu, kas uzdots citam darbiniekam!");
+            throw new Exceptions\DXCustomException(trans('task_form.err_cant_edit_task'));
         }
         
         if ($task_row->step_id) {
@@ -885,7 +1151,7 @@ class TasksController extends Controller
                     return; // tajā pašā līmenī ir vēl citi uzdevumi, kas ir procesā vai noraidīti, tāpēc automātiski izpildīt vecāka uzdevumu nevar
                 }
                 else {
-                    $this->performTaskRecursive($task_row->parent_task_id, $is_yes, "Izpildīts automātiski, jo visi deleģētie uzdevumi ir izpildīti.", $task_row->assigned_empl_id);
+                    $this->performTaskRecursive($task_row->parent_task_id, $is_yes, trans('task_form.comment_compleated'), $task_row->assigned_empl_id);
                     return; // izpildam vecāka uzdevumu ToDo: te potenciāli var būt pazīme pie uzdevuma to darīt/nedarīt automātiski..
                 }
             }
@@ -1029,7 +1295,7 @@ class TasksController extends Controller
             ->update([
             'task_closed_time' => date("Y-m-d H:i:s"), 
             'task_status_id' => self::TASK_STATUS_CANCEL, 
-            'task_comment' => 'Uzdevumu anulēja ' . Auth::user()->display_name . '!'
+            'task_comment' => sprintf(trans('task_form.comment_anulated'), Auth::user()->display_name)
             ]);
             
             $this->cancelDelegatedTasks($task->id);
@@ -1056,7 +1322,7 @@ class TasksController extends Controller
             ->update([
             'task_closed_time' => date("Y-m-d H:i:s"), 
             'task_status_id' => self::TASK_STATUS_CANCEL, 
-            'task_comment' => 'Uzdevums anulēts, jo ' . Auth::user()->display_name . ' veica noraidīšanu!'
+            'task_comment' => sprintf(trans('task_form.comment_anulated'), Auth::user()->display_name)
             ]);
             
             $this->cancelDelegatedTasks($task->id);
@@ -1095,7 +1361,7 @@ class TasksController extends Controller
             
             if (!$task)
             {
-                throw new Exceptions\DXCustomException("Darbplūsmas paralēlajam solim nav izveidots uzdevums! Sazinieties ar sistēmas uzturētāju.");
+                throw new Exceptions\DXCustomException(trans('task_form.err_no_paralel_step_task'));
             }
 
             if ($task->task_status_id == self::TASK_STATUS_PROCESS || $task->task_status_id == self::TASK_STATUS_DELEGATE)
@@ -1105,7 +1371,7 @@ class TasksController extends Controller
                     // lets cancel task
                     DB::table("dx_tasks")
                     ->where('id','=',$task->id)
-                    ->update(['task_closed_time' => date("Y-m-d H:i:s"), 'task_status_id' => self::TASK_STATUS_CANCEL, 'task_comment' => 'Kāds no citiem saskaņotājiem veica noraidīšanu!']);
+                    ->update(['task_closed_time' => date("Y-m-d H:i:s"), 'task_status_id' => self::TASK_STATUS_CANCEL, 'task_comment' => trans('task_form.comment_somebody_rejected')]);
                 }
                 else
                 {
@@ -1125,7 +1391,7 @@ class TasksController extends Controller
      */
     private function newAcceptanceTask($task_row, $steps)
     {
-        $this->insertAcceptanceTask($steps, $task_row->list_id, $task_row->item_id, $task_row->item_reg_nr, $task_row->item_info);
+        $this->insertAcceptanceTask($steps, $task_row->list_id, $task_row->item_id, $task_row->item_reg_nr, $task_row->item_info, $task_row->item_empl_id);
     }
     
     /**
@@ -1136,9 +1402,10 @@ class TasksController extends Controller
      * @param integer $item_id      Ieraksta ID
      * @param string  $item_reg_nr  Ieraksta (dokumenta) reģ. nr.
      * @param string  $item_info    Dokumenta saturs (apraksts)
+     * @param integer $item_empl_id Darbinieka ID (ja uzdevums ir saistīts ar darbinieka objektu)
      * @throws Exceptions\DXCustomException
      */
-    private function insertAcceptanceTask($steps, $list_id, $item_id, $item_reg_nr, $item_info)
+    private function insertAcceptanceTask($steps, $list_id, $item_id, $item_reg_nr, $item_info, $item_empl_id)
     {        
         $yes_step_nr = 0;
         $no_step_nr = 0;
@@ -1146,7 +1413,7 @@ class TasksController extends Controller
         {
             if ( !($step_row->task_type_id < self::TASK_TYPE_SET_VAL || $step_row->task_type_id == self::TASK_TYPE_INFO) )
             {
-                throw new Exceptions\DXCustomException("Nekorekti definēta darbplūsma! Paralēli drīkst būt tikai saskaņošanas vai iepazīšanās soļi. Sazinieties ar sistēmas uzturētāju.");
+                throw new Exceptions\DXCustomException(trans('task_form.err_wrong_wf_definition'));
             }
             
             if ($yes_step_nr == 0)
@@ -1156,7 +1423,7 @@ class TasksController extends Controller
             
             if ($yes_step_nr != $step_row->yes_step_nr)
             {
-                throw new Exceptions\DXCustomException("Nekorekti definēta darbplūsma! Paralēlo soļu 'Jā' vērtību uzstādījumiem jābūt vienādiem. Sazinieties ar sistēmas uzturētāju.");
+                throw new Exceptions\DXCustomException(trans('task_form.err_wrong_yes_settings'));
             }
             
             if ($no_step_nr == 0)
@@ -1166,7 +1433,7 @@ class TasksController extends Controller
             
             if ($no_step_nr != $step_row->no_step_nr)
             {
-                throw new Exceptions\DXCustomException("Nekorekti definēta darbplūsma! Paralēlo soļu 'Nē' vērtību uzstādījumiem jābūt vienādiem. Sazinieties ar sistēmas uzturētāju.");
+                throw new Exceptions\DXCustomException(trans('task_form.err_wrong_no_settings'));
             }
             
             $performer_obj = \App\Libraries\Workflows\Performers\PerformerFactory::build_performer($step_row, $item_id, $this->wf_info_id);            
@@ -1192,15 +1459,16 @@ class TasksController extends Controller
                     'task_employee_id' => $performer["empl_id"], 
                     'step_id' => $step_row->id, 
                     'wf_info_id' => $this->wf_info_id,
-                    'wf_approv_id' => $performer["wf_approv_id"]
+                    'wf_approv_id' => $performer["wf_approv_id"],
+                    'item_empl_id' => $item_empl_id
                 ]);
             
                 $this->sendNewTaskEmail([
                     'email' => $performer["subst_data"]["email"],
-                    'subject' => 'Jauns uzdevums sistēmā MEDUS',
+                    'subject' => sprintf(trans('task_email.subject'), trans('index.app_name')),
                     'task_type' => DB::table('dx_tasks_types')->select('title')->where('id', '=', $step_row->task_type_id)->first()->title,
                     'task_details' => $resolution_text,
-                    'assigner' => "Darbplūsma",
+                    'assigner' => trans('task_email.assigner_wf'),
                     'due_date' => $performer["due"],
                     'list_title' => DB::table('dx_lists')->select('list_title')->where('id', '=', $list_id)->first()->list_title,
                     'doc_id' => $item_id,
@@ -1235,6 +1503,12 @@ class TasksController extends Controller
             $resolution_txt = $step_row->notes;
         }
         
+        if ($this->deny_comment) {
+            $resolution_txt .= ' ' . trans('workflow.lbl_deny') . ' ' . Auth::user()->display_name . ': ' . $this->deny_comment;
+        }
+        
+        $resolution_txt = trim($resolution_txt);
+        
         return $resolution_txt;
     }
     
@@ -1249,15 +1523,21 @@ class TasksController extends Controller
     private function stepSetValue($step_row, $item_id, $recursion_nr)
     {             
         // get list db table name
-        $list_row = DB::table("dx_lists")->where("id", "=", $step_row->list_id)->first();
-        $obj_row = DB::table("dx_objects")->where("id", "=", $list_row->object_id)->first();
+        $obj_row = \App\Libraries\DBHelper::getListObject($step_row->list_id);
         
         // get table field name
-        $fld_row = DB::table("dx_lists_fields")->where("id", "=", $step_row->field_id)->first();
+        $fld_row = DB::table("dx_lists_fields as lf")
+                   ->join('dx_field_types as t', 'lf.type_id', '=', 't.id')
+                   ->select(
+                           'lf.db_name as fld_name',
+                           't.sys_name as fld_type'
+                   )
+                   ->where("lf.id", "=", $step_row->field_id)
+                   ->first();
         
         // update item field value
-        DB::table($obj_row->db_name)->where('id', '=', $item_id)->update([$fld_row->db_name => $step_row->field_value]);
-        
+        Workflows\ValueSetters\ValueSetterFactory::build_setter($item_id, $obj_row->db_name, $fld_row, $step_row->field_value);
+                
         // go to yes step
         return $this->getNextStep($step_row->yes_step_nr, $step_row->list_id, $item_id, $recursion_nr);
     }
@@ -1294,6 +1574,21 @@ class TasksController extends Controller
         
         // go to next step
         return $this->getNextStep($next_step_nr, $step_row->list_id, $item_id, $recursion_nr);
+    }
+    
+    /**
+     * Performs custom workflow activity - and go to next step
+     * 
+     * @param object $step_row Current workflow step row
+     * @param integer $item_id Item ID
+     * @param integer $recursion_nr Recursion nr
+     * @return object Next step object
+     */
+    private function stepActivity($step_row, $item_id, $recursion_nr) {
+        
+        $rez = Workflows\Activities\ActivityFactory::build_activity($item_id, $step_row->list_id, $step_row->activity_code);
+        
+        return $this->getNextStep($rez ? $step_row->yes_step_nr : $step_row->no_step_nr, $step_row->list_id, $item_id, $recursion_nr);
     }
     
      /**
@@ -1357,7 +1652,7 @@ class TasksController extends Controller
         
         if ($recursion_nr > 100) // anti infinity loop check
         {
-            throw new Exceptions\DXCustomException("Darbplūsmai ir pārāk liels iterāciju skaits (" . $recursion_nr . ")! Sazinieties ar sistēmas uzturētāju.");
+            throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_infinite_loop'), $recursion_nr));
         }
         
         $next_step = $this->getWorkflowStepTable($list_id, $step_nr)->first();
@@ -1378,6 +1673,11 @@ class TasksController extends Controller
                 // criteria task
                 return $this->stepCriteria($next_step, $item_id, $recursion_nr+1);
             }
+            else if ($next_step->task_type_id == self::TASK_TYPE_ACTIVITY)
+            {
+                // Custom workflow activity
+                return $this->stepActivity($next_step, $item_id, $recursion_nr+1);
+            }
             else if ($next_step->task_type_id == self::TASK_TYPE_WF_CRITERIA)
             {
                 // Workflow criteria task
@@ -1393,12 +1693,12 @@ class TasksController extends Controller
             else
             {
                 // ToDo: implement other tasks types
-                throw new Exceptions\DXCustomException("Reģistra (ID = " . $list_id . ") darbplūsmai norādīts neatbalstīts uzdevuma veids (" . $next_step->task_type_id . ")! Sazinieties ar sistēmas uzturētāju.");
+                throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_wrong_task_type'), $list_id, $next_step->task_type_id ));
             }
         }
         else
         {
-            throw new Exceptions\DXCustomException("Reģistra (ID = " . $list_id . ") darbplūsmai norādīts neeksistējošs solis (" . $step_nr . ")! Sazinieties ar sistēmas uzturētāju.");
+            throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_wrong_task_type'), $list_id, $step_nr ));
         }
     }
     
@@ -1411,9 +1711,15 @@ class TasksController extends Controller
      */
     private function getWorkflowStepTable($list_id, $step_nr) {
         $tb =   DB::table("dx_workflows as wf")
-                ->select('wf.*', 'tp.code as perform_code', 'r.title as role_title')
+                ->select(
+                        'wf.*', 
+                        'tp.code as perform_code', 
+                        'r.title as role_title',
+                        'wa.code as activity_code'
+                )
                 ->leftJoin('dx_tasks_perform as tp', 'wf.task_perform_id', '=', 'tp.id')
                 ->leftJoin('dx_roles as r', 'wf.role_id', '=', 'r.id')
+                ->leftJoin('dx_workflows_activities as wa', 'wf.activity_id', '=', 'wa.id')
                 ->where('wf.list_id', '=', $list_id)
                 ->where('wf.workflow_def_id', '=', $this->workflow_id);
         
@@ -1424,9 +1730,22 @@ class TasksController extends Controller
         return $tb;
     }
     
+    /**
+     * Evaluate criteria result - true or false
+     * 
+     * @param mixed $item_val Current item val
+     * @param integer $operation_id Comparision operation ID
+     * @param mixed $condition_val Condition value to be tested
+     * @return boolean
+     * @throws Exceptions\DXCustomException
+     */
     private function getCriteriaResult($item_val, $operation_id, $condition_val)
     {
-         switch ($operation_id) {
+        if ($condition_val == "[ME]") {
+            $condition_val = Auth::user()->id;
+        }
+        
+        switch ($operation_id) {
                 case 1:
                     return ($item_val == $condition_val);
                 case 2:
@@ -1442,7 +1761,7 @@ class TasksController extends Controller
                 case 7:
                     return !isNull($item_val);
                 default:
-                    throw new Exceptions\DXCustomException("Darbplūsmai ir norādīts neatbalstīts lauka operācijas veids (" . $operation_id . ")! Sazinieties ar sistēmas uzturētāju.");
+                    throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_wrong_operation'), $operation_id));
         }
     }
 }

@@ -20,6 +20,8 @@ return [
     'btn_set' => 'Pievienot',
     'btn_change' => 'Mainīt',
     'btn_remove' => 'Noņemt',
+    'btn_set_change' => 'Uzstādīt/izvēlēties attēlu',
+    'err_choose_val' => 'Lai skatītu darbinieka profilu, vispirms jānorāda darbinieks!',
     
     // Tree
     'tree_choose_title' => 'Saistītā ieraksta izvēle',
@@ -36,4 +38,13 @@ return [
     // File
     'file_browser_title' => 'Datņu pārvaldība',
     
+    // Multi file upload
+    'btn_remove' => 'Noņemt',
+    'title_drag_drop' => 'Ievelciet šeit datnes',
+    'title_mouse_click' => 'Vai arī spiediet ar peli, lai atvērtu datņu pārlūkošanas logu.',
+    'rule_part1' => 'Vienā saglabāšanas reizē pieļaujams vienlaicīgi augšupielādēt ne vairāk kā ',
+    'rule_part2' => ' datnes.',
+    
+    'btn_file_edit' => 'Rediģēt',
+    'btn_file_view' => 'Skatīt', 
 ];

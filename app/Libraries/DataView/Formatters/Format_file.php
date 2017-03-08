@@ -2,6 +2,8 @@
 
 namespace App\Libraries\DataView\Formatters
 {    
+    use File;
+    
     class Format_file extends FormatAbstract
     {
         /**
@@ -19,13 +21,31 @@ namespace App\Libraries\DataView\Formatters
                                      'item_id' => $data_row["id"],
                                      'list_id' => $model_row["list_id"],
                                      'field_id' => $model_row["field_id"],
-                                     'cell_value' => $data_row[$model_row["name"]]
-                                ])->render();            
+                                     'cell_value' => $data_row[$model_row["name"]],
+                                     'is_pdf' => $this->isPDF($data_row[$model_row["name"]])
+                                ])->render();  
+                $this->values['is_html'] = true;
             }
             else
             {
                 $this->value = "";
             }
+        }
+        
+        /**
+         * Checks if file is in PDF format
+         * 
+         * @param string $file_name File name
+         * @return boolean True - is PDF, False - not PDF
+         */
+        private function isPDF($file_name) {
+            if (!$file_name) {
+                return false;
+            }
+            
+            $ext = strtolower(File::extension($file_name));
+            
+            return ($ext == 'pdf');
         }
     }
 }

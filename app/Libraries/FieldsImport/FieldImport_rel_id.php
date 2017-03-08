@@ -6,6 +6,8 @@ namespace App\Libraries\FieldsImport
     use Auth;
     use App\Libraries\DBHistory;
     use App\Exceptions;
+    use Config;
+    use Log;
     
     /**
      * Field importing from Excel - related record
@@ -67,7 +69,30 @@ namespace App\Libraries\FieldsImport
             \App\Libraries\Helper::checkSaveRights($this->fld->rel_list_id);
             
             $arr_val = [];
-            $arr_val[$this->fld->rel_field_name] = $val;
+            
+            if ($this->fld->rel_list_id == Config::get('dx.employee_list_id')) {
+                // split full name into First name and Last name
+                $val_formated = trim(str_replace("  ", " ", $val));
+                $arr_names = explode(" ", $val_formated);
+                
+                if (count($arr_names) == 2) {
+                    $arr_val['first_name'] = $arr_names[0];
+                    $arr_val['last_name'] = $arr_names[1];                    
+                }
+                else if (count($arr_names) > 2) {
+                    $arr_val['first_name'] = $arr_names[0];
+                    $arr_val['last_name'] = $arr_names[1];
+                    for ($i=2; $i<count($arr_names); $i++) {
+                        $arr_val['last_name'] .= " " . $arr_names[$i];
+                    }
+                }
+                else {
+                    throw new Exceptions\DXImportEmployeeNameException($val);
+                }
+            }
+            else {
+                $arr_val[$this->fld->rel_field_name] = $val;
+            }
             
             if ($this->fld->rel_table_is_history_logic) {
                 $time_now = date('Y-n-d H:i:s');

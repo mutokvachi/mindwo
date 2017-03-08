@@ -1,0 +1,14 @@
+.orgchart .node .content {
+	height: 30px;
+}
+
+.orgchart .node .content .main-icon {
+	font-size: 28px;
+	margin: 10px 0;
+}
+
+.orgchart .node .title {
+    overflow:visible!important;
+    white-space: normal!important;
+    min-height: 71px!important;
+}

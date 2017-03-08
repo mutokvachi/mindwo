@@ -3,8 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Auth;
-use Config;
+use App\Libraries\Helper;
 
 class AjaxPublicAccess
 {
@@ -17,9 +16,9 @@ class AjaxPublicAccess
      */
     public function handle($request, Closure $next)
     {
-        if (Auth::guest() && Config::get('dx.is_all_login_required', false)) {
+        if (!Helper::isUserPublicAccessOk()) {
             if ($request->ajax()) {
-                return response()->json(['success' => 0, 'error' => 'Lietotāja sesija ir beigusies!']);
+                return response()->json(['success' => 0, 'error' => trans('errors.session_ended')], 401);
             } else {
                 return redirect()->guest('login');
             }

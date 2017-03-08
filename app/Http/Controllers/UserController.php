@@ -9,6 +9,7 @@ use Auth;
 use DB;
 use Config;
 use Hash;
+use Log;
 
 /**
  * User authorization controller. 
@@ -76,7 +77,7 @@ class UserController extends Controller
 
         try {
             $this->authenticateUser($request, $user_name, $pass);
-
+            
             if (!Auth::user()) {
                 throw new Exceptions\DXCustomException(trans('errors.wrong_user_or_password'));
             }
@@ -249,7 +250,7 @@ class UserController extends Controller
                     $auth_succ = $this->{$function_name}($request, $user_name, $password);
                 }
             } catch (\Exception $e) {
-                
+                Log::info("ERROR: " . $e->getMessage());
             }
 
             // If user is authenticated then quites loop

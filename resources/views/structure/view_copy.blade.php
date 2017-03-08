@@ -5,7 +5,7 @@
         <li>Netiks kopēts lauks URL, jo tam katram skatam ir jābūt unikālam;</li>
     </ul>
 </div>
-<div id="{{ $form_guid }}">
+<div id="{{ $form_guid }}" style="margin: 20px;">
     <form class="form-horizontal" id='item_edit_form_{{ $form_guid }}' method='POST' data-toggle="validator">        
         <div>
             <div class='form-group has-feedback'>
@@ -23,7 +23,7 @@
             </div>
         </div>
         <div>
-            @include('fields.visible', ['fld_name' => '', 'group_label' => '', 'label_title' => 'Jaunā skata nosaukums', 'is_required' => 1, 'hint' => '', 'item_htm' => '<input class="form-control" type=text name = "view_title"  maxlength="500" value = "" required /><span class="glyphicon form-control-feedback" aria-hidden="true"></span>'])
+            @include('fields.visible', ['frm_uniq_id'=>'copy_view', 'fld_name' => '', 'group_label' => '', 'label_title' => 'Jaunā skata nosaukums', 'is_required' => 1, 'hint' => '', 'item_htm' => '<input class="form-control" type=text name = "view_title"  maxlength="500" value = "" required /><span class="glyphicon form-control-feedback" aria-hidden="true"></span>'])
         </div>
         <div>
             <div class="col-lg-4">

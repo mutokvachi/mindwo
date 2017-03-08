@@ -33,6 +33,7 @@ return [
     
     // 1. %s - file extension, 2. %s - file name
     'unsuported_file_extension' => "Unsupported file extension '%s'! The file '%s' cannot be saved.",
+    'unsuported_image_file' => "Unsupported picture file extension '%s'! The file '%s' cannot be saved.",
     
      // %s - minimum password characters count
     'min_password' => "The data cannot be saved! Password must have at least %s characters!",
@@ -46,13 +47,14 @@ return [
     'no_rights_on_register' => "You do not have the necessary rights in this register!",
     'no_rights_to_insert' => "You have no rights to insert a new entry in this register!", 
     'no_rights_to_edit' => "You have no rights to edit the entry in this register!", 
+    'no_rights_to_delete' => 'You have no rights to delete the entry in this register!',
     
     'cant_create_folder' => "It is impossible to create a folder '%s' on the server disk!",
     
     'import_wrong_bool' => "Invalid value '%s' provided in the importable Excel file in Yes/No field '%s'! The field can only have values '%s' or '%s'.",
     
     // here and further needs to revalidate translation (2016-10-04)
-    'import_wrong_date' => "In the Excel file date field '%s' provided wrong value '%s'! Dates must be in format '%s'.",
+    'import_wrong_date' => "In the Excel file date field '%s' provided wrong value '%s'! Dates must be in format '%s' or '%s'.",
     
     'excel_row' => 'Some rows were not imported because of duplicate values. The skipped Excel row numbers: ',
     
@@ -73,4 +75,55 @@ return [
     'import_zip_file_not_exists' => "ZIP archive does not contains file '%s'!",
     
     'import_zip_file_cant_copy' => "Can't copy file '%s' to the destination folder '%s'!",
+    
+    'session_ended' => 'User session is ended!',
+    
+    'cant_edit_in_process' => 'Record can not be edited because it is in workflow process!',
+    
+    'access_denied_title' => 'Access denied',
+    
+    'access_denied_msg' => 'You do not have rights to access the view <b>%s</b>!',
+    
+    'invalid_input_data' => 'Invalid input data!',
+    
+    // timeoff
+    'no_accrual_policy' => 'There is no accrual policy set for this time off type!',
+    'unsupported_factory_class' => "Unsupported class object '%s'!",
+    'no_joined_date' => 'Date joined is not set for the employee!',
+    
+    //tasks widget
+    'unsupported_task_view' => "Unsupported tasks view code '%s'!",
+    
+    //file download
+    'file_not_found' => "File '%s' not found! Please, contact the IT support!",
+    'file_not_set' => 'List item does not have any file attached!',
+    'no_donwload_rights' => "You do not have rights on the item with ID %s!",
+    'file_record_not_found' => "Item with ID %s not found! Please, contact the IT support!",
+    
+    'no_represent_field' => "There is not set field representation for the workflow view! Please, contact IT support.",
+    
+    'no_respo_empl_field' => "There is an monotoring rule defined for the view '%s', but the field provided in roole is not included in the view!",
+    
+    'duplicate_view_title' => 'Duplicate view title! Please provide another title.',
+    
+    'cant_delete_default_view' => "The view can't be deleted because there is no default view set! Please set another view as default.",
+    
+    'employee_name_exception' => "Employee name '%s' can't be splited as first name and last name",
+    
+    'unsuported_action_code' => "Unsuported form's action code '%s'!",
+    
+    'wrong_date_format' => "Data can't be saved! Wrong date format for the field '%s'. Date must be in format %s!",
+    
+    'workflow' => [
+        'not_saved' => 'Workflow is not saved',
+        'step_not_connected' => 'Workflow contains steps which are not connected to workflow',
+        'step_dont_have_child' => "Workflow contains steps which don't have next or last workflow's step",
+        'end_point_in_middle' => 'Workflow contains starting or ending points which are in the middle of workflow',
+        'multiple_starting_points' => 'Workflow contains multiple starting points',
+        'no_starting_points' => 'Workflow does not contain any starting points',
+        'no_finish_points' => 'Workflow does not contain any starting points',
+    ],
+    
+    'field_not_found' => "View does not contain field named '%s'!",
+    'field_not_found_id' => "View does not contain field with ID %s!",
 ];

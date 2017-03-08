@@ -20,6 +20,18 @@ namespace App\Libraries\DataView {
         
         public $form_url = "";
         
+        /**
+         * Grid form type - id from table dx_forms_types
+         * @var integer
+         */
+        public $form_type_id = 0;
+        
+        /**
+         * Existing employee profile page URL (for view or edit)
+         * @var string 
+         */
+        public $profile_url = '';
+        
         public $menu_id = "";
         public $grid_id = "";
         public $grid_title = "";
@@ -48,9 +60,9 @@ namespace App\Libraries\DataView {
         */        
         public function __construct($view_id, $filter_data, $session_guid)
         {
-            $this->initObjects($view_id, $filter_data, $session_guid);
+            $this->initObjects($view_id, $filter_data, $session_guid, 0);
             
-            $this->form_url = $this->setGridFormURL();
+            $this->setGridFormURL();
             $this->grid_id = $this->view->session_guid;
             $this->grid_title = $this->view->view_obj->grid_title;
             $this->menu_id = Uuid::generate(4);
@@ -92,17 +104,7 @@ namespace App\Libraries\DataView {
             {
                     $end_row = $this->grid_total_rows;// - $start_row + 1;
             }
-
-            $cnt = "";
-            if ($this->grid_total_pages == 1)
-            {
-                    $cnt = trans('grid.row_count') . ": " . $this->grid_total_rows;
-            }
-            else
-            {
-                    $cnt = trans('grid.rows') . " " . $start_row . " " .  trans('grid.rows_to') . " " . $end_row . " " . trans('grid.rows_from') . " " . $this->grid_total_rows; 
-            }
-            
+                        
             $prev_page = 1;
             $next_page = 1;
             
@@ -126,13 +128,14 @@ namespace App\Libraries\DataView {
 
             return  view('grid.records_count', [
                         'grid_id' => $this->grid_id,
-                        'record_count' => $cnt,
                         'is_paginator' => $this->grid_is_paginator,
                         'prev_page' => $prev_page,
                         'grid_page_nr' => $this->grid_page_nr,
                         'grid_total_pages' => $this->grid_total_pages,
                         'next_page' => $next_page,
-                        'total_count' => $this->grid_total_rows
+                        'total_count' => $this->grid_total_rows,
+                        'start_row' => $start_row,
+                        'end_row' => $end_row
                     ])->render();
         }
         
@@ -245,12 +248,12 @@ namespace App\Libraries\DataView {
             foreach($rows as $key => $row)
             {   
                 $dropup = "";
-                if ($key > 0)
+                if ($key > 1)
                 {
                     $dropup = "dropup";
                 }
                     
-                $cell_htm = view('grid.btns_col', ['dropup' => $dropup, 'item_id' => $row['id']])->render();
+                $cell_htm = view('grid.btns_col', ['dropup' => $dropup, 'item_id' => $row['id'], 'form_type_id' => $this->form_type_id])->render();
                 
                 for ($i=0; $i<count($view->model);$i++)
                 {
@@ -260,7 +263,11 @@ namespace App\Libraries\DataView {
                         
                         $cell_obj = $this->formatLinkValue($cell_obj, $view->model[$i], $row);
 
-                        $cell_htm .= view('grid.data_col', ['align' => $cell_obj->align, 'cell_value' => $cell_obj->value])->render();
+                        $cell_htm .= view('grid.data_col', [
+                            'align' => $cell_obj->align, 
+                            'cell_value' => $cell_obj->value,
+                            'is_val_html' => $cell_obj->is_html
+                        ])->render();
                     }
                 }
 
@@ -317,7 +324,8 @@ namespace App\Libraries\DataView {
             return  view('grid.heading_row', [
                          'grid_id' => $this->grid_id,
                          'filters' => $htm_flt,
-                         'headings' => $htm_head
+                         'headings' => $htm_head,
+                         'is_filter' => ($this->filter_data && $this->filter_data != '[]')
                     ])->render();
         }
         
@@ -373,20 +381,23 @@ namespace App\Libraries\DataView {
         private function setGridFormURL()
         {
             $first_form = DB::table('dx_forms')->where('list_id','=',$this->list_id)->first();
-
+            
             if ($first_form)
             {
                 if ($first_form->form_type_id == 2)
                 {
-                    return $first_form->custom_url;                        
+                    $this->form_url = $first_form->custom_url;                        
+                }
+                else if ($first_form->form_type_id == 3) {
+                    $this->profile_url = Config::get('dx.employee_profile_page_url', '');
                 }
                 else
                 {
-                    return "form";
+                    $this->form_url = "form";
                 }
+                
+                $this->form_type_id = $first_form->form_type_id;
             }
-            
-            return ""; // sarakstam nav definēta forma
         }
         
         /**
@@ -426,18 +437,22 @@ namespace App\Libraries\DataView {
         */ 
         private function formatLinkValue($cell_obj, $model_row, $data_row)
         {
+            $view_name = "";
             if ($model_row['is_link'] && $model_row['type'] != 'file' && strlen($this->form_url) > 0)
             {
-                $cell_obj->value =  view('grid.cell_link', [
-                                         'grid_form' => $this->form_url,
-                                         'item_id' => $data_row["id"],
-                                         'list_id' => $model_row["list_id"],
-                                         'rel_field_id' => $this->view->view_obj->rel_field_id,
-                                         'rel_field_value' => $this->view->view_obj->rel_field_value,
-                                         'grid_id' => $this->grid_id,
-                                         'form_htm_id' => $this->form_htm_id,
+                $view_name = "cell_link";
+            }
+            
+            if ($this->form_type_id == 3 && strlen($this->profile_url) > 0) {
+                $view_name = "cell_link_profile";
+            }
+            
+            if ($view_name) {
+                $cell_obj->value =  view('grid.' . $view_name, [                                         
+                                         'item_id' => $data_row["id"],                                         
                                          'cell_value' => $cell_obj->value
                                     ])->render();
+                $cell_obj->is_html = true;
             }
             
             return $cell_obj;

@@ -19,5 +19,8 @@ return [
     // For JavaScript file js/pages/search_top.js
     'nothing_found' => 'Nav atrasts neviens atbilstošs ieraksts.',
     'default_info' => 'Lūdzu, ievadiet vismaz trīs burtus, un tiks veikta dinamiskā darbinieku meklēšana.',
-    'searching' => 'Meklē...'
+    'searching' => 'Meklē...',
+    
+    'search_page_title' => 'Meklēšanas rezultāti',
+    
 ];

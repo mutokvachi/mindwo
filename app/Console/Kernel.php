@@ -2,38 +2,58 @@
 
 namespace App\Console;
 
+use App\Jobs\SendScheduledEmails;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Config;
 
 /**
- * Klase apstrādā komandu izpildes grafiku
+ * Handles JOBs scheduling and Artisan commands
  */
 class Kernel extends ConsoleKernel
 {
     /**
-     * @var array Artisan komandu saraksts
+     * @var array Custom artisan commands
      */
     protected $commands = [
         \App\Console\Commands\ProcessWorkerCommand::class,
         \App\Console\Commands\CheckQueueListener::class,
         \App\Console\Commands\FixImageSizes::class,
+        \App\Console\Commands\CalculateTimeoff::class,
+        \App\Console\Commands\AuditViewCounts::class,
+        \App\Console\Commands\UpdateLeftStatus::class,
     ];
 
     /**
-     * Definē komandu izpildes grafiku
+     * Schedule for JOBs
      *
      * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
      */
-    protected function schedule(Schedule $schedule)
-    {
-        // Sagatavo procesus, kurus nepieciešams izpildīt un pievieno izpildāmo Laravel darbu rindai
-        $schedule->command('process_worker_command')
-                ->everyMinute();
-                
+    protected function schedule(Schedule $schedule)    {                
 
-        // Izpilda Laravel darbus no rindas
-        $schedule->command('queue:listen')
-                ->everyMinute();
+        // Executes employee left info udpate (vacations, holidays, sick etc)
+        $schedule->command('mindwo:update_left')
+                //->weekdays()
+                ->dailyAt(7)
+                ->timezone(Config::get('dx.time_zone'));
+        
+        // Executes monitoring views at 8:00 AM every day
+        $schedule->command('mindwo:audit_view')
+                //->weekdays()
+                ->dailyAt(8)
+                ->timezone(Config::get('dx.time_zone'));
+        
+        // Checks if queue listener is running. Starts queue listener if not started
+        $schedule->command('mindwo:check_listener')
+                 ->everyTenMinutes();
+        
+        // Send scheduled emails
+        $schedule->call(function()
+		{
+			$job = new SendScheduledEmails();
+			dispatch($job);
+		})->everyFiveMinutes();
+
     }
 }

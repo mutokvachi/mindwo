@@ -37,28 +37,11 @@ function load_binded_field(obj_parent, obj_child, binded_field_id, binded_rel_fi
        },
        complete: function () {
            hide_dx_progres(); 
-       },
-       error: function(jqXHR, textStatus, errorThrown)
-       {   
-            if( jqXHR.status === 422 ) 
-            {
-                var errors = jqXHR.responseJSON;
-                var errorsHtml= '<ul>';
-                $.each( errors, function( key, value ) {
-                    errorsHtml += '<li>' + value[0] + '</li>'; 
-                });
-                errorsHtml += '</ul>';
-                toastr.error(errorsHtml);
-            }
-            else   
-            {
-                notify_err(DX_CORE.trans_general_error);
-            }
        }
    });
 }
 
-function new_list_item(list_id, rel_field_id, rel_field_value, form_htm_id, grid_htm_id)
+function new_list_item(list_id, rel_field_id, rel_field_value, form_htm_id, grid_htm_id, arr_callbacks)
 {	
         if (list_id == 0)
 	{
@@ -78,86 +61,110 @@ function new_list_item(list_id, rel_field_id, rel_field_value, form_htm_id, grid
 		}
 	}
 
-	view_list_item("form", 0, list_id, rel_field_id, rel_field_value, grid_htm_id, form_htm_id);
+	view_list_item("form", 0, list_id, rel_field_id, rel_field_value, grid_htm_id, form_htm_id, arr_callbacks);
 }
 
-function view_list_item(ajax_url, item_id, list_id, rel_field_id, rel_field_value, grid_htm_id, parent_form_htm_id)
+/**
+ * Opens list item form - gets form's HTML in JSON and opens bootstrap modal form (in view or new entry entering mode - depending in item_id value)
+ * After save form is reloaded in view mode.
+ * 
+ * @param {string} ajax_url             Relative URL for forms opening. Must be defined Laravel route.
+ * @param {integer} item_id             List item ID. If 0, then form will be opened in new entry entering mode
+ * @param {integer} list_id             List ID
+ * @param {integer} rel_field_id        Used for sub-grids forms opening - field ID by which subgrid is joined (or 0 if no subgrid)
+ * @param {integer} rel_field_value     Used for sub-grids forms opening - related item ID (or 0 if no subgrid)
+ * @param {string} grid_htm_id          Grid HTML element ID, from which form is opened
+ * @param {string} parent_form_htm_id   Parent form HTML element ID, if form is opened from an subgrid (which is placed in parent form)
+ * @param {object} arr_callbacks        Callback functions object, for example: {before_show: callback1, after_close: callback2, before_save: callback3, after_save: callback4}. Before_save callback is used for pre-validation and can return True or False.
+ * @returns {undefined}
+ */
+function view_list_item(ajax_url, item_id, list_id, rel_field_id, rel_field_value, grid_htm_id, parent_form_htm_id, arr_callbacks)
 {		
 	if (is_executing(grid_htm_id))
 	{
             return;
 	}
         
+        show_form_splash();
 	start_executing(grid_htm_id);
-        	
+        
         var formData = new FormData();
         formData.append("item_id", item_id);
         formData.append("list_id", list_id);
         formData.append("parent_item_id", rel_field_value);
         formData.append("parent_field_id", rel_field_id);
         formData.append("grid_htm_id", grid_htm_id);
-        //formData.append("parent_form_htm_id", parent_form_htm_id);
+
+        var request = new FormAjaxRequest (ajax_url, "", grid_htm_id, formData);
+
+        request.progress_info = "";
+        request.err_callback = function() {
+            stop_executing(grid_htm_id);
+        }
         
-        $.ajax({ 
-            type: 'POST',
-            url: DX_CORE.site_url  + ajax_url,
-            data: formData,
-            processData: false,
-            contentType: false,
-            dataType: "json",
-            success : function(data) {
-                try
-                {
-                    var myData = data;                    
-                    if (myData['success'] == 1)
-                    {                  
-                        $( "body" ).append(myData['html']);				
-                    } 
-                    else
-                    {
-                       notify_err(myData['error']);
-                       stop_executing(grid_htm_id);
+        request.callback = function(data) {
+            
+            if (data['success'] == 1)
+            {                  
+                if (typeof arr_callbacks != 'undefined') {
+                    add_form_callbacks(data['frm_uniq_id'], arr_callbacks);
+                }
+                
+                if (data['is_fullscreen'] == "1") {
+                    $("#td_data").hide();
+                    $("#td_form_data").html(data['html']);
+                    
+                    if (typeof HFormUI != 'undefined') {
+                        HFormUI.init(grid_htm_id);
                     }
                 }
-                catch (err)
-                {
-                   notify_err(err);
-                   stop_executing(grid_htm_id);
+                else {
+                    $( "body" ).append(data['html']);
                 }
-                hide_form_splash();
-                hide_page_splash();
-            },
-            beforeSend: function () {
-                show_form_splash();
-                show_page_splash();
-            },
-            error: function(jqXHR, textStatus, errorThrown)
+            } 
+            else
             {
-                if( jqXHR.status === 422 ) 
-                {
-                    var errors = jqXHR.responseJSON;
-                    var errorsHtml= '<ul>';
-                    $.each( errors, function( key, value ) {
-                        errorsHtml += '<li>' + value[0] + '</li>'; 
-                    });
-                    errorsHtml += '</ul>';
-                    toastr.error(errorsHtml);
-                }
-                else   
-                {
-                    notify_err(DX_CORE.trans_general_error);
-                    console.log("Sistēmas kļūda - XHR: " + jqXHR.statusText);
-                    console.log("Sistēmas kļūda - statuss: " + textStatus);
-                    console.log("Sistēmas kļūda - kļūda: " + errorThrown);
-                }
-                hide_form_splash();
-                hide_page_splash();
-                stop_executing(grid_htm_id);
+               notify_err(data['error']);
+               stop_executing(grid_htm_id);
             }
-        });
+                    
+            hide_form_splash(1);
+        };
+
+        // izpildam AJAX pieprasījumu
+        request.doRequest();
 }
 
-function open_form(ajax_url, item_id, list_id, rel_field_id, rel_field_value, grid_htm_id, form_is_edit_mode, parent_form_htm_id)
+/**
+ * Opens list item form - gets form's HTML in JSON and opens bootstrap modal form (in view or new entry entering mode - depending on item_id value)
+ * After save form is reloaded in view mode.
+ * 
+ * @param {string} ajax_url             Relative URL for forms opening. Must be defined Laravel route.
+ * @param {integer} item_id             List item ID. If 0, then form will be opened in new entry entering mode
+ * @param {integer} list_id             List ID
+ * @param {integer} rel_field_id        Used for sub-grids forms opening - field ID by which subgrid is joined (or 0 if no subgrid)
+ * @param {integer} rel_field_value     Used for sub-grids forms opening - related item ID (or 0 if no subgrid)
+ * @param {string} grid_htm_id          Grid HTML element ID, from which form is opened
+ * @param {string} parent_form_htm_id   Parent form HTML element ID, if form is opened from an subgrid (which is placed in parent form)
+ * @param {object} arr_callbacks        Callback functions object, for example: {before_show: callback1, after_close: callback2, before_save: callback3, after_save: callback4}. Before_save callback is used for pre-validation and can return True or False.
+ * @returns {undefined}
+ */
+
+/**
+ * Opens list item form - gets form's HTML in JSON and opens bootstrap modal form (in view or new entry entering mode - depending in item_id value and form_is_edit_mode option)
+ * 
+ * @param {string} ajax_url             Relative URL for forms opening. Must be defined Laravel route.
+ * @param {integer} item_id             List item ID. If 0, then form will be opened in new entry entering mode
+ * @param {integer} list_id             List ID
+ * @param {integer} rel_field_id        Used for sub-grids forms opening - field ID by which subgrid is joined (or 0 if no subgrid)
+ * @param {integer} rel_field_value     Used for sub-grids forms opening - related item ID (or 0 if no subgrid)
+ * @param {string} grid_htm_id          Grid HTML element ID, from which form is opened
+ * @param {boolean} form_is_edit_mode   Indicates if form for existing item is opened in edit mode (1) or view mode (0)
+ * @param {string} parent_form_htm_id   Parent form HTML element ID, if form is opened from an subgrid (which is placed in parent form)
+ * @param {object} arr_callbacks        Callback functions object, for example: {before_show: callback1, after_close: callback2, before_save: callback3, after_save: callback4}. Before_save callback is used for pre-validation and can return True or False.
+ * @returns {undefined}
+ */
+function open_form(ajax_url, item_id, list_id, rel_field_id, rel_field_value, grid_htm_id, form_is_edit_mode, parent_form_htm_id, arr_callbacks)
 {            
         var formData = new FormData();
         formData.append("item_id", item_id);
@@ -191,7 +198,10 @@ function open_form(ajax_url, item_id, list_id, rel_field_id, rel_field_value, gr
                     var myData = data;
                     if (myData['success'] == 1)
                     {
-                       $( "body" ).append(myData['html']);				
+                        if (typeof arr_callbacks != 'undefined') {
+                            add_form_callbacks(data['frm_uniq_id'], arr_callbacks);
+                        }
+                        $( "body" ).append(myData['html']);				
                     } 
                     else
                     {
@@ -208,25 +218,6 @@ function open_form(ajax_url, item_id, list_id, rel_field_id, rel_field_value, gr
             beforeSend: function () {
                 show_form_splash();
                 show_page_splash();
-            },
-            error: function(jqXHR, textStatus, errorThrown)
-            {
-                if( jqXHR.status === 422 ) 
-                {
-                    var errors = jqXHR.responseJSON;
-                    var errorsHtml= '<ul>';
-                    $.each( errors, function( key, value ) {
-                        errorsHtml += '<li>' + value[0] + '</li>'; 
-                    });
-                    errorsHtml += '</ul>';
-                    toastr.error(errorsHtml);
-                }
-                else   
-                {
-                    notify_err(DX_CORE.trans_general_error);
-                }
-                hide_form_splash();
-                hide_page_splash();
             }
         });
 }
@@ -273,35 +264,17 @@ function rel_new_form(ajax_url, list_id, item_id, call_field_id, call_field_htm_
             },
             beforeSend: function () {
                 show_form_splash();
-            },
-            error: function(jqXHR, textStatus, errorThrown)
-            {
-                if( jqXHR.status === 422 ) 
-                {
-                    var errors = jqXHR.responseJSON;
-                    var errorsHtml= '<ul>';
-                    $.each( errors, function( key, value ) {
-                        errorsHtml += '<li>' + value[0] + '</li>'; 
-                    });
-                    errorsHtml += '</ul>';
-                    toastr.error(errorsHtml);
-                }
-                else   
-                {
-                    notify_err(DX_CORE.trans_general_error);
-                }
-                hide_form_splash();
             }
         });
 }
 
-function refresh_form_fields(edit_form_htm_id, form_htm_id, item_id, list_id, rel_field_id, rel_field_value)
+function refresh_form_fields(edit_form_htm_id, form_htm_id, item_id, list_id, rel_field_id, rel_field_value, arr_callbacks)
 {
     var formData = new FormData();
     formData.append("item_id", item_id);
     formData.append("list_id", list_id);
-    formData.append("rel_field_id", rel_field_id);
-    formData.append("rel_field_value", rel_field_value);
+    formData.append("parent_field_id", rel_field_id);
+    formData.append("parent_item_id", rel_field_value);
     
     var frm_uniq_id = $("#" + form_htm_id).find("div[dx_attr=form_fields]").attr("dx_form_id");
     formData.append("frm_uniq_id", frm_uniq_id);
@@ -320,7 +293,7 @@ function refresh_form_fields(edit_form_htm_id, form_htm_id, item_id, list_id, re
         dataType: "json",
         async:true,
         success : function(data) {
-            debug_log("refresh_form_fields - AJAX received");
+            
             try
              {
                  var myData = data;
@@ -335,17 +308,33 @@ function refresh_form_fields(edit_form_htm_id, form_htm_id, item_id, list_id, re
                         $("#" + form_htm_id).find("div[dx_tab_id=" + id + "]").html(htm);                        
                     });
                     
-                    // Lets execute again custom javascript so they applay to refreshed fields
-                    var script = $("body").find("div[dx_attr='" + form_htm_id + "']");
-                    if (script.html())
-                    {
-                        var tmp = script.html();
-                        tmp = tmp.replace('<script type="text/javascript">');
-                        tmp = tmp.replace('</script>');
-                        eval(tmp);
+                    var callback_result = true;
+                    if (typeof arr_callbacks != 'undefined') {
+                        if (typeof arr_callbacks.after_save != 'undefined') {
+                            callback_result = arr_callbacks.after_save.call(this, $("#list_item_view_form_" + frm_uniq_id));                           
+                        }
                     }
                     
-                    FormLogic.adjustDataTabs($("#item_edit_form_" + frm_uniq_id).find(".dx-cms-form-fields-section").first());
+                    if (callback_result) {
+                        // Lets execute again custom javascript so they applay to refreshed fields
+                        var script = $("body").find("div[dx_attr='" + form_htm_id + "']");
+                        if (script.html())
+                        {
+                            var tmp = script.html();
+                            tmp = tmp.replace('<script type="text/javascript">');
+                            tmp = tmp.replace('</script>');
+                            eval(tmp);
+                        }
+
+                        FormLogic.adjustDataTabs($("#item_edit_form_" + frm_uniq_id).find(".dx-cms-form-fields-section").first());                                       
+
+                        var footer = $("#" + form_htm_id).find(".modal-footer");
+                        footer.find(".dx-history-badge").html(myData['history_count']);
+
+                        if (myData['history_count']) {
+                            footer.find(".dx-history-badge").show();
+                        }
+                    }
                     
                     notify_info(DX_CORE.trans_data_saved);
                     stop_executing(edit_form_htm_id);
@@ -371,30 +360,11 @@ function refresh_form_fields(edit_form_htm_id, form_htm_id, item_id, list_id, re
         beforeSend: function () {
             show_form_splash();
             show_page_splash();
-        },
-        error: function(jqXHR, textStatus, errorThrown)
-        {
-            if( jqXHR.status === 422 ) 
-            {
-                var errors = jqXHR.responseJSON;
-                var errorsHtml= '<ul>';
-                $.each( errors, function( key, value ) {
-                    errorsHtml += '<li>' + value[0] + '</li>'; 
-                });
-                errorsHtml += '</ul>';
-                toastr.error(errorsHtml);
-            }
-            else   
-            {
-                notify_err(DX_CORE.trans_sys_error);
-            }
-            hide_form_splash();
-            hide_page_splash();
         }
     });
 }
 
-function reload_edited_form(ajax_url, item_id, list_id, rel_field_id, rel_field_value, grid_htm_id, old_form_htm_id)
+function reload_edited_form(ajax_url, item_id, list_id, rel_field_id, rel_field_value, grid_htm_id, old_form_htm_id, arr_callbacks)
 {
     var formData = new FormData();
     formData.append("item_id", item_id);
@@ -415,36 +385,59 @@ function reload_edited_form(ajax_url, item_id, list_id, rel_field_id, rel_field_
         var htm = data['html'].replace(re, old_form_htm_id);
         
         var height_content  = $("#list_item_view_form_" + old_form_htm_id).find(".modal-body").height();
-                
+            
         unregister_form("list_item_view_form_" + old_form_htm_id);
-        $("#list_item_view_form_" + old_form_htm_id).find(".modal-content").html(htm);
         
-        if (get_last_form_id() != ("list_item_view_form_" + old_form_htm_id)) {
-            var dom = $(htm);
-            dom.find("script").each(function() {
-                $.globalEval(this.text || this.textContent || this.innerHTML || '');
-            });
-
-            dom.filter('script').each(function(){           
-                $.globalEval(this.text || this.textContent || this.innerHTML || '');
-            });
+        if (typeof arr_callbacks != 'undefined') {
+            add_form_callbacks(old_form_htm_id, arr_callbacks);
         }
         
-        if (height_content > 500)
-        {
+        var callback_result = true;
+        if (typeof arr_callbacks != 'undefined') {
+            if (typeof arr_callbacks.after_save != 'undefined') {
+                callback_result = arr_callbacks.after_save.call(this, $("#list_item_view_form_" + old_form_htm_id));                           
+            }
+        }
+        
+        if (callback_result) {
+            $("#list_item_view_form_" + old_form_htm_id).find(".modal-content").html(htm);
+
+            if (get_last_form_id() != ("list_item_view_form_" + old_form_htm_id)) {
+                var dom = $(htm);
+                dom.find("script").each(function() {
+                    $.globalEval(this.text || this.textContent || this.innerHTML || '');
+                });
+
+                dom.filter('script').each(function(){           
+                    $.globalEval(this.text || this.textContent || this.innerHTML || '');
+                });
+            }
+
             var tool_height = $("#top_toolbar_list_item_view_form_" + old_form_htm_id).height();
 
             $("#list_item_view_form_" + old_form_htm_id).find(".modal-body").height(height_content - tool_height-21);
-        }
-        
-        var height = $(window).height()*DX_CORE.form_height_ratio;
-        var form_body = $("#list_item_view_form_" + old_form_htm_id).find(".modal-body");
-        
-        form_body.css('overflow-y', 'auto');        
-        form_body.css('max-height', height + 'px');
-        
-        FormLogic.adjustDataTabs($("#item_edit_form_" + old_form_htm_id).find(".dx-cms-form-fields-section").first());
-        
+
+            var height = $(window).height()*DX_CORE.form_height_ratio;
+            var form_body = $("#list_item_view_form_" + old_form_htm_id).find(".modal-body");
+
+            form_body.css('overflow-y', 'auto');    
+
+            var scroll_height = form_body.find(".dx-form-row")[0].scrollHeight;
+            var heading_height = $("#list_item_view_form_" + old_form_htm_id).find(".modal-header").outerHeight();
+            var footer_height = $("#list_item_view_form_" + old_form_htm_id).find(".modal-header").outerHeight();
+
+            if (scroll_height > (height_content - tool_height - 21) && scroll_height < (height - tool_height - heading_height - footer_height)) {
+                form_body.height(scroll_height);
+            }
+            else {
+                form_body.height(height_content);
+            }
+
+            form_body.css('max-height', height + 'px');
+
+            FormLogic.adjustDataTabs($("#item_edit_form_" + old_form_htm_id).find(".dx-cms-form-fields-section").first());
+        }        
+                    
         notify_info(DX_CORE.trans_data_saved);
         hide_form_splash(1);
     };
@@ -462,9 +455,10 @@ function reload_edited_form(ajax_url, item_id, list_id, rel_field_id, rel_field_
  * @param   rel_field_id            integer     Saistītā ieraksta lauka identifikators (ja forma ir atvērta no apakšgrida)
  * @param   rel_field_value         integer     Saistītā ieraksta identifikators (ja forma ir atvērta no apakšgrida)
  * @param   parent_form_htm_id      string      Formas skatīšanās režīms - no kuras tika atvērta šī rediģēšanas režīma forma
+ * @param   arr_callbacks           object      Callback funkcijas kā objekts, piemēram {before_show: callback1, after_close: callback2, before_save: callback3, after_save: callback4} 
  * @return  void
  */ 
-function save_list_item(post_form_htm_id, grid_htm_id, list_id, rel_field_id, rel_field_value, parent_form_htm_id)
+function save_list_item(post_form_htm_id, grid_htm_id, list_id, rel_field_id, rel_field_value, parent_form_htm_id, arr_callbacks)
 {   
     
     var formData = process_data_fields(post_form_htm_id);
@@ -506,13 +500,13 @@ function save_list_item(post_form_htm_id, grid_htm_id, list_id, rel_field_id, re
             
         if (parent_form_htm_id)
         {  
-            refresh_form_fields(post_form_htm_id, parent_form_htm_id, data['id'], list_id, rel_field_id, rel_field_value);                            
+            refresh_form_fields(post_form_htm_id, parent_form_htm_id, data['id'], list_id, rel_field_id, rel_field_value, arr_callbacks);                            
         }
         else
         { 
             var form_html_uniq_id = $( "#" + post_form_htm_id).parent().parent().parent().parent().parent().attr("id").replace("list_item_view_form_","");
                         
-            reload_edited_form('form', data['id'], list_id, rel_field_id, rel_field_value, grid_htm_id, form_html_uniq_id);
+            reload_edited_form('form', data['id'], list_id, rel_field_id, rel_field_value, grid_htm_id, form_html_uniq_id, arr_callbacks);
         }
     };
     
@@ -543,7 +537,8 @@ function process_data_fields(post_form_htm_id) {
     process_TextArea_Select(post_form_htm_id, formData);
 
     process_Input_radio(post_form_htm_id, formData);
-
+    process_Input_checkbox(post_form_htm_id, formData);
+    
     return formData;
 }
 
@@ -555,8 +550,26 @@ function process_data_fields(post_form_htm_id) {
  * @returns {undefined}
  */
 function process_Input_radio(post_form_htm_id, formData) {
-    $('#' + post_form_htm_id).find(':checkbox:checked, :radio:checked').each(function (key, obj) {
+    $('#' + post_form_htm_id).find(':radio:checked').each(function (key, obj) {
         formData.append(obj.name, obj.value);
+    });
+}
+
+/**
+ * Sagatavo saglabāšanai datu ievades laukus - checkbox
+ * 
+ * @param {string} post_form_htm_id HTML formas elementa id
+ * @param {Object} formData Masīvs ar saglabājamiem datiem
+ * @returns {undefined}
+ */
+function process_Input_checkbox(post_form_htm_id, formData) {
+    $('#' + post_form_htm_id).find('input.dx-bool').each(function (key, obj) {
+        if ($(this).prop('checked')==true){
+            formData.append(obj.name, 1);
+        }
+        else {
+            formData.append(obj.name, 0);
+        }
     });
 }
 
@@ -919,25 +932,6 @@ function init_soft_code(htm_id)
 	setTimeout(function() {
 	  editor.refresh();
 	}, 1000); // or 10, 100
-}
-
-function printForm(elem_htm_id) 
-{
-    var data = $("#" + elem_htm_id).html();
-    
-    var mywindow = window.open('', 'my div', 'height=400,width=600');
-    mywindow.document.write('<html><head><title>my div</title>');
-    mywindow.document.write('<link rel="stylesheet" href="' + DX_CORE.site_url + 'homer/vendor/bootstrap/dist/css/bootstrap.css" type="text/css" />');
-    mywindow.document.write('</head><body >');
-    mywindow.document.write(data);
-    mywindow.document.write('</body></html>');
-
-    mywindow.document.close(); // necessary for IE >= 10
-    mywindow.focus(); // necessary for IE >= 10
-
-    mywindow.print();
-    mywindow.close();
-    return true;
 }
 
 $(document).ready(function($) {

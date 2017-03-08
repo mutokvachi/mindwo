@@ -10,13 +10,19 @@
         
         <div class="row">
             <div class="hidden-xs col-sm-2 col-md-2 employee-pic-box">
-                <img src="{{Request::root()}}/formated_img/small_avatar/{{ ($item->picture_guid) ? $item->picture_guid : $avatar }}" class="img-responsive">
+                <img src="{{Request::root()}}/{{ \App\Libraries\Helper::getEmployeeAvatarBig($item->picture_guid) }}" class="img-responsive">
             </div>
 
             <div class="col-xs-12 col-sm-10 col-md-6">
                 <div class="employee-details-1">
                     <div class="well">
-                        <h4>{{ $item->employee_name }}
+                        <h4>
+                            @if ($profile_url)
+                                <a href='{{Request::root()}}{{ $profile_url}}{{ $item->id }}'>{{ $item->employee_name }}</a>
+                            @else
+                                {{ $item->employee_name }}
+                            @endif
+                            
                             @if ($item->is_today && $item->email)                        
                                 <a href="mailto: {{ $item->email }}?subject={{ trans('employee.happy_birthday') }}" title='{{ trans('employee.today_birthday') }}' style='color: #E87E04;'><i class="fa fa-gift"></i></a>
                             @endif
@@ -59,7 +65,8 @@
                     @if ($item->left_to_date)
                         <span class="label label-danger" style="display:block;margin-bottom:2px;width:90px;padding: 4px 6px 4px;">{{ trans('employee.lbl_absent') }}</span>
                         <div class="font-red">
-                            <small>{{ $item->left_reason }} {{ trans('employee.lbl_to') }} {{ short_date($item->left_to_date) }}</small>
+                            
+                            <small>{{ ($item->left_reason) ? $item->left_reason : trans('employee.lbl_holiday') }} {{ trans('employee.lbl_to') }} {{ short_date($item->left_to_date) }}</small>
 
                             @if ($item->subst_empl_name)
                                 <br />
@@ -71,9 +78,13 @@
                 </div> 
             </div>
         </div>
-        @if ($profile_url || $is_list_rights)
+        @if ($profile_url || (isset($is_list_rights) && $is_list_rights))
             <div>
-                <a class="btn btn-primary pull-right btn-sm dx-open-profile"  href='JavaScript:;' data-empl-id = "{{ $item->id }}">
+                @if ($profile_url)
+                    <a class="btn btn-primary pull-right btn-sm"  href='{{Request::root()}}{{ $profile_url}}{{ $item->id }}'>
+                @else
+                    <a class="btn btn-primary pull-right btn-sm dx-open-profile"  href='JavaScript:;' data-empl-id = "{{ $item->id }}">
+                @endif
                     <i class="fa fa-user"></i> {{ trans('employee.lbl_open_profile') }} 
                 </a>
             </div>

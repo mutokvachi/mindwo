@@ -3,8 +3,6 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Auth;
-use Config;
 use App\Libraries\Helper;
 
 class PublicAccess
@@ -19,7 +17,7 @@ class PublicAccess
      */
     public function handle($request, Closure $next)
     {
-        if (Auth::guest() && Config::get('dx.is_all_login_required', false)) {
+        if (!Helper::isUserPublicAccessOk()) {
             return redirect()->guest('login');
         }
         

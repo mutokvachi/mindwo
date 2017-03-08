@@ -14,7 +14,7 @@
     @if ($is_disabled)
      
         <input type=hidden id='{{ $frm_uniq_id }}_{{ $item_field }}' value='{{ $item_value }}' name = '{{ $item_field }}' />
-        <input class='form-control dx-rel-id-text' disabled 
+        <input class='form-control dx-rel-id-text' readonly 
 
         @foreach($items as $item)
             @if ($item->id == $item_value)
@@ -30,7 +30,7 @@
              data-foo="bar" dx_binded_field_id = '{{ $binded_field_id }}' dx_binded_rel_field_id = '{{ $binded_rel_field_id }}'
             >
 
-            @if (!(count($items) == 1 && $is_required))
+            @if (!((count($items) == 1 && $is_required) || ($item_value > 0 && $is_required))))
                 <option value=0></option>
             @endif
 

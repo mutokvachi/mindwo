@@ -8,13 +8,16 @@ namespace App\Libraries
     use Request;
     use Config;
     use App\Http\Controllers\BoxController;
-
+    use Auth;
+    use Carbon\Carbon;
+    use Log;
+    
     /**
      * Palīgfunkciju klase
      */
     class Helper
     {
-
+        
         /**
          * Dzēš ierakstu no datu bāzes un izveido vēstures ierakstu, ja paredzēts veidot vēsturi
          * 
@@ -29,7 +32,7 @@ namespace App\Libraries
             try {
                 $history = new DBHistory($table_row, $fields, null, $item_id);
                 $history->makeDeleteHistory();
-
+                
                 DB::table($table_row->table_name)->where('id', '=', $item_id)->delete();
             }
             catch (\Exception $e) {
@@ -153,7 +156,193 @@ namespace App\Libraries
 
             return $folder;
         }
+        
+        /**
+         * Returns path to current user small avatar
+         * If user does not have picture, will be used default from assets
+         * 
+         * @return string Path to current user small avatar
+         */
+        public static function getUserAvatarSmall() {
+            if (Auth::user()->picture_guid) {
+                return "formated_img/small_avatar/" . Auth::user()->picture_guid;
+            }
+            else {
+                return "assets/global/avatars/default_avatar_small.jpg";
+            }
+        }
+        
+         /**
+         * Returns path to employee avatar
+         * If employee does not have picture, will be used default from assets
+         * 
+         * @return string Path to emoloyee big avatar
+         */
+        public static function getEmployeeAvatarBig($picture) {
+            if ($picture) {
+                return "formated_img/small_avatar/" . $picture;
+            }
+            else {
+                return "assets/global/avatars/default_avatar_big.jpg";
+            }
+        }
+        
+        /**
+         * Builds date from given month and day numbers
+         * 
+         * @param string $day_code Day number (or "LAST")
+         * @param integer $month_nr Month number
+         * @return string Date in format yyyy-mm-dd
+         */
+        public static function getDateFromCode($year, $day_code, $month_nr) {
+            $now = Carbon::now(Config::get('dx.time_zone'));
+            
+            if (!($year > 0)) {
+                $year = $now->year;
+            }
+            
+            if (is_numeric($day_code)) {
+                    $dat = $year . '-' . $month_nr . '-' . $day_code;
+            }
+            else {
+                // last day
+                $dat_month = $year . '-' . $month_nr . '-01';
+                $dat = date("Y-m-t", strtotime($dat_month));
+            }
+            
+            return $dat;
+        }
+        
+        /**
+         * Checks if user have access to public info
+         * 
+         * @return boolean True - user have access, False - user do not have access
+         */
+        public static function isUserPublicAccessOk() {
+            $is_all_login_required = Config::get('dx.is_all_login_required', false);
+            
+            if (!$is_all_login_required) {                
+                return true; // no login required for public access info
+            }
+            
+            if (Auth::check()) {
+                
+                if (Auth::user()->id == Config::get('dx.public_user_id', 0)) {
+                    Log::info("AUTH: it is required login for all info but here we have public user ID - lets deny access");
+                    return false; // it is required login for all info but here we have public user ID - lets deny access
+                }
+                return true; // is authentificated
+            }
+            else {
+                Log::info("AUTH: all info must have authorized access but this user is not loged in. URL: " . Request::url() . " METHOD: " . Request::method());
+                return false; // all info must have authorized access but this user is not loged in
+            }
+        }
+        
+        /**
+        * Atgriež pazīmi, vai formas reģistram ir definēts kāds skats, kas izmantojams WORD ģenerēšanas lauku sarakstam
+        * 
+        * @param integer $list_id  Reģistra ID
+        * @return int 0 - nav Word ģenerēšana; 1 - ir Word ģenerēšana
+        */
+        public static function getWordGenerBtn($list_id)
+        {
+            $is_word_generation_btn = 0;
+            $view_row = DB::table('dx_views')->where('list_id', '=', $list_id)->where('is_for_word_generating', '=', 1)->first();
+            if ($view_row) {
+                $is_word_generation_btn = 1;
+            }
 
+            return $is_word_generation_btn;
+        }
+
+        /**
+         * Gets info tasks added to item
+         * 
+         * @param integer $list_id List ID
+         * @param integer $item_id Item ID
+         * @param string $table_name List table name
+         * @return array Array with info tasks or null of nothing found
+         */
+        public static function getInfoTasks($list_id, $item_id, $table_name) {
+            $info_tasks = null;        
+            if ($item_id != 0 && $table_name == "dx_doc") {
+
+                $creator_id = DB::table($table_name)->select('created_user_id')->where('id','=',$item_id)->first()->created_user_id;
+
+                $info_tasks = DB::table('dx_tasks as t')
+                                ->select('u.display_name', 't.task_closed_time')
+                                ->join('dx_users as u', 't.task_employee_id', '=', 'u.id')
+                                ->where('t.list_id', '=', $list_id)
+                                ->where('t.item_id', '=', $item_id)
+                                ->where('t.task_type_id', '=', \App\Http\Controllers\TasksController::TASK_TYPE_INFO)                            
+                                ->where('t.task_employee_id', "!=", $creator_id)
+                                ->orderBy('u.display_name', 't.task_closed_time')
+                                ->distinct()
+                                ->get();
+
+                $arr_uniq = [];
+                foreach($info_tasks as $task) {
+                    if (array_search($task->display_name, $arr_uniq)) {
+                        $task->display_name = "";
+                    }else {
+                        array_push($arr_uniq, $task->display_name);
+                    }
+                }
+
+                $info_tasks = array_filter($info_tasks, function($value) { return strlen($value->display_name) > 0; });
+            }
+            
+            return $info_tasks;
+        }
+        
+        /**
+         * Loads holiday array
+         * @param ineger $country_id Employee country ID
+         * @return array
+         */
+        public static function getHolidaysArray($country_id) {
+            $rows = DB::table('dx_holidays as h')
+                                   ->select(
+                                           'h.is_several_days', 
+                                           'm1.nr as month_from_nr', 
+                                           'd1.code as day_from_code', 
+                                           'm2.nr as month_to_nr', 
+                                           'd2.code as day_to_code',
+                                           'h.from_year',
+                                           'h.to_year',
+                                           'h.country_id',
+                                           'h.id as holiday_id'
+                                           )
+                                   ->leftJoin('dx_months as m1', 'h.from_month_id', '=', 'm1.id')
+                                   ->leftJoin('dx_month_days as d1', 'h.from_day_id', '=', 'd1.id')
+                                   ->leftJoin('dx_months as m2', 'h.to_month_id', '=', 'm2.id')
+                                   ->leftJoin('dx_month_days as d2', 'h.to_day_id', '=', 'd2.id')
+                                   ->where(function($query) use ($country_id) {
+                                        if ($country_id) {
+                                            $query->whereNull('h.country_id')
+                                              ->orWhere('h.country_id', '=', $country_id); 
+                                        }
+                                   })                                   
+                                   ->orderBy('m1.nr')
+                                   ->orderBy('d1.code')
+                                   ->get();            
+            
+            foreach($rows as $holiday) {                
+                
+                $holiday->date_from = Helper::getDateFromCode($holiday->from_year, $holiday->day_from_code, $holiday->month_from_nr);
+                
+                if (!$holiday->is_several_days) {
+                    $holiday->date_to = $holiday->date_from;
+                }
+                else {
+                    $holiday->date_to = Helper::getDateFromCode($holiday->to_year, $holiday->day_to_code, $holiday->month_to_nr);
+                }
+            }
+            
+            return json_decode(json_encode($rows), true);            
+            
+        }
     }
 
 }

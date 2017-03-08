@@ -17,7 +17,7 @@ return [
     'logout' => 'Iziet',
     
     // Other TOP menu
-    'tasks' => 'Izpildāmie uzdevumi:',
+    'tasks' => 'Izpildāmie uzdevumi',
     'user_manual' => 'Lietotāja rokasgrāmata',    
     'open' => 'Atvērt',
     

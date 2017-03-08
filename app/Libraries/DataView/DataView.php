@@ -13,13 +13,14 @@ namespace App\Libraries\DataView {
         public $list_id = 0;
         public $view = null;
         public $filter_obj = null;
+        public $is_PDO = true;
         
         abstract function getViewHtml();
         
         abstract protected function getSortingSQL();
         abstract protected function getLimitSQL();
                 
-        protected function initObjects($view_id, $filter_data, $session_guid)
+        protected function initObjects($view_id, $filter_data, $session_guid, $is_hidden_in_model)
         {                
             $this->view_id = $view_id;
             
@@ -34,9 +35,9 @@ namespace App\Libraries\DataView {
             
             $this->validateIDField();
             
-            $this->view = DataViewFactory::build_view_obj($this->list_id, $this->view_id, $session_guid);
+            $this->view = DataViewFactory::build_view_obj($this->list_id, $this->view_id, $session_guid, $is_hidden_in_model);
             
-            $this->filter_obj = new DataViewSQLFiltering($filter_data, $this->list_id);
+            $this->filter_obj = new DataViewSQLFiltering($filter_data, $this->list_id, $this->view);
         }
         
         public function getViewTitle()
@@ -48,12 +49,15 @@ namespace App\Libraries\DataView {
         {
             $sql = $this->view->view_sql . " " . $this->filter_obj->sql . " " . $this->getSortingSQL() . " " . $this->getLimitSQL();
 
-            DB::setFetchMode(PDO::FETCH_ASSOC); // We need to get vields values dynamicly where field names are from array                    
-
+            if ($this->is_PDO) {
+                DB::setFetchMode(PDO::FETCH_ASSOC); // We need to get vields values dynamicly where field names are from array                    
+            }
+            
             $rows = DB::select($sql, $this->filter_obj->arr_filt);                 
-
-            DB::setFetchMode(PDO::FETCH_CLASS); // Set back default fetch mode
-
+            
+            if ($this->is_PDO) {
+                DB::setFetchMode(PDO::FETCH_CLASS); // Set back default fetch mode
+            }
             return $rows;
         }
         

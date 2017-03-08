@@ -1,0 +1,31 @@
+.inbox .mt-checkbox {
+	margin-bottom: 15px;
+}
+
+.inbox .controls.controls-to {
+	padding-right: 0;
+}
+
+.inbox .select2-selection, .inbox .select2-container--focus .select2-selection {
+	border-top: none;
+	border-bottom: none;
+	border-left: solid 1px #eee;
+	border-right: solid 1px #eee;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__rendered {
+	padding-left: 12px;
+}
+
+.select2-dropdown {
+	border: 1px solid #eee;
+}
+
+.inbox .inbox-compose .controls > input {
+	border-left: solid 1px #eee !important;
+	border-right: solid 1px #eee !important;
+}
+
+.inbox td.text-right {
+	width: 150px !important;
+}

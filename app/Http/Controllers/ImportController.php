@@ -39,11 +39,17 @@ class ImportController extends Controller
     private $list_id = 0;
 
     /**
-     * Count of imported rows
+     * Count of imported (inserted) rows
      * 
-     * @var type 
+     * @var integer 
      */
     private $import_count = 0;
+    
+    /**
+     * Count of updated rows
+     * @var integer 
+     */
+    private $update_count = 0;
 
     /**
      * Array with register fields 
@@ -115,6 +121,12 @@ class ImportController extends Controller
     private $file_import = null;
     
     /**
+     * Errors mesage - concatenated all errors
+     * @var string 
+     */   
+    private $errors = "";
+    
+    /**
      * Imports uploaded file data into database
      * 
      * @param \Illuminate\Http\Request $request
@@ -144,7 +156,8 @@ class ImportController extends Controller
 
         //Set db table for list
         $this->list_object = \App\Libraries\DBHelper::getListObject($this->list_id);
-
+        $this->list_object->table_name = $this->list_object->db_name; // in order to work history logic for updates
+        
         //Sets current time for audit info
         $this->time_now = date('Y-n-d H:i:s');                
                
@@ -155,10 +168,12 @@ class ImportController extends Controller
         
         return response()->json([
             'success' => 1, 
-            'count' => $this->import_count, 
+            'imported_count' => $this->import_count, 
             'not_match' => $this->arr_not_match, 
             'duplicate' => $this->duplicate,
-            'dependency' => $this->dependency
+            'dependency' => $this->dependency,
+            'updated_count' => $this->update_count,
+            'errors' => $this->errors
         ]);
     }
     
@@ -212,6 +227,13 @@ class ImportController extends Controller
                 $fld = $this->getFieldObj($title);
                 $this->prepareValue($fld, $val);
             });
+        }      
+        catch (Exceptions\DXImportEmployeeNameException $e) {
+            if (strlen($this->errors) > 0) {
+                $this->errors .= ", ";
+            }
+            $this->errors .= "[" . $row_nr . "] " . $e->getMessage();
+            $this->save_arr = [];
         }
         catch (Exceptions\DXImportLookupException $e) {
             if (!isset($this->dep_arr[$row_nr])) {
@@ -239,8 +261,7 @@ class ImportController extends Controller
             
             $this->processRow($row, $key);
             
-            if (count($this->save_arr) > 0) {
-                Log::info("DEP OK: " . json_encode($row));
+            if (count($this->save_arr) > 0) {                
                 unset($this->dep_arr[$key]);
                 $ok_count++;
             }
@@ -269,11 +290,42 @@ class ImportController extends Controller
         DB::transaction(function ()
         {
             try {
-                $id = DB::table($this->list_object->db_name)->insertGetId($this->save_arr);
-                $history = new DBHistory($this->list_object, null, null, $id);
-                $history->makeInsertHistory();
-
-                $this->import_count++;
+                
+                if (isset($this->save_arr["id"]) && $this->save_arr["id"] > 0) {
+                    $id = $this->save_arr["id"];
+                    $data_row = DB::table($this->list_object->db_name)->where('id', '=', $id)->first();
+                    if ($data_row) {
+                        // update by ID field
+                        unset($this->save_arr["id"]);
+                        
+                        $arr_data = [];
+                        foreach($this->save_arr as $key => $val) {
+                            $arr_data[":" . $key] = $val;
+                        }
+                        
+                        $history = new DBHistory($this->list_object, $this->list_fields, $arr_data, $id);
+                        $history->makeUpdateHistory();
+                        
+                        if ($history->is_update_change) {
+                            DB::table($this->list_object->db_name)->where('id', '=', $id)->update($this->save_arr);
+                            $this->update_count++;
+                        }
+                    }
+                    else {
+                        // insert with provided ID
+                        DB::table($this->list_object->db_name)->insert($this->save_arr);
+                        $history = new DBHistory($this->list_object, null, null, $id);
+                        $history->makeInsertHistory();
+                        $this->import_count++;
+                    }
+                }
+                else {
+                    // insert without ID field
+                    $id = DB::table($this->list_object->db_name)->insertGetId($this->save_arr);
+                    $history = new DBHistory($this->list_object, null, null, $id);
+                    $history->makeInsertHistory();
+                    $this->import_count++;
+                }                
             }
             catch (\Exception $e) {
                 if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
@@ -351,7 +403,8 @@ class ImportController extends Controller
                         'lf_rel.db_name as rel_field_name',
                         'o_rel.db_name as rel_table_name',
                         'o_rel.is_history_logic as rel_table_is_history_logic',
-                        'lf.is_public_file'
+                        'lf.is_public_file',
+                        'lf.id as field_id'
                         )
                 ->leftJoin('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
                 ->leftJoin('dx_lists_fields as lf_rel', 'lf.rel_display_field_id', '=', 'lf_rel.id')
@@ -372,11 +425,11 @@ class ImportController extends Controller
      */
     private function getFieldObj($title)
     {
-
-        foreach ($this->list_fields as $field) {
-
-            if ($field->title_list_f == $title || $field->title_form_f == $title) {
-                return $field;
+        foreach ($this->list_fields as $field) {            
+            foreach($field->arr_titles as $field_title) {
+                if ($title == $field_title) {
+                    return $field;
+                }
             }
         }
 
@@ -407,8 +460,15 @@ class ImportController extends Controller
     private function addFormatedTitles()
     {
         foreach ($this->list_fields as $field) {
-            $field->title_list_f = $this->formatFieldTitle($field->title_list);
-            $field->title_form_f = $this->formatFieldTitle($field->title_form);
+            $field->arr_titles = [];
+            
+            array_push($field->arr_titles, $this->formatFieldTitle($field->title_list));
+            array_push($field->arr_titles, $this->formatFieldTitle($field->title_form));
+            
+            $view_fields = DB::table('dx_views_fields')->select('alias_name')->where('field_id', '=', $field->field_id)->whereNotNull('alias_name')->distinct()->get();
+            foreach($view_fields as $v_field) {
+                array_push($field->arr_titles, $this->formatFieldTitle($v_field->alias_name));
+            }            
         }
     }
 

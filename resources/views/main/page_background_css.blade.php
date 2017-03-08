@@ -17,7 +17,7 @@
         background-color: transparent!important;   
     }            
         
-    .page-content
+    .page-content, .dx-page-container
     {
         background: {{ $content_bg_color }};
     }        

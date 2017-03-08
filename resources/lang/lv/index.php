@@ -7,14 +7,12 @@
 */
 
 return [
-
-    'logo' => 'assets/global/logo/medus_logo_big.png',
-    
-    'logo_small' => 'assets/global/logo/logo-default.png',
+        
+    'app_name' => env('APP_NAME', 'MEDUS'),
     
     'logo_txt' => '',
     
-    'site_title' => 'MEDUS :: SVS',
+    'site_title' => env('APP_NAME', 'MINDWO') . ' :: SVS',
     
     'hello_title' => 'Sveicināti MEDUS SVS vietnē!',
     

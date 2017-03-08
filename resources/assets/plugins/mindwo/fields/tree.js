@@ -159,3 +159,7 @@ var TreeField = function()
 $(document).ajaxComplete(function(event, xhr, settings) {
     TreeField.init();
 });
+
+$(document).ready(function() {
+    TreeField.init();
+});

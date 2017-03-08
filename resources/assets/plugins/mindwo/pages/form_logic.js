@@ -84,10 +84,20 @@ var FormLogic = function()
            // Atjauninam statusa lauka vērtību
            $( "#" + form_htm_id  + " input[dx_fld_name='dx_item_status_id']").val(data['doc_status']);
 
-           // Noslēpjam augšejo pogu joslu
-           $("#top_toolbar_" + form_htm_id).hide();
-
-           notify_info("Darbplūsmas process veiksmīgi uzsākts!");
+           // reinit top menu
+           $("#top_toolbar_" + form_htm_id).find(".dx-wf-menu-group").remove();
+           $("#top_toolbar_" + form_htm_id).prepend(data.status_btn);
+           var frm_section = $( "#" + form_htm_id).find('.dx-cms-form-fields-section');
+           handleTaskHistoryMenuClick(frm_section);
+           handleCancelWorkflowMenuClick(frm_section);
+           
+           $("#top_toolbar_" + form_htm_id).find(".dx_form_btns_left").html(data.left_btns);           
+           initTopLeftBtns(frm_section);
+                      
+           // hide reject info if it is displayed
+           $("#" + form_htm_id).find('.dx-reject-info').hide();
+           
+           notify_info(Lang.get('task_form.msg_workflow_startet'));
 
            // Pārlādējam darbplūsmas uzdevumu sadaļu, lai parādās jaunais uzdevums
            $( "#" + form_htm_id + " button[dx_attr='refresh']").click();
@@ -207,7 +217,7 @@ var FormLogic = function()
             var approvers = getApproversState(block);
             
             if (approvers == "[]") {
-                notify_err("Lūdzu, norādiet vismaz vienu saskaņotāju!");
+                notify_err(Lang.get('task_form.err_provide_approver'));
                 return;
             }
             
@@ -330,23 +340,6 @@ var FormLogic = function()
                                 notify_err(frm_appr.attr('dx_system_error'));
                         }
                     }
-                },
-                error: function(jqXHR, textStatus, errorThrown)
-                {
-                    if( jqXHR.status === 422 ) 
-                     {
-                         var errors = jqXHR.responseJSON;
-                         var errorsHtml= '<ul>';
-                         $.each( errors, function( key, value ) {
-                             errorsHtml += '<li>' + value[0] + '</li>'; 
-                         });
-                         errorsHtml += '</ul>';
-                         toastr.error(errorsHtml);
-                     }
-                     else   
-                     {
-                         notify_err(frm_appr.attr('dx_system_error'));
-                     }
                 }
             }
         }).on('change', function(event) {
@@ -407,7 +400,7 @@ var FormLogic = function()
             
             if (item_id === 0)
             {
-                notify_err("Lai uzsāktu darbplūsmu, vispirms veiciet datu saglabāšanu!");
+                notify_err(Lang.get('task_form.err_first_save_to_init'));
                 return;
             }
        
@@ -432,7 +425,7 @@ var FormLogic = function()
             
             if (item_id === 0)
             {
-                notify_err("Lai dokumentu nodotu informācijai, vispirms tas ir jāsaglabā!");
+                notify_err(Lang.get('task_form.err_first_save_to_info'));
                 return;
             }
             
@@ -452,13 +445,162 @@ var FormLogic = function()
                 
                 if (cnt == 0) {
                     frm_info.find("input[name=empl_txt]").select2('data', {id:0, text:"", position_title: ""});
-                    frm_info.find("input[name=empl_txt]").select2("open");
+                    frm_info.find("select[name=role]").val(0);
                     frm_info.find(".dx-cms-empl-position-title").text("");
+                    frm_info.find("select[name=role]").focus();
                 }
             });
             
             frm_info.modal('show');            
         });
+    };
+    
+    /**
+     * Handles menu click for task history opening
+     * @param {object} section Form object
+     * @returns {undefined}
+     */
+    var handleTaskHistoryMenuClick = function(section) {
+        $("#list_item_view_form_" + section.attr("dx_form_id")).find(".dx-menu-task-history").click(function() {
+            var item_id = $( "#item_edit_form_" + section.attr("dx_form_id")  + " input[name='item_id']").val();
+            var list_id = section.attr("dx_list_id");
+            
+            $('#popup_window .modal-header h4').html(Lang.get('task_form.history_title'));
+
+            $("#popup_body").html(getProgressInfo());
+            $('#popup_window').modal('show');
+
+            var formData = "item_id=" + item_id + "&list_id=" + list_id;
+
+            var request = new FormAjaxRequestIE9 ('get_tasks_history', "", "", formData);            
+            request.progress_info = "";                       
+
+            request.callback = function(data) {
+                $('#popup_body').html(data['html']);
+            };
+
+            // execute AJAX request
+            request.doRequest();
+        });
+    };
+    
+    /**
+     * Handles history link click - opens history details list
+     * @param {object} section
+     * @returns {undefined}
+     */
+    var handleItemHistoryClick = function(section) {
+        $("#list_item_view_form_" + section.attr("dx_form_id")).find(".dx-cms-history-link").click(function() {
+            var item_id = $( "#item_edit_form_" + section.attr("dx_form_id")  + " input[name='item_id']").val();
+            var list_id = section.attr("dx_list_id");
+            
+            $('#popup_window .modal-header h4').html("<i class='fa fa-history'></i> " + Lang.get('form.history_form_title'));
+
+            $("#popup_body").html(getProgressInfo());
+            $('#popup_window').modal('show');
+
+            var formData = "item_id=" + item_id + "&list_id=" + list_id;
+
+            var request = new FormAjaxRequestIE9 ('get_item_history', "", "", formData);            
+            request.progress_info = "";                       
+
+            request.callback = function(data) {
+                $('#popup_body').html(data['html']);
+                handleHistoryDetailsClick($('#popup_body'));
+            };
+
+            // execute AJAX request
+            request.doRequest();
+        });
+    };
+    
+    /**
+     * Handles history details button click
+     * @param {object} frm History details container
+     * @returns {void}
+     */
+    var handleHistoryDetailsClick = function(frm) {
+        frm.find(".dx-cms-history_details").click(function() {
+           view_list_item('form', $(this).data('item_id'), $(this).data('list_id'), 0, 0, '', ''); 
+        });
+    };
+    
+    /**
+     * Opens worfklow cancelation form
+     * 
+     * @param {object} section Form object
+     * @returns {undefined}
+     */
+    var handleCancelWorkflowMenuClick = function(section) {
+        var main_form = $("#list_item_view_form_" + section.attr("dx_form_id"));
+        main_form.find(".dx-menu-cancel-workflow").click(function() {
+            
+            var cancel_form = $('#wf_cancel_form_' + section.attr("dx_form_id"));
+            
+            if (cancel_form.data('is-init') == "0") {
+                cancel_form.find('.dx-btn-cancel-wf').click(function() {
+                    handleCancelWorkflowBtnClick(cancel_form, main_form);
+                });
+                
+                cancel_form.on('shown', function () {
+                    cancel_form.find('textarea[name=comment]').focus();
+                    cancel_form.find('.modal-body').css('height', '138px');
+                });
+                
+                cancel_form.data('is-init', 1);
+            }
+            
+            cancel_form.modal('show');
+        });
+    };
+    
+    /**
+     * Handles workflow cancelation button pressing - cancels workflow
+     * @returns {undefined}
+     */
+    var handleCancelWorkflowBtnClick = function(frm, main_form) {
+        
+        var item_id = main_form.find("input[name='item_id']").val();
+        var list_id = frm.data('list-id');
+        var grid_id = frm.data('grid-id');
+        
+        var comment = frm.find('textarea[name=comment]').val();
+        
+        if (comment.length == 0) {
+            notify_err(Lang.get('task_form.err_comment_required_to_cancel'));
+            comment.focus();
+            return;
+        }
+        
+        var formData = new FormData();
+        formData.append("item_id", item_id);
+        formData.append("list_id", list_id);
+        formData.append("comment", comment);
+        
+        show_form_splash(1);
+        var request = new FormAjaxRequest('cancel_workflow', "", "", formData);            
+        request.progress_info = "";                       
+
+        request.callback = function(data) {
+            notify_info(Lang.get('task_form.msg_wf_canceled'));
+            hide_form_splash(1);
+            if (grid_id) {
+                reload_grid(grid_id);
+            }
+            main_form.find(".dx-wf-divider-cancel").hide();
+            main_form.find(".dx-menu-cancel-workflow").hide();
+            main_form.find(".dx-wf-menu-btn").removeClass("blue-hoki").addClass("red-soft").css('border-color', '#E43A45');
+            main_form.find(".dx-wf-menu-btn-title").html(Lang.get('task_form.doc_rejected'));
+            
+            var frm_section = main_form.find('.dx-cms-form-fields-section');
+            $("#top_toolbar_" + main_form.attr('id')).find(".dx_form_btns_left").html(data.left_btns);           
+            initTopLeftBtns(frm_section);
+            
+            frm.modal('hide');
+        };
+
+        // execute AJAX request
+        request.doRequest();
     };
     
     /**
@@ -471,9 +613,15 @@ var FormLogic = function()
      */
     var handleInfoTaskSendBtnClick = function(frm_info, section, item_id) {
         frm_info.find(".dx-cms-info-btn-send").click(function() {
+            var role_id = frm_info.find('select[name=role] option:selected').val();
             var data = frm_info.find("input[name=empl_txt]").select2('data');
+            var empl_id = 0;
             
-            if (!data || data.id == 0) {
+            if (data && data.id > 0) {
+                empl_id = data.id;
+            }
+            
+            if (role_id == 0 && empl_id == 0) {
                 notify_err(frm_info.attr('dx_error_empl_not_set'));
                 frm_info.find("input[name=empl_txt]").select2("open");
                 return;
@@ -482,26 +630,45 @@ var FormLogic = function()
             var formData = new FormData();
             formData.append("list_id", section.attr("dx_list_id"));
             formData.append("item_id", item_id);
-            formData.append("empl_id", data.id);
+            formData.append("empl_id", empl_id);
+            formData.append("role_id", role_id);
             formData.append("task_info", frm_info.find("textarea[name=task_details]").val());
 
             var request = new FormAjaxRequest ("send_info_task", "", "", formData);
 
-            request.callback = function() {
-               notify_info("Dokuments veiksmīgi nodots informācijai darbiniekam " + data.text + "!");
-               
-               frm_info.find(".dx-cms-no-info").remove();
-               frm_info.find(".dx-cms-info-list .scroller").append("<p>" + data.text + "</p>");
-               
-               var cnt = parseInt(frm_info.find(".dx-cms-info-task-count").text()) + 1;
-               
-               $("#list_item_view_form_" + section.attr("dx_form_id")).find(".dx-cms-info-task-count").text(cnt);               
-               $("#list_item_view_form_" + section.attr("dx_form_id")).find(".dx-cms-info-task-count").show();
-               frm_info.find(".dx-cms-info-task-count").text(cnt);
-               
-               frm_info.find("input[name=empl_txt]").select2('data', {id:0, text:"", position_title: ""});
-               
-               frm_info.find(".dx-cms-empl-position-title").text("");
+            request.callback = function(ret) {
+                
+                var cnt_add = ret.users.length;
+
+                if (cnt_add == 0) {
+                    notify_err(Lang.get('wf_info_task.err_nothing_done'));
+                    return;
+                }
+                
+                var msg_end = "n";
+                
+                if (cnt_add == 1) {
+                    msg_end = "1";
+                }
+                
+                var msg = Lang.get('wf_info_task.msg_done') + " " + cnt_add + " " + Lang.get('wf_info_task.msg_done_end_' + msg_end) + "!";
+
+                notify_info(msg);                
+
+                frm_info.find(".dx-cms-no-info").remove();
+                
+                $.each( ret.users, function( key, value ) {
+                    frm_info.find(".dx-cms-info-list .scroller").append("<p>" + value.display_name + "</p>");
+                });
+
+                var cnt = parseInt(frm_info.find(".dx-cms-info-task-count").text()) + cnt_add;
+
+                $("#list_item_view_form_" + section.attr("dx_form_id")).find(".dx-cms-info-task-count").text(cnt);               
+                $("#list_item_view_form_" + section.attr("dx_form_id")).find(".dx-cms-info-task-count").show();
+                frm_info.find(".dx-cms-info-task-count").text(cnt);
+                
+                frm_info.find("input[name=empl_txt]").select2('data', {id:0, text:"", position_title: ""});
+                frm_info.find(".dx-cms-empl-position-title").text("");
             };
 
             // izpildam AJAX pieprasījumu
@@ -550,6 +717,80 @@ var FormLogic = function()
     };
     
     /**
+     * Sets event handlers on forms top left menu buttons
+     * 
+     * @param {object} section Form object
+     * @returns {undefined}
+     */
+    var initTopLeftBtns = function(section) {
+        var frm = $("#list_item_view_form_" + section.attr("dx_form_id"));
+        var item_id = frm.find("input[name='item_id']").val();
+        var list_id = section.attr('dx_list_id');
+        var parent_field_id = section.data('parent-field-id');
+        var parent_item_id = section.data('parent-item-id');
+        var grid_htm_id = section.attr('dx_grid_id');
+        var frm_uniq_id = section.attr('dx_form_id');
+        
+        frm.find('.dx-form-btn-edit[data-is-init!="1"]').click(function() {
+            open_form('form', item_id, list_id, parent_field_id, parent_item_id, grid_htm_id, 1, 'list_item_view_form_' + frm_uniq_id);
+            $(this).attr('data-is-init', 1);
+        });
+        
+        frm.find('.dx-form-btn-delete[data-is-init!="1"]').click(function() {
+            delete_list_item('list_item_view_form_' + frm_uniq_id, grid_htm_id);
+            $(this).attr('data-is-init', 1);
+        });
+        
+        frm.find('.dx-form-btn-word[data-is-init!="1"]').click(function() {
+            generate_word(item_id, list_id, grid_htm_id, 'list_item_view_form_' + frm_uniq_id);
+            $(this).attr('data-is-init', 1);
+        });
+        
+        frm.find('.dx-form-btn-print[data-is-init!="1"]').click(function() {
+            downloadFormPDF(list_id, item_id);
+            $(this).attr('data-is-init', 1);
+        });
+        
+        handleWFInitBtnClick(section);
+        handleInfoTaskBtnClick(section);
+    };
+    
+    /**
+     * Generated and downloads PDF withs forms data
+     * 
+     * @param {integer} list_id Register ID
+     * @param {integer} item_id Item ID
+     * @returns {undefined}
+     */
+    function downloadFormPDF(list_id, item_id) {
+
+       show_form_splash();
+       show_page_splash();
+       var open_url = DX_CORE.site_url + "get_form_pdf_" + item_id + "_" + list_id;
+       
+       $.fileDownload(open_url, {
+           successCallback: function(url) {
+               hide_form_splash();
+               hide_page_splash();
+               notify_info(DX_CORE.trans_file_downloaded);            
+           },
+           failCallback: function(html, url) {
+               hide_form_splash();
+               hide_page_splash(); 
+               console.log("Download PDF Error: " + html);
+               try {
+                   var myData = JSON.parse(html);
+                   if (myData['success'] == 0) {
+                       notify_err(myData['error']);
+                   }
+               } catch (err) {
+                   notify_err(DX_CORE.trans_sys_error);
+               }
+           }
+       });
+   };
+    
+    /**
      * Sets focus on first editable field
      * 
      * @param {object} frm Form HTML object
@@ -570,10 +811,15 @@ var FormLogic = function()
     {        
         $(".dx-cms-form-fields-section[dx_is_init='0']").each(function() {
             handleRegBtnClick($(this));
-            handleWFInitBtnClick($(this));
-            handleInfoTaskBtnClick($(this));
+            handleTaskHistoryMenuClick($(this));
+            handleCancelWorkflowMenuClick($(this));
+            handleItemHistoryClick($(this));
+            
             adjustDataTabs($(this));
             setFocusFirstField($(this));
+            
+            initTopLeftBtns($(this));
+            
             $(this).attr('dx_is_init', 1); // uzstādam pazīmi, ka forma inicializēta
         });
         
@@ -591,4 +837,15 @@ var FormLogic = function()
 
 $(document).ajaxComplete(function(event, xhr, settings) {            
     FormLogic.init();           
+});
+
+$(window).on('beforeunload', function()
+{
+    var edit_forms = $(".dx-cms-form-fields-section[data-is-edit-mode=1]");
+    
+    if(edit_forms.length > 0){
+        hide_page_splash(1);
+        hide_form_splash(1);
+        return 'Your changes have not been saved.';
+    }
 });

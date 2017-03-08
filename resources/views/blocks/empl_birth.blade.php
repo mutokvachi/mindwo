@@ -1,7 +1,7 @@
 <div class="dx-employees-birth-page">
-    <h3 class="page-title">Dzimšanas dienas
+    <h3 class="page-title">{{ trans('empl_birth.widget_title') }}
         <small>
-            <a href="{{ Request::root() }}/dzimsanas_dienas_sodien">ŠODIEN
+            <a href="{{ Request::root() }}/dzimsanas_dienas_sodien">{{ trans('empl_birth.lbl_today') }}
             <span class="badge badge-success" style='margin-top: -15px;'> {{ $empl_cnt_day }} </span>
             </a>
         </small>
@@ -9,7 +9,7 @@
 
     <div class="dx-employees-birth-block">
         @include('search_tools.search_form', [
-                    'criteria_title' => 'Vārds/uzvārds',
+                    'criteria_title' => trans('empl_birth.criteria_title'),
                     'fields_view' => 'search_tools.birthday_fields',
                     'form_url' => 'dzimsanas_dienas_sodien'
                 ])
@@ -22,6 +22,8 @@
             @endforeach
         </div>
     @else
-        <div class="alert alert-danger" role="alert">Nav atrasts neviens atbilstošs ieraksts.</div>
+        @if ($is_post)
+        <div class="alert alert-danger" role="alert">{{ trans('empl_birth.nothing_found') }}</div>
+        @endif
     @endif
 </div>

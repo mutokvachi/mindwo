@@ -6,20 +6,16 @@
         <li>Varchar tipa lauki tiek veidoti ar tipu "Teksts". Datņu, reģistrācijas numuru, programmatūras kodu u.c. gadījumos jāveic papildus konfigurācijas.</li>
     </ul>
 </div>
-<div id="{{ $form_guid }}">
+<div id="{{ $form_guid }}" style="margin: 20px;">
     <form class="form-horizontal" id='item_edit_form_{{ $form_guid }}' method='POST' data-toggle="validator">
         <div>
-            @include('fields.visible', ['fld_name' => '', 'group_label' => '', 'label_title' => 'Reģistra nosaukums', 'is_required' => 1, 'hint' => 'Nosaukums tiks parādīts virs tabulārā saraksta. Jāraksta daudzskaitlī.', 'item_htm' => '<input class="form-control" type=text name = "register_title"  maxlength="500" value = "" required /><span class="glyphicon form-control-feedback" aria-hidden="true"></span>'])
+            @include('fields.visible', ['frm_uniq_id'=>'gener_reg', 'fld_name' => '', 'group_label' => '', 'label_title' => 'Reģistra nosaukums', 'is_required' => 1, 'hint' => 'Nosaukums tiks parādīts virs tabulārā saraksta. Jāraksta daudzskaitlī.', 'item_htm' => '<input class="form-control" type=text name = "register_title"  maxlength="500" value = "" required /><span class="glyphicon form-control-feedback" aria-hidden="true"></span>'])
         </div>
         <div>
-            @include('fields.visible', ['fld_name' => '', 'group_label' => '', 'label_title' => 'Formas nosaukums', 'is_required' => 1, 'hint' => 'Formas nosaukums jāraksta vienskaitlī.', 'item_htm' => '<input class="form-control" type=text name = "form_title"  maxlength="100" value = "" required /><span class="glyphicon form-control-feedback" aria-hidden="true"></span>'])
+            @include('fields.visible', ['frm_uniq_id'=>'gener_reg', 'fld_name' => '', 'group_label' => '', 'label_title' => 'Formas nosaukums', 'is_required' => 1, 'hint' => 'Formas nosaukums jāraksta vienskaitlī.', 'item_htm' => '<input class="form-control" type=text name = "form_title"  maxlength="100" value = "" required /><span class="glyphicon form-control-feedback" aria-hidden="true"></span>'])
         </div>
-        <div>
-            <div class="col-lg-4">
-            </div>
-            <div class="col-lg-8">
-                <button class="btn btn-primary" type="button" id='{{ $form_guid }}_generate' title="Ģenerēt reģistru" style="margin-left: -5px;">Ģenerēt</button>
-            </div>
+        <div>            
+            <button class="btn btn-primary" type="button" id='{{ $form_guid }}_generate' title="Ģenerēt reģistru" style="margin-left: -5px;">Ģenerēt</button>            
         </div>
         <input type=hidden name='obj_id' value='{{ $obj_id }}'>
     </form>

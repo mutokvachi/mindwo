@@ -92,13 +92,22 @@ function post_grid_ajax(formData, grid_data_htm_id, form_htm_id, is_scroll)
                 if (myData['success'] == 1)
                 { 
                     $("#" + grid_data_htm_id).html(myData['html']);
-                   
+                                        
                     if (is_scroll == 1)
                     {
                         var d = $("#" + form_htm_id).find(".modal-body");
 
                         d.scrollTop(d.prop("scrollHeight"));
-                    }                    
+                    }
+                    
+                    setTimeout(function(){ 
+                        PageMain.resizePage();                     
+                    }, 100);
+                    
+                    setTimeout(function(){ 
+                        $('.dropdown-toggle').dropdown();                        
+                    }, 1000);
+                    
                 } 
                 else
                 {
@@ -119,29 +128,6 @@ function post_grid_ajax(formData, grid_data_htm_id, form_htm_id, is_scroll)
        complete: function () {
            hide_form_splash();
            hide_page_splash(); 
-       },
-       error: function(jqXHR, textStatus, errorThrown)
-       {           
-           
-            if( jqXHR.status === 422 ) 
-            {
-                var errors = jqXHR.responseJSON;
-                var errorsHtml= '<ul>';
-                $.each( errors, function( key, value ) {
-                    errorsHtml += '<li>' + value[0] + '</li>'; 
-                });
-                errorsHtml += '</ul>';
-                toastr.error(errorsHtml);
-            }
-            else if (jqXHR.status === 401) {
-                notify_err(DX_CORE.trans_session_end);
-            }
-            else   
-            {
-                notify_err(DX_CORE.trans_general_error);
-            }
-            hide_form_splash();
-            hide_page_splash();
        }
    }); 
 }

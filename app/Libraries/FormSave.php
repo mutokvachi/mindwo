@@ -8,6 +8,7 @@ namespace App\Libraries
     use \App\Exceptions;
     use App\Libraries\DBHistory;
     use Log;
+    use App\Libraries\FormsActions;
     
     class FormSave
     {
@@ -193,6 +194,8 @@ namespace App\Libraries
                     $this->prepareTableSQL($fields);
 
                     $this->executeSQL();
+                    
+                    $this->executeActions(2);
                 }
             });
         }
@@ -222,6 +225,8 @@ namespace App\Libraries
          */
         private function processAllSingleVals()
         {
+            $this->executeActions(0);
+            
             $fields = $this->getFormsFields(-1, $this->form_id);
 
             DB::transaction(function () use ($fields)
@@ -231,7 +236,32 @@ namespace App\Libraries
                 $this->prepareTableSQL($fields);
 
                 $this->executeSQL();
+                
+                $this->executeActions(1);
             });
+        }
+        
+        /**
+         * Executes custom actions if cush are defined for form
+         * We have 2 types: before and after forms saving actions
+         * 
+         * @param integer $action_type Indicates what action types should be executed (0 - before save, 1 - after save, 2 - all)
+         */
+        private function executeActions($action_type) {
+            $actions = DB::table('dx_forms_actions as fa')
+                       ->select('a.code')
+                       ->join('dx_actions as a', 'fa.action_id', '=', 'a.id')
+                       ->where(function($query) use ($action_type) {
+                           if ($action_type != 2) {
+                               $query->where('fa.is_after_save', '=', $action_type);
+                           }
+                       })
+                       ->where('fa.form_id', '=', $this->form_id)
+                       ->get();
+            
+            foreach($actions as $action) {
+                $act = FormsActions\ActionFactory::build_action($this->request, $this->item_id, $action->code);
+            }
         }
 
         /**

@@ -7,14 +7,12 @@
 */
 
 return [
-
-    'logo' => '',
     
-    'logo_small' => '',
+    'app_name' => env('APP_NAME', 'MINDWO'),
     
-    'logo_txt' => 'Mindwo',
+    'logo_txt' => '',
     
-    'site_title' => 'MINDWO :: Login',
+    'site_title' => env('APP_NAME', 'MINDWO') . ' :: Login',
     
     'hello_title' => 'Welcome to the Mindwo team site!',
     

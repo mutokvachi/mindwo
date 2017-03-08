@@ -31,6 +31,18 @@ return [
     'new_employee' => 'Jauns darbinieks',
     'lbl_search_placeholder' => 'Meklēšanas kritērijs',
     'lbl_count' => 'Ierakstu skaits:',
-    'lbl_nothing_found' => 'Nav atrasts neviens atbilstošs ieraksts.', 
+    'lbl_nothing_found' => 'Nav atrasts neviens atbilstošs ieraksts.',
     
+    'lbl_holiday' => 'Brīvdiena',
+    'lbl_hired' => 'Pieņemts darbā',
+    'lbl_term_date' => 'Atbrīvots',
+    
+    'lbl_year_1' => 'gads',
+    'lbl_year_n' => 'gadi',
+    
+    'lbl_month_1' => 'mēnesis',
+    'lbl_month_n' => 'mēneši',
+    
+    'lbl_day_1' => 'diena',
+    'lbl_day_n' => 'dienas',
 ];

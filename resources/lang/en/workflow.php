@@ -75,6 +75,38 @@ return [
     'wf_init_add_form_employee_error_already_added' => 'Saskaņotājs jau ir pievienots!',
     
     // Placeholder for position title
-    'wf_init_add_form_employee_position_placeholder' => 'Amats'
+    'wf_init_add_form_employee_position_placeholder' => 'Amats',
     
+    'wf_init_approvers_title' => 'Saskaņotāju iestatīšana',
+    
+    'wf_init_aproovers_hint' => 'Ja nepieciešams, pirms darbplūsmas uzsākšanas variet koriģēt saskaņotāju secību, noņemt saskaņotāju vai pievienot vēl citus saskaņotājus.',
+    
+    'err_no_direct_manager' => "The workflow can not be started because the employee '%s' do not have dirrect manager!",
+    
+    'err_unsuported_activity' => 'Unsupported custom workflow activity code %s!',
+    
+    'fld_activity' => 'Activity',
+    
+    'performer_system' => 'System',
+    'performer_empl' => 'Employee',
+    'err_no_substitute' => "Employee '%s' is absent and the substitute person is not provided!",
+
+    'yes' => 'Yes',
+    'no' => 'No',
+    'success' => 'Workflow saved',
+    'wf_details' => "Workflow details",
+    'wf_steps' => "Workflow steps",
+    
+    'save' => 'Save',
+    'form_title' => 'Workflow',
+    'list' => 'Register',
+    'title' => 'Name',
+    'description' => 'Description',
+    'is_custom_approve' => 'Is custom approve',
+    'valid_from' => 'Valid from',
+    'valid_to' => 'Valid to',
+     'must_save_title' => 'Save workflow',
+    'must_save_text' => "Workflow must be saved before editting wokrflow's steps. Do You want to save workflow?",
+    
+    'lbl_deny' => 'DENIED',
 ];

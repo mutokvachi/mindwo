@@ -2,7 +2,7 @@
     <script type="text/javascript">
         $(function() {
             $( '#{{ $frm_uniq_id }}_{{ $item_field }}' ).datetimepicker({
-                lang: '{{ Lang::locale() }}',
+                lang: 'lv',
                 format:'{{ $tm_format }}',
                 timepicker:{{ $is_time }},
                 dayOfWeekStart: 1,

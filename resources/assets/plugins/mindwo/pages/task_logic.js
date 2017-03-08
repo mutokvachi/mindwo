@@ -6,6 +6,18 @@
 var TaskLogic = function()
 {    
     /**
+     * Callback function which will be executed after sucessfull delegation
+     * @type type
+     */
+    var delegateCallback = null;
+    
+    /**
+     * Callback function which will be executed on succesfull Yes or No decision
+     * @type type
+     */
+    var decisionCallback = null;
+    
+    /**
      * Uzdevuma deleģēšana
      * 
      * @param {object} frm_deleg Deleģēšanas formas HTML objekts
@@ -24,14 +36,22 @@ var TaskLogic = function()
         request.callback = function(data) {
             var frm_id = frm_deleg.attr('dx_frm_uniq_id');
             $('#item_edit_form_' + frm_id).find('input[name=task_status]').val(data.status);
-            reload_grid(frm_deleg.attr('dx_grid_htm_id'));
             
-            notify_info("Uzdevums veiksmīgi deleģēts!");
+            var grid_htm_id = frm_deleg.attr('dx_grid_htm_id');
+            if (grid_htm_id) {
+                reload_grid(grid_htm_id);
+            }
+            
+            if (delegateCallback) {
+                delegateCallback.call(this, frm_deleg.attr('dx_task_id'), data.status);
+            }
+            
+            notify_info(Lang.get('task_form.notify_task_delegated'));
         };
         
         // izpildam AJAX pieprasījumu
         request.doRequest();
-    }
+    };
     
     /**
      * Saglabā uzdevuma izpildes/noraidīšanas rezultātu
@@ -69,7 +89,7 @@ var TaskLogic = function()
         var employee_id = frm_deleg.find("select[name=employee_id]").val();
         
         if (employee_id == 0) {
-            notify_err("Jānorāda darbinieks, kuram tiks deleģēts uzdevums!");
+            notify_err(Lang.get('task_form.notify_err_provide_employee'));
             frm_deleg.find("select[name=employee_id]").focus();            
             return null;
         }
@@ -77,7 +97,7 @@ var TaskLogic = function()
         var task_txt = frm_deleg.find("textarea[name=task_txt]").val();
         
         if (task_txt.length == 0) {
-            notify_err("Jānorāda uzdevuma apraksts!");
+            notify_err(Lang.get('task_form.notify_err_provide_description'));
             frm_deleg.find("textarea[name=task_txt]").focus();            
             return null;
         }
@@ -103,7 +123,7 @@ var TaskLogic = function()
 
         if (save_url == "task_no" && comm.length == 0)
         {
-            notify_err("Noraidīšanas gadījumā ir obligāti jānorāda komentārs!");
+            notify_err(Lang.get('task_form.err_comment_required'));
             $( "#" + form_id  + " textarea[name='task_comment']").focus();            
             return null;
         }
@@ -138,24 +158,14 @@ var TaskLogic = function()
                 $( "#" + form_id  + " input[name='task_status']").val(data['task_status']);
                 $( "#" + form_id  + " textarea[name='task_comment']").attr('disabled','disabled');
                 $( "#btns_sec_" + frm.attr('dx_frm_uniq_id')).hide();
-
-                if (data['tasks_count'] == 0)
-                {
-                    $("#dx_tasks_count_li").hide();
-                    setTimeout(function() {
-                            $.gritter.add({
-                                title: 'Apsveicam!',
-                                text: '<i class="fa fa-thumbs-o-up"></i> Labs darbs - jums visi uzdevumi ir izpildīti.',
-                                time: 7000
-                            });
-                    }, 3000);
-                }
-                else
-                {
-                    $("#dx_tasks_count_badge").html(data['tasks_count']);
+                
+                updateMenuTasksCounter(data['tasks_count']);
+                                
+                if (decisionCallback) {
+                    decisionCallback.call(this, frm.attr('dx_task_id'));
                 }
 
-                notify_info("Uzdevuma dati veiksmīgi saglabāti!");
+                notify_info(Lang.get('task_form.notify_saved'));
             } 
             else
             {             	
@@ -164,6 +174,29 @@ var TaskLogic = function()
         }
         catch (err){
             notify_err(escapeHtml(err));
+        }
+    };
+    
+    /**
+     * Updates total task count in TOP menu badge and displays congratulation message if all tasks are done
+     * @param {integer} cnt Total tasks count
+     * @returns {undefined}
+     */
+    var updateMenuTasksCounter = function(cnt) {
+        if (cnt == 0)
+        {
+            $("#dx_tasks_count_li").hide();
+            setTimeout(function() {
+                    $.gritter.add({
+                        title: Lang.get('task_form.congrat_title'),
+                        text: '<i class="fa fa-thumbs-o-up"></i> ' + Lang.get('task_form.congrat_all_done'),
+                        time: 7000
+                    });
+            }, 3000);
+        }
+        else
+        {
+            $("#dx_tasks_count_badge").html(cnt);
         }
     };
     
@@ -289,7 +322,7 @@ var TaskLogic = function()
     var initDueDateField = function(frm_deleg) {
         
         frm_deleg.find(".dx-cms-date-field input[name=due_date]").datetimepicker({
-            lang: 'lv',
+            lang: Lang.getLocale(),
             format: frm_deleg.attr('dx_date_format'),
             timepicker: false,
             dayOfWeekStart: 1,
@@ -320,7 +353,7 @@ var TaskLogic = function()
                 }
             },
             errors: {
-                foo: 'Nav norādīta vērtība!'
+                foo: Lang.get('task_form.err_value_not_set')
             },
             feedback: {
                 success: 'glyphicon-ok',
@@ -371,6 +404,18 @@ var TaskLogic = function()
     return {
         init: function() {
             initForm();
+        },
+        initFormDelegate: function(frm_deleg) {
+            initFormDelegate(frm_deleg);
+        },
+        setDelegateCallback: function(callback) {
+            delegateCallback = callback;
+        },
+        setDecisionCallback: function(callback) {
+            decisionCallback = callback;
+        },
+        updateMenuTasksCounter: function(cnt) {
+            updateMenuTasksCounter(cnt);
         }
     };
 }();

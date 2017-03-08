@@ -4,6 +4,8 @@ namespace App\Libraries\Workflows\Performers
 {
     use DB;
     use App\Exceptions;
+    use Log;
+    
     /**
      * Darbplūsmas izpildītājs - darbinieks klase
      */
@@ -16,12 +18,18 @@ namespace App\Libraries\Workflows\Performers
          */
         public function setEmployeeID()
         {
+            $fld_row = DB::table("dx_lists_fields")->where('id', '=', $this->step_row->field_id)->first();
+            
+            \App\Libraries\Workflows\Helper::validateEmplField($fld_row);
+            
+            $empl_id = \App\Libraries\Workflows\Helper::getDocEmplValue($this->step_row->list_id, $this->item_id, $fld_row);
+            
             $empl_row = DB::table('dx_users')
-                        ->where('id', '=', $this->step_row->employee_id)
+                        ->where('id', '=', $empl_id)
                         ->first();
             
             if (!$empl_row->manager_id) {
-                throw new Exceptions\DXCustomException("Nav iespējams izveidot uzdevumu, jo darbiniekam '" . $empl_row->display_name . "' nav norādīts tiešais vadītājs!");
+                throw new Exceptions\DXCustomException(sprintf(trans('workflow.err_no_direct_manager'), $empl_row->display_name));
             }
             
             $item = ["empl_id" => $empl_row->manager_id, 'due_days' => $this->step_row->term_days, 'wf_approv_id' => null];

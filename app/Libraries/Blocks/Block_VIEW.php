@@ -46,8 +46,8 @@ namespace App\Libraries\Blocks
             if (strlen($this->rights_htm) !== 0) {
                 return $this->rights_htm; // nav tiesību
             }
-
-            return view('blocks.view', [
+            
+            return view('blocks.view.view', [
                         'block_id' => $this->grid->grid_data_htm_id,
                         'grid_title' => $this->grid->grid_title,
                         'grid_id' => $this->grid->grid_id,
@@ -59,7 +59,8 @@ namespace App\Libraries\Blocks
                         'rel_field_id' => $this->rel_field_id, // tab gridam
                         'rel_field_value' => $this->rel_field_value, // tab gridam
                         'form_htm_id' => $this->form_htm_id, // tab gridam
-                        'combo_items' => getViewsComboItems($this->grid->list_id, $this->tab_id),
+                        'combo_items' => $this->getViewsComboItems($this->grid->list_id, $this->tab_id, false),
+                        'combo_items_my' => $this->getViewsComboItems($this->grid->list_id, $this->tab_id, true),
                         'grid_data_htm_id' => $this->grid->grid_data_htm_id, // tab gridam
                         'menu_id' => $this->grid->menu_id,
                         'tab_id' => $this->tab_id, // tab gridam
@@ -69,7 +70,9 @@ namespace App\Libraries\Blocks
                         'grid_form' => $this->grid->form_url,
                         'hint' => $this->getListHint($this->grid->list_id),
                         'is_setting_rights' => $this->getSettingRights(),
-                        'open_item_id' => Input::get('open_item_id', 0)
+                        'open_item_id' => Input::get('open_item_id', 0),
+                        'form_type_id' => $this->grid->form_type_id,
+                        'operations' => DB::table('dx_field_operations')->orderBy('title')->get()
                     ])->render();
         }
 
@@ -214,8 +217,8 @@ namespace App\Libraries\Blocks
                 }
                 else {
                     return view('elements.error', [
-                        'page_title' => "Piekļuve liegta",
-                        'message' => "Jums nav piepieciešamo tiesību, lai piekļūtu skata <b>" . $view_row->title . "</b> datiem!"
+                        'page_title' => trans('errors.access_denied_title'),
+                        'message' => sprintf(trans('errors.access_denied_msg'), $view_row->title)
                     ])->render();
                 }
             }
@@ -237,7 +240,41 @@ namespace App\Libraries\Blocks
             $grid = DataView\DataViewFactory::build_view('Grid', $view_row->id);
 
             $grid->grid_data_htm_id = 'block_' . Uuid::generate(4);
+            
             return $grid;
+        }
+        
+        /**
+         * Izgūst reģistra skatus attēlošanai izkrītošajā izvēlnē
+         * 
+         * @param integer $list_id Reģistra idnetifikators no tabulas dx_lists
+         * @param string $tab_id Paneļa HTML id, kurā iekļauts apakšgrids (formas gadījumā)
+         * @param boolean $is_my Pazīme, vai attēlot tikai personīgos skatus
+         * @return Array Masīvs ar skatu informāciju
+         */
+        private function getViewsComboItems($list_id, $tab_id, $is_my)
+        {
+            $fld_is_hidden = 'is_hidden_from_main_grid';
+
+            if (strlen($tab_id) > 0)
+            {
+                $fld_is_hidden = 'is_hidden_from_tabs';
+            }
+
+            return DB::table('dx_views')
+                   ->where('list_id', '=', $list_id)
+                   ->whereIn('view_type_id', [1, 9])
+                   ->where($fld_is_hidden, '=', 0)
+                   ->where(function($query) use ($is_my) {
+                       if ($is_my) {
+                           $query->where('me_user_id', '=', Auth::user()->id);
+                       }
+                       else {
+                        $query->whereNull('me_user_id');
+                       }
+                   })
+                   ->orderBy('title')
+                   ->get();
         }
 
     }

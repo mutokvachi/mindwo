@@ -1,4 +1,4 @@
-<textarea {{ ($is_disabled) ? 'disabled' : '' }} id='{{ $frm_uniq_id }}_{{ $item_field }}' name='{{ $item_field }}' rows='10' style='width: 100%'>{{ $item_value }}</textarea>
+<textarea {{ ($is_disabled) ? 'readonly' : '' }} id='{{ $frm_uniq_id }}_{{ $item_field }}' name='{{ $item_field }}' rows='10' style='width: 100%'>{{ $item_value }}</textarea>
 
 @if (!$is_disabled)
     <script type="text/javascript">

@@ -15,14 +15,34 @@ return [
     'view' => 'View',
     'btn_edit' => 'Edit',
     'btn_delete' => 'Delete',
+    'btn_copy' => 'Copy',
+    'btn_pdf' => 'To PDF',
     'btn_start_workflow' => 'Start workflow',
     'btn_info' => 'Inform',
     'btn_info_hint' => 'Employees which receives document as informative task',
     'btn_save' => 'Save',
     'btn_close' => 'Close',
     'btn_cancel' => 'Cancel',
+    'btn_accept' => 'Accept',
+    'btn_yes' => 'Yes',
+    'btn_no' => 'No',
+    'modal_confirm_title' => 'Confirmation',
+    'modal_confirm_body' => 'Do you want to confirm the action?',
     'err_value_not_set' => 'Value not set!',
     'badge_edit' => 'Editing',
-    'badge_new' => 'New'
+    'badge_new' => 'New',
     
+    'lbl_full_screen' => 'Is full screen mode',
+    
+    // To PDF
+    'lbl_data' => 'Data',
+    'lbl_id' => 'Record ID',
+    'lbl_print_date' => 'Data as of',
+    
+    'link_history' => 'History',
+    'hint_history' => 'View item changes history',
+    'history_form_title' => 'History',
+    'btn_changes' => 'See changes',
+    
+    'history_not_found' => 'This item does not have any changes history record.',
 ];

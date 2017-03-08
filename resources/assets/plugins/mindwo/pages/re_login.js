@@ -13,13 +13,12 @@ var reLogin = window.reLogin = {
         var request = new FormAjaxRequest(ajax_url, "", "", formData);
 
         request.callback = function (result) {
-            var successMsg = reLogin.auth_popup.attr('data-success');
-            notify_info(successMsg);
+            notify_info(Lang.get('relogin_form.relogin_ok'));
             $("#popup_authorization").modal("hide");
             reLogin.updateToken(result.token);
         };
 
-        request.err_callback = function (msg) {
+        request.err_callback = function () {
             user_name.val("");
             pasw.val("");
         };
@@ -63,29 +62,29 @@ var reLogin = window.reLogin = {
             return false;
         }
     });
-
+    /*
     var reLoginModal = reLogin.auth_popup;
     reLoginModal.on('shown.bs.modal', function () {
         reLoginModal.find("input[name='user_name']").val("").focus();
         reLoginModal.find("input[name='password']").val("");
     });
-
+    */
     // Override $.ajax
     // Store a reference to the original remove method.
+    /*
     var originalPostMethod = jQuery.ajax;
-
+    
     // Define overriding method.
     jQuery.ajax = function (data) {
-        
         // Execute the original method.
         var callMethod = originalPostMethod.apply(this, arguments);
 
-        callMethod.error(function (result) {            
+        callMethod.error(function (result) {
             // Check for 401 (Unautorized) status
             if (result.status === 401) {
-                //console.log(result);
                 reLoginModal.modal("show");
             }
         });
     };
+    */
 })();

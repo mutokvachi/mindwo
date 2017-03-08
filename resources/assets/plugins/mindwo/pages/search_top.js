@@ -216,9 +216,11 @@ var SearchTop = function()
      */
     var handleCopyPasteSearch = function() {
         $('#search_criteria').bind('paste', function () {            
-            setTimeout(function () {
-                doAjaxSearch();
-            }, 100);
+            if (current_type == txt_employee) {
+                setTimeout(function () {
+                    doAjaxSearch();
+                }, 100);
+            }
         });
     };
     
@@ -328,10 +330,11 @@ var SearchTop = function()
         
         initHandlers();
         
-        // uzstāda, ka pēc noklusēšanas tiks meklēti darbinieki
-        $("#searchType").val(txt_employee);
-        current_type = txt_employee;
+        var search_obj = $("#dx-top-search-div");
         
+        $("#searchType").val(search_obj.attr('trans_default'));
+        current_type = search_obj.attr('trans_default');
+
         placeSearchBox();
         
         // Pievienojam izslīdošā darbinieku rezultātu bloka pārzīmēšanas izsaukumu uz lapas/loga izmēra izmaiņām

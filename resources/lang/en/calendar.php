@@ -23,4 +23,20 @@ return [
     */
     
     'days_arr' => ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    
+    'lbl_month' => 'Month',
+    'lbl_month_from' => 'From month',
+    
+    'lbl_day' => 'Day',
+    'lbl_day_from' => 'From day',
+    
+    'lbl_year' => 'Year',
+    'lbl_year_from' => 'From year',
+    
+    'hours' => "hours",
+    'days' => 'days',
+    
+    'international' => 'International',
+    'holiday' => 'Holiday',
+    'birthdays' => 'Birthdays',
 ];

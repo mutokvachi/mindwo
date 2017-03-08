@@ -11,10 +11,22 @@ var AutocompleateField = function()
      * @returns {undefined} 
      */
     var handleBtnAdd = function(fld_elem) {
-        fld_elem.find(".dx-rel-id-add-btn").click(function() {            
+        fld_elem.find(".dx-rel-id-add-btn").on("click", function() {            
             var cur_val = fld_elem.find(".dx-auto-input-id").val();
             
-            rel_new_form(fld_elem.attr("data-form-url"), fld_elem.attr("data-rel-list-id"), cur_val, fld_elem.attr("data-rel-field-id"), fld_elem.attr("id"), "AutocompleateField");             
+            if (fld_elem.data("is-profile")) {
+                if (cur_val > 0) {
+                    show_page_splash(1);
+                    show_form_splash(1);
+                    window.location = fld_elem.data("profile-url") + cur_val;            
+                }
+                else {
+                    notify_err(Lang.get('fields.err_choose_val'));
+                }
+            }
+            else {
+                rel_new_form(fld_elem.attr("data-form-url"), fld_elem.attr("data-rel-list-id"), cur_val, fld_elem.attr("data-rel-field-id"), fld_elem.attr("id"), "AutocompleateField");                            
+            }
         });
     };
     
@@ -27,6 +39,11 @@ var AutocompleateField = function()
         fld_elem.find(".dx-rel-id-del-btn").click(function() {
             fld_elem.find('.dx-auto-input-select2').select2('data', {id:0, text:""});
             fld_elem.find("input.dx-auto-input-id").val(0);
+            
+            if (fld_elem.data("is-profile")) {
+                fld_elem.find(".dx-rel-id-add-btn").hide();
+            }
+            
         });
     };
     
@@ -70,7 +87,7 @@ var AutocompleateField = function()
     var initSelect2 = function(fld_elem) {
         fld_elem.find('.dx-auto-input-select2').select2({
             placeholder: fld_elem.attr("data-trans-search"),
-            minimumInputLength: 3,
+            minimumInputLength: fld_elem.attr("data-min-length"),
             ajax: {
                 type: 'POST',
                 url: DX_CORE.site_url  + 'fill_autocompleate',
@@ -85,7 +102,8 @@ var AutocompleateField = function()
                         list_id: fld_elem.attr("data-rel-list-id"),
                         txt_field_id: fld_elem.attr("data-rel-field-id"),
                         rel_view_id: fld_elem.attr("data-rel-view_id"),
-                        rel_display_formula_field: fld_elem.attr("data-rel-formula-field"),
+                        rel_display_formula_field: fld_elem.attr("data-rel-formula-field"),                        
+                        field_id: fld_elem.attr("data-field-id"),
                     };
                 },
                 results: function (data, page) {                 
@@ -100,41 +118,31 @@ var AutocompleateField = function()
                     {
                         if (data.error)
                         {
-                                notify_err(data.error);
+                            notify_err(data.error);
                         }
                         else
                         {
-                                notify_err(DX_CORE.trans_general_error);
+                            console.log("Some unknown autocompleate error!")    
+                            notify_err(DX_CORE.trans_general_error);
                         }
                     }
-                },
-                error: function(jqXHR, textStatus, errorThrown)
-                {
-                    if( jqXHR.status === 422 ) 
-                     {
-                         var errors = jqXHR.responseJSON;
-                         var errorsHtml= '<ul>';
-                         $.each( errors, function( key, value ) {
-                             errorsHtml += '<li>' + value[0] + '</li>'; 
-                         });
-                         errorsHtml += '</ul>';
-                         toastr.error(errorsHtml);
-                     }
-                     else   
-                     {
-                         notify_err(DX_CORE.trans_general_error);
-                     }
-                }            
+                }       
             }
         }).on('change', function(event) {
 
             if (event.val)
             {
                 fld_elem.find("input.dx-auto-input-id").val(event.val);
+                if (fld_elem.data("is-profile")) {
+                    fld_elem.find(".dx-rel-id-add-btn").show();
+                }
             }
             else
             {
                 fld_elem.find("input.dx-auto-input-id").val(0);
+                if (fld_elem.data("is-profile")) {
+                    fld_elem.find(".dx-rel-id-add-btn").hide();
+                }
             }	
         });
         
@@ -143,15 +151,28 @@ var AutocompleateField = function()
     };
     
     /**
+     * Show or hide add button in case of employee profile logic
+     * 
+     * @param {object} fld_elem Field element
+     * @returns {undefined}
+     */
+    var initProfileBtn = function(fld_elem) {        
+        if (fld_elem.data("is-profile") && fld_elem.find("input.dx-auto-input-id").val() == "0") {            
+            fld_elem.find(".dx-rel-id-add-btn").hide();
+        }
+    };
+    
+    /**
      * Inits autocompleate fields
      * 
      * @returns {undefined}
      */
     var initField = function() {
-        $(".dx-autocompleate-field[data-is-init=0]").each(function() {            
+        $(".dx-autocompleate-field[data-is-init=0][data-is-manual-init=0]").each(function() {            
             handleBtnAdd($(this));
             handleBtnDel($(this));
             initSelect2($(this));
+            initProfileBtn($(this));
             $(this).attr('data-is-init', 1);
         });       
     };
@@ -162,10 +183,23 @@ var AutocompleateField = function()
         },
         update_callback: function(fld_htm_id, val_id, val_title) {
             update_callback(fld_htm_id, val_id, val_title);
+        },
+        initSelect: function(fld_el) {
+            fld_el.find('button.dx-rel-id-add-btn').hide();
+            initSelect2(fld_el);
+            
+            if (fld_el.attr('data-is-init') != "1") {
+                handleBtnDel(fld_el);
+            }
+            fld_el.attr('data-is-init', 1);
         }
     };
 }();
 
 $(document).ajaxComplete(function(event, xhr, settings) {
+    AutocompleateField.init();
+});
+
+$(document).ready(function() {
     AutocompleateField.init();
 });

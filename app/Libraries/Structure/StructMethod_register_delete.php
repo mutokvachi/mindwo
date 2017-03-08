@@ -19,8 +19,8 @@ namespace App\Libraries\Structure
     class StructMethod_register_delete extends StructMethod
     {
 
-        private $obj_id = 0;
-        private $list_id = 0;
+        public $obj_id = 0;
+        public $list_id = 0;
 
         /**
          * Inicializē klases parametrus
@@ -88,7 +88,7 @@ namespace App\Libraries\Structure
          */
         private function validateData()
         {
-            if ($this->obj_id == 0 || $this->list_id == 0) {
+            if ($this->list_id == 0) {
                 throw new Exceptions\DXCustomException("Visi lauki ir obligāti jānorāda!");
             }
         }

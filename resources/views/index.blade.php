@@ -37,8 +37,8 @@
 
         <div class="text-center" style="max-width: 300px; width: 300px; margin: 0 auto; margin-top: 100px;">       
             <div>
-                @if (trans('index.logo'))
-                    <img src="{{ trans('index.logo') }}" alt="LOGO" />
+                @if (!trans('index.logo_txt'))
+                    <img src="{{ Config::get('dx.logo_big') }}" alt="LOGO" />
                 @else
                     <span style="font-size: 48px; color: #2e6da4; text-transform: uppercase;">{{ trans('index.logo_txt') }}</span>
                 @endif
@@ -58,7 +58,7 @@
                 <input type="hidden" name="_token" value="{{ csrf_token() }}"> 
             </form>
 
-            <button type="button" class="btn btn-primary block full-width m-b" style="margin-bottom: 10px; background-color: #243c68;" id="btnLogin">{{ trans("index.login") }}</button>           
+            <button type="button" class="btn btn-primary block full-width m-b" style="margin-bottom: 10px; background-color: #3f7c99;" id="btnLogin">{{ trans("index.login") }}</button>           
             
             <p class="m-t"> <small>{{ trans("index.version") }}</small> </p>
             

@@ -7,6 +7,7 @@ namespace App\Libraries {
     use Auth;
     use App\Libraries\Rights;
     use App\Exceptions;
+    use Config;
     
     class View 
     {  
@@ -27,6 +28,12 @@ namespace App\Libraries {
 	public $rel_formula = "";
 	public $grid_title = "";
         public $is_rights_check_off = 0;
+        
+        /**
+         * Include hidden fields in the view model array
+         * @var boolean 1 - include, 0 - dont include 
+         */
+        public $is_hidden_in_model = 0;
         
         public function __construct($list_id, $view_id, $user_id)
         {
@@ -312,7 +319,8 @@ namespace App\Libraries {
 				vf.is_hidden,
 				st.sys_name as order_by,
 				vf.is_sum,
-				at.sys_name as aggregation
+				at.sys_name as aggregation,
+                                lf.rel_list_id
 			FROM
 				dx_views_fields vf
 				inner join dx_lists_fields lf on vf.field_id = lf.id
@@ -485,7 +493,18 @@ namespace App\Libraries {
 				
 				$sql_fields =  $sql_fields . $row->rel_table_db_name . "_" . $rel_cnt . "." . $row->rel_field_db_name . " as " . $fld_name;
 				
-				$sql_join = $sql_join . " LEFT JOIN " . $row->rel_table_db_name . " " . $row->rel_table_db_name . "_" . $rel_cnt . " ON " . $row->rel_table_db_name . "_" . $rel_cnt . ".id = " . $this->list_obj_db_name . "." . $row->db_name;
+                                if ($row->list_id == Config::get('dx.employee_list_id', 0)) {
+                                    // ignore supervision rules for related employees in employees list
+                                    // because we need to see related manager
+                                    $superv_sql = "";
+                                    $join_type = " LEFT JOIN ";
+                                }
+                                else {
+                                    $superv_sql = Rights::getSQLSuperviseRights($row->rel_list_id, $row->rel_table_db_name . "_" . $rel_cnt);                                
+                                    $join_type = (strlen($superv_sql) > 0) ? " JOIN " : " LEFT JOIN ";
+                                }
+                                
+				$sql_join = $sql_join . $join_type . $row->rel_table_db_name . " " . $row->rel_table_db_name . "_" . $rel_cnt . " ON " . $row->rel_table_db_name . "_" . $rel_cnt . ".id = " . $this->list_obj_db_name . "." . $row->db_name . $superv_sql;
 				
 				$original_field = $fld_name; 			
 			}
@@ -540,15 +559,8 @@ namespace App\Libraries {
 						$fld = $this->list_obj_db_name . "." . $row->db_name;
 					}
 					
-					if ($row->sys_name == "bool")
-					{
-						$sql_fields =  $sql_fields . "case when " . $fld . "=1 then 'Jā' else 'Nē' end as " . $fld_name;
-					}
-					else
-					{
-						$sql_fields =  $sql_fields . $fld . " as " . $fld_name;
-					}
-					
+                                        $sql_fields =  $sql_fields . $fld . " as " . $fld_name;
+										
 					if ($row->sys_name == "email")
 					{
 						array_push ($this->email_fld_arr, $fld_name); // we put all email fields in array which can be used to process email sending logic
@@ -588,6 +600,10 @@ namespace App\Libraries {
 						{
 							$crit = $this->user_id;
 						}
+                                                
+                                                if ($row->sys_name == "bool") {
+                                                    $crit = ($row->criteria == "'" . trans('fields.yes') . "'") ? 1 : 0;
+                                                }
 						$sql_filter = $sql_filter . " AND " . $original_field . $row->operation . $crit;
 					}
 				}
@@ -599,7 +615,7 @@ namespace App\Libraries {
 				}
 				else
 				{
-					if ($row->is_hidden == 0)
+					if ($row->is_hidden == 0 || $this->is_hidden_in_model)
 					{
 						$arr_fld_opt = array(
 								"field_id" => $row->id,
@@ -611,7 +627,8 @@ namespace App\Libraries {
 								"width" => $row->width,
 								"search" => true,
 								"sortable" => true,
-								"type" => $row->sys_name
+								"type" => $row->sys_name,
+                                                                "is_hidden" => $row->is_hidden
 								);
 						
 						// Grand total logic
@@ -698,57 +715,23 @@ namespace App\Libraries {
                 
                 // Here we join sqls for related lists
 		$sql_join = $sql_join . " " . $sql_rights_join;
-		$spec_access = $sql_rights_where;
-		
-		/*
-		// Autocompleate view formula check
-		if (strlen($this->rel_formula) > 0)
-		{
-			$formula = $this->rel_formula;
-			
-			preg_match_all('/\[(.*?)\]/', $formula, $out_arr);
-			
-			//str_replace("]","'",str_replace("[","'",implode(",", $out_arr[0])))
-			$qMarks = str_repeat('?,', count($out_arr[1]) - 1) . '?';
-			
-			$sql_f = "SELECT db_name, title_list from dx_views_fields vf inner join dx_lists_fields lf on vf.field_id = lf.id WHERE vf.view_id = " . $this->view_id . " AND isnull(vf.alias_name, lf.title_list) in (" . $qMarks  . ")";
-			$sth_f = $this->db_con->prepare($sql_f);
-			$result_f = $sth_f->execute($out_arr[1]);
-			
-			if (!$result_f)
-			{
-				$this->err = "Wrong SQL for formula fields!";
-				return "";
-			}
-			
-			
-			while ($row_f = $sth_f->fetch(PDO::FETCH_ASSOC))
-			{
-				$formula = str_replace("[" . $row_f["title_list"] . "]", $this->list_obj_db_name . "." . $row_f["db_name"], $formula);
-			}
-
-		}
-		*/
-		
-		//$grid_sql = "SELECT * FROM (SELECT " . $sql_fields . " FROM " . $this->list_obj_db_name . $sql_join . " WHERE 1=1 " . $sql_multi . $sql_tab_where . $this->sql_user_rights . $spec_access . ") tb WHERE 1=1 " . $sql_filter;
-                                
+		$spec_access = $sql_rights_where;		
+		                                
                 $grid_sql = "";
                 if ($view_row->view_type_id != 9 || strlen($this->sql_user_rights) > 0)
-                {
-                    /*
-                    if ($view_row->is_hidden_from_tabs == 1)
-                    {
-                        $grid_sql = "SELECT " . $sql_fields . " FROM " . $this->list_obj_db_name . $sql_join . " WHERE 1=1 " . $sql_multi . $sql_tab_where . $this->sql_user_rights . $spec_access . $sql_filter;
-                        
-                        DB::statement('CREATE OR REPLACE VIEW v_data_' . $this->view_id . ' as ' . $grid_sql);
-                        $grid_sql = "SELECT * FROM v_data_" . $this->view_id . " WHERE 1=1 "; 
+                {                    
+                    $superv_sql = "";
+                    
+                    if ($this->list_id != Config::get('dx.employee_list_id', 0) || !$this->is_rights_check_off) {
+                        $superv_sql = Rights::getSQLSuperviseRights($this->list_id, $this->list_obj_db_name);
                     }
-                    else
-                    {
-                    */
                     
+                    $source_rights = "";
+                    if (strlen($superv_sql) == 0) { // supervision domains is primary over source rights
+                        $source_rights = Rights::getSQLSourceRights($this->list_id, $this->list_obj_db_name);
+                    }
                     
-                    $grid_sql = "SELECT * FROM (SELECT " . $sql_fields . " FROM " . $this->list_obj_db_name . $sql_join . " WHERE 1=1 " . $this->getListLevelFilter() . $sql_multi . $sql_tab_where . Rights::getSQLSourceRights($this->list_id, $this->list_obj_db_name) . $this->sql_user_rights . $spec_access . ") tb WHERE 1=1 " . $sql_filter;
+                    $grid_sql = "SELECT * FROM (SELECT " . $sql_fields . " FROM " . $this->list_obj_db_name . $sql_join . " WHERE 1=1 " . $this->getListLevelFilter() . $sql_multi . $sql_tab_where . $superv_sql . $source_rights . $this->sql_user_rights . $spec_access . ") tb WHERE 1=1 " . $sql_filter;
                     
                 }
                 else
@@ -763,7 +746,7 @@ namespace App\Libraries {
                 //DB::statement('CREATE OR REPLACE VIEW v_data_' . $this->view_id . ' as ' . $grid_sql);
 
                 //$sql = "SELECT * FROM v_data_" . $this->view_id . " WHERE 1=1 "; 
-               
+                
                 return $grid_sql;
                 
 	}

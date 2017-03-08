@@ -6,6 +6,8 @@ var DX_CORE = {
     last_execs: [],
     last_times: [],
     forms_ids: [],
+    forms_guids: [],
+    forms_callbacks: [],
     items_ids: [],
     form_height_ratio: 0.9,
     valid_elements: "",
@@ -71,9 +73,9 @@ function unregister_form(form_htm_id) {
 
 function get_previous_form_by_list(current_form_htm_id, previous_item_id) {
     var index = DX_CORE.forms_ids.indexOf(current_form_htm_id);
-
+    
     if (index > -1) {
-        for (var i = index; i >= 0; i--) {
+        for (var i = index; i >= 0; i--) {           
             if (DX_CORE.items_ids[i] == previous_item_id) {
                 return DX_CORE.forms_ids[i];
             }
@@ -121,6 +123,36 @@ function is_executing(guid) {
     }
 
     return false;
+}
+
+function add_form_callbacks(form_guid, arr_callbacks) {    
+    if (form_guid.length == 0) {
+        return;
+    }
+    
+    var index = DX_CORE.forms_guids.indexOf(form_guid);
+    
+    if (index == -1) {
+        DX_CORE.forms_guids.push(form_guid);
+        DX_CORE.forms_callbacks.push(arr_callbacks);
+        return;
+    }
+    
+    DX_CORE.forms_callbacks[index] = arr_callbacks;
+}
+
+function get_form_callbacks(form_guid) {
+    if (form_guid.length == 0) {
+        return;
+    }
+    
+    var index = DX_CORE.forms_guids.indexOf(form_guid);
+    
+    if (index == -1) {
+        return;
+    }
+    
+    return DX_CORE.forms_callbacks[index];
 }
 
 function start_executing(guid) {
@@ -179,7 +211,6 @@ function stop_executing_forced(guid) {
  */
 function show_dx_progres(txt) 
 {
-    debug_log("Show dx progress");
     show_page_splash();
 }
 
@@ -190,7 +221,6 @@ function show_dx_progres(txt)
  */
 function hide_dx_progres() 
 {
-    debug_log("Hide dx progress");
     hide_page_splash();
 }
 
@@ -212,9 +242,6 @@ function authorize_user(login, password) {
         dataType: "html",
         success: function(data) {
             rez = data;
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            alert(DX_CORE.trans_general_error);
         }
     });
 
@@ -250,9 +277,8 @@ function load_view_in_grid(list_id, view_id) {
                 $("#grid_title").html(menu_title);
             }
         },
-        error: function(jqXHR, textStatus, errorThrown) {
+        error: function() {
             $("#grid_title").html("");
-            notify_err(DX_CORE.trans_general_error);
         }
     });
 }
@@ -346,7 +372,7 @@ function download_file(item_id, list_id, file_field_id) {
     
     show_form_splash();
     show_page_splash();
-    var open_url = DX_CORE.site_url + "download_file_" + item_id + "_" + list_id + "_" + file_field_id;
+    var open_url = DX_CORE.site_url + "download_filejs_" + item_id + "_" + list_id + "_" + file_field_id;
 
     $.fileDownload(open_url, {
         successCallback: function(url) {
@@ -356,7 +382,7 @@ function download_file(item_id, list_id, file_field_id) {
         },
         failCallback: function(html, url) {
             hide_form_splash();
-            hide_page_splash();
+            hide_page_splash();            
             try {
                 var myData = JSON.parse(html);
                 if (myData['success'] == 0) {
@@ -443,9 +469,8 @@ function show_page_splash(is_lock)
     
     if (is_lock == 1) {
         is_splash_lock = 1;
-    }
+    }    
     
-    debug_log("Show page splash. is_splash_lock = " + is_splash_lock);
     if ( App ) {
         App.blockUI({message: DX_CORE.trans_please_wait, boxed: true});
     }
@@ -467,7 +492,6 @@ function hide_page_splash(is_unlock)
         is_splash_lock = 0;
     }
     
-    debug_log("Hide page splash. is_splash_lock = " + is_splash_lock);
     if ( App ) {
         App.unblockUI();
     }
@@ -487,8 +511,7 @@ function show_form_splash(is_lock)
     if (is_lock == 1) {
         is_splash_lock = 1;
     }
-    
-    debug_log("Show form splash");
+        
     if ( App ) {
         App.blockUI({
             target: '.modal-content',
@@ -513,8 +536,7 @@ function hide_form_splash(is_unlock)
     if (is_unlock == 1) {
         is_splash_lock = 0;
     }
-    
-    debug_log("Hide form splash");
+        
     if ( App ) {
         App.unblockUI('.modal-content');
     }
@@ -604,47 +626,23 @@ function FormAjaxRequest (url, form_htm_id, grid_htm_id, formData) {
                 
             },
             beforeSend: function () {
-                if (progress_info != ""){
+                if (progress_info){
                     show_page_splash();
                     show_form_splash();
                 }
             },
             error: function(jqXHR, textStatus, errorThrown)
             {
-                if( jqXHR.status === 422 ) 
+                var err_txt = PageMain.getAjaxErrTxt(jqXHR);
+                if (err_callback)
                 {
-                    var errors = jqXHR.responseJSON;
-                    var errorsHtml= '<ul>';
-                    $.each( errors, function( key, value ) {
-                        errorsHtml += '<li>' + value[0] + '</li>'; 
-                    });
-                    errorsHtml += '</ul>';
-                    toastr.error(errorsHtml);
-                    
-                    if (err_callback)
-                    {
-                        err_callback.call(this, errorsHtml);
-                    }
+                    err_callback.call(this, err_txt);
                 }
-                else   
-                {                   
-                    var err_txt = DX_CORE.trans_sys_error;
-                    notify_err(err_txt);
-                    console.log("AJAX kļūda: " + errorThrown);
-                    
-                    if (err_callback)
-                    {
-                        err_callback.call(this, err_txt);
-                    }
-                }
-                
+                console.log("AJAX kļūda: " + errorThrown);
                 if (form_htm_id)
                 {
                     stop_executing(form_htm_id);
                 }
-                
-                hide_page_splash(1);
-                hide_form_splash(1);
             }
         });
     };
@@ -738,35 +736,12 @@ function FormAjaxRequestIE9 (url, form_htm_id, grid_htm_id, formData) {
             },
             error: function(jqXHR, textStatus, errorThrown)
             {
-                if( jqXHR.status === 422 ) 
+                var err_txt = PageMain.getAjaxErrTxt(jqXHR);
+                if (err_callback)
                 {
-                    var errors = jqXHR.responseJSON;
-                    var errorsHtml= '<ul>';
-                    $.each( errors, function( key, value ) {
-                        errorsHtml += '<li>' + value[0] + '</li>'; 
-                    });
-                    errorsHtml += '</ul>';
-                    toastr.error(errorsHtml);
-                    
-                    if (err_callback)
-                    {
-                        err_callback.call(this, errorsHtml);
-                    }
+                    err_callback.call(this, err_txt);
                 }
-                else   
-                {
-                    hide_dx_progres();
-                    hide_form_splash();
-                    var err_txt = DX_CORE.trans_sys_error;
-                    notify_err(err_txt);
-                    console.log("AJAX kļūda: " + errorThrown);
-                    
-                    if (err_callback)
-                    {
-                        err_callback.call(this, err_txt);
-                    }
-                }
-                
+                console.log("AJAX kļūda: " + errorThrown);
                 if (form_htm_id)
                 {
                     stop_executing(form_htm_id);

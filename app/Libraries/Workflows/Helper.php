@@ -45,12 +45,40 @@ namespace App\Libraries\Workflows
                 }
                 else {
                     $arr_vals[\App\Http\Controllers\TasksController::REPRESENT_REG_NR] = Helper::getMetaValByField($table_name, $list_id, \App\Http\Controllers\TasksController::REPRESENT_REG_NR, $item_id);
-                }                
+                }
             }
             else {
                 $arr_vals[\App\Http\Controllers\TasksController::REPRESENT_ABOUT] = Helper::getMetaValByField($table_name, $list_id, \App\Http\Controllers\TasksController::REPRESENT_ABOUT, $item_id);
-                $arr_vals[\App\Http\Controllers\TasksController::REPRESENT_REG_NR] = Helper::getMetaValByField($table_name, $list_id, \App\Http\Controllers\TasksController::REPRESENT_REG_NR, $item_id);
+                $arr_vals[\App\Http\Controllers\TasksController::REPRESENT_REG_NR] = Helper::getMetaValByField($table_name, $list_id, \App\Http\Controllers\TasksController::REPRESENT_REG_NR, $item_id);   
             }
+            
+            $arr_vals = Helper::setEmplRepresent($arr_vals, $table_name, $list_id, $item_id);
+            
+            return $arr_vals;
+        }
+        
+        /**
+         * Set value for employee representation field
+         * 
+         * @param array $arr_vals Representation array
+         * @param string $table_name Table name where value can be found
+         * @param integer $list_id Register ID
+         * @param integer $item_id Item ID
+         * @return array Representation array
+         * @throws \App\Libraries\Workflows\Exception
+         */
+        private static function setEmplRepresent($arr_vals, $table_name, $list_id, $item_id) {
+            try {
+                $arr_vals[\App\Http\Controllers\TasksController::REPRESENT_EMPL] = Helper::getMetaValByField($table_name, $list_id, \App\Http\Controllers\TasksController::REPRESENT_EMPL, $item_id);
+            }
+            catch (\Exception $e) {
+                if ($e instanceof Exceptions\DXNoRepresentField) {
+                    $arr_vals[\App\Http\Controllers\TasksController::REPRESENT_EMPL] = null;
+                }
+                else {
+                    throw $e;
+                }
+            } 
             
             return $arr_vals;
         }
@@ -94,7 +122,7 @@ namespace App\Libraries\Workflows
                     return Helper::getSubstitEmpl($subst->substit_empl_id, $info); // atgriežam aizvietotāju (pārbaudot tā prombūtni)
                 }
                 else {                    
-                    throw new Exceptions\DXCustomException("Prombūtnē esošam darbiniekam '" . $user->display_name . "' nav norādīts aizvietotājs!");
+                    throw new Exceptions\DXCustomException(sprintf(trans('workflow.err_no_substitute'), $user->display_name));
                 }
             }
             
@@ -242,13 +270,22 @@ namespace App\Libraries\Workflows
                     ->first();
 
             if (!$fld_row) {
-                throw new Exceptions\DXCustomException("Darbplūsmas skatam nav norādīts, kurus dokumenta laukus attēlot uzdevumā! Sazinieties ar sistēmas uzturētāju.");
+                throw new Exceptions\DXNoRepresentField();
             }
 
             $fld_val_row = DB::table("dx_lists_fields")->where("id", "=", $fld_row->field_id)->first();
 
             $val_row = DB::table($table_name)->select(DB::raw($fld_val_row->db_name . " as val"))->where('id', '=', $item_id)->first();
 
+            if ($val_row->val && ($fld_val_row->type_id == \App\Libraries\DBHelper::FIELD_TYPE_LOOKUP || $fld_val_row->type_id == \App\Libraries\DBHelper::FIELD_TYPE_RELATED || $fld_val_row->type_id == \App\Libraries\DBHelper::FIELD_TYPE_MULTILEVEL)) {
+                $obj_row = \App\Libraries\DBHelper::getListObject($fld_val_row->rel_list_id);
+                $fld_row = DB::table("dx_lists_fields")->where("id", "=", $fld_val_row->rel_display_field_id)->first();
+                
+                $rel_val_row = DB::table($obj_row->db_name)->select(DB::raw($fld_row->db_name . " as val"))->where('id', '=', $val_row->val)->first();
+                
+                return $rel_val_row->val;
+            }
+            
             return $val_row->val;
         }
        
@@ -260,7 +297,7 @@ namespace App\Libraries\Workflows
          * @return Array Masīvs ar aizvietošanas/izpildītāja informāciju: employee_id - izpildītāja ID, subst_info - aizvietošanas gadījumā aizvietotāju dati teksta veidā
          * @throws Exceptions\DXCustomException
          */
-        private static function validateEmployee($empl_id, $info) {
+        public static function validateEmployee($empl_id, $info) {
             // pārbaudam vai jau strādā un vēl nav atbrīvots no darba
             $user = DB::table('dx_users')
                     ->select(
@@ -293,6 +330,75 @@ namespace App\Libraries\Workflows
                 'picture_guid' => $user->picture_guid,
                 'position_title' => $user->position_title
             );
+        }
+        
+        /**
+         * Gets item's workflow cancelation info
+         * 
+         * @param integer $list_id List ID
+         * @param integer $item_id Item ID
+         * @return object Data with wf cancelation info
+         */
+        public static function getWFRejectedInfo($list_id, $item_id) {
+   
+            //find last noninformative task
+            $last_task = DB::table('dx_tasks')
+                            ->where('list_id', '=', $list_id)
+                            ->where('item_id', '=', $item_id)
+                            ->where('task_type_id', '!=', \App\Http\Controllers\TasksController::TASK_TYPE_INFO)
+                            ->orderBy('id', 'DESC')
+                            ->first();
+
+            // lets findout if workflow was canceled forced
+            $wf_info = DB::table('dx_workflows_info as i')
+                    ->select('u.display_name', 'i.end_time as task_closed_time', 'u.picture_guid', 'u.id as end_user_id', 'i.comment as task_comment')
+                    ->leftJoin('dx_users as u', 'i.init_user_id', '=', 'u.id')
+                    ->where('i.id','=',$last_task->wf_info_id)
+                    ->where('i.is_forced_end', '=', 1)
+                    ->first();
+
+            if ($wf_info) {                
+                return $wf_info;
+            }
+            else {                
+                // lets find last task with status rejected row
+                return  DB::table('dx_tasks as t')
+                                 ->select('u.display_name', 't.task_comment', 't.task_closed_time', 'u.picture_guid', 'u.id as end_user_id')
+                                 ->leftJoin('dx_users as u', 't.task_employee_id', '=', 'u.id')
+                                 ->where('t.list_id', '=', $list_id)
+                                 ->where('t.item_id', '=', $item_id)
+                                 ->where('t.task_type_id', '!=', \App\Http\Controllers\TasksController::TASK_TYPE_INFO)
+                                 ->where('t.task_status_id', '=', \App\Http\Controllers\TasksController::TASK_STATUS_DENY)
+                                 ->orderBy('t.id', 'DESC')
+                                 ->first();
+            }
+        }
+        
+         /**
+        * Nosaka ieraksta apstiprināšanas statusu (ja ir definēta apstiprināšanas darbplūsma)
+        * 
+        * @param integer $list_id  Reģistra ID
+        * @param integer $item_id  Ieraksta ID
+        * @return integer  Apstiprināšanas statuss no tabulas dx_item_statuses
+        */
+        public static function getItemApprovalStatus($list_id, $item_id)
+        {
+            if ($item_id == 0) {
+                return 1; // ieraksts nav apstiprināts, jo vispār vēl nav pat saglabāts
+            }
+
+            $doc_table = \App\Libraries\Workflows\Helper::getListTableName($list_id);
+
+            $item_data = DB::table($doc_table)
+                         ->select('dx_item_status_id')
+                         ->where("id", "=", $item_id)
+                         ->first();
+
+            if ($item_data) {
+                return ($item_data->dx_item_status_id >0) ? $item_data->dx_item_status_id : 1;
+            }
+
+            return 1; // workflow not started
         }
 
     }

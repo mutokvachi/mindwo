@@ -13,6 +13,6 @@ return [
     'success_msg' => 'Autorizācija veiksmīga!',
     'form_title' => 'Atkārtota autorizācija',
     'user_name' => 'Lietotājvārds:',
-    'password' => 'Parole:'
-    
+    'password' => 'Parole:',
+    'relogin_ok' => 'Autorizācija sekmīga! Lūdzu, atkārtojiet iepriekš (pirms autorizācijas) izpildīto darbību vēlreiz.',
 ];
