@@ -221,6 +221,14 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
             self.domObject.data('dx_is_init', '1');
 
+            var footer = self.domObject.closest('.modal-content').find('.modal-footer');
+            footer.prepend('<button type="button" class="btn btn-primary dx-cms-workflow-form-btn-save">&nbsp;' + Lang.get('workflow.save') + '</button>');
+
+            self.domObject.closest('.modal').on('hidden.bs.modal', function () {
+                $(this).unbind("hidden.bs.modal");
+                $('.dx-cms-workflow-form-btn-save', $(this)).remove();
+            });
+
             // Sets parameters
             self.workflowId = self.domObject.data('wf_id');
             self.wfRegisterListId = self.domObject.data('wf_register_id');
@@ -232,17 +240,17 @@ mxBasePath = '/js/plugins/mxgraph/src';
             self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_from');
             self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_to');
 
-            $('.dx-cms-workflow-form-btn-save', self.domObject).click(function () {
+            $('.dx-cms-workflow-form-btn-save', footer).click(function () {
                 self.save({self: self, initGraph: false});
             });
 
             self.initGraph(self);
 
-            if (self.domObject) {
-                self.handleModalScrollbar(self.domObject);
-                self.handleModalHide(self.domObject);
-                self.domObject.modal('show');
-            }
+            /*if (self.domObject) {
+             self.handleModalScrollbar(self.domObject);
+             self.handleModalHide(self.domObject);
+             self.domObject.modal('show');
+             }*/
 
             hide_form_splash(1);
         },
@@ -434,8 +442,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
                                         me.getState() == null))
                                 {
                                     var tol = iconTolerance;
-                                    var scroll_y = $('.dx-cms-workflow-form-body', self.domObject)[0].scrollTop;
-                                    var scroll_x = $('.dx-cms-workflow-form-body', self.domObject)[0].scrollLeft;
+                                    var scroll_y = self.domObject.closest('.modal-body')[0].scrollTop;
+                                    var scroll_x = self.domObject.closest('.modal-body')[0].scrollLeft;
 
                                     var tmp = new mxRectangle(me.getGraphX() - tol - scroll_x,
                                             me.getGraphY() - tol - scroll_y, 2 * tol, 2 * tol);
@@ -896,3 +904,28 @@ $(document).ajaxComplete(function () {
     // Initializes all found worklfow containers
     $('.dx-cms-workflow-form[data-dx_is_init=0]').DxWorkflow();
 });
+
+/*
+ var btns_div = form_object.find(".dx_form_btns_left");
+ 
+ var make_button = function () {
+ 
+ if ($("#dx-btn-wf-designer" + form_object.attr('id')).length != 0) {
+ return; // poga jau ir pievienota
+ }
+ 
+ btns_div.append("<button id='dx-btn-wf-designer" + form_object.attr('id') + "' type='button' class='btn btn-white dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'><i class='fa fa-eye'></i> " + Lang.get('open_designer') + " </button>");
+ 
+ $("#dx-btn-wf-designer" + form_object.attr('id')).click(function () {
+ var item_id = form_object.find("input[name=id]").val();
+ var item_url = '/workflow/visual/form';
+ var item_title = Lang.get('workflow.form_title');
+ 
+ get_popup_item_by_id(item_id, item_url, item_title);
+ });
+ };
+ 
+ if (btns_div)
+ {
+ make_button();
+ }*/

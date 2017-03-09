@@ -114,4 +114,5 @@ return [
     'delete_confirm_title' => 'Delete element',
     'delete_confirm_text' => "Do You want to delete this workflow's element?",
     'lbl_deny' => 'DENIED',
+    'open_designer' => 'Open visual designer',
 ];

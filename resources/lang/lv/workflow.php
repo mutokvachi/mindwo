@@ -113,4 +113,5 @@ return [
     'delete_confirm_title' => 'Elementa dzēšana',
     'delete_confirm_text' => 'Vai vēlaties dzēst šo darbplūsmas elementu?',
     'lbl_deny' => 'NORAIDĪJA',
+    'open_designer' => 'Atvērt grafisko redaktoru',
 ];

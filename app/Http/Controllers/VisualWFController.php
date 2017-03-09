@@ -63,6 +63,8 @@ class VisualWFController extends Controller
             $max_step_nr = 0;
         }
 
+        return  view('pages.wf_test');
+        
         return view('pages.wf_test', ['json_data' => '',
                     'portal_name' => 'Mindwo',
                     'form_title' => 'Workflow',
@@ -559,8 +561,15 @@ class VisualWFController extends Controller
 
         //\Log::info(json_endoce(Request::all()));
 
-        $workflow_id = $request->input('item_id', 0);
-        $list_id = $request->input('list_id', 0);
+        $workflow_id = $request->input('item_id', 0);        
+
+        if ($workflow_id > 0) {
+            $workflow = \App\Models\Workflow\Workflow::find($workflow_id);
+        } else{
+            return 'Workflow not saved';
+        }
+        
+        $list_id = $workflow->list_id;
 
         $list = \App\Models\Lists::find($list_id);
         if ($list) {
@@ -569,10 +578,6 @@ class VisualWFController extends Controller
         } else {
             $list_title = '';
             $wf_register_id = 0;
-        }
-
-        if ($workflow_id > 0) {
-            $workflow = \App\Models\Workflow\Workflow::find($workflow_id);
         }
 
         $max_step = $this->getLastStep($workflow);
@@ -587,7 +592,7 @@ class VisualWFController extends Controller
         $frm_uniq_id = Uuid::generate(4);
         $is_disabled = false; //read-only rights by default
 
-        $form_htm = view('workflow.visual_ui.wf_form', [
+        $form_htm = view('workflow.visual_ui.wf_component', [
             'frm_uniq_id' => $frm_uniq_id,
             'form_title' => trans('workflow.form_title'),
             'is_disabled' => $is_disabled,

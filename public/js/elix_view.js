@@ -21461,6 +21461,14 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
             self.domObject.data('dx_is_init', '1');
 
+            var footer = self.domObject.closest('.modal-content').find('.modal-footer');
+            footer.prepend('<button type="button" class="btn btn-primary dx-cms-workflow-form-btn-save">&nbsp;' + Lang.get('workflow.save') + '</button>');
+
+            self.domObject.closest('.modal').on('hidden.bs.modal', function () {
+                $(this).unbind("hidden.bs.modal");
+                $('.dx-cms-workflow-form-btn-save', $(this)).remove();
+            });
+
             // Sets parameters
             self.workflowId = self.domObject.data('wf_id');
             self.wfRegisterListId = self.domObject.data('wf_register_id');
@@ -21472,17 +21480,17 @@ mxBasePath = '/js/plugins/mxgraph/src';
             self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_from');
             self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_to');
 
-            $('.dx-cms-workflow-form-btn-save', self.domObject).click(function () {
+            $('.dx-cms-workflow-form-btn-save', footer).click(function () {
                 self.save({self: self, initGraph: false});
             });
 
             self.initGraph(self);
 
-            if (self.domObject) {
-                self.handleModalScrollbar(self.domObject);
-                self.handleModalHide(self.domObject);
-                self.domObject.modal('show');
-            }
+            /*if (self.domObject) {
+             self.handleModalScrollbar(self.domObject);
+             self.handleModalHide(self.domObject);
+             self.domObject.modal('show');
+             }*/
 
             hide_form_splash(1);
         },
@@ -21674,8 +21682,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
                                         me.getState() == null))
                                 {
                                     var tol = iconTolerance;
-                                    var scroll_y = $('.dx-cms-workflow-form-body', self.domObject)[0].scrollTop;
-                                    var scroll_x = $('.dx-cms-workflow-form-body', self.domObject)[0].scrollLeft;
+                                    var scroll_y = self.domObject.closest('.modal-body')[0].scrollTop;
+                                    var scroll_x = self.domObject.closest('.modal-body')[0].scrollLeft;
 
                                     var tmp = new mxRectangle(me.getGraphX() - tol - scroll_x,
                                             me.getGraphY() - tol - scroll_y, 2 * tol, 2 * tol);
@@ -22137,6 +22145,30 @@ $(document).ajaxComplete(function () {
     $('.dx-cms-workflow-form[data-dx_is_init=0]').DxWorkflow();
 });
 
+/*
+ var btns_div = form_object.find(".dx_form_btns_left");
+ 
+ var make_button = function () {
+ 
+ if ($("#dx-btn-wf-designer" + form_object.attr('id')).length != 0) {
+ return; // poga jau ir pievienota
+ }
+ 
+ btns_div.append("<button id='dx-btn-wf-designer" + form_object.attr('id') + "' type='button' class='btn btn-white dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'><i class='fa fa-eye'></i> " + Lang.get('open_designer') + " </button>");
+ 
+ $("#dx-btn-wf-designer" + form_object.attr('id')).click(function () {
+ var item_id = form_object.find("input[name=id]").val();
+ var item_url = '/workflow/visual/form';
+ var item_title = Lang.get('workflow.form_title');
+ 
+ get_popup_item_by_id(item_id, item_url, item_title);
+ });
+ };
+ 
+ if (btns_div)
+ {
+ make_button();
+ }*/
 var mxClient={VERSION:"3.7.1",IS_IE:0<=navigator.userAgent.indexOf("MSIE"),IS_IE6:0<=navigator.userAgent.indexOf("MSIE 6"),IS_IE11:!!navigator.userAgent.match(/Trident\/7\./),IS_EDGE:!!navigator.userAgent.match(/Edge\//),IS_QUIRKS:0<=navigator.userAgent.indexOf("MSIE")&&(null==document.documentMode||5==document.documentMode),IS_EM:"spellcheck"in document.createElement("textarea")&&8==document.documentMode,VML_PREFIX:"v",OFFICE_PREFIX:"o",IS_NS:0<=navigator.userAgent.indexOf("Mozilla/")&&0>navigator.userAgent.indexOf("MSIE")&&
 0>navigator.userAgent.indexOf("Edge/"),IS_OP:0<=navigator.userAgent.indexOf("Opera/")||0<=navigator.userAgent.indexOf("OPR/"),IS_OT:0<=navigator.userAgent.indexOf("Presto/")&&0>navigator.userAgent.indexOf("Presto/2.4.")&&0>navigator.userAgent.indexOf("Presto/2.3.")&&0>navigator.userAgent.indexOf("Presto/2.2.")&&0>navigator.userAgent.indexOf("Presto/2.1.")&&0>navigator.userAgent.indexOf("Presto/2.0.")&&0>navigator.userAgent.indexOf("Presto/1."),IS_SF:0<=navigator.userAgent.indexOf("AppleWebKit/")&&
 0>navigator.userAgent.indexOf("Chrome/")&&0>navigator.userAgent.indexOf("Edge/"),IS_IOS:navigator.userAgent.match(/(iPad|iPhone|iPod)/g)?!0:!1,IS_GC:0<=navigator.userAgent.indexOf("Chrome/")&&0>navigator.userAgent.indexOf("Edge/"),IS_CHROMEAPP:null!=window.chrome&&null!=chrome.app&&null!=chrome.app.runtime,IS_FF:0<=navigator.userAgent.indexOf("Firefox/"),IS_MT:0<=navigator.userAgent.indexOf("Firefox/")&&0>navigator.userAgent.indexOf("Firefox/1.")&&0>navigator.userAgent.indexOf("Firefox/2.")||0<=navigator.userAgent.indexOf("Iceweasel/")&&
