@@ -223,9 +223,19 @@ class EmployeePersonalDocController extends Controller
         }
 
         $emp_pers_doc->user_id = $user_id;
-        $emp_pers_doc->doc_id = (int) $input_row['document_type'];
+        $emp_pers_doc->doc_id = $input_row['document_type'];
         $emp_pers_doc->publisher = $input_row['publisher'];
         $emp_pers_doc->doc_nr = $input_row['doc_nr'];
+
+        if (!$emp_pers_doc->id) {
+            $emp_pers_doc->created_user_id = \Auth::user()->id;
+            $emp_pers_doc->created_time = new \DateTime();
+        }
+
+        if ($emp_pers_doc->isDirty()) {
+            $emp_pers_doc->modified_user_id = \Auth::user()->id;
+            $emp_pers_doc->modified_time = new \DateTime();
+        }
 
         $valid_to = check_date($input_row['valid_to'], config('dx.date_format'));
 
