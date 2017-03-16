@@ -88,4 +88,8 @@ return [
     'lbl_criteria_title' => 'Filtrēšanas vērtība',
     'error_filter_must_be_set' =>"Nav uzstādīta filtrēšanas vērtība!",
     
+    'sort_asc' => 'Kārtot augoši',
+    'sort_desc' => 'Kārtot dilstoši',
+    'sort_off' => 'Nav kārtošana',
+    
 ];

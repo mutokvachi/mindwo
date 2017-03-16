@@ -412,6 +412,7 @@ class ImportController extends Controller
                 ->leftJoin('dx_objects as o_rel', 'l_rel.object_id', '=', 'o_rel.id')
                 ->where('lf.list_id', '=', $this->list_id)
                 ->whereIn('lf.type_id', $this->supported_fields)
+                ->whereNull('lf.formula')
                 ->get();
 
         $this->addFormatedTitles();

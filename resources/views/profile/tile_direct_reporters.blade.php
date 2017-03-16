@@ -2,7 +2,7 @@
 <div class="mt-element-list">
     <div class="mt-list-head list-simple font-white bg-green-jungle">
         <div class="list-head-title-container">
-            <h4 class="list-title">
+            <h4>
                 {{ trans('empl_profile.direct_reporters') }}
                 <span class="badge badge-primary">{{ count($employee->subordinates) }}</span>
             </h4>             

@@ -27,6 +27,13 @@ var BlockViews = function()
     var open_item_id = 0;
     
     /**
+     * Indicates if mouse pointer is in filtering menu area
+     * 
+     * @type Number
+     */
+    var is_filter_menu_in = 0;
+    
+    /**
      * Pārlādē bloka tabulārā saraksta datus.
      * Pārlādē vai nu sarakstu, kas ir galvenajā lapā vai arī formā iekļauto sadaļas sarakstu
      * 
@@ -173,31 +180,34 @@ var BlockViews = function()
     {
         $('#' + grid_id + ' th.t_header').on('click', function(event) {
             event.preventDefault();
-            
-            if ($('#' + grid_id).data('sorting_field') == $(this).attr('fld_name'))
+            performSorting(grid_id, tab_id, $(this).attr('fld_name'));            
+        });
+    };
+    
+    var performSorting = function(grid_id, tab_id, fld_name) {
+        if ($('#' + grid_id).data('sorting_field') == fld_name)
+        {
+            if ($('#' + grid_id).data('sorting_direction') == '1')
             {
-                if ($('#' + grid_id).data('sorting_direction') == '1')
-                {
-                    $('#' + grid_id).data('sorting_direction', '2'); // desc
-                }
-                else
-                {
-                    if ($('#' + grid_id).data('sorting_direction') == '2')
-                    {
-                        $('#' + grid_id).data('sorting_direction', '0'); // remove sorting
-                        $('#' + grid_id).data('sorting_field', '');
-                    }
-                }
-
+                $('#' + grid_id).data('sorting_direction', '2'); // desc
             }
             else
             {
-                $('#' + grid_id).data('sorting_field', $(this).attr('fld_name'));
-                $('#' + grid_id).data('sorting_direction', '1'); // asc
+                if ($('#' + grid_id).data('sorting_direction') == '2')
+                {
+                    $('#' + grid_id).data('sorting_direction', '0'); // remove sorting
+                    $('#' + grid_id).data('sorting_field', '');
+                }
             }
-            
-            reloadBlockGrid(grid_id, tab_id);
-        });
+
+        }
+        else
+        {
+            $('#' + grid_id).data('sorting_field', fld_name);
+            $('#' + grid_id).data('sorting_direction', '1'); // asc
+        }
+
+        reloadBlockGrid(grid_id, tab_id);
     };
 
     /**
@@ -1196,8 +1206,110 @@ var BlockViews = function()
         }
     };
     
+    /**
+     * Add popup dropdown behavior to all items wich have dropdown logic
+     * 
+     * @param {object} el_block Grid HTML object
+     * @returns {undefined}
+     */
     var addHoverDropdowns = function(el_block) {
         el_block.find(".dropdown-toggle").dropdownHover();
+    };
+    
+    /**
+     * Show/hide popup on filtering button hovering
+     * 
+     * @param {type} el_block
+     * @returns {undefined}
+     */
+    var addHoverFilters = function(el_block) {
+        
+        el_block.find("a.header-filter").click(function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            var el_popup = el_block.find('div.dx-dropdown-content');
+            if (el_popup.is(':visible')) {
+                el_popup.hide();
+                is_filter_menu_in = 0;
+            }
+            else {
+                el_popup.show();
+            }
+        });
+        
+        el_block.find("a.header-filter").hover(
+            function() {
+                
+                var menu = el_block.find('div.dx-dropdown-content');
+                
+                var offset = $(this).offset();
+                var height = $(this).closest('thead').height();
+                                
+                var frame_offset = el_block.offset();
+                
+                menu.css('top', height + 'px');
+                menu.css('left', offset.left - $(this).outerWidth() - frame_offset.left + 'px');
+                
+                var fld_name = $(this).closest('th').attr('fld_name');
+                menu.attr('data-field', fld_name);
+                menu.show();
+            }, function() {
+                var fld_name = $(this).closest('th').attr('fld_name');
+                setTimeout(function(){ 
+                    var menu = el_block.find('div.dx-dropdown-content');                    
+                    if (!is_filter_menu_in && fld_name === menu.attr('data-field')) {
+                        el_block.find('div.dx-dropdown-content').hide();
+                    }
+                }, 500);
+                
+            }
+        );
+
+        el_block.find("div.dx-dropdown-content").hover(
+            function() {
+                is_filter_menu_in = 1;
+            }, function() {
+                is_filter_menu_in = 0;
+                el_block.find('div.dx-dropdown-content').hide();
+            }
+        );
+    };
+    
+    /**
+     * Hanldes filtering menu clicking - make sorting
+     * 
+     * @param {object} el_block Grid's HTML element
+     * @param {string} grid_id Grid ID
+     * @param {string} tab_id Tab ID
+     * @returns {undefined}
+     */
+    var handleFilteringOptions = function(el_block, grid_id, tab_id) {
+        el_block.find('div.dx-dropdown-content a.dx-sort-asc').click(function() {
+            var field_name = $(this).closest('.dx-dropdown-content').data('field');
+            
+            $('#' + grid_id).data('sorting_field', field_name);
+            $('#' + grid_id).data('sorting_direction', '1');
+            
+            reloadBlockGrid(grid_id, tab_id);
+        });
+        
+        el_block.find('div.dx-dropdown-content a.dx-sort-desc').click(function() {            
+            var field_name = $(this).closest('.dx-dropdown-content').data('field');
+            
+            $('#' + grid_id).data('sorting_field', field_name);
+            $('#' + grid_id).data('sorting_direction', '2');
+            
+            reloadBlockGrid(grid_id, tab_id);
+        });
+        
+        el_block.find('div.dx-dropdown-content a.dx-sort-none').click(function() { 
+            
+            $('#' + grid_id).data('sorting_field', '');
+            $('#' + grid_id).data('sorting_direction', '0');
+            
+            reloadBlockGrid(grid_id, tab_id);
+        });
     };
     
     /**
@@ -1231,6 +1343,9 @@ var BlockViews = function()
             handleMenuFilter(menu_id, grid_id, tab_id, $(this));
             
             addHoverDropdowns($(this));
+            addHoverFilters($(this));
+            
+            handleFilteringOptions($(this), grid_id, tab_id);
             
             // view editing
             handleBtnEditView($(this));
@@ -1276,9 +1391,7 @@ var BlockViews = function()
             
             PageMain.addResizeCallback(function() {
                 $table.floatThead('reflow');
-            });
-            
-            
+            });            
             
             $(this).attr('dx_block_init', 1); // uzstādam pazīmi, ka skata bloks ir inicializēts
         });  
