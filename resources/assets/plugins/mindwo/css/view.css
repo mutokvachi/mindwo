@@ -124,3 +124,27 @@
 .modal-open.page-overflow .page-container {
     overflow-y: auto!important;
 }
+
+a.header-filter:hover {
+    color: #949090;
+    border: 1px solid #949090;
+    height: 18px;
+}
+
+.dx-dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding: 12px 16px;
+    z-index: 1;
+}
+
+.dx-menu-item {
+    margin-bottom: 6px;
+}
+
+.floatThead-wrapper {
+    overflow: hidden;
+}

@@ -2,7 +2,7 @@
 <html>
 
     <head>
-
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -60,7 +60,7 @@
 
             <button type="button" class="btn btn-primary block full-width m-b" style="margin-bottom: 10px; background-color: #3f7c99;" id="btnLogin">{{ trans("index.login") }}</button>           
             
-            <p class="m-t"> <small>{{ trans("index.version") }}</small> </p>
+            <p class="m-t"> <small>{{ trans("index.version") }}</small></p>
             
         </div>
 

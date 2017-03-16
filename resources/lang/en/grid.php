@@ -85,4 +85,8 @@ return [
     'lbl_criteria_title' => 'Criteria value',
     'error_filter_must_be_set' =>"Filtering value must be set!",
     
+    'sort_asc' => 'Sort ascending',
+    'sort_desc' => 'Sort descending',
+    'sort_off' => 'No sorting',
+    
 ];

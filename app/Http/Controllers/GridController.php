@@ -475,7 +475,7 @@ class GridController extends Controller
                         'is_hidden' => $item->is_hidden,
                         'aggregation_id' => ($item->aggregation_id > 0) ? $item->aggregation_id : null,
                         'operation_id' => ($item->operation_id > 0) ? $item->operation_id : null,
-                        'criteria' => ($item->criteria) ? $item->criteria : null
+                        'criteria' => (strlen($item->criteria) > 0) ? $item->criteria : null
                 ]);
                 
                 if ($item->field_id == $id_field_id) {
@@ -623,7 +623,7 @@ class GridController extends Controller
                             'order_index' => $idx*10,
                             'is_hidden' => $item->is_hidden,
                             'operation_id' => ($item->operation_id > 0) ? $item->operation_id : null,
-                            'criteria' => ($item->criteria) ? $item->criteria : null
+                            'criteria' => (strlen($item->criteria) > 0) ? $item->criteria : null
                         ]
                     ]);
                 }
@@ -638,7 +638,7 @@ class GridController extends Controller
                         'field_id' => $item->field_id,
                         'is_hidden' => $item->is_hidden,
                         'operation_id' => ($item->operation_id > 0) ? $item->operation_id : null,
-                        'criteria' => ($item->criteria) ? $item->criteria : null,                        
+                        'criteria' => (strlen($item->criteria) > 0) ? $item->criteria : null,                        
                         'aggregation_id' => ($item->aggregation_id > 0) ? $item->aggregation_id : null
                     ]
                 ]);

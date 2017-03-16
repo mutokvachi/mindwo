@@ -67,8 +67,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
          * Array with leave info (if employee is in vacation or sick or his country have holiday)
          * @var array
          */
-        private $leave_info = []; 
-	
+        private $leave_info = [];
+        
         /**
          * Get time after joining in textual format
          * @return string Returns for examle 1 year 2 months and 3 days
@@ -299,7 +299,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	{
 		return $this->hasMany('App\User', 'manager_id', 'id');
 	}
-	
+        	
 	/**
 	 * Relation to offers for which user is subscribed.
 	 */
