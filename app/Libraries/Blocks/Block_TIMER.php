@@ -58,8 +58,11 @@ class Block_TIMER extends Block
         $waiting_text = $timer->waiting_text; //'Līdz AS "Sadales tīkls" 10. dzimšanas dienai';
         $success_text = $timer->success_text;
 
+        // Format date to Safari understandable format
+        $formatted_date = date("Y/m/d H:i:s", strtotime($deadline));
+
         $result = view('blocks.timer.index', [
-            'deadline' => $deadline,
+            'deadline' => $formatted_date,
             'waiting_text' => $waiting_text,
             'success_text' => $success_text,
             //'date_format' => Config::get('dx.txt_date_format', 'd.m.Y'),
