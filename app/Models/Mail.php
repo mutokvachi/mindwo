@@ -66,9 +66,14 @@ class Mail extends Model
 	 */
 	public function processUploads(Request $request)
 	{
+		$result = [
+			'messages' => [],
+			'html' => ''
+		];
+		
 		if(!$request->hasFile('files'))
 		{
-			return '';
+			return $result;
 		}
 		
 		$attachments = [];
@@ -95,13 +100,11 @@ class Mail extends Model
 			$attachments[] = $attachment;
 		}
 		
-		$result = [
-			'messages' => $messages,
-			'html' => view('mail.files', [
-				'attachments' => $attachments,
-				'deleteButton' => true
-			])->render()
-		];
+		$result['messages'] = $messages;
+		$result['html'] = view('mail.files', [
+			'attachments' => $attachments,
+			'deleteButton' => true
+		])->render();
 		
 		return $result;
 	}

@@ -118,6 +118,10 @@
 				timepicker: true,
 				format: inboxOptions.dateFormat
 			});
+			
+			this.sendTime.on('focusout', function(e) {
+				$(this).datetimepicker('hide');
+			});
 		},
 		/**
 		 * Initialize wysiwyg editor.

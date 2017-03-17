@@ -14,13 +14,13 @@
   "js/elix_articles.js": "js/elix_articles-4403e6f3.js",
   "css/elix_articles.css": "css/elix_articles-d6d6fbdb.css",
   "css/elix_employee_profile.css": "css/elix_employee_profile-d85ebf7b.css",
-  "js/elix_orgchart.js": "js/elix_orgchart-64993ee6.js",
-  "css/elix_orgchart.css": "css/elix_orgchart-caf51e7f.css",
-  "js/elix_orgdepartments.js": "js/elix_orgdepartments-20aa7fff.js",
-  "css/elix_orgdepartments.css": "css/elix_orgdepartments-311d4168.css",
+  "js/elix_orgchart.js": "js/elix_orgchart-2f3f355e.js",
+  "css/elix_orgchart.css": "css/elix_orgchart-10adff0b.css",
+  "js/elix_orgdepartments.js": "js/elix_orgdepartments-e4feb677.js",
+  "css/elix_orgdepartments.css": "css/elix_orgdepartments-125d4ede.css",
   "js/elix_block_report.js": "js/elix_block_report-9012ff8f.js",
   "css/elix_block_report.css": "css/elix_block_report-fec778d9.css",
-  "js/elix_mail.js": "js/elix_mail-9a806bbb.js",
+  "js/elix_mail.js": "js/elix_mail-8cc81bb9.js",
   "css/elix_mail.css": "css/elix_mail-6af93681.css",
   "js/elix_birth.js": "js/elix_birth-1add7538.js"
 }
