@@ -124,4 +124,7 @@ return [
     'err_allready_delegated' => 'Uzdevums jau ir deleģēts norādītajam darbiniekam vai tā aizvietotājam!',
     'info_no_delegated_tasks' => 'Nav neviena deleģētā uzdevuma.',
     
+    'tab_new_deleg_task' => 'Jauns deleģētais uzdevums',
+    'tab_list_deleg_tasks' => 'Deleģētie uzdevumi',
+    
 ];

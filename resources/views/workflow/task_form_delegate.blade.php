@@ -14,10 +14,10 @@
                         <div class="tabbable-custom nav-justified" style='margin-left: 13px; margin-top: 15px;'>
                             <ul class="nav nav-tabs nav-justified">
                                 <li class="dx-tasks-create active">
-                                    <a href="#tab_1_1_1" data-toggle="tab" aria-expanded="true"> Jauns deleģētais uzdevums </a>
+                                    <a href="#tab_1_1_1" data-toggle="tab" aria-expanded="true"> {{ trans('task_form.tab_new_deleg_task') }} </a>
                                 </li>
                                 <li class="dx-tasks-list">
-                                    <a href="#tab_1_1_2" data-toggle="tab" aria-expanded="false"> Deleģētie uzdevumi <span class="badge badge-info dx-task-count">0</span></a>
+                                    <a href="#tab_1_1_2" data-toggle="tab" aria-expanded="false"> {{ trans('task_form.tab_list_deleg_tasks') }} <span class="badge badge-info dx-task-count">0</span></a>
                                 </li>
                             </ul>
                             <div class="tab-content">

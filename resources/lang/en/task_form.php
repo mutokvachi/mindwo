@@ -125,4 +125,6 @@ return [
     'err_allready_delegated' => "Task is allready delegated to provided employee or it's substitute!",
     'info_no_delegated_tasks' => 'There is no tasks delegated.',
     
+    'tab_new_deleg_task' => 'New delegated task',
+    'tab_list_deleg_tasks' => 'Delegated tasks',
 ];
