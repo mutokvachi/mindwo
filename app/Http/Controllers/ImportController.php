@@ -483,6 +483,9 @@ class ImportController extends Controller
         $val = mb_strtolower($title);
         $val = $this->toASCII($val);
         $val = trim($val);
+        $val = str_replace("/", " ", $val);
+        $val = str_replace("  ", " ", $val);
+        $val = str_replace("  ", " ", $val);
         $val = str_replace(" ", "_", $val);
 
         return $val;

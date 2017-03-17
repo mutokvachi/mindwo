@@ -122,6 +122,7 @@ Route::post('/save_delegate', array('as' => 'save_delegate', 'middleware' => 'au
 Route::post('/workflow_custom_approve', array('as' => 'workflow_custom_approve', 'middleware' => 'auth_ajax', 'uses' => 'TasksController@getCustomApprove'));
 Route::post('/workflow_find_approver', array('as' => 'workflow_find_approver', 'middleware' => 'auth_ajax', 'uses' => 'TasksController@getAutocompleateApprovers'));
 Route::post('/send_info_task', array('as' => 'send_info_task', 'middleware' => 'auth_ajax', 'uses' => 'TasksController@sendInfoTask'));
+Route::post('/tasks/get_delegated', array('as' => 'workflow_get_delegated_tasks', 'middleware' => 'auth_ajax', 'uses' => 'TasksController@getDelegatedTasksList'));
 
 Route::group(['prefix' => 'workflow'], function() {
     Route::group(['prefix' => 'visual'], function () {

@@ -119,6 +119,9 @@ return [
     'lbl_tasks_n' => 'uzdevumi',
     'lbl_goto_start' => 'Dodieties uz',
     'lbl_goto_link_title' => 'uzdevumu sadaļu',
-    'lbl_goto_end' => 'un izpildiet uzdevumus.'
+    'lbl_goto_end' => 'un izpildiet uzdevumus.',
+    
+    'err_allready_delegated' => 'Uzdevums jau ir deleģēts norādītajam darbiniekam vai tā aizvietotājam!',
+    'info_no_delegated_tasks' => 'Nav neviena deleģētā uzdevuma.',
     
 ];

@@ -120,6 +120,9 @@ return [
     'lbl_tasks_n' => 'tasks',
     'lbl_goto_start' => 'Please, open',
     'lbl_goto_link_title' => 'tasks register',
-    'lbl_goto_end' => 'and perform'
+    'lbl_goto_end' => 'and perform',
+    
+    'err_allready_delegated' => "Task is allready delegated to provided employee or it's substitute!",
+    'info_no_delegated_tasks' => 'There is no tasks delegated.',
     
 ];

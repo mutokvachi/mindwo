@@ -180,10 +180,39 @@ class TasksController extends Controller
     private $deny_comment = "";
     
     /**
-     * If item rejected - rejection info data
-     * @var object 
+     * Returns JSON with delegated tasks HTML
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    //public $reject_task = null;
+    public function getDelegatedTasksList(Request $request) {
+        $task_id = $request->input("task_id");
+        
+        $deleg_tasks = DB::table('dx_tasks as t')
+                        ->select(
+                                't.id as task_id', 
+                                'u.display_name as performer_name',
+                                't.due_date',
+                                't.task_details',
+                                't.task_created_time',
+                                's.title as task_status',
+                                's.color',
+                                't.task_comment'
+                        )
+                        ->join('dx_users as u', 't.task_employee_id', '=', 'u.id')
+                        ->join('dx_tasks_statuses as s', 't.task_status_id', '=', 's.id')
+                        ->where('t.parent_task_id', '=', $task_id)
+                        ->orderBy('t.id')
+                        ->get();
+        
+        return response()->json([
+            'success' => 1,
+            'html' =>   view('workflow.delegated_tasks', [
+                            'tasks' => $deleg_tasks
+                        ])->render(),
+            'count' => count($deleg_tasks)
+        ]);
+    }
     
     /**
      * Cancels workflow execution process
@@ -364,6 +393,18 @@ class TasksController extends Controller
             $assigner = $subst_empl['display_name'];
         }
         
+        // pārbaudam vai jau nav deleģēts aktīvs uzdevums šim darbiniekam
+        $deleg_task = DB::table('dx_tasks')
+                        ->where('parent_task_id', '=', $task_row->id)
+                        ->where('task_employee_id', '=', $employee_id)
+                        ->where('task_status_id', '=', self::TASK_STATUS_PROCESS)
+                        ->first();
+        
+        if ($deleg_task) {
+            throw new Exceptions\DXCustomException(trans('task_form.err_allready_delegated'));
+        }
+        
+        // Izveidojam uzdevumu
         DB::transaction(function () use ($task_row, $request, $employee_id, $subst_info, $due_date) {
             $this->new_task_id = DB::table('dx_tasks')->insertGetId([
                 'assigned_empl_id' => Auth::user()->id,
@@ -1158,6 +1199,10 @@ class TasksController extends Controller
             else {
                 // noraidot deleģēto uzdevumu, deleģētājam ir jāizlemj ko darīt tālāk (var arī izlemt pats izpildīt uzdevumu tomēr.. vai deleģēt kādam citam)
                 // tāpēc neko tālāk neprocesējam ToDo: te potenciāli var būt pazīme pie uzdevuma to darīt/nedarīt automātiski..
+                
+                // ToDo: Iespējams te pārbaudam vai visi izpildīja/noraidīja - ja visi ipzildīja un kaut viens noraidīja, tad parenta tasku anulējam un izveidojam jaunu tasku
+                //       Tādejādi deleģētājs atkal saņems notifikāciju ka kaut kas ir jādara (ar atbilstošu piezīmi pie uzdevuma ka kāds noraidīja..)
+                
                 return; 
             }
         }

@@ -225,7 +225,15 @@ var TaskLogic = function()
             
             if (frm_deleg.attr('dx_is_init') == "0") {
                 initFormDelegate(frm_deleg);
-                frm_deleg.find("textarea[name=task_txt]").html(frm.find("input[name=task_title]").val());
+                
+                var el_task_text = frm.find("textarea[name=task_txt]");
+                var task_text = frm.find("input[name=task_title]").val();
+                if (el_task_text.length > 0 && el_task_text.val()) {
+                    task_text = el_task_text.val();
+                }                
+                
+                frm_deleg.find("textarea[name=task_txt]").html(task_text);
+                getDelegatedTasks(frm_deleg, frm_deleg.find('.dx-tab-tasks'));
             }            
             
             frm_deleg.modal('show');
@@ -363,6 +371,69 @@ var TaskLogic = function()
     };
     
     /**
+     * Handles event when delegate task or delegated tasks list tab is clicked (swith panes)
+     * 
+     * @param {object} frm_deleg Delegate form's HTML element
+     * @returns {undefined}
+     */
+    var handleDelegateTabClick = function(frm_deleg) {
+        frm_deleg.find("li.dx-tasks-list a").click(function() {
+            frm_deleg.find("button.dx-cms-task-btn-delegate").hide();
+            
+            frm_deleg.find(".dx-tab-new-task").removeClass("active");
+            frm_deleg.find('.dx-tab-tasks').addClass("active");
+                
+            var tab_tasks = frm_deleg.find('.dx-tab-tasks');
+            
+            if (tab_tasks.html().length == 0) {
+                getDelegatedTasks(frm_deleg, tab_tasks);
+            }
+        });
+        
+        frm_deleg.find("li.dx-tasks-create a").click(function() {
+            showNewDelegteTab(frm_deleg);
+        });
+    };
+    
+    /**
+     * Switch to new delegated task entering tab pane
+     * 
+     * @param {object} frm_deleg Delegate form's HTML element
+     * @returns {undefined}
+     */
+    var showNewDelegteTab = function(frm_deleg) {
+        frm_deleg.find("button.dx-cms-task-btn-delegate").show();
+            
+        frm_deleg.find(".dx-tab-new-task").addClass("active");
+        frm_deleg.find('.dx-tab-tasks').removeClass("active");
+        
+        frm_deleg.find("li.dx-tasks-create").addClass("active").find("a").attr("aria-expanded", "true");
+        frm_deleg.find("li.dx-tasks-list").removeClass("active").find("a").attr("aria-expanded", "false");
+    };
+    
+    /**
+     * Retrieves delegated tasks from the server
+     * 
+     * @param {object} frm_deleg Delegate form's HTML element
+     * @param {object} tab_tasks Delegate form's tasks list tab HTML element
+     * @returns {undefined}
+     */
+    var getDelegatedTasks = function(frm_deleg, tab_tasks) {
+        var formData = new FormData();
+        formData.append("task_id", frm_deleg.attr('dx_task_id'));
+        
+        var request = new FormAjaxRequest("tasks/get_delegated", "", "", formData);
+
+        request.callback = function(data) {
+            tab_tasks.html(data.html);
+            frm_deleg.find("span.dx-task-count").html(data.count);            
+        };
+
+        // izpildam AJAX pieprasījumu
+        request.doRequest();
+    };
+    
+    /**
      * Inicializē uzdevuma deleģēšanas formu
      * 
      * @param {object} frm_deleg Delegēšanas formas objekts
@@ -373,6 +444,7 @@ var TaskLogic = function()
         handleDelegFormBtnDelegClick(frm_deleg);
         initDelegFormValidator(frm_deleg);
         initDueDateField(frm_deleg);
+        handleDelegateTabClick(frm_deleg);
         
         frm_deleg.attr('dx_is_init', 1); // uzstādam pazīmi, ka forma inicializēta
     };
@@ -416,6 +488,12 @@ var TaskLogic = function()
         },
         updateMenuTasksCounter: function(cnt) {
             updateMenuTasksCounter(cnt);
+        },
+        fillDelegatedTasks: function(frm_deleg, tab_tasks) {
+            getDelegatedTasks(frm_deleg, tab_tasks);
+        },
+        showNewDelegteTab: function(frm_deleg) {
+            showNewDelegteTab(frm_deleg);
         }
     };
 }();
