@@ -249,6 +249,7 @@ class DepartmentsChartController extends Controller
 					. '&department=' . $department->title
 					. '&department_id=' . $department->id,
 				'relationship' => $hasParent . $hasSiblings . $hasChildren,
+				'children' => [],
 			];
 			
 			if(!empty($subnode))

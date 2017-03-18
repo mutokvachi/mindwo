@@ -29,13 +29,13 @@
 			orgchartData.displayLevels = 999;
 		
 		var orgchartConfig = {
-			chartContainer: '#dx-orgchart-container',
 			data: orgchartData.source,
 			nodeContent: 'title',
 			verticalDepth: 3,
 			depth: orgchartData.displayLevels,
 			toggleSiblingsResp: true,
 			pan: true,
+			exportButton: true,
 			// customize node creation process
 			createNode: function(node, data)
 			{
@@ -48,41 +48,36 @@
 					content.append('<div class="subordinates" title="' + Lang.get('organization.hint_subord') + '">' + data.subordinates + '</div>');
 				
 				// add up arrow button to top node
-				if(data.hasParent)
-					$(node).append('<i class="edge verticalEdge topEdge fa"></i>');
+				if(data.top && (typeof data.parentUrl !== 'undefined'))
+				{
+					console.log(data.name + ' has parent, ' + data.parentUrl);
+					$('<i class="edge verticalEdge topEdge fa"></i>')
+						.appendTo(node)
+						.click(function(e)
+						{
+							e.preventDefault();
+							e.stopPropagation();
+							location.href = data.parentUrl;
+						});
+				}
 				
 				$('.title', node).wrapInner('<a href="' + data.href + '"></a>');
 			}
 		};
 		
-		// init orgchart plugin
-		var orgchart = new OrgChart(orgchartConfig);
+		var orgchart = $('#dx-orgchart-container').orgchart(orgchartConfig);
 		
-		// save original handler of click event of up arrow button
-		orgchart._clickTopEdgeOld = orgchart._clickTopEdge;
-		// override event handler of up arrow button
-		orgchart._clickTopEdge = function(event)
-		{
-			var node = $(event.target).parents('.node').first();
-			var data = node.data('source');
-			
-			if(data.top)
-				location.href = data.parentUrl;
-			
-			else
-				this._clickTopEdgeOld(event);
-		};
 		$("#dx-org-zoom-in").click(function()
 		{
-			orgchart._setChartScale(orgchart.chart, 1.2);
+			orgchart.orgchart('zoom', 1.2);
 		});
 		$("#dx-org-zoom-out").click(function()
 		{
-			orgchart._setChartScale(orgchart.chart, 0.8);
+			orgchart.orgchart('zoom', 0.8);
 		});
 		$("#dx-org-export").click(function()
 		{
-			orgchart._clickExportButton();
+			$('.oc-export-btn', orgchart).click();
 		});
 	});
 })(jQuery);

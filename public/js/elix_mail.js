@@ -18802,6 +18802,10 @@ wysihtml5.views.Textarea = wysihtml5.views.View.extend(
 				timepicker: true,
 				format: inboxOptions.dateFormat
 			});
+			
+			this.sendTime.on('focusout', function(e) {
+				$(this).datetimepicker('hide');
+			});
 		},
 		/**
 		 * Initialize wysiwyg editor.
