@@ -179,11 +179,79 @@ class TasksController extends Controller
      */
     private $deny_comment = "";
     
+    public function cancelDelegatedTask(Request $request) {
+        $task_id = $request->input("task_id");
+        $task_row = $this->getDelegatedTaskRow($task_id);
+        
+        if (!$task_row->is_revocable) {            
+            // seems task was allready processed by other user
+            return response()->json([
+                'success' => 1,
+                'status' => $task_row->task_status,
+                'revoked_this_user' => 0,
+                'color' => $task_row->color
+            ]);
+        }        
+        
+        $this->checkRightsOnTask($task_row);        
+        
+        DB::transaction(function () use ($task_row) {
+            $this->revokeTask($task_row->task_id); // revoke this task
+            $this->cancelDelegatedTasks($task_row->task_id); // revoke all child tasks
+        });
+        
+        // get updated task status info
+        $task_row = $this->getDelegatedTaskRow($task_id);
+        
+        return response()->json([
+                'success' => 1,
+                'status' => $task_row->task_status,
+                'revoked_this_user' => 1,
+                'color' => $task_row->color
+         ]);
+    }
+    
     /**
-     * If item rejected - rejection info data
-     * @var object 
+     * Returns JSON with delegated tasks HTML
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    //public $reject_task = null;
+    public function getDelegatedTasksList(Request $request) {
+        $task_id = $request->input("task_id");
+        
+        $deleg_tasks = DB::table('dx_tasks as t')
+                        ->select(
+                                't.id as task_id', 
+                                'u.display_name as performer_name',
+                                't.due_date',
+                                't.task_details',
+                                't.task_created_time',
+                                's.title as task_status',
+                                's.color',
+                                't.task_comment',
+                                's.is_revocable',
+                                't.list_id',
+                                't.item_id'
+                        )
+                        ->join('dx_users as u', 't.task_employee_id', '=', 'u.id')
+                        ->join('dx_tasks_statuses as s', 't.task_status_id', '=', 's.id')
+                        ->where('t.parent_task_id', '=', $task_id)
+                        ->orderBy('t.id')
+                        ->get();
+        
+        if (count($deleg_tasks)) {
+            $this->checkRightsOnTask($deleg_tasks[0]); // we take 1st row because all tasks have the same list_id and item_id
+        }
+        
+        return response()->json([
+            'success' => 1,
+            'html' =>   view('workflow.delegated_tasks', [
+                            'tasks' => $deleg_tasks
+                        ])->render(),
+            'count' => count($deleg_tasks)
+        ]);
+    }
     
     /**
      * Cancels workflow execution process
@@ -364,6 +432,18 @@ class TasksController extends Controller
             $assigner = $subst_empl['display_name'];
         }
         
+        // pārbaudam vai jau nav deleģēts aktīvs uzdevums šim darbiniekam
+        $deleg_task = DB::table('dx_tasks')
+                        ->where('parent_task_id', '=', $task_row->id)
+                        ->where('task_employee_id', '=', $employee_id)
+                        ->where('task_status_id', '=', self::TASK_STATUS_PROCESS)
+                        ->first();
+        
+        if ($deleg_task) {
+            throw new Exceptions\DXCustomException(trans('task_form.err_allready_delegated'));
+        }
+        
+        // Izveidojam uzdevumu
         DB::transaction(function () use ($task_row, $request, $employee_id, $subst_info, $due_date) {
             $this->new_task_id = DB::table('dx_tasks')->insertGetId([
                 'assigned_empl_id' => Auth::user()->id,
@@ -1158,6 +1238,10 @@ class TasksController extends Controller
             else {
                 // noraidot deleģēto uzdevumu, deleģētājam ir jāizlemj ko darīt tālāk (var arī izlemt pats izpildīt uzdevumu tomēr.. vai deleģēt kādam citam)
                 // tāpēc neko tālāk neprocesējam ToDo: te potenciāli var būt pazīme pie uzdevuma to darīt/nedarīt automātiski..
+                
+                // ToDo: Iespējams te pārbaudam vai visi izpildīja/noraidīja - ja visi ipzildīja un kaut viens noraidīja, tad parenta tasku anulējam un izveidojam jaunu tasku
+                //       Tādejādi deleģētājs atkal saņems notifikāciju ka kaut kas ir jādara (ar atbilstošu piezīmi pie uzdevuma ka kāds noraidīja..)
+                
                 return; 
             }
         }
@@ -1290,16 +1374,24 @@ class TasksController extends Controller
                 ->get();
         
         foreach($tasks as $task) {
-            DB::table("dx_tasks")
-            ->where('id', '=', $task->id)
+            $this->revokeTask($task->id); 
+            $this->cancelDelegatedTasks($task->id);
+        }
+    }
+    
+    /**
+     * Revokes task
+     * 
+     * @param integer $task_id Task ID to be revoked
+     */
+    private function revokeTask($task_id) {
+        DB::table("dx_tasks")
+            ->where('id', '=', $task_id)
             ->update([
             'task_closed_time' => date("Y-m-d H:i:s"), 
             'task_status_id' => self::TASK_STATUS_CANCEL, 
             'task_comment' => sprintf(trans('task_form.comment_anulated'), Auth::user()->display_name)
-            ]);
-            
-            $this->cancelDelegatedTasks($task->id);
-        }
+        ]);
     }
     
     /**
@@ -1763,5 +1855,47 @@ class TasksController extends Controller
                 default:
                     throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_wrong_operation'), $operation_id));
         }
+    }
+    
+    /**
+     * Check if user have rights to perform operations with task
+     * 
+     * @param object $task_row Task row (must have fields list_id and item_id
+     * @throws Exceptions\DXCustomException
+     */
+    private function checkRightsOnTask($task_row) {
+        $right = Rights::getRightsOnList($task_row->list_id);
+
+        if ($right == null) {
+            if (!\App\Libraries\Workflows\Helper::isRelatedTask($task_row->list_id, $task_row->item_id)) {
+                throw new Exceptions\DXCustomException(trans('task_form.err_no_list_rights'));
+            }
+        } 
+    }
+    
+    /**
+     * Returns delegated task row info by given task ID
+     * @param integer $task_id Task ID
+     * @throws Exceptions\DXCustomException
+     */
+    private function getDelegatedTaskRow($task_id) {
+        $task_row = DB::table('dx_tasks as t')
+                    ->select(
+                        't.id as task_id',
+                        's.is_revocable',
+                        's.title as task_status',
+                        's.color',
+                        't.list_id',
+                        't.item_id'
+                    )
+                    ->join('dx_tasks_statuses as s', 't.task_status_id', '=', 's.id')
+                    ->where('t.id', '=', $task_id)
+                    ->first();
+        
+        if (!$task_row) {
+            throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_task_not_found'), $task_id));
+        }
+        
+        return $task_row;
     }
 }

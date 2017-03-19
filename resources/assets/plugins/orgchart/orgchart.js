@@ -1367,10 +1367,7 @@ class OrgChart {
       if (nodeData.parentId) {
         nodeDiv.setAttribute('data-parent', nodeData.parentId);
       }
-      nodeDiv.innerHTML = `
-        <div class="title">${nodeData[opts.nodeTitle]}</div>
-        ${opts.nodeContent ? `<div class="content">${nodeData[opts.nodeContent]}</div>` : ''}
-      `;
+      nodeDiv.innerHTML = `<div class="title">${nodeData[opts.nodeTitle]}</div>${opts.nodeContent ? `<div class="content">${nodeData[opts.nodeContent]}</div>` : ''}`;
       // append 4 direction arrows or expand/collapse buttons
       let flags = nodeData.relationship || '';
 
@@ -1447,10 +1444,7 @@ class OrgChart {
         } else {
           let tr = document.createElement('tr');
 
-          tr.innerHTML = `
-            <td ${childNodes ? `colspan="${childNodes.length * 2}"` : ''}>
-            </td>
-          `;
+          tr.innerHTML = `<td ${childNodes ? `colspan="${childNodes.length * 2}"` : ''}></td>`;
           tr.children[0].appendChild(nodeDiv);
           nodeWrapper.insertBefore(tr, nodeWrapper.children[0] ? nodeWrapper.children[0] : null);
         }

@@ -265,19 +265,13 @@ gulp.task('mix_all', function() {
             'mindwo/pages/articles.js'
         ], 'public/js/elix_articles.js', 'resources/assets/plugins');
         
-        // Translate OrgChart plugin source from ES6 to ES5
-        // uncomment this after editing orgchart.js
-        //mix.babel(['orgchart.js'],
-		//	'resources/assets/plugins/orgchart/orgchart.es5.js',
-        //    'resources/assets/plugins/orgchart'
-        //);
-        
         // Scripts for organization chart
         mix.scripts([
+            'babel-polyfill/polyfill.js',
 			'select2/select2.min.js',
 			'select2/select2_locale_multi.js',
             'html2canvas/html2canvas.js',
-			'orgchart/orgchart.es5.js',
+			'orgchart/jquery.orgchart.js',
             'mindwo/pages/organization_chart.js'
         ], 'public/js/elix_orgchart.js', 'resources/assets/plugins');
         
@@ -285,20 +279,21 @@ gulp.task('mix_all', function() {
         mix.styles([
 			'select2/select2.css',
             'select2/select2-bootstrap.css',
-			'orgchart/orgchart.css',
+			'orgchart/jquery.orgchart.css',
             'mindwo/css/organization_chart.css'
 		], 'public/css/elix_orgchart.css', 'resources/assets/plugins');
 	
         // Scripts for departments chart
         mix.scripts([
+    			'babel-polyfill/polyfill.js',
                 'html2canvas/html2canvas.js',
-                'orgchart/orgchart.es5.js',
+                'orgchart/jquery.orgchart.js',
                 'mindwo/pages/organization_departments.js'
         ], 'public/js/elix_orgdepartments.js', 'resources/assets/plugins');
 
         // Styles for departments chart
         mix.styles([
-                'orgchart/orgchart.css',
+                'orgchart/jquery.orgchart.css',
                 'select2/select2.css',
                 'select2/select2-bootstrap.css',
                 'mindwo/css/organization_chart.css',

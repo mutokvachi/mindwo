@@ -61,7 +61,7 @@
                     <div class="btn-group btn-group-circle pull-right">
                         <button type="button" class="btn btn-outline green btn-sm dx-btn-yes" title='{{ ($task->task_type_id == 2) ? trans('task_widget.hint_do') : trans('task_widget.hint_approve') }}'><i class='fa fa-check'></i></button>
                         @if ($self->is_subordinates)
-                            <button type="button" class="btn btn-outline grey-gallery btn-sm dx-btn-deleg" title='{{ trans('task_widget.hint_delegate') }}' data-details="{{ $task->task_details }}"><i class='fa fa-code-fork'></i></button>                                                                                            
+                            <button type="button" class="btn btn-outline grey-gallery btn-sm dx-btn-deleg" title='{{ trans('task_widget.hint_delegate') }}' data-details="{{ $task->task_details }}" data-task-type="{{ $task->task_type }}"><i class='fa fa-code-fork'></i></button>                                                                                            
                         @endif
                         <button type="button" class="btn btn-outline red btn-sm dx-btn-no" title='{{ trans('task_widget.hint_reject') }}'><i class='fa fa-times'></i></button>
                     </div>

@@ -120,6 +120,19 @@ return [
     'lbl_tasks_n' => 'tasks',
     'lbl_goto_start' => 'Please, open',
     'lbl_goto_link_title' => 'tasks register',
-    'lbl_goto_end' => 'and perform'
+    'lbl_goto_end' => 'and perform',
+    
+    'err_allready_delegated' => "Task is allready delegated to provided employee or it's substitute!",
+    'info_no_delegated_tasks' => 'There is no tasks delegated.',
+    
+    'tab_new_deleg_task' => 'New delegated task',
+    'tab_list_deleg_tasks' => 'Delegated tasks',
+    'revoke_hint' => 'Cancel delegated task.',
+    'msg_confirm_delegate_revoke' => 'Revoke delegated task?',
+    
+    'confirm_yes' => 'Yes',
+    'confirm_no' => 'No',
+    'err_task_not_found' => 'Task not found by provided ID (%s)!',
+    'notify_task_canceled' => 'Task is canceled.'
     
 ];
