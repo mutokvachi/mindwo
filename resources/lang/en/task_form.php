@@ -127,4 +127,12 @@ return [
     
     'tab_new_deleg_task' => 'New delegated task',
     'tab_list_deleg_tasks' => 'Delegated tasks',
+    'revoke_hint' => 'Cancel delegated task.',
+    'msg_confirm_delegate_revoke' => 'Revoke delegated task?',
+    
+    'confirm_yes' => 'Yes',
+    'confirm_no' => 'No',
+    'err_task_not_found' => 'Task not found by provided ID (%s)!',
+    'notify_task_canceled' => 'Task is canceled.'
+    
 ];

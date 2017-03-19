@@ -8,4 +8,5 @@
 return [
     
     'color' => 'Krāsa',
+    'is_revocable' => 'Var atcelt uzdevumu',
 ];

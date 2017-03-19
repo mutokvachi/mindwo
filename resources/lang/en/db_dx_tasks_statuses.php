@@ -8,4 +8,5 @@
 return [
     
     'color' => 'Color',
+    'is_revocable' => 'Is task revocable',
 ];

@@ -18,11 +18,14 @@
                 <td> {{ short_date($task->due_date) }} </td>
                 <td> {{ $task->task_details }} </td>
                 <td>
-                    <span class="label label-sm" style='background-color:  {{ ($task->color) ? $task->color : 'silver' }}'
+                    <span class="label label-sm dx-task-status" style='background-color:  {{ ($task->color) ? $task->color : 'silver' }}'
                        @if ($task->task_comment)
                             title='{{ $task->task_comment }}'
                        @endif
                     > {{ $task->task_status }} </span>
+                    @if ($task->is_revocable)
+                        &nbsp;<a href="javascript:;" class="dx-revoke-task" title="{{ trans('task_form.revoke_hint') }}" data-task-id="{{ $task->task_id }}"><i class="fa fa-undo"></i></a>
+                    @endif
                 </td>
             </tr>
             @endforeach

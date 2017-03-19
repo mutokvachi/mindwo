@@ -46,6 +46,8 @@ var TaskLogic = function()
                 delegateCallback.call(this, frm_deleg.attr('dx_task_id'), data.status);
             }
             
+            getDelegatedTasks(frm_deleg, frm_deleg.find('.dx-tab-tasks'));
+            
             notify_info(Lang.get('task_form.notify_task_delegated'));
         };
         
@@ -426,7 +428,30 @@ var TaskLogic = function()
 
         request.callback = function(data) {
             tab_tasks.html(data.html);
-            frm_deleg.find("span.dx-task-count").html(data.count);            
+            frm_deleg.find("span.dx-task-count").html(data.count); 
+            handleDelegatedRevoke(frm_deleg);
+        };
+
+        // izpildam AJAX pieprasījumu
+        request.doRequest();
+    };
+    
+    var handleDelegatedRevoke = function(frm_deleg) {
+        frm_deleg.find('a.dx-revoke-task').click(function() {
+            PageMain.showConfirm(revokeDelegatedTask, {task_id: $(this).data('task-id'), frm: frm_deleg, self: $(this)}, null, Lang.get('task_form.msg_confirm_delegate_revoke'), Lang.get('task_form.confirm_yes'), Lang.get('task_form.confirm_no'));
+        });
+    };
+    
+    var revokeDelegatedTask = function(data) {
+        var formData = new FormData();
+        formData.append("task_id", data.task_id);
+        
+        var request = new FormAjaxRequest("tasks/cancel_delegated", "", "", formData);
+
+        request.callback = function(result) {            
+            data.self.hide();
+            data.self.parent().find("span.dx-task-status").html(result.status).css('background-color', result.color); 
+            notify_info(Lang.get('task_form.notify_task_canceled'));
         };
 
         // izpildam AJAX pieprasījumu

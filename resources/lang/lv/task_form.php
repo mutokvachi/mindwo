@@ -18,8 +18,8 @@ return [
     'lbl_task_creator' => 'Uzdevējs',
     'lbl_substitute_info' => 'Aizvietošanas informācija',
     'lbl_task_created' => 'Uzdots',
-    'lbl_task_performer' => 'Izpidītājs',
-    'lbl_due_date' => 'Ipzildes termiņš',
+    'lbl_task_performer' => 'Izpildītājs',
+    'lbl_due_date' => 'Izpildes termiņš',
     'lbl_status' => 'Statuss',
     'lbl_finished_date' => 'Pabeigts',
     'lbl_comment' => 'Komentārs',
@@ -126,5 +126,12 @@ return [
     
     'tab_new_deleg_task' => 'Jauns deleģētais uzdevums',
     'tab_list_deleg_tasks' => 'Deleģētie uzdevumi',
+    'revoke_hint' => 'Atcelt deleģēto uzdevumu un visus tam pakārtotos uzdevumus.',
+    'msg_confirm_delegate_revoke' => 'Vai tiešām atcelt deleģēto uzdevumu?',
+    
+    'confirm_yes' => 'Jā',
+    'confirm_no' => 'Nē',
+    'err_task_not_found' => 'Uzdevums ar ID %s nav atrasts!',
+    'notify_task_canceled' => 'Uzdevums ir atcelts.',
     
 ];
