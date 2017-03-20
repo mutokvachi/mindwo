@@ -183,7 +183,7 @@ class OrgChartController extends Controller
 	}
 	
 	/**
-	 * Recursively traverse index of managers and subordinates and build muilti-dimensional array describing
+	 * Recursively traverse index of managers and subordinates and build multi-dimensional array describing
 	 * organizational hierarchy.
 	 *
 	 * Example of hierarchy:
@@ -260,14 +260,12 @@ class OrgChartController extends Controller
 	 */
 	public function getOrgchartDatasource($node = null)
 	{
-		static $fakeRoot = false;
-		
 		$top = $node ? false : true;
 		
 		// first pass - determine top element
 		if(!$node)
 		{
-			// user id isn't specified - draw whole tree from the root
+			// employee id isn't specified - draw whole tree from the root
 			if($this->rootId == 0)
 			{
 				// there is only one top-level employee in hierarchy (without manager)
@@ -280,17 +278,22 @@ class OrgChartController extends Controller
 				else
 				{
 					$node = [0 => $this->treeIndex[0]];
-					$fakeRoot = true;
 				}
 			}
 			
-			// user with requested id doesn't exist - emit 404
-			elseif(!isset($this->treeIndex[$this->rootId]))
+			// employee with requested id doesn't exist - emit 404
+			elseif(!isset($this->employees[$this->rootId]))
 			{
 				abort(404);
 			}
 			
-			// user exists - draw corresponding subtree
+			// employee doesn't have any subordinates
+			elseif(!isset($this->treeIndex[$this->rootId]))
+			{
+				$node = [$this->rootId => []];
+			}
+			
+			// employee exists - draw corresponding subtree
 			else
 			{
 				$node = [$this->rootId => $this->treeIndex[$this->rootId]];
@@ -352,10 +355,13 @@ class OrgChartController extends Controller
 				];
 			}
 			
+			// recurse deeper to the next level of hierarchy
 			if(!empty($subnode))
 			{
 				$tmp['children'] = $this->getOrgchartDatasource($subnode);
 			}
+			// even if employee doesn't have any subordinates, we must provide an empty array of children,
+			// for OrgChart plugin to work correctly
 			else
 			{
 				$tmp['children'] = [];
