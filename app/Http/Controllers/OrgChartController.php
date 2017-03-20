@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class OrgChartController
@@ -104,9 +105,19 @@ class OrgChartController extends Controller
 	 */
 	public function getEmployees()
 	{
-		$users = App\User::whereNotIn('id', config('dx.empl_ignore_ids', [1]))
-			->orderBy('display_name')
-			->get();
+		$users =
+			// raw expression is needed because of Eloquent is putting an ID from joined table into the model
+			App\User::select(DB::raw('*, dx_users.id AS id'))
+				->leftJoin('dx_users_positions AS p', 'dx_users.position_id', '=', 'p.id')
+				// here we place employees without position to the end of the list
+				->orderBy(DB::raw('dx_users.position_id IS NOT NULL'), 'DESC')
+				// sorting by index
+				->orderBy('p.order_index')
+				// then by display name
+				->orderBy('dx_users.display_name')
+				// skip system users
+				->whereNotIn('dx_users.id', config('dx.empl_ignore_ids', [1]))
+				->get();
 		
 		$employees = [];
 		
@@ -135,7 +146,8 @@ class OrgChartController extends Controller
 	 *
 	 * @return array
 	 */
-	public function getIndex()
+	public
+	function getIndex()
 	{
 		$index = [];
 		
@@ -167,7 +179,8 @@ class OrgChartController extends Controller
 	 *
 	 * @return array
 	 */
-	public function getParentsIndex()
+	public
+	function getParentsIndex()
 	{
 		$index = [];
 		
@@ -207,7 +220,8 @@ class OrgChartController extends Controller
 	 *
 	 * @return array
 	 */
-	public function getTree($rootId)
+	public
+	function getTree($rootId)
 	{
 		$buildTree = function ($manager_id, &$subtree) use (&$buildTree)
 		{
@@ -258,7 +272,8 @@ class OrgChartController extends Controller
 	 * @param array|null $node
 	 * @return array
 	 */
-	public function getOrgchartDatasource($node = null)
+	public
+	function getOrgchartDatasource($node = null)
 	{
 		$top = $node ? false : true;
 		
