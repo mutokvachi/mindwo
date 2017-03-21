@@ -413,7 +413,9 @@ namespace App\Libraries
             else {
                 $this->history->makeUpdateHistory(); // obligāti izpildam vispirms, jo citādi masīvā var ierakstīt arī lietotāja laukus, kas veic darbību
                 $this->sql = $this->getUpdateSQL($tbl, $time_now);
-            }
+                
+                DBHelper::unlockItem($tbl->list_id, $this->item_id);
+            }            
         }
 
         /**

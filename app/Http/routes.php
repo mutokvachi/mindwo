@@ -71,6 +71,9 @@ Route::post('/excel', array('as' => 'excel', 'middleware' => 'auth_ajax', 'uses'
 Route::post('/import_excel', array('as' => 'import_data', 'middleware' => 'auth_ajax', 'uses' => 'ImportController@importData'));
 
 // SVS formas
+Route::get('/form/unlock_item/{list_id}/{item_id}', array('as' => 'form_unlock',  'middleware' => 'auth_ajax', 'uses'=>'FormController@unlockItem'));
+Route::get('/form/lock_item/{list_id}/{item_id}', array('as' => 'form_lock',  'middleware' => 'auth_ajax', 'uses'=>'FormController@lockItem'));
+
 Route::post('/form', array('as' => 'form',  'middleware' => 'auth_ajax', 'uses'=>'FormController@getForm'));
 Route::post('/refresh_form', array('as' => 'refresh_form',  'middleware' => 'auth_ajax', 'uses'=>'FormController@refreshFormFields'));
 Route::post('/fill_autocompleate', array('as' => 'fill_autocompleate',  'middleware' => 'auth_ajax', 'uses'=>'FormController@getAutocompleateData'));

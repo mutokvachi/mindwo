@@ -70,7 +70,7 @@
                     <button  type='button' class='btn btn-primary' id='btn_save_{{ $frm_uniq_id }}'>{{ trans('form.btn_save') }}</button>
                 @endif
 
-                <button type='button' class='btn btn-white' data-dismiss='modal'>{!! ($form_is_edit_mode == 0) ? "<i class='fa fa-sign-out'></i>" . trans('form.btn_close') : "<i class='fa fa-undo'></i> " . trans('form.btn_cancel') !!}</button>
+                <button type='button' class='btn btn-white dx-btn-cancel-form' data-dismiss='modal'>{!! ($form_is_edit_mode == 0) ? "<i class='fa fa-sign-out'></i>" . trans('form.btn_close') : "<i class='fa fa-undo'></i> " . trans('form.btn_cancel') !!}</button>
             </div>
             <script type='text/javascript'>
                 register_form('list_item_view_form_{{ $frm_uniq_id }}', {{ $item_id }});
