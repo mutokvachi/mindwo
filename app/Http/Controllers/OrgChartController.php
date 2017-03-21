@@ -260,28 +260,40 @@ class OrgChartController extends Controller
 	 */
 	public function getOrgchartDatasource($node = null)
 	{
+		static $fakeRoot = false;
+		
 		$top = $node ? false : true;
 		
-		// first pass - top element
+		// first pass - determine top element
 		if(!$node)
 		{
-			if(isset($this->treeIndex[$this->rootId]))
+			// user id isn't specified - draw whole tree from the root
+			if($this->rootId == 0)
 			{
 				// there is only one top-level employee in hierarchy (without manager)
-				if(($this->rootId == 0) && (count($this->treeIndex[0]) == 1))
+				if(count($this->treeIndex[0]) == 1)
 				{
 					$node = $this->treeIndex[0];
 				}
-				// more than one employees without manager
+				
+				// more than one employees without manager - need to generate fake 'company' root element
 				else
 				{
-					$node = [$this->rootId => $this->treeIndex[$this->rootId]];
+					$node = [0 => $this->treeIndex[0]];
+					$fakeRoot = true;
 				}
 			}
 			
+			// user with requested id doesn't exist - emit 404
+			elseif(!isset($this->treeIndex[$this->rootId]))
+			{
+				abort(404);
+			}
+			
+			// user exists - draw corresponding subtree
 			else
 			{
-				$node = [$this->rootId => []];
+				$node = [$this->rootId => $this->treeIndex[$this->rootId]];
 			}
 		}
 		
@@ -289,12 +301,13 @@ class OrgChartController extends Controller
 		
 		foreach($node as $id => $subnode)
 		{
-			$hasParent = ($id == $this->index[0][0]) ? '0' : '1';
-			$hasChildren = empty($subnode) ? '0' : '1';
-			$hasSiblings = count($node) > 1 ? '1' : '0';
-			
+			// id is not null - the root element is person
 			if($id)
 			{
+				$hasSiblings = count($node) > 1 ? '1' : '0';
+				$hasChildren = empty($subnode) ? '0' : '1';
+				$hasParent = ($id == $this->index[0][0]) ? '0' : '1';
+				
 				$employee = $this->employees[$id];
 				
 				$tmp = [
@@ -306,10 +319,24 @@ class OrgChartController extends Controller
 					'href' => route('profile', $employee->id),
 					'relationship' => $hasParent . $hasSiblings . $hasChildren,
 					'hasParent' => $hasParent == '1',
-					'top' => $top
+					'top' => $top,
 				];
+				
+				// add url of a parent node
+				if($top)
+				{
+					if($parent = $this->parentsIndex[$id])
+					{
+						$tmp['parentUrl'] = route('organization_chart', $parent);
+					}
+					else
+					{
+						$tmp['parentUrl'] = route('organization_chart');
+					}
+				}
 			}
-			// if there are more than one top managers, generate a fake "Company" top-level element
+			
+			// id is null - there are more than one top managers, generate a fake "Company" top-level element
 			else
 			{
 				$tmp = [
@@ -321,18 +348,17 @@ class OrgChartController extends Controller
 					'href' => route('organization_departments'),
 					'relationship' => '001',
 					'hasParent' => false,
-					'top' => true
+					'top' => true,
 				];
-			}
-			
-			if($top && $id)
-			{
-				$tmp['parentUrl'] = route('organization_chart', $this->parentsIndex[$id]);
 			}
 			
 			if(!empty($subnode))
 			{
 				$tmp['children'] = $this->getOrgchartDatasource($subnode);
+			}
+			else
+			{
+				$tmp['children'] = [];
 			}
 			
 			$result[] = $tmp;

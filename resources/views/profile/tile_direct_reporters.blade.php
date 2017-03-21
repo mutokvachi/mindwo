@@ -1,9 +1,5 @@
 <?php
-$subrodinates = $employee->subordinates()->whereNull('termination_date')->orWhere(function($query) {
-    $query->whereNotNull('termination_date')
-           ->where('termination_date', '>', DB::Raw('NOW()'));
-        
-})->get();
+$subrodinates = $employee->subordinates()->whereRaw("ifnull(termination_date, '2099-01-01') > NOW()")->orderBy("display_name")->get();
 ?>
 @if(count($subrodinates) > 0)
 <div class="mt-element-list">

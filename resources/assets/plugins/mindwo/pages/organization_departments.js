@@ -9,13 +9,13 @@
 	$(document).ready(function()
 	{
 		// init orgchart plugin
-		var orgchart = new OrgChart({
-			chartContainer: '#dx-orgchart-container',
+		var orgchartConfig = {
 			data: orgchartData.source,
 			nodeContent: 'title',
 			depth: orgchartData.displayLevels,
 			toggleSiblingsResp: true,
 			pan: true,
+			exportButton: true,
 			// customize node creation process
 			createNode: function(node, data)
 			{
@@ -28,18 +28,21 @@
 				if(data.subordinates > 0)
 					content.append('<div class="subordinates" title="' + Lang.get('organization.hint_subdeps') + '">' + data.subordinates + '</div>');
 			}
-		});
+		};
+		
+		var orgchart = $('#dx-orgchart-container').orgchart(orgchartConfig);
+		
 		$("#dx-org-zoom-in").click(function()
 		{
-			orgchart.set_zoom(-1);
+			orgchart.orgchart('zoom', 1.2);
 		});
 		$("#dx-org-zoom-out").click(function()
 		{
-			orgchart.set_zoom(1);
+			orgchart.orgchart('zoom', 0.8);
 		});
 		$("#dx-org-export").click(function()
 		{
-			orgchart._clickExportButton();
+			$('.oc-export-btn', orgchart).click();
 		});
 	});
 })(jQuery);

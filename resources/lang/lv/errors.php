@@ -126,4 +126,6 @@ return [
     
     'field_not_found' => "Skatam nav definēts lauks ar nosaukumu '%s'!",
     'field_not_found_id' => "Skatam nav definēts lauks ar ID %s!",
+    
+    'item_locked' => 'Ieraksts ir bloķēts un rediģēšana nav iespējama! Ierakstu %s sāka rediģēt lietotājs %s. Jums ir jāuzgaida, kamēr %s pabeigs ieraksta rediģēšanu.',
 ];

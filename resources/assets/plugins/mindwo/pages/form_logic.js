@@ -753,6 +753,68 @@ var FormLogic = function()
         
         handleWFInitBtnClick(section);
         handleInfoTaskBtnClick(section);
+        
+        initCancelLogic(section, list_id, item_id);
+    };
+    
+    /**
+     * Init lock/unclock logic on cancelation events
+     * 
+     * @param {object}  section CMS forms fields section HTML element
+     * @param {integer} list_id Register ID
+     * @param {integer} item_id Item ID
+     * @returns {undefined}
+     */
+    var initCancelLogic = function(section, list_id, item_id) {
+        if (item_id == 0 || section.data('is-edit-mode') !== 1) {
+            return;
+        }
+        
+        section.closest('.modal-content').find('.dx-form-header button.dx-form-close-btn').click(function() {
+            unlockItem(list_id, item_id);
+        });
+        
+        section.closest('.modal-content').find('.modal-footer button.dx-btn-cancel-form').click(function() {
+            unlockItem(list_id, item_id);
+        });
+        
+        $(window).on('beforeunload', function()
+        {
+            unlockItem(list_id, item_id);
+
+            setTimeout(function(){ 
+                // unload canceled...
+                $.ajax({
+                    type: 'GET',
+                    url: DX_CORE.site_url + 'form/lock_item/' + list_id + '/' + item_id,
+                    dataType: 'json',
+                    success: function(data) {
+                        // item unlocked
+                    }
+                });
+            }, 3000);
+        });
+    };
+    
+    /**
+     * Unlocks item so other users can edit it
+     * 
+     * @param {integer} list_id Register ID
+     * @param {integer} item_id Item ID
+     * @returns {undefined}
+     */
+    var unlockItem = function(list_id, item_id) {
+        show_form_splash(1);
+                        
+        $.ajax({
+            type: 'GET',
+            url: DX_CORE.site_url + 'form/unlock_item/' + list_id + '/' + item_id,
+            dataType: 'json',
+            success: function(data) {
+                // item unlocked
+                hide_form_splash(1);
+            }
+        });
     };
     
     /**

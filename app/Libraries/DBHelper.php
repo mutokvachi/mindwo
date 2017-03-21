@@ -9,6 +9,8 @@ namespace App\Libraries
     use Illuminate\Support\Facades\Schema;
     use App\Libraries\Structure;
     use Illuminate\Support\Facades\File;
+    use Auth;
+    use App\Exceptions;
     
     /**
      * Palīgfunkciju klase datu bāzes struktūras izveidei
@@ -419,6 +421,47 @@ namespace App\Libraries
             }
             
             return $role_row->id;
+        }
+        
+        /**
+         * Locks item so other users can't edit it
+         * 
+         * @param integer $list_id Register ID
+         * @param integer $item_id Item ID
+         */
+        public static function lockItem($list_id, $item_id) {
+            $row = DB::table('dx_locks as l')
+                    ->select('u.display_name', 'l.locked_time')
+                    ->join('dx_users as u', 'l.user_id', '=', 'u.id')
+                    ->where('l.list_id', '=', $list_id)
+                    ->where('l.item_id', '=', $item_id)
+                    ->first();
+            
+            if ($row) {
+                // item allready locked by this user
+                throw new Exceptions\DXCustomException(sprintf(trans('errors.item_locked'), long_date($row->locked_time), $row->display_name, $row->display_name));
+            }
+            
+            DB::table('dx_locks')->insert([
+                'list_id' => $list_id,
+                'item_id' => $item_id,
+                'user_id' => Auth::user()->id,
+                'locked_time' => date('Y-n-d H:i:s')
+            ]);
+        }
+        
+        /**
+         * Unlocks item so other users can edit it
+         * 
+         * @param integer $list_id Register ID
+         * @param integer $item_id Item ID
+         */
+        public static function unlockItem($list_id, $item_id) {
+            DB::table('dx_locks')
+                    ->where('list_id', '=', $list_id)
+                    ->where('item_id', '=', $item_id)
+                    ->where('user_id', '=', Auth::user()->id)
+                    ->delete();
         }
     }
 

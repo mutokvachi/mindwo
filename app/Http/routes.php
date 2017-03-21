@@ -71,6 +71,9 @@ Route::post('/excel', array('as' => 'excel', 'middleware' => 'auth_ajax', 'uses'
 Route::post('/import_excel', array('as' => 'import_data', 'middleware' => 'auth_ajax', 'uses' => 'ImportController@importData'));
 
 // SVS formas
+Route::get('/form/unlock_item/{list_id}/{item_id}', array('as' => 'form_unlock',  'middleware' => 'auth_ajax', 'uses'=>'FormController@unlockItem'));
+Route::get('/form/lock_item/{list_id}/{item_id}', array('as' => 'form_lock',  'middleware' => 'auth_ajax', 'uses'=>'FormController@lockItem'));
+
 Route::post('/form', array('as' => 'form',  'middleware' => 'auth_ajax', 'uses'=>'FormController@getForm'));
 Route::post('/refresh_form', array('as' => 'refresh_form',  'middleware' => 'auth_ajax', 'uses'=>'FormController@refreshFormFields'));
 Route::post('/fill_autocompleate', array('as' => 'fill_autocompleate',  'middleware' => 'auth_ajax', 'uses'=>'FormController@getAutocompleateData'));
@@ -122,6 +125,8 @@ Route::post('/save_delegate', array('as' => 'save_delegate', 'middleware' => 'au
 Route::post('/workflow_custom_approve', array('as' => 'workflow_custom_approve', 'middleware' => 'auth_ajax', 'uses' => 'TasksController@getCustomApprove'));
 Route::post('/workflow_find_approver', array('as' => 'workflow_find_approver', 'middleware' => 'auth_ajax', 'uses' => 'TasksController@getAutocompleateApprovers'));
 Route::post('/send_info_task', array('as' => 'send_info_task', 'middleware' => 'auth_ajax', 'uses' => 'TasksController@sendInfoTask'));
+Route::post('/tasks/get_delegated', array('as' => 'workflow_get_delegated_tasks', 'middleware' => 'auth_ajax', 'uses' => 'TasksController@getDelegatedTasksList'));
+Route::post('/tasks/cancel_delegated', array('as' => 'workflow_cancel_delegated_tasks', 'middleware' => 'auth_ajax', 'uses' => 'TasksController@cancelDelegatedTask'));
 
 Route::group(['prefix' => 'workflow'], function() {
     Route::group(['prefix' => 'visual'], function () {

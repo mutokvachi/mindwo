@@ -34,7 +34,9 @@
       'draggable': false,
       'direction': 't2b',
       'pan': false,
-      'zoom': false
+      'zoom': false,
+      'zoominLimit': 7,
+      'zoomoutLimit': 0.5
     };
 
     switch (options) {
@@ -66,6 +68,12 @@
         return getNodeState.apply(this, Array.prototype.splice.call(arguments, 1));
       case 'getRelatedNodes':
         return getRelatedNodes.apply(this, Array.prototype.splice.call(arguments, 1));
+      
+      // +++ ADDED +++
+      case 'zoom':
+        return setChartScale($(this).children('.orgchart'), Array.prototype.splice.call(arguments, 1));
+      // -------------
+        
       default: // initiation time
         var opts = $.extend(defaultOptions, options);
     }
@@ -108,63 +116,66 @@
     }
     $chartContainer.append($chart);
 
+    var onExport = function(e) {
+		e.preventDefault();
+		if ($(this).children('.spinner').length) {
+			return false;
+		}
+		var $mask = $chartContainer.find('.mask');
+		if (!$mask.length) {
+			$chartContainer.append('<div class="mask"><i class="fa fa-circle-o-notch fa-spin spinner"></i></div>');
+		} else {
+			$mask.removeClass('hidden');
+		}
+		var sourceChart = $chartContainer.addClass('canvasContainer').find('.orgchart:visible').get(0);
+		var flag = opts.direction === 'l2r' || opts.direction === 'r2l';
+		html2canvas(sourceChart, {
+			'width': flag ? sourceChart.clientHeight : sourceChart.clientWidth,
+			'height': flag ? sourceChart.clientWidth : sourceChart.clientHeight,
+			'onclone': function(cloneDoc) {
+				$(cloneDoc).find('.canvasContainer').css('overflow', 'visible')
+					.find('.orgchart:visible:first').css('transform', '');
+			},
+			'onrendered': function(canvas) {
+				$chartContainer.find('.mask').addClass('hidden');
+				if (opts.exportFileextension.toLowerCase() === 'pdf') {
+					var doc = {};
+					var docWidth = Math.floor(canvas.width * 0.2646);
+					var docHeight = Math.floor(canvas.height * 0.2646);
+					if (docWidth > docHeight) {
+						doc = new jsPDF('l', 'mm', [docWidth, docHeight]);
+					} else {
+						doc = new jsPDF('p', 'mm', [docHeight, docWidth]);
+					}
+					doc.addImage(canvas.toDataURL(), 'png', 0, 0);
+					doc.save(opts.exportFilename + '.pdf');
+				} else {
+					var isWebkit = 'WebkitAppearance' in document.documentElement.style;
+					var isFf = !!window.sidebar;
+					var isEdge = navigator.appName === 'Microsoft Internet Explorer' || (navigator.appName === "Netscape" && navigator.appVersion.indexOf('Edge') > -1);
+				
+					if ((!isWebkit && !isFf) || isEdge) {
+						window.navigator.msSaveBlob(canvas.msToBlob(), opts.exportFilename + '.png');
+					}
+					else {
+						$chartContainer.find('.oc-download-btn').attr('href', canvas.toDataURL())[0].click();
+					}
+				}
+			}
+		})
+			.then(function() {
+				$chartContainer.removeClass('canvasContainer');
+			}, function() {
+				$chartContainer.removeClass('canvasContainer');
+			});
+	};
+    
     // append the export button
     if (opts.exportButton && !$chartContainer.find('.oc-export-btn').length) {
       var $exportBtn = $('<button>', {
         'class': 'oc-export-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : ''),
         'text': 'Export',
-        'click': function() {
-          if ($(this).children('.spinner').length) {
-            return false;
-          }
-          var $mask = $chartContainer.find('.mask');
-          if (!$mask.length) {
-            $chartContainer.append('<div class="mask"><i class="fa fa-circle-o-notch fa-spin spinner"></i></div>');
-          } else {
-            $mask.removeClass('hidden');
-          }
-          var sourceChart = $chartContainer.addClass('canvasContainer').find('.orgchart:visible').get(0);
-          var flag = opts.direction === 'l2r' || opts.direction === 'r2l';
-          html2canvas(sourceChart, {
-            'width': flag ? sourceChart.clientHeight : sourceChart.clientWidth,
-            'height': flag ? sourceChart.clientWidth : sourceChart.clientHeight,
-            'onclone': function(cloneDoc) {
-              $(cloneDoc).find('.canvasContainer').css('overflow', 'visible')
-                .find('.orgchart:visible:first').css('transform', '');
-            },
-            'onrendered': function(canvas) {
-              $chartContainer.find('.mask').addClass('hidden');
-              if (opts.exportFileextension.toLowerCase() === 'pdf') {
-                var doc = {};
-                var docWidth = Math.floor(canvas.width * 0.2646);
-                var docHeight = Math.floor(canvas.height * 0.2646);
-                if (docWidth > docHeight) {
-                  doc = new jsPDF('l', 'mm', [docWidth, docHeight]);
-                } else {
-                  doc = new jsPDF('p', 'mm', [docHeight, docWidth]);
-                }
-                doc.addImage(canvas.toDataURL(), 'png', 0, 0);
-                doc.save(opts.exportFilename + '.pdf');
-              } else {
-                var isWebkit = 'WebkitAppearance' in document.documentElement.style;
-                var isFf = !!window.sidebar;
-                var isEdge = navigator.appName === 'Microsoft Internet Explorer' || (navigator.appName === "Netscape" && navigator.appVersion.indexOf('Edge') > -1);
-
-                if ((!isWebkit && !isFf) || isEdge) {
-                  window.navigator.msSaveBlob(canvas.msToBlob(), opts.exportFilename + '.png');
-                }
-                else {
-                  $chartContainer.find('.oc-download-btn').attr('href', canvas.toDataURL())[0].click();
-                }
-              }
-            }
-          })
-          .then(function() {
-            $chartContainer.removeClass('canvasContainer');
-          }, function() {
-            $chartContainer.removeClass('canvasContainer');
-          });
-        }
+        'click': onExport
       });
       $chartContainer.append($exportBtn);
       if (opts.exportFileextension.toLowerCase() !== 'pdf') {
@@ -292,14 +303,24 @@
   }
 
   function setChartScale($chart, newScale) {
+    var opts = $chart.data('options');
     var lastTf = $chart.css('transform');
+    var matrix = '';
+    var targetScale = 1;
     if (lastTf === 'none') {
       $chart.css('transform', 'scale(' + newScale + ',' + newScale + ')');
     } else {
+      matrix = lastTf.split(',');
       if (lastTf.indexOf('3d') === -1) {
-        $chart.css('transform', lastTf + ' scale(' + newScale + ',' + newScale + ')');
+        targetScale = window.parseFloat(matrix[3]) * newScale;
+        if (targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit) {
+          $chart.css('transform', lastTf + ' scale(' + newScale + ',' + newScale + ')');
+        }
       } else {
-        $chart.css('transform', lastTf + ' scale3d(' + newScale + ',' + newScale + ', 1)');
+        targetScale = window.parseFloat(matrix[1]) * newScale;
+        if (targetScale > opts.zoomoutLimit && targetScale < opts.zoominLimit) {
+          $chart.css('transform', lastTf + ' scale3d(' + newScale + ',' + newScale + ', 1)');
+        }
       }
     }
   }
@@ -450,11 +471,11 @@
 
   // show the children nodes of the specified node
   function showChildren($node) {
-    var $temp = $node.closest('tr').siblings();
-    var isVerticalDesc = $temp.is('.verticalNodes') ? true : false;
+    var $levels = $node.closest('tr').siblings();
+    var isVerticalDesc = $levels.is('.verticalNodes') ? true : false;
     var $descendants = isVerticalDesc
-      ? $temp.removeClass('hidden').find('.node:visible')
-      : $temp.removeClass('hidden').eq(2).children().find('tr:first').find('.node:visible');
+      ? $levels.removeClass('hidden').find('.node:visible')
+      : $levels.removeClass('hidden').eq(2).children().find('.node:first');
     // the two following statements are used to enforce browser to repaint
     repaint($descendants.get(0));
     $descendants.addClass('slide').removeClass('slide-up').eq(0).one('transitionend', function() {
