@@ -95,10 +95,38 @@ class FormController extends Controller
     public $list_right = null;
     
     /**
+     * Unlocks item so other users can edit it
+     * 
+     * @param integer $list_id Register ID
+     * @param integer $item_id Item ID
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function unlockItem($list_id, $item_id) {
+        \App\Libraries\DBHelper::unlockItem($list_id, $item_id);
+        return response()->json(['success' => 1]);
+    }
+    
+     /**
+     * Locks item so other users can't edit it
+     * 
+     * @param integer $list_id Register ID
+     * @param integer $item_id Item ID
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function lockItem($list_id, $item_id) {
+        
+        $this->setFormsRightsMode($list_id, $item_id);
+        
+        \App\Libraries\DBHelper::lockItem($list_id, $item_id);
+        
+        return response()->json(['success' => 1]);
+    }
+    
+    /**
      * Izgūst formas HTML ar AJAX pieprasījumu
      * 
      * @param \Illuminate\Http\Request $request POST pieprasījuma objekts
-     * @return Response Atgriež formas HTML JSON izteiksmē
+     * @return \Illuminate\Http\JsonResponse Atgriež formas HTML JSON izteiksmē
      */
     public function getForm(Request $request)
     {
@@ -124,6 +152,11 @@ class FormController extends Controller
         $tab_id = Uuid::generate(4);
         
         $this->is_editable_wf = Rights::getIsEditRightsOnItem($list_id, $item_id); // Pārbauda vai nav darplūsmā un nav pabeigts
+        
+        // check if not locked by other user
+        if ($this->form_is_edit_mode && $item_id > 0) {
+            \App\Libraries\DBHelper::lockItem($list_id, $item_id);
+        }
         
         $fields_htm = $this->getFormFieldsHTML($frm_uniq_id, $list_id, $item_id, $parent_item_id, $parent_field_id, $params);
 

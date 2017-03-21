@@ -126,4 +126,6 @@ return [
     
     'field_not_found' => "View does not contain field named '%s'!",
     'field_not_found_id' => "View does not contain field with ID %s!",
+    
+    'item_locked' => "Item is locked and can't be edited! Item was locked at %s by user %s. Please, wait while %s finish editing.",
 ];

@@ -362,25 +362,40 @@
 				window.location = this.options.empl_search_page_url;
 				return;
 			}
+			var self = this;
+                        
+                        show_page_splash(1);
+                        
+                        $.ajax({
+                            type: 'GET',
+                            url: DX_CORE.site_url + 'form/unlock_item/' + $('.dx-employee-profile').data('list_id') + '/' + $('.dx-employee-profile').data('item_id'),
+                            dataType: 'json',
+                            success: function(data) {
+                                // item unlocked
+                                self.editButton.show();
 			
-			this.editButton.show();
+                                for(var k in self.originalTabs)
+                                {
+                                        self.tabs.filter('[data-tab-title="' + k + '"]').html(self.originalTabs[k]);
+                                }
+
+                                for(var name in self.originalFields)
+                                {
+                                        self.fields.filter('[data-name="' + name + '"]').html(self.originalFields[name]);
+                                }
+
+                                $('.dx-stick-footer').hide();
+
+                                if(self.root.data('has_users_documents_access') == 1)
+                                {
+                                        window.DxEmpPersDocs.cancelEditMode();
+                                }
+                                
+                                hide_page_splash(1);
+                            }
+                        });
+                        
 			
-			for(var k in this.originalTabs)
-			{
-				this.tabs.filter('[data-tab-title="' + k + '"]').html(this.originalTabs[k]);
-			}
-			
-			for(var name in this.originalFields)
-			{
-				this.fields.filter('[data-name="' + name + '"]').html(this.originalFields[name]);
-			}
-			
-			$('.dx-stick-footer').hide();
-			
-			if(this.root.data('has_users_documents_access') == 1)
-			{
-				window.DxEmpPersDocs.cancelEditMode();
-			}
 		},
 		
 		/**
