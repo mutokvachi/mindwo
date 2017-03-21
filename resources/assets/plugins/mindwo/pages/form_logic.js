@@ -757,6 +757,14 @@ var FormLogic = function()
         initCancelLogic(section, list_id, item_id);
     };
     
+    /**
+     * Init lock/unclock logic on cancelation events
+     * 
+     * @param {object}  section CMS forms fields section HTML element
+     * @param {integer} list_id Register ID
+     * @param {integer} item_id Item ID
+     * @returns {undefined}
+     */
     var initCancelLogic = function(section, list_id, item_id) {
         if (item_id == 0 || section.data('is-edit-mode') !== 1) {
             return;
@@ -788,6 +796,13 @@ var FormLogic = function()
         });
     };
     
+    /**
+     * Unlocks item so other users can edit it
+     * 
+     * @param {integer} list_id Register ID
+     * @param {integer} item_id Item ID
+     * @returns {undefined}
+     */
     var unlockItem = function(list_id, item_id) {
         show_form_splash(1);
                         
@@ -800,7 +815,7 @@ var FormLogic = function()
                 hide_form_splash(1);
             }
         });
-    }
+    };
     
     /**
      * Generated and downloads PDF withs forms data
