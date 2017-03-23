@@ -778,21 +778,17 @@ var FormLogic = function()
             unlockItem(list_id, item_id);
         });
         
-        $(window).on('beforeunload', function()
+        $(window).unload(function()
         {
-            unlockItem(list_id, item_id);
-
-            setTimeout(function(){ 
-                // unload canceled...
-                $.ajax({
-                    type: 'GET',
-                    url: DX_CORE.site_url + 'form/lock_item/' + list_id + '/' + item_id,
-                    dataType: 'json',
-                    success: function(data) {
-                        // item unlocked
-                    }
-                });
-            }, 3000);
+            $.ajax({
+                type: 'GET',
+                url: DX_CORE.site_url + 'form/unlock_item/' + list_id + '/' + item_id,
+                dataType: 'json',
+                async:false, //IMPORTANT, the call will be synchronous
+                success: function(data) {
+                    console.log("Unlocked");
+                }
+            });
         });
     };
     

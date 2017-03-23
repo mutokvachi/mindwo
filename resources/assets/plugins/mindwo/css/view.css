@@ -148,3 +148,11 @@ a.header-filter:hover {
 .floatThead-wrapper {
     overflow: hidden;
 }
+
+.dx-field-btn i{
+    color: #337ab7;
+}
+
+.dx-field-btn:hover {
+    background-color: #e6dede;
+}

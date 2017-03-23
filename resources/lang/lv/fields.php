@@ -47,4 +47,6 @@ return [
     
     'btn_file_edit' => 'Rediģēt',
     'btn_file_view' => 'Skatīt', 
+    
+    'hint_skype' => 'Atvērt Skype',
 ];
