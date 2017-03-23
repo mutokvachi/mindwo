@@ -19383,13 +19383,6 @@ $(document).ready(function() {
 		this.options = opts;
 		this.root = $(root);
 		
-		/*
-		if(this.root.data("is-init"))
-		{
-			return; // field is allready initialized
-		}
-		*/
-		
 		if(this.root.hasClass("is-init"))
 		{
 			return; // field is allready initialized
@@ -19397,7 +19390,6 @@ $(document).ready(function() {
 		
 		this.root.bootstrapSwitch();
 		
-		//this.root.data("is-init", 1);
 		this.root.addClass("is-init");
 	};
 	
