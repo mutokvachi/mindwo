@@ -15,7 +15,7 @@ use App\Http\Requests;
 /**
  * Class InlineFormController
  *
- * Inline form - an AJAX form embedded into a page. This controller provides server-side support ot this kind of forms.
+ * Inline form - an AJAX form embedded into a page. This controller provides server-side support of this kind of forms.
  *
  * @package App\Http\Controllers
  */
