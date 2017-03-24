@@ -6,7 +6,7 @@ namespace App\Libraries\DataView
     use Request;
     
     /**
-     * Palīgfunkciju klase
+     * Helper class to get HTML for grid drawing - to avoid Blade views rendering performance issue
      */
     class Helper
     {
@@ -28,6 +28,12 @@ namespace App\Libraries\DataView
             $this->profile_url = Config::get('dx.employee_profile_page_url');
         }
     
+        /**
+         * Returns HTML for button with popup menu cell (for row operations edit, delete and view)
+         * @param array $arr_args Array with arguments: item_id, dropup, form_type_id
+         * 
+         * @return string HTML for cell
+         */
         public function getBtnsCol($arr_args) {
             
             $item_id = $arr_args['item_id'];
@@ -57,16 +63,22 @@ namespace App\Libraries\DataView
             return $htm;
         }
         
+        /**
+         * Returns HTML for file download cell
+         * @param array $arr_args Array with arguments: is_pdf, item_id, list_id, field_id, cell_value
+         * 
+         * @return string HTML for cell
+         */
         public function getFileCell($arr_args) {
             
-            $is_pdf = (isset($arr_args['is_pdf'])) && $arr_args['is_pdf'];
+            $is_pdf = (isset($arr_args['is_pdf']) && $arr_args['is_pdf']);
             $item_id = $arr_args['item_id'];
             $list_id = $arr_args['list_id'];
             $field_id = $arr_args['field_id'];
             $cell_value = $arr_args['cell_value'];
             
-            if ($is_pdf) {
-                $htm = "<a href = 'JavaScript: download_file(" . $item_id . ", " . $list_id . ", " . $field_id . ");'><i class='glyphicon glyphicon-file'></i> . " . e($cell_value) . "</a>";
+            if (!$is_pdf) {
+                $htm = "<a href = 'JavaScript: download_file(" . $item_id . ", " . $list_id . ", " . $field_id . ");'><i class='glyphicon glyphicon-file'></i> " . e($cell_value) . "</a>";
             }
             else {
                 $htm = "<a href='" . Request::root() . "/web/viewer.html?file=" . Request::root() . "/download_file_" . $item_id . "_" . $list_id . "_" . $field_id . ".pdf' target='_blank'>" . e($cell_value) . "</a>";
@@ -75,6 +87,12 @@ namespace App\Libraries\DataView
             return $htm;
         }
         
+        /**
+         * Returns HTML for skype link cell
+         * @param array $arr_args Array with arguments: cell_value
+         * 
+         * @return string HTML for cell
+         */
         public function getSkypeCell($arr_args) {
             $cell_value = $arr_args['cell_value'];
             
@@ -84,6 +102,12 @@ namespace App\Libraries\DataView
             return "<a href='skype:" . e($cell_value) ."?chat' title='" . trans('fields.hint_skype') . "'><i class='fa fa-skype'></i> " . e($cell_value) . "</a>";
         }
         
+        /**
+         * Returns HTML for link (opend CMS form) cell
+         * @param array $arr_args Array with arguments: item_id, cell_value
+         * 
+         * @return string HTML for cell
+         */
         public function getLinkCell($arr_args) {
             $item_id = $arr_args['item_id'];
             $cell_value = $arr_args['cell_value'];
@@ -91,6 +115,12 @@ namespace App\Libraries\DataView
             return "<a href='javascript:;' class='dx-grid-cmd-view' dx_item_id='" . $item_id . "'>" . e($cell_value) . "</a>";
         }
         
+         /**
+         * Returns HTML for employee profile link cell
+         * @param array $arr_args Array with arguments: item_id, cell_value
+         * 
+         * @return string HTML for cell
+         */
         public function getLinkProfileCell($arr_args) {
             $item_id = $arr_args['item_id'];
             $cell_value = $arr_args['cell_value'];
@@ -98,6 +128,12 @@ namespace App\Libraries\DataView
             return "<a href='" . Request::root() . $this->profile_url . $item_id . "'>" . e($cell_value) . "</a>";
         }
         
+        /**
+         * Returns HTML for grid cell
+         * @param array $arr_args Array with arguments: align, is_val_html, cell_value
+         * 
+         * @return string HTML for cell
+         */
         public function getCell($arr_args) {
             $align = $arr_args['align'];
             $cell_value = $arr_args['cell_value'];
@@ -115,6 +151,12 @@ namespace App\Libraries\DataView
             return $htm;
         }
         
+        /**
+         * Returns HTML for grid row
+         * @param array $arr_args Array with arguments: htm
+         * 
+         * @return string HTML for row
+         */
         public function getRow($arr_args) {
             $htm = $arr_args['htm'];
             return "<tr>" . $htm . "</tr>";
