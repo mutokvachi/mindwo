@@ -19364,8 +19364,7 @@ $(document).ready(function() {
 		});
 	};
 	
-	$.fn.BoolField.defaults = {
-	};
+	$.fn.BoolField.defaults = {};
 	
 	/**
 	 * BoolField constructor
@@ -19379,25 +19378,27 @@ $(document).ready(function() {
 		
 		this.options = opts;
 		this.root = $(root);
-                
-                if (this.root.data("is-init")) {
-                    return; // field is allready initialized
-                }
 		
-                this.root.bootstrapSwitch();
-                
-                this.root.data("is-init", 1);
+		if(this.root.hasClass("is-init"))
+		{
+			return; // field is allready initialized
+		}
+		
+		this.root.bootstrapSwitch();
+		
+		this.root.addClass("is-init");
 	};
-	
 	
 })(jQuery);
 
-$(document).ajaxComplete(function(event, xhr, settings) {
-    $("input.dx-bool").BoolField();
+$(document).ajaxComplete(function(event, xhr, settings)
+{
+	$("input.dx-bool").BoolField();
 });
 
-$(document).ready(function() {
-    $("input.dx-bool").BoolField();
+$(document).ready(function()
+{
+	$("input.dx-bool").BoolField();
 });
 /*
  * This combined file was created by the DataTables downloader builder:

@@ -9086,6 +9086,7 @@ var PageMain = function()
             animation: 'grow',
             maxWidth: 300
         });
+        
     };
 
     /**
@@ -9094,10 +9095,12 @@ var PageMain = function()
      * @returns {undefined}
      */
     var initSpecialTooltips = function() {
+        
         $('[title]').tooltipster({
             theme: 'tooltipster-light',
             animation: 'grow'
         });
+        
     }
     
     /**
