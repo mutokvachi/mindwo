@@ -55,5 +55,8 @@ class Kernel extends ConsoleKernel
 			dispatch($job);
 		})->everyFiveMinutes();
 
+        // Makes db and files backup
+        $schedule->command('backup:run')
+                 ->daily();
     }
 }

@@ -19,7 +19,11 @@ return [
                  * specify individual files as well.
                  */
                 'include' => [
-                    base_path("public/resources"),
+                    storage_path("app/files"),
+                    public_path("img"),
+                    public_path("formated_img"),
+                    public_path("formated_img_galery"),
+                    public_path("resources")
                 ],
 
                 /*
@@ -27,10 +31,7 @@ return [
                  * You can specify individual files as well.
                  */
                 'exclude' => [
-                    base_path('vendor'),
-                    base_path('node_modules'),
-                    storage_path(),
-                                        
+                    storage_path("app/files/.gitignore")
                 ],
 
                 /*
@@ -44,7 +45,7 @@ return [
              * Currently only MySQL- and PostgreSQL-databases are supported.
              */
             'databases' => [
-                'mysql',
+                'mysql_admin',
             ],
         ],
 
@@ -54,7 +55,7 @@ return [
              * The disk names on which the backups will be stored.
              */
             'disks' => [
-                'local',
+                'backups',
             ],
         ],
     ],
@@ -110,7 +111,7 @@ return [
     'monitorBackups' => [
         [
             'name' => env('APP_URL'),
-            'disks' => ['local'],
+            'disks' => ['backups'],
             'newestBackupsShouldNotBeOlderThanDays' => 1,
             'storageUsedMayNotBeHigherThanMegabytes' => 5000,
         ],
@@ -142,9 +143,9 @@ return [
             'whenBackupWasSuccessful'     => ['log'],
             'whenCleanupWasSuccessful'    => ['log'],
             'whenHealthyBackupWasFound'   => ['log'],
-            'whenBackupHasFailed'         => ['log', 'mail'],
-            'whenCleanupHasFailed'        => ['log', 'mail'],
-            'whenUnhealthyBackupWasFound' => ['log', 'mail'],
+            'whenBackupHasFailed'         => ['log'],
+            'whenCleanupHasFailed'        => ['log'],
+            'whenUnhealthyBackupWasFound' => ['log'],
         ],
 
         /*
