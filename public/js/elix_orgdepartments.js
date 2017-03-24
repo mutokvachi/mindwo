@@ -10420,11 +10420,12 @@ module.exports = XHR;
 		} else {
 			$mask.removeClass('hidden');
 		}
-		var sourceChart = $chartContainer.addClass('canvasContainer').find('.orgchart:visible').get(0);
+		var sourceChart = $chartContainer.addClass('canvasContainer').find('.orgchart:visible > table').get(0);
 		var flag = opts.direction === 'l2r' || opts.direction === 'r2l';
 		html2canvas(sourceChart, {
 			'width': flag ? sourceChart.clientHeight : sourceChart.clientWidth,
 			'height': flag ? sourceChart.clientWidth : sourceChart.clientHeight,
+			'background': '#fff',
 			'onclone': function(cloneDoc) {
 				$(cloneDoc).find('.canvasContainer').css('overflow', 'visible')
 					.find('.orgchart:visible:first').css('transform', '');
