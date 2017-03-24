@@ -170,31 +170,22 @@
       {
             if($(".dx-stick-footer").is(":visible"))
             {
-                hide_page_splash(1);
-                hide_form_splash(1);
-
+                return 'Your changes have not been saved.';
+            }
+      });
+      
+      $( window ).unload(function() {
+            if($(".dx-stick-footer").is(":visible")) {            
+                var url = DX_CORE.site_url + 'form/unlock_item/' + $('.dx-employee-profile').data('list_id') + '/' + $('.dx-employee-profile').data('item_id');                           
+                
                 $.ajax({
                     type: 'GET',
-                    url: DX_CORE.site_url + 'form/unlock_item/' + $('.dx-employee-profile').data('list_id') + '/' + $('.dx-employee-profile').data('item_id'),
-                    dataType: 'json',
-                    success: function(data) {
-                        // item unlocked
-                    }
-                });
-                
-                setTimeout(function(){ 
-                    // unload canceled...
-                    $.ajax({
-                        type: 'GET',
-                        url: DX_CORE.site_url + 'form/lock_item/' + $('.dx-employee-profile').data('list_id') + '/' + $('.dx-employee-profile').data('item_id'),
-                        dataType: 'json',
-                        success: function(data) {
-                            // item unlocked
-                        }
-                    });
-                }, 3000);
-
-                return 'Your changes have not been saved.';
+                    url: url,
+                    async:false, //IMPORTANT, the call will be synchronous
+                    data: {}
+                }).done(function(data) {                
+                    console.log('Unlocked');
+                });               
             }
       });
       

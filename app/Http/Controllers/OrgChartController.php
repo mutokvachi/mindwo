@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class OrgChartController
@@ -104,9 +105,19 @@ class OrgChartController extends Controller
 	 */
 	public function getEmployees()
 	{
-		$users = App\User::whereNotIn('id', config('dx.empl_ignore_ids', [1]))
-			->orderBy('display_name')
-			->get();
+		$users =
+			// raw expression is needed because of Eloquent is putting an ID from joined table into the model
+			App\User::select(DB::raw('*, dx_users.id AS id'))
+				->leftJoin('dx_users_positions AS p', 'dx_users.position_id', '=', 'p.id')
+				// here we place employees without position to the end of the list
+				->orderBy(DB::raw('dx_users.position_id IS NOT NULL'), 'DESC')
+				// sorting by index
+				->orderBy('p.order_index')
+				// then by display name
+				->orderBy('dx_users.display_name')
+				// skip system users
+				->whereNotIn('dx_users.id', config('dx.empl_ignore_ids', [1]))
+				->get();
 		
 		$employees = [];
 		
@@ -135,7 +146,8 @@ class OrgChartController extends Controller
 	 *
 	 * @return array
 	 */
-	public function getIndex()
+	public
+	function getIndex()
 	{
 		$index = [];
 		
@@ -167,7 +179,8 @@ class OrgChartController extends Controller
 	 *
 	 * @return array
 	 */
-	public function getParentsIndex()
+	public
+	function getParentsIndex()
 	{
 		$index = [];
 		
@@ -183,7 +196,7 @@ class OrgChartController extends Controller
 	}
 	
 	/**
-	 * Recursively traverse index of managers and subordinates and build muilti-dimensional array describing
+	 * Recursively traverse index of managers and subordinates and build multi-dimensional array describing
 	 * organizational hierarchy.
 	 *
 	 * Example of hierarchy:
@@ -207,7 +220,8 @@ class OrgChartController extends Controller
 	 *
 	 * @return array
 	 */
-	public function getTree($rootId)
+	public
+	function getTree($rootId)
 	{
 		$buildTree = function ($manager_id, &$subtree) use (&$buildTree)
 		{
@@ -258,16 +272,15 @@ class OrgChartController extends Controller
 	 * @param array|null $node
 	 * @return array
 	 */
-	public function getOrgchartDatasource($node = null)
+	public
+	function getOrgchartDatasource($node = null)
 	{
-		static $fakeRoot = false;
-		
 		$top = $node ? false : true;
 		
 		// first pass - determine top element
 		if(!$node)
 		{
-			// user id isn't specified - draw whole tree from the root
+			// employee id isn't specified - draw whole tree from the root
 			if($this->rootId == 0)
 			{
 				// there is only one top-level employee in hierarchy (without manager)
@@ -280,17 +293,22 @@ class OrgChartController extends Controller
 				else
 				{
 					$node = [0 => $this->treeIndex[0]];
-					$fakeRoot = true;
 				}
 			}
 			
-			// user with requested id doesn't exist - emit 404
-			elseif(!isset($this->treeIndex[$this->rootId]))
+			// employee with requested id doesn't exist - emit 404
+			elseif(!isset($this->employees[$this->rootId]))
 			{
 				abort(404);
 			}
 			
-			// user exists - draw corresponding subtree
+			// employee doesn't have any subordinates
+			elseif(!isset($this->treeIndex[$this->rootId]))
+			{
+				$node = [$this->rootId => []];
+			}
+			
+			// employee exists - draw corresponding subtree
 			else
 			{
 				$node = [$this->rootId => $this->treeIndex[$this->rootId]];
@@ -352,10 +370,13 @@ class OrgChartController extends Controller
 				];
 			}
 			
+			// recurse deeper to the next level of hierarchy
 			if(!empty($subnode))
 			{
 				$tmp['children'] = $this->getOrgchartDatasource($subnode);
 			}
+			// even if employee doesn't have any subordinates, we must provide an empty array of children,
+			// for OrgChart plugin to work correctly
 			else
 			{
 				$tmp['children'] = [];

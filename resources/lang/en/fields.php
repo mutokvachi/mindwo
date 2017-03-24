@@ -47,4 +47,6 @@ return [
     
     'btn_file_edit' => 'Edit',
     'btn_file_view' => 'View', 
+    
+    'hint_skype' => 'Open Skype',
 ];

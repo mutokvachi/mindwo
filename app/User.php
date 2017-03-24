@@ -281,6 +281,16 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	}
 	
 	/**
+	 * Relation to position
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function position()
+	{
+		return $this->hasOne('App\Models\Position', 'id', 'position_id');
+	}
+	
+	/**
 	 * Relation to team members
 	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
