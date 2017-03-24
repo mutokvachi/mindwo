@@ -26,6 +26,7 @@ namespace App\Libraries\DataView\Formatters
                                      'is_pdf' => $this->isPDF($data_row[$model_row["name"]])
                                 ]);  
                 $this->values['is_html'] = true;
+                $this->values['is_link'] = true;
             }
             else
             {

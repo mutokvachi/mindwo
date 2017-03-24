@@ -137,10 +137,10 @@ namespace App\Libraries\DataView
         public function getCell($arr_args) {
             $align = $arr_args['align'];
             $cell_value = $arr_args['cell_value'];
-            $is_val_html = $arr_args['is_val_html'];
+            $is_val_html = (isset($arr_args['is_val_html']) && $arr_args['is_val_html']);
             
             $htm = "<td align='{{ $align }}'>";
-            if (isset($is_val_html) && $is_val_html) {
+            if ($is_val_html) {
                 $htm .= $cell_value; // not escaped
             }
             else {
