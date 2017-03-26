@@ -126,4 +126,6 @@ return [
     
     'field_not_found' => "Skatam nav definēts lauks ar nosaukumu '%s'!",
     'field_not_found_id' => "Skatam nav definēts lauks ar ID %s!",
+
+    'unable_to_rotate_image' => "Sistēmas kļūda! Nav iepsējams rotēt datni!",
 ];

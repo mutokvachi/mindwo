@@ -372,7 +372,8 @@
         </div>
         <div class='col-lg-10 col-md-9 col-sm-12 col-xs-12 dx-right'>
           <a href="javascript:;" class="btn btn-primary dx-save-profile">
-            <i class="fa fa-floppy-o"></i> {{ trans('form.btn_save') }} </a>
+            <i class="fa fa-floppy-o"></i> {{ trans('form.btn_save') }}
+          </a>
           <a href="javascript:;" class="btn btn-default dx-cancel-profile">
             <i class="fa fa-times"></i> {{ trans('form.btn_cancel') }} </a>
         </div>

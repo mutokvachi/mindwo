@@ -126,4 +126,6 @@ return [
     
     'field_not_found' => "View does not contain field named '%s'!",
     'field_not_found_id' => "View does not contain field with ID %s!",
+
+    'unable_to_rotate_image' => "System error! Unable to rotate image!",
 ];
