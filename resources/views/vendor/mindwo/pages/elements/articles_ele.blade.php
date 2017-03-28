@@ -47,7 +47,7 @@
                     </div>
                     
                     <a class="no_hover hidden-lg dx-no-link-pic" target="_dx_portal" href="{{ $article->open_article_url }}" title="{{ $article->hover_hint }}">
-                        <img class="img-responsive img-thumbnail" src="{{Request::root()}}/img/{{ ($article->picture_guid) ? $article->picture_guid : $article->placeholder_pic }}" alt="{{ $article->title }}" style='width: 100%;'>
+                        <img class="img-responsive img-thumbnail" src="{{Request::root()}}/formated_img/medium/{{ ($article->picture_guid) ? $article->picture_guid : $article->placeholder_pic }}" alt="{{ $article->title }}" style='width: 100%;'>
                     </a>
                     
                     <a class="no_hover dx_article_text dx-no-link-pic" target="_dx_portal" href="{{ $article->open_article_url }}">
