@@ -17,14 +17,16 @@ namespace App\Libraries\DataView\Formatters
         {
             if (strlen($data_row[$model_row["name"]]) > 0)
             {
-                $this->value =  view('grid.cell_file', [
+                $helper = new \App\Libraries\DataView\Helper();
+                $this->value = $helper->getFileCell([
                                      'item_id' => $data_row["id"],
                                      'list_id' => $model_row["list_id"],
                                      'field_id' => $model_row["field_id"],
                                      'cell_value' => $data_row[$model_row["name"]],
                                      'is_pdf' => $this->isPDF($data_row[$model_row["name"]])
-                                ])->render();  
+                                ]);  
                 $this->values['is_html'] = true;
+                $this->values['is_link'] = true;
             }
             else
             {

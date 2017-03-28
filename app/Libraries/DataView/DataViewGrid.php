@@ -6,17 +6,17 @@ namespace App\Libraries\DataView {
     use Config;
     use Request;
     use App\Exceptions;
+    use Log;
     
+    /**
+    *
+    * Tabulāra saraksta klase
+    *
+    *
+    * Objekts nodrošina datu attēlošanu tabulāra saraksta veidā ar filtrēšanas/kārtošanas iespējām pēc kolonnām
+    *
+    */
     class DataViewGrid extends DataView {
-        
-        /**
-        *
-        * Tabulāra saraksta klase
-        *
-        *
-        * Objekts nodrošina datu attēlošanu tabulāra saraksta veidā ar filtrēšanas/kārtošanas iespējām pēc kolonnām
-        *
-        */
         
         public $form_url = "";
         
@@ -49,6 +49,12 @@ namespace App\Libraries\DataView {
         public $grid_is_paginator = 0; 
         public $filter_data = "";
         
+        /**
+         * HTML elements helper class (to avoid Blade views render performance issue)
+         * 
+         * @var App\Libraries\DataView\Helper
+         */
+        private $helper = null;
         
         /**
         * Inicializē tabulāra saraksta klases objektu.
@@ -60,6 +66,7 @@ namespace App\Libraries\DataView {
         */        
         public function __construct($view_id, $filter_data, $session_guid)
         {
+            $this->helper = new Helper();
             $this->initObjects($view_id, $filter_data, $session_guid, 0);
             
             $this->setGridFormURL();
@@ -253,7 +260,7 @@ namespace App\Libraries\DataView {
                     $dropup = "dropup";
                 }
                     
-                $cell_htm = view('grid.btns_col', ['dropup' => $dropup, 'item_id' => $row['id'], 'form_type_id' => $this->form_type_id])->render();
+                $cell_htm = $this->helper->getBtnsCol(['dropup' => $dropup, 'item_id' => $row['id'], 'form_type_id' => $this->form_type_id]);
                 
                 for ($i=0; $i<count($view->model);$i++)
                 {
@@ -263,17 +270,16 @@ namespace App\Libraries\DataView {
                         
                         $cell_obj = $this->formatLinkValue($cell_obj, $view->model[$i], $row);
 
-                        $cell_htm .= view('grid.data_col', [
+                        $cell_htm .= $this->helper->getCell([
                             'align' => $cell_obj->align, 
                             'cell_value' => $cell_obj->value,
                             'is_val_html' => $cell_obj->is_html
-                        ])->render();
+                        ]);
                     }
                 }
 
-                $htm .= view('grid.data_row', ['htm' => $cell_htm])->render();
+                $htm .= $this->helper->getRow(['htm' => $cell_htm]);
             }
-            
             return $htm;
         }
         
@@ -437,21 +443,24 @@ namespace App\Libraries\DataView {
         */ 
         private function formatLinkValue($cell_obj, $model_row, $data_row)
         {
-            $view_name = "";
+            if ($cell_obj->is_link) {
+                return $cell_obj;
+            }
+            
+            $method_name = "";
             if ($model_row['is_link'] && $model_row['type'] != 'file' && strlen($this->form_url) > 0)
             {
-                $view_name = "cell_link";
-            }
+                $method_name = "getLinkCell";            }
             
             if ($this->form_type_id == 3 && strlen($this->profile_url) > 0) {
-                $view_name = "cell_link_profile";
+                $method_name = "getLinkProfileCell";
             }
             
-            if ($view_name) {
-                $cell_obj->value =  view('grid.' . $view_name, [                                         
+            if ($method_name) {
+                $cell_obj->value =  $this->helper->$method_name([                                         
                                          'item_id' => $data_row["id"],                                         
                                          'cell_value' => $cell_obj->value
-                                    ])->render();
+                                    ]);
                 $cell_obj->is_html = true;
             }
             

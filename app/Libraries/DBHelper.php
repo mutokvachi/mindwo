@@ -429,17 +429,10 @@ namespace App\Libraries
          * @param integer $list_id Register ID
          * @param integer $item_id Item ID
          */
-        public static function lockItem($list_id, $item_id) {
-            $row = DB::table('dx_locks as l')
-                    ->select('u.display_name', 'l.locked_time')
-                    ->join('dx_users as u', 'l.user_id', '=', 'u.id')
-                    ->where('l.list_id', '=', $list_id)
-                    ->where('l.item_id', '=', $item_id)
-                    ->first();
+        public static function lockItem($list_id, $item_id) {        
             
-            if ($row) {
-                // item allready locked by this user
-                throw new Exceptions\DXCustomException(sprintf(trans('errors.item_locked'), long_date($row->locked_time), $row->display_name, $row->display_name));
+            if (DBHelper::isItemLocked($list_id, $item_id)) {
+                return; // item is allready locked by this user
             }
             
             DB::table('dx_locks')->insert([
@@ -450,6 +443,29 @@ namespace App\Libraries
             ]);
         }
         
+        private static function isItemLocked($list_id, $item_id) {
+            $row = DB::table('dx_locks as l')
+                    ->select('l.user_id', 'u.display_name', 'l.locked_time')
+                    ->join('dx_users as u', 'l.user_id', '=', 'u.id')
+                    ->where('l.list_id', '=', $list_id)
+                    ->where('l.item_id', '=', $item_id)
+                    ->first();
+            
+            if ($row) {
+                
+                if ($row->user_id == Auth::user()->id) {
+                    // item locked by this user - this is ok
+                    return true;
+                }
+                
+                // item allready locked by another user
+                throw new Exceptions\DXCustomException(sprintf(trans('errors.item_locked'), long_date($row->locked_time), $row->display_name, $row->display_name));
+            }
+            
+            // item is not locked jet
+            return false;
+        }
+        
         /**
          * Unlocks item so other users can edit it
          * 
@@ -457,12 +473,18 @@ namespace App\Libraries
          * @param integer $item_id Item ID
          */
         public static function unlockItem($list_id, $item_id) {
+            
+            if (!DBHelper::isItemLocked($list_id, $item_id)) {
+                return; // item was not locked (maybe cron JOB released lock)
+            }
+            
             DB::table('dx_locks')
                     ->where('list_id', '=', $list_id)
                     ->where('item_id', '=', $item_id)
                     ->where('user_id', '=', Auth::user()->id)
                     ->delete();
-        }
+        }        
+        
     }
 
 }

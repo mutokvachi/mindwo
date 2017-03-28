@@ -155,7 +155,7 @@ class EmployeePersonalDocController extends Controller
         }
 
         // Delete old rows which are removed
-        \App\Models\Employee\EmployeePersonalDocument::whereNotIn('id', $existing_saved_emp_doc_ids)->delete();
+        \App\Models\Employee\EmployeePersonalDocument::whereNotIn('id', $existing_saved_emp_doc_ids)->where('user_id', '=', $user_id)->delete();
 
         $result = [];
 
