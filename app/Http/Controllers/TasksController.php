@@ -1679,7 +1679,7 @@ class TasksController extends Controller
     private function stepActivity($step_row, $item_id, $recursion_nr) {
         
         $rez = Workflows\Activities\ActivityFactory::build_activity($item_id, $step_row->list_id, $step_row->activity_code)->performActivity();
-        Log::info("Activity rezult: " . $rez);
+        
         return $this->getNextStep($rez ? $step_row->yes_step_nr : $step_row->no_step_nr, $step_row->list_id, $item_id, $recursion_nr);
     }
     
