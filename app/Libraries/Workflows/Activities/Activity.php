@@ -34,8 +34,6 @@ namespace App\Libraries\Workflows\Activities
         {
             $this->item_id = $item_id;            
             $this->list_id = $list_id;
-            
-            return $this->performActivity();
         }
     }
 
