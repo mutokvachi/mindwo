@@ -109,4 +109,6 @@ return [
     'must_save_text' => "Workflow must be saved before editting wokrflow's steps. Do You want to save workflow?",
     
     'lbl_deny' => 'DENIED',
+    
+    'err_cant_get_unit_leader' => "There is not possible to get unit leader for the employee '%s'!",
 ];

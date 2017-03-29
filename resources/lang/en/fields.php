@@ -49,4 +49,5 @@ return [
     'btn_file_view' => 'View', 
     
     'hint_skype' => 'Open Skype',
+    'hint_whatsapp' => 'Open WhatsApp',
 ];
