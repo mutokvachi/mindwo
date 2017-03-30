@@ -1133,37 +1133,6 @@ var BlockViews = function () {
     };
 
     /**
-     * Rotate given element by 90 degree to left or right
-     *
-     * @param element_to_rotate Element that we want to rotate
-     * @param side Witch side need to rotate element (left|right)
-     */
-    var rotateElement = function (element_to_rotate, side) {
-
-        var deg = $(element_to_rotate).data('rotate') || 0;
-        var angle = 0;
-
-        if (side == 'left') {
-            angle = parseInt(deg) - 90;
-        } else if (side == 'right') {
-            angle = parseInt(deg) + 90;
-        }
-
-        var rotate = 'rotate(' + angle + 'deg)';
-
-        $(element_to_rotate).css({
-            'transition': 'all 400ms',
-            '-webkit-transform': rotate,
-            '-moz-transform': rotate,
-            '-o-transform': rotate,
-            '-ms-transform': rotate,
-            'transform': rotate
-        });
-
-        $(element_to_rotate).data('rotate', angle);
-    };
-
-    /**
      * Recalculates grid height to set scrollbars
      *
      * @returns {undefined}
@@ -1397,9 +1366,6 @@ var BlockViews = function () {
         },
         initHeight: function () {
             initHeight();
-        },
-        rotateElement: function (element_to_rotate, side) {
-            rotateElement(element_to_rotate, side);
         }
     };
 }();
