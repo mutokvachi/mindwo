@@ -128,4 +128,6 @@ return [
     'field_not_found_id' => "Skatam nav definēts lauks ar ID %s!",
     
     'item_locked' => 'Ieraksts ir bloķēts un rediģēšana nav iespējama! Ierakstu %s sāka rediģēt lietotājs %s. Jums ir jāuzgaida, kamēr %s pabeigs ieraksta rediģēšanu.',
+
+    'unable_to_rotate_image' => "Sistēmas kļūda! Nav iepsējams rotēt datni!",
 ];

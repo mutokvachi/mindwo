@@ -21,6 +21,8 @@ return [
     'btn_change' => 'Change',
     'btn_remove' => 'Remove',
     'btn_set_change' => 'Set/choose picture',
+    'btn_rotate_left' => 'Rotate left',
+    'btn_rotate_right' => 'Rotate right',
     'err_choose_val' => 'Please, choose employee to view profile!',
     
     // Tree

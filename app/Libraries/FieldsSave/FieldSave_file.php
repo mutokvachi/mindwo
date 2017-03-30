@@ -107,6 +107,9 @@ namespace App\Libraries\FieldsSave
                 if ($is_file_set == 1 && $this->item_id > 0) {
                     $this->is_val_set = 1;
                 }
+
+                // TODO:
+                // Rotate already uploaded file and all thumblains..
             }
         }
 
@@ -143,6 +146,12 @@ namespace App\Libraries\FieldsSave
             $target_file = Uuid::generate(4) . "." . File::extension($file_name);
 
             $file->move($this->file_folder, $target_file);
+
+            /* Get rotate angle and rotate image if needed */
+            $rotate = isset($this->request->rotate_angle) ? $this->request->rotate_angle : 0;
+            if ($rotate > 0) {
+                $this->rotateImage($target_file, $rotate);
+            }
 
             // Izgūst folerus uz kuriem kopēt no db (primāri kopē uz db iestatījumos norādītiem. Ja tādu nav, skatīsies no konfiga)
             $paths = DB::table('dx_files_paths')
@@ -271,6 +280,42 @@ namespace App\Libraries\FieldsSave
             }
         }
 
+        private function rotateImage($img_name, $degrees)
+        {
+
+            $filename = $this->file_folder . $img_name;
+
+            switch (exif_imagetype($filename)) {
+                case IMAGETYPE_JPEG:
+                    $create_img_function = 'imagecreatefromjpeg';
+                    $save_img_function = 'imagejpeg';
+                    break;
+                case IMAGETYPE_PNG:
+                    $create_img_function = 'imagecreatefrompng';
+                    $save_img_function = 'imagepng';
+                    break;
+                default:
+                    return false;
+            }
+
+            /* Attempt to open image and create object */
+            $img = @call_user_func($create_img_function, $filename);
+
+            /* See if it failed */
+            if(!$img)
+            {
+                /* Handle error and output an message */
+                Log::info("Unable to rotate image: " . $filename);
+                throw new Exceptions\DXCustomException(trans('errors.unable_to_rotate_image'));
+            }
+
+            /* Rotate an image with a given angle in degrees */
+            $rotate = imagerotate($img, -$degrees, 0);
+
+            /* Save rotated image to file and destroy image object */
+            call_user_func_array($save_img_function, array($rotate, $filename));
+            imagedestroy($img);
+        }
     }
 
 }
