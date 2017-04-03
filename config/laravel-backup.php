@@ -77,7 +77,7 @@ return [
             /*
              * The amount of days that all daily backups must be kept.
              */
-            'keepDailyBackupsForDays' => 16,
+            'keepDailyBackupsForDays' => 10,
 
             /*
              * The amount of weeks of which one weekly backup must be kept.
@@ -98,7 +98,7 @@ return [
              * After cleaning up the backups remove the oldest backup until
              * this amount of megabytes has been reached.
              */
-            'deleteOldestBackupsWhenUsingMoreMegabytesThan' => 5000
+            'deleteOldestBackupsWhenUsingMoreMegabytesThan' => env('APP_BACKUP_LIMIT', 50000) // default 50 GB
         ]
     ],
 

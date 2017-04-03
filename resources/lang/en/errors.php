@@ -128,4 +128,7 @@ return [
     'field_not_found_id' => "View does not contain field with ID %s!",
     
     'item_locked' => "Item is locked and can't be edited! Item was locked at %s by user %s. Please, wait while %s finish editing.",
+
+    'unable_to_rotate_image' => "System error! Unable to rotate image!",
+    'unable_to_copy_file' => "System error! Unable to copy file!",
 ];
