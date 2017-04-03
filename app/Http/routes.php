@@ -138,6 +138,9 @@ Route::group(['prefix' => 'workflow'], function() {
     });
 });
 
+Route::group(['prefix' => 'crypto', 'namespace' => 'Crypto'], function() {
+        Route::get('/user_panel', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@getUserPanelView'));   
+});
 
 // Lietotāji - autorizācija, atslēgšanās
 Route::post('/login', 'UserController@loginUser');
