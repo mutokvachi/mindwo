@@ -26,11 +26,26 @@ namespace App\Libraries\FieldsSave
         private $file_folder = "";
 
         /**
+         * Indicates if image rotation is required (0 - not required)
+         * 
+         * @var integer 
+         */
+        private $rotate = 0;
+        
+        /**
          * Apstrādā datnes lauka vērtību (izgūst datnes vai arī dzēš datnes)
          * Metode uzstāda datņu lauku vērtības masīvā
          */
         public function prepareVal()
         {
+            $this->file_folder = \App\Libraries\Helper::folderSlash(\App\Http\Controllers\FileController::getFileFolder($this->fld->is_public_file));
+            $this->rotate = $this->request->input($this->fld->db_name . "_rotate_angle", 0);
+            
+            $mod = $this->rotate % 360;
+            if ($mod == 0) {
+                $this->rotate = 0; // we wont transform image if it is rotated 360, 720 etc degree because no visual change
+            }
+            
             if ($this->request->hasFile($this->fld->db_name)) {
                 $this->processFiles();
                 $this->is_val_set = 1;
@@ -44,9 +59,7 @@ namespace App\Libraries\FieldsSave
          * Izgūst faila nosaukumu un guid vērtību kā masīvu
          * Ja augšupielādēti vairāki faili, tad atgriež masīvu ar nosaukums/guid kā ietverto masīvu
          */
-        private function processFiles()
-        {
-            $this->file_folder = \App\Libraries\Helper::folderSlash(\App\Http\Controllers\FileController::getFileFolder($this->fld->is_public_file));
+        private function processFiles(){            
 
             $files = $this->request->file($this->fld->db_name);
 
@@ -107,7 +120,48 @@ namespace App\Libraries\FieldsSave
                 if ($is_file_set == 1 && $this->item_id > 0) {
                     $this->is_val_set = 1;
                 }
+                
+                // Rotate already uploaded file and all thumblains                                
+                if ($this->rotate > 0) {
+                    $this->rotateExistingImageAllThumbnails();
+                }
             }
+        }
+        
+        /**
+         * Rotates existing image and all it's thumbnails - in case if file is not changed from UI but just rotated
+         */
+        private function rotateExistingImageAllThumbnails() {
+            // get file guid from db
+            $file_guid_name = str_replace("_name", "_guid", $this->fld->db_name);
+            $file_field_name = $this->fld->db_name;
+            
+            $data_row = DB::table($this->fld->table_name)->select($file_guid_name, $file_field_name)->where('id', '=', $this->item_id)->first();
+            
+            // rotate original file
+            $origin_file = $this->file_folder . $data_row->$file_guid_name;
+            
+            $target_file = Uuid::generate(4) . "." . File::extension($data_row->$file_field_name);
+            
+            $this->copyFile($origin_file, $this->file_folder . $target_file);
+            $this->rotateImage($this->file_folder . $target_file, $this->rotate);
+            
+            // rotate all thumbnails
+            $paths = $this->getCopyPathsArray();
+            $this->copyFiles($target_file, $paths);            
+            
+            // set data changes for update history
+            $val = array();
+            $val[$file_guid_name] = $target_file; // change file guid to new one (rotated version)
+            $val[$this->fld->db_name] = "rot_" . $this->rotate . "_" . $data_row->$file_field_name;
+            
+            if ($this->is_multi_val) {
+                $this->val_arr[$key] = $val;
+            }
+            else {
+                $this->val_arr = $val;
+            }
+            
         }
 
         /**
@@ -139,19 +193,18 @@ namespace App\Libraries\FieldsSave
         {
             $file_name = $file->getClientOriginalName();
 
-            //we store files on server with GUID names so they can be unique
+            // we store files on server with GUID names so they can be unique
             $target_file = Uuid::generate(4) . "." . File::extension($file_name);
 
             $file->move($this->file_folder, $target_file);
 
-            // Izgūst folerus uz kuriem kopēt no db (primāri kopē uz db iestatījumos norādītiem. Ja tādu nav, skatīsies no konfiga)
-            $paths = DB::table('dx_files_paths')
-                    ->where('field_id', '=', $this->fld->field_id)
-                    ->get();
-
-            if (count($paths) == 0) {
-                $paths = $this->getCopyFoldersArray();
+            // Rotate image if needed           
+            if ($this->rotate > 0) {
+                $this->rotateImage($this->file_folder . $target_file, $this->rotate);
             }
+
+            // Izgūst folerus uz kuriem kopēt no db (primāri kopē uz db iestatījumos norādītiem. Ja tādu nav, skatīsies no konfiga)
+            $paths = $this->getCopyPathsArray();
             $this->copyFiles($target_file, $paths);
 
             $file_guid_name = str_replace("_name", "_guid", $this->fld->db_name);
@@ -172,6 +225,24 @@ namespace App\Libraries\FieldsSave
             else {
                 $this->val_arr = $val;
             }
+        }
+        
+        /**
+         * Gets array with folders to where copy/transform files
+         * Primary is used info from database table dx_fields_paths, secondary (if not set in db) from config
+         * 
+         * @return array Array with folders full paths
+         */
+        private function getCopyPathsArray() {
+            $paths = DB::table('dx_files_paths')
+                    ->where('field_id', '=', $this->fld->field_id)
+                    ->get();
+
+            if (count($paths) == 0) {
+                $paths = $this->getCopyFoldersArray();
+            }
+            
+            return $paths;
         }
 
         /**
@@ -196,10 +267,22 @@ namespace App\Libraries\FieldsSave
                     }
                 }
                 else {
-                    if (!File::copy($this->file_folder . $target_file, \App\Libraries\Helper::folderSlash($path->folder_path) . $target_file)) {
-                        throw new Exceptions\DXCustomException("Sistēmas kļūda! Nav iepsējams kopēt datni '" . $this->file_folder . $target_file . "' uz katalogu '" . \App\Libraries\Helper::folderSlash($path->folder_path) . "'.");
-                    }
+                    $this->copyFile($this->file_folder . $target_file, \App\Libraries\Helper::folderSlash($path->folder_path) . $target_file);                    
                 }
+            }
+        }
+        
+        /**
+         * Copy file - handles errors
+         * 
+         * @param string $source_file Full path to source file to be copied
+         * @param string $target_file full path to target file (destination)
+         * @throws Exceptions\DXCustomException
+         */
+        private function copyFile($source_file, $target_file) {
+            if (!File::copy($source_file, $target_file)) {
+                Log::info("System error - can't copy file '" . $source_file . "' to folder '" . $target_file . "'.");
+                throw new Exceptions\DXCustomException(trans('errors.unable_to_copy_file'));
             }
         }
 
@@ -271,6 +354,48 @@ namespace App\Libraries\FieldsSave
             }
         }
 
+        /**
+         * Rotates file by given degree
+         * 
+         * @param string $filename Full path to file
+         * @param integer $degrees Rotation degrees
+         * @return boolean Returns true if image type is suported and image was rotated
+         * 
+         * @throws Exceptions\DXCustomException
+         */
+        private function rotateImage($filename, $degrees)
+        {
+            switch (exif_imagetype($filename)) {
+                case IMAGETYPE_JPEG:
+                    $create_img_function = 'imagecreatefromjpeg';
+                    $save_img_function = 'imagejpeg';
+                    break;
+                case IMAGETYPE_PNG:
+                    $create_img_function = 'imagecreatefrompng';
+                    $save_img_function = 'imagepng';
+                    break;
+                default:
+                    return false;
+            }
+            
+            /* Attempt to open image and create object */
+            $img = @call_user_func($create_img_function, $filename);
+
+            /* See if it failed */
+            if(!$img)
+            {
+                /* Handle error and output an message */
+                Log::info("Unable to rotate image: " . $filename);
+                throw new Exceptions\DXCustomException(trans('errors.unable_to_rotate_image'));
+            }
+
+            /* Rotate an image with a given angle in degrees */
+            $rotate = imagerotate($img, -$degrees, 0);
+
+            /* Save rotated image to file and destroy image object */
+            call_user_func_array($save_img_function, array($rotate, $filename));
+            imagedestroy($img);            
+        }
     }
 
 }
