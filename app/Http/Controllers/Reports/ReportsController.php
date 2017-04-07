@@ -18,9 +18,11 @@ class ReportsController extends Controller
      */
     public function getDefault() {
         
-        $group_row = DB::table('dx_views_reports_groups')
-                     ->orderBy('order_index')
-                     ->first();
+        $group_row = $this->getAllGroups()->first();
+        
+        if (!$group_row) {            
+            throw new Exceptions\DXCustomException(trans('errors.no_rights_on_reports'));            
+        }
         
         return $this->getGroupView($group_row);
         
@@ -67,9 +69,23 @@ class ReportsController extends Controller
                     ->orderBy('v.title')
                     ->get();
         
-        $groups = DB::table('dx_views_reports_groups as g')
+        $groups = $this->getAllGroups()->get();
+        
+        return  view('reports.index', [
+                    'group_row' => $group_row,
+                    'views' => $views,
+                    'groups' => $groups
+		]);
+    }
+    
+    /**
+     * Prepare groups query object
+     * @return object Laravel db query object
+     */
+    private function getAllGroups() {
+        return DB::table('dx_views_reports_groups as g')
                     ->join('dx_views as vv', 'g.id', '=', 'vv.group_id')
-                    ->select('g.id', 'g.title', 'g.order_index', DB::raw('count(*) as total_views'))
+                    ->select('g.id', 'g.title', 'g.order_index', 'g.icon', DB::raw('count(*) as total_views'))
                     ->whereExists(function($query) {
                         $query->select(DB::raw(1))                          
                           ->from('dx_users_roles as ur')
@@ -80,14 +96,7 @@ class ReportsController extends Controller
                           ->whereRaw('rl.list_id = v.list_id');
                     })
                     ->groupBy('g.id')
-                    ->orderBy('order_index')                           
-                    ->get();
-        
-        return  view('reports.index', [
-                    'group_row' => $group_row,
-                    'views' => $views,
-                    'groups' => $groups
-		]);
+                    ->orderBy('order_index');
     }
 
 }

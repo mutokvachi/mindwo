@@ -26,7 +26,7 @@ return [
     
     'login' => 'Autorizēties',
     
-    'version' => 'Versija 4.0.30, &copy; 2012 - 2017',
+    'version' => 'Versija 4.0.31, &copy; 2012 - 2017',
     
     'authorization_in_system' => 'Autorizēšanās sistēmā',
     
