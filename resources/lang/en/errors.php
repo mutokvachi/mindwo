@@ -131,4 +131,6 @@ return [
 
     'unable_to_rotate_image' => "System error! Unable to rotate image!",
     'unable_to_copy_file' => "System error! Unable to copy file!",
+    
+    'no_rights_on_reports' => "You do not have rights to access any report!",
 ];

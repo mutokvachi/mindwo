@@ -28,5 +28,13 @@ return [
         'group' => 'Departments',
         'all' => 'Visi',
         'date_interval' => 'Datuma periods'
-    ],  
+    ],
+    
+    'page' => [
+        'title' => 'Atskaites',
+        'report_name' => 'Nosaukums',
+        'last_viewed' => 'Jūs pēdējo reizi skatījāt',
+        'lbl_categories' => 'Kategorijas', 
+        'never_viewed' => 'Vēl nav skatīts',
+    ],
 ];

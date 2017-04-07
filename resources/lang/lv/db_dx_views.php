@@ -52,5 +52,5 @@ return [
     
     'tab_report' => 'Atskaite',
     
-
+    'group' => 'Atskaišu grupa',
 ];

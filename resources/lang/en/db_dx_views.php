@@ -52,4 +52,5 @@ return [
     
     'tab_report' => 'Report',
     
+    'group' => 'Reports group',
 ];
