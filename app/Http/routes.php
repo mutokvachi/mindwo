@@ -102,6 +102,11 @@ Route::group(['middleware' => 'auth_api', 'prefix' => 'api'], function() {
     });
 });
 
+Route::group(['middleware' => 'auth', 'prefix' => 'reports', 'namespace' => 'Reports'], function() { 
+    Route::get('/', 'ReportsController@getDefault');
+    Route::get('/group/{group_id}', 'ReportsController@getByGroup');
+});
+
 // Startē procesu forsēti
 Route::get('/force_process/{id}', array('as' => 'force_process', 'middleware' => 'auth', 'uses' => 'ProcessController@forceProcess'));
 

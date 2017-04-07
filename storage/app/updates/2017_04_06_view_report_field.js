@@ -40,11 +40,7 @@ if (sel)
                                         });
                                         
                                         sel_empl.val(old_val);
-                                        if (cnt == 0) {
-                                                notify_err("Can't load list fields with data type 'Date' or 'Date/Time'!");
-                                        }
-
-
+                                        
                                         hide_form_splash();
                     }
 		});

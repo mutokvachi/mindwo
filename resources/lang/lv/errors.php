@@ -132,4 +132,5 @@ return [
     'unable_to_rotate_image' => "Sistēmas kļūda! Nav iepsējams rotēt datni!",
     'unable_to_copy_file' => "Sistēmas kļūda! Nav iepsējams kopēt datni!",
     
+    'no_rights_on_reports' => "Jums nav tiesību piekļūt nevienai atskaitei!",
 ];
