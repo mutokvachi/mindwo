@@ -6,6 +6,8 @@ namespace App\Libraries\DataView {
     use DB;
     use PDO;
     
+    use Request;
+    
     abstract class DataView
     {
         
@@ -14,6 +16,12 @@ namespace App\Libraries\DataView {
         public $view = null;
         public $filter_obj = null;
         public $is_PDO = true;
+        
+        /**
+         * This view data (row from table dx_views)
+         * @var Array
+         */
+        public $view_row = null;
         
         abstract function getViewHtml();
         
@@ -26,7 +34,8 @@ namespace App\Libraries\DataView {
             
             try
             {
-                $this->list_id = DB::table('dx_views')->where('id','=',$view_id)->first()->list_id;
+                $this->view_row = DB::table('dx_views')->where('id','=',$view_id)->first();
+                $this->list_id = $this->view_row->list_id;                
             } 
             catch (\Exception $ex) 
             {
@@ -38,6 +47,17 @@ namespace App\Libraries\DataView {
             $this->view = DataViewFactory::build_view_obj($this->list_id, $this->view_id, $session_guid, $is_hidden_in_model);
             
             $this->filter_obj = new DataViewSQLFiltering($filter_data, $this->list_id, $this->view);
+                        
+            if ($session_guid) {
+                if (strlen($filter_data) > 0) {
+                    Request::session()->put($session_guid . "_filter", serialize($this->filter_obj));
+                }
+                else {
+                    if (Request::session()->has($session_guid . "_filter")) {
+                        $this->filter_obj = unserialize(Request::session()->get($session_guid . "_filter"));
+                    }
+                }
+            }
         }
         
         public function getViewTitle()

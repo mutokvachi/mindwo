@@ -98,6 +98,7 @@ Route::group(['middleware' => 'auth_api', 'prefix' => 'api'], function() {
     Route::group(['prefix' => 'view', 'namespace' => 'Api'], function () {
         Route::get('{view_id}/data/all', 'ViewController@getAllData');
         Route::get('{view_id}/data/filtered/{field}/{criteria}', 'ViewController@getFilteredData');
+        Route::get('{view_id}/data/raw/{field}/{criteria}', 'ViewController@getFilteredRawData');
     });
 });
 

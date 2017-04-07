@@ -14,6 +14,8 @@
      data-trans-confirm-del1 = "{{ trans('grid.msg_confirm_del1') }}"
      data-trans-confirm-del-all = "{{ trans('grid.msg_confirm_del_all') }}"
      data-form-type-id = "{{ $form_type_id }}"
+     data-filter-field-id="{{ $view_row->filter_field_id }}"
+     data-form-id="{{ $form_id }}"
     >
     @if (!$tab_id)
         <div class='portlet' style='background-color: white; padding: 10px;'>
@@ -24,34 +26,41 @@
                 <form class='form-horizontal'>
                     <input type=hidden name=filter_data id="filter_data_{{ $grid_id }}" value="{{ $filter_data }}">
                     <div class='row'>
-                        <div class='col-lg-6'>
+                        <div class='{{ ($view_row->is_report) ? 'col-lg-12' : 'col-lg-6' }}' style="margin-bottom: 15px;">                            
                             <div class='btn-group dx-grid-butons'>
                                 <button  type='button' class='btn btn-white dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' title="{{ trans('grid.data_hint') }}">
-                                    {{ ($tab_id) ? trans('grid.data') : $grid_title }} <i class='fa fa-caret-down'></i>
+                                    @if ($view_row->is_report)
+                                        {{ $view_row->title }}
+                                    @else
+                                        {{ ($tab_id) ? trans('grid.data') : $grid_title }}
+                                    @endif
+                                    &nbsp;<i class='fa fa-caret-down'></i>
                                 </button>
                                 <ul class='dropdown-menu' style="z-index: 50000;">
-                                    <li><a href='javascript:;' id="{{ $menu_id }}_refresh" dx_attr="refresh"><i class='fa fa-refresh'></i>&nbsp;{{ trans('grid.reload') }}</a></li>
-                                    <li><a href='javascript:;' id="{{ $menu_id }}_filter" title='{{ trans('grid.filter_hint') }}'><i class='fa fa-filter'></i>&nbsp;{{ trans('grid.filter') }}<i class="fa fa-check pull-right dx-filter-on-mark" style="display: {{ ($filter_data && $filter_data != '[]') ? 'block' : 'none' }}"></i></a></li>
+                                    <li><a href='javascript:;' id="{{ $menu_id }}_refresh" dx_attr="refresh"><i class='fa fa-refresh'></i>&nbsp;{{ trans('grid.reload') }}</a></li>                                    
                                     <li role="separator" class="divider"></li>
                                     <li><a href='javascript:;' id="{{ $menu_id }}_excel" title='{{ trans('grid.excel_hint') }}'><i class='fa fa-file-excel-o'></i>&nbsp;{{ trans('grid.excel') }}</a></li>
-                                    @if ($show_new_button)
+                                    @if ($show_new_button && !$view_row->is_report)
                                         <li><a href='javascript:;' id="{{ $menu_id }}_import"><i class="fa fa-upload"></i>&nbsp;{{ trans('grid.import') }}</a></li>
                                     @endif
                                 </ul>
                             </div>
-                            @if ($show_new_button)
+                            @if ($show_new_button && !$view_row->is_report)
                                 @if ($form_type_id == 3)
                                     <a class='btn btn-primary' href="{{Request::root()}}/employee/new">{{ trans('employee.new_employee') }}</a>
                                 @else
                                     <button class='btn btn-primary' type='button' id="{{ $menu_id }}_new">{{ trans('grid.new') }}</button>
                                 @endif                                
                             @endif
-                            
+
                             @include('blocks.view.view_settings_btn', ['pull_class' => ''])
                             
+                            @if ($view_row->is_report && $view_row->filter_field_id)
+                                @include('blocks.view.report_filter')
+                            @endif
                         </div>
 
-                        @if (count($combo_items))
+                        @if (!$view_row->is_report && count($combo_items))
                             <div class='col-lg-6'>
                                 <div class='form-group'>
                                     <label class='col-sm-2 control-label'>{{ trans('grid.view') }}:</label>
@@ -97,7 +106,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div>                        
                         @endif
 
                     </div>

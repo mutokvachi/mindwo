@@ -26,7 +26,9 @@ return [
     'menu_mark_all' => 'Iezīmēt visus',
     'menu_delete_marked' => 'Dzēst iezīmētos',
     
-    'menu_admin_settings' => 'Iestatījumi',
+    'menu_admin_settings' => 'Reģistra iestatījumi',
+    'menu_form_settings' => 'Formas iestatījumi',
+    'menu_view_settings' => 'Skata iestatījumi',
     
     'paginator_page' => 'Lapa',
     'paginator_from' => 'no',
@@ -92,4 +94,6 @@ return [
     'sort_desc' => 'Kārtot dilstoši',
     'sort_off' => 'Nav kārtošana',
     
+    'report_interval' => 'Laika intervāls',
+    'btn_prepare_report' => 'Sagatavot atskaiti',
 ];
