@@ -5,7 +5,7 @@ namespace App\Libraries\DataView {
     
     use DB;
     use PDO;
-    
+    use Illuminate\Support\Facades\Schema;
     use Request;
     
     abstract class DataView
