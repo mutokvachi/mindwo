@@ -7,7 +7,7 @@
   <table class="table table-striped table-advance table-hover">
     <thead>
       <tr>       
-        <th colspan="2">
+        <th colspan="2" style='vertical-align: middle;'>
           {{ trans('reports.page.report_name') }}
         </th>
         <th class="text-right">
@@ -22,7 +22,7 @@
           <td class="inbox-small-cells">
             <i class="fa fa-list"></i>
           </td>
-          <td class="view-message "><a href="{{ url('/skats_') }}{{ $view->id }}" target="_blank">{{ $view->title }}</a></td>
+          <td class="view-message"><a href="{{ url('/skats_') }}{{ $view->id }}" target="_blank">{{ $view->title }}</a></td>
           <td class="view-message text-right">
               @if ($view->last_viewed)
                 {{ long_date($view->last_viewed) }}
