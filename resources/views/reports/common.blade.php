@@ -15,8 +15,7 @@
               <i class="fa fa-bar-chart"></i> {{ trans('reports.page.title') }}
             </div>
           </div>
-          <div class="portlet-body">
-                @if (count($groups))
+          <div class="portlet-body">                
                 <div class="inbox">
                   <div class="row">
                     <div class="col-md-3">
@@ -35,12 +34,6 @@
                     </div>
                   </div>
                 </div>
-                @else
-                <div class="alert alert-danger">
-                    <b><i class="fa fa-warning"></i> {{ trans('errors.access_denied_title') }}</b>
-                    <div style="margin-top: 8px; margin-bottom: 10px;">{{ trans('errors.no_rights_on_reports') }}</div>
-                </div>
-                @endif
           </div>
         </div>
     

@@ -21,7 +21,7 @@ class ReportsController extends Controller
         $group_row = $this->getAllGroups()->first();
         
         if (!$group_row) {            
-            throw new Exceptions\DXCustomException(trans('errors.no_rights_on_reports'));            
+            return $this->showNoRightsError();          
         }
         
         return $this->getGroupView($group_row);
@@ -69,6 +69,10 @@ class ReportsController extends Controller
                     ->orderBy('v.title')
                     ->get();
         
+        if (count($views) == 0) {
+            return $this->showNoRightsError();
+        }            
+                    
         $groups = $this->getAllGroups()->get();
         
         return  view('reports.index', [
@@ -97,6 +101,17 @@ class ReportsController extends Controller
                     })
                     ->groupBy('g.id')
                     ->orderBy('order_index');
+    }
+    
+    /**
+     * Render error page with no rights message
+     * @return Response
+     */
+    private function showNoRightsError() {
+        return  view('errors.attention', [
+                    'page_title' => trans('errors.access_denied_title'),
+                    'message' => trans('errors.no_rights_on_reports')
+		]);
     }
 
 }
