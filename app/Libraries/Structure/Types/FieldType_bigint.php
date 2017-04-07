@@ -5,7 +5,7 @@ namespace App\Libraries\Structure\Types
     /**
      * Class for bigint field type
      */
-    class FieldType_integer extends FieldType_integer
+    class FieldType_bigint extends FieldType_integer
     {
     }
 
