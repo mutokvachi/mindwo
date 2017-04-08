@@ -143,17 +143,17 @@ return [
             'whenBackupWasSuccessful'     => ['log'],
             'whenCleanupWasSuccessful'    => ['log'],
             'whenHealthyBackupWasFound'   => ['log'],
-            'whenBackupHasFailed'         => ['log'],
-            'whenCleanupHasFailed'        => ['log'],
-            'whenUnhealthyBackupWasFound' => ['log'],
+            'whenBackupHasFailed'         => ['log', 'mail'],
+            'whenCleanupHasFailed'        => ['log', 'mail'],
+            'whenUnhealthyBackupWasFound' => ['log', 'mail'],
         ],
 
         /*
          * Here you can specify how emails should be sent.
          */
         'mail' => [
-            'from' => 'your@email.com',
-            'to'   => 'your@email.com',
+            'from' => env('MAIL_USERNAME', 'janis.supe@gmail.com'),
+            'to'   => env('APP_BACKUP_FAIL_EMAIL', 'janis.supe@gmail.com'),
         ],
 
         /*
