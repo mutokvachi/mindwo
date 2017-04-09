@@ -10490,18 +10490,31 @@ module.exports = XHR;
 						}
 						else
 						{
-							$chartContainer.find('.oc-download-btn').attr('href', canvas.toDataURL())[0].click();
+							var mimeType = 'image/';
+							
+							if(opts.exportFileextension.toLowerCase() === 'jpg')
+							{
+								mimeType += 'jpeg';
+							}
+							
+							else
+							{
+								mimeType += opts.exportFileextension.toLowerCase();
+							}
+							
+							var dataUrl = canvas.toDataURL(mimeType);
+							
+							$chartContainer.find('.oc-download-btn').attr('href', dataUrl)[0].click();
 						}
 					}
 				}
-			})
-				.then(function()
-				{
-					$chartContainer.removeClass('canvasContainer');
-				}, function()
-				{
-					$chartContainer.removeClass('canvasContainer');
-				});
+			}).then(function()
+			{
+				$chartContainer.removeClass('canvasContainer');
+			}, function()
+			{
+				$chartContainer.removeClass('canvasContainer');
+			});
 		};
 		
 		// append the export button
@@ -10516,7 +10529,7 @@ module.exports = XHR;
 			if(opts.exportFileextension.toLowerCase() !== 'pdf')
 			{
 				var downloadBtn = '<a class="oc-download-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : '') + '"'
-					+ ' download="' + opts.exportFilename + '.png"></a>';
+					+ ' download="' + opts.exportFilename + '.' + opts.exportFileextension.toLowerCase() + '"></a>';
 				$exportBtn.after(downloadBtn);
 			}
 		}

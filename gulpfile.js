@@ -56,6 +56,7 @@ gulp.task('mix_all', function() {
             'mindwo/css/ie9_fix.css', 
             'mindwo/css/search_top.css',
             'mindwo/css/splash.css',
+			'mindwo/css/menu.css',
             'mindwo/css/theme_fix.css'
         ], 'public/css/elix_mindwo.css', 'resources/assets/plugins');
 

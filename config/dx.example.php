@@ -250,15 +250,25 @@ return [
     |   2) Meu on the top side - horizontal - set true
     */
     'is_horizontal_menu' => true,
-    
-    /*
+
+	/*
     |--------------------------------------------------------------------------
-    | UI setting for logo (not in login page but at the top left corner)
+    | Use as much as possible CSS instead of JS for responsive positioning
     |--------------------------------------------------------------------------
     |
-    | Logo can be text or img. Textual setting is set in /resources/lang/en/index.php in parameter "logo_txt".
-    | If it is set logo_txt then this setting "logo_small" will be ignored.
-    */
+    | This feature brings increased performance of the UI on resize events.
+	| It also enables 'tabdrop' behavior for main menu.
+	 */
+	'is_cssonly_ui' => true,
+
+	/*
+	|--------------------------------------------------------------------------
+	| UI setting for logo (not in login page but at the top left corner)
+	|--------------------------------------------------------------------------
+	|
+	| Logo can be text or img. Textual setting is set in /resources/lang/en/index.php in parameter "logo_txt".
+	| If it is set logo_txt then this setting "logo_small" will be ignored.
+	*/
     'logo_small' => env('APP_SMALL_LOGO','assets/global/logo/logo-default.png'),
     
     /*

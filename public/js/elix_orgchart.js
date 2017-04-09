@@ -10542,18 +10542,31 @@ module.exports = XHR;
 						}
 						else
 						{
-							$chartContainer.find('.oc-download-btn').attr('href', canvas.toDataURL())[0].click();
+							var mimeType = 'image/';
+							
+							if(opts.exportFileextension.toLowerCase() === 'jpg')
+							{
+								mimeType += 'jpeg';
+							}
+							
+							else
+							{
+								mimeType += opts.exportFileextension.toLowerCase();
+							}
+							
+							var dataUrl = canvas.toDataURL(mimeType);
+							
+							$chartContainer.find('.oc-download-btn').attr('href', dataUrl)[0].click();
 						}
 					}
 				}
-			})
-				.then(function()
-				{
-					$chartContainer.removeClass('canvasContainer');
-				}, function()
-				{
-					$chartContainer.removeClass('canvasContainer');
-				});
+			}).then(function()
+			{
+				$chartContainer.removeClass('canvasContainer');
+			}, function()
+			{
+				$chartContainer.removeClass('canvasContainer');
+			});
 		};
 		
 		// append the export button
@@ -10568,7 +10581,7 @@ module.exports = XHR;
 			if(opts.exportFileextension.toLowerCase() !== 'pdf')
 			{
 				var downloadBtn = '<a class="oc-download-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : '') + '"'
-					+ ' download="' + opts.exportFilename + '.png"></a>';
+					+ ' download="' + opts.exportFilename + '.' + opts.exportFileextension.toLowerCase() + '"></a>';
 				$exportBtn.after(downloadBtn);
 			}
 		}
@@ -11936,6 +11949,7 @@ module.exports = XHR;
 			toggleSiblingsResp: true,
 			pan: true,
 			exportButton: true,
+			exportFileextension: 'png',
 			// customize node creation process
 			createNode: function(node, data)
 			{
@@ -11950,7 +11964,6 @@ module.exports = XHR;
 				// add up arrow button to top node
 				if(data.top && (typeof data.parentUrl !== 'undefined'))
 				{
-					console.log(data.name + ' has parent, ' + data.parentUrl);
 					$('<i class="edge verticalEdge topEdge fa"></i>')
 						.appendTo(node)
 						.click(function(e)
@@ -12018,7 +12031,6 @@ module.exports = XHR;
 			});
 			nodes.each(function()
 			{
-				console.log($(this).attr('id'));
 				var $this = $(this);
 				var siblings = $this.closest('tr', orgchart).siblings('.nodes, .verticalNodes');
 				if(siblings.length && (!siblings.hasClass('hidden') || siblings.is(':visible')))

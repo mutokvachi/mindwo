@@ -15806,10 +15806,12 @@ function post_grid_ajax(formData, grid_data_htm_id, form_htm_id, is_scroll)
                         PageMain.resizePage();                     
                     }, 100);
                     
+                    // Commented out because it prevents main navigation from working properly on mobiles
+                    /*
                     setTimeout(function(){ 
                         $('.dropdown-toggle').dropdown();                        
                     }, 1000);
-                    
+                    */
                 } 
                 else
                 {
@@ -17273,6 +17275,7 @@ var BlockViews = function()
                 $("body").addClass("dx-grid-in-page");
             }
             
+            /*
             PageMain.addResizeCallback(initHeight);
             
             initHeight();
@@ -17287,7 +17290,17 @@ var BlockViews = function()
             
             PageMain.addResizeCallback(function() {
                 $table.floatThead('reflow');
-            });            
+            });
+            */
+	
+            var container = $('.dx-grid-inner-container');
+			var divs = $('.dx-grid-table thead div');
+			container.scroll(function()
+            {
+				divs.css({
+                    top: container.scrollTop()
+				});
+			});
             
             $(this).attr('dx_block_init', 1); // uzstādam pazīmi, ka skata bloks ir inicializēts
         });  

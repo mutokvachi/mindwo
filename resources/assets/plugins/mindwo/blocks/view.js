@@ -1377,6 +1377,7 @@ var BlockViews = function()
                 $("body").addClass("dx-grid-in-page");
             }
             
+            /*
             PageMain.addResizeCallback(initHeight);
             
             initHeight();
@@ -1391,7 +1392,17 @@ var BlockViews = function()
             
             PageMain.addResizeCallback(function() {
                 $table.floatThead('reflow');
-            });            
+            });
+            */
+	
+            var container = $('.dx-grid-inner-container');
+			var divs = $('.dx-grid-table thead div');
+			container.scroll(function()
+            {
+				divs.css({
+                    top: container.scrollTop()
+				});
+			});
             
             $(this).attr('dx_block_init', 1); // uzstādam pazīmi, ka skata bloks ir inicializēts
         });  

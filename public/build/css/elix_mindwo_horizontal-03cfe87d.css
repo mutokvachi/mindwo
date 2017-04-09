@@ -22,6 +22,21 @@ Colors for horizontal menu UI
 @viewport {
   width: device-width;
 }
+html {
+  height: 100%;
+}
+body {
+  overflow: hidden;
+}
+body.dx-page-full-height {
+  height: 100%;
+}
+.dx-wrap {
+  height: 100%;
+}
+.dx-page-container {
+  height: calc(100% - 111px);
+}
 /* Move down content because we have a fixed navbar that is 100px tall */
 body {
   padding-top: 50px;
@@ -255,6 +270,17 @@ button.navbar-toggle span.icon-bar {
     margin-top: -17px;
   }
 }
+#dx-menu-wrap {
+  background-color: #3e7c99;
+}
+@media (min-width: 768px) {
+  #dx-menu-wrap {
+    height: 50px;
+  }
+  #navbar {
+    height: 50px !important;
+  }
+}
 
 /*
 Colors for horizontal menu UI
@@ -356,7 +382,10 @@ Multi level menu
   border-width: 5px 0 5px 5px;
   border-left-color: #ccc;
   margin-top: 5px;
-  margin-right: 0px!important;
+  margin-right: 0px !important;
+}
+#more-items > li > a > .caret {
+  display: none;
 }
 .dropdown-submenu:hover > a:after {
   border-left-color: #fff;
@@ -374,7 +403,35 @@ Multi level menu
 }
 .dropdown-menu,
 .dropdown-submenu {
-  z-index: 50000!important;
+  z-index: 50000 !important;
+}
+.dx-main-menu-toggle {
+  margin-right: 0;
+}
+@media screen and (max-width: 767px) {
+  .navbar {
+    min-height: auto;
+  }
+  .dx-top-right-menu li {
+    float: left;
+  }
+  .dx-top-menu .navbar-nav .open .dropdown-menu {
+    position: static;
+    float: none;
+    background-color: inherit;
+    box-shadow: none !important;
+    padding-left: 20px;
+  }
+  .dx-top-menu .navbar-nav .open .dropdown-menu > li > a {
+    background-color: transparent;
+  }
+  .dropdown-submenu:hover > .dropdown-menu {
+    display: none;
+  }
+  .dx-top-right-menu {
+    float: right;
+    margin-right: 10px !important;
+  }
 }
 
 .employee-pic-box .fileinput-preview:empty {

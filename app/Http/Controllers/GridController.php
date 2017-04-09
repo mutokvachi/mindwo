@@ -47,7 +47,8 @@ class GridController extends Controller
                 'page_title' => $block_grid->grid_title,
                 'page_html' => $block_grid->getHTML(),
                 'page_js' => $js_inc . $block_grid->getJS(),
-                'page_css' => $block_grid->getCSS()
+                'page_css' => $block_grid->getCSS(),
+				'page_is_full_height' => true
             ]);
         }catch (Exceptions\DXViewAccessException $e){
             $url = $request->root() . $request->getPathInfo() . ($request->getQueryString() ? ('?' . $request->getQueryString()) : '');

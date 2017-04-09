@@ -36,6 +36,7 @@
 			toggleSiblingsResp: true,
 			pan: true,
 			exportButton: true,
+			exportFileextension: 'png',
 			// customize node creation process
 			createNode: function(node, data)
 			{
@@ -50,7 +51,6 @@
 				// add up arrow button to top node
 				if(data.top && (typeof data.parentUrl !== 'undefined'))
 				{
-					console.log(data.name + ' has parent, ' + data.parentUrl);
 					$('<i class="edge verticalEdge topEdge fa"></i>')
 						.appendTo(node)
 						.click(function(e)
@@ -118,7 +118,6 @@
 			});
 			nodes.each(function()
 			{
-				console.log($(this).attr('id'));
 				var $this = $(this);
 				var siblings = $this.closest('tr', orgchart).siblings('.nodes, .verticalNodes');
 				if(siblings.length && (!siblings.hasClass('hidden') || siblings.is(':visible')))

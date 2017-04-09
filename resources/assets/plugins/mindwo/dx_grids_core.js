@@ -104,10 +104,12 @@ function post_grid_ajax(formData, grid_data_htm_id, form_htm_id, is_scroll)
                         PageMain.resizePage();                     
                     }, 100);
                     
+                    // Commented out because it prevents main navigation from working properly on mobiles
+                    /*
                     setTimeout(function(){ 
                         $('.dropdown-toggle').dropdown();                        
                     }, 1000);
-                    
+                    */
                 } 
                 else
                 {

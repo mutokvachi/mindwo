@@ -24,7 +24,7 @@
                 <form class='form-horizontal'>
                     <input type=hidden name=filter_data id="filter_data_{{ $grid_id }}" value="{{ $filter_data }}">
                     <div class='row'>
-                        <div class='col-lg-6'>
+                        <div class='col-xs-6 col-sm-6 col-md-6 col-lg-6'>
                             <div class='btn-group dx-grid-butons'>
                                 <button  type='button' class='btn btn-white dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' title="{{ trans('grid.data_hint') }}">
                                     {{ ($tab_id) ? trans('grid.data') : $grid_title }} <i class='fa fa-caret-down'></i>
@@ -52,7 +52,7 @@
                         </div>
 
                         @if (count($combo_items))
-                            <div class='col-lg-6'>
+                            <div class='col-xs-6 col-sm-6 col-md-6 col-lg-6'>
                                 <div class='form-group'>
                                     <label class='col-sm-2 control-label'>{{ trans('grid.view') }}:</label>
                                     <div class='col-sm-10'>
