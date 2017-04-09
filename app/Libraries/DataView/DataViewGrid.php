@@ -27,6 +27,12 @@ namespace App\Libraries\DataView {
         public $form_type_id = 0;
         
         /**
+         * CMS form's ID (from table dx_forms)
+         * @var integer 
+         */
+        public $form_id = 0;
+        
+        /**
          * Existing employee profile page URL (for view or edit)
          * @var string 
          */
@@ -89,7 +95,8 @@ namespace App\Libraries\DataView {
                          'grid_id' => $this->grid_id,                         
                          'table_body' => $this->getDataRows(),
                          'table_head' => $this->getHeadingsRow(), // šo vienmēr pēc getDataRows() jāizsauc, lai tiktu uzstādīta sorting_direction vērtība
-                         'data_attr' => $this->getHTMLDataAttributes() // šo vienmēr pēc getDataRows() jāizsauc, lai tiktu uzstādīta sorting_direction vērtība
+                         'data_attr' => $this->getHTMLDataAttributes(), // šo vienmēr pēc getDataRows() jāizsauc, lai tiktu uzstādīta sorting_direction vērtība
+                         'filter_data' => $this->filter_data
                     ])->render();
         }
         
@@ -142,7 +149,8 @@ namespace App\Libraries\DataView {
                         'next_page' => $next_page,
                         'total_count' => $this->grid_total_rows,
                         'start_row' => $start_row,
-                        'end_row' => $end_row
+                        'end_row' => $end_row,
+                        'view_row' => $this->view_row
                     ])->render();
         }
         
@@ -254,13 +262,18 @@ namespace App\Libraries\DataView {
             
             foreach($rows as $key => $row)
             {   
-                $dropup = "";
-                if ($key > 1)
-                {
-                    $dropup = "dropup";
+                if (!$this->view_row->is_report) {
+                    $dropup = "";
+                    if ($key > 1)
+                    {
+                        $dropup = "dropup";
+                    }
+
+                    $cell_htm = $this->helper->getBtnsCol(['dropup' => $dropup, 'item_id' => $row['id'], 'form_type_id' => $this->form_type_id]);
                 }
-                    
-                $cell_htm = $this->helper->getBtnsCol(['dropup' => $dropup, 'item_id' => $row['id'], 'form_type_id' => $this->form_type_id]);
+                else {
+                    $cell_htm = "";
+                }
                 
                 for ($i=0; $i<count($view->model);$i++)
                 {
@@ -296,14 +309,15 @@ namespace App\Libraries\DataView {
             
             $col_nr = 0;
             
-            $htm_head .=    view('grid.heading_col', [
+            if (!$this->view_row->is_report) {
+                $htm_head .=    view('grid.heading_col', [
                                          'width' => '100',
                                          'fld_title' => trans('grid.lbl_actions'),
                                          'fld_name' => '',
                                          'sort_dir' => ''
                                     ])->render();
-                    
-            $htm_flt .=     view('grid.filter_lbl_col')->render();
+                $htm_flt .=     view('grid.filter_lbl_col')->render();
+            }
                     
             for ($i=0; $i<count($view->model);$i++)
             {
@@ -403,6 +417,7 @@ namespace App\Libraries\DataView {
                 }
                 
                 $this->form_type_id = $first_form->form_type_id;
+                $this->form_id = $first_form->id;
             }
         }
         

@@ -37,6 +37,12 @@ namespace App\Libraries\Blocks
         public $tab_prefix = "";
 
         /**
+         * This view data (row from table dx_views)
+         * @var Array
+         */
+        public $view_row = null;
+        
+        /**
          * Izgūst bloka HTML
          * 
          * @return string Bloka HTML
@@ -72,7 +78,9 @@ namespace App\Libraries\Blocks
                         'is_setting_rights' => $this->getSettingRights(),
                         'open_item_id' => Input::get('open_item_id', 0),
                         'form_type_id' => $this->grid->form_type_id,
-                        'operations' => DB::table('dx_field_operations')->orderBy('title')->get()
+                        'operations' => DB::table('dx_field_operations')->orderBy('title')->get(),
+                        'view_row' => $this->view_row,
+                        'form_id' => $this->grid->form_id
                     ])->render();
         }
 
@@ -123,12 +131,12 @@ namespace App\Libraries\Blocks
                 throw new Exceptions\DXCustomException("Norādīts blokam neatbilstošs parametra nosaukums (" . $val_arr[0] . ")!");
             }
 
-            $view_row = $this->getViewRow($this->view_id);
+            $this->view_row = $this->getViewRow($this->view_id);
 
-            $this->rights_htm = $this->getRights($view_row);
+            $this->rights_htm = $this->getRights();
 
             if (strlen($this->rights_htm) === 0) {
-                $this->grid = $this->getGrid($view_row);
+                $this->grid = $this->getGrid();
                 $this->grid_title = $this->grid->grid_title;
             }
 
@@ -202,14 +210,13 @@ namespace App\Libraries\Blocks
 
         /**
          * Pārbauda, vai ir tiesības uz reģistru
-         * 
-         * @param  Object  $view_row   Skata rinda
+         *
          * @return string  Ja nav tiesību, tad atbilstošs paziņojums HTML formātā, ja ir tiesības tad tukšums
          */
-        private function getRights($view_row)
+        private function getRights()
         {
             // Pārbaudam vai ir tiesības uz reģistru
-            $right = Rights::getRightsOnList($view_row->list_id);
+            $right = Rights::getRightsOnList($this->view_row->list_id);
 
             if ($right == null) {                
                 if (\Request::route()->getName() === "view" && !Config::get("dx.is_all_login_required") && Auth::user()->id == Config::get("dx.public_user_id")) {
@@ -218,7 +225,7 @@ namespace App\Libraries\Blocks
                 else {
                     return view('elements.error', [
                         'page_title' => trans('errors.access_denied_title'),
-                        'message' => sprintf(trans('errors.access_denied_msg'), $view_row->title)
+                        'message' => sprintf(trans('errors.access_denied_msg'), $this->view_row->title)
                     ])->render();
                 }
             }
@@ -232,12 +239,11 @@ namespace App\Libraries\Blocks
         /**
          * Uzstāda reģistra objektu
          * 
-         * @param  Object  $view_row   Skata rinda
          * @return Object Reģistra objekts
          */
-        private function getGrid($view_row)
+        private function getGrid()
         {
-            $grid = DataView\DataViewFactory::build_view('Grid', $view_row->id);
+            $grid = DataView\DataViewFactory::build_view('Grid', $this->view_row->id);
 
             $grid->grid_data_htm_id = 'block_' . Uuid::generate(4);
             
@@ -254,6 +260,10 @@ namespace App\Libraries\Blocks
          */
         private function getViewsComboItems($list_id, $tab_id, $is_my)
         {
+            if ($this->view_row->is_report) {
+                return null; // report does not need dropdown with views
+            }
+            
             $fld_is_hidden = 'is_hidden_from_main_grid';
 
             if (strlen($tab_id) > 0)
@@ -273,6 +283,7 @@ namespace App\Libraries\Blocks
                         $query->whereNull('me_user_id');
                        }
                    })
+                   ->where('is_report', '=', 0)
                    ->orderBy('title')
                    ->get();
         }

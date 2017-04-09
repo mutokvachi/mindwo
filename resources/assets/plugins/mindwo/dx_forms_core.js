@@ -85,7 +85,9 @@ function view_list_item(ajax_url, item_id, list_id, rel_field_id, rel_field_valu
             return;
 	}
         
+        show_page_splash();
         show_form_splash();
+        
 	start_executing(grid_htm_id);
         
         var formData = new FormData();
@@ -129,6 +131,7 @@ function view_list_item(ajax_url, item_id, list_id, rel_field_id, rel_field_valu
             }
                     
             hide_form_splash(1);
+            hide_page_splash(1);
         };
 
         // izpildam AJAX pieprasījumu

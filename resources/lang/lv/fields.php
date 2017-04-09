@@ -21,6 +21,8 @@ return [
     'btn_change' => 'Mainīt',
     'btn_remove' => 'Noņemt',
     'btn_set_change' => 'Uzstādīt/izvēlēties attēlu',
+    'btn_rotate_left' => 'Pagriezt pa kreisi',
+    'btn_rotate_right' => 'Pagriezt pa labi',
     'err_choose_val' => 'Lai skatītu darbinieka profilu, vispirms jānorāda darbinieks!',
     
     // Tree
@@ -49,4 +51,5 @@ return [
     'btn_file_view' => 'Skatīt', 
     
     'hint_skype' => 'Atvērt Skype',
+    'hint_whatsapp' => 'Atvērt WhatsApp',
 ];

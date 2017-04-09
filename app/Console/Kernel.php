@@ -55,8 +55,14 @@ class Kernel extends ConsoleKernel
 			dispatch($job);
 		})->everyFiveMinutes();
 
-        // Makes db and files backup
-        $schedule->command('backup:run')
-                 ->daily();
+        if (Config::get('dx.is_backuping_enabled', false)) {
+            // Makes db and files backup at midnight
+            $schedule->command('backup:run')
+                     ->daily();
+
+            // Clean disk space if too many backups 1 hour after midnight
+            $schedule->command('backup:clean')
+                     ->dailyAt('1:00');
+        }
     }
 }

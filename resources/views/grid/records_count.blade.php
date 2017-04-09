@@ -6,7 +6,7 @@
             {{ trans('grid.rows') }} {{ $start_row }} {{ trans('grid.rows_to') }} {{ $end_row }} {{ trans('grid.rows_from') }}
         @endif
         <span class="dx-grid-total-rows">{{ $total_count }}</span>
-        @if ($total_count > 0)
+        @if (!$view_row->is_report && $total_count > 0)
             <div class="btn-group dropup">
                 <button type="button" class="btn btn-white dropdown-toggle btn-xs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{ trans('grid.lbl_marked') }} <span class="dx-marked-count-lbl">0</span> <i class="fa fa-caret-down"></i></button>
                 <ul class="dropdown-menu dropdown-menu-right">

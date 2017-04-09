@@ -176,6 +176,7 @@ gulp.task('mix_all', function() {
             'mindwo/fields/autocompleate.js',
             'mindwo/fields/datetime.js',
             'mindwo/fields/bool.js',
+            'mindwo/fields/image.js',
             'datatables/datatables.all.min.js',
             'datatables/plugins/bootstrap/datatables.bootstrap.js',
             'float-thead/dist/jquery.floatThead.js',

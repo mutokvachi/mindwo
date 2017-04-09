@@ -102,6 +102,21 @@ namespace App\Libraries\DataView
             return "<a href='skype:" . e($cell_value) ."?chat' title='" . trans('fields.hint_skype') . "'><i class='fa fa-skype'></i> " . e($cell_value) . "</a>";
         }
         
+         /**
+         * Returns HTML for WhatsApp link cell
+         * @param array $arr_args Array with arguments: cell_value
+         * 
+         * @return string HTML for cell
+         */
+        public function getWhatsAppCell($arr_args) {
+            $cell_value = $arr_args['cell_value'];
+            
+            if (!$cell_value) {
+                return "";
+            }
+            return "<a href='whatsapp://send?phone=" . e($cell_value) ."' title='" . trans('fields.hint_whatsapp') . "'><i class='fa fa-whatsapp'></i> " . e($cell_value) . "</a>";
+        }
+        
         /**
          * Returns HTML for link (opend CMS form) cell
          * @param array $arr_args Array with arguments: item_id, cell_value

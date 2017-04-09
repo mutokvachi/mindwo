@@ -63,6 +63,19 @@ class ViewController extends Controller
         return response()->json(['success' => 1, 'rows' => $view->getViewHtml()]);
     }
     
+    public function getFilteredRawData($view_id, $field, $criteria) {
+        
+        $this->setClassParams($view_id);
+        
+        $field_row = $this->getFieldRow($field);
+        
+        $obj = \App\Libraries\DBHelper::getListObject($this->view_row->list_id);
+        
+        $data = DB::table($obj->db_name)->where($field_row->db_name, '=', $criteria)->get();
+        
+        return response()->json(['success' => 1, 'rows' => json_encode($data)]);
+    }
+    
     /**
      * Inits class parameters - finds view row in database and checks user rights on list
      * 

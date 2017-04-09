@@ -108,4 +108,6 @@ return [
     'must_save_text' => 'Darbplūsmu nepieciešams saglabāt pirms tās soļu rediģēšanas. Vai saglabāt darbplūsmu?',
     
     'lbl_deny' => 'NORAIDĪJA',
+    
+    'err_cant_get_unit_leader' => "Darbiniekam %s nav iespējams noteikt struktūrvienības vadītāju!",
 ];
