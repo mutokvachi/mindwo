@@ -45,7 +45,7 @@ class GridController extends Controller
 
             // audit viewing
             DB::table('dx_views_log')->insert([
-                'view_id' => $block_grid->view_id,
+                'view_id' => $block_grid->grid->view_id,
                 'user_id' => Auth::user()->id,
                 'view_time' => date('Y-n-d H:i:s')
             ]);
