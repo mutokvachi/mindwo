@@ -21,5 +21,10 @@ return [
 		'title' => 'Offers',
 		'subscribe' => 'Subscribe',
 		'unsubscribe' => 'Unsubscribe'
-	]
+	],
+        'timeoff' => [
+                'title' => 'My time off available',
+                'btn_request' => 'Request time off',
+                'link_history' => 'History',
+        ]
 ];
