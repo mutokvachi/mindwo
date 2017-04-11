@@ -43,6 +43,13 @@ class GridController extends Controller
                 'inc_arr' => $block_grid->js_includes_arr
                     ])->render();
 
+            // audit viewing
+            DB::table('dx_views_log')->insert([
+                'view_id' => $block_grid->grid->view_id,
+                'user_id' => Auth::user()->id,
+                'view_time' => date('Y-n-d H:i:s')
+            ]);
+            
             return view('pages.view', [
                 'page_title' => $block_grid->grid_title,
                 'page_html' => $block_grid->getHTML(),

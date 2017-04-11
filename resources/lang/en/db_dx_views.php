@@ -42,4 +42,15 @@ return [
     'is_detailed_notify_form' => 'Is detailed notification',
     'is_detailed_notify_hint' => 'Indicates if receivers (custom emails or role) will get detailed information (document numbers, descriptions) about all records from view. If option is not set, then will get general information - view title and record count.',
 
+    'is_report' => 'Is for report',
+    'filter_field_id' => 'Field for date filtering',
+    'is_builtin' => 'Is built-in',
+    
+    'hint_is_report' => 'View will be available only from reporting page',
+    'hint_is_builtin' => 'If indicated then report customization will be dissabled. This option is used for developers for custom made views based on an SQL',
+    'hint_filter_field_id' => 'If provided, then in report will be shown date input fields to filter data by date interval',
+    
+    'tab_report' => 'Report',
+    
+    'group' => 'Reports group',
 ];

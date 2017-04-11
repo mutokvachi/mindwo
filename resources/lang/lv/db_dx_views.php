@@ -41,5 +41,16 @@ return [
     'is_detailed_notify_list' => 'Ir detalizēta notifikācija',
     'is_detailed_notify_form' => 'Ir detalizēta notifikācija',
     'is_detailed_notify_hint' => 'Norāda, vai notifikāciju adresāti (no lomas vai norādītie e-pasti) saņems detalizētu informāciju (dokumenta numurs, apraksts) par visiem ierakstiem, kas atbilst skata nosacījumiem. Ja šo opciju nenorāda, tad notifikācijā tiks ietverta tikai vispārīga informācija - kontroles nosacījuma nosaukums un atbilstošo ierakstu skaits.',
-
+    
+    'is_report' => 'Ir paredzēts tikai atskaitei',
+    'filter_field_id' => 'Datuma filtrēšanas lauks',
+    'is_builtin' => 'Ir iebūvētais (nekonfigurējams)',
+    
+    'hint_is_report' => 'Ja norādīts, tad skats būs pieejams tikai no atskaišu vietnes un tam būs atskaitei raksturīgā funkcionalitāte',
+    'hint_is_builtin' => 'Ja norādīts, atskaiti, atverot no atskaišu vietnes, nebūs iespējams modificēt. Šo opciju izmanto izstrādātāja veidotiem skatiem, kas balstās uz specifiskiem SQL',
+    'hint_filter_field_id' => 'Ja norādīts, tad atskaitē būs pieejami datumu ievades lauki un darbosies filtrēšana pēc attiecīgā datuma lauka',
+    
+    'tab_report' => 'Atskaite',
+    
+    'group' => 'Atskaišu grupa',
 ];

@@ -331,11 +331,14 @@ namespace App\Libraries {
 				st.sys_name as order_by,
 				vf.is_sum,
 				at.sys_name as aggregation,
-                                lf.rel_list_id
+                                lf.rel_list_id,
+                                lo.db_name as list_table_name
 			FROM
 				dx_views_fields vf
 				inner join dx_lists_fields lf on vf.field_id = lf.id
 				inner join dx_field_types ft on lf.type_id = ft.id
+                                inner join dx_lists l on lf.list_id = l.id
+                                inner join dx_objects lo on l.object_id = lo.id
 				left join dx_lists_fields rf on lf.rel_display_field_id = rf.id
 				left join dx_lists rl on rl.id = lf.rel_list_id
 				left join dx_objects o on rl.object_id = o.id
@@ -534,26 +537,8 @@ namespace App\Libraries {
                                             $fld_name = $row->db_name;
                                         }
                                         
-                                        $formula = "";
-					
-					if (strlen($row->formula) > 0)
-					{
-						$formula = $row->formula;
-						
-						preg_match_all('/\[(.*?)\]/', $formula, $out_arr);
-						
-						//str_replace(","'",str_replace("->,"'",implode(",", $out_arr[0])))
-						$qMarks = str_repeat('?,', count($out_arr[1]) - 1) . '?';
-						$sql_f = "SELECT db_name, title_list from dx_lists_fields WHERE list_id = " . $this->list_id . " AND title_list in (" . $qMarks  . ")";
-						
-                                                $rows_formulas = DB::select($sql_f, $out_arr[1]);
-                                                
-						foreach($rows_formulas as $row_f)
-						{
-                                                    $formula = str_replace("[" . $row_f->title_list . "]", $this->list_obj_db_name . "." . $row_f->db_name, $formula);
-						}
-	
-					}
+                                        $formula_obj = new View\Helpers\Formula($row);
+                                        $formula = $formula_obj->getFieldFormula();
 					
 					$fld = "";
 					if (strlen($formula) > 0)
@@ -703,7 +688,8 @@ namespace App\Libraries {
                 // Here we join sqls for related lists
 		$sql_join = $sql_join . " " . $sql_rights_join;
 		$spec_access = $sql_rights_where;		
-		                                
+		
+                $report_filter = new View\Helpers\ReportFiltering();
                 $grid_sql = "";
                 if ($view_row->view_type_id != 9 || strlen($this->sql_user_rights) > 0)
                 {                    
@@ -718,12 +704,12 @@ namespace App\Libraries {
                         $source_rights = Rights::getSQLSourceRights($this->list_id, $this->list_obj_db_name);
                     }
                     
-                    $grid_sql = "SELECT * FROM (SELECT " . $sql_fields . " FROM " . $this->list_obj_db_name . $sql_join . " WHERE 1=1 " . $this->getListLevelFilter() . $sql_multi . $sql_tab_where . $superv_sql . $source_rights . $this->sql_user_rights . $spec_access . ") tb WHERE 1=1 " . $sql_filter;
-                    
+                    $grid_sql = "SELECT * FROM (SELECT " . $sql_fields . " FROM " . $this->list_obj_db_name . $sql_join . " WHERE 1=1 " . $this->getListLevelFilter() . $report_filter->getWhereSQL() . $sql_multi . $sql_tab_where . $superv_sql . $source_rights . $this->sql_user_rights . $spec_access . ") tb WHERE 1=1 " . $sql_filter;
+                    Log::info("LAST SQL: " . $sql_filter);
                 }
                 else
                 {
-                    $grid_sql = $view_row->custom_sql;
+                    $grid_sql = $view_row->custom_sql . $report_filter->getWhereSQL();
                     
                     $grid_sql = str_replace("[ME]", $this->user_id, $grid_sql);
                     $grid_sql = str_replace("[ITEM_ID]", $this->rel_field_value, $grid_sql);
@@ -733,7 +719,7 @@ namespace App\Libraries {
                 //DB::statement('CREATE OR REPLACE VIEW v_data_' . $this->view_id . ' as ' . $grid_sql);
 
                 //$sql = "SELECT * FROM v_data_" . $this->view_id . " WHERE 1=1 "; 
-                \Log::info("GRID SQL: " . $grid_sql);
+                //\Log::info("GRID SQL: " . $grid_sql);
                 return $grid_sql;
                 
 	}

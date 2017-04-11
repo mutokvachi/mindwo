@@ -156,3 +156,10 @@ a.header-filter:hover {
 .dx-field-btn:hover {
     background-color: #e6dede;
 }
+
+.dx-divider {
+    border-top: 1px #f1f3f6 solid;
+    height: 8px;
+    margin-left: -15px;
+    margin-right: -15px;
+}

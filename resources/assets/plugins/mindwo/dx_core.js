@@ -410,11 +410,11 @@ function escapeHtml(string) {
     });
 }
 
-function download_excel(view_id, rel_field_id, rel_field_value) {    
+function download_excel(view_id, rel_field_id, rel_field_value, grid_id) {    
     show_page_splash();
     var open_url = DX_CORE.site_url + "excel"; // _" + view_id + "_" + rel_field_id + "_" + rel_field_value;
    
-    var formData = "view_id=" + view_id + "&rel_field_id=" + rel_field_id + "&rel_field_value=" + rel_field_value + "&_token=" + $('meta[name="csrf-token"]').attr('content');
+    var formData = "view_id=" + view_id + "&rel_field_id=" + rel_field_id + "&rel_field_value=" + rel_field_value + "&_token=" + $('meta[name="csrf-token"]').attr('content') + "&grid_id=" + grid_id;
     
     $.fileDownload(open_url, {
         httpMethod: 'POST',

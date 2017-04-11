@@ -225,6 +225,21 @@ var BlockViews = function () {
             reloadBlockGrid(grid_id, tab_id);
         });
     };
+    
+    /**
+     * Reloads report's grid with date from/to parameters
+     * 
+     * @param {string} grid_id Grid's HTML element ID
+     * @param {string} tab_id Tab's grid HTML element ID
+     * @param {object} el_block View's element
+     * @returns {undefined}
+     */
+    var handleBtnPrepareReport = function(grid_id, tab_id, el_block) {
+        el_block.find('.dx-report-filter-btn').click(function() {
+            event.preventDefault();
+            reloadBlockGrid(grid_id, tab_id);
+        });  
+    };
 
     /**
      * Show or hide filtering fields
@@ -236,7 +251,7 @@ var BlockViews = function () {
      * @returns {undefined}
      */
     var handleMenuFilter = function (menu_id, grid_id, tab_id, el_block) {
-        $('#' + menu_id + '_filter').click(function () {
+        el_block.find(".dx-filter").click(function () {
             var el_icon = $(this).find("i.fa-check");
             var el_filters = $("#filter_" + grid_id);
             if (el_icon.is(':visible')) {
@@ -258,10 +273,20 @@ var BlockViews = function () {
             }
             else {
                 // show filters row
+                                   
+                var menu = $("#grid_popup_" + grid_id);
+                var fld_name = menu.attr('data-field');
+                                
                 el_filters.show();
                 el_icon.show();
+                
+                setTimeout(function(){ 
+                    el_block.find("input[sql_name=" + fld_name + "]").focus(); 
+                }, 100);
+                
                 PageMain.resizePage();
             }
+            $(this).closest(".dx-dropdown-content").hide();
         });
     };
 
@@ -706,10 +731,10 @@ var BlockViews = function () {
      * @param {integer} rel_field_id      Related field ID (by which grid is binded)
      * @param {integer} rel_field_value   Related field value
      * @param {string} form_htm_id        Form's HTML ID
-
+     * @param {string} grid_id            Grid's GUID
      * @returns {undefined}
      */
-    var handleBtnExcel = function (menu_id, view_id, rel_field_id, rel_field_value, form_htm_id) {
+    var handleBtnExcel = function (menu_id, view_id, rel_field_id, rel_field_value, form_htm_id, grid_id) {
         $('#' + menu_id + '_excel').button().click(function (event) {
             event.preventDefault();
 
@@ -717,7 +742,7 @@ var BlockViews = function () {
                 return;
             }
 
-            download_excel(view_id, rel_field_id, rel_field_value);
+            download_excel(view_id, rel_field_id, rel_field_value, grid_id);
         });
     };
 
@@ -1107,6 +1132,34 @@ var BlockViews = function () {
         });
     };
 
+     /**
+     * Opens settings form for form
+     *
+     * @param {string} block_el HTML element id
+     * @param {string} grid_id  Register grid HTML element id
+     * @param {integer} form_id  Form id (from db table dx_forms)
+     * @returns {undefined}
+     */
+    var handleFormSettings = function (block_el, grid_id, form_id) {
+        block_el.find(".dx-register-tools a.dx-form-settings").click(function () {
+            view_list_item("form", form_id, 10, 0, 0, grid_id, "");
+        });
+    };
+    
+     /**
+     * Opens settings form for view
+     *
+     * @param {string} block_el HTML element id
+     * @param {string} grid_id  Register grid HTML element id
+     * @param {integer} view_id  View id (from db table dx_views)
+     * @returns {undefined}
+     */
+    var handleViewSettings = function (block_el, grid_id, view_id) {
+        block_el.find(".dx-register-tools a.dx-view-settings").click(function () {
+            view_list_item("form", view_id, 6, 0, 0, grid_id, "");
+        });
+    };
+    
     /**
      * Nodrošina tabulas rindas konteksta izvēlnes "Skatīt" funcionalitāti - atver ieraksta skatīšanās formu
      *
@@ -1204,8 +1257,8 @@ var BlockViews = function () {
         
         el_block.find("a.header-filter").hover(
             function() {
-                
-                var menu = el_block.find('div.dx-dropdown-content');
+                var grid_id = el_block.attr("dx_grid_id");                    
+                var menu = $("#grid_popup_" + grid_id);
                 
                 var offset = $(this).offset();
                 var height = $(this).closest('thead').height();
@@ -1220,10 +1273,12 @@ var BlockViews = function () {
                 menu.show();
             }, function() {
                 var fld_name = $(this).closest('th').attr('fld_name');
-                setTimeout(function(){ 
-                    var menu = el_block.find('div.dx-dropdown-content');                    
+                setTimeout(function(){
+                    var grid_id = el_block.attr("dx_grid_id");                    
+                    var menu = $("#grid_popup_" + grid_id);  
+                    
                     if (!is_filter_menu_in && fld_name === menu.attr('data-field')) {
-                        el_block.find('div.dx-dropdown-content').hide();
+                        menu.hide();
                     }
                 }, 500);
                 
@@ -1250,7 +1305,10 @@ var BlockViews = function () {
      */
     var handleFilteringOptions = function(el_block, grid_id, tab_id) {
         el_block.find('div.dx-dropdown-content a.dx-sort-asc').click(function() {
-            var field_name = $(this).closest('.dx-dropdown-content').data('field');
+            var grid_id = el_block.attr("dx_grid_id");
+            var menu = $("#grid_popup_" + grid_id); 
+                    
+            var field_name = menu.attr('data-field');
             
             $('#' + grid_id).data('sorting_field', field_name);
             $('#' + grid_id).data('sorting_direction', '1');
@@ -1258,8 +1316,11 @@ var BlockViews = function () {
             reloadBlockGrid(grid_id, tab_id);
         });
         
-        el_block.find('div.dx-dropdown-content a.dx-sort-desc').click(function() {            
-            var field_name = $(this).closest('.dx-dropdown-content').data('field');
+        el_block.find('div.dx-dropdown-content a.dx-sort-desc').click(function() {
+            var grid_id = el_block.attr("dx_grid_id");
+            var menu = $("#grid_popup_" + grid_id); 
+                    
+            var field_name = menu.attr('data-field');
             
             $('#' + grid_id).data('sorting_field', field_name);
             $('#' + grid_id).data('sorting_direction', '2');
@@ -1299,8 +1360,14 @@ var BlockViews = function () {
             handleView(menu_id, tab_id, list_id, rel_field_id, rel_field_value, form_htm_id);
             handleBtnNew(grid_id, menu_id, list_id, rel_field_id, rel_field_value, form_htm_id);
             handleBtnRefresh(menu_id, grid_id, tab_id);
-            handleBtnExcel(menu_id, view_id, rel_field_id, rel_field_value, form_htm_id);
-            handleRegisterSettings($(this), grid_id, list_id);
+            handleBtnPrepareReport(grid_id, tab_id, $(this));
+            handleBtnExcel(menu_id, view_id, rel_field_id, rel_field_value, form_htm_id, grid_id);
+            
+            // Setting menu items handlers
+            handleRegisterSettings($(this), grid_id, list_id); // grid settings
+            handleFormSettings($(this), grid_id, $(this).attr('data-form-id')); // form settings
+            handleViewSettings($(this), grid_id, view_id); // view settings
+            
             handleBtnImport(menu_id, rel_field_id, rel_field_value, form_htm_id);
             handleBtnStartImport(menu_id);
             handleMenuFilter(menu_id, grid_id, tab_id, $(this));
@@ -1355,7 +1422,8 @@ var BlockViews = function () {
             PageMain.addResizeCallback(function () {
                 $table.floatThead('reflow');
             });            
-            
+            setTimeout(function(){ PageMain.resizePage(); }, 100);
+                        
             $(this).attr('dx_block_init', 1); // uzstādam pazīmi, ka skata bloks ir inicializēts
         });
     };

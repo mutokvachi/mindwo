@@ -21,5 +21,10 @@ return [
 		'title' => 'Piedāvājumi',
 		'subscribe' => 'Pieteikties',
 		'unsubscribe' => 'Atcelt'
-	]
+	],
+        'timeoff' => [
+                'title' => 'Manu prombūtņu limiti',
+                'btn_request' => 'Jauna prombūtne',
+                'link_history' => 'Vēsture',
+        ]
 ];

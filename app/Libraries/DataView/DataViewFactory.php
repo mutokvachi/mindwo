@@ -3,7 +3,7 @@ namespace App\Libraries\DataView
 {
     use App\Exceptions;
     use Request;
-    use Log;
+    
     class DataViewFactory
     {
         public static function build_view($type, $view_id) 
@@ -23,8 +23,8 @@ namespace App\Libraries\DataView
         } 
         
         public static function build_view_obj($list_id, $view_id, $session_guid, $is_hidden_in_model) 
-        { 
-            if ($session_guid && Request::session()->has($session_guid . "_sql")) 
+        {
+            if ($session_guid && Request::session()->has($session_guid . "_sql") && !Request::input("dx_filter_field_id", 0)) 
             {
                 return new DataViewObjSession($session_guid);
             }

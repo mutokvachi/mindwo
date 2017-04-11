@@ -98,7 +98,13 @@ Route::group(['middleware' => 'auth_api', 'prefix' => 'api'], function() {
     Route::group(['prefix' => 'view', 'namespace' => 'Api'], function () {
         Route::get('{view_id}/data/all', 'ViewController@getAllData');
         Route::get('{view_id}/data/filtered/{field}/{criteria}', 'ViewController@getFilteredData');
+        Route::get('{view_id}/data/raw/{field}/{criteria}', 'ViewController@getFilteredRawData');
     });
+});
+
+Route::group(['middleware' => 'auth', 'prefix' => 'reports', 'namespace' => 'Reports'], function() { 
+    Route::get('/', 'ReportsController@getDefault');
+    Route::get('/group/{group_id}', 'ReportsController@getByGroup');
 });
 
 // Startē procesu forsēti
