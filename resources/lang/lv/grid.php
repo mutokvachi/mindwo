@@ -96,4 +96,6 @@ return [
     
     'report_interval' => 'Laika intervāls',
     'btn_prepare_report' => 'Sagatavot atskaiti',
+    
+    'lbl_total' => 'Kopā',
 ];

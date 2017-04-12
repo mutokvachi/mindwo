@@ -94,4 +94,6 @@ return [
     'report_interval' => 'Date interval',
     'btn_prepare_report' => 'Prepare report',
     
+    'lbl_total' => 'Total',
+    
 ];

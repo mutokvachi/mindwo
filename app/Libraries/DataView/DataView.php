@@ -18,6 +18,12 @@ namespace App\Libraries\DataView {
         public $is_PDO = true;
         
         /**
+         * SQL part for SUM query
+         * @var string 
+         */
+        public $sum_sql = "";
+        
+        /**
          * This view data (row from table dx_views)
          * @var Array
          */
@@ -68,7 +74,8 @@ namespace App\Libraries\DataView {
         protected function getViewDataArray()
         {
             $sql = $this->view->view_sql . " " . $this->filter_obj->sql . " " . $this->getSortingSQL() . " " . $this->getLimitSQL();
-
+            $this->sum_sql = $this->view->view_sql . " " . $this->filter_obj->sql;
+            
             if ($this->is_PDO) {
                 DB::setFetchMode(PDO::FETCH_ASSOC); // We need to get vields values dynamicly where field names are from array                    
             }

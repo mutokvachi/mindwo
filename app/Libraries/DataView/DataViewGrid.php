@@ -6,6 +6,7 @@ namespace App\Libraries\DataView {
     use Config;
     use Request;
     use App\Exceptions;
+    use PDO;
     use Log;
     
     /**
@@ -56,6 +57,12 @@ namespace App\Libraries\DataView {
         public $filter_data = "";
         
         /**
+         * SQL part for SUM fields 
+         * @var type 
+         */
+        public $sql_sum_fld = "";
+        
+        /**
          * HTML elements helper class (to avoid Blade views render performance issue)
          * 
          * @var App\Libraries\DataView\Helper
@@ -91,11 +98,15 @@ namespace App\Libraries\DataView {
         */
         public function getViewHtml() 
         {  
+            $data_htm = $this->getDataRows();
+            $head_htm = $this->getHeadingsRow(); // šo vienmēr pēc getDataRows() jāizsauc, lai tiktu uzstādīta sorting_direction vērtība
+            $sum_htm = $this->getSumRow(); // šo vienmēr pēc getDataRows() jāizsauc, lai tiktu uzstādīta sorting_direction vērtība
+            
             return  view('grid.table', [
                          'grid_id' => $this->grid_id,                         
-                         'table_body' => $this->getDataRows(),
-                         'table_head' => $this->getHeadingsRow(), // šo vienmēr pēc getDataRows() jāizsauc, lai tiktu uzstādīta sorting_direction vērtība
-                         'data_attr' => $this->getHTMLDataAttributes(), // šo vienmēr pēc getDataRows() jāizsauc, lai tiktu uzstādīta sorting_direction vērtība
+                         'table_body' => $data_htm . $sum_htm,
+                         'table_head' => $head_htm, 
+                         'data_attr' => $this->getHTMLDataAttributes(),
                          'filter_data' => $this->filter_data
                     ])->render();
         }
@@ -292,7 +303,8 @@ namespace App\Libraries\DataView {
                 }
 
                 $htm .= $this->helper->getRow(['htm' => $cell_htm]);
-            }
+            }           
+            
             return $htm;
         }
         
@@ -338,6 +350,17 @@ namespace App\Libraries\DataView {
                                          'col_nr' => $col_nr,
                                          'filtr_val' => $this->getFilteringValue($view->model[$i]["name"])
                                     ])->render();
+                    Log::info("SUM AR: " . json_encode($view->summaryrows) . " FFF: " . $view->model[$i]["name"]);
+                    
+                    if (isset($view->summaryrows[$view->model[$i]["name"]]))
+                    {
+                            if (strlen($this->sql_sum_fld) > 0)
+                            {
+                                    $this->sql_sum_fld .= ", ";
+                            }
+
+                            $this->sql_sum_fld .= "SUM(" . $view->model[$i]["name"] . ") as " . $view->model[$i]["name"];
+                    }
                 }
             }
             
@@ -480,6 +503,67 @@ namespace App\Libraries\DataView {
             }
             
             return $cell_obj;
+        }
+        
+        /**
+         * Prepares HTML with totals in case there are some SUM rows
+         * @return string
+         */
+        private function getSumRow() {
+            if (strlen($this->sql_sum_fld) == 0 || $this->grid_total_rows == 0) {                
+                return ""; // nothing to SUM
+            }                    
+            
+            // add summary row
+            $sql_sum = "SELECT " . $this->sql_sum_fld . " FROM (" . $this->sum_sql . ") tb";
+            
+            DB::setFetchMode(PDO::FETCH_ASSOC);
+            $sum_rows = DB::select($sql_sum, $this->filter_obj->arr_filt);
+            DB::setFetchMode(PDO::FETCH_CLASS);
+            
+            if (count($sum_rows) == 0) {
+                return "";
+            }
+                            
+            
+            $row_s = $sum_rows[0];
+            $view = $this->view->view_obj;
+            
+            $tr_htm = "<tr style='background-color: #F7FACF'>";
+            $colspan = $this->view_row->is_report ? 0 : 1;
+            $is_total = 0;
+            
+            for ($i=0; $i<count($view->model);$i++)
+            {
+                if (strlen($view->model[$i]["label"]) > 0 && strlen($view->model[$i]["name"]) > 0)
+                {
+                    if (isset($row_s[$view->model[$i]["name"]]))
+                    {
+                        if ($colspan > 0 && $is_total == 0)
+                        {
+                                $tr_htm = $tr_htm . "<td colspan=" . $colspan . " align=right><b>" . trans('grid.lbl_total') . ":</b></td>";	
+                        }
+                        $tr_htm = $tr_htm . "<td align=right><b>" . $row_s[$view->model[$i]["name"]] . "</b></td>";
+                        $is_total = 1;
+                    }
+                    else
+                    {
+                        if ($is_total == 0)
+                        {
+                                $colspan++;
+                        }
+                        else
+                        {
+                                $tr_htm = $tr_htm . "<td>&nbsp;</td>";
+                        }
+                    }
+                }
+            }
+            
+            $tr_htm = $tr_htm . "</tr>";
+            return $tr_htm;   
+                            
+                    
         }
     }
 }
