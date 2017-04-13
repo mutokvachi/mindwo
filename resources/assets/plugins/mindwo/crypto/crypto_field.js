@@ -14,7 +14,7 @@
 
     /**
      * Class for managing crypto fields
-     * @type Window.DxCryptoField 
+     * @type DxCryptoField 
      */
     $.DxCryptoField = function (domObject) {
         /**
@@ -61,7 +61,7 @@
 
             self.domObject.after(button);
 
-            button.click(window.DxCrypto.decryptData);
+            button.click(self.openPasswordForm);
         },
         /**
          * Decryptes data and restore original html and value
@@ -71,7 +71,13 @@
             this.domObject.next('.dx-crypto-decrypt-btn').remove();
             this.domObject.css('visibility', 'visible');
             this.domObject.show();
-        }
+        },
+        openPasswordForm: function () {
+            var title = Lang.get('crypto.title_modal_password');
+            var body = '<label>' + Lang.get('crypto.label_password') + '</label><input class="form-control" id="dx-crypto-modal-input-password" type="password" />';
+
+            PageMain.showConfirm(window.DxCrypto.decryptFields, null, title, body);
+        },
     });
 })(jQuery);
 

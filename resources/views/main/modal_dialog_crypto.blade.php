@@ -5,12 +5,11 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="{{ trans('form.btn_close') }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="dx-crypto-modal-label">{{ trans('crypto.title_modal_password') }}</h4>
+                <h4 class="modal-title" id="dx-crypto-modal-label"></h4>
             </div>
             <div class="modal-body">
                 <p id='dx-crypto-modal-body'>
-                    <label>{{ trans('crypto.label_password') }}</label>
-                    <input class="form-control dx-crypto-modal-input-password" type="text" />
+                    
                 </p>
             </div>
             <div class="modal-footer">

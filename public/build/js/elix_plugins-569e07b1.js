@@ -9581,10 +9581,14 @@ var PageMain = function()
         var accept_btn  = modal.find('#mindwo-modal-accept')
         accept_btn.html(acceptText);
        
+        accept_btn.off('click');
+       
         accept_btn.click(function(){
-            accept_btn.off('click');
+            var res =  callback(callbackParameters);
             
-            callback(callbackParameters);
+            if(res || typeof(res) == 'undefined'){
+                modal.modal('hide');
+            }
         });
         
         modal.modal('show');        
