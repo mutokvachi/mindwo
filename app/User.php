@@ -334,25 +334,25 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 		if($this->termination_date)
 		{
 			$result = [
-				'button' => 'Left',
+				'button' => trans('empl_profile.avail_left'),
 				'class' => 'grey',
-				'title' => 'Employee has left'
+				'title' => trans('empl_profile.hint_left')
 			];
 		}
 		elseif($this->join_date && !$this->termination_date)
 		{
 			$result = [
-				'button' => 'Active',
+				'button' => trans('empl_profile.avail_active'),
 				'class' => 'green-jungle',
-				'title' => 'Employee is at work'
+				'title' => trans('empl_profile.hint_active')
 			];
 		}
 		else
 		{
 			$result = [
-				'button' => 'Potential',
+				'button' => trans('empl_profile.avail_potential'),
 				'class' => 'yellow-lemon',
-				'title' => 'The person is in process of hiring'
+				'title' => trans('empl_profile.hint_potential')
 			];
 		}
 		
