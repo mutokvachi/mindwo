@@ -5,7 +5,7 @@
       <div class="tile-body tile-body dx-employee-widget-tile-body">
         <img src="{{ $employee->manager->getAvatar() }}" alt="">
         <h4>{{ $employee->manager->display_name }}</h4>
-        <p> {{ $employee->manager->position_title }}<br/> {{ $employee->manager->department_title }}  <br/> Direct supervisor</p>
+        <p> {{ $employee->manager->position_title }}<br/> {{ $employee->manager->department_title }}  <br/> {{ trans('empl_profile.lbl_direct_superv') }}</p>
       </div>
       <div class="tile-object">
         <div class="dx-employee-widget-tile-object"></div>

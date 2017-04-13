@@ -32,6 +32,11 @@ return [
     'tab_cert' => 'Certificates',
     'tab_cv' => 'CVs & other', 
     
+    'tab_documents' => 'Documents',
+    'tab_timeoff' => 'Time off',
+    'tab_notes' => 'Notes',
+    'tab_info' => 'Info',
+    
     'assets_menu' => 'Assets',
     
     // Subgrid tabs for assets (must be equal with tab titles defined in CMS form - in database table dx_tabs)
@@ -39,6 +44,21 @@ return [
     'tab_devices' => 'Devices',
     
     'direct_reporters' => 'Direct reporters',
+    
+    'lbl_about' => 'About',    
+    'lbl_edit' => 'Edit',
+    'lbl_save' => 'Save',
+    'lbl_cancel' => 'Cancel',
+    
+    'avail_left' => 'Left',
+    'avail_active' => 'Active',
+    'avail_potential' => 'Potential',
+    
+    'hint_left' => 'Employee has left',
+    'hint_active' => 'Employee is at work',
+    'hint_potential' => 'The person is in process of hiring',
+    
+    'lbl_direct_superv' => 'Direct supervisor',
     
     'personal_docs' => [
         'new_doc' => 'New document',
