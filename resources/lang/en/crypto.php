@@ -13,4 +13,11 @@ return [
     'title_modal_password' => 'Encryption confirmation',
     'title_modal_generate_cert' => 'Generate certificate',
     'generate_cert' => 'Generate certificate',
+    
+    'e_unknown' => 'Uknown error',
+    
+    'db'=>[
+        'user_id' => 'User',
+        'certificate' => 'Certificate',
+    ]
 ];

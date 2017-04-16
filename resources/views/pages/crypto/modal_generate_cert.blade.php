@@ -1,0 +1,26 @@
+<div class="modal fade in" id="dx-crypto-modal-generate-cert" tabindex="-1" role="dialog" aria-labelledby="dx-crypto-modal-label" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div id='dx-crypto-modal-content' class="modal-content">      
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ trans('form.btn_close') }}">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="dx-crypto-modal-label"></h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <label>{{ trans('crypto.label_password') }}</label>
+                    <input autocomplete="new-password" class="form-control" id="dx-crypto-modal-input-password" type="password" />
+                </p>
+                <p>
+                    <label>{{ trans('crypto.label_password_again') }}</label>
+                    <input autocomplete="new-password" class="form-control" id="dx-crypto-modal-input-password-again" type="password" />
+                </p>                    
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn pull-left dx-crypto-modal-decline" data-dismiss="modal">{{ trans('crypto.btn_close') }}</button>
+                <button type="button" class="btn btn-primary dx-crypto-modal-accept">{{ trans('crypto.btn_accept') }}</button>   
+            </div>
+        </div>
+    </div>
+</div>

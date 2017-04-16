@@ -52,39 +52,44 @@
 
             self.domObject.data('dx_is_init', 1);
 
-            $('.dx-crypto-generate-cert-btn',  self.domObject).click(function(){
-                self.openGenerateCertificate(self);
-            });
-            
-            $('.dx-crypto-generate-masterkey-btn',  self.domObject).click(function(){
-                var masterKey =  self.getRandomMasterKey(self);
-                
-                $('#dx-master-key',  self.domObject).html(masterKey);
+            $('.dx-crypto-generate-cert-btn', self.domObject).click(this.openGenerateCertificate);
+
+            $('.dx-crypto-generate-masterkey-btn', self.domObject).click(function () {
+                var masterKey = window.DxCrypto.getRandomMasterKey();
+
+                $('#dx-master-key', self.domObject).html(masterKey);
             });
 
-            $('#dx-crypto-modal-generate-cert',  self.domObject).on('click', '.dx-crypto-modal-accept', this.validateCertPassword);
+            $('#dx-crypto-modal-generate-cert').on('click', '.dx-crypto-modal-accept', this.validateCertPassword);
         },
         /**
          * Opens modal windows where user inputs password for certificate
-         * @param {$.DxCryptoUserPanel} self Current class object
          * @returns {undefined}
          */
         openGenerateCertificate: function (self) {
-            $('#dx-crypto-modal-generate-cert',  self.domObject).modal('show');
+            $('#dx-crypto-modal-generate-cert').modal('show');
         },
         /**
          * Validates users password
          * @returns {Boolean}
          */
-        validateCertPassword: function () {
+        validateCertPassword: function () {            
             var password = $('#dx-crypto-modal-input-password').val();
             var password_2 = $('#dx-crypto-modal-input-password-again').val();
 
             if (password == '' || password != password_2) {
                 return false;
             }
+            
+            show_page_splash(1);
 
-            window.DxCrypto.importPassword(password);
+            window.DxCrypto.createPasswordKey(password)
+                    .then(function (passwordKey) {
+                        window.DxCrypto.generateUserCert(passwordKey);
+                    })
+                    .catch(window.DxCrypto.catchError);
+
+            $('#dx-crypto-modal-generate-cert').modal('hide');
         }
     });
 })(jQuery);

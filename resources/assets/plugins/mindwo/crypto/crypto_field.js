@@ -61,7 +61,9 @@
 
             self.domObject.after(button);
 
-            button.click(self.openPasswordForm);
+            button.click(function () {
+                window.DxCrypto.openPasswordForm(window.DxCrypto.decryptFields);
+            });
         },
         /**
          * Decryptes data and restore original html and value
@@ -71,12 +73,6 @@
             this.domObject.next('.dx-crypto-decrypt-btn').remove();
             this.domObject.css('visibility', 'visible');
             this.domObject.show();
-        },
-        openPasswordForm: function () {
-            var title = Lang.get('crypto.title_modal_password');
-            var body = '<label>' + Lang.get('crypto.label_password') + '</label><input class="form-control" id="dx-crypto-modal-input-password" type="password" />';
-
-            PageMain.showConfirm(window.DxCrypto.decryptFields, null, title, body);
         },
     });
 })(jQuery);

@@ -13,4 +13,11 @@ return [
     'title_modal_password' => 'Atšifrēšanas apstiprinājums',
     'title_modal_generate_cert' => 'Ģenerēt sertifikātu',
     'generate_cert' => 'Ģenerēt sertifikātu',
+    
+    'e_unknown' => 'Nezināma kļūda',
+    
+    'db'=>[
+        'user_id' => 'Lietotājs',
+        'certificate' => 'Sertifikāts',
+    ]
 ];

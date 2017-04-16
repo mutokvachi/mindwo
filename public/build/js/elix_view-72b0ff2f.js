@@ -21518,7 +21518,8 @@ $.extend($.fn.dataTableExt.oPagination, {
  * @returns {window.DxCryptoClass}
  */
 window.DxCryptoClass = function () {
-
+    this.certificate;
+    this.masterKey;
 };
 
 /**
@@ -21528,20 +21529,21 @@ window.DxCryptoClass = function () {
  */
 $.extend(window.DxCryptoClass.prototype, {
     /**
-     * Decryptes all fields
+     * Catches error and output error to user
+     * @param {object} err Error details
      * @returns {undefined}
      */
-    decryptFields: function () {
-        $('.dx-crypto-field').each(function () {
-            this.crypto.decryptData();
-        });
+    catchError: function (err) {
+        notify_err(Lang.get('crypto.e_unknown'));
+        hide_page_splash(1);
+        hide_form_splash(1);
     },
     /**
-     * Import password as base key which is plain password converted to CryptoKey object
+     * Get passwords CryptoKey object
      * @param {string} password
      * @returns {undefined}
      */
-    importPassword: function (password) {
+    getPasswordKey: function (password) {
         var self = window.DxCrypto;
 
         // don't use native approaches for converting text, otherwise international
@@ -21549,8 +21551,8 @@ $.extend(window.DxCryptoClass.prototype, {
         // available or otherwise use relevant polyfills
         var passwordBuffer = self.stringToArrayBuffer(password);
 
-        // Import password to CryptoKey object
-        window.crypto.subtle.importKey(
+        // Import password to CryptoKey object - base key which contains plain password castet as CryptoKey object
+        return window.crypto.subtle.importKey(
                 'raw',
                 passwordBuffer,
                 {name: 'PBKDF2'},
@@ -21558,11 +21560,9 @@ $.extend(window.DxCryptoClass.prototype, {
                 ['deriveKey']
                 )
                 .then(function (baseKey) {
-                    self.derivePasswordKey(baseKey);
+                    return self.derivePasswordKey(baseKey);
                 })
-                .catch(function (err) {
-                    console.error(err);
-                });
+                .catch(window.DxCrypto.catchError);
     },
     /**
      * Derives password CryptoKey from base CryptoKey object
@@ -21573,7 +21573,7 @@ $.extend(window.DxCryptoClass.prototype, {
         // salt should be Uint8Array or ArrayBuffer
         var saltBuffer = window.DxCrypto.stringToArrayBuffer('YyZYm6EuGaa1BhbDPwjy');
 
-        window.crypto.subtle.deriveKey(
+        return window.crypto.subtle.deriveKey(
                 {"name": 'PBKDF2',
                     "salt": saltBuffer,
                     // don't get too ambitious, or at least remember
@@ -21588,12 +21588,7 @@ $.extend(window.DxCryptoClass.prototype, {
 
                 ["wrapKey", "unwrapKey"] // this web crypto object will only be allowed for these functions
                 )
-                .then(function (passwordKey) {
-                    window.DxCrypto.generateUserCert(passwordKey);
-                })
-                .catch(function (err) {
-                    console.error(err);
-                });
+                .catch(window.DxCrypto.catchError);
     },
     /**
      * Generates users certificate (with public and private keys)
@@ -21614,9 +21609,7 @@ $.extend(window.DxCryptoClass.prototype, {
                 .then(function (asyncKey) {
                     window.DxCrypto.wrapPrivateKey(passwordKey, asyncKey);
                 })
-                .catch(function (err) {
-                    console.error(err);
-                });
+                .catch(window.DxCrypto.catchError);
     },
     /**
      * Wraps users private key with passwords key
@@ -21637,25 +21630,33 @@ $.extend(window.DxCryptoClass.prototype, {
                     length: 128 //can be 1-128
                 })
                 .then(function (wrappedPrivateKey) {
-                    var cert = {
-                        publicKey: asyncKey.publicKey,
-                        wrappedPrivateKey: wrappedPrivateKey
-                    };
-
-                    window.DxCrypto.saveUserCert(cert);
+                    window.DxCrypto.saveUserCert(asyncKey.publicKey, wrappedPrivateKey);
                 })
-                .catch(function (err) {
-                    console.error(err);
-                });
+                .catch(window.DxCrypto.catchError);
     },
     /**
      * Saves users certificate
-     * @param {JSON} cert
+     * @param {CryptoKey} publicKey Public keys CryptoKey object
+     * @param {array} wrappedPrivateKey
      * @returns {undefined}
      */
-    saveUserCert: function (cert) {
-        console.log('succ');
-        console.log(new Uint8Array(cert.wrappedPrivateKey));
+    saveUserCert: function (publicKey, wrappedPrivateKey) {
+        window.crypto.subtle.exportKey(
+                "jwk", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
+                publicKey //can be a publicKey or privateKey, as long as extractable was true
+                )
+                .then(function (publicKeyBuffer) {
+                    var cert = {
+                        publicKey: publicKeyBuffer,
+                        privateKey: wrappedPrivateKey
+                    };
+
+                    // new Uint8Array(cert.wrappedPrivateKey)
+                    window.DxCrypto.certificate = cert;
+
+                    hide_page_splash(1);
+                })
+                .catch(window.DxCrypto.catchError);
     },
     /**
      * Converts string to array buffer
@@ -21684,6 +21685,104 @@ $.extend(window.DxCryptoClass.prototype, {
             hexString += nextHexByte;
         }
         return hexString;
+    },
+    /**
+     * Decryptes all fields
+     * @returns {undefined}
+     */
+    decryptFields: function (privateKey) {
+        show_page_splash(1);
+
+        window.crypto.subtle.decrypt(
+                {
+                    name: "RSA-OAEP"
+                },
+                privateKey, //from generateKey or importKey above
+                window.DxCrypto.masterKeyCrypted //ArrayBuffer of the data
+                )
+                .then(function (decrypted) {
+                    //returns an ArrayBuffer containing the decrypted data
+                    console.log(new Uint8Array(decrypted));
+
+                    hide_page_splash(1);
+                })
+                .catch(window.DxCrypto.catchError);
+
+        /*$('.dx-crypto-field').each(function () {
+         this.crypto.decryptData();
+         });*/
+    },
+    openPasswordForm: function (callback) {
+        var title = Lang.get('crypto.title_modal_password');
+        var body = '<label>' + Lang.get('crypto.label_password') + '</label><input class="form-control" id="dx-crypto-modal-input-password" type="password" />';
+
+        PageMain.showConfirm(function () {
+            window.DxCrypto.getUserCertificate(callback);
+        }, null, title, body);
+    },
+    getUserCertificate: function (callback) {
+        var password = $('#dx-crypto-modal-input-password').val();
+
+        var cert = window.DxCrypto.certificate;
+
+        window.DxCrypto.getPasswordKey(password)
+                .then(function (passwordKey) {
+                    return window.DxCrypto.unwrapPrivateKey(passwordKey, cert);
+                })
+                .then(function (privateKey) {
+                    callback(privateKey);
+                })
+                .catch(window.DxCrypto.catchError);
+    },
+    unwrapPrivateKey: function (passwordKey, cert) {
+        return window.crypto.subtle.unwrapKey(
+                "pkcs8", //"jwk", "raw", "spki", or "pkcs8" (whatever was used in wrapping)
+                cert.wrappedPrivateKey, //the key you want to unwrap
+                passwordKey, //the AES-CTR key with "unwrapKey" usage flag
+                {//these are the wrapping key's algorithm options
+                    name: "AES-CTR",
+                    //Don't re-use counters!
+                    //Always use a new counter every time your encrypt!
+                    counter: new Uint8Array(16),
+                    length: 128 //can be 1-128
+                },
+                {//this what you want the wrapped key to become (same as when wrapping)
+                    name: "RSA-OAEP",
+                    modulusLength: 2048, //can be 1024, 2048, or 4096
+                    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+                    hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+                },
+                false, //whether the key is extractable (i.e. can be used in exportKey)
+                ["decrypt"] //the usages you want the unwrapped key to have
+                )
+                .then(function (privateKey) {
+                    return privateKey;
+                })
+                .catch(window.DxCrypto.catchError);
+    },
+    getRandomMasterKey: function () {
+        var masterKey = window.crypto.getRandomValues(new Uint8Array(36));
+
+        window.DxCrypto.masterKey = masterKey;
+
+        var publicKey = window.DxCrypto.certificate.publicKey;
+
+        return window.crypto.subtle.encrypt(
+                {
+                    name: "RSA-OAEP"
+                },
+                publicKey, //from generateKey or importKey above
+                masterKey //ArrayBuffer of data you want to encrypt
+                )
+                .then(function (encrypted) {
+                    window.DxCrypto.masterKeyCrypted = encrypted;
+
+                    //returns an ArrayBuffer containing the encrypted data
+                    console.log(new Uint8Array(encrypted));
+
+                    return new Uint8Array(encrypted);
+                })
+                .catch(window.DxCrypto.catchError);
     }
 });
 
@@ -21752,7 +21851,9 @@ window.DxCrypto = new window.DxCryptoClass();
 
             self.domObject.after(button);
 
-            button.click(self.openPasswordForm);
+            button.click(function () {
+                window.DxCrypto.openPasswordForm(window.DxCrypto.decryptFields);
+            });
         },
         /**
          * Decryptes data and restore original html and value
@@ -21762,12 +21863,6 @@ window.DxCrypto = new window.DxCryptoClass();
             this.domObject.next('.dx-crypto-decrypt-btn').remove();
             this.domObject.css('visibility', 'visible');
             this.domObject.show();
-        },
-        openPasswordForm: function () {
-            var title = Lang.get('crypto.title_modal_password');
-            var body = '<label>' + Lang.get('crypto.label_password') + '</label><input class="form-control" id="dx-crypto-modal-input-password" type="password" />';
-
-            PageMain.showConfirm(window.DxCrypto.decryptFields, null, title, body);
         },
     });
 })(jQuery);
@@ -21837,33 +21932,44 @@ $(document).ajaxComplete(function () {
 
             self.domObject.data('dx_is_init', 1);
 
-            $('.dx-crypto-generate-cert',  self.domObject).click(function(){
-                self.openGenerateCertificate(self);
+            $('.dx-crypto-generate-cert-btn', self.domObject).click(this.openGenerateCertificate);
+
+            $('.dx-crypto-generate-masterkey-btn', self.domObject).click(function () {
+                var masterKey = window.DxCrypto.getRandomMasterKey();
+
+                $('#dx-master-key', self.domObject).html(masterKey);
             });
 
-            $('#dx-crypto-modal-generate-cert',  self.domObject).on('click', '.dx-crypto-modal-accept', this.validateCertPassword);
+            $('#dx-crypto-modal-generate-cert').on('click', '.dx-crypto-modal-accept', this.validateCertPassword);
         },
         /**
          * Opens modal windows where user inputs password for certificate
-         * @param {$.DxCryptoUserPanel} self Current class object
          * @returns {undefined}
          */
         openGenerateCertificate: function (self) {
-            $('#dx-crypto-modal-generate-cert',  self.domObject).modal('show');
+            $('#dx-crypto-modal-generate-cert').modal('show');
         },
         /**
          * Validates users password
          * @returns {Boolean}
          */
-        validateCertPassword: function () {
+        validateCertPassword: function () {            
             var password = $('#dx-crypto-modal-input-password').val();
             var password_2 = $('#dx-crypto-modal-input-password-again').val();
 
             if (password == '' || password != password_2) {
                 return false;
             }
+            
+            show_page_splash(1);
 
-            window.DxCrypto.importPassword(password);
+            window.DxCrypto.getPasswordKey(password)
+                    .then(function (passwordKey) {
+                        window.DxCrypto.generateUserCert(passwordKey);
+                    })
+                    .catch(window.DxCrypto.catchError);
+
+            $('#dx-crypto-modal-generate-cert').modal('hide');
         }
     });
 })(jQuery);
