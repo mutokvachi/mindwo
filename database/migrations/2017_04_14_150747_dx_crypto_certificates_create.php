@@ -4,9 +4,9 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 /**
- * Creates table for storing users' master keys
+ * Creates table for storing users' certificates
  */
-class DxCryptoUserMasterkeys extends Migration
+class DxCryptoCertificatesCreate extends Migration
 {
     /**
      * Run the migrations.
@@ -14,13 +14,14 @@ class DxCryptoUserMasterkeys extends Migration
      * @return void
      */
     public function up()
-    {
-        Schema::create('dx_crypto_masterkeys', function (Blueprint $table) {
+    {        
+        Schema::create('dx_crypto_certificates', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             
             $table->increments('id');
             $table->integer('user_id')->comment = trans('crypto.db.user_id');
-            $table->binary('master_key')->comment = trans('crypto.db.master_key');
+            $table->binary('public_key')->comment = trans('crypto.db.public_key');
+            $table->binary('private_key')->comment = trans('crypto.db.private_key');
             
             $table->index('user_id');            
             $table->foreign('user_id')->references('id')->on('dx_users');
@@ -39,6 +40,6 @@ class DxCryptoUserMasterkeys extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('dx_crypto_masterkeys');
+        Schema::dropIfExists('dx_crypto_certificates');
     }
 }

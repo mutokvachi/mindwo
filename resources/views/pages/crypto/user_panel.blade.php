@@ -28,7 +28,7 @@
 
             <div style="margin-top:30px; border: 1px solid gray; padding: 10px;">
                 <button class="btn btn-primary dx-crypto-generate-masterkey-btn">
-                    Generate master key <i class="fa fa-shield"></i>
+                    Generate master key <i class="fa fa-key"></i>
                 </button>
                 <div id="dx-master-key"></div>
 

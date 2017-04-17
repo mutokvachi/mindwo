@@ -5,15 +5,14 @@ namespace App\Models\Crypto;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * User's master key
+ * Master key group model
  */
-class Masterkey extends Model
+class MasterkeyGroup extends Model
 {
-
     /**
      * @var string Related table
      */
-    protected $table = 'dx_crypto_masterkeys';
+    protected $table = 'dx_crypto_masterkey_groups';
 
     /**
      * @var bool Disables Laravel's time stamps on insert and update
@@ -29,24 +28,6 @@ class Masterkey extends Model
         'created_time',
         'modified_time'
     ];
-    
-    /**
-     * Master key's owner
-     * @return App\User
-     */
-    public function user()
-    {
-        return $this->belongsTo('\App\User', 'user_id');
-    }
-    
-    /**
-     * Master key's group
-     * @return App\Models\Crypto\MasterkeyGroup
-     */
-    public function masterKeyGroup()
-    {
-        return $this->belongsTo('\App\Models\Crypto\MasterkeyGroup', 'master_key_group_id');
-    }
 
     /**
      * User who last created record

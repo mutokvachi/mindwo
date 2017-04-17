@@ -64,7 +64,7 @@
             });
 
             $('.dx-crypto-generate-masterkey-btn', self.domObject).click(function () {
-                var masterKey = window.DxCrypto.getRandomMasterKey();
+                var masterKey = window.DxCrypto.generateMasterKey(1, 1);
 
                 $('#dx-master-key', self.domObject).html(masterKey);
             });

@@ -332,7 +332,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
          * User's master key
          * @return App\Models\Crypto\Msterkey
          */
-        public function cryptoMasterkey()
+        public function cryptoMasterKey()
 	{
 		return $this->hasMany('\App\Models\Crypto\Masterkey', 'user_id');
 	}

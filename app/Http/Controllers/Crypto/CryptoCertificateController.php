@@ -35,6 +35,41 @@ class CryptoCertificateController extends Controller
     }
 
     /**
+     * Gets user's certificate
+     * @param int $user_id User's ID
+     * @return json Response conatinig keys or error message 
+     */
+    public function getUserCertificate($user_id)
+    {
+        $is_auth_user = false;
+
+        if (!$user_id || $user_id <= 0) {
+            $user_id = \Auth::user()->id;
+            $is_auth_user = true;
+        }
+
+        $user = \App\User::find($user_id);
+
+        if (!$user) {
+            return response()->json(['success' => 0, 'msg' => trans('crypto.e_user_not_exists')]);
+        }
+
+        $cert = $user->cryptoCertificate;
+
+        if (!$cert) {
+            if ($is_auth_user) {
+                $msg = trans('crypto.e_current_user_missing_cert');
+            } else {
+                $msg = trans('crypto.e_specified_user_missing_cert', ['name' => $user->login_name]);
+            }
+
+            return response()->json(['success' => 0, 'msg' => $msg]);
+        }
+
+        return response()->json(['success' => 1, 'public_key' => $cert->public_key, 'private_key' => $cert->private_key]);
+    }
+
+    /**
      * Saves user's certificate
      * @param Request $request Request's data
      * @return JSON Status of request
@@ -49,7 +84,7 @@ class CryptoCertificateController extends Controller
         $user = \App\User::find(\Auth::user()->id);
 
         // Deletes old master keys
-        $masterKeys = $user->cryptoMasterkey();
+        $masterKeys = $user->cryptoMasterKey();
 
         if ($masterKeys) {
             $masterKeys->delete();
