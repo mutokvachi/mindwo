@@ -36,6 +36,8 @@
          * @returns {undefined}
          */
         init: function () {
+            var self = this;
+            
             if (!window.crypto || !window.crypto.subtle) {
                 return;
             }
@@ -54,6 +56,13 @@
 
             $('.dx-crypto-generate-cert-btn', self.domObject).click(this.openGenerateCertificate);
 
+            $('.dx-crypto-generate-new-cert-btn', self.domObject).click(function () {
+                var title = Lang.get('crypto.btn_generate_new_cert');
+                var body = Lang.get('crypto.w_confirm_generate_new_cert');
+
+                PageMain.showConfirm(self.openGenerateCertificate, null, title, body);
+            });
+
             $('.dx-crypto-generate-masterkey-btn', self.domObject).click(function () {
                 var masterKey = window.DxCrypto.getRandomMasterKey();
 
@@ -66,21 +75,32 @@
          * Opens modal windows where user inputs password for certificate
          * @returns {undefined}
          */
-        openGenerateCertificate: function (self) {
+        openGenerateCertificate: function () {
             $('#dx-crypto-modal-generate-cert').modal('show');
         },
         /**
          * Validates users password
          * @returns {Boolean}
          */
-        validateCertPassword: function () {            
+        validateCertPassword: function () {
             var password = $('#dx-crypto-modal-input-password').val();
             var password_2 = $('#dx-crypto-modal-input-password-again').val();
 
-            if (password == '' || password != password_2) {
+            if (!password || password.length <= 0 || !password_2 || password_2.length <= 0) {
+                notify_err(Lang.get('crypto.e_cert_both_psw'));
                 return false;
             }
-            
+
+            if (password.length < 8) {
+                notify_err(Lang.get('crypto.e_cert_psw_short'));
+                return false;
+            }
+
+            if (password != password_2) {
+                notify_err(Lang.get('crypto.e_cert_psw_not_match'));
+                return false;
+            }
+
             show_page_splash(1);
 
             window.DxCrypto.createPasswordKey(password)
@@ -90,6 +110,8 @@
                     .catch(window.DxCrypto.catchError);
 
             $('#dx-crypto-modal-generate-cert').modal('hide');
+            $('#dx-crypto-modal-input-password').val('');
+            $('#dx-crypto-modal-input-password-again').val('');
         }
     });
 })(jQuery);

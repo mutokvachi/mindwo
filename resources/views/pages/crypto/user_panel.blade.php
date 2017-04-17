@@ -19,22 +19,27 @@
             </div>
         </div>
         <div class="portlet-body">
-            <button class="btn btn-primary dx-crypto-generate-cert-btn">
-                {{ trans('crypto.generate_cert') }} <i class="fa fa-shield"></i>
+            <button class="btn green-jungle dx-crypto-generate-cert-btn" style="{{ $has_cert ? 'display: none;' : ''  }}">
+                {{ trans('crypto.btn_generate_cert') }} <i class="fa fa-shield"></i>
             </button>
-            
-            <button class="btn btn-primary dx-crypto-generate-masterkey-btn">
-                Generate master key <i class="fa fa-shield"></i>
+            <button class="btn dx-crypto-generate-new-cert-btn" style="{{ $has_cert ? '' : 'display: none;'  }}">
+                {{ trans('crypto.btn_generate_new_cert') }} <i class="fa fa-warning"></i>
             </button>
-            <div id="dx-master-key"></div>
 
-            <div class="dx-crypto-field">
-                tests
+            <div style="margin-top:30px; border: 1px solid gray; padding: 10px;">
+                <button class="btn btn-primary dx-crypto-generate-masterkey-btn">
+                    Generate master key <i class="fa fa-shield"></i>
+                </button>
+                <div id="dx-master-key"></div>
+
+                <div class="dx-crypto-field">
+                    tests
+                </div>
+                <div class="dx-crypto-field">
+                    tests2
+                </div>
+                <input type="text" value="input test" class="dx-crypto-field" />
             </div>
-            <div class="dx-crypto-field">
-                tests2
-            </div>
-            <input type="text" value="input test" class="dx-crypto-field" />
         </div>
     </div>
     @include('pages.crypto.modal_generate_cert')
