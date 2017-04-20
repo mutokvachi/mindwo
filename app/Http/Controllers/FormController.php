@@ -850,7 +850,8 @@ class FormController extends Controller
                 ff.tab_id,
                 ff.group_label,
                 rt.code as row_type_code,
-                lf.is_right_check
+                lf.is_right_check,
+                lf.is_crypted
 	FROM
 		dx_forms_fields ff
 		inner join dx_lists_fields lf on ff.field_id = lf.id

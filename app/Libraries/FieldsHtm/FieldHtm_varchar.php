@@ -20,7 +20,8 @@ namespace App\Libraries\FieldsHtm
                         'item_value' => $this->item_value,
                         'is_disabled' => ($this->fld_attr->is_readonly) ? 1 : $this->is_disabled_mode,
                         'max_lenght' => $this->fld_attr->max_lenght,
-                        'is_required' => $this->fld_attr->is_required
+                        'is_required' => $this->fld_attr->is_required,
+                        'is_crypted' => $this->fld_attr->is_crypted
             ])->render();
         }
         
