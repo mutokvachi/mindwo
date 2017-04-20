@@ -107,6 +107,16 @@ Route::group(['middleware' => 'auth', 'prefix' => 'reports', 'namespace' => 'Rep
     Route::get('/group/{group_id}', 'ReportsController@getByGroup');
 });
 
+Route::group(['middleware' => 'auth', 'prefix' => 'meetings', 'namespace' => 'Meetings'], function() { 
+    Route::get('/{meeting_type_id}', 'MeetingsController@getDefault');
+    Route::get('/{meeting_type_id}/{meeting_id}', array('as' => 'meeting', 'uses' => 'MeetingsController@getById'));
+    Route::get('/{meeting_type_id}/{meeting_id}/start', 'MeetingsController@startMeeting');
+    Route::get('/{meeting_type_id}/{meeting_id}/end', 'MeetingsController@endMeeting');
+    Route::get('/{meeting_type_id}/{meeting_id}/next', 'MeetingsController@nextAgenda');
+    Route::post('/agenda', 'MeetingsController@getAgenda');
+    Route::post('/get_agendas_list', 'MeetingsController@getAgendasList');
+});
+
 // Startē procesu forsēti
 Route::get('/force_process/{id}', array('as' => 'force_process', 'middleware' => 'auth', 'uses' => 'ProcessController@forceProcess'));
 

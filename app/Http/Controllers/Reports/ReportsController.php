@@ -20,10 +20,6 @@ class ReportsController extends Controller
         
         $group_row = $this->getAllGroups()->first();
         
-        if (!$group_row) {            
-            return $this->showNoRightsError();          
-        }
-        
         return $this->getGroupView($group_row);
         
     }
@@ -49,6 +45,10 @@ class ReportsController extends Controller
      * @return Response
      */
     private function getGroupView($group_row) {
+        
+        if (!$group_row) {            
+            return $this->showNoRightsError();          
+        }
         
         $views = DB::table('dx_views as v')
                     ->leftJoin('dx_views_log as vl', 'v.id', '=', 'vl.view_id')
