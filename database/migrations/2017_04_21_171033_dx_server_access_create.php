@@ -12,6 +12,8 @@ class DxServerAccessCreate extends Migration
      */
     public function up()
     {
+        Schema::dropIfExists('dx_server_access');
+        
         Schema::create('dx_server_access', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             
@@ -35,6 +37,6 @@ class DxServerAccessCreate extends Migration
      */
     public function down()
     {
-        Schema::drop('dx_server_access');
+        Schema::dropIfExists('dx_server_access');
     }
 }
