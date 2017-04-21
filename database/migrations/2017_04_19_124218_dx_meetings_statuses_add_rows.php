@@ -14,19 +14,19 @@ class DxMeetingsStatusesAddRows extends Migration
     {
         DB::table('dx_meetings_statuses')->insert([
             'id' => 1,
-            'title' => 'Sagatavošana',
+            'title' => trans('db_dx_meetings_statuses.data_future'),
             'code' => 'Future'
         ]);
         
         DB::table('dx_meetings_statuses')->insert([
             'id' => 2,
-            'title' => 'Aktīvā',
+            'title' => trans('db_dx_meetings_statuses.data_active'),
             'code' => 'Active'
         ]);
         
         DB::table('dx_meetings_statuses')->insert([
             'id' => 3,
-            'title' => 'Beigusies',
+            'title' => trans('db_dx_meetings_statuses.data_past'),
             'code' => 'Past'
         ]);
     }

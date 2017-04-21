@@ -14,19 +14,19 @@ class DxMeetingsAgendasStatusesAddRows extends Migration
     {
         DB::table('dx_meetings_agendas_statuses')->insert([
             'id' => 1,
-            'title' => 'Nav izskatīts',
+            'title' => trans('db_dx_meetings_agendas_statuses.data_pending'),
             'code' => 'PENDING'
         ]);
         
         DB::table('dx_meetings_agendas_statuses')->insert([
             'id' => 2,
-            'title' => 'Tiek izskatīts',
+            'title' => trans('db_dx_meetings_agendas_statuses.data_in_process'),
             'code' => 'IN_PROCESS'
         ]);
         
         DB::table('dx_meetings_agendas_statuses')->insert([
             'id' => 3,
-            'title' => 'Izskatīts',
+            'title' => trans('db_dx_meetings_agendas_statuses.data_processed'),
             'code' => 'PROCESSED'
         ]);
     }

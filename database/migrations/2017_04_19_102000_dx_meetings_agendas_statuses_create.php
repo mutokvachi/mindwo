@@ -17,8 +17,8 @@ class DxMeetingsAgendasStatusesCreate extends Migration
         Schema::create('dx_meetings_agendas_statuses', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
-            $table->string('title', 100)->comment = trans('db_dx_meetings_types.title');
-            $table->string('code', 20)->comment = trans('db_dx_meetings_types.url');
+            $table->string('title', 100)->comment = trans('db_dx_meetings_agendas_statuses.title');
+            $table->string('code', 20)->comment = trans('db_dx_meetings_agendas_statuses.code');
             
             $table->integer('created_user_id')->nullable();
             $table->datetime('created_time')->nullable();

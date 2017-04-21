@@ -17,9 +17,9 @@ class DxMeetingsAgendasCreate extends Migration
         Schema::create('dx_meetings_agendas', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
-            $table->integer('meeting_id')->unsigned()->unsigned()->comment = trans('db_dx_meetings.meeting_type_id');
-            $table->integer('order_index')->default(0)->comment = trans('db_dx_meetings.meeting_time');
-            $table->string('title', 500)->comment = trans('db_dx_meetings.meeting_type_id');
+            $table->integer('meeting_id')->unsigned()->unsigned()->comment = trans('db_dx_meetings_agendas.meeting_id');
+            $table->integer('order_index')->default(0)->comment = trans('db_dx_meetings_agendas.order_index');
+            $table->string('title', 500)->comment = trans('db_dx_meetings_agendas.title');
                         
             $table->index('meeting_id');            
             $table->foreign('meeting_id')->references('id')->on('dx_meetings');

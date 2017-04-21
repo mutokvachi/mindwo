@@ -13,7 +13,7 @@ class DxMeetingsAddStatus extends Migration
     public function up()
     {
         Schema::table('dx_meetings', function (Blueprint $table) {
-            $table->integer('status_id')->unsigned()->nullable()->comment = trans('db_dx_tasks_statuses.is_revocable');
+            $table->integer('status_id')->unsigned()->nullable()->comment = trans('db_dx_meetings.status_id');
             
             $table->index('status_id');            
             $table->foreign('status_id')->references('id')->on('dx_meetings_statuses')->delete('cascade');

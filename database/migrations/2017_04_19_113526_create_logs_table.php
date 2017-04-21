@@ -12,16 +12,18 @@ class CreateLogsTable extends Migration
      */
     public function up()
     {
-        Schema::create('Logs', function (Blueprint $table) {
-            $table->increments('Id');
-            $table->dateTimeTz('Timestamp');
-            $table->integer('Offset');
-            $table->string('User');
-            $table->dateTime('Connect');
-            $table->dateTime('Drop');
-            $table->string('Note');
-            $table->integer('SSHD');
-            $table->string('UID');
+        Schema::create('dx_server_access', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
+            
+            $table->increments('id');
+            $table->dateTimeTz('timestamp');
+            $table->integer('offset');
+            $table->string('user');
+            $table->dateTime('connect');
+            $table->dateTime('drop');
+            $table->text('note');
+            $table->integer('sshd');
+            $table->string('uid');
             
         });
     }
@@ -33,6 +35,6 @@ class CreateLogsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('Logs');
+        Schema::drop('dx_server_access');
     }
 }

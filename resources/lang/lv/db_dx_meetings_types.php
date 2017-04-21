@@ -9,4 +9,9 @@ return [
     
     'title' => 'Nosaukums',
     'url' => "Vietnes adrese",
+    
+    'role_prepare_id' => 'Sagatavotāju loma',
+    'role_moderator_id' => 'Moderatoru loma',
+    'role_decide_id' => 'Balsotāju loma',
+    
 ];
