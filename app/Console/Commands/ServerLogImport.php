@@ -135,9 +135,9 @@ class ServerLogImport extends Command
                 } else {
                     DB::table('dx_server_access')
                             ->where('user', $val['user'])
-                            ->whereNull('drop')
+                            ->whereNull('disconnect')
                             ->where('sshd', $val['sshd'])
-                            ->update(['drop' => $val['date'], 'timestamp' => $val['timestamp']]);
+                            ->update(['disconnect' => $val['date'], 'timestamp' => $val['timestamp']]);
                 }                
             }
     }

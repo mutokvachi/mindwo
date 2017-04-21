@@ -19,7 +19,7 @@ class DxServerAccessUi extends Migration
             $item_name = trans('db_dx_server_access.item_name');
 
              // create register
-            $obj_id = DB::table('dx_objects')->insertGetId(['db_name' => $table_name, 'title' => $list_name , 'is_history_logic' => 1]);
+            $obj_id = DB::table('dx_objects')->insertGetId(['db_name' => $table_name, 'title' => $list_name , 'is_history_logic' => 0]);
             $list_gen = new Structure\StructMethod_register_generate();
             $list_gen->obj_id = $obj_id;
             $list_gen->register_title = $list_name;

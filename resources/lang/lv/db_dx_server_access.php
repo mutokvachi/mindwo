@@ -16,6 +16,6 @@ return [
     'sshd' => 'SSHD',
     'uid' => 'UID',
     
-    'list_name' => 'Server piekļuves audits',
-    'item_name' => 'Server piekļuves audita ieraksts',
+    'list_name' => 'Servera piekļuves audits',
+    'item_name' => 'Servera piekļuves audita ieraksts',
 ];
