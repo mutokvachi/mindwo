@@ -135,4 +135,6 @@ return [
     'no_rights_on_reports' => "Report does not exist or You do not have rights to access reports!",
     
     'no_rights_on_meetings' => "Meeting does not exist or You do not have rights to access meeting!",
+    
+    'phone_format_err' => "Phone number can contain only numbers!",
 ];

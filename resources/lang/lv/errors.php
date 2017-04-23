@@ -135,4 +135,6 @@ return [
     'no_rights_on_reports' => "Atskaite nav atrodama vai arī Jums nav tiesību piekļūt atskaitei!",
     
     'no_rights_on_meetings' => "Sapulce nav atrodama vai arī Jums nav tiesību piekļūt sapulcei!",
+    
+    'phone_format_err' => "Tālruņa numurs var sastāvēt tikai no cipariem!",
 ];
