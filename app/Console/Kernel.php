@@ -22,6 +22,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\CalculateTimeoff::class,
         \App\Console\Commands\AuditViewCounts::class,
         \App\Console\Commands\UpdateLeftStatus::class,
+        \App\Console\Commands\ServerLogImport::class,
     ];
 
     /**
@@ -64,5 +65,7 @@ class Kernel extends ConsoleKernel
             $schedule->command('backup:clean')
                      ->dailyAt('1:00');
         }
+        
+        $schedule->command('mindwo:save-log')->everyMinute();
     }
 }

@@ -350,8 +350,7 @@ namespace App\Libraries\DataView {
                                          'col_nr' => $col_nr,
                                          'filtr_val' => $this->getFilteringValue($view->model[$i]["name"])
                                     ])->render();
-                    Log::info("SUM AR: " . json_encode($view->summaryrows) . " FFF: " . $view->model[$i]["name"]);
-                    
+                                        
                     if (isset($view->summaryrows[$view->model[$i]["name"]]))
                     {
                             if (strlen($this->sql_sum_fld) > 0)

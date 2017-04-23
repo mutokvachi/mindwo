@@ -52,4 +52,6 @@ return [
     
     'hint_skype' => 'Open Skype',
     'hint_whatsapp' => 'Open WhatsApp',
+    
+    'add_new_phone' => '[ADD NEW]',
 ];

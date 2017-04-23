@@ -50,7 +50,7 @@ return [
         
         'backups' => [
             'driver' => 'local',
-            'root'   => storage_path('backups'),
+            'root'   => '/media/backups', //storage_path('backups'),
         ],
 
         'ftp' => [
