@@ -33,20 +33,28 @@ class DxUsersSplitEmergencyUi extends Migration
             return;
         }
         
-        DB::transaction(function ()
-        {
-            $list_id = Config::get('dx.employee_list_id', 0);
+        $list_id = Config::get('dx.employee_list_id', 0);
             
-            $type_list = App\Libraries\DBHelper::getListByTable('dx_users_emergency_types');
-            
-            if (!$type_list) {
-                return;
-            }
-        
-            $type_list_id = $type_list->id;
-            $form_id = DB::table('dx_forms')->where('list_id', '=', $list_id)->first()->id; 
-            $tab_id = DB::table('dx_forms_tabs')->where('form_id', '=', $form_id)->where('title', '=', trans('db_dx_users.tab_contact'))->first()->id; 
+        $type_list = App\Libraries\DBHelper::getListByTable('dx_users_emergency_types');
 
+        if (!$type_list) {
+            return;
+        }
+
+        $type_list_id = $type_list->id;
+        $form_id = DB::table('dx_forms')->where('list_id', '=', $list_id)->first()->id; 
+        
+        $tab_row = DB::table('dx_forms_tabs')->where('form_id', '=', $form_id)->where('title', '=', trans('db_dx_users.tab_contact'))->first();
+        
+        if (!$tab_row) {
+            return;
+        }
+        
+        $tab_id = $tab_row->id; 
+            
+        DB::transaction(function () use ($list_id, $type_list_id, $form_id, $tab_id)
+        {
+            
             
             $fld_id = DB::table('dx_lists_fields')->insertGetId([
                 'list_id' => $list_id,
