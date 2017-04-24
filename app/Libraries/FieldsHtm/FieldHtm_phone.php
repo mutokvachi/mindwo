@@ -70,7 +70,7 @@ namespace App\Libraries\FieldsHtm
             
             preg_match_all('/\((.*?)\)/', $this->item_value, $out);
             
-            if (count($out) > 0) {
+            if (count($out) > 0 && isset($out[0]) && isset($out[0][0])) {
                 $rez = $out[0][0];
             }
             
