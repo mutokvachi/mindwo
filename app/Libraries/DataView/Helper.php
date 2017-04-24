@@ -154,6 +154,7 @@ namespace App\Libraries\DataView
             $cell_value = $arr_args['cell_value'];
             $is_val_html = (isset($arr_args['is_val_html']) && $arr_args['is_val_html']);
             $is_crypted = (isset($arr_args['is_crypted']) && $arr_args['is_crypted']);
+            $masterkey_group_id = (isset($arr_args['masterkey_group_id']) && $arr_args['masterkey_group_id']) ? $arr_args['masterkey_group_id'] : 0;
             
             $htm = "<td align='" . $align . "'>";
             if (!$is_val_html) {
@@ -161,7 +162,7 @@ namespace App\Libraries\DataView
             }
             
             if ($is_crypted) {
-                $htm .= "<span class='dx-crypto-field'>" . $cell_value . "</span>";
+                $htm .= "<span class='dx-crypto-field' data-masterkey-group='" . $masterkey_group_id . "'>" . $cell_value . "</span>";
             }
             else {
                 $htm .= $cell_value;

@@ -298,7 +298,8 @@ namespace App\Libraries\DataView {
                             'align' => $cell_obj->align, 
                             'cell_value' => $cell_obj->value,
                             'is_val_html' => $cell_obj->is_html,
-                            'is_crypted' => $view->model[$i]['is_crypted']
+                            'is_crypted' => $view->model[$i]['is_crypted'],
+                            'masterkey_group_id' => $view->model[$i]['masterkey_group_id']
                         ]);
                     }
                 }

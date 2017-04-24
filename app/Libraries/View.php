@@ -333,7 +333,8 @@ namespace App\Libraries {
 				at.sys_name as aggregation,
                                 lf.rel_list_id,
                                 lo.db_name as list_table_name,
-                                lf.is_crypted
+                                lf.is_crypted,
+                                l.masterkey_group_id
 			FROM
 				dx_views_fields vf
 				inner join dx_lists_fields lf on vf.field_id = lf.id
@@ -603,7 +604,8 @@ namespace App\Libraries {
                                                                 "is_hidden" => $row->is_hidden,
                                                                 "original_table" => $original_table,
                                                                 "original_field" => $row->db_name,
-                                                                "is_crypted" => $row->is_crypted
+                                                                "is_crypted" => $row->is_crypted,
+                                                                "masterkey_group_id" => $row->masterkey_group_id
 								);
 						
 						// Grand total logic

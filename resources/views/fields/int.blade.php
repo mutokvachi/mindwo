@@ -1,2 +1,2 @@
-<input {{ ($is_disabled) ? 'readonly' : '' }} class='form-control {{ ($is_crypted) ? "dx-crypto-field" : "" }}' type=text id='{{ $frm_uniq_id }}_{{ $item_field }}' name = '{{ $item_field }}'  maxlength='5' value = '{{ $item_value }}' {{ ($is_required) ? 'required' : '' }}/> 
+<input {{ ($is_disabled) ? 'readonly' : '' }} class='form-control {{ ($is_crypted) ? "dx-crypto-field" : "" }}' type=text id='{{ $frm_uniq_id }}_{{ $item_field }}' name = '{{ $item_field }}'  maxlength='5' value = '{{ $item_value }}' {{ ($is_required) ? 'required' : '' }} data-masterkey-group="{{ $masterkey_group_id }}"/> 
 <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
