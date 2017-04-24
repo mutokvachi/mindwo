@@ -297,7 +297,9 @@ namespace App\Libraries\DataView {
                         $cell_htm .= $this->helper->getCell([
                             'align' => $cell_obj->align, 
                             'cell_value' => $cell_obj->value,
-                            'is_val_html' => $cell_obj->is_html
+                            'is_val_html' => $cell_obj->is_html,
+                            'is_crypted' => $view->model[$i]['is_crypted'],
+                            'masterkey_group_id' => $view->model[$i]['masterkey_group_id']
                         ]);
                     }
                 }
