@@ -22,6 +22,11 @@
          */
         this.domObject = domObject;
 
+        /**
+         * Old value of field (input or other container)
+         */
+        this.oldValue = '';
+
         // Initializes class
         this.init();
     };
@@ -64,10 +69,36 @@
             });
         },
         /**
-         * Decryptes data and restore original html and value
+         * Gets value of current element. It can be input or other container (e.g. div, span)
+         * @returns {string}
+         */
+        getValue: function () {
+            if (this.domObject.is('input')) {
+                return this.domObject.val();
+            } else {
+                return this.domObject.html();
+            }
+        },
+        /**
+         * Sets value of current element. It can be input or other container (e.g. div, span)
+         * @param {string} value It will be set to element
          * @returns {undefined}
          */
-        decryptData: function () {
+        setValue: function (value) {
+            if (this.domObject.is('input')) {
+                this.domObject.val(value);
+            } else {
+                this.domObject.html(value);
+            }
+            
+            // Shows field
+            this.showField();
+        },
+        /**
+         * Shows field
+         * @returns {undefined}
+         */
+        showField: function () {
             this.domObject.next('.dx-crypto-decrypt-btn').remove();
             this.domObject.show();
         },
