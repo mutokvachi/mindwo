@@ -137,4 +137,6 @@ return [
     'no_rights_on_meetings' => "Meeting does not exist or You do not have rights to access meeting!",
     
     'phone_format_err' => "Phone number can contain only numbers!",
+    
+    'lookup_sql_error' => "SQL error for the lookup field '%s'!",
 ];

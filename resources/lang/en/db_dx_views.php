@@ -53,4 +53,7 @@ return [
     'tab_report' => 'Report',
     
     'group' => 'Reports group',
+    
+    'is_for_lookup' => 'Is for lookup',
+    'hint_is_for_lookup' => "View will be used for dropdowns and lookup fields filling only and it won't be available for grids.",
 ];

@@ -137,4 +137,6 @@ return [
     'no_rights_on_meetings' => "Sapulce nav atrodama vai arī Jums nav tiesību piekļūt sapulcei!",
     
     'phone_format_err' => "Tālruņa numurs var sastāvēt tikai no cipariem!",
+    
+    'lookup_sql_error' => "Uzmeklēšanas izvēlnes laukam '%s' nav iespējams izveidot korektu datu atlases pieprasījumu.",
 ];

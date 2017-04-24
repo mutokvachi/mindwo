@@ -103,9 +103,12 @@ namespace App\Libraries\FieldsHtm
             catch (Exceptions\DXCustomException $e) {
                 throw $e;
             }
+            catch (\mindwo\pages\Exceptions\PagesException $e) {
+                throw $e;
+            }
             catch(\Exception $e)
             {
-                throw new Exceptions\DXCustomException("Uzmeklēšanas izvēlnes laukam '" . $this->fld_attr->db_name . "' nav iespējams izveidot korektu datu atlases pieprasījumu.");
+                throw new Exceptions\DXCustomException(sprintf(trans('errors.lookup_sql_error'), $this->fld_attr->db_name));
             }
         }
 
