@@ -284,6 +284,7 @@ namespace App\Libraries\Blocks
                        }
                    })
                    ->where('is_report', '=', 0)
+                   ->where('is_for_lookup', '=', 0)
                    ->orderBy('title')
                    ->get();
         }
