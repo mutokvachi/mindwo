@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
@@ -31,7 +32,7 @@ class DxCryptoMasterkeyGroupsCreate extends Migration
             $table->integer('master_key_group_id')->unsigned()->comment = trans('crypto.db.master_key_group_title');
 
             $table->index('master_key_group_id');
-            $table->foreign('master_key_group_id')->references('id')->on('dx_crypto_masterkey_groups');
+            $table->foreign('master_key_group_id')->references('id')->on('dx_crypto_masterkey_groups')->onDelete('cascade');
         });
     }
 
@@ -43,8 +44,8 @@ class DxCryptoMasterkeyGroupsCreate extends Migration
     public function down()
     {
         Schema::table('dx_crypto_masterkeys', function (Blueprint $table) {
-            $table->dropIndex(['master_key_group_id']);
             $table->dropForeign(['master_key_group_id']);
+            $table->dropIndex(['master_key_group_id']);
             $table->dropColumn(['master_key_group_id']);
         });
 

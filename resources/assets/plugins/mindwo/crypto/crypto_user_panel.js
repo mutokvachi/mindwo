@@ -64,12 +64,12 @@
             });
 
             $('.dx-crypto-generate-masterkey-btn', self.domObject).click(function () {
-                var masterKey = window.DxCrypto.generateMasterKey(1, 1);
+                var masterKey = window.DxCrypto.generateMasterKey(1, 157);
 
                 $('#dx-master-key', self.domObject).html(masterKey);
             });
 
-            $('#dx-crypto-modal-generate-cert').on('click', '.dx-crypto-modal-accept', this.validateCertPassword);
+            $('#dx-crypto-modal-generate-cert').on('click', '.dx-crypto-modal-gen-accept', this.validateCertPassword);
         },
         /**
          * Opens modal windows where user inputs password for certificate
@@ -83,8 +83,8 @@
          * @returns {Boolean}
          */
         validateCertPassword: function () {
-            var password = $('#dx-crypto-modal-input-password').val();
-            var password_2 = $('#dx-crypto-modal-input-password-again').val();
+            var password = $('#dx-crypto-modal-gen-input-password').val();
+            var password_2 = $('#dx-crypto-modal-gen-input-password-again').val();
 
             if (!password || password.length <= 0 || !password_2 || password_2.length <= 0) {
                 notify_err(Lang.get('crypto.e_cert_both_psw'));
@@ -110,8 +110,8 @@
                     .catch(window.DxCrypto.catchError);
 
             $('#dx-crypto-modal-generate-cert').modal('hide');
-            $('#dx-crypto-modal-input-password').val('');
-            $('#dx-crypto-modal-input-password-again').val('');
+            $('#dx-crypto-modal-gen-input-password').val('');
+            $('#dx-crypto-modal-gen-input-password-again').val('');
         }
     });
 })(jQuery);

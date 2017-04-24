@@ -39,7 +39,7 @@ class CryptoCertificateController extends Controller
      * @param int $user_id User's ID
      * @return json Response conatinig keys or error message 
      */
-    public function getUserCertificate($user_id)
+    public function getUserCertificate($user_id, $master_key_group_id)
     {
         $is_auth_user = false;
 
@@ -66,7 +66,35 @@ class CryptoCertificateController extends Controller
             return response()->json(['success' => 0, 'msg' => $msg]);
         }
 
-        return response()->json(['success' => 1, 'public_key' => $cert->public_key, 'private_key' => $cert->private_key]);
+        if ($master_key_group_id) {
+            $masterKeyObj = $user->cryptoMasterKey()->find($master_key_group_id);
+        }
+
+        if ($masterKeyObj && $masterKeyObj->master_key) {
+            $masterKey = base64_encode($masterKeyObj->master_key);
+        } else {
+            $masterKey = null;
+        }
+
+        return response()->json(['success' => 1, 'public_key' => base64_encode($cert->public_key), 'private_key' => base64_encode($cert->private_key), 'master_key' => $masterKey]);
+    }
+
+    public function getUserMasterKey($user_id, $master_key_group_id)
+    {
+        $is_auth_user = false;
+
+        if (!$user_id || $user_id <= 0) {
+            $user_id = \Auth::user()->id;
+            $is_auth_user = true;
+        }
+
+        $user = \App\User::find($user_id);
+
+        $masterKey = $user->cryptoMasterKey()->where('master_key_group_id', $master_key_group_id);
+
+        if (!$user) {
+            return response()->json(['success' => 0, 'msg' => trans('crypto.e_user_not_exists')]);
+        }
     }
 
     /**
@@ -109,6 +137,61 @@ class CryptoCertificateController extends Controller
         $cert->user()->associate($user);
 
         $cert->save();
+
+        return response()->json(['success' => 1]);
+    }
+
+    public function saveUserMasterKey(Request $request)
+    {
+        $this->validate($request, [
+            'master_key' => 'required',
+            'master_key_group_id' => 'required|integer|exists:dx_crypto_masterkey_groups,id',
+            'user_id' => 'required|integer',
+        ]);
+        
+        $user_id = $request->input('user_id');
+
+        // If user is not mentioned then generating key for current user
+        if (!$user_id || $user_id <= 0) {
+            $user_id = \Auth::user()->id;
+        }
+
+        // Gets User
+        $user = \App\User::find($user_id);
+
+        if (!$user) {
+            return response()->json(['success' => 0]);
+        }
+
+        // Gets master keys group ID
+        $master_key_group_id = $request->input('master_key_group_id');
+
+        // Retrieves master key as file converted to binary
+        $master_key_file = file_get_contents($request->file('master_key'));
+
+        // Try to find master key associated to user with specified master key group
+        $masterKey = $user->cryptoMasterKey()->where('master_key_group_id', $master_key_group_id)->first();
+
+        // If user don't have such master key group create a new one
+        if (!$masterKey) {
+            // Finds master key groups object
+            $master_key_group = Crypto\MasterkeyGroup::find($request->input('master_key_group_id'));
+
+            // Creates master key and fill in all required data
+            $masterKey = new Crypto\Masterkey();
+            $masterKey->created_user_id = $user->id;
+            $masterKey->created_time = new \DateTime();
+
+            $masterKey->masterKeyGroup()->associate($master_key_group);
+            $masterKey->user()->associate($user);
+        }
+
+        // Updates data
+        $masterKey->master_key = $master_key_file;
+        $masterKey->modified_user_id = $user->id;
+        $masterKey->modified_time = new \DateTime();
+
+        $masterKey->save();
 
         return response()->json(['success' => 1]);
     }

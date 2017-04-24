@@ -21528,6 +21528,9 @@ window.DxCryptoClass = function () {
  * @param {function} param2 Extended functionality
  */
 $.extend(window.DxCryptoClass.prototype, {
+    test: function () {
+        alert('test crypto');
+    },
     /**
      * Catches error and output error to user
      * @param {object} err Error details
@@ -21535,13 +21538,24 @@ $.extend(window.DxCryptoClass.prototype, {
      * @returns {undefined}
      */
     catchError: function (err, msg) {
+        hide_page_splash(1);
+        hide_form_splash(1);
+
+        if (err.exit) {
+            throw {exit: true};
+        }
+
         if (!msg) {
             msg = Lang.get('crypto.e_unknown');
         }
 
-        hide_page_splash(1);
-        hide_form_splash(1);
+        if (err.e_custom) {
+            msg = err.msg;
+        }
+
         notify_err(msg);
+
+        throw {exit: true};
     },
     /**
      * Create passwords CryptoKey object from given password
@@ -21561,7 +21575,7 @@ $.extend(window.DxCryptoClass.prototype, {
                 'raw',
                 passwordBuffer,
                 {name: 'PBKDF2'},
-        false,
+                false,
                 ['deriveKey']
                 )
                 .then(function (baseKey) {
@@ -21586,10 +21600,10 @@ $.extend(window.DxCryptoClass.prototype, {
                     "iterations": 1000,
                     "hash": 'SHA-256'
                 },
-        baseKey,
+                baseKey,
                 {"name": 'AES-CTR', "length": 256}, // For AES the length required to be 128 or 256 bits (not bytes)
 
-        false, // Whether or not the key is extractable (less secure) or not (more secure) when false, the key can only be passed as a web crypto object, not 
+                false, // Whether or not the key is extractable (less secure) or not (more secure) when false, the key can only be passed as a web crypto object, not 
 
                 ["wrapKey", "unwrapKey"] // this web crypto object will only be allowed for these functions
                 )
@@ -21608,8 +21622,8 @@ $.extend(window.DxCryptoClass.prototype, {
                     publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
                     hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
                 },
-        true, //whether the key is extractable (i.e. can be used in exportKey)
-                ["encrypt", "decrypt"] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
+                true, //whether the key is extractable (i.e. can be used in exportKey)
+                ["wrapKey", "unwrapKey"] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
                 )
                 .then(function (asyncKey) {
                     window.DxCrypto.wrapPrivateKey(passwordKey, asyncKey);
@@ -21660,15 +21674,13 @@ $.extend(window.DxCryptoClass.prototype, {
         var publicKeyBlob = new Blob([new Uint8Array(publicKeyBuffer)], {type: "application/octet-stream"});
         var privateKeyBlob = new Blob([new Uint8Array(wrappedPrivateKey)], {type: "application/octet-stream"});
 
-        var fd = new FormData();
-        fd.append('public_key', publicKeyBlob);
-        fd.append('private_key', privateKeyBlob);
-
-        // new Uint8Array(cert.wrappedPrivateKey)
+        var container = new FormData();
+        container.append('public_key', publicKeyBlob);
+        container.append('private_key', privateKeyBlob);
 
         $.ajax({
             url: DX_CORE.site_url + 'crypto/save_cert',
-            data: fd,
+            data: container,
             type: "post",
             processData: false,
             dataType: "json",
@@ -21717,6 +21729,15 @@ $.extend(window.DxCryptoClass.prototype, {
         }
         return hexString;
     },
+    base64ToArrayBuffer: function (base64) {
+        var binary_string = window.atob(base64);
+        var len = binary_string.length;
+        var bytes = new Uint8Array(len);
+        for (var i = 0; i < len; i++) {
+            bytes[i] = binary_string.charCodeAt(i);
+        }
+        return bytes.buffer;
+    },
     /**
      * Decryptes all fields
      * @returns {undefined}
@@ -21726,9 +21747,11 @@ $.extend(window.DxCryptoClass.prototype, {
 
         window.crypto.subtle.decrypt(
                 {
-                    name: "RSA-OAEP"
+                    name: "AES-CTR",
+                    counter: ArrayBuffer(16), //The same counter you used to encrypt
+                    length: 128, //The same length you used to encrypt
                 },
-        privateKey, //from generateKey or importKey above
+                privateKey, //from generateKey or importKey above
                 window.DxCrypto.masterKeyCrypted //ArrayBuffer of the data
                 )
                 .then(function (decrypted) {
@@ -21749,12 +21772,111 @@ $.extend(window.DxCryptoClass.prototype, {
      * @returns {undefined}
      */
     requestUserCertificatePassword: function (callback) {
-        var title = Lang.get('crypto.title_modal_password');
-        var body = '<label>' + Lang.get('crypto.label_password') + '</label><input class="form-control" id="dx-crypto-modal-input-password" type="password" />';
+        /*
+         * PageMain.showConfirm(function () {
+         window.DxCrypto.decryptUserCertificate(callback);
+         }, null, title, body);
+         */
 
-        PageMain.showConfirm(function () {
-            window.DxCrypto.decryptUserCertificate(callback);
-        }, null, title, body);
+        hide_page_splash(1);
+        hide_form_splash(1);
+
+        var modal = $('#dx-crypto-modal-psw');
+
+        var accept_btn = $('.dx-crypto-modal-accept', modal);
+
+        accept_btn.off('click');
+
+        accept_btn.click(function () {
+            var res = window.DxCrypto.decryptUserCertificate(callback);
+
+            if (res || typeof (res) == 'undefined') {
+                modal.modal('hide');
+            }
+        });
+
+        modal.modal('show');
+    },
+    /**
+     * WEB CRYPTO HAVE INBUILT FUNCTIONALITY WHEN UNWRAPPING KEY. THIS FUNCTION WILL BE REMOVED.
+     */
+    checkPassword: function (passwordKey, publicKey, privateKey) {
+        var unwrappedPasswordKey;
+
+        // Wraps current password with public key
+        return window.crypto.subtle.wrapKey(
+                "raw", //the export format, must be "raw" (only available sometimes)
+                passwordKey, //the key you want to wrap, must be able to fit in RSA-OAEP padding
+                publicKey, //the public key with "wrapKey" usage flag
+                {//these are the wrapping key's algorithm options
+                    name: "RSA-OAEP",
+                    hash: {name: "SHA-256"}
+                }
+        )
+                .then(function (wrappedPasswordKey) {
+                    // Unwraps wrapped password with private key
+                    return window.crypto.subtle.unwrapKey(
+                            "raw", //the import format, must be "raw" (only available sometimes)
+                            wrappedPasswordKey, //the key you want to unwrap
+                            privateKey, //the private key with "unwrapKey" usage flag
+                            {//these are the wrapping key's algorithm options
+                                name: "RSA-OAEP",
+                                modulusLength: 2048,
+                                publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+                                hash: {name: "SHA-256"},
+                            },
+                            {//this what you want the wrapped key to become (same as when wrapping)
+                                name: "AES-CTR",
+                                length: 256, //can be  128, 192, or 256
+                            },
+                            true, //whether the key is extractable (i.e. can be used in exportKey)
+                            ["wrapKey", "unwrapKey"] //the usages you want the unwrapped key to have
+                            );
+                })
+                .then(function (unwrappedKey) {
+                    // Export result to ArrayBuffer
+                    return window.crypto.subtle.exportKey(
+                            "raw", //can be "jwk" or "raw"
+                            unwrappedKey //extractable must be true
+                            );
+                })
+                .then(function (unwrappedNewKey) {
+                    unwrappedPasswordKey = unwrappedNewKey;
+
+                    // Exports original password key to ArrayBuffer
+                    return window.crypto.subtle.exportKey(
+                            "raw", //can be "jwk" or "raw"
+                            passwordKey //extractable must be true
+                            );
+                })
+                .then(function (originalPasswordKey) {
+                    // If array buffers are equal then password is correct, because it was successfully wrapped and awarpped with key pair
+                    var res = window.DxCrypto.compareArrayBuffers(originalPasswordKey, unwrappedPasswordKey);
+
+                    // Errro if false
+                    if (!res) {
+                        throw {type: 'e_custom', msg: Lang.get('crypto.e_password_incorrect')};
+                        window.DxCrypto.certificate = undefined;
+                        window.DxCrypto.rawCertificate = undefined;
+                        window.DxCrypto.rawMasterKey = undefined;
+                        window.DxCrypto.masterKeyGroups = new Array();
+                    }
+                })
+                .catch(window.DxCrypto.catchError);
+
+    },
+    compareArrayBuffers: function (buf1, buf2)
+    {
+        if (buf1.byteLength != buf2.byteLength)
+            return false;
+        var dv1 = new Int8Array(buf1);
+        var dv2 = new Int8Array(buf2);
+        for (var i = 0; i != buf1.byteLength; i++)
+        {
+            if (dv1[i] != dv2[i])
+                return false;
+        }
+        return true;
     },
     /**
      * Decryptes user's certificate and stores in memory
@@ -21762,19 +21884,24 @@ $.extend(window.DxCryptoClass.prototype, {
      * @returns {undefined}
      */
     decryptUserCertificate: function (callback) {
+        show_page_splash(1);
+        show_form_splash(1);
+
         var password = $('#dx-crypto-modal-input-password').val();
         $('#dx-crypto-modal-input-password').val('');
+
+        var self = window.DxCrypto;
 
         // Import public key from raw format to CryptoKey object
         window.crypto.subtle.importKey(
                 "spki", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
-                window.DxCrypto.rawCertificate.publicKey,
+                self.rawCertificate.publicKey,
                 {//these are the algorithm options
                     name: "RSA-OAEP",
                     hash: {name: "SHA-256"}, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
                 },
                 false, //whether the key is extractable (i.e. can be used in exportKey)
-                ["encrypt"] //"encrypt" or "wrapKey" for public key import or
+                ["wrapKey"] //"encrypt" or "wrapKey" for public key import or
                 //"decrypt" or "unwrapKey" for private key imports
                 )
                 .then(function (publicKey) {
@@ -21788,16 +21915,19 @@ $.extend(window.DxCryptoClass.prototype, {
                 })
                 .then(function (passwordKey) {
                     // Unwraps password
-                    return window.DxCrypto.unwrapPrivateKey(passwordKey);
+                    return self.unwrapPrivateKey(passwordKey, self.rawCertificate.privateKey);
                 })
                 .then(function (privateKey) {
-                    window.DxCrypto.certificate.privateKey = privateKey;
+                    self.certificate.privateKey = privateKey;
 
-                    window.DxCrypto.rawCertificate = undefined;
+                    self.rawCertificate = undefined;
 
+                    return self.unwrapMasterKey();
+                })
+                .then(function () {
                     callback();
                 })
-                .catch(window.DxCrypto.catchError);
+                .catch(self.catchError);
     },
     /**
      * Unwraps user's private key
@@ -21817,17 +21947,70 @@ $.extend(window.DxCryptoClass.prototype, {
                     counter: new Uint8Array(16),
                     length: 128 //can be 1-128
                 },
-        {//this what you want the wrapped key to become (same as when wrapping)
-            name: "RSA-OAEP",
-            modulusLength: 2048, //can be 1024, 2048, or 4096
-            publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-            hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
-        },
-        false, //whether the key is extractable (i.e. can be used in exportKey)
-                ["decrypt"] //the usages you want the unwrapped key to have
+                {//this what you want the wrapped key to become (same as when wrapping)
+                    name: "RSA-OAEP",
+                    modulusLength: 2048, //can be 1024, 2048, or 4096
+                    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+                    hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+                },
+                false, //whether the key is extractable (i.e. can be used in exportKey)
+                ["unwrapKey"] //the usages you want the unwrapped key to have
                 )
                 .then(function (privateKey) {
                     return privateKey;
+                })
+                .catch(function (err) {
+                    window.DxCrypto.certificate = undefined;
+                    window.DxCrypto.rawCertificate = undefined;
+                    window.DxCrypto.rawMasterKey = undefined;
+                    window.DxCrypto.masterKeyGroups = new Array();
+
+                    window.DxCrypto.catchError(err, Lang.get('crypto.e_password_incorrect'));
+                });
+    },
+    unwrapMasterKey: function () {
+        var self = window.DxCrypto;
+
+        if (!self.rawMasterKey || self.rawMasterKey == undefined) {
+            self.rawMasterKey = undefined;
+            return false;
+        }
+
+        return  window.crypto.subtle.importKey(
+                "raw", //can be "jwk" or "raw"
+                self.rawMasterKey,
+                {//these are the algorithm options
+                    name: "AES-CTR"
+                },
+                false, //whether the key is extractable (i.e. can be used in exportKey)
+                ["encrypt", "decrypt"] //can "encrypt", "decrypt", "wrapKey", or "unwrapKey"
+                )
+                .then(function (wrappedMasterKey) {
+                    return  window.crypto.subtle.unwrapKey(
+                            "pkcs8", //"jwk", "raw", "spki", or "pkcs8" (whatever was used in wrapping)
+                            wrappedMasterKey, //the key you want to unwrap
+                            self.certificate.privateKey, //the AES-CTR key with "unwrapKey" usage flag
+                            {//these are the wrapping key's algorithm options
+                                name: "RSA-OAEP",
+                                modulusLength: 2048, //can be 1024, 2048, or 4096
+                                publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+                                hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+                            },
+                            {//this what you want the wrapped key to become (same as when wrapping)
+                                name: "AES-CTR",
+                                length: 256 //can be  128, 192, or 256
+                            },
+                            false, //whether the key is extractable (i.e. can be used in exportKey)
+                            ["encrypt", "decrypt"] //the usages you want the unwrapped key to have
+                            );
+                })
+                .then(function (masterKey) {
+                    self.masterKeyGroups[self.tempMasterKeyGroupId] = masterKey;
+
+                    self.tempMasterKeyGroupId = undefined;
+                    self.rawMasterKey = undefined;
+
+                    return true;
                 })
                 .catch(window.DxCrypto.catchError);
     },
@@ -21837,23 +22020,33 @@ $.extend(window.DxCryptoClass.prototype, {
      * @param {function} callback Function to call after certificate has been retrieved
      * @returns {undefined}
      */
-    getUserCertificate: function (userId, callback) {
+    getUserCertificate: function (userId, masterKeyGroupId, callback) {
+        var self = window.DxCrypto;
+
         $.ajax({
-            url: DX_CORE.site_url + 'crypto/get_user_cert/' + userId,
+            url: DX_CORE.site_url + 'crypto/get_user_cert/' + userId + '/' + masterKeyGroupId,
             type: "get",
             success: function (res) {
                 if (res && res.success && res.success == 1) {
-                    callback(res.public_key, res.private_key);
+                    var public_key = new Uint8Array(self.base64ToArrayBuffer(res.public_key));
+                    var private_key = new Uint8Array(self.base64ToArrayBuffer(res.private_key));
+
+                    var master_key;
+                    if (res.master_key) {
+                        master_key = new Uint8Array(self.base64ToArrayBuffer(res.master_key));
+                    }
+
+                    callback(public_key, private_key, master_key);
                 } else {
                     if (res.msg) {
-                        window.DxCrypto.catchError(res, res.msg);
+                        self.catchError(res, res.msg);
                     } else {
-                        window.DxCrypto.catchError(res, Lang.get('crypto.e_get_user_cert'));
+                        self.catchError(res, Lang.get('crypto.e_get_user_cert'));
                     }
                 }
             },
             error: function (err) {
-                window.DxCrypto.catchError(err, Lang.get('crypto.e_get_user_cert'));
+                self.catchError(err, Lang.get('crypto.e_get_user_cert'));
             }
         });
     },
@@ -21862,16 +22055,79 @@ $.extend(window.DxCryptoClass.prototype, {
      * @param {function} callback Function to call after certificate has been stored in memory
      * @returns {undefined}
      */
-    getCurrentUserCertificate: function (callback) {
+    getCurrentUserCertificate: function (masterKeyGroupId, callback) {
         var self = window.DxCrypto;
 
-        self.getUserCertificate(0, function (public_key, private_key) {
+        self.getUserCertificate(0, masterKeyGroupId, function (public_key, private_key, master_key) {
+            if (master_key) {
+                self.rawMasterKey = master_key;
+                self.tempMasterKeyGroupId = masterKeyGroupId;
+            } else {
+                self.rawMasterKey = undefined;
+                self.tempMasterKeyGroupId = undefined;
+            }
+
             self.rawCertificate = {
-                publicKey: new Uint8Array(public_key),
-                privateKey: new Uint8Array(private_key)
+                publicKey: public_key,
+                privateKey: private_key
             };
 
             self.requestUserCertificatePassword(callback);
+        });
+    },
+    generateNewMasterKey: function (userId, publicKey, masterKeyGroupId, callback) {
+        return window.crypto.subtle.generateKey(
+                {
+                    name: "AES-CTR",
+                    length: 256 //can be  128, 192, or 256
+                },
+                true, //whether the key is extractable (i.e. can be used in exportKey)
+                ["encrypt", "decrypt"] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
+                )
+                .then(function (masterKey) {
+                    window.DxCrypto.masterKeyGroups[masterKeyGroupId] = masterKey;
+
+                    return window.crypto.subtle.wrapKey(
+                            "raw", //the export format, must be "raw" (only available sometimes)
+                            masterKey, //the key you want to wrap, must be able to fit in RSA-OAEP padding
+                            publicKey, //the public key with "wrapKey" usage flag
+                            {//these are the wrapping key's algorithm options
+                                name: "RSA-OAEP",
+                                hash: {name: "SHA-256"}
+                            });
+                })
+                .then(function (wrappedMasterKey) {
+                    window.DxCrypto.saveMasterKey(0, masterKeyGroupId, wrappedMasterKey, callback);
+                })
+                .catch(window.DxCrypto.catchError);
+    },
+    saveMasterKey: function (userId, masterKeyGroupId, wrappedMasterKey, callback) {
+        var self = window.DxCrypto;
+
+        var masterKeyBlob = new Blob([new Uint8Array(wrappedMasterKey)], {type: "application/octet-stream"});
+
+        var container = new FormData();
+        container.append('master_key', masterKeyBlob);
+        container.append('master_key_group_id', masterKeyGroupId);
+        container.append('user_id', userId);
+
+        $.ajax({
+            url: DX_CORE.site_url + 'crypto/save_master_key',
+            data: container,
+            type: "post",
+            processData: false,
+            dataType: "json",
+            contentType: false,
+            success: function (res) {
+                if (res && res.success) {
+                    callback();
+                } else {
+                    self.catchError(res);
+                }
+            },
+            error: function (err) {
+                self.catchError(err);
+            }
         });
     },
     /**
@@ -21881,47 +22137,64 @@ $.extend(window.DxCryptoClass.prototype, {
      * @returns {undefined}
      */
     generateMasterKey: function (masterKeyGroupId, userId) {
+        show_page_splash(1);
+        show_form_splash(1);
+
         var self = window.DxCrypto;
+
+        var selfCall = function () {
+            self.generateMasterKey(masterKeyGroupId, userId);
+        };
 
         if (!self.certificate || !self.certificate.publicKey) {
             // Retrieves certificate and calls this function again
-            self.getCurrentUserCertificate(function () {
-                self.generateMasterKey(masterKeyGroupId, userId);
-            });
+            self.getCurrentUserCertificate(masterKeyGroupId, selfCall);
+            return false;
         } else if (!(masterKeyGroupId in self.masterKeyGroups)) {
-            // Retrieve master key
-        } else {
-            // ģenerē sertitifkātu
+            // Generates master key for current user
+            self.generateNewMasterKey(0, window.DxCrypto.certificate.publicKey, masterKeyGroupId, selfCall);
+            return false;
         }
 
+        // Try to get certificate for specified user
+        self.getUserCertificate(userId, masterKeyGroupId, function (raw_public_key) {
+            window.crypto.subtle.importKey(
+                    "spki", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
+                    raw_public_key,
+                    {//these are the algorithm options
+                        name: "RSA-OAEP",
+                        hash: {name: "SHA-256"}, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+                    },
+                    false, //whether the key is extractable (i.e. can be used in exportKey)
+                    ["wrapKey"] //"encrypt" or "wrapKey" for public key import or
+                    //"decrypt" or "unwrapKey" for private key imports
+                    )
+                    .then(function (public_key) {
+                        // Wraps current user's master key with other user's public key 
+                        return window.crypto.subtle.wrapKey(
+                                "raw", //the export format, must be "raw" (only available sometimes)
+                                window.DxCrypto.masterKeyGroups[masterKeyGroupId], //the key you want to wrap, must be able to fit in RSA-OAEP padding
+                                public_key, //the public key with "wrapKey" usage flag
+                                {//these are the wrapping key's algorithm options
+                                    name: "RSA-OAEP",
+                                    hash: {name: "SHA-256"}
+                                });
+
+
+                    })
+                    .then(function (wrappedMasterKey) {
+                        // Saves wrapped master key to specified user
+                        window.DxCrypto.saveMasterKey(userId, masterKeyGroupId, wrappedMasterKey, function () {
+                            notify_info(Lang.get('crypto.i_save_masterkey_success'));
+                            hide_page_splash(1);
+                            hide_form_splash(1);
+                        });
+                    })
+                    .catch(window.DxCrypto.catchError);
 
 
 
-
-        var publicKey = window.DxCrypto.certificate.publicKey;
-
-        window.crypto.subtle.generateKey(
-                {
-                    name: "AES-CTR",
-                    length: 256 //can be  128, 192, or 256
-                },
-        true, //whether the key is extractable (i.e. can be used in exportKey)
-                ["encrypt", "decrypt"] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
-                )
-                .then(function (masterKey) {
-                    return window.crypto.subtle.wrapKey(
-                            "pkcs8", //can be "jwk", "raw", "spki", or "pkcs8"
-                            masterKey, // CTR the key you want to wrap, must be able to export to "raw" format // CBC the key you want to wrap, must be able to export to above format
-                            publicKey, //the AES-CTR key with "wrapKey" usage flag
-                            {//these are the wrapping key's algorithm options
-                                name: "RSA-OAEP",
-                                hash: {name: "SHA-256"}
-                            });
-                })
-                .then(function (wrappedMasterKey) {
-                    window.DxCrypto.masterkey = wrappedMasterKey;
-                })
-                .catch(window.DxCrypto.catchError);
+        });
     }
 });
 
@@ -22083,12 +22356,12 @@ $(document).ajaxComplete(function () {
             });
 
             $('.dx-crypto-generate-masterkey-btn', self.domObject).click(function () {
-                var masterKey = window.DxCrypto.generateMasterKey(1, 1);
+                var masterKey = window.DxCrypto.generateMasterKey(1, 157);
 
                 $('#dx-master-key', self.domObject).html(masterKey);
             });
 
-            $('#dx-crypto-modal-generate-cert').on('click', '.dx-crypto-modal-accept', this.validateCertPassword);
+            $('#dx-crypto-modal-generate-cert').on('click', '.dx-crypto-modal-gen-accept', this.validateCertPassword);
         },
         /**
          * Opens modal windows where user inputs password for certificate
@@ -22102,8 +22375,8 @@ $(document).ajaxComplete(function () {
          * @returns {Boolean}
          */
         validateCertPassword: function () {
-            var password = $('#dx-crypto-modal-input-password').val();
-            var password_2 = $('#dx-crypto-modal-input-password-again').val();
+            var password = $('#dx-crypto-modal-gen-input-password').val();
+            var password_2 = $('#dx-crypto-modal-gen-input-password-again').val();
 
             if (!password || password.length <= 0 || !password_2 || password_2.length <= 0) {
                 notify_err(Lang.get('crypto.e_cert_both_psw'));
@@ -22129,8 +22402,8 @@ $(document).ajaxComplete(function () {
                     .catch(window.DxCrypto.catchError);
 
             $('#dx-crypto-modal-generate-cert').modal('hide');
-            $('#dx-crypto-modal-input-password').val('');
-            $('#dx-crypto-modal-input-password-again').val('');
+            $('#dx-crypto-modal-gen-input-password').val('');
+            $('#dx-crypto-modal-gen-input-password-again').val('');
         }
     });
 })(jQuery);

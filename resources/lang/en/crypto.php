@@ -24,6 +24,8 @@ return [
     'e_cert_psw_short' => 'Password must be at least 8 symbols long!',
     'e_cert_psw_not_match' => 'Passwords do not match!',
     'e_get_user_cert' => "Error while retrieving your certificate",
+    'e_password_incorrect' => 'Password is not correct',
+    'i_save_masterkey_success' => 'Master key successfully generated and saved',
     'i_save_cert_success' => 'Certificate successfully generated and saved',
     'w_confirm_generate_new_cert' => '<b>Do You realy want to generate a new certificate?</b></br>Your access for encrypted data will be lost - access can be restored only by someone else who has access for encrypted data.',
     
