@@ -66,17 +66,28 @@ class CryptoCertificateController extends Controller
             return response()->json(['success' => 0, 'msg' => $msg]);
         }
 
-        if ($master_key_group_id) {
+        $masterKeys = [];
+
+        // If one specified then find specific master key
+        if ($master_key_group_id || $master_key_group_id > 0) {
             $masterKeyObj = $user->cryptoMasterKey()->find($master_key_group_id);
+
+            if ($masterKeyObj && $masterKeyObj->master_key) {
+                $masterKeys[] = ['id' => $masterKeyObj->id, 'value' => base64_encode($masterKeyObj->master_key)];
+            }
+        } else if ($master_key_group_id == 0) {
+            // If one master key is 0 then retrieve all master key certificates            
+            $masterKeyObjArray = $user->cryptoMasterKey();
+
+            foreach ($masterKeyObjArray as $masterKeyObj) {
+
+                if ($masterKeyObj->master_key) {
+                    $masterKeys[] = ['id' => $masterKeyObj->id, 'value' => base64_encode($masterKeyObj->master_key)];
+                }
+            }
         }
 
-        if ($masterKeyObj && $masterKeyObj->master_key) {
-            $masterKey = base64_encode($masterKeyObj->master_key);
-        } else {
-            $masterKey = null;
-        }
-
-        return response()->json(['success' => 1, 'public_key' => base64_encode($cert->public_key), 'private_key' => base64_encode($cert->private_key), 'master_key' => $masterKey]);
+        return response()->json(['success' => 1, 'public_key' => base64_encode($cert->public_key), 'private_key' => base64_encode($cert->private_key), 'master_keys' => $masterKeys]);
     }
 
     public function getUserMasterKey($user_id, $master_key_group_id)
@@ -148,7 +159,7 @@ class CryptoCertificateController extends Controller
             'master_key_group_id' => 'required|integer|exists:dx_crypto_masterkey_groups,id',
             'user_id' => 'required|integer',
         ]);
-        
+
         $user_id = $request->input('user_id');
 
         // If user is not mentioned then generating key for current user

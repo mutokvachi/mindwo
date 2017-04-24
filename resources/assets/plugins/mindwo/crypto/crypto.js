@@ -192,6 +192,11 @@ $.extend(window.DxCryptoClass.prototype, {
         var encoder = new TextEncoder("utf-8");
         return encoder.encode(string);
     },
+    arrayBufferToString: function (arrayBuffer) {
+        var decoder = new TextDecoder("utf-8");
+
+        return decoder.decode(new Uint8Array(arrayBuffer));
+    },
     /**
      * Converts array buffer to string
      * @param {ArrayBuffer} arrayBuffer Array buffer which will be converted to string
@@ -224,29 +229,45 @@ $.extend(window.DxCryptoClass.prototype, {
      * Decryptes all fields
      * @returns {undefined}
      */
-    decryptFields: function (privateKey) {
+    decryptFields: function () {
         show_page_splash(1);
+        show_form_splash(1);
 
-        window.crypto.subtle.decrypt(
-                {
-                    name: "AES-CTR",
-                    counter: ArrayBuffer(16), //The same counter you used to encrypt
-                    length: 128, //The same length you used to encrypt
-                },
-                privateKey, //from generateKey or importKey above
-                window.DxCrypto.masterKeyCrypted //ArrayBuffer of the data
-                )
-                .then(function (decrypted) {
-                    //returns an ArrayBuffer containing the decrypted data
-                    console.log(new Uint8Array(decrypted));
+        var self = window.DxCrypto;
 
-                    hide_page_splash(1);
-                })
-                .catch(window.DxCrypto.catchError);
+        if (!self.certificate || !self.certificate.privateKey) {
+            // Retrieves certificate and calls this function again
+            self.getCurrentUserCertificate(0, function () {
+                self.decryptFields();
+            });
+            return false;
+        }
 
-        /*$('.dx-crypto-field').each(function () {
-         this.crypto.decryptData();
-         });*/
+        var cryptoFieldCount = $('.dx-crypto-field').length();
+
+        $('.dx-crypto-field').each(function () {
+            var encryptedData = self.stringToArrayBuffer(this.crypto.getValue());
+
+            window.crypto.subtle.decrypt(
+                    {
+                        name: "AES-CTR",
+                        counter: ArrayBuffer(16), //The same counter you used to encrypt
+                        length: 128, //The same length you used to encrypt
+                    },
+                    self.certificate.privateKey, //from generateKey or importKey above
+                    encryptedData //ArrayBuffer of the data
+                    )
+                    .then(function (decryptedValue) {
+                        //returns an ArrayBuffer containing the decrypted data
+                        var value = self.arrayBufferToString(decryptedValue);
+
+                        this.crypto.decryptData(value);
+
+                        hide_page_splash(1);
+                        hide_form_splash(1);
+                    })
+                    .catch(window.DxCrypto.catchError);
+        });
     },
     /**
      * Open modal window and ask user to input his certificate's password
@@ -340,7 +361,7 @@ $.extend(window.DxCryptoClass.prototype, {
                         throw {type: 'e_custom', msg: Lang.get('crypto.e_password_incorrect')};
                         window.DxCrypto.certificate = undefined;
                         window.DxCrypto.rawCertificate = undefined;
-                        window.DxCrypto.rawMasterKey = undefined;
+                        window.DxCrypto.rawMasterKeys = undefined;
                         window.DxCrypto.masterKeyGroups = new Array();
                     }
                 })
@@ -444,23 +465,29 @@ $.extend(window.DxCryptoClass.prototype, {
                 .catch(function (err) {
                     window.DxCrypto.certificate = undefined;
                     window.DxCrypto.rawCertificate = undefined;
-                    window.DxCrypto.rawMasterKey = undefined;
+                    window.DxCrypto.rawMasterKeys = undefined;
                     window.DxCrypto.masterKeyGroups = new Array();
 
                     window.DxCrypto.catchError(err, Lang.get('crypto.e_password_incorrect'));
                 });
     },
-    unwrapMasterKey: function () {
+    unwrapMasterKey: function (counter) {
         var self = window.DxCrypto;
 
-        if (!self.rawMasterKey || self.rawMasterKey == undefined) {
-            self.rawMasterKey = undefined;
+        if (!self.rawMasterKeys || self.rawMasterKeys == undefined || (self.rawMasterKeys && counter >= self.rawMasterKeys.length)) {
+            self.rawMasterKeys = undefined;
             return false;
         }
 
+        if (counter == undefined) {
+            counter = 0;
+        }
+
+        var masterKeyObj = self.rawMasterKeys[counter];
+
         return  window.crypto.subtle.importKey(
                 "raw", //can be "jwk" or "raw"
-                self.rawMasterKey,
+                masterKeyObj.value,
                 {//these are the algorithm options
                     name: "AES-CTR"
                 },
@@ -487,12 +514,10 @@ $.extend(window.DxCryptoClass.prototype, {
                             );
                 })
                 .then(function (masterKey) {
-                    self.masterKeyGroups[self.tempMasterKeyGroupId] = masterKey;
+                    self.masterKeyGroups[masterKeyObj.id] = masterKey;
 
-                    self.tempMasterKeyGroupId = undefined;
-                    self.rawMasterKey = undefined;
-
-                    return true;
+                    // Iterate to next master key
+                    return self.unwrapMasterKey(++counter);
                 })
                 .catch(window.DxCrypto.catchError);
     },
@@ -513,12 +538,16 @@ $.extend(window.DxCryptoClass.prototype, {
                     var public_key = new Uint8Array(self.base64ToArrayBuffer(res.public_key));
                     var private_key = new Uint8Array(self.base64ToArrayBuffer(res.private_key));
 
-                    var master_key;
-                    if (res.master_key) {
-                        master_key = new Uint8Array(self.base64ToArrayBuffer(res.master_key));
+                    var master_keys = new Array();
+                    if (res.master_keys) {
+                        for(var i = 0; i < res.master_keys.length; i++){
+                            new Uint8Array(self.base64ToArrayBuffer(res.master_keys[i]));
+                        }
+                        
+                        master_keys.push(res.master_keys);
                     }
 
-                    callback(public_key, private_key, master_key);
+                    callback(public_key, private_key, master_keys);
                 } else {
                     if (res.msg) {
                         self.catchError(res, res.msg);
@@ -540,13 +569,11 @@ $.extend(window.DxCryptoClass.prototype, {
     getCurrentUserCertificate: function (masterKeyGroupId, callback) {
         var self = window.DxCrypto;
 
-        self.getUserCertificate(0, masterKeyGroupId, function (public_key, private_key, master_key) {
-            if (master_key) {
-                self.rawMasterKey = master_key;
-                self.tempMasterKeyGroupId = masterKeyGroupId;
+        self.getUserCertificate(0, masterKeyGroupId, function (public_key, private_key, master_keys) {
+            if (master_keys) {
+                self.rawMasterKeys = master_keys;
             } else {
-                self.rawMasterKey = undefined;
-                self.tempMasterKeyGroupId = undefined;
+                self.rawMasterKeys = undefined;
             }
 
             self.rawCertificate = {
@@ -557,7 +584,7 @@ $.extend(window.DxCryptoClass.prototype, {
             self.requestUserCertificatePassword(callback);
         });
     },
-    generateNewMasterKey: function (userId, publicKey, masterKeyGroupId, callback) {
+    generateNewMasterKey: function (publicKey, masterKeyGroupId, callback) {
         return window.crypto.subtle.generateKey(
                 {
                     name: "AES-CTR",
@@ -634,7 +661,7 @@ $.extend(window.DxCryptoClass.prototype, {
             return false;
         } else if (!(masterKeyGroupId in self.masterKeyGroups)) {
             // Generates master key for current user
-            self.generateNewMasterKey(0, window.DxCrypto.certificate.publicKey, masterKeyGroupId, selfCall);
+            self.generateNewMasterKey(window.DxCrypto.certificate.publicKey, masterKeyGroupId, selfCall);
             return false;
         }
 

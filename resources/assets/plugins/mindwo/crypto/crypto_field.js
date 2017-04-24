@@ -43,8 +43,6 @@
             }
 
             self.domObject.data('dx_is_init', 1);
-
-            self.domObject.css('visibility', 'hidden');
             self.domObject.hide();
 
             self.addDecryptButton(self);
@@ -62,7 +60,7 @@
             self.domObject.after(button);
 
             button.click(function () {
-                window.DxCrypto.openPasswordForm(window.DxCrypto.decryptFields);
+                window.DxCrypto.decryptFields();
             });
         },
         /**
@@ -71,7 +69,6 @@
          */
         decryptData: function () {
             this.domObject.next('.dx-crypto-decrypt-btn').remove();
-            this.domObject.css('visibility', 'visible');
             this.domObject.show();
         },
     });
