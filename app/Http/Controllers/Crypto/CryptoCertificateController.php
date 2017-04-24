@@ -69,15 +69,15 @@ class CryptoCertificateController extends Controller
         $masterKeys = [];
 
         // If one specified then find specific master key
-        if ($master_key_group_id || $master_key_group_id > 0) {
-            $masterKeyObj = $user->cryptoMasterKey()->find($master_key_group_id);
+        if ($master_key_group_id && $master_key_group_id > 0) {
+            $masterKeyObj = $user->cryptoMasterKey()->where('master_key_group_id', $master_key_group_id)->first();
 
             if ($masterKeyObj && $masterKeyObj->master_key) {
                 $masterKeys[] = ['id' => $masterKeyObj->id, 'value' => base64_encode($masterKeyObj->master_key)];
             }
         } else if ($master_key_group_id == 0) {
             // If one master key is 0 then retrieve all master key certificates            
-            $masterKeyObjArray = $user->cryptoMasterKey();
+            $masterKeyObjArray = $user->cryptoMasterKey;
 
             foreach ($masterKeyObjArray as $masterKeyObj) {
 

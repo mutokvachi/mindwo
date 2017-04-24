@@ -22358,11 +22358,11 @@ $.extend(window.DxCryptoClass.prototype, {
 
                     var master_keys = new Array();
                     if (res.master_keys) {
-                        for(var i = 0; i < res.master_keys.length; i++){
-                            new Uint8Array(self.base64ToArrayBuffer(res.master_keys[i]));
+                        for (var i = 0; i < res.master_keys.length; i++) {
+                            res.master_keys[i].value = new Uint8Array(self.base64ToArrayBuffer(res.master_keys[i].value));
                         }
-                        
-                        master_keys.push(res.master_keys);
+
+                        master_keys = res.master_keys;
                     }
 
                     callback(public_key, private_key, master_keys);
@@ -22475,7 +22475,7 @@ $.extend(window.DxCryptoClass.prototype, {
 
         if (!self.certificate || !self.certificate.publicKey) {
             // Retrieves certificate and calls this function again
-            self.getCurrentUserCertificate(masterKeyGroupId, selfCall);
+            self.getCurrentUserCertificate(0, selfCall);
             return false;
         } else if (!(masterKeyGroupId in self.masterKeyGroups)) {
             // Generates master key for current user
@@ -22506,8 +22506,6 @@ $.extend(window.DxCryptoClass.prototype, {
                                     name: "RSA-OAEP",
                                     hash: {name: "SHA-256"}
                                 });
-
-
                     })
                     .then(function (wrappedMasterKey) {
                         // Saves wrapped master key to specified user
