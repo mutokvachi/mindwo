@@ -153,14 +153,20 @@ namespace App\Libraries\DataView
             $align = $arr_args['align'];
             $cell_value = $arr_args['cell_value'];
             $is_val_html = (isset($arr_args['is_val_html']) && $arr_args['is_val_html']);
+            $is_crypted = (isset($arr_args['is_crypted']) && $arr_args['is_crypted']);
             
             $htm = "<td align='" . $align . "'>";
-            if ($is_val_html) {
-                $htm .= $cell_value; // not escaped
+            if (!$is_val_html) {
+                $cell_value = e($cell_value);
+            }
+            
+            if ($is_crypted) {
+                $htm .= "<span class='dx-crypto-field'>" . $cell_value . "</span>";
             }
             else {
-                $htm .= e($cell_value);
+                $htm .= $cell_value;
             }
+            
             $htm .= "</td>";
             
             return $htm;
