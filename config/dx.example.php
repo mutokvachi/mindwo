@@ -355,4 +355,21 @@ return [
     |--------------------------------------------------------------------------
     */
     'autocompleate_max_count' => 20,
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Is backuping enabled
+    |
+    | Backup policy is defined in config file laravel-backup.php
+    | It's made one ZIP archive with db dump and all resources files
+    |--------------------------------------------------------------------------
+    */
+    'is_backuping_enabled' => env('APP_BACKUPS_ON', false),
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Indicates which role will see left employees in search results
+    |--------------------------------------------------------------------------
+    */
+    'left_employees_access_role_id' => 1,
 ];

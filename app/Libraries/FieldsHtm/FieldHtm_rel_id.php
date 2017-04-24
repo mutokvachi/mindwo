@@ -135,7 +135,7 @@ namespace App\Libraries\FieldsHtm
             }
             catch (\Exception $e) {
                 Log::info("REL ID ERROR: " . $e->getMessage());
-                throw new Exceptions\DXCustomException("Izkrītošās izvēlnes laukam '" . $this->fld_attr->db_name . "' nav iespējams izveidot korektu datu atlases pieprasījumu.");
+                throw new Exceptions\DXCustomException("Reģistra ar ID " . $this->fld_attr->list_id . " izkrītošās izvēlnes laukam '" . $this->fld_attr->db_name . "' nav iespējams izveidot korektu datu atlases pieprasījumu.");
             }
         }
 

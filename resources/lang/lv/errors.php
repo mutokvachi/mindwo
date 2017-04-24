@@ -128,4 +128,13 @@ return [
     'field_not_found_id' => "Skatam nav definēts lauks ar ID %s!",
     
     'item_locked' => 'Ieraksts ir bloķēts un rediģēšana nav iespējama! Ierakstu %s sāka rediģēt lietotājs %s. Jums ir jāuzgaida, kamēr %s pabeigs ieraksta rediģēšanu.',
+
+    'unable_to_rotate_image' => "Sistēmas kļūda! Nav iepsējams rotēt datni!",
+    'unable_to_copy_file' => "Sistēmas kļūda! Nav iepsējams kopēt datni!",
+    
+    'no_rights_on_reports' => "Atskaite nav atrodama vai arī Jums nav tiesību piekļūt atskaitei!",
+    
+    'no_rights_on_meetings' => "Sapulce nav atrodama vai arī Jums nav tiesību piekļūt sapulcei!",
+    
+    'phone_format_err' => "Tālruņa numurs var sastāvēt tikai no cipariem!",
 ];

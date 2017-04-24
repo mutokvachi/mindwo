@@ -1,11 +1,6 @@
 <div class="portlet sale-summary dx-timeoff-balance" dx_block_id="timeoff_widget">
     <div class="portlet-title">
-        <div class="caption">My time off available</div>
-        {{--
-        <div class="tools">
-            <a class="collapse" href="javascript:;"> </a>
-        </div>
-        --}}
+        <div class="caption">{{ trans('widgets.timeoff.title') }}</div>
     </div>
     <div class="portlet-body">
         <ul class="list-unstyled">
@@ -17,10 +12,10 @@
             @endforeach            
         </ul>
         <div style="text-align: center;">
-            <button type="button" class="btn btn-primary btn-sm dx-btn-leave-request" data-leaves-list-id = "{{ $self->leaves_list_id }}" data-user-field-id = "{{ $self->user_field_id }}" data-user-id = "{{ Auth::user()->id }}">Request time off</button>
+            <button type="button" class="btn btn-primary btn-sm dx-btn-leave-request" data-leaves-list-id = "{{ $self->leaves_list_id }}" data-user-field-id = "{{ $self->user_field_id }}" data-user-id = "{{ Auth::user()->id }}">{{ trans('widgets.timeoff.btn_request') }}</button>
         </div>
         <div style="text-align: center; margin-top: 15px;">
-            <a href="{{ $self->leaves_view_url }}">History</a>
+            <a href="{{ $self->leaves_view_url }}">{{ trans('widgets.timeoff.link_history') }}</a>
         </div>
     </div>
 </div>

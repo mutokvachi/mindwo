@@ -23,7 +23,9 @@ return [
     'menu_mark_all' => 'Select all',
     'menu_delete_marked' => 'Delete selected',
     
-    'menu_admin_settings' => 'Settings',
+    'menu_admin_settings' => 'Register settings',
+    'menu_form_settings' => 'Form settings',
+    'menu_view_settings' => 'View settings',
     
     'paginator_page' => 'Page',
     'paginator_from' => 'from',
@@ -88,5 +90,10 @@ return [
     'sort_asc' => 'Sort ascending',
     'sort_desc' => 'Sort descending',
     'sort_off' => 'No sorting',
+    
+    'report_interval' => 'Date interval',
+    'btn_prepare_report' => 'Prepare report',
+    
+    'lbl_total' => 'Total',
     
 ];

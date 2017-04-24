@@ -5,7 +5,7 @@
         <div data-name="picture_name" data-display="form-field">
           {!! $form->renderField('picture_name') !!}
         </div>
-        {{-- <img src="{{ $employee->getAvatar() }}" class="img-responsive img-thumbnail" style="max-height: 178px;"> --}}
+        
         <h4 class='dx-empl-title'>{{ $employee->first_name }} {{ $employee->last_name }}</h4>
         <span><a href="#" class="dx_position_link">{{ $employee->position_title }}</a></span><br>
         @if($employee->department)

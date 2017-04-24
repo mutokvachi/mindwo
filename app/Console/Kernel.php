@@ -22,6 +22,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\CalculateTimeoff::class,
         \App\Console\Commands\AuditViewCounts::class,
         \App\Console\Commands\UpdateLeftStatus::class,
+        \App\Console\Commands\ServerLogImport::class,
     ];
 
     /**
@@ -55,8 +56,16 @@ class Kernel extends ConsoleKernel
 			dispatch($job);
 		})->everyFiveMinutes();
 
-        // Makes db and files backup
-        $schedule->command('backup:run')
-                 ->daily();
+        if (Config::get('dx.is_backuping_enabled', false)) {
+            // Makes db and files backup at midnight
+            $schedule->command('backup:run')
+                     ->daily();
+
+            // Clean disk space if too many backups 1 hour after midnight
+            $schedule->command('backup:clean')
+                     ->dailyAt('1:00');
+        }
+        
+        $schedule->command('mindwo:save-log')->everyMinute();
     }
 }

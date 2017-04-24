@@ -329,7 +329,7 @@ var PageMain = function()
      */
     var initUserTasksPopup = function() {
 
-        if (user_tasks_count > 0 && current_route != "view" && current_route != "home") {
+        if (user_tasks_count > 0 && current_route != "view" && current_route != "home" && current_route != "meeting") {
             
             setTimeout(function() {
                 $.gritter.add({
