@@ -318,6 +318,24 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 		return $this->belongsToMany('App\Models\Offer', 'dx_users_offers', 'user_id', 'offer_id')
 			->withPivot('quantity');
 	}
+        
+        /**
+	 * User's certificate
+	 * @return App\Models\Crypto\Certificate
+	 */
+	public function cryptoCertificate()
+	{
+		return $this->hasOne('\App\Models\Crypto\Certificate', 'user_id');
+	}
+        
+        /**
+         * User's master key
+         * @return App\Models\Crypto\Msterkey
+         */
+        public function cryptoMasterKey()
+	{
+		return $this->hasMany('\App\Models\Crypto\Masterkey', 'user_id');
+	}
 	
 	/**
 	 * Get an URL of user's avatar
@@ -331,28 +349,31 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	
 	public function getAvailability()
 	{
+                $now = Carbon::now(Config::get('dx.time_zone'));
+                $valid_from = ($this->valid_from) ? Carbon::createFromFormat('Y-m-d', $this->valid_from) : Carbon::createFromFormat('Y-m-d', '1900-01-01');
+                
 		if($this->termination_date)
 		{
 			$result = [
-				'button' => 'Left',
+				'button' => trans('empl_profile.avail_left'),
 				'class' => 'grey',
-				'title' => 'Employee has left'
+				'title' => trans('empl_profile.hint_left')
 			];
 		}
-		elseif($this->join_date && !$this->termination_date)
+		elseif($now->gte($valid_from) && !$this->termination_date)
 		{
 			$result = [
-				'button' => 'Active',
+				'button' => trans('empl_profile.avail_active'),
 				'class' => 'green-jungle',
-				'title' => 'Employee is at work'
+				'title' => trans('empl_profile.hint_active')
 			];
 		}
 		else
 		{
 			$result = [
-				'button' => 'Potential',
+				'button' => trans('empl_profile.avail_potential'),
 				'class' => 'yellow-lemon',
-				'title' => 'The person is in process of hiring'
+				'title' => trans('empl_profile.hint_potential')
 			];
 		}
 		

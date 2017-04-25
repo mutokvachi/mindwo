@@ -375,4 +375,11 @@ return [
     |--------------------------------------------------------------------------
     */
     'is_backuping_enabled' => env('APP_BACKUPS_ON', false),
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Indicates which role will see left employees in search results
+    |--------------------------------------------------------------------------
+    */
+    'left_employees_access_role_id' => 1,
 ];

@@ -4,16 +4,19 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
-class ExampleTest extends TestCase
+/**
+ * Tests if login page is loaded
+ */
+class HomeTest extends TestCase
 {
     /**
-     * A basic functional test example.
+     * Perform test.
      *
      * @return void
      */
-    public function testBasicExample()
+    public function test()
     {
         $this->visit('/')
-             ->see('Laravel 5');
+             ->see(trans('index.about_title'));
     }
 }

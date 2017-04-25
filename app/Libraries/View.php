@@ -705,7 +705,7 @@ namespace App\Libraries {
                     }
                     
                     $grid_sql = "SELECT * FROM (SELECT " . $sql_fields . " FROM " . $this->list_obj_db_name . $sql_join . " WHERE 1=1 " . $this->getListLevelFilter() . $report_filter->getWhereSQL() . $sql_multi . $sql_tab_where . $superv_sql . $source_rights . $this->sql_user_rights . $spec_access . ") tb WHERE 1=1 " . $sql_filter;
-                    Log::info("LAST SQL: " . $sql_filter);
+                   
                 }
                 else
                 {

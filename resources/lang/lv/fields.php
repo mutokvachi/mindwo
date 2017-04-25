@@ -52,4 +52,6 @@ return [
     
     'hint_skype' => 'Atvērt Skype',
     'hint_whatsapp' => 'Atvērt WhatsApp',
+    
+    'add_new_phone' => '[JAUNS]',
 ];
