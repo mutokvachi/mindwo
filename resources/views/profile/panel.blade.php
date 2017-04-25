@@ -12,7 +12,7 @@
           <span><a href="#" class="small dx_department_link">{{ $employee->department->title }}</a></span><br><br>
         @endif
         @if($mode != 'create')
-          <a href="javascript:;" class="btn btn-default {{ $avail['class'] }}" title="{{ $avail['title'] }}" style="font-size: 10px; "> {{ $avail['button'] }} </a>
+            @include('profile.status_info', ['avail' => $avail])
         @endif
       </div>
       <div class="col-xs-12 col-sm-12 col-md-12">

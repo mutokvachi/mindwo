@@ -349,35 +349,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	
 	public function getAvailability()
 	{
-                $now = Carbon::now(Config::get('dx.time_zone'));
-                $valid_from = ($this->valid_from) ? Carbon::createFromFormat('Y-m-d', $this->valid_from) : Carbon::createFromFormat('Y-m-d', '1900-01-01');
-                
-		if($this->termination_date)
-		{
-			$result = [
-				'button' => trans('empl_profile.avail_left'),
-				'class' => 'grey',
-				'title' => trans('empl_profile.hint_left')
-			];
-		}
-		elseif($now->gte($valid_from) && !$this->termination_date)
-		{
-			$result = [
-				'button' => trans('empl_profile.avail_active'),
-				'class' => 'green-jungle',
-				'title' => trans('empl_profile.hint_active')
-			];
-		}
-		else
-		{
-			$result = [
-				'button' => trans('empl_profile.avail_potential'),
-				'class' => 'yellow-lemon',
-				'title' => trans('empl_profile.hint_potential')
-			];
-		}
-		
-		return $result;
+            return Libraries\Helper::getEmployeeStatus($this->valid_from, $this->termination_date);                
 	}
 	
 	/**

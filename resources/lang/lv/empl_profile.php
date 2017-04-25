@@ -55,7 +55,7 @@ return [
     'avail_active' => 'Aktīvs',
     'avail_potential' => 'Potenciāls',
     
-    'hint_left' => 'Darbinieks vairs nestrādā uzņēmumā',
+    'hint_left' => 'Darbinieks no %s vairs nestrādā uzņēmumā',
     'hint_active' => 'Darbinieks strādā uzņēmumā',
     'hint_potential' => 'Darbinieks tiek pieņemts darbā',
     
