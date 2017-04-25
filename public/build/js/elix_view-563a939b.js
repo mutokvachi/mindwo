@@ -22301,41 +22301,30 @@ $.extend(window.DxCryptoClass.prototype, {
             counter = 0;
         }
 
-        if (!self.rawMasterKeys || self.rawMasterKeys == undefined || (self.rawMasterKeys && !(counter <= self.rawMasterKeys.length && 0 < self.rawMasterKeys.length))) {
+        if (!self.rawMasterKeys || self.rawMasterKeys == undefined || (self.rawMasterKeys && !(counter < self.rawMasterKeys.length && 0 < self.rawMasterKeys.length))) {
             self.rawMasterKeys = undefined;
             return false;
         }
 
         var masterKeyObj = self.rawMasterKeys[counter];
 
-        return  window.crypto.subtle.importKey(
-                "raw", //can be "jwk" or "raw"
-                masterKeyObj.value,
-                {//these are the algorithm options
-                    name: "AES-CTR"
+        return   window.crypto.subtle.unwrapKey(
+                "raw", //"jwk", "raw", "spki", or "pkcs8" (whatever was used in wrapping)
+                masterKeyObj.value, //the key you want to unwrap
+                self.certificate.privateKey, //the AES-CTR key with "unwrapKey" usage flag
+                {//these are the wrapping key's algorithm options
+                    name: "RSA-OAEP",
+                    modulusLength: 2048, //can be 1024, 2048, or 4096
+                    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+                    hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
                 },
+        {
+            name: "AES-CTR",
+            length: 256
+        },
         false, //whether the key is extractable (i.e. can be used in exportKey)
-                ["encrypt", "decrypt"] //can "encrypt", "decrypt", "wrapKey", or "unwrapKey"
+                ["encrypt", "decrypt"] //the usages you want the unwrapped key to have
                 )
-                .then(function (wrappedMasterKey) {
-                    return  window.crypto.subtle.unwrapKey(
-                            "pkcs8", //"jwk", "raw", "spki", or "pkcs8" (whatever was used in wrapping)
-                            wrappedMasterKey, //the key you want to unwrap
-                            self.certificate.privateKey, //the AES-CTR key with "unwrapKey" usage flag
-                            {//these are the wrapping key's algorithm options
-                                name: "RSA-OAEP",
-                                modulusLength: 2048, //can be 1024, 2048, or 4096
-                                publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-                                hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
-                            },
-                    {//this what you want the wrapped key to become (same as when wrapping)
-                        name: "AES-CTR",
-                        length: 256 //can be  128, 192, or 256
-                    },
-                    false, //whether the key is extractable (i.e. can be used in exportKey)
-                            ["encrypt", "decrypt"] //the usages you want the unwrapped key to have
-                            );
-                })
                 .then(function (masterKey) {
                     self.masterKeyGroups[masterKeyObj.id] = masterKey;
 
