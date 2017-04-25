@@ -9962,11 +9962,12 @@ var SearchTop = function()
 	var handleTypeChooseCSSOnly = function() {
 		$("#top_search a").each(function() {
 			$(this).click(function(e) {
-				$("#search_title").html($('span', this).text());
+			    var span = $('span', this);
+				$("#search_title").html(span.text());
 				$("#search_dropd").find("span").children().replaceWith($('i', this).clone());
-				$("#searchType").val($('span', this).text());
-				current_type = $('span', this).text();
-				$("#search_criteria").focus();
+				$("#searchType").val(span.text());
+				current_type = span.text();
+				$("#search_criteria").attr('placeholder', span.data('placeholder')).focus();
 			});
 		});
 	};

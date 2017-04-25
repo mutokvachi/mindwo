@@ -14,6 +14,7 @@ return [
     'page_fullscreen'=> 'Page in full screen',
     'page_boxed' => 'Boxed page',
     'password_change' => "Change the password",
+    'change_design' => "Change design",
     'logout' => 'Logout',
     
     // Other TOP menu

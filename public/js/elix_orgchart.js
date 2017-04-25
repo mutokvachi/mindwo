@@ -10496,13 +10496,16 @@ module.exports = XHR;
 			{
 				$mask.removeClass('hidden');
 			}
+			
 			var sourceChart = $chartContainer
 				.addClass('canvasContainer')
 				// remove '> table' to cature only visible part of chart
 				.find('.orgchart:visible > table')
 				.get(0);
+			
 			var flag = opts.direction === 'l2r' || opts.direction === 'r2l';
 			html2canvas(sourceChart, {
+				'imageTimeout': 1000,
 				'width': flag ? sourceChart.clientHeight : sourceChart.clientWidth,
 				'height': flag ? sourceChart.clientWidth : sourceChart.clientHeight,
 				'background': '#fff',

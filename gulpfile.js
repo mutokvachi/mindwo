@@ -90,6 +90,10 @@ gulp.task('mix_all', function() {
             'metronic_ui.less',
         ], 'public/css/elix_metronic.css');
 
+        mix.less([
+            'colors/bamboo.less'
+        ], 'public/css/elix_colors_bamboo.css');
+        
         // Styles for articles search page
         mix.styles([
             'cubeportfolio/css/cubeportfolio.css', 
@@ -348,7 +352,8 @@ gulp.task('mix_all', function() {
             'css/elix_block_report.css',
             'js/elix_mail.js',
             'css/elix_mail.css',
-            'js/elix_birth.js'
+            'js/elix_birth.js',
+            'css/elix_colors_bamboo.css'
         ]);
     });
 });

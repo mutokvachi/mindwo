@@ -36,6 +36,11 @@
                   <a href="javascript:;" class="dx-user-change-passw-link">
                     <i class="fa fa-key dx-user-menu"></i> {{ trans("frame.password_change") }} </a>
                 </li>
+                <li>
+                  <a href="javascript:;" class="dx-user-change-design-link">
+                    <i class="fa fa-eye dx-user-menu"></i> {{ trans("frame.change_design") }}
+                  </a>
+                </li>
               <!--
                     <li class="hidden-sm hidden-md hidden-lg">
                       <a href="{{Request::root()}}/structure/doc_manual" class="">

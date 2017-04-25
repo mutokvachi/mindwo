@@ -17349,11 +17349,15 @@ var BlockViews = function () {
 			else
 			{
 				var container = $('.dx-grid-inner-container');
+				var thead = $('.dx-grid-table thead');
 				var divs = $('.dx-grid-table thead div');
 				container.scroll(function()
 				{
-					divs.css({
-						top: container.scrollTop()
+					divs
+                    //thead
+                        .css({
+                        //top: container.scrollTop() + 'px'
+						transform: 'translateY(' + container.scrollTop() + 'px)'
 					});
 				});
 			}

@@ -37,3 +37,5 @@
     </style>
     <link href="{{ elixir('css/elix_mindwo.css') }}" rel="stylesheet" type="text/css"/>
     <link href="{{ elixir('css/elix_mindwo_horizontal.css') }}" rel="stylesheet" type="text/css"/>
+
+    <link href="{{ elixir('css/elix_colors_bamboo.css') }}" rel="stylesheet" type="text/css"/>
