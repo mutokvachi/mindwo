@@ -37,7 +37,7 @@
          */
         init: function () {
             var self = this;
-            
+
             if (!window.crypto || !window.crypto.subtle) {
                 return;
             }
@@ -67,6 +67,12 @@
                 var masterKey = window.DxCrypto.generateMasterKey(1, 1);
 
                 $('#dx-master-key', self.domObject).html(masterKey);
+            });
+
+            $('.dx-crypto-encrypt-test-btn', self.domObject).click(function () {
+                var res = window.DxCrypto.encryptFields();
+
+                //alert('done!');
             });
 
             $('#dx-crypto-modal-generate-cert').on('click', '.dx-crypto-modal-gen-accept', this.validateCertPassword);

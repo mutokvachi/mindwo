@@ -22,11 +22,6 @@
          */
         this.domObject = domObject;
 
-        /**
-         * Old value of field (input or other container)
-         */
-        this.oldValue = '';
-
         // Initializes class
         this.init();
     };
@@ -90,7 +85,7 @@
             } else {
                 this.domObject.html(value);
             }
-            
+
             // Shows field
             this.showField();
         },
