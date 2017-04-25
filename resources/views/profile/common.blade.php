@@ -314,7 +314,7 @@
         </div>
         <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12">
           <div class="actions pull-right">
-            @if($is_edit_rights && $mode != 'create')
+            @if($is_edit_rights && $mode != 'create')              
               <a href="javascript:;" class="btn btn-circle btn-default dx-edit-profile">
                 <i class="fa fa-pencil"></i> {{ trans('form.btn_edit') }} </a>
               <a href="javascript:;" class="btn btn-circle btn-default dx-delete-profile">

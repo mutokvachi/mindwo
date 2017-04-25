@@ -19,4 +19,5 @@ return [
     'tab_contact' => 'Kontaktinformācija',
     'emergency_notes' => 'Ārkārtas situāciju piezīmes',
     
+    'is_hide_orgchart' => 'Nerādīt organizācijas struktūrā',
 ];

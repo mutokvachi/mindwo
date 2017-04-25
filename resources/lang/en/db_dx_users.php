@@ -18,4 +18,6 @@ return [
     'field_group_title' => 'Emergency contacts',
     'tab_contact' => 'Contact details',
     'emergency_notes' => 'Emergency contacts notes',
+    
+    'is_hide_orgchart' => 'Is hidden in Orgchart',
 ];

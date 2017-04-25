@@ -1,0 +1,1 @@
+<a href="javascript:;" class="btn btn-default {{ $avail['class'] }}" title="{{ $avail['title'] }}" style="font-size: 10px; "> {{ $avail['button'] }} </a>

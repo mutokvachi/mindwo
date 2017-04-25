@@ -54,7 +54,7 @@ return [
     'avail_active' => 'Active',
     'avail_potential' => 'Potential',
     
-    'hint_left' => 'Employee has left',
+    'hint_left' => 'Employee has left from %s',
     'hint_active' => 'Employee is at work',
     'hint_potential' => 'The person is in process of hiring',
     
