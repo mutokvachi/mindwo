@@ -23,7 +23,9 @@ namespace App\Libraries\DataView\Formatters
                                      'list_id' => $model_row["list_id"],
                                      'field_id' => $model_row["field_id"],
                                      'cell_value' => $data_row[$model_row["name"]],
-                                     'is_pdf' => $this->isPDF($data_row[$model_row["name"]])
+                                     'is_pdf' => $this->isPDF($data_row[$model_row["name"]]),
+                                     'is_crypted' => $model_row["is_crypted"],
+                                     'masterkey_group_id' => $model_row["masterkey_group_id"],
                                 ]);  
                 $this->values['is_html'] = true;
                 $this->values['is_link'] = true;
