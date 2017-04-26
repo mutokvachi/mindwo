@@ -73,7 +73,7 @@ class CryptoCertificateController extends Controller
             $masterKeyObj = $user->cryptoMasterKey()->where('master_key_group_id', $master_key_group_id)->first();
 
             if ($masterKeyObj && $masterKeyObj->master_key) {
-                $masterKeys[] = ['id' => $masterKeyObj->id, 'value' => base64_encode($masterKeyObj->master_key)];
+                $masterKeys[] = ['id' => $masterKeyObj->master_key_group_id, 'value' => $masterKeyObj->master_key];
             }
         } else if ($master_key_group_id == 0) {
             // If one master key is 0 then retrieve all master key certificates            
@@ -82,7 +82,7 @@ class CryptoCertificateController extends Controller
             foreach ($masterKeyObjArray as $masterKeyObj) {
 
                 if ($masterKeyObj->master_key) {
-                    $masterKeys[] = ['id' => $masterKeyObj->id, 'value' => base64_encode($masterKeyObj->master_key)];
+                    $masterKeys[] = ['id' => $masterKeyObj->master_key_group_id, 'value' => $masterKeyObj->master_key];
                 }
             }
         }
@@ -178,10 +178,22 @@ class CryptoCertificateController extends Controller
         $master_key_group_id = $request->input('master_key_group_id');
 
         // Retrieves master key as file converted to binary
-        $master_key_file = file_get_contents($request->file('master_key'));
+        $master_key_hex = $request->input('master_key');
 
         // Try to find master key associated to user with specified master key group
         $masterKey = $user->cryptoMasterKey()->where('master_key_group_id', $master_key_group_id)->first();
+
+        /*if ($masterKey) {
+            return response()->json(['success' => 0, 'msg' => trans('crypto.e_user_have_masterkey')]);
+        }*/
+
+        if ($user_id == \Auth::user()->id) {
+            $otherKeys = Crypto\Masterkey::where('master_key_group_id', $master_key_group_id)->first();
+
+            if ($otherKeys) {
+                return response()->json(['success' => 0, 'msg' => trans('crypto.e_master_key_already_exist')]);
+            }
+        }
 
         // If user don't have such master key group create a new one
         if (!$masterKey) {
@@ -198,7 +210,7 @@ class CryptoCertificateController extends Controller
         }
 
         // Updates data
-        $masterKey->master_key = $master_key_file;
+        $masterKey->master_key = $master_key_hex;
         $masterKey->modified_user_id = $user->id;
         $masterKey->modified_time = new \DateTime();
 

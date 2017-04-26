@@ -21992,6 +21992,8 @@ $.extend(window.DxCryptoClass.prototype, {
                     notify_info(Lang.get('crypto.i_save_cert_success'));
                     $('.dx-crypto-generate-cert-btn').hide();
                     $('.dx-crypto-generate-new-cert-btn').show();
+                    $('.dx-crypto-generate-cert-info').hide();
+                    $('.dx-crypto-generate-new-cert-info').show();
                 } else {
                     self.catchError(res);
                 }
@@ -22052,7 +22054,25 @@ $.extend(window.DxCryptoClass.prototype, {
         }
         return bytes.buffer;
     },
-    encryptFields: function () {
+    encryptFields: function (event, callback) {
+        var cryptoFields = $('input.dx-crypto-field,textarea.dx-crypto-field');
+
+        var cryptoFieldCount = cryptoFields.length;
+        var cryptoFieldCounter = 0;
+
+        var onFinishing = function () {
+            // Modifies original event data by setting that encryption is finished
+            event.encryptionFinished = true;
+
+            // Calls forms save button
+            callback(event);
+        };
+
+        if (cryptoFieldCount <= 0) {
+            onFinishing();
+            return true;
+        }
+
         show_page_splash(1);
         show_form_splash(1);
 
@@ -22061,16 +22081,10 @@ $.extend(window.DxCryptoClass.prototype, {
         if (!self.certificate || !self.certificate.publicKey) {
             // Retrieves certificate and calls this function again
             self.getCurrentUserCertificate(0, function () {
-                self.encryptFields();
+                self.encryptFields(event, callback);
             });
             return false;
         }
-
-        // ADD THAT SEARCH ONLY THOSE FIELDS WHICH ARE DECRYPTED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        var cryptoFields = $('.dx-crypto-field');
-
-        var cryptoFieldCount = cryptoFields.length;
-        var cryptoFieldCounter = 0;
 
         // Async recursive action...
         cryptoFields.each(function () {
@@ -22078,9 +22092,25 @@ $.extend(window.DxCryptoClass.prototype, {
 
             var masterKeyGroupId = $(cryptoField).data('masterkey-group');
 
+            if ($(cryptoField).data('is-decrypted') != 1) {
+                if (cryptoFieldCount === ++cryptoFieldCounter) {
+                    hide_page_splash(1);
+                    hide_form_splash(1);
+                }
+
+                return true;
+            }
+
             // Key is not found for user
             if (!(masterKeyGroupId in self.masterKeyGroups)) {
-                return false;
+                if (cryptoFieldCount === ++cryptoFieldCounter) {
+                    hide_page_splash(1);
+                    hide_form_splash(1);
+                }
+
+                cryptoField.crypto.setAccessError();
+
+                return true;
             }
 
             var decryptedData = self.stringToArrayBuffer(cryptoField.crypto.getValue());
@@ -22108,14 +22138,15 @@ $.extend(window.DxCryptoClass.prototype, {
                         //returns an ArrayBuffer containing the decrypted data
                         var value = self.arrayBufferToHexString(resBuffer);
 
-                        cryptoField.crypto.setValue(value);
-
-                        cryptoFieldCounter++;
+                        cryptoField.crypto.setValue(value, false);
+                        $(cryptoField).data('is-decrypted', 0);
 
                         // If end move to next field
-                        if (cryptoFieldCount === cryptoFieldCounter) {
+                        if (cryptoFieldCount === ++cryptoFieldCounter) {
                             hide_page_splash(1);
                             hide_form_splash(1);
+
+                            onFinishing();
 
                             return true;
                         }
@@ -22128,6 +22159,15 @@ $.extend(window.DxCryptoClass.prototype, {
      * @returns {undefined}
      */
     decryptFields: function () {
+        var cryptoFields = $('.dx-crypto-field');
+
+        var cryptoFieldCount = cryptoFields.length;
+        var cryptoFieldCounter = 0;
+
+        if (cryptoFieldCount <= 0) {
+            return true;
+        }
+
         show_page_splash(1);
         show_form_splash(1);
 
@@ -22141,20 +22181,51 @@ $.extend(window.DxCryptoClass.prototype, {
             return false;
         }
 
-        var cryptoFields = $('.dx-crypto-field');
-
-        var cryptoFieldCount = cryptoFields.length;
-        var cryptoFieldCounter = 0;
-
         // Async recursive action...
         cryptoFields.each(function () {
             var cryptoField = this;
 
             var masterKeyGroupId = $(cryptoField).data('masterkey-group');
 
+            if ($(cryptoField).data('is-decrypted') == 1) {
+                if (cryptoFieldCount == ++cryptoFieldCounter) {
+                    hide_page_splash(1);
+                    hide_form_splash(1);
+                }
+                return true;
+            }
+
             // Key is not found for user
             if (!(masterKeyGroupId in self.masterKeyGroups)) {
-                return false;
+                if (cryptoFieldCount === ++cryptoFieldCounter) {
+                    hide_page_splash(1);
+                    hide_form_splash(1);
+                }
+
+                cryptoField.crypto.setAccessError();
+                return true;
+            }
+
+            var value = cryptoField.crypto.getValue();
+
+            var setDecryptedValue = function (value) {
+                cryptoField.crypto.setValue(value, true);
+
+                $(cryptoField).data('is-decrypted', 1);
+
+                cryptoFieldCounter++;
+
+                // If end move to next field
+                if (cryptoFieldCount === cryptoFieldCounter) {
+                    hide_page_splash(1);
+                    hide_form_splash(1);
+                    return true;
+                }
+            };
+
+            if (value == '') {
+                setDecryptedValue('');
+                return true;
             }
 
             var encryptedData = self.hexStringToArrayBuffer(cryptoField.crypto.getValue());
@@ -22176,16 +22247,7 @@ $.extend(window.DxCryptoClass.prototype, {
                         //returns an ArrayBuffer containing the decrypted data
                         var value = self.arrayBufferToString(decryptedValue);
 
-                        cryptoField.crypto.setValue(value);
-
-                        cryptoFieldCounter++;
-
-                        // If end move to next field
-                        if (cryptoFieldCount === cryptoFieldCounter) {
-                            hide_page_splash(1);
-                            hide_form_splash(1);
-                            return true;
-                        }
+                        setDecryptedValue(value);
                     })
                     .catch(window.DxCrypto.catchError);
         });
@@ -22451,7 +22513,7 @@ $.extend(window.DxCryptoClass.prototype, {
                     var master_keys = new Array();
                     if (res.master_keys) {
                         for (var i = 0; i < res.master_keys.length; i++) {
-                            res.master_keys[i].value = new Uint8Array(self.base64ToArrayBuffer(res.master_keys[i].value));
+                            res.master_keys[i].value = self.hexStringToArrayBuffer(res.master_keys[i].value);
                         }
 
                         master_keys = res.master_keys;
@@ -22523,10 +22585,10 @@ $.extend(window.DxCryptoClass.prototype, {
     saveMasterKey: function (userId, masterKeyGroupId, wrappedMasterKey, callback) {
         var self = window.DxCrypto;
 
-        var masterKeyBlob = new Blob([new Uint8Array(wrappedMasterKey)], {type: "application/octet-stream"});
+        var masterKeyHex = self.arrayBufferToHexString(wrappedMasterKey);
 
         var container = new FormData();
-        container.append('master_key', masterKeyBlob);
+        container.append('master_key', masterKeyHex);
         container.append('master_key_group_id', masterKeyGroupId);
         container.append('user_id', userId);
 
@@ -22541,7 +22603,11 @@ $.extend(window.DxCryptoClass.prototype, {
                 if (res && res.success) {
                     callback();
                 } else {
-                    self.catchError(res);
+                    if (res.msg) {
+                        self.catchError(res, res.msg);
+                    } else {
+                        self.catchError(res);
+                    }
                 }
             },
             error: function (err) {
@@ -22555,14 +22621,11 @@ $.extend(window.DxCryptoClass.prototype, {
      * @param {int} userId User's ID
      * @returns {undefined}
      */
-    generateMasterKey: function (masterKeyGroupId, userId) {
-        show_page_splash(1);
-        show_form_splash(1);
-
+    generateMasterKey: function (masterKeyGroupId, userId, callback) {
         var self = window.DxCrypto;
 
         var selfCall = function () {
-            self.generateMasterKey(masterKeyGroupId, userId);
+            self.generateMasterKey(masterKeyGroupId, userId, callback);
         };
 
         if (!self.certificate || !self.certificate.publicKey) {
@@ -22600,17 +22663,47 @@ $.extend(window.DxCryptoClass.prototype, {
                                 });
                     })
                     .then(function (wrappedMasterKey) {
+                        callback(wrappedMasterKey);
+
                         // Saves wrapped master key to specified user
-                        window.DxCrypto.saveMasterKey(userId, masterKeyGroupId, wrappedMasterKey, function () {
-                            notify_info(Lang.get('crypto.i_save_masterkey_success'));
-                            hide_page_splash(1);
-                            hide_form_splash(1);
-                        });
+                        /*  window.DxCrypto.saveMasterKey(userId, masterKeyGroupId, wrappedMasterKey, function () {
+                         notify_info(Lang.get('crypto.i_save_masterkey_success'));
+                         hide_page_splash(1);
+                         hide_form_splash(1);
+                         });*/
                     })
                     .catch(window.DxCrypto.catchError);
+        });
+    },
+    onMasterKeysSave: function (event, form) {
+        var btnSave = $('.dx-btn-save-form', form);
 
+        var isMasterKeyGenerated = btnSave.data('is-masterkey-generated');
 
+        if (isMasterKeyGenerated == 1) {
+            return true;
+        }
 
+        show_page_splash(1);
+        show_form_splash(1);
+
+        event.stopImmediatePropagation();
+
+        var userId = $('input[name=user_id]', form).val();
+
+        var masterKeyGroupId = $('input[name=master_key_group_id]', form).val();
+
+        window.DxCrypto.generateMasterKey(masterKeyGroupId, userId, function (wrappedMasterKey) {
+            var masterKeyHex = window.DxCrypto.arrayBufferToHexString(wrappedMasterKey);
+
+            $('input[name=master_key]', form).val(masterKeyHex);
+
+            hide_page_splash(1);
+            hide_form_splash(1);
+
+            btnSave.data('is-masterkey-generated', 1);
+
+            btnSave.click();
         });
     }
 });
@@ -22678,16 +22771,25 @@ window.DxCrypto = new window.DxCryptoClass();
 
             self.domObject.after(button);
 
-            button.click(function () {
+            button.click(function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
                 window.DxCrypto.decryptFields();
             });
+        },
+        setAccessError: function () {
+            var label = '<span class="label label-danger"> ' + Lang.get('crypto.e_no_access') + ' </span>';
+            
+            this.domObject.next('.dx-crypto-decrypt-btn').remove();
+            this.domObject.after(label);
         },
         /**
          * Gets value of current element. It can be input or other container (e.g. div, span)
          * @returns {string}
          */
         getValue: function () {
-            if (this.domObject.is('input')) {
+            if (this.domObject.is('input') || this.domObject.is('textarea')) {
                 return this.domObject.val();
             } else {
                 return this.domObject.html();
@@ -22696,17 +22798,22 @@ window.DxCrypto = new window.DxCryptoClass();
         /**
          * Sets value of current element. It can be input or other container (e.g. div, span)
          * @param {string} value It will be set to element
+         * @param {boolean} isVisible Shows element and hides decrypt button
          * @returns {undefined}
          */
-        setValue: function (value) {
-            if (this.domObject.is('input')) {
+        setValue: function (value, isVisible) {
+            if (this.domObject.is('input') || this.domObject.is('textarea')) {
                 this.domObject.val(value);
             } else {
                 this.domObject.html(value);
             }
 
-            // Shows field
-            this.showField();
+            if (isVisible) {
+                // Shows field
+                this.showField();
+            } else {
+                this.domObject.hide();
+            }
         },
         /**
          * Shows field

@@ -59,16 +59,25 @@
 
             self.domObject.after(button);
 
-            button.click(function () {
+            button.click(function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
                 window.DxCrypto.decryptFields();
             });
+        },
+        setAccessError: function () {
+            var label = '<span class="label label-danger"> ' + Lang.get('crypto.e_no_access') + ' </span>';
+            
+            this.domObject.next('.dx-crypto-decrypt-btn').remove();
+            this.domObject.after(label);
         },
         /**
          * Gets value of current element. It can be input or other container (e.g. div, span)
          * @returns {string}
          */
         getValue: function () {
-            if (this.domObject.is('input')) {
+            if (this.domObject.is('input') || this.domObject.is('textarea')) {
                 return this.domObject.val();
             } else {
                 return this.domObject.html();
@@ -77,17 +86,22 @@
         /**
          * Sets value of current element. It can be input or other container (e.g. div, span)
          * @param {string} value It will be set to element
+         * @param {boolean} isVisible Shows element and hides decrypt button
          * @returns {undefined}
          */
-        setValue: function (value) {
-            if (this.domObject.is('input')) {
+        setValue: function (value, isVisible) {
+            if (this.domObject.is('input') || this.domObject.is('textarea')) {
                 this.domObject.val(value);
             } else {
                 this.domObject.html(value);
             }
 
-            // Shows field
-            this.showField();
+            if (isVisible) {
+                // Shows field
+                this.showField();
+            } else {
+                this.domObject.hide();
+            }
         },
         /**
          * Shows field
