@@ -12,7 +12,7 @@
             </div>
             <div class="modal-footer">
                 <button id="mindwo-modal-decline" type="button" class="btn pull-left" data-dismiss="modal"></button>
-                <button id="mindwo-modal-accept" type="button" class="btn btn-primary" data-dismiss="modal"></button>   
+                <button id="mindwo-modal-accept" type="button" class="btn btn-primary"></button>   
             </div>
         </div>
     </div>

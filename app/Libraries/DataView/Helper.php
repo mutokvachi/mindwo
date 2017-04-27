@@ -76,14 +76,16 @@ namespace App\Libraries\DataView
             $list_id = $arr_args['list_id'];
             $field_id = $arr_args['field_id'];
             $cell_value = $arr_args['cell_value'];
+            $is_crypted = (isset($arr_args['is_crypted']) && $arr_args['is_crypted']);
+            $masterkey_group_id = (isset($arr_args['masterkey_group_id']) && $arr_args['masterkey_group_id']);
             
-            if (!$is_pdf) {
-                $htm = "<a href = 'JavaScript: download_file(" . $item_id . ", " . $list_id . ", " . $field_id . ");'><i class='glyphicon glyphicon-file'></i> " . e($cell_value) . "</a>";
+            if (!$is_pdf || $is_crypted) {
+                $htm = "<a href = '" . Request::root() . "/download_file_" . $item_id . "_" . $list_id . "_" . $field_id . "'" . (($is_crypted) ? " class='dx-crypto-field-file'" : "") . " data-masterkey-group='" . $masterkey_group_id . "'><i class='glyphicon glyphicon-file'></i> " . e($cell_value) . "</a>";
             }
             else {
                 $htm = "<a href='" . Request::root() . "/web/viewer.html?file=" . Request::root() . "/download_file_" . $item_id . "_" . $list_id . "_" . $field_id . ".pdf' target='_blank'>" . e($cell_value) . "</a>";
             }
-            
+            \Log::info("File HTM: " . $htm);
             return $htm;
         }
         
@@ -153,14 +155,22 @@ namespace App\Libraries\DataView
             $align = $arr_args['align'];
             $cell_value = $arr_args['cell_value'];
             $is_val_html = (isset($arr_args['is_val_html']) && $arr_args['is_val_html']);
+            $is_crypted = (isset($arr_args['is_crypted']) && $arr_args['is_crypted']);
+            $masterkey_group_id = (isset($arr_args['masterkey_group_id']) && $arr_args['masterkey_group_id']) ? $arr_args['masterkey_group_id'] : 0;
+            $is_file = (isset($arr_args['is_file']) && $arr_args['is_file']);
             
             $htm = "<td align='" . $align . "'>";
-            if ($is_val_html) {
-                $htm .= $cell_value; // not escaped
+            if (!$is_val_html) {
+                $cell_value = e($cell_value);
+            }
+            
+            if ($is_crypted && !$is_file) {
+                $htm .= "<span class='dx-crypto-field' data-masterkey-group='" . $masterkey_group_id . "'>" . $cell_value . "</span>";
             }
             else {
-                $htm .= e($cell_value);
+                $htm .= $cell_value;
             }
+            
             $htm .= "</td>";
             
             return $htm;

@@ -169,6 +169,12 @@ Route::group(['prefix' => 'workflow'], function() {
     });
 });
 
+Route::group(['prefix' => 'crypto', 'namespace' => 'Crypto'], function() {
+        Route::get('/user_panel', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@getUserPanelView'));   
+        Route::get('/get_user_cert/{user_id?}/{master_key_group_id?}', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@getUserCertificate'));    
+        Route::post('/save_cert', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@saveUserCertificate'));   
+        Route::post('/save_master_key', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@saveUserMasterKey'));   
+});
 
 // Lietotāji - autorizācija, atslēgšanās
 Route::post('/login', 'UserController@loginUser');

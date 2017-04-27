@@ -321,7 +321,7 @@ namespace App\Libraries {
 				ft.is_decimal,
 				o.db_name as rel_table_db_name,
 				rf.db_name as rel_field_db_name,
-				vf.is_item_link,
+				case when lf.is_crypted then 0 else vf.is_item_link end as is_item_link,
 				ft.sys_name,
 				lf.formula,
 				lf.list_id,
@@ -332,7 +332,9 @@ namespace App\Libraries {
 				vf.is_sum,
 				at.sys_name as aggregation,
                                 lf.rel_list_id,
-                                lo.db_name as list_table_name
+                                lo.db_name as list_table_name,
+                                lf.is_crypted,
+                                l.masterkey_group_id
 			FROM
 				dx_views_fields vf
 				inner join dx_lists_fields lf on vf.field_id = lf.id
@@ -379,7 +381,8 @@ namespace App\Libraries {
 				"search" => false,
 				"sortable" => false,
 				"formatter" => "js:myEditBtn",
-				"fixed" => true
+				"fixed" => true,
+                                "is_crypted" => 0
 				);
 		array_push($this->model, $arr_fld_opt);
 		
@@ -600,7 +603,9 @@ namespace App\Libraries {
 								"type" => $row->sys_name,
                                                                 "is_hidden" => $row->is_hidden,
                                                                 "original_table" => $original_table,
-                                                                "original_field" => $row->db_name
+                                                                "original_field" => $row->db_name,
+                                                                "is_crypted" => $row->is_crypted,
+                                                                "masterkey_group_id" => $row->masterkey_group_id
 								);
 						
 						// Grand total logic

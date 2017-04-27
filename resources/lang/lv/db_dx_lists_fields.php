@@ -12,4 +12,6 @@ return [
     'is_right_check_hint' => 'Norāda, vai ielādējot datus uzmeklēšanas laukā tiks kontrolētas tiesības.',
     'js_showhide' => 'Parāda vai paslēpj laukus atkarībā no izvēlētā tipa',
     'js_lookup' => 'Ielādē saistītā reģistra laukus atkarībā no izvēlētā reģistra',
+    'is_crypted' => 'Ir lauka vērtības šifrēšana',
+    'hint_is_crypted' => 'Ja norādīts, tad lauka vērtība tiks šifrēta ar speciālu paroli un datu bāzē glabāsies šifrētā veidā. Lietotāji, kuriem nebūs zināma parole, lauka vērtību nevarēs izlasīt.',
 ];
