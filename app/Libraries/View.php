@@ -321,7 +321,7 @@ namespace App\Libraries {
 				ft.is_decimal,
 				o.db_name as rel_table_db_name,
 				rf.db_name as rel_field_db_name,
-				vf.is_item_link,
+				case when lf.is_crypted then 0 else vf.is_item_link end as is_item_link,
 				ft.sys_name,
 				lf.formula,
 				lf.list_id,
