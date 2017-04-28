@@ -22055,7 +22055,7 @@ $.extend(window.DxCryptoClass.prototype, {
         return bytes.buffer;
     },
     encryptFields: function (event, callback) {
-        var cryptoFields = $('input.dx-crypto-field,textarea.dx-crypto-field');
+        var cryptoFields = $('input.dx-crypto-field,textarea.dx-crypto-field,input.dx-crypto-field-file');
 
         var cryptoFieldCount = cryptoFields.length;
         var cryptoFieldCounter = 0;
@@ -22092,14 +22092,15 @@ $.extend(window.DxCryptoClass.prototype, {
 
             var masterKeyGroupId = $(cryptoField).data('masterkey-group');
 
-            if ($(cryptoField).data('is-decrypted') != 1) {
+            // TEMP DISABLE
+        /*    if ($(cryptoField).data('is-decrypted') != 1) {
                 if (cryptoFieldCount === ++cryptoFieldCounter) {
                     hide_page_splash(1);
                     hide_form_splash(1);
                 }
 
                 return true;
-            }
+            }*/
 
             // Key is not found for user
             if (!(masterKeyGroupId in self.masterKeyGroups)) {
@@ -22113,45 +22114,49 @@ $.extend(window.DxCryptoClass.prototype, {
                 return true;
             }
 
-            var decryptedData = self.stringToArrayBuffer(cryptoField.crypto.getValue());
+            var onReceiveValue = function (value) {
+                var decryptedData = self.stringToArrayBuffer(value);
+                
+                var counterBuffer = new Uint8Array(16);
 
-            var counterBuffer = new Uint8Array(16);
+                window.crypto.subtle.encrypt(
+                        {
+                            name: "AES-CTR",
+                            //Don't re-use counters!
+                            //Always use a new counter every time your encrypt!
+                            counter: counterBuffer,
+                            length: 128, //can be 1-128
+                        },
+                        self.masterKeyGroups[masterKeyGroupId], //from generateKey or importKey above
+                        decryptedData //ArrayBuffer of the data
+                        )
+                        .then(function (encryptedValue) {
+                            encryptedValue = new Uint8Array(encryptedValue);
 
-            window.crypto.subtle.encrypt(
-                    {
-                        name: "AES-CTR",
-                        //Don't re-use counters!
-                        //Always use a new counter every time your encrypt!
-                        counter: counterBuffer,
-                        length: 128, //can be 1-128
-                    },
-                    self.masterKeyGroups[masterKeyGroupId], //from generateKey or importKey above
-                    decryptedData //ArrayBuffer of the data
-                    )
-                    .then(function (encryptedValue) {
-                        encryptedValue = new Uint8Array(encryptedValue);
+                            var resBuffer = new Uint8Array(encryptedValue.length + counterBuffer.length);
+                            resBuffer.set(counterBuffer);
+                            resBuffer.set(encryptedValue, counterBuffer.length);
 
-                        var resBuffer = new Uint8Array(encryptedValue.length + counterBuffer.length);
-                        resBuffer.set(counterBuffer);
-                        resBuffer.set(encryptedValue, counterBuffer.length);
+                            //returns an ArrayBuffer containing the decrypted data
+                            var value = self.arrayBufferToHexString(resBuffer);
 
-                        //returns an ArrayBuffer containing the decrypted data
-                        var value = self.arrayBufferToHexString(resBuffer);
+                            cryptoField.crypto.setValue(value, false);
+                            $(cryptoField).data('is-decrypted', 0);
 
-                        cryptoField.crypto.setValue(value, false);
-                        $(cryptoField).data('is-decrypted', 0);
+                            // If end move to next field
+                            if (cryptoFieldCount === ++cryptoFieldCounter) {
+                                hide_page_splash(1);
+                                hide_form_splash(1);
 
-                        // If end move to next field
-                        if (cryptoFieldCount === ++cryptoFieldCounter) {
-                            hide_page_splash(1);
-                            hide_form_splash(1);
+                                onFinishing();
 
-                            onFinishing();
-
-                            return true;
-                        }
-                    })
-                    .catch(window.DxCrypto.catchError);
+                                return true;
+                            }
+                        })
+                        .catch(window.DxCrypto.catchError);
+            }
+            
+            cryptoField.crypto.getValue(onReceiveValue);
         });
     },
     /**
@@ -22780,7 +22785,7 @@ window.DxCrypto = new window.DxCryptoClass();
         },
         setAccessError: function () {
             var label = '<span class="label label-danger"> ' + Lang.get('crypto.e_no_access') + ' </span>';
-            
+
             this.domObject.next('.dx-crypto-decrypt-btn').remove();
             this.domObject.after(label);
         },
@@ -22788,12 +22793,15 @@ window.DxCrypto = new window.DxCryptoClass();
          * Gets value of current element. It can be input or other container (e.g. div, span)
          * @returns {string}
          */
-        getValue: function () {
+        getValue: function (callback) {
+            var value;
             if (this.domObject.is('input') || this.domObject.is('textarea')) {
-                return this.domObject.val();
+                value = this.domObject.val();
             } else {
-                return this.domObject.html();
+                value = this.domObject.html();
             }
+
+            callback(value);
         },
         /**
          * Sets value of current element. It can be input or other container (e.g. div, span)
@@ -22829,12 +22837,162 @@ window.DxCrypto = new window.DxCryptoClass();
 // ajaxComplete ready
 $(document).ready(function () {
     // Initializes all found worklfow containers
-    $('.dx-crypto-field[data-dx_is_init!=1]').DxCryptoField();
+    $('.dx-crypto-field').DxCryptoField();
 });
 
 $(document).ajaxComplete(function () {
     // Initializes all found worklfow containers
-    $('.dx-crypto-field[data-dx_is_init!=1]').DxCryptoField();
+    $('.dx-crypto-field').DxCryptoField();
+});
+
+(function ($)
+{
+    /**
+     * Creates jQuery plugin for crypto fields
+     * @returns DxCryptoFileField
+     */
+    $.fn.DxCryptoFileField = function ()
+    {
+        /*for (var i=0; i < this.length; i++){
+            var selfR = this[i];
+            
+            var self = $(selfR);
+            
+            if (self.data('dx_is_init') == 1) {
+                continue;
+            }
+
+            self.data('dx_is_init', 1);
+            
+            var cr = new $.DxCryptoFileField(self);
+            
+            this.crypto = cr;
+        }*/
+        
+       return this.each(function ()
+        {
+            var self = $(this);
+            
+            if (self.data('dx_is_init') == 1) {
+                return;
+            }
+
+            self.data('dx_is_init', 1);
+            
+            this.crypto = new $.DxCryptoFileField(self);
+        });
+    };
+
+    /**
+     * Class for managing crypto fields
+     * @type DxCryptoFileField 
+     */
+    $.DxCryptoFileField = function (domObject) {
+        /**
+         * Field's DOM object which is related to this class
+         */
+        this.domObject = domObject;
+
+        // Initializes class
+        this.init();
+    };
+
+    /**
+     * Initializes component
+     * @returns {undefined}
+     */
+    $.extend($.DxCryptoFileField.prototype, {
+        /**
+         * Initializes field
+         * @returns {undefined}
+         */
+        init: function () {
+            var self = this;
+
+            if (this.domObject.is('input')) {
+                this.inputInit();
+            } else if (this.domObject.is('a')) {
+                this.linkInit();
+            }
+        },
+        inputInit: function () {
+
+        },
+        linkInit: function () {
+            this.domObject.click(this.onLinkClick);
+        },
+        onLinkClick: function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+
+            // window.DxCrypto.decryptFields();
+        },
+        setAccessError: function () {
+            /*  var label = '<span class="label label-danger"> ' + Lang.get('crypto.e_no_access') + ' </span>';
+             
+             this.domObject.next('.dx-crypto-decrypt-btn').remove();
+             this.domObject.after(label);*/
+        },
+        /**
+         * Gets value of current element. It can be input or other container (e.g. div, span)
+         * @returns {string}
+         */
+        getValue: function (callback) {
+            if (this.domObject.is('input')) {
+                this.getFileValue(callback);
+            } else if (this.domObject.is('a')) {
+                this.getLinkValue(callback);
+            }
+        },
+        getFileValue: function (callback) {
+            if (this.domObject[0].files.length === 0) {                
+                return new ArrayBuffer(0);
+            }
+
+            var fr = new FileReader();
+            fr.onload = function () {
+                var data = fr.result;
+                var dataArray = new Int8Array(data);
+                
+                callback(dataArray);
+            };
+            
+            fr.readAsArrayBuffer(this.domObject[0].files[0]);
+        },
+        getLinkValue: function () {
+
+        },
+        /**
+         * Sets value of current element. It can be input or other container (e.g. div, span)
+         * @param {string} value It will be set to element
+         * @returns {undefined}
+         */
+        setValue: function (value) {
+            if (this.domObject.is('input')) {
+                return this.setFileValue(value);
+            } else if (this.domObject.is('a')) {
+                return this.setLinkValue(value);
+            }
+        },
+        setFileValue: function (value) {
+
+        },
+        setLinkValue: function (value) {
+
+        }
+    });
+})(jQuery);
+
+// ajaxComplete ready
+$(document).ready(function () {
+    // Initializes all found worklfow containers
+    $('.dx-crypto-field-file').DxCryptoFileField();
+});
+
+$(document).ajaxComplete(function () {
+    // Initializes all found worklfow containers
+    $('.dx-crypto-field-file').DxCryptoFileField();
 });
 
 (function ($)

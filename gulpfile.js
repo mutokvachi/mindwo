@@ -188,6 +188,7 @@ gulp.task('mix_all', function() {
             'float-thead/dist/jquery.floatThead.js',
             'mindwo/crypto/crypto.js',
             'mindwo/crypto/crypto_field.js',
+            'mindwo/crypto/crypto_file_field.js',
             'mindwo/crypto/crypto_user_panel.js',
                     //'mindwo/visual_ui/workflow.js',
                     //'mxgraph/src/js/mxClient.js',

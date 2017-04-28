@@ -68,7 +68,7 @@
         },
         setAccessError: function () {
             var label = '<span class="label label-danger"> ' + Lang.get('crypto.e_no_access') + ' </span>';
-            
+
             this.domObject.next('.dx-crypto-decrypt-btn').remove();
             this.domObject.after(label);
         },
@@ -76,12 +76,15 @@
          * Gets value of current element. It can be input or other container (e.g. div, span)
          * @returns {string}
          */
-        getValue: function () {
+        getValue: function (callback) {
+            var value;
             if (this.domObject.is('input') || this.domObject.is('textarea')) {
-                return this.domObject.val();
+                value = this.domObject.val();
             } else {
-                return this.domObject.html();
+                value = this.domObject.html();
             }
+
+            callback(value);
         },
         /**
          * Sets value of current element. It can be input or other container (e.g. div, span)
@@ -117,10 +120,10 @@
 // ajaxComplete ready
 $(document).ready(function () {
     // Initializes all found worklfow containers
-    $('.dx-crypto-field[data-dx_is_init!=1]').DxCryptoField();
+    $('.dx-crypto-field').DxCryptoField();
 });
 
 $(document).ajaxComplete(function () {
     // Initializes all found worklfow containers
-    $('.dx-crypto-field[data-dx_is_init!=1]').DxCryptoField();
+    $('.dx-crypto-field').DxCryptoField();
 });

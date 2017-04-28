@@ -237,7 +237,7 @@ $.extend(window.DxCryptoClass.prototype, {
         return bytes.buffer;
     },
     encryptFields: function (event, callback) {
-        var cryptoFields = $('input.dx-crypto-field,textarea.dx-crypto-field');
+        var cryptoFields = $('input.dx-crypto-field,textarea.dx-crypto-field,input.dx-crypto-field-file');
 
         var cryptoFieldCount = cryptoFields.length;
         var cryptoFieldCounter = 0;
@@ -274,14 +274,15 @@ $.extend(window.DxCryptoClass.prototype, {
 
             var masterKeyGroupId = $(cryptoField).data('masterkey-group');
 
-            if ($(cryptoField).data('is-decrypted') != 1) {
+            // TEMP DISABLE
+        /*    if ($(cryptoField).data('is-decrypted') != 1) {
                 if (cryptoFieldCount === ++cryptoFieldCounter) {
                     hide_page_splash(1);
                     hide_form_splash(1);
                 }
 
                 return true;
-            }
+            }*/
 
             // Key is not found for user
             if (!(masterKeyGroupId in self.masterKeyGroups)) {
@@ -295,45 +296,49 @@ $.extend(window.DxCryptoClass.prototype, {
                 return true;
             }
 
-            var decryptedData = self.stringToArrayBuffer(cryptoField.crypto.getValue());
+            var onReceiveValue = function (value) {
+                var decryptedData = self.stringToArrayBuffer(value);
+                
+                var counterBuffer = new Uint8Array(16);
 
-            var counterBuffer = new Uint8Array(16);
+                window.crypto.subtle.encrypt(
+                        {
+                            name: "AES-CTR",
+                            //Don't re-use counters!
+                            //Always use a new counter every time your encrypt!
+                            counter: counterBuffer,
+                            length: 128, //can be 1-128
+                        },
+                        self.masterKeyGroups[masterKeyGroupId], //from generateKey or importKey above
+                        decryptedData //ArrayBuffer of the data
+                        )
+                        .then(function (encryptedValue) {
+                            encryptedValue = new Uint8Array(encryptedValue);
 
-            window.crypto.subtle.encrypt(
-                    {
-                        name: "AES-CTR",
-                        //Don't re-use counters!
-                        //Always use a new counter every time your encrypt!
-                        counter: counterBuffer,
-                        length: 128, //can be 1-128
-                    },
-                    self.masterKeyGroups[masterKeyGroupId], //from generateKey or importKey above
-                    decryptedData //ArrayBuffer of the data
-                    )
-                    .then(function (encryptedValue) {
-                        encryptedValue = new Uint8Array(encryptedValue);
+                            var resBuffer = new Uint8Array(encryptedValue.length + counterBuffer.length);
+                            resBuffer.set(counterBuffer);
+                            resBuffer.set(encryptedValue, counterBuffer.length);
 
-                        var resBuffer = new Uint8Array(encryptedValue.length + counterBuffer.length);
-                        resBuffer.set(counterBuffer);
-                        resBuffer.set(encryptedValue, counterBuffer.length);
+                            //returns an ArrayBuffer containing the decrypted data
+                            var value = self.arrayBufferToHexString(resBuffer);
 
-                        //returns an ArrayBuffer containing the decrypted data
-                        var value = self.arrayBufferToHexString(resBuffer);
+                            cryptoField.crypto.setValue(value, false);
+                            $(cryptoField).data('is-decrypted', 0);
 
-                        cryptoField.crypto.setValue(value, false);
-                        $(cryptoField).data('is-decrypted', 0);
+                            // If end move to next field
+                            if (cryptoFieldCount === ++cryptoFieldCounter) {
+                                hide_page_splash(1);
+                                hide_form_splash(1);
 
-                        // If end move to next field
-                        if (cryptoFieldCount === ++cryptoFieldCounter) {
-                            hide_page_splash(1);
-                            hide_form_splash(1);
+                                onFinishing();
 
-                            onFinishing();
-
-                            return true;
-                        }
-                    })
-                    .catch(window.DxCrypto.catchError);
+                                return true;
+                            }
+                        })
+                        .catch(window.DxCrypto.catchError);
+            }
+            
+            cryptoField.crypto.getValue(onReceiveValue);
         });
     },
     /**
