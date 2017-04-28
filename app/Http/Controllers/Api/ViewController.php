@@ -63,6 +63,15 @@ class ViewController extends Controller
         return response()->json(['success' => 1, 'rows' => $view->getViewHtml()]);
     }
     
+    /**
+     * Returns filtered raw (dirrectly from db table) data in JSON format
+     * Filtering can be done by one field
+     * 
+     * @param mixed $view_id View ID (from db table dx_views.id) or view name (dx_views.url)
+     * @param mixed $field Field ID (from db table dx_lists_fields.id) or field name (dx_lists_fields.db_name)
+     * @param mixed $criteria Filtering criteria (some ID value or text) - will be used SQL operator LIKE
+     * @return \Illuminate\Http\JsonResponse Views data in JSON format
+     */
     public function getFilteredRawData($view_id, $field, $criteria) {
         
         $this->setClassParams($view_id);
@@ -72,6 +81,66 @@ class ViewController extends Controller
         $obj = \App\Libraries\DBHelper::getListObject($this->view_row->list_id);
         
         $data = DB::table($obj->db_name)->where($field_row->db_name, '=', $criteria)->get();
+        
+        return response()->json(['success' => 1, 'rows' => json_encode($data)]);
+    }
+    
+    /**
+     * Returns raw (dirrectly from db table) data in JSON format
+     * 
+     * @param mixed $view_id View ID (from db table dx_views.id) or view name (dx_views.url)
+     * @return \Illuminate\Http\JsonResponse Views data in JSON format
+     */
+    public function getRawData($view_id) {
+        
+        $this->setClassParams($view_id);
+                
+        $obj = \App\Libraries\DBHelper::getListObject($this->view_row->list_id);
+        
+        $data = DB::table($obj->db_name)->get();
+        
+        return response()->json(['success' => 1, 'rows' => json_encode($data)]);
+    }
+    
+        /**
+     * Returns filtered raw (dirrectly from db table) data in JSON format
+     * Filtering can be done by one field
+     * 
+     * @param mixed $view_id View ID (from db table dx_views.id) or view name (dx_views.url)
+     * @param mixed $field Field ID (from db table dx_lists_fields.id) or field name (dx_lists_fields.db_name)
+     * @param mixed $criteria Filtering criteria (some ID value or text) - will be used SQL operator LIKE
+     * @return \Illuminate\Http\JsonResponse Views data in JSON format
+     */
+    public function getFilteredOrderedRawData(\Illuminate\Http\Request $request) {
+        $view_id = $request->input('view_id', 0);
+        $is_first = $request->input('is_first', 0);
+        $where = $request->input('where', '');
+        $order = $request->input('order', '');
+        
+        $this->setClassParams($view_id);
+                
+        $obj = \App\Libraries\DBHelper::getListObject($this->view_row->list_id);
+        
+        $arr_order = json_decode($order);
+        $arr_where = json_decode($where);
+                
+        $data = DB::table($obj->db_name);
+        
+        foreach($arr_where->where as $whe) {            
+            $data = $data->where($whe->field, $whe->operation, $whe->criteria);
+        }
+        
+        
+        foreach($arr_order->order as $ord) {
+            $data = $data->orderBy($ord->field, $ord->sort);
+        }
+        
+        if ($is_first) {
+            $data = $data->first();
+        }
+        else {
+            $data = $data->get();
+        }
         
         return response()->json(['success' => 1, 'rows' => json_encode($data)]);
     }

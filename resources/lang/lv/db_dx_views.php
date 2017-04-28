@@ -53,4 +53,7 @@ return [
     'tab_report' => 'Atskaite',
     
     'group' => 'Atskaišu grupa',
+    
+    'is_for_lookup' => 'Is for lookup',
+    'hint_is_for_lookup' => "Skats tiks izmantots tikai izkrītošo izvēļņu un uzmeklēšanas lauku vērtību atlasei. Skats nebūs pieejams reģistros.",
 ];

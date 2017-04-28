@@ -11,11 +11,11 @@
         <div class="row">
             <div class="hidden-xs col-sm-2 col-md-2 employee-pic-box">
                 <img src="{{Request::root()}}/{{ \App\Libraries\Helper::getEmployeeAvatarBig($item->picture_guid) }}" class="img-responsive">
-                @if ($item->termination_date)
-                    <div style="text-align: center; margin-top: 10px; width: 120px;">
-                        <a href="javascript:;" class="btn btn-default grey" style="font-size: 10px;" title="Left on {{ short_date($item->termination_date) }}"> Left </a>
+                
+                    <div style="text-align: center; margin-top: 10px; max-width: 120px;">
+                        @include('profile.status_info', ['avail' => \App\Libraries\Helper::getEmployeeStatus($item->valid_from, $item->termination_date)])
                     </div>
-                @endif
+                
             </div>
 
             <div class="col-xs-12 col-sm-10 col-md-6">

@@ -22,6 +22,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\CalculateTimeoff::class,
         \App\Console\Commands\AuditViewCounts::class,
         \App\Console\Commands\UpdateLeftStatus::class,
+        \App\Console\Commands\ServerLogImport::class,
     ];
 
     /**
@@ -63,6 +64,10 @@ class Kernel extends ConsoleKernel
             // Clean disk space if too many backups 1 hour after midnight
             $schedule->command('backup:clean')
                      ->dailyAt('1:00');
+        }
+        
+        if (Config::get('server_log.is_server_audit_on', false)) {
+            $schedule->command('mindwo:save-log')->everyMinute();
         }
     }
 }

@@ -109,6 +109,7 @@ class OrgChartController extends Controller
 			// raw expression is needed because of Eloquent is putting an ID from joined table into the model
 			App\User::select(DB::raw('*, dx_users.id AS id'))
 				->leftJoin('dx_users_positions AS p', 'dx_users.position_id', '=', 'p.id')
+                                ->leftJoin('dx_users_jobtypes as jt', 'dx_users.job_type_id', '=', 'jt.id')
 				// here we place employees without position to the end of the list
 				->orderBy(DB::raw('dx_users.position_id IS NOT NULL'), 'DESC')
 				// sorting by index
@@ -117,6 +118,11 @@ class OrgChartController extends Controller
 				->orderBy('dx_users.display_name')
 				// skip system users
 				->whereNotIn('dx_users.id', config('dx.empl_ignore_ids', [1]))
+                                ->whereNull('dx_users.termination_date')
+                                ->where(function($query) {
+                                    $query->whereNull('dx_users.job_type_id')
+                                          ->orWhere('jt.is_hide_orgchart', '=', 0);
+                                })
 				->get();
 		
 		$employees = [];

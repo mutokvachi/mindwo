@@ -99,12 +99,37 @@ Route::group(['middleware' => 'auth_api', 'prefix' => 'api'], function() {
         Route::get('{view_id}/data/all', 'ViewController@getAllData');
         Route::get('{view_id}/data/filtered/{field}/{criteria}', 'ViewController@getFilteredData');
         Route::get('{view_id}/data/raw/{field}/{criteria}', 'ViewController@getFilteredRawData');
+        Route::get('{view_id}/data/raw_all', 'ViewController@getRawData');
+        Route::post('raw_filtered_ordered', 'ViewController@getFilteredOrderedRawData');
+    });
+});
+
+Route::group(['middleware' => 'auth_api', 'prefix' => 'api'], function() {    
+    Route::group(['prefix' => 'view', 'namespace' => 'Api'], function () {
+        Route::get('{view_id}/data/all', 'ViewController@getAllData');
+        Route::get('{view_id}/data/filtered/{field}/{criteria}', 'ViewController@getFilteredData');
+        Route::get('{view_id}/data/raw/{field}/{criteria}', 'ViewController@getFilteredRawData');
+        Route::get('{view_id}/data/raw_all', 'ViewController@getRawData');
+        Route::post('raw_filtered_ordered', 'ViewController@getFilteredOrderedRawData');
+    });
+    Route::group(['prefix' => 'core', 'namespace' => 'Api'], function () {
+        Route::get('data/lookup_fields/{list_id}', 'CoreController@getLookupFields');
     });
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'reports', 'namespace' => 'Reports'], function() { 
     Route::get('/', 'ReportsController@getDefault');
     Route::get('/group/{group_id}', 'ReportsController@getByGroup');
+});
+
+Route::group(['middleware' => 'auth', 'prefix' => 'meetings', 'namespace' => 'Meetings'], function() { 
+    Route::get('/{meeting_type_id}', 'MeetingsController@getDefault');
+    Route::get('/{meeting_type_id}/{meeting_id}', array('as' => 'meeting', 'uses' => 'MeetingsController@getById'));
+    Route::get('/{meeting_type_id}/{meeting_id}/start', 'MeetingsController@startMeeting');
+    Route::get('/{meeting_type_id}/{meeting_id}/end', 'MeetingsController@endMeeting');
+    Route::get('/{meeting_type_id}/{meeting_id}/next', 'MeetingsController@nextAgenda');
+    Route::post('/agenda', 'MeetingsController@getAgenda');
+    Route::post('/get_agendas_list', 'MeetingsController@getAgendasList');
 });
 
 // Startē procesu forsēti

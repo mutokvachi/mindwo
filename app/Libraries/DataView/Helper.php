@@ -154,7 +154,7 @@ namespace App\Libraries\DataView
             $cell_value = $arr_args['cell_value'];
             $is_val_html = (isset($arr_args['is_val_html']) && $arr_args['is_val_html']);
             
-            $htm = "<td align='{{ $align }}'>";
+            $htm = "<td align='" . $align . "'>";
             if ($is_val_html) {
                 $htm .= $cell_value; // not escaped
             }

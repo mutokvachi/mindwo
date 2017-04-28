@@ -343,7 +343,8 @@ class EmployeeController extends Controller
                                 subst.' . Config::get('dx.empl_fields.empl_name') . ' as subst_empl_name,
                                 in_departments.title as department,
                                 em.id,
-                                em.termination_date
+                                em.termination_date,
+                                em.valid_from
                                 '))
                 ->leftJoin('in_sources', 'em.source_id', '=', 'in_sources.id')
                 ->leftJoin('in_departments', 'em.department_id', '=', 'in_departments.id')

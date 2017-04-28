@@ -318,6 +318,24 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 		return $this->belongsToMany('App\Models\Offer', 'dx_users_offers', 'user_id', 'offer_id')
 			->withPivot('quantity');
 	}
+        
+        /**
+	 * User's certificate
+	 * @return App\Models\Crypto\Certificate
+	 */
+	public function cryptoCertificate()
+	{
+		return $this->hasOne('\App\Models\Crypto\Certificate', 'user_id');
+	}
+        
+        /**
+         * User's master key
+         * @return App\Models\Crypto\Msterkey
+         */
+        public function cryptoMasterKey()
+	{
+		return $this->hasMany('\App\Models\Crypto\Masterkey', 'user_id');
+	}
 	
 	/**
 	 * Get an URL of user's avatar
@@ -331,32 +349,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	
 	public function getAvailability()
 	{
-		if($this->termination_date)
-		{
-			$result = [
-				'button' => 'Left',
-				'class' => 'grey',
-				'title' => 'Employee has left'
-			];
-		}
-		elseif($this->join_date && !$this->termination_date)
-		{
-			$result = [
-				'button' => 'Active',
-				'class' => 'green-jungle',
-				'title' => 'Employee is at work'
-			];
-		}
-		else
-		{
-			$result = [
-				'button' => 'Potential',
-				'class' => 'yellow-lemon',
-				'title' => 'The person is in process of hiring'
-			];
-		}
-		
-		return $result;
+            return Libraries\Helper::getEmployeeStatus($this->valid_from, $this->termination_date);                
 	}
 	
 	/**
