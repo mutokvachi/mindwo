@@ -146,6 +146,7 @@ gulp.task('mix_all', function() {
             'mindwo/pages/search_top.js',
             'validator/validator.js',
             'mindwo/pages/re_login.js',
+            'mindwo/pages/theme_select.js',
             'bootstrap-tabdrop/js/bootstrap-tabdrop.js'
         ],
         'public/js/elix_plugins.js', 'resources/assets/plugins');

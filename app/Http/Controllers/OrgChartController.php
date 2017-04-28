@@ -146,8 +146,7 @@ class OrgChartController extends Controller
 	 *
 	 * @return array
 	 */
-	public
-	function getIndex()
+	public function getIndex()
 	{
 		$index = [];
 		
@@ -179,8 +178,7 @@ class OrgChartController extends Controller
 	 *
 	 * @return array
 	 */
-	public
-	function getParentsIndex()
+	public function getParentsIndex()
 	{
 		$index = [];
 		
@@ -220,8 +218,7 @@ class OrgChartController extends Controller
 	 *
 	 * @return array
 	 */
-	public
-	function getTree($rootId)
+	public function getTree($rootId)
 	{
 		$buildTree = function ($manager_id, &$subtree) use (&$buildTree)
 		{
@@ -272,8 +269,7 @@ class OrgChartController extends Controller
 	 * @param array|null $node
 	 * @return array
 	 */
-	public
-	function getOrgchartDatasource($node = null)
+	public function getOrgchartDatasource($node = null)
 	{
 		$top = $node ? false : true;
 		

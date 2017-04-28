@@ -36,11 +36,23 @@
                   <a href="javascript:;" class="dx-user-change-passw-link">
                     <i class="fa fa-key dx-user-menu"></i> {{ trans("frame.password_change") }} </a>
                 </li>
-                <li>
-                  <a href="javascript:;" class="dx-user-change-design-link">
-                    <i class="fa fa-eye dx-user-menu"></i> {{ trans("frame.change_design") }}
-                  </a>
-                </li>
+                @if(config('dx.is_horizontal_menu'))
+                  <li class="dropdown-submenu">
+                    <a href="javascript:;" class="dx-user-change-design-link">
+                      <i class="fa fa-eye dx-user-menu"></i> {{ trans("frame.change_design") }}
+                    </a>
+                    <ul class="dropdown-menu">
+                      @foreach(\App\Models\UI\Theme::all() as $theme)
+                        <li>
+                          <a href="javascript:;" class="dx-theme-link" data-theme-id="{{ $theme->id }}"
+                            {!! Auth::user()->ui_theme_id == $theme->id ? ' style="font-weight: bold"' : '' !!}>
+                            {{ $theme->title }}
+                          </a>
+                        </li>
+                      @endforeach
+                    </ul>
+                  </li>
+                @endif
               <!--
                     <li class="hidden-sm hidden-md hidden-lg">
                       <a href="{{Request::root()}}/structure/doc_manual" class="">
