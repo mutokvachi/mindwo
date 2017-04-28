@@ -617,7 +617,13 @@ function process_Input_simple(post_form_htm_id, formData){
                     return;
                 }
                 
-                formData.append(obj.name, obj.files[0]);
+                if ($(obj).hasClass('dx-crypto-field-file')) {
+                    var cryptoVal = $(obj).data('crypto-value');
+                    
+                    formData.append(obj.name, cryptoVal, obj.files[0].name);
+                } else {
+                    formData.append(obj.name, obj.files[0]);
+                }
             }
         }
         else

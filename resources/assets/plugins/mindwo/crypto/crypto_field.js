@@ -63,7 +63,7 @@
                 event.preventDefault();
                 event.stopPropagation();
                 event.stopImmediatePropagation();
-                window.DxCrypto.decryptFields();
+                window.DxCrypto.decryptFields($('.dx-crypto-field'));
             });
         },
         setAccessError: function () {
@@ -84,6 +84,12 @@
                 value = this.domObject.html();
             }
 
+            if (this.domObject.data('is-decrypted')) {
+                value = window.DxCrypto.stringToArrayBuffer(value);
+            } else{
+                value = window.DxCrypto.hexStringToArrayBuffer(value);
+            }
+
             callback(value);
         },
         /**
@@ -93,6 +99,14 @@
          * @returns {undefined}
          */
         setValue: function (value, isVisible) {
+            if(value != ''){
+                if (this.domObject.data('is-decrypted')){
+                    value = window.DxCrypto.arrayBufferToHexString(value);
+                }else{
+                    value = window.DxCrypto.arrayBufferToString(value);
+                }
+            } 
+            
             if (this.domObject.is('input') || this.domObject.is('textarea')) {
                 this.domObject.val(value);
             } else {
@@ -113,7 +127,7 @@
         showField: function () {
             this.domObject.next('.dx-crypto-decrypt-btn').remove();
             this.domObject.show();
-        },
+        }
     });
 })(jQuery);
 

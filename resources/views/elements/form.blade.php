@@ -137,7 +137,7 @@
 
                             save_list_item('item_edit_form_{{ $frm_uniq_id }}', '{{ $grid_htm_id }}',{{ $list_id }}, {{ $parent_field_id }}, {{ $parent_item_id }}, '{{ $parent_form_htm_id }}', arr_callbacks);//replace
                         
-                            window.DxCrypto.decryptFields();                        
+                            window.DxCrypto.decryptFields($('.dx-crypto-field'));                        
                         });
 
                         $('#item_edit_form_{{ $frm_uniq_id }}').validator({

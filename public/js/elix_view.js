@@ -15261,7 +15261,13 @@ function process_Input_simple(post_form_htm_id, formData){
                     return;
                 }
                 
-                formData.append(obj.name, obj.files[0]);
+                if ($(obj).hasClass('dx-crypto-field-file')) {
+                    var cryptoVal = $(obj).data('crypto-value');
+                    
+                    formData.append(obj.name, cryptoVal, obj.files[0].name);
+                } else {
+                    formData.append(obj.name, obj.files[0]);
+                }
             }
         }
         else
@@ -21875,7 +21881,7 @@ $.extend(window.DxCryptoClass.prototype, {
                 'raw',
                 passwordBuffer,
                 {name: 'PBKDF2'},
-                false,
+        false,
                 ['deriveKey']
                 )
                 .then(function (baseKey) {
@@ -21900,10 +21906,10 @@ $.extend(window.DxCryptoClass.prototype, {
                     "iterations": 1000,
                     "hash": 'SHA-256'
                 },
-                baseKey,
+        baseKey,
                 {"name": 'AES-CTR', "length": 256}, // For AES the length required to be 128 or 256 bits (not bytes)
 
-                false, // Whether or not the key is extractable (less secure) or not (more secure) when false, the key can only be passed as a web crypto object, not 
+        false, // Whether or not the key is extractable (less secure) or not (more secure) when false, the key can only be passed as a web crypto object, not 
 
                 ["wrapKey", "unwrapKey"] // this web crypto object will only be allowed for these functions
                 )
@@ -21922,7 +21928,7 @@ $.extend(window.DxCryptoClass.prototype, {
                     publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
                     hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
                 },
-                true, //whether the key is extractable (i.e. can be used in exportKey)
+        true, //whether the key is extractable (i.e. can be used in exportKey)
                 ["wrapKey", "unwrapKey"] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
                 )
                 .then(function (asyncKey) {
@@ -22091,16 +22097,24 @@ $.extend(window.DxCryptoClass.prototype, {
             var cryptoField = this;
 
             var masterKeyGroupId = $(cryptoField).data('masterkey-group');
-
-            // TEMP DISABLE
-        /*    if ($(cryptoField).data('is-decrypted') != 1) {
+            
+            if ($(cryptoField).hasClass('dx-crypto-field-file') && $(cryptoField).is('input') && cryptoField.files.length === 0) {
                 if (cryptoFieldCount === ++cryptoFieldCounter) {
                     hide_page_splash(1);
                     hide_form_splash(1);
                 }
 
                 return true;
-            }*/
+            }
+
+            if ($(cryptoField).hasClass('dx-crypto-field') && $(cryptoField).data('is-decrypted') != 1) {
+                if (cryptoFieldCount === ++cryptoFieldCounter) {
+                    hide_page_splash(1);
+                    hide_form_splash(1);
+                }
+
+                return true;
+            }
 
             // Key is not found for user
             if (!(masterKeyGroupId in self.masterKeyGroups)) {
@@ -22114,9 +22128,7 @@ $.extend(window.DxCryptoClass.prototype, {
                 return true;
             }
 
-            var onReceiveValue = function (value) {
-                var decryptedData = self.stringToArrayBuffer(value);
-                
+            var onReceiveValue = function (decryptedData) {
                 var counterBuffer = new Uint8Array(16);
 
                 window.crypto.subtle.encrypt(
@@ -22137,10 +22149,12 @@ $.extend(window.DxCryptoClass.prototype, {
                             resBuffer.set(counterBuffer);
                             resBuffer.set(encryptedValue, counterBuffer.length);
 
-                            //returns an ArrayBuffer containing the decrypted data
-                            var value = self.arrayBufferToHexString(resBuffer);
+                            if ($(cryptoField).hasClass('dx-crypto-field-file')) {
+                                cryptoField.crypto.setValue(resBuffer);
+                            } else {
+                                cryptoField.crypto.setValue(resBuffer, true);
+                            }
 
-                            cryptoField.crypto.setValue(value, false);
                             $(cryptoField).data('is-decrypted', 0);
 
                             // If end move to next field
@@ -22154,8 +22168,8 @@ $.extend(window.DxCryptoClass.prototype, {
                             }
                         })
                         .catch(window.DxCrypto.catchError);
-            }
-            
+            };
+
             cryptoField.crypto.getValue(onReceiveValue);
         });
     },
@@ -22163,9 +22177,7 @@ $.extend(window.DxCryptoClass.prototype, {
      * Decryptes all fields
      * @returns {undefined}
      */
-    decryptFields: function () {
-        var cryptoFields = $('.dx-crypto-field');
-
+    decryptFields: function (cryptoFields) {
         var cryptoFieldCount = cryptoFields.length;
         var cryptoFieldCounter = 0;
 
@@ -22181,7 +22193,7 @@ $.extend(window.DxCryptoClass.prototype, {
         if (!self.certificate || !self.certificate.privateKey) {
             // Retrieves certificate and calls this function again
             self.getCurrentUserCertificate(0, function () {
-                self.decryptFields();
+                self.decryptFields(cryptoFields);
             });
             return false;
         }
@@ -22192,7 +22204,7 @@ $.extend(window.DxCryptoClass.prototype, {
 
             var masterKeyGroupId = $(cryptoField).data('masterkey-group');
 
-            if ($(cryptoField).data('is-decrypted') == 1) {
+            if ($(cryptoField).hasClass('dx-crypto-field') && $(cryptoField).data('is-decrypted') == 1) {
                 if (cryptoFieldCount == ++cryptoFieldCounter) {
                     hide_page_splash(1);
                     hide_form_splash(1);
@@ -22211,50 +22223,51 @@ $.extend(window.DxCryptoClass.prototype, {
                 return true;
             }
 
-            var value = cryptoField.crypto.getValue();
+            var onReceiveValue = function (encryptedData, fileType) {
+                var setDecryptedValue = function (resBuffer) {
+                    if ($(cryptoField).hasClass('dx-crypto-field-file')) {
+                        cryptoField.crypto.setValue(resBuffer, fileType);
+                    } else {
+                        cryptoField.crypto.setValue(resBuffer, true);
+                    }
 
-            var setDecryptedValue = function (value) {
-                cryptoField.crypto.setValue(value, true);
+                    $(cryptoField).data('is-decrypted', 1);
 
-                $(cryptoField).data('is-decrypted', 1);
+                    cryptoFieldCounter++;
 
-                cryptoFieldCounter++;
+                    // If end move to next field
+                    if (cryptoFieldCount === cryptoFieldCounter) {
+                        hide_page_splash(1);
+                        hide_form_splash(1);
+                        return true;
+                    }
+                };
 
-                // If end move to next field
-                if (cryptoFieldCount === cryptoFieldCounter) {
-                    hide_page_splash(1);
-                    hide_form_splash(1);
+                if (encryptedData == '') {
+                    setDecryptedValue('');
                     return true;
                 }
+
+                var counterBuffer = encryptedData.subarray(0, 16);
+
+                var resBuffer = encryptedData.subarray(16, encryptedData.length);
+
+                window.crypto.subtle.decrypt(
+                        {
+                            name: "AES-CTR",
+                            counter: counterBuffer, //The same counter you used to encrypt
+                            length: 128, //The same length you used to encrypt
+                        },
+                        self.masterKeyGroups[masterKeyGroupId], //from generateKey or importKey above
+                        resBuffer //ArrayBuffer of the data
+                        )
+                        .then(function (decryptedValue) {
+                            setDecryptedValue(decryptedValue);
+                        })
+                        .catch(window.DxCrypto.catchError);
             };
 
-            if (value == '') {
-                setDecryptedValue('');
-                return true;
-            }
-
-            var encryptedData = self.hexStringToArrayBuffer(cryptoField.crypto.getValue());
-
-            var counterBuffer = encryptedData.subarray(0, 16);
-
-            var resBuffer = encryptedData.subarray(16, encryptedData.length);
-
-            window.crypto.subtle.decrypt(
-                    {
-                        name: "AES-CTR",
-                        counter: counterBuffer, //The same counter you used to encrypt
-                        length: 128, //The same length you used to encrypt
-                    },
-                    self.masterKeyGroups[masterKeyGroupId], //from generateKey or importKey above
-                    resBuffer //ArrayBuffer of the data
-                    )
-                    .then(function (decryptedValue) {
-                        //returns an ArrayBuffer containing the decrypted data
-                        var value = self.arrayBufferToString(decryptedValue);
-
-                        setDecryptedValue(value);
-                    })
-                    .catch(window.DxCrypto.catchError);
+            cryptoField.crypto.getValue(onReceiveValue);
         });
     },
     /**
@@ -22438,13 +22451,13 @@ $.extend(window.DxCryptoClass.prototype, {
                     counter: new Uint8Array(16),
                     length: 128 //can be 1-128
                 },
-                {//this what you want the wrapped key to become (same as when wrapping)
-                    name: "RSA-OAEP",
-                    modulusLength: 2048, //can be 1024, 2048, or 4096
-                    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-                    hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
-                },
-                false, //whether the key is extractable (i.e. can be used in exportKey)
+        {//this what you want the wrapped key to become (same as when wrapping)
+            name: "RSA-OAEP",
+            modulusLength: 2048, //can be 1024, 2048, or 4096
+            publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+            hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+        },
+        false, //whether the key is extractable (i.e. can be used in exportKey)
                 ["unwrapKey"] //the usages you want the unwrapped key to have
                 )
                 .then(function (privateKey) {
@@ -22483,11 +22496,11 @@ $.extend(window.DxCryptoClass.prototype, {
                     publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
                     hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
                 },
-                {
-                    name: "AES-CTR",
-                    length: 256
-                },
-                false, //whether the key is extractable (i.e. can be used in exportKey)
+        {
+            name: "AES-CTR",
+            length: 256
+        },
+        false, //whether the key is extractable (i.e. can be used in exportKey)
                 ["encrypt", "decrypt"] //the usages you want the unwrapped key to have
                 )
                 .then(function (masterKey) {
@@ -22567,7 +22580,7 @@ $.extend(window.DxCryptoClass.prototype, {
                     name: "AES-CTR",
                     length: 256 //can be  128, 192, or 256
                 },
-                true, //whether the key is extractable (i.e. can be used in exportKey)
+        true, //whether the key is extractable (i.e. can be used in exportKey)
                 ["encrypt", "decrypt"] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
                 )
                 .then(function (masterKey) {
@@ -22780,7 +22793,7 @@ window.DxCrypto = new window.DxCryptoClass();
                 event.preventDefault();
                 event.stopPropagation();
                 event.stopImmediatePropagation();
-                window.DxCrypto.decryptFields();
+                window.DxCrypto.decryptFields($('.dx-crypto-field'));
             });
         },
         setAccessError: function () {
@@ -22801,6 +22814,12 @@ window.DxCrypto = new window.DxCryptoClass();
                 value = this.domObject.html();
             }
 
+            if (this.domObject.data('is-decrypted')) {
+                value = window.DxCrypto.stringToArrayBuffer(value);
+            } else{
+                value = window.DxCrypto.hexStringToArrayBuffer(value);
+            }
+
             callback(value);
         },
         /**
@@ -22810,6 +22829,14 @@ window.DxCrypto = new window.DxCryptoClass();
          * @returns {undefined}
          */
         setValue: function (value, isVisible) {
+            if(value != ''){
+                if (this.domObject.data('is-decrypted')){
+                    value = window.DxCrypto.arrayBufferToHexString(value);
+                }else{
+                    value = window.DxCrypto.arrayBufferToString(value);
+                }
+            } 
+            
             if (this.domObject.is('input') || this.domObject.is('textarea')) {
                 this.domObject.val(value);
             } else {
@@ -22830,7 +22857,7 @@ window.DxCrypto = new window.DxCryptoClass();
         showField: function () {
             this.domObject.next('.dx-crypto-decrypt-btn').remove();
             this.domObject.show();
-        },
+        }
     });
 })(jQuery);
 
@@ -22854,31 +22881,31 @@ $(document).ajaxComplete(function () {
     $.fn.DxCryptoFileField = function ()
     {
         /*for (var i=0; i < this.length; i++){
-            var selfR = this[i];
-            
-            var self = $(selfR);
-            
-            if (self.data('dx_is_init') == 1) {
-                continue;
-            }
+         var selfR = this[i];
+         
+         var self = $(selfR);
+         
+         if (self.data('dx_is_init') == 1) {
+         continue;
+         }
+         
+         self.data('dx_is_init', 1);
+         
+         var cr = new $.DxCryptoFileField(self);
+         
+         this.crypto = cr;
+         }*/
 
-            self.data('dx_is_init', 1);
-            
-            var cr = new $.DxCryptoFileField(self);
-            
-            this.crypto = cr;
-        }*/
-        
-       return this.each(function ()
+        return this.each(function ()
         {
             var self = $(this);
-            
+
             if (self.data('dx_is_init') == 1) {
                 return;
             }
 
             self.data('dx_is_init', 1);
-            
+
             this.crypto = new $.DxCryptoFileField(self);
         });
     };
@@ -22926,7 +22953,7 @@ $(document).ajaxComplete(function () {
             event.stopPropagation();
             event.stopImmediatePropagation();
 
-            // window.DxCrypto.decryptFields();
+            window.DxCrypto.decryptFields($(this));
         },
         setAccessError: function () {
             /*  var label = '<span class="label label-danger"> ' + Lang.get('crypto.e_no_access') + ' </span>';
@@ -22946,40 +22973,68 @@ $(document).ajaxComplete(function () {
             }
         },
         getFileValue: function (callback) {
-            if (this.domObject[0].files.length === 0) {                
+            if (this.domObject[0].files.length === 0) {
                 return new ArrayBuffer(0);
             }
 
             var fr = new FileReader();
             fr.onload = function () {
                 var data = fr.result;
-                var dataArray = new Int8Array(data);
-                
+                var dataArray = new Uint8Array(data);
+
                 callback(dataArray);
             };
-            
+
             fr.readAsArrayBuffer(this.domObject[0].files[0]);
         },
-        getLinkValue: function () {
+        getLinkValue: function (callback) {
+            var xhr = new XMLHttpRequest();
 
+            xhr.onload = function () {
+                var reader = new FileReader();
+
+                reader.readAsArrayBuffer(xhr.response);
+
+                reader.onloadend = function () {
+
+                    var arrayBuffer = new Uint8Array(reader.result);
+
+                    callback(arrayBuffer, xhr.response.type);
+                };
+            };
+            xhr.open('GET', this.domObject.attr("href"));
+            xhr.responseType = 'blob';
+            xhr.send();
         },
         /**
          * Sets value of current element. It can be input or other container (e.g. div, span)
          * @param {string} value It will be set to element
          * @returns {undefined}
          */
-        setValue: function (value) {
+        setValue: function (value, fileType) {
             if (this.domObject.is('input')) {
                 return this.setFileValue(value);
             } else if (this.domObject.is('a')) {
-                return this.setLinkValue(value);
+                return this.setLinkValue(value, fileType);
             }
         },
         setFileValue: function (value) {
+            var valueBlob = new Blob([new Uint8Array(value)], {type: "application/octet-stream"});
 
+            this.domObject.data('crypto-value', valueBlob);
         },
-        setLinkValue: function (value) {
+        setLinkValue: function (value, fileType) {
+            var blob = new Blob([value], {type: fileType});
+            var newUrl = URL.createObjectURL(blob);
 
+            var a = document.createElement("a");
+            a.style.display = "none";
+            a.href = newUrl;
+            a.download = this.domObject.text().trim();
+            $("body").append($(a));
+            a.click();
+            window.URL.revokeObjectURL(newUrl);
+            a.remove();
         }
     });
 })(jQuery);
