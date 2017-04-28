@@ -344,7 +344,7 @@ class EmployeeController extends Controller
                                 in_departments.title as department,
                                 em.id,
                                 em.termination_date,
-                                em.valid_from
+                                em.join_date as valid_from
                                 '))
                 ->leftJoin('in_sources', 'em.source_id', '=', 'in_sources.id')
                 ->leftJoin('in_departments', 'em.department_id', '=', 'in_departments.id')

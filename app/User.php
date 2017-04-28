@@ -349,7 +349,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	
 	public function getAvailability()
 	{
-            return Libraries\Helper::getEmployeeStatus($this->valid_from, $this->termination_date);                
+            return Libraries\Helper::getEmployeeStatus($this->join_date, $this->termination_date);                
 	}
 	
 	/**
