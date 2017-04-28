@@ -66,6 +66,8 @@ class Kernel extends ConsoleKernel
                      ->dailyAt('1:00');
         }
         
-        $schedule->command('mindwo:save-log')->everyMinute();
+        if (Config::get('server_log.is_server_audit_on', false)) {
+            $schedule->command('mindwo:save-log')->everyMinute();
+        }
     }
 }
