@@ -87,7 +87,7 @@ class CryptoCertificateController extends Controller
             }
         }
 
-        return response()->json(['success' => 1, 'public_key' => base64_encode($cert->public_key), 'private_key' => base64_encode($cert->private_key), 'master_keys' => $masterKeys]);
+        return response()->json(['success' => 1, 'user_id' => $user_id, 'public_key' => base64_encode($cert->public_key), 'private_key' => base64_encode($cert->private_key), 'master_keys' => $masterKeys]);
     }
 
     public function getUserMasterKey($user_id, $master_key_group_id)

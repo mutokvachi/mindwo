@@ -117,7 +117,9 @@
                             
                             // Calls encryption function which encryptes data and on callback it executes again save function
                             if(!event.encryptionFinished || event.encryptionFinished == false){
-                                window.DxCrypto.encryptFields(event, function(event){
+                                var cryptoFields = $('input.dx-crypto-field,textarea.dx-crypto-field,input.dx-crypto-field-file', this.closest('.modal-content'));
+                                
+                                window.DxCrypto.encryptFields(cryptoFields, event, function(event){
                                     dx_btn_save_click(event);
                                 });
                                 
@@ -136,8 +138,9 @@
                             $('#item_edit_form_{{ $frm_uniq_id }}').validator('validate');
 
                             save_list_item('item_edit_form_{{ $frm_uniq_id }}', '{{ $grid_htm_id }}',{{ $list_id }}, {{ $parent_field_id }}, {{ $parent_item_id }}, '{{ $parent_form_htm_id }}', arr_callbacks);//replace
-                        
-                            window.DxCrypto.decryptFields($('.dx-crypto-field'));                        
+                            
+                            var cryptoFields = $('.dx-crypto-field', this.closest('.modal-content'));
+                            window.DxCrypto.decryptFields(cryptoFields);                        
                         });
 
                         $('#item_edit_form_{{ $frm_uniq_id }}').validator({

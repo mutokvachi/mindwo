@@ -63,18 +63,6 @@
                 PageMain.showConfirm(self.openGenerateCertificate, null, title, body);
             });
 
-            $('.dx-crypto-generate-masterkey-btn', self.domObject).click(function () {
-                var masterKey = window.DxCrypto.generateMasterKey(1, 1);
-
-                $('#dx-master-key', self.domObject).html(masterKey);
-            });
-
-            $('.dx-crypto-encrypt-test-btn', self.domObject).click(function () {
-                var res = window.DxCrypto.encryptFields();
-
-                //alert('done!');
-            });
-
             $('#dx-crypto-modal-generate-cert').on('click', '.dx-crypto-modal-gen-accept', this.validateCertPassword);
         },
         /**
