@@ -29,6 +29,18 @@ class Theme extends Model
 	
 	static public function getLinkStylesheetTag()
 	{
+		$theme = Theme::getCurrent();
+		
+		return $theme->renderLinkTag();
+	}
+	
+	static public function findDefault()
+	{
+		return Theme::where('is_default', 1)->get()->first();
+	}
+	
+	static public function getCurrent()
+	{
 		$user = User::find(Auth::user()->id);
 		
 		if($user->ui_theme_id == null)
@@ -41,11 +53,6 @@ class Theme extends Model
 			$theme = $user->ui_theme;
 		}
 		
-		return $theme->renderLinkTag();
-	}
-	
-	static public function findDefault()
-	{
-		return Theme::where('is_default', 1)->get()->first();
+		return $theme;
 	}
 }

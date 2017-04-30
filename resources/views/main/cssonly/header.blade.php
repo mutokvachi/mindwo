@@ -5,7 +5,11 @@
       
         @if(!trans('index.logo_txt'))
           <a href="/">
-            <img src="{{ asset(config('dx.logo_small', 'assets/global/logo/medus_black.png')) }}" alt="LOGO" class="logo-default"/>
+            @if(($theme = \App\Models\UI\Theme::getCurrent()) && file_exists(public_path('assets/global/logo/mindwo-'.strtolower($theme->title).'.png')))
+              <img src="{{ asset('assets/global/logo/mindwo-'.strtolower($theme->title).'.png') }}" alt="LOGO" class="logo-default"/>
+            @else
+              <img src="{{ asset(config('dx.logo_small', 'assets/global/logo/medus_black.png')) }}" alt="LOGO" class="logo-default"/>
+            @endif
           </a>
         @else
           <a class="navbar-brand" href="/" style="text-decoration: none;">

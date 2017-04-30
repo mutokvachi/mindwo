@@ -237,3 +237,8 @@ a.header-filter:hover {
     margin-left: -15px;
     margin-right: -15px;
 }
+
+.dx-top-right-menu .dropdown-submenu .dropdown-menu {
+	left: auto;
+	right: 100%;
+}
