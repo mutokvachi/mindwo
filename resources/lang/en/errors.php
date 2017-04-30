@@ -58,7 +58,7 @@ return [
     
     'excel_row' => 'Some rows were not imported because of duplicate values. The skipped Excel row numbers: ',
     
-    'no_rights_to_insert_imp' => "You have no rights to insert a new entry in the register '%s'!", 
+    'no_rights_to_insert_imp' => "You have no rights to insert or import a new entry in the register '%s'!", 
     
     'excel_dependent' => 'Some rows were not imported because of dependency issue! The skipped Excel row numbers: ',
     
@@ -139,4 +139,6 @@ return [
     'phone_format_err' => "Phone number can contain only numbers!",
     
     'lookup_sql_error' => "SQL error for the lookup field '%s'!",
+    
+    'no_view_config_rights' => "You don't have rights to configure views for this register!",
 ];

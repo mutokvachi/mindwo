@@ -56,7 +56,7 @@ return [
     
     'excel_row' => 'Dažas Excel rindas netika importētas, jo dublējās reģistra ieraksti. Dublējošo un neimportēto Excel rindu numuri: ',
     
-    'no_rights_to_insert_imp' => "Jums nav jauna ieraksta veidošanas tiesības reģistrā '%s'!", 
+    'no_rights_to_insert_imp' => "Jums nav jauna ieraksta veidošanas vai importēšanas tiesības reģistrā '%s'!", 
     
     'excel_dependent' => 'Dažas Excel rindas netika importētas, jo nevar uzstādīt atbilstības savstarpēji atkarīgiem ierakstiem. Neimportēto Excel rindu numuri: ',
     
@@ -139,4 +139,6 @@ return [
     'phone_format_err' => "Tālruņa numurs var sastāvēt tikai no cipariem!",
     
     'lookup_sql_error' => "Uzmeklēšanas izvēlnes laukam '%s' nav iespējams izveidot korektu datu atlases pieprasījumu.",
+    
+    'no_view_config_rights' => 'Jums nav tiesību konfigurēt šī reģistra skatus!',
 ];
