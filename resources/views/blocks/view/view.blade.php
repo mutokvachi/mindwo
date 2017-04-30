@@ -1,4 +1,4 @@
-<div id="{{ $block_id }}" class="dx-block-container-view" 
+<div id="{{ $block_id }}" class="dx-block-container-view {{($is_full_page) ? 'dx-view-fullpage' : ''}}" 
      dx_block_init = '0' 
      dx_tab_id="{{ $tab_id }}" 
      dx_menu_id="{{ $menu_id }}" 
@@ -40,7 +40,7 @@
                                     <li><a href='javascript:;' id="{{ $menu_id }}_refresh" dx_attr="refresh"><i class='fa fa-refresh'></i>&nbsp;{{ trans('grid.reload') }}</a></li>                                    
                                     <li role="separator" class="divider"></li>
                                     <li><a href='javascript:;' id="{{ $menu_id }}_excel" title='{{ trans('grid.excel_hint') }}'><i class='fa fa-file-excel-o'></i>&nbsp;{{ trans('grid.excel') }}</a></li>
-                                    @if ($show_new_button && !$view_row->is_report)
+                                    @if ($show_new_button && !$view_row->is_report && $is_import_rights)
                                         <li><a href='javascript:;' id="{{ $menu_id }}_import"><i class="fa fa-upload"></i>&nbsp;{{ trans('grid.import') }}</a></li>
                                     @endif
                                 </ul>
@@ -65,7 +65,7 @@
                                 <div class='form-group'>
                                     <label class='col-sm-2 control-label'>{{ trans('grid.view') }}:</label>
                                     <div class='col-sm-10'>
-                                        <div class='input-group'>
+                                        <div class='input-group' style="width: 100%;">
                                             <select class='form-control dx-views-cbo' id="{{ $menu_id }}_viewcbo">
                                                 @if (count($combo_items_my) > 0)
                                                     <optgroup label="{{ trans('grid.lbl_public') }}">
@@ -100,9 +100,11 @@
                                                 @endif
                                                 
                                             </select>
-                                            <span class="input-group-btn" style="padding-left: 2px;">
-                                                <button class='btn btn-white dx-view-edit-btn' type='button' id ='{{ $menu_id}}_view_edit_btn'><i class='fa fa-list'></i></button>
-                                            </span>
+                                                @if ($is_view_rights)
+                                                    <span class="input-group-btn" style="padding-left: 2px;">
+                                                        <button class='btn btn-white dx-view-edit-btn' type='button' id ='{{ $menu_id}}_view_edit_btn'><i class='fa fa-list'></i></button>                                                    
+                                                    </span>
+                                                @endif
                                         </div>
                                     </div>
                                 </div>
@@ -123,10 +125,13 @@
         </div>
     @endif
     
-    @include('blocks.view.view_edit_popup')
+    @if ($is_view_rights)
+        @include('blocks.view.view_edit_popup')
+    @endif
+    
     @include('blocks.view.field_settings')
     
-    @if ($show_new_button)
+    @if ($show_new_button && $is_import_rights)
         @include('blocks.view.view_import')
     @endif
 </div>

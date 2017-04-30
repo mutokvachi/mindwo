@@ -141,7 +141,7 @@ class ImportController extends Controller
         $this->list_id = $request->input('list_id');
 
         //check rights on the list
-        \App\Libraries\Helper::checkSaveRights($this->list_id);
+        \App\Libraries\Helper::checkSaveRights($this->list_id, 1);
         
         //validate file
         if (!$request->hasFile(self::FILE_FIELD_NAME)) {

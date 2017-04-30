@@ -29,13 +29,32 @@ namespace App\Libraries\Blocks
         public $grid = null;
         public $rights_htm = "";
         public $grid_title = "";
+        
+        /**
+         * Is rights to import data
+         * @var boolean 
+         */
+        public $is_import_rights = 0;
+        
+        /**
+         * Is rights to customize views
+         * @var boolean
+         */
+        public $is_view_rights = 0;
+        
+        /**
+         * Is view opened in full width/height to fill all page
+         * @var boolean 
+         */
+        public $is_full_page = 0;
+        
         // Parametri kas nepieciešami TAB gridam (AJAX izsaukumam)
         public $rel_field_id = 0;
         public $rel_field_value = 0;
         public $form_htm_id = "";
         public $tab_id = "";
         public $tab_prefix = "";
-
+        
         /**
          * This view data (row from table dx_views)
          * @var Array
@@ -80,7 +99,10 @@ namespace App\Libraries\Blocks
                         'form_type_id' => $this->grid->form_type_id,
                         'operations' => DB::table('dx_field_operations')->orderBy('title')->get(),
                         'view_row' => $this->view_row,
-                        'form_id' => $this->grid->form_id
+                        'form_id' => $this->grid->form_id,
+                        'is_import_rights' => $this->is_import_rights,
+                        'is_view_rights' => $this->is_view_rights,
+                        'is_full_page' => $this->is_full_page
                     ])->render();
         }
 
@@ -122,13 +144,20 @@ namespace App\Libraries\Blocks
          */
         protected function parseParams()
         {
-            $val_arr = explode('=', $this->params);
+            $dat_arr = explode('|', $this->params);
 
-            if ($val_arr[0] == "VIEW_ID") {
-                $this->view_id = getBlockParamVal($val_arr);
-            }
-            else {
-                throw new Exceptions\DXCustomException("Norādīts blokam neatbilstošs parametra nosaukums (" . $val_arr[0] . ")!");
+            foreach ($dat_arr as $item) {
+                $val_arr = explode('=', $item);
+
+                if ($val_arr[0] == "VIEW_ID") {
+                    $this->view_id = getBlockParamVal($val_arr);
+                }
+                else if ($val_arr[0] == "IS_FULLPAGE") {
+                    $this->is_full_page = getBlockParamVal($val_arr);
+                }
+                else if (strlen($val_arr[0]) > 0) {
+                    throw new Exceptions\DXCustomException("Norādīts blokam neatbilstošs parametra nosaukums (" . $val_arr[0] . ")!");
+                }
             }
 
             $this->view_row = $this->getViewRow($this->view_id);
@@ -231,8 +260,10 @@ namespace App\Libraries\Blocks
             }
             else {
                 $this->is_new_button = $right->is_new_rights;
-            }
-
+                $this->is_import_rights = $right->is_import_rights;
+                $this->is_view_rights = $right->is_view_rights;
+            }           
+             
             return "";
         }
 

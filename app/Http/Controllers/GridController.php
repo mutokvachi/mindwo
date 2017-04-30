@@ -12,6 +12,7 @@ use App\Libraries\FormSave;
 use Maatwebsite\Excel\Facades\Excel;
 use Auth;
 use Config;
+use App\Libraries\Rights;
 use Log;
 
 /**
@@ -37,7 +38,7 @@ class GridController extends Controller
     public function showViewPage(Request $request, $id)
     {
         try {
-            $block_grid = Blocks\BlockFactory::build_block("OBJ=VIEW|VIEW_ID=" . $id);
+            $block_grid = Blocks\BlockFactory::build_block("OBJ=VIEW|VIEW_ID=" . $id . "|IS_FULLPAGE=1");
 
             $js_inc = view('pages.page_js_includes', [
                 'inc_arr' => $block_grid->js_includes_arr
@@ -368,7 +369,10 @@ class GridController extends Controller
             'grid_id' => 'required'
         ]);        
         
-        $view_id = $request->input('view_id', 0); // if 0 then new item
+        $view_id = $request->input('view_id', 0); // if 0 then new item        
+        $list_id = $request->input('list_id');
+        
+        $this->checkViewConfigRights($list_id);
         
         if ($view_id == 0) {
             $view_id = $this->saveNewView($request);
@@ -400,6 +404,8 @@ class GridController extends Controller
         $view_id = $request->input('view_id');
         $list_id = $request->input('list_id');
         
+        $this->checkViewConfigRights($list_id);
+        
         $def_id = $this->getDefaultView($request, $list_id, $view_id);
         
         DB::transaction(function () use ($view_id){
@@ -407,6 +413,20 @@ class GridController extends Controller
         });
         
         return response()->json(['success' => 1, 'view_id' => $def_id]);
+    }
+    
+    /**
+     * Checks if user have view configuration rights
+     * 
+     * @param integer $list_id Register ID for which to configure view
+     * @throws Exceptions\DXCustomException
+     */
+    private function checkViewConfigRights($list_id) {
+        $right = Rights::getRightsOnList($list_id);
+        
+        if ($right == null || !$right->is_view_rights) {
+            throw new Exceptions\DXCustomException(trans('errors.no_view_config_rights'));
+        }
     }
     
     /**

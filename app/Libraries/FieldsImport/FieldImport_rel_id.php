@@ -66,7 +66,7 @@ namespace App\Libraries\FieldsImport
          */
         private function insertRel($val) {
             // Check rights on list
-            \App\Libraries\Helper::checkSaveRights($this->fld->rel_list_id);
+            \App\Libraries\Helper::checkSaveRights($this->fld->rel_list_id, 1);
             
             $arr_val = [];
             

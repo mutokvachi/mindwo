@@ -122,13 +122,14 @@ namespace App\Libraries
          * Validates if user have rights to insert new items in the register
          * 
          * @param integer $list_id Register id
+         * @param boolean $check_for_import Is it needed to check importing rights
          * @throws Exceptions\DXCustomException
          */
-        public static function checkSaveRights($list_id)
+        public static function checkSaveRights($list_id, $check_for_import = 0)
         {
             $right = Rights::getRightsOnList($list_id);
 
-            if ($right == null || $right->is_new_rights == 0) {
+            if ($right == null || $right->is_new_rights == 0 || ($check_for_import && $right->is_import_rights == 0)) {
                 $list_name = DB::table('dx_lists')->where('id', '=', $list_id)->first()->list_title;
                 throw new Exceptions\DXCustomException(sprintf(trans('errors.no_rights_to_insert_imp'), $list_name));
             }
