@@ -40,10 +40,15 @@ $.extend(window.DxCryptoClass.prototype, {
 
         throw {exit: true};
     },
+    /**
+     * Clears crypto cache
+     * @returns {undefined}
+     */
     clearCryptoCache: function () {
         window.DxCrypto.certificate = undefined;
+        window.DxCrypto.userId = undefined;
         window.DxCrypto.rawCertificate = undefined;
-        window.DxCrypto.rawMasterKeys = undefined;
+        window.DxCrypto.rawMasterKeys = new Array();
         window.DxCrypto.masterKeyGroups = new Array();
     },
     /**
@@ -201,15 +206,20 @@ $.extend(window.DxCryptoClass.prototype, {
         var encoder = new TextEncoder("utf-8");
         return encoder.encode(string);
     },
+    /**
+     * Converts array buffer to string
+     * @param {ArrayBuffer} arrayBuffer Buffer which must be converted
+     * @returns {string} Array Buffer converted to string
+     */
     arrayBufferToString: function (arrayBuffer) {
         var decoder = new TextDecoder("utf-8");
 
         return decoder.decode(new Uint8Array(arrayBuffer));
     },
     /**
-     * Converts array buffer to string
-     * @param {ArrayBuffer} arrayBuffer Array buffer which will be converted to string
-     * @returns {string} Output string
+     * Converts array buffer to Hex string
+     * @param {ArrayBuffer} arrayBuffer Array buffer which will be converted to Hex string
+     * @returns {string} Output Hex string
      */
     arrayBufferToHexString: function (arrayBuffer) {
         var byteArray = new Uint8Array(arrayBuffer);
@@ -225,6 +235,11 @@ $.extend(window.DxCryptoClass.prototype, {
         }
         return hexString;
     },
+    /**
+     * Converts Hex string to Array Buffer
+     * @param {string} hex Hexstring to convert
+     * @returns {Uint8Array} Output buffer
+     */
     hexStringToArrayBuffer: function (hex) {
         var view = new Uint8Array(hex.length / 2)
 
@@ -234,6 +249,11 @@ $.extend(window.DxCryptoClass.prototype, {
 
         return view;
     },
+    /**
+     * Convert base64 string to array buffer
+     * @param {string} base64 Base 64 string to convert
+     * @returns {ArrayBuffer} Output buffer
+     */
     base64ToArrayBuffer: function (base64) {
         var binary_string = window.atob(base64);
         var len = binary_string.length;
@@ -243,6 +263,13 @@ $.extend(window.DxCryptoClass.prototype, {
         }
         return bytes.buffer;
     },
+    /**
+     * Encryptes fields
+     * @param {DOM} cryptoFields Jquery crypto objects to encrypt
+     * @param {obj} event Current event object
+     * @param {function} callback Function which will be called after data is encrypted
+     * @returns {Boolean} If operation succedded
+     */
     encryptFields: function (cryptoFields, event, callback) {
         var cryptoFieldCount = cryptoFields.length;
         var cryptoFieldCounter = 0;
@@ -266,10 +293,8 @@ $.extend(window.DxCryptoClass.prototype, {
         var self = window.DxCrypto;
 
         if (!self.certificate || !self.certificate.publicKey) {
-            // Retrieves certificate and calls this function again
-            self.getCurrentUserCertificate(0, function () {
-                self.encryptFields(cryptoFields, event, callback);
-            });
+            onFinishing();
+
             return false;
         }
 
@@ -281,8 +306,7 @@ $.extend(window.DxCryptoClass.prototype, {
 
             if ($(cryptoField).hasClass('dx-crypto-field-file') && $(cryptoField).is('input') && cryptoField.files.length === 0) {
                 if (cryptoFieldCount === ++cryptoFieldCounter) {
-                    hide_page_splash(1);
-                    hide_form_splash(1);
+                    onFinishing();
                 }
 
                 return true;
@@ -290,8 +314,7 @@ $.extend(window.DxCryptoClass.prototype, {
 
             if ($(cryptoField).hasClass('dx-crypto-field') && $(cryptoField).data('is-decrypted') != 1) {
                 if (cryptoFieldCount === ++cryptoFieldCounter) {
-                    hide_page_splash(1);
-                    hide_form_splash(1);
+                    onFinishing();
                 }
 
                 return true;
@@ -299,12 +322,11 @@ $.extend(window.DxCryptoClass.prototype, {
 
             // Key is not found for user
             if (!(masterKeyGroupId in self.masterKeyGroups)) {
-                if (cryptoFieldCount === ++cryptoFieldCounter) {
-                    hide_page_splash(1);
-                    hide_form_splash(1);
-                }
-
                 cryptoField.crypto.setAccessError();
+
+                if (cryptoFieldCount === ++cryptoFieldCounter) {
+                    onFinishing();
+                }
 
                 return true;
             }
@@ -333,16 +355,13 @@ $.extend(window.DxCryptoClass.prototype, {
                             if ($(cryptoField).hasClass('dx-crypto-field-file')) {
                                 cryptoField.crypto.setValue(resBuffer);
                             } else {
-                                cryptoField.crypto.setValue(resBuffer, true);
+                                cryptoField.crypto.setValue(resBuffer, false);
                             }
 
                             $(cryptoField).data('is-decrypted', 0);
 
                             // If end move to next field
                             if (cryptoFieldCount === ++cryptoFieldCounter) {
-                                hide_page_splash(1);
-                                hide_form_splash(1);
-
                                 onFinishing();
 
                                 return true;
@@ -356,7 +375,8 @@ $.extend(window.DxCryptoClass.prototype, {
     },
     /**
      * Decryptes all fields
-     * @returns {undefined}
+     * @param {DOM} cryptoFields Jquery crypto objects to encrypt
+     * @returns {Boolean} If operation succedded
      */
     decryptFields: function (cryptoFields) {
         var cryptoFieldCount = cryptoFields.length;
@@ -457,12 +477,6 @@ $.extend(window.DxCryptoClass.prototype, {
      * @returns {undefined}
      */
     requestUserCertificatePassword: function (callback) {
-        /*
-         * PageMain.showConfirm(function () {
-         window.DxCrypto.decryptUserCertificate(callback);
-         }, null, title, body);
-         */
-
         hide_page_splash(1);
         hide_form_splash(1);
 
@@ -480,73 +494,24 @@ $.extend(window.DxCryptoClass.prototype, {
             }
         });
 
+        $('#dx-crypto-modal-input-password', modal).off('keypress');
+        $('#dx-crypto-modal-input-password', modal).keypress(function (e) {
+            if (e.keyCode == 13)
+                accept_btn[0].click();
+        });
+
+        modal.on('shown.bs.modal', function () {
+            $('#dx-crypto-modal-input-password', modal).focus();
+        });
+
         modal.modal('show');
     },
     /**
-     * WEB CRYPTO HAVE INBUILT FUNCTIONALITY WHEN UNWRAPPING KEY. THIS FUNCTION WILL BE REMOVED.
+     * Compares array buffers if they are equal
+     * @param {ArrayBuffer} buf1
+     * @param {ArrayBuffer} buf2
+     * @returns {Boolean} Result if buffer are equal
      */
-    checkPassword: function (passwordKey, publicKey, privateKey) {
-        var unwrappedPasswordKey;
-
-        // Wraps current password with public key
-        return window.crypto.subtle.wrapKey(
-                "raw", //the export format, must be "raw" (only available sometimes)
-                passwordKey, //the key you want to wrap, must be able to fit in RSA-OAEP padding
-                publicKey, //the public key with "wrapKey" usage flag
-                {//these are the wrapping key's algorithm options
-                    name: "RSA-OAEP",
-                    hash: {name: "SHA-256"}
-                }
-        )
-                .then(function (wrappedPasswordKey) {
-                    // Unwraps wrapped password with private key
-                    return window.crypto.subtle.unwrapKey(
-                            "raw", //the import format, must be "raw" (only available sometimes)
-                            wrappedPasswordKey, //the key you want to unwrap
-                            privateKey, //the private key with "unwrapKey" usage flag
-                            {//these are the wrapping key's algorithm options
-                                name: "RSA-OAEP",
-                                modulusLength: 2048,
-                                publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-                                hash: {name: "SHA-256"},
-                            },
-                            {//this what you want the wrapped key to become (same as when wrapping)
-                                name: "AES-CTR",
-                                length: 256, //can be  128, 192, or 256
-                            },
-                            true, //whether the key is extractable (i.e. can be used in exportKey)
-                            ["wrapKey", "unwrapKey"] //the usages you want the unwrapped key to have
-                            );
-                })
-                .then(function (unwrappedKey) {
-                    // Export result to ArrayBuffer
-                    return window.crypto.subtle.exportKey(
-                            "raw", //can be "jwk" or "raw"
-                            unwrappedKey //extractable must be true
-                            );
-                })
-                .then(function (unwrappedNewKey) {
-                    unwrappedPasswordKey = unwrappedNewKey;
-
-                    // Exports original password key to ArrayBuffer
-                    return window.crypto.subtle.exportKey(
-                            "raw", //can be "jwk" or "raw"
-                            passwordKey //extractable must be true
-                            );
-                })
-                .then(function (originalPasswordKey) {
-                    // If array buffers are equal then password is correct, because it was successfully wrapped and awarpped with key pair
-                    var res = window.DxCrypto.compareArrayBuffers(originalPasswordKey, unwrappedPasswordKey);
-
-                    // Errro if false
-                    if (!res) {
-                        window.DxCrypto.clearCryptoCache();
-                        throw {type: 'e_custom', msg: Lang.get('crypto.e_password_incorrect')};
-                    }
-                })
-                .catch(window.DxCrypto.catchError);
-
-    },
     compareArrayBuffers: function (buf1, buf2)
     {
         if (buf1.byteLength != buf2.byteLength)
@@ -647,6 +612,11 @@ $.extend(window.DxCryptoClass.prototype, {
                     window.DxCrypto.catchError(err, Lang.get('crypto.e_password_incorrect'));
                 });
     },
+    /**
+     * Unwraps master key (recursive - after unwraping one key, proceedes to next one)
+     * @param {type} counter Counts current master key which i being unwrapped
+     * @returns {Boolean} Result if operation succeeded
+     */
     unwrapMasterKey: function (counter) {
         var self = window.DxCrypto;
 
@@ -655,7 +625,7 @@ $.extend(window.DxCryptoClass.prototype, {
         }
 
         if (!self.rawMasterKeys || self.rawMasterKeys == undefined || (self.rawMasterKeys && !(counter < self.rawMasterKeys.length && 0 < self.rawMasterKeys.length))) {
-            self.rawMasterKeys = undefined;
+            self.rawMasterKeys = new Array();
             return false;
         }
 
@@ -689,6 +659,7 @@ $.extend(window.DxCryptoClass.prototype, {
     /**
      * Get specified users certificate
      * @param {int} userId User's ID whose certificate we want to retrieve
+     * @param {int} masterKeyGroupId Master key's group which will be retrieved while getting certificate. Can be 0 tu retrieve all keys
      * @param {function} callback Function to call after certificate has been retrieved
      * @returns {undefined}
      */
@@ -732,6 +703,7 @@ $.extend(window.DxCryptoClass.prototype, {
     },
     /**
      * Gets current users certificate from server and the store it in memory.
+     * @param {int} masterKeyGroupId Master key's group which will be retrieved while getting certificate. Can be 0 tu retrieve all keys
      * @param {function} callback Function to call after certificate has been stored in memory
      * @returns {undefined}
      */
@@ -742,7 +714,7 @@ $.extend(window.DxCryptoClass.prototype, {
             if (master_keys) {
                 self.rawMasterKeys = master_keys;
             } else {
-                self.rawMasterKeys = undefined;
+                self.rawMasterKeys = new Array();
             }
 
             self.rawCertificate = {
@@ -753,6 +725,13 @@ $.extend(window.DxCryptoClass.prototype, {
             self.requestUserCertificatePassword(callback);
         });
     },
+    /**
+     * Generates completely new master key
+     * @param {CryptoKey} publicKey Key which will be used to wrap master key
+     * @param {int} masterKeyGroupId Master key group ID
+     * @param {function} callback Function to call after master key has been generated
+     * @returns {ArrayBuffer} Master key which is generated
+     */
     generateNewMasterKey: function (publicKey, masterKeyGroupId, callback) {
         return window.crypto.subtle.generateKey(
                 {
@@ -779,43 +758,11 @@ $.extend(window.DxCryptoClass.prototype, {
                 })
                 .catch(window.DxCrypto.catchError);
     },
-    saveMasterKey: function (userId, masterKeyGroupId, wrappedMasterKey, callback) {
-        var self = window.DxCrypto;
-
-        var masterKeyHex = self.arrayBufferToHexString(wrappedMasterKey);
-
-        var container = new FormData();
-        container.append('master_key', masterKeyHex);
-        container.append('master_key_group_id', masterKeyGroupId);
-        container.append('user_id', userId);
-
-        $.ajax({
-            url: DX_CORE.site_url + 'crypto/save_master_key',
-            data: container,
-            type: "post",
-            processData: false,
-            dataType: "json",
-            contentType: false,
-            success: function (res) {
-                if (res && res.success) {
-                    callback();
-                } else {
-                    if (res.msg) {
-                        self.catchError(res, res.msg);
-                    } else {
-                        self.catchError(res);
-                    }
-                }
-            },
-            error: function (err) {
-                self.catchError(err);
-            }
-        });
-    },
     /**
      * Generates master key for user in specified master key group
      * @param {int} masterKeygroupId Master keys group ID
      * @param {int} userId User's ID
+     * @param {function} callback Function to call after master key has been created
      * @returns {undefined}
      */
     generateMasterKey: function (masterKeyGroupId, userId, callback) {
@@ -831,13 +778,28 @@ $.extend(window.DxCryptoClass.prototype, {
             return false;
         }
 
-
         if (!(masterKeyGroupId in self.masterKeyGroups)) {
             if (self.userId == userId) {
-                // Generates master key for current user
-                self.generateNewMasterKey(window.DxCrypto.certificate.publicKey, masterKeyGroupId, callback);
+                $.ajax({
+                    url: DX_CORE.site_url + 'crypto/check_existing_keys/' + masterKeyGroupId,
+                    type: "get",
+                    dataType: "json",
+                    success: function (res) {
+                        hide_page_splash(1);
+
+                        if (res && res.has_keys && res.has_keys == 1) {
+                            self.catchError(null, Lang.get('crypto.e_master_key_already_exist'));
+                        } else {
+                            // Generates master key for current user
+                            self.generateNewMasterKey(window.DxCrypto.certificate.publicKey, masterKeyGroupId, callback);
+                        }
+                    },
+                    error: function (err) {
+                        self.catchError(err, Lang.get('crypto.e_master_key_already_exist'));
+                    }
+                });
             } else {
-                self.catchError(null, Lang.get('crypto.e_add_yourslef_first'));
+                self.catchError(null, Lang.get('crypto.e_add_yourself_first'));
             }
         } else {
             // Try to get certificate for specified user
@@ -866,18 +828,17 @@ $.extend(window.DxCryptoClass.prototype, {
                         })
                         .then(function (wrappedMasterKey) {
                             callback(wrappedMasterKey);
-
-                            // Saves wrapped master key to specified user
-                            /*  window.DxCrypto.saveMasterKey(userId, masterKeyGroupId, wrappedMasterKey, function () {
-                             notify_info(Lang.get('crypto.i_save_masterkey_success'));
-                             hide_page_splash(1);
-                             hide_form_splash(1);
-                             });*/
                         })
                         .catch(window.DxCrypto.catchError);
             });
         }
     },
+    /**
+     * Event on master key save button click - calls function which generates key derived from existing one or creates a new one
+     * @param {type} event
+     * @param {type} form
+     * @returns {Boolean}
+     */
     onMasterKeysSave: function (event, form) {
         var btnSave = $('.dx-btn-save-form', form);
 

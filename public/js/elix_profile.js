@@ -433,9 +433,25 @@
 		/**
 		 * Submit input field values to the server
 		 */
-		save: function()
+		save: function(event)
 		{
 			var self = this;
+                        
+                        // Calls encryption function which encryptes data and on callback it executes again save function
+                        if(!event || !event.encryptionFinished || event.encryptionFinished == false){
+                            var cryptoFields = $('input.dx-crypto-field,textarea.dx-crypto-field,input.dx-crypto-field-file', this.root);
+
+                            if(!event || event == undefined){
+                                event = {};
+                            }
+
+                            window.DxCrypto.encryptFields(cryptoFields, event, function(event){
+                                self.save(event);
+                            });
+
+                            return;
+                        }
+                        
 			var formData = process_data_fields(this.root.attr('id'));
 			formData.append('item_id', this.root.data('item_id'));
 			formData.append('list_id', this.root.data('list_id'));
@@ -557,6 +573,9 @@
 					console.log(errorThrown);
 				}
 			});
+                        
+                        /*var cryptoFields = $('.dx-crypto-field', this.root);
+                        window.DxCrypto.decryptFields(cryptoFields); */       
 		},
 		
 		/**

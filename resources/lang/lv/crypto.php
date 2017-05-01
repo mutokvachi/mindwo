@@ -21,7 +21,7 @@ return [
     'help_success_text' => 'Jums ir uzģenerēts sertifikāts',
     
     'e_unknown' => 'Nezināma kļūda',
-    'e_add_yourslef_first' => 'Vispirms Jums jāpievieno pašiem sevi pie galvenās atslēgas grupas un tikai tad ir iespējams pievienot citus lietotājus',
+    'e_add_yourself_first' => 'Vispirms Jums jāpievieno pašiem sevi pie galvenās atslēgas grupas un tikai tad ir iespējams pievienot citus lietotājus',
     'e_user_not_exists' => 'Norādītais lietotājs neeksistē',
     'e_current_user_missing_cert' => "Jūs neesat uzģenerējis savu šifrēšanas sertifikātu. Lai turpinātu, lūdzu, uzģenerējiet savu šifrēšanas sertifikātu!",
     'e_no_access' => "Pieeja liegta",

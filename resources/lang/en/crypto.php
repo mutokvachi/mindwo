@@ -21,7 +21,7 @@ return [
     'help_success_text' => 'You have generated certificate',
     
     'e_unknown' => 'Uknown error',
-    'e_add_yourslef_first' => 'First you need to add yourslef to master key group and only then it is possible to add other users',
+    'e_add_yourself_first' => 'First you need to add yourslef to master key group and only then it is possible to add other users',
     'e_user_not_exists' => 'Specified user does not exists',
     'e_current_user_missing_cert' => "You have not generated Your encryption certificate. To continue please generate Your encryption certificate!",
     'e_no_access' => "Access denied",

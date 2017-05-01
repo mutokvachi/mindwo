@@ -43,16 +43,18 @@
             }
 
             self.domObject.data('dx_is_init', 1);
-            self.domObject.hide();
 
-            self.addDecryptButton(self);
+            self.addDecryptButton();
         },
         /**
          * Replaces field's html with button for decryption
-         * @param {$.DxCryptoField} self
          * @returns {undefined}
          */
-        addDecryptButton: function (self) {
+        addDecryptButton: function () {
+            var self = this;
+            
+            self.domObject.hide();
+
             var button = $('<button class="btn btn-xs default dx-crypto-decrypt-btn"> ' +
                     Lang.get('crypto.decrypt_btn') +
                     ' <i class="fa fa-lock"></i></button>');
@@ -86,7 +88,7 @@
 
             if (this.domObject.data('is-decrypted')) {
                 value = window.DxCrypto.stringToArrayBuffer(value);
-            } else{
+            } else {
                 value = window.DxCrypto.hexStringToArrayBuffer(value);
             }
 
@@ -99,14 +101,14 @@
          * @returns {undefined}
          */
         setValue: function (value, isVisible) {
-            if(value != ''){
-                if (this.domObject.data('is-decrypted')){
+            if (value != '') {
+                if (this.domObject.data('is-decrypted')) {
                     value = window.DxCrypto.arrayBufferToHexString(value);
-                }else{
+                } else {
                     value = window.DxCrypto.arrayBufferToString(value);
                 }
-            } 
-            
+            }
+
             if (this.domObject.is('input') || this.domObject.is('textarea')) {
                 this.domObject.val(value);
             } else {
@@ -117,7 +119,7 @@
                 // Shows field
                 this.showField();
             } else {
-                this.domObject.hide();
+                this.addDecryptButton();
             }
         },
         /**
