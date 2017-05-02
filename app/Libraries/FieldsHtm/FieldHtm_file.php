@@ -69,7 +69,9 @@ namespace App\Libraries\FieldsHtm
                         'ext' => $this->getAllowedExt(),
                         'is_pdf' => $is_pdf,
                         'down_guid' => $down_guid,
-                        'is_item_editable' => $this->is_item_editable
+                        'is_item_editable' => $this->is_item_editable,
+                        'is_crypted' => $this->fld_attr->is_crypted,
+                        'masterkey_group_id' => $this->fld_attr->masterkey_group_id
             ])->render();
         }
         

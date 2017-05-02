@@ -19,7 +19,9 @@ namespace App\Libraries\FieldsHtm
                     'item_field' => $this->fld_attr->db_name, 
                     'item_value' => $this->item_value,
                     'is_disabled' => ($this->fld_attr->is_readonly) ? 1 : $this->is_disabled_mode,
-                    'max_lenght' => $this->fld_attr->max_lenght
+                    'max_lenght' => $this->fld_attr->max_lenght,
+                    'is_crypted' => $this->fld_attr->is_crypted,
+                    'masterkey_group_id' => $this->fld_attr->masterkey_group_id
             ])->render(); 
         }
 

@@ -383,7 +383,8 @@ namespace App\Libraries {
 				"search" => false,
 				"sortable" => false,
 				"formatter" => "js:myEditBtn",
-				"fixed" => true
+				"fixed" => true,
+                                "is_crypted" => 0
 				);
 		array_push($this->model, $arr_fld_opt);
 		
@@ -604,7 +605,9 @@ namespace App\Libraries {
 								"type" => $row->sys_name,
                                                                 "is_hidden" => $row->is_hidden,
                                                                 "original_table" => $original_table,
-                                                                "original_field" => $row->db_name
+                                                                "original_field" => $row->db_name,
+                                                                "is_crypted" => $row->is_crypted,
+                                                                "masterkey_group_id" => $row->masterkey_group_id
 								);
 						
 						// Grand total logic

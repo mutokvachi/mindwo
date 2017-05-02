@@ -76,7 +76,9 @@ namespace App\Libraries\DataView {
                          'is_required' => $this->file_field->is_required,
                          'is_pdf' => false,
                          'down_guid' => $down_guid,
-                         'is_item_editable' => true
+                         'is_item_editable' => true,
+						 'is_crypted' => 0,
+					     'masterkey_group_id' => 0
                     ])->render(); 
         }
         

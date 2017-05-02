@@ -297,6 +297,7 @@
 
         @include('elements.popup_info')
         @include('main.modal_dialog')
+        @include('main.modal_dialog_crypto_psw')
         <script>
             dx_is_slider = {{ ((isset($is_slidable_menu) && $is_slidable_menu)) ? "1" : "0" }};
         </script>
