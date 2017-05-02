@@ -618,9 +618,11 @@ function process_Input_simple(post_form_htm_id, formData){
                 }
                 
                 if ($(obj).hasClass('dx-crypto-field-file')) {
-                    var cryptoVal = $(obj).data('crypto-value');
-                    
-                    formData.append(obj.name, cryptoVal, obj.files[0].name);
+                    if ($(obj).data('is-decrypted') == 0) {
+                        var cryptoVal = $(obj).data('crypto-value');
+
+                        formData.append(obj.name, cryptoVal, obj.files[0].name);
+                    }
                 } else {
                     formData.append(obj.name, obj.files[0]);
                 }
