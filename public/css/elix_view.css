@@ -1625,6 +1625,22 @@ a.header-filter:hover {
 	left: auto;
 	right: 100%;
 }
+
+.btn.btn-default.dx-status-left {
+	background-color: #e5e5e5 !important;
+	border: 0 none !important;
+}
+
+.btn.btn-default.dx-status-active {
+	background-color: #26c281 !important;
+	border: 0 none !important;
+}
+
+.btn.btn-default.dx-status-potential {
+	background-color: #f7ca18 !important;
+	border: 0 none !important;
+}
+
 table.dataTable {
     clear: both;
     margin-top: 6px !important;

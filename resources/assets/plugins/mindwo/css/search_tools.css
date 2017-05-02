@@ -36,7 +36,6 @@ Meklēšanas rīku pogas funkcionalitāte - parāda vai paslēpj papildus meklē
     width: 100%;
 }
 
-
 @media (min-width: 1200px)
 { 
     .search-tools-hiden .search-simple-btn {

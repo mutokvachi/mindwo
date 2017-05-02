@@ -94,6 +94,9 @@ button.navbar-toggle {
   background-color: #82af16 !important;
   border: 1px solid #6f9a00 !important;
 }
+.btn.green-jungle {
+  background-color: #26C281;
+}
 .mt-actions .btn.btn-outline.green {
   color: #016eb1 !important;
 }
