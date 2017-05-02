@@ -326,7 +326,9 @@ namespace App\Libraries {
                          'vf.is_sum',
                          'at.sys_name as aggregation',
                          'lf.rel_list_id',
-                         'lo.db_name as list_table_name'
+                         'lo.db_name as list_table_name',
+                         'lf.is_crypted',
+                         'l.masterkey_group_id'
                    )
                    ->join('dx_lists_fields as lf', 'vf.field_id', '=', 'lf.id')
                    ->join('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
