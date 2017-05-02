@@ -13,7 +13,7 @@
                 @endif
             </span>
     </div>
-    @if (!$is_disabled || $is_crypted)
+    @if (!$is_disabled)
         <span class='input-group-addon btn btn-default btn-file'>
                 <span class='fileinput-new'>{{ trans('fields.btn_set') }}</span>
                 <span class='fileinput-exists'>{{ trans('fields.btn_change') }}</span>
