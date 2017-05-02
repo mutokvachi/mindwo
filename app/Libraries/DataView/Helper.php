@@ -85,7 +85,7 @@ namespace App\Libraries\DataView
             else {
                 $htm = "<a href='" . Request::root() . "/web/viewer.html?file=" . Request::root() . "/download_file_" . $item_id . "_" . $list_id . "_" . $field_id . ".pdf' target='_blank'>" . e($cell_value) . "</a>";
             }
-            \Log::info("File HTM: " . $htm);
+            
             return $htm;
         }
         
