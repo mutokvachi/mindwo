@@ -297,6 +297,54 @@ namespace App\Libraries {
 		
 	}
 
+        /**
+         * Return the current view's fields properties array
+         * 
+         * @return Array Fields properties
+         */
+        private function getFieldsArray() {
+            return DB::table('dx_views_fields as vf')
+                   ->select(
+                         'lf.id',
+                         'lf.db_name',
+                         DB::raw('ifnull(vf.alias_name,lf.title_list) as title_list'),
+                         'vf.width',
+                         'vf.align',
+                         'ft.is_date',
+                         'ft.is_integer',
+                         'ft.is_decimal',
+                         'o.db_name as rel_table_db_name',
+                         'rf.db_name as rel_field_db_name',
+                         'vf.is_item_link',
+                         'ft.sys_name',
+                         'lf.formula',
+                         'lf.list_id',
+                         'fo.sys_name as operation',
+                         'vf.criteria',
+                         'vf.is_hidden',
+                         'st.sys_name as order_by',
+                         'vf.is_sum',
+                         'at.sys_name as aggregation',
+                         'lf.rel_list_id',
+                         'lo.db_name as list_table_name',
+                         'lf.is_crypted',
+                         'l.masterkey_group_id'
+                   )
+                   ->join('dx_lists_fields as lf', 'vf.field_id', '=', 'lf.id')
+                   ->join('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
+                   ->join('dx_lists as l', 'lf.list_id', '=', 'l.id')
+                   ->join('dx_objects as lo', 'l.object_id', '=', 'lo.id') 
+                   ->leftJoin('dx_lists_fields as rf', 'lf.rel_display_field_id', '=', 'rf.id')
+                   ->leftJoin('dx_lists as rl', 'rl.id', '=', 'lf.rel_list_id')
+                   ->leftJoin('dx_objects as o', 'rl.object_id', '=', 'o.id')
+                   ->leftJoin('dx_field_operations as fo', 'vf.operation_id', '=', 'fo.id')
+                   ->leftJoin('dx_sort_types as st', 'vf.sort_type_id', '=', 'st.id')
+                   ->leftJoin('dx_aggregation_types as at', 'vf.aggregation_id', '=', 'at.id') 
+                   ->where('vf.view_id', '=', $this->view_id)
+                   ->orderBy('vf.order_index')
+                   ->get();
+        }
+        
 	public function get_view_sql()
 	{
 		$this->setViewData();
@@ -309,49 +357,7 @@ namespace App\Libraries {
                 $view_row = DB::table('dx_views')->where('id','=',$this->view_id)->first();
                 
 		// Prepare fields set
-		$sql = "
-			SELECT
-				lf.id,
-				lf.db_name,
-				ifnull(vf.alias_name,lf.title_list) as title_list,
-				vf.width,
-				vf.align,
-				ft.is_date,
-				ft.is_integer,
-				ft.is_decimal,
-				o.db_name as rel_table_db_name,
-				rf.db_name as rel_field_db_name,
-				vf.is_item_link,
-				ft.sys_name,
-				lf.formula,
-				lf.list_id,
-				fo.sys_name as operation,
-				vf.criteria,
-				vf.is_hidden,
-				st.sys_name as order_by,
-				vf.is_sum,
-				at.sys_name as aggregation,
-                                lf.rel_list_id,
-                                lo.db_name as list_table_name
-			FROM
-				dx_views_fields vf
-				inner join dx_lists_fields lf on vf.field_id = lf.id
-				inner join dx_field_types ft on lf.type_id = ft.id
-                                inner join dx_lists l on lf.list_id = l.id
-                                inner join dx_objects lo on l.object_id = lo.id
-				left join dx_lists_fields rf on lf.rel_display_field_id = rf.id
-				left join dx_lists rl on rl.id = lf.rel_list_id
-				left join dx_objects o on rl.object_id = o.id
-				left join dx_field_operations fo on vf.operation_id = fo.id
-				left join dx_sort_types st on vf.sort_type_id = st.id
-				left join dx_aggregation_types at on vf.aggregation_id = at.id
-			WHERE
-				vf.view_id = :view_id
-			ORDER BY
-				vf.order_index
-			";
-		
-                $fields = DB::select($sql, array('view_id' => $this->view_id));
+                $fields = $this->getFieldsArray();
 		
 		$sql_fields = "";
 		$fld_name="";
@@ -379,7 +385,8 @@ namespace App\Libraries {
 				"search" => false,
 				"sortable" => false,
 				"formatter" => "js:myEditBtn",
-				"fixed" => true
+				"fixed" => true,
+                                "is_crypted" => 0
 				);
 		array_push($this->model, $arr_fld_opt);
 		
@@ -600,7 +607,9 @@ namespace App\Libraries {
 								"type" => $row->sys_name,
                                                                 "is_hidden" => $row->is_hidden,
                                                                 "original_table" => $original_table,
-                                                                "original_field" => $row->db_name
+                                                                "original_field" => $row->db_name,
+                                                                "is_crypted" => $row->is_crypted,
+                                                                "masterkey_group_id" => $row->masterkey_group_id
 								);
 						
 						// Grand total logic

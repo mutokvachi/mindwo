@@ -31,7 +31,7 @@
                                             <span style="color: red"> *</span>                                            
                                         </label>
                                         <div class='col-lg-8'>
-                                            @include('fields.file', ['class_exist' => 'new', 'field_id' => 0,  'is_disabled' => 0, 'item_value' => '', 'item_field' => 'import_file', 'is_required' => 1, 'item_field_remove' => 'import_file_remove'])                                            
+                                            @include('fields.file', ['class_exist' => 'new', 'field_id' => 0,  'is_disabled' => 0, 'item_value' => '', 'item_field' => 'import_file', 'is_required' => 1, 'item_field_remove' => 'import_file_remove', 'is_crypted' => 0, 'masterkey_group_id' => 0])                                            
                                             <div class="help-block with-errors"></div>
                                         </div>    
                                     </div>

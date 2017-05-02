@@ -67,7 +67,7 @@
             <div class='modal-footer' style='border-top: 1px solid #c1c1c1;'>
                 <a href='javascript:;' class='dx-cms-history-link pull-left' style='margin-top: 5px; {{ $item_id == 0 ? "display: none" : ""}}' title='{{ trans('form.hint_history') }}'><i class='fa fa-history'></i> {{ trans('form.link_history') }}&nbsp;</a><span class="badge badge-default pull-left dx-history-badge" style="display: {{ ($history_count) ? 'block' : 'none'}};">{{ $history_count }}</span>
                 @if ($is_disabled == 0)
-                    <button  type='button' class='btn btn-primary' id='btn_save_{{ $frm_uniq_id }}'>{{ trans('form.btn_save') }}</button>
+                    <button  type='button' class='btn btn-primary dx-btn-save-form' id='btn_save_{{ $frm_uniq_id }}'>{{ trans('form.btn_save') }}</button>
                 @endif
 
                 <button type='button' class='btn btn-white dx-btn-cancel-form' data-dismiss='modal'>{!! ($form_is_edit_mode == 0) ? "<i class='fa fa-sign-out'></i>" . trans('form.btn_close') : "<i class='fa fa-undo'></i> " . trans('form.btn_cancel') !!}</button>
@@ -112,8 +112,19 @@
 
                     @if ($form_is_edit_mode == 1)
 
-                        $('#btn_save_{{ $frm_uniq_id }}').click(function( event ) {
+                        $('#btn_save_{{ $frm_uniq_id }}').click(function dx_btn_save_click( event ) {
                             event.stopPropagation();
+                            
+                            // Calls encryption function which encryptes data and on callback it executes again save function
+                            if(!event.encryptionFinished || event.encryptionFinished == false){
+                                var cryptoFields = $('input.dx-crypto-field,textarea.dx-crypto-field,input.dx-crypto-field-file', $(this).closest('.modal-content'));
+                                
+                                window.DxCrypto.encryptFields(cryptoFields, event, function(event){
+                                    dx_btn_save_click(event);
+                                });
+                                
+                                return;
+                            }
                             
                             var arr_callbacks = get_form_callbacks('{{ $frm_uniq_id }}');
                             if (typeof arr_callbacks != 'undefined') {
@@ -127,6 +138,9 @@
                             $('#item_edit_form_{{ $frm_uniq_id }}').validator('validate');
 
                             save_list_item('item_edit_form_{{ $frm_uniq_id }}', '{{ $grid_htm_id }}',{{ $list_id }}, {{ $parent_field_id }}, {{ $parent_item_id }}, '{{ $parent_form_htm_id }}', arr_callbacks);//replace
+                            
+                           /* var cryptoFields = $('.dx-crypto-field', $(this).closest('.modal-content'));
+                            window.DxCrypto.decryptFields(cryptoFields);  */                      
                         });
 
                         $('#item_edit_form_{{ $frm_uniq_id }}').validator({

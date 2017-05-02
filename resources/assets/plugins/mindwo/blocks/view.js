@@ -1403,7 +1403,7 @@ var BlockViews = function () {
 
             openItemByID($(this), grid_form, grid_id, list_id, rel_field_id, rel_field_value, form_htm_id);
 
-            if (!tab_id) {
+            if (!tab_id && $(this).hasClass('dx-view-fullpage')) {
                 $("body").addClass("dx-grid-in-page");
             }
 

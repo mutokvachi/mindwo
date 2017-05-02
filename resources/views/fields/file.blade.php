@@ -4,11 +4,11 @@
             <i class='glyphicon glyphicon-file fileinput-exists'></i> 
             @endif
             <span class='fileinput-filename truncate' style="max-width: 300px;">
-                @if (isset($is_pdf) && $is_pdf)
+                @if (isset($is_pdf) && $is_pdf && !$is_crypted)
                     <a href='{{Request::root()}}/web/viewer.html?file={{Request::root()}}/download_file_{{ $item_id }}_{{ $list_id }}_{{ $field_id }}.pdf' target="_blank">{{ $item_value }}</a>
                 @else
                     @if ($item_value)
-                        <a href='JavaScript: download_file({{ $item_id }}, {{ $list_id }}, {{ $field_id }});'>{{ $item_value }}</a>
+                        <a href='{{Request::root()}}/download_file_{{ $item_id }}_{{ $list_id }}_{{ $field_id }}' class='{{ ($is_crypted) ? "dx-crypto-field-file" : "" }}' data-masterkey-group="{{ $masterkey_group_id }}">{{ $item_value }}</a>
                     @endif
                 @endif
             </span>
@@ -17,7 +17,7 @@
         <span class='input-group-addon btn btn-default btn-file'>
                 <span class='fileinput-new'>{{ trans('fields.btn_set') }}</span>
                 <span class='fileinput-exists'>{{ trans('fields.btn_change') }}</span>
-                <input type='file' name='{{ $item_field }}' {{ ($is_required) ? 'required' : '' }}/>
+                <input type='file' name='{{ $item_field }}' {{ ($is_required) ? 'required' : '' }} class='{{ ($is_crypted) ? "dx-crypto-field-file" : "" }}' data-masterkey-group="{{ $masterkey_group_id }}"/>
                 <input class='fileinput-remove-mark' type='hidden' value='0' name = '{{ $item_field_remove }}' />
         </span>
         <a href='javascript:;' class='input-group-addon btn btn-default fileinput-exists' data-dismiss='fileinput'>{{ trans('fields.btn_remove') }}</a>
