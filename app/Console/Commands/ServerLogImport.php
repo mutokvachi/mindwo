@@ -73,18 +73,24 @@ class ServerLogImport extends Command
         
         //loop file line by line
         while (($line = fgets($handle)) !== false) {
+            
             $lineArr = json_decode($line, TRUE);
+            
             if(array_key_exists('message', $lineArr) &&
                array_key_exists('offset', $lineArr) &&
                array_key_exists('@timestamp', $lineArr) &&
                strtotime($lineArr['@timestamp']) > strtotime($lastAction))
             {
+                
                 $record = $lineArr['message'];
+                $record = str_replace("  ", " 0", $record); // replace 1 day dates with 01, 02 etc
+                
                 //allow all except CRON job
                 if(!preg_match($patternCRON, $record))
                 {
+                    
                     if(preg_match($patternUser, $record, $userMatch))
-                    {                               
+                    { 
                         $ts = date("YmdHis",strtotime($lineArr['@timestamp']));
                         $actionDate = \DateTime::createFromFormat('M d H:i:s',$userMatch[1])->format('Y-m-d H:i:s');
                         //collect new event logs
@@ -102,10 +108,10 @@ class ServerLogImport extends Command
             }
         }
         fclose($handle);
-
+        
         $this->setLogToDB($result);
         $this->deleteFile($filePath);
-        
+        $this->info('Server log import done!');
     }
    /**
     * Save log file sessions to database. 

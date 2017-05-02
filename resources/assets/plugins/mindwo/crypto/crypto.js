@@ -292,13 +292,24 @@ $.extend(window.DxCryptoClass.prototype, {
 
         var self = window.DxCrypto;
 
+        // Check if crypto file field has been changed then request certificate check 
+        var hasChangedFileFields = self.checkFileCryptoFields(cryptoFields);
+
+        // If user have changed crypto file then must have certificate
+        if (hasChangedFileFields && (!self.certificate || !self.certificate.publicKey)) {
+            // Retrieves certificate and calls this function again
+            self.getCurrentUserCertificate(0, function () {
+                self.encryptFields(cryptoFields, event, callback);
+            });
+            return false;
+        }
+
         if (!self.certificate || !self.certificate.publicKey) {
             onFinishing();
 
             return false;
         }
 
-        // Async recursive action...
         cryptoFields.each(function () {
             var cryptoField = this;
 
@@ -372,6 +383,25 @@ $.extend(window.DxCryptoClass.prototype, {
 
             cryptoField.crypto.getValue(onReceiveValue);
         });
+    },
+    /**
+     * Check if crypto file field has been changed then request certificate check
+     * @param {DOM} cryptoFields Fields which are encrypted
+     * @returns {Boolean} If true then must have valid certificate
+     */
+    checkFileCryptoFields: function (cryptoFields) {
+        var res = false;
+
+        cryptoFields.each(function () {
+            var cryptoField = this;
+
+            if ($(cryptoField).hasClass('dx-crypto-field-file') && $(cryptoField).is('input') && cryptoField.files.length > 0) {
+                res = true;
+                return;
+            }
+        });
+
+        return res;
     },
     /**
      * Decryptes all fields
