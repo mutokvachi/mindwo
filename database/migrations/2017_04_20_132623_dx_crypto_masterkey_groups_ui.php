@@ -29,11 +29,6 @@ class DxCryptoMasterkeyGroupsUi extends Migration
                 'grid_list_field_id' => DB::table('dx_lists_fields')->where('list_id', '=', $list_id_dx_crypto_masterkeys)->where('db_name', '=', 'master_key_group_id')->first()->id,
                 'order_index' => (DB::table('dx_forms_tabs')->where('form_id', '=', $form_id)->max('order_index') + 10)
             ]);
-
-            // make menu
-            $parent_id = DB::table('dx_menu')->where('title', '=', 'Administration')->first()->id;
-
-            DB::table('dx_menu')->insert(['parent_id' => $parent_id, 'title' => "Master key groups", 'list_id' => $list_id_dx_crypto_masterkey_groups, 'order_index' => 10, 'position_id' => 1, 'group_id' => 1]);
         });
     }
 
