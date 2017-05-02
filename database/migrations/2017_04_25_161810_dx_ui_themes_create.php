@@ -14,6 +14,7 @@ class DxUiThemesCreate extends Migration
 	{
 		Schema::create('dx_ui_themes', function (Blueprint $table)
 		{
+                        $table->engine = 'InnoDB';
 			$table->increments('id');
 			$table->string('title', 100);
 			$table->string('file_name', 100);

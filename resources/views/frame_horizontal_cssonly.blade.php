@@ -17,6 +17,7 @@
       @include('elements.popup_info')
     </div>
     @include('main.modal_dialog')
+    @include('main.modal_dialog_crypto_psw')
     @include('main.body_scripts')
   </body>
 </html>
