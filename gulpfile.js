@@ -61,6 +61,7 @@ gulp.task('mix_all', function() {
             'mindwo/css/ie9_fix.css',
             'mindwo/css/search_top.css',
             'mindwo/css/splash.css',
+			'mindwo/css/menu.css',
             'mindwo/css/theme_fix.css'
         ], 'public/css/elix_mindwo.css', 'resources/assets/plugins');        
 
@@ -95,6 +96,10 @@ gulp.task('mix_all', function() {
             'metronic_ui.less',
         ], 'public/css/elix_metronic.css');
 
+        mix.less([
+            'colors/bamboo.less'
+        ], 'public/css/elix_colors_bamboo.css');
+        
         // Styles for articles search page
         mix.styles([
             'cubeportfolio/css/cubeportfolio.css',
@@ -147,6 +152,7 @@ gulp.task('mix_all', function() {
             'mindwo/pages/search_top.js',
             'validator/validator.js',
             'mindwo/pages/re_login.js',
+            'mindwo/pages/theme_select.js',
             'bootstrap-tabdrop/js/bootstrap-tabdrop.js'
         ],
                 'public/js/elix_plugins.js', 'resources/assets/plugins');
@@ -357,7 +363,8 @@ gulp.task('mix_all', function() {
             'css/elix_block_report.css',
             'js/elix_mail.js',
             'css/elix_mail.css',
-            'js/elix_birth.js'
+            'js/elix_birth.js',
+            'css/elix_colors_bamboo.css'
         ]);
     });
 });

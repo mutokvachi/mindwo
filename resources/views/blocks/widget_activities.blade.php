@@ -5,7 +5,7 @@
         <div class="caption font-grey-cascade uppercase">{{ trans('activities.widget_title') }}</div>
         <div class="actions">
           <div class="btn-group">
-            <a class="btn green btn-outline btn-circle btn-sm" style="border-width: 1px !important;" href="javascript:;" data-toggle="dropdown" data-close-others="true" aria-expanded="false">
+            <a class="btn green btn-outline btn-circle btn-sm" style="border-width: 1px !important;" href="javascript:;" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" aria-expanded="false">
               {{ trans('activities.lbl_filter') }} <i class="fa fa-angle-down"></i>
             </a>
             <div class="dropdown-menu pull-right form-group">

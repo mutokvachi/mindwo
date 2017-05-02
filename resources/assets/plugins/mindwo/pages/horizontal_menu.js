@@ -112,6 +112,184 @@ var HMenuUI = function()
 	};
 	
 	/**
+	 * Make navigation behave correctly on mobiles.
+	 */
+	var handleTapEvent = function()
+	{
+		// select all dropdown toggles under the top level
+		$('.dx-main-menu .dropdown-submenu > a.dropdown-toggle').each(function()
+		{
+			$(this).click(function(e)
+			{
+				if($(window).width() < 768)
+				{
+					e.stopPropagation();
+					
+					// select the ul element next to the toggle (submenu itself)
+					var submenu = $(this).next();
+					
+					if(submenu.is(':visible'))
+					{
+						// hide submenu and all open sub-submenus of it
+						submenu.add('.dropdown-menu', submenu).attr('style', '');
+					}
+					else
+					{
+						// hide already open submenus at the same level
+						$(this).parent().siblings('.dropdown-submenu').find('.dropdown-menu:visible').attr('style', '');
+						submenu.show();
+					}
+				}
+			});
+		});
+		
+		// close open submenus when closing a top-level menu
+		$('.dx-main-menu > li > a.dropdown-toggle').click(function()
+		{
+			if($(window).width() < 768)
+			{
+				// if user is closing menu, then hide submenus of it
+				if($(this).attr('aria-expanded') == 'true')
+				{
+					$(this).next().find('.dropdown-menu:visible').attr('style', '');
+				}
+				// if user opens another menu, hide submenus of an already open menu
+				else
+				{
+					$(this).parent().siblings('.open').find('.dropdown-submenu .dropdown-menu:visible').attr('style', '');
+				}
+			}
+		});
+		
+		$('.dx-main-menu').on('click', '.dropdown-submenu > a.dropdown-toggle', function(e)
+		{
+			if($(window).width() >= 768)
+			{
+				e.stopPropagation();
+				$(this).trigger('mouseenter');
+			}
+		});
+	};
+	
+	var hideSubmenus = function()
+	{
+		if($(window).width() > 768)
+		{
+			$('.dx-main-menu .dropdown-submenu .dropdown-menu:visible').attr('style', '');
+		}
+	};
+	
+	var menu_ul = $('#navbar > ul');
+	var more_li = menu_ul.children('#more-items-wrap');
+	var more_ul = more_li.children('#more-items');
+	var more_li_width;
+	var widths = [];
+	
+	/**
+	 * Implementation of 'tabdrop' behavior for main navigation. When it is not enough place for all menu items,
+	 * display 'More' menu item, and move there all items that don't fit width of a container, and vice versa.
+	 */
+	var emulateTabdrop = function()
+	{
+		// extra small screen - remove 'more' item for collapsed menu to work
+		if($(window).width() <= 768)
+		{
+			if(more_ul.children().length)
+			{
+				more_ul.children().insertBefore(more_li).removeClass('dropdown-submenu');
+			}
+			
+			more_li.hide();
+			
+			return;
+		}
+		
+		// small, medium and large screens
+		else
+		{
+			// calculate widths
+			if(!more_li_width)
+			{
+				// make sure that 'More' item is visible
+				more_li.show();
+				more_li_width = more_li.outerWidth();
+				
+				// calculate widths of all menu items except 'More' item
+				widths = [];
+				menu_ul.children('li:not(:last-child)').each(function()
+				{
+					widths.push($(this).outerWidth());
+				});
+			}
+		}
+		
+		// wdith of a container
+		var width = menu_ul.parent().innerWidth() - more_li_width;
+		var items = menu_ul.children('li:not(:last-child)');
+		var count = items.length;
+		
+		// sum of widths of all menu items
+		var items_width = 0;
+		
+		for(var i = 0; i < count; i++)
+		{
+			items_width += widths[i];
+		}
+		
+		// not all items are visible - hide redundant items
+		if(items_width > width)
+		{
+			more_li.show();
+			
+			// place redundant items under the 'More' item
+			while(items_width > width)
+			{
+				var current = $(items[count - 1]);
+				items_width -= widths[count - 1];
+				count--;
+				current = current.prependTo(more_ul);
+				// if the moved item has child nodes, add class dropdown-submenu (mandatory)
+				if(current.children('ul').length)
+				{
+					current.addClass('dropdown-submenu');
+				}
+			}
+		}
+		
+		// all items are visible - get them out of the 'More' item and place back to the root level of the main menu
+		else if(items_width < width)
+		{
+			while(true)
+			{
+				if(count == widths.length)
+				{
+					break;
+				}
+				
+				if(items_width + widths[count] >= width)
+				{
+					break;
+				}
+				
+				var current = more_ul.children().first();
+				items_width += widths[count];
+				count++;
+				current.removeClass('dropdown-submenu').insertBefore(more_li);
+			}
+		}
+		
+		if(more_ul.children().length)
+		{
+			more_li.is(':visible') || more_li.show();
+		}
+		
+		else
+		{
+			more_li.is(':hidden') || more_li.hide();
+		}
+	};
+	
+	/**
 	 * Inits horizontal menu page UI
 	 *
 	 * @returns {undefined}
@@ -120,10 +298,24 @@ var HMenuUI = function()
 	{
 		//hideErrorImages();
 		setActiveMenu();
-		setContentMargin();
+		
+		if(!dx_is_cssonly)
+		{
+			setContentMargin();
+			PageMain.addResizeCallback(setContentMargin);
+		}
+		
 		handleScroll();
-		PageMain.addResizeCallback(setContentMargin);
+		handleTapEvent();
+		
 		PageMain.addResizeCallback(positionDIVs);
+		PageMain.addResizeCallback(hideSubmenus);
+		
+		if(dx_is_cssonly)
+		{
+			emulateTabdrop();
+			PageMain.addResizeCallback(emulateTabdrop);
+		}
 	};
 	
 	return {

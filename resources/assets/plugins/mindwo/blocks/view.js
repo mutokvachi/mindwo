@@ -1406,24 +1406,45 @@ var BlockViews = function () {
             if (!tab_id && $(this).hasClass('dx-view-fullpage')) {
                 $("body").addClass("dx-grid-in-page");
             }
-
-            PageMain.addResizeCallback(initHeight);
-
-            initHeight();
-
-            var $table = $(this).find('table.dx-grid-table');
-
-            $table.floatThead({
-                scrollContainer: function ($table) {
-                    return $table.closest('.dx-grid-outer-div');
-                }
-            });
-
-            PageMain.addResizeCallback(function () {
-                $table.floatThead('reflow');
-            });            
-            setTimeout(function(){ PageMain.resizePage(); }, 100);
-                        
+            
+            if(!dx_is_cssonly)
+			{
+				PageMain.addResizeCallback(initHeight);
+	
+				initHeight();
+	
+				var $table = $(this).find('table.dx-grid-table');
+	
+				$table.floatThead({
+					scrollContainer: function($table)
+					{
+						return $table.closest('.dx-grid-outer-div');
+					}
+				});
+	
+				PageMain.addResizeCallback(function()
+				{
+					$table.floatThead('reflow');
+				});
+				setTimeout(function() { PageMain.resizePage(); }, 100);
+			}
+			
+			else
+			{
+				var container = $('.dx-grid-inner-container');
+				var thead = $('.dx-grid-table thead');
+				var divs = $('.dx-grid-table thead div');
+				container.scroll(function()
+				{
+					divs
+                    //thead
+                        .css({
+                        //top: container.scrollTop() + 'px'
+						transform: 'translateY(' + container.scrollTop() + 'px)'
+					});
+				});
+			}
+			
             $(this).attr('dx_block_init', 1); // uzstādam pazīmi, ka skata bloks ir inicializēts
         });
     };
