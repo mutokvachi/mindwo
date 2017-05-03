@@ -141,4 +141,6 @@ return [
     'lookup_sql_error' => "SQL error for the lookup field '%s'!",
     
     'no_view_config_rights' => "You don't have rights to configure views for this register!",
+    
+    'form_validation_err' => "Data can't be saved, because there is at least one validation error!",
 ];
