@@ -27,13 +27,10 @@
             @if ($binded_field_name)
                 onchange="load_binded_field('{{ $frm_uniq_id }}_{{ $item_field }}', '{{ $frm_uniq_id }}_{{ $binded_field_name }}', {{ $binded_field_id }}, {{ $binded_rel_field_id }})"
             @endif
-             data-foo="bar" dx_binded_field_id = '{{ $binded_field_id }}' dx_binded_rel_field_id = '{{ $binded_rel_field_id }}'
-            >
-
-            @if (!((count($items) == 1 && $is_required) || ($item_value > 0 && $is_required))))
+             data-foo="bar" dx_binded_field_id = '{{ $binded_field_id }}' dx_binded_rel_field_id = '{{ $binded_rel_field_id }}' 
+            >@if (!((count($items) == 1 && $is_required) || ($item_value > 0 && $is_required)))
                 <option value=0></option>
             @endif
-
             @foreach($items as $item)
                 <option {{ ($item->id == $item_value) ? 'selected' : '' }} value='{{ $item->id }}'>{{ $item->txt }}</option>
             @endforeach

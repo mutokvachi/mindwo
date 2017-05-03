@@ -141,4 +141,6 @@ return [
     'lookup_sql_error' => "Uzmeklēšanas izvēlnes laukam '%s' nav iespējams izveidot korektu datu atlases pieprasījumu.",
     
     'no_view_config_rights' => 'Jums nav tiesību konfigurēt šī reģistra skatus!',
+    
+    'form_validation_err' => "Datus nav iespējams saglabāt, jo nav norādītas obligāto lauku vērtības!",
 ];
