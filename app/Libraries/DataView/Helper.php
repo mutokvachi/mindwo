@@ -77,7 +77,7 @@ namespace App\Libraries\DataView
             $field_id = $arr_args['field_id'];
             $cell_value = $arr_args['cell_value'];
             $is_crypted = (isset($arr_args['is_crypted']) && $arr_args['is_crypted']);
-            $masterkey_group_id = (isset($arr_args['masterkey_group_id']) && $arr_args['masterkey_group_id']);
+            $masterkey_group_id = (isset($arr_args['masterkey_group_id']) && $arr_args['masterkey_group_id']) ? $arr_args['masterkey_group_id'] : 0;
             
             if (!$is_pdf || $is_crypted) {
                 $htm = "<a href = '" . Request::root() . "/download_file_" . $item_id . "_" . $list_id . "_" . $field_id . "'" . (($is_crypted) ? " class='dx-crypto-field-file'" : "") . " data-masterkey-group='" . $masterkey_group_id . "'><i class='glyphicon glyphicon-file'></i> " . e($cell_value) . "</a>";
