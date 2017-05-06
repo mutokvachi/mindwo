@@ -1799,7 +1799,8 @@ window.DxEmpTimeoff = window.DxEmpTimeoff || {
             },
             "startDate": window.DxEmpTimeoff.dateFrom,
             "endDate": window.DxEmpTimeoff.dateTo,
-            "showDropdowns": true
+            "showDropdowns": true,
+            "linkedCalendars": false
         }, window.DxEmpTimeoff.yearSelect);
     },
     /**

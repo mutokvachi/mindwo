@@ -14,11 +14,17 @@ namespace App\Libraries\Timeoff\AccrualPeriod
          * 
          * @return boolean
          */
-        public function isAccruable()
+        public function isAccruable($calc_date)
         {
             return true; // we can accrue each day
         }
 
+        /**
+         * Set's if holidays are included in accrual
+         */
+        public function setHolidaysIn() {
+            $this->is_holidays_in = false;
+        }
     }
 
 }

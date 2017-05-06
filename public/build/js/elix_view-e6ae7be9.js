@@ -14594,6 +14594,7 @@ var DateRange = function()
                 ranges: arr_params['arr_ranges'],
                 autoUpdateInput: true,
                 alwaysShowCalendars: true,
+                linkedCalendars: false
             },
             function (start, end) {                
                 $('#' + arr_params['range_id'] + ' input').val(getDateIntervalLV(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD')));
@@ -14781,21 +14782,6 @@ function view_list_item(ajax_url, item_id, list_id, rel_field_id, rel_field_valu
         // izpildam AJAX pieprasījumu
         request.doRequest();
 }
-
-/**
- * Opens list item form - gets form's HTML in JSON and opens bootstrap modal form (in view or new entry entering mode - depending on item_id value)
- * After save form is reloaded in view mode.
- * 
- * @param {string} ajax_url             Relative URL for forms opening. Must be defined Laravel route.
- * @param {integer} item_id             List item ID. If 0, then form will be opened in new entry entering mode
- * @param {integer} list_id             List ID
- * @param {integer} rel_field_id        Used for sub-grids forms opening - field ID by which subgrid is joined (or 0 if no subgrid)
- * @param {integer} rel_field_value     Used for sub-grids forms opening - related item ID (or 0 if no subgrid)
- * @param {string} grid_htm_id          Grid HTML element ID, from which form is opened
- * @param {string} parent_form_htm_id   Parent form HTML element ID, if form is opened from an subgrid (which is placed in parent form)
- * @param {object} arr_callbacks        Callback functions object, for example: {before_show: callback1, after_close: callback2, before_save: callback3, after_save: callback4}. Before_save callback is used for pre-validation and can return True or False.
- * @returns {undefined}
- */
 
 /**
  * Opens list item form - gets form's HTML in JSON and opens bootstrap modal form (in view or new entry entering mode - depending in item_id value and form_is_edit_mode option)
@@ -19032,6 +19018,27 @@ var RelIdField = function()
     };
     
     /**
+     * Handles view button click event - opens related form
+     * @param {object} fld_elem Field HTML element
+     * @returns {undefined}
+     */
+    var handleBtnView = function(fld_elem) {
+        fld_elem.find(".dx-rel-id-view-btn").click(function() {
+            var self = $(this);            
+            var update_fld = function(frm) {
+                var fld = frm.find(".dx-form-field-line[data-field-id=" + fld_elem.attr("data-rel-field-id") + "]");
+                var inp = fld.find("input");
+                
+                if (inp.length > 0) {
+                    self.closest(".dx-rel-id-field").find(".dx-rel-id-text").val(inp.val());
+                }
+            };
+            
+            open_form(fld_elem.attr("data-form-url"), $(this).attr("data-item-id"), fld_elem.attr("data-rel-list-id"), 0, 0, "", 0, "", {after_close: update_fld});             
+        });
+    };
+    
+    /**
      * Call back function after new item added - so it appear in dropdown
      * @param {string} fld_htm_id Dropdown field HTML element ID
      * @param {integer} val_id Saved related item ID
@@ -19082,6 +19089,7 @@ var RelIdField = function()
         $(".dx-rel-id-field[data-is-init=0]").each(function() {            
             handleBtnAdd($(this));
             handleBtnEdit($(this));
+            handleBtnView($(this));
             initBinded($(this));            
             $(this).attr('data-is-init', 1);
         });       

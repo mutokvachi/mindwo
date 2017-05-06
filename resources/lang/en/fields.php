@@ -36,6 +36,7 @@ return [
     'add_value' => 'Add new item',
     'edit_value' => 'Edit selected item. Attention: changes will be applied to all records where this item is used!',
     'must_choose' => 'Please choose wich dropdown item to edit!',
+    'view_value' => 'View item',
     
     // File
     'file_browser_title' => 'Files browser',

@@ -21,9 +21,20 @@ namespace App\Libraries\Timeoff\AccrualPeriod
         public $employee_row = null;
         
         /**
+         * Indicates if accrual period included holidays
+         * @var boolean
+         */
+        public $is_holidays_in = false;
+        
+        /**
          * Returns if accrual level can be accrued
          */
-        abstract function isAccruable();
+        abstract function isAccruable($calc_date);
+        
+        /**
+         * Set's if holidays are included in accrual
+         */
+        abstract protected function setHolidaysIn();
                 
         /**
          * Class constructor
@@ -35,6 +46,8 @@ namespace App\Libraries\Timeoff\AccrualPeriod
         {
             $this->level_row = $level_row;
             $this->employee_row = $employee_row;
+            
+            $this->setHolidaysIn();
         }
 
     }

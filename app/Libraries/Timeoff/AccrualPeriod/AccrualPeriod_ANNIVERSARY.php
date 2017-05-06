@@ -22,6 +22,13 @@ namespace App\Libraries\Timeoff\AccrualPeriod
 
             return ($calc_date->gte($dat) && $calc_date->day == $dat->day && $calc_date->month == $dat->month);
         }
+        
+        /**
+         * Set's if holidays are included in accrual
+         */
+        public function setHolidaysIn() {
+            $this->is_holidays_in = true;
+        }
 
     }
 
