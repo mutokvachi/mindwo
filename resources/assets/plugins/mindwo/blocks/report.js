@@ -364,7 +364,8 @@
                 },
                 "startDate": this.dateFrom,
                 "endDate": this.dateTo,
-                "showDropdowns": true
+                "showDropdowns": true,
+                "linkedCalendars": false
             }, function (start, end, label) {
                 self.yearSelect(start, end, label, self);
             });

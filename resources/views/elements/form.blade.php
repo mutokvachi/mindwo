@@ -113,7 +113,14 @@
                     @if ($form_is_edit_mode == 1)
 
                         $('#btn_save_{{ $frm_uniq_id }}').click(function dx_btn_save_click( event ) {
-                            event.stopPropagation();
+                            event.stopPropagation();                            
+                                                        
+                            $('#item_edit_form_{{ $frm_uniq_id }}').validator('validate');
+                            
+                            if ($('#item_edit_form_{{ $frm_uniq_id }}').find(".with-errors ul").length > 0) {
+                                notify_err(Lang.get('errors.form_validation_err'));
+                                return false;
+                            }
                             
                             // Calls encryption function which encryptes data and on callback it executes again save function
                             if(!event.encryptionFinished || event.encryptionFinished == false){
@@ -134,8 +141,6 @@
                                     }
                                 }
                             }
-                            
-                            $('#item_edit_form_{{ $frm_uniq_id }}').validator('validate');
 
                             save_list_item('item_edit_form_{{ $frm_uniq_id }}', '{{ $grid_htm_id }}',{{ $list_id }}, {{ $parent_field_id }}, {{ $parent_item_id }}, '{{ $parent_form_htm_id }}', arr_callbacks);//replace
                             

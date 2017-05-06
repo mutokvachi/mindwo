@@ -22,15 +22,15 @@
 
             @if ($item_value > 0)
                 <span class="input-group-btn">
-                    <button class="btn btn-white dx-rel-id-add-btn" type="button" title="{{ ($rel_list_id == Config::get('dx.employee_list_id',0) && Config::get('dx.employee_profile_page_url', '')) ? trans('employee.lbl_open_profile') : trans('fields.view_record') }}"><i class='fa fa-external-link'></i></button>                    
+                    <button class="btn btn-white dx-rel-id-add-btn" type="button" title="{{ ($rel_list_id == Config::get('dx.employee_list_id',0) && Config::get('dx.employee_profile_page_url', '')) ? trans('employee.lbl_open_profile') : trans('fields.view_record') }}" style="border: 1px solid #c2cad8!important; margin-left: -2px!important;"><i class='fa fa-external-link'></i></button>                    
                 </span>
             @endif
     @else    
         <input class="dx-auto-input-id" type=hidden id='{{ $frm_uniq_id }}_{{ $item_field }}' name = '{{ $item_field }}' value = '{{ $item_value }}' />
         <input class="dx-auto-input-select2" type='text' id='{{ $frm_uniq_id }}_{{ $item_field }}_txt' name = '{{ $item_field }}_txt' value = '{{ $txt_display }}' class='form-control select2-remote' {{ ($is_required) ? 'required' : '' }} dx_fld_name = '{{ $item_field }}' style="width: 100%;"/>
         <span class="input-group-btn">
-            <button class="btn btn-white dx-rel-id-del-btn" type="button" title="{{ trans('fields.remove_field_value') }}" style='margin-left: 2px; margin-right: 2px;'><i class='fa fa-trash-o'></i></button>
-            <button class="btn btn-white dx-rel-id-add-btn" type="button" title="{{ ($rel_list_id == Config::get('dx.employee_list_id',0) && Config::get('dx.employee_profile_page_url', '')) ? trans('employee.lbl_open_profile') : trans('fields.set_field_value') }}"><i class='fa fa-external-link'></i></button>
+            <button class="btn btn-white dx-rel-id-del-btn" type="button" title="{{ trans('fields.remove_field_value') }}" style="border: 1px solid #c2cad8!important; margin-left: -2px!important;"><i class='fa fa-trash-o'></i></button>
+            <button class="btn btn-white dx-rel-id-add-btn" type="button" title="{{ ($rel_list_id == Config::get('dx.employee_list_id',0) && Config::get('dx.employee_profile_page_url', '')) ? trans('employee.lbl_open_profile') : trans('fields.set_field_value') }}" style="border: 1px solid #c2cad8!important; margin-left: -2px!important;"><i class='fa fa-external-link'></i></button>
         </span>    
     @endif
 </div>
