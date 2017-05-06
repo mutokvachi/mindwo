@@ -1546,6 +1546,12 @@ a.header-filter:hover {
     margin-left: -15px;
     margin-right: -15px;
 }
+
+// Dropdown field buttons
+.dx-rel-id-view-btn {
+    border: 1px solid #c2cad8!important;
+    margin-left: -2px!important;
+}
 table.dataTable {
     clear: both;
     margin-top: 6px !important;

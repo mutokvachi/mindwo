@@ -1735,6 +1735,7 @@ var DateRange = function()
                 ranges: arr_params['arr_ranges'],
                 autoUpdateInput: true,
                 alwaysShowCalendars: true,
+                linkedCalendars: false
             },
             function (start, end) {                
                 $('#' + arr_params['range_id'] + ' input').val(getDateIntervalLV(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD')));

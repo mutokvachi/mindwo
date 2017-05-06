@@ -14594,6 +14594,7 @@ var DateRange = function()
                 ranges: arr_params['arr_ranges'],
                 autoUpdateInput: true,
                 alwaysShowCalendars: true,
+                linkedCalendars: false
             },
             function (start, end) {                
                 $('#' + arr_params['range_id'] + ' input').val(getDateIntervalLV(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD')));
@@ -19032,6 +19033,22 @@ var RelIdField = function()
     };
     
     /**
+     * Handles view button click event - opens related form
+     * @param {object} fld_elem Field HTML element
+     * @returns {undefined}
+     */
+    var handleBtnView = function(fld_elem) {
+        fld_elem.find(".dx-rel-id-view-btn").click(function() {
+                        
+            var update_fld = function(frm) {
+                alert(frm.html());
+            }
+            
+            open_form(fld_elem.attr("data-form-url"), $(this).attr("data-item-id"), fld_elem.attr("data-rel-list-id"), 0, 0, "", "", {after_save: update_fld});             
+        });
+    };
+    
+    /**
      * Call back function after new item added - so it appear in dropdown
      * @param {string} fld_htm_id Dropdown field HTML element ID
      * @param {integer} val_id Saved related item ID
@@ -19082,6 +19099,7 @@ var RelIdField = function()
         $(".dx-rel-id-field[data-is-init=0]").each(function() {            
             handleBtnAdd($(this));
             handleBtnEdit($(this));
+            handleBtnView($(this));
             initBinded($(this));            
             $(this).attr('data-is-init', 1);
         });       
