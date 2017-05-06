@@ -12,7 +12,7 @@ class DxUsersAccrualPoliciesAddAlgorithmCodeUi extends Migration
      */
     public function up()
     {
-        $list = App\Libraries\DBHelper::getListByTable('dx_users_accrual_policies');
+        $list = App\Libraries\DBHelper::getListByTable('dx_accrual_policies');
         
         if (!$list) {
             return;
@@ -43,7 +43,7 @@ class DxUsersAccrualPoliciesAddAlgorithmCodeUi extends Migration
      */
     public function down()
     {
-        $list = App\Libraries\DBHelper::getListByTable('dx_users_accrual_policies');
+        $list = App\Libraries\DBHelper::getListByTable('dx_accrual_policies');
         
         if (!$list) {
             return;

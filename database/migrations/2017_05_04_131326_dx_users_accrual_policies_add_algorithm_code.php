@@ -12,7 +12,7 @@ class DxUsersAccrualPoliciesAddAlgorithmCode extends Migration
      */
     public function up()
     {
-        Schema::table('dx_users_accrual_policies', function (Blueprint $table) {
+        Schema::table('dx_accrual_policies', function (Blueprint $table) {
             $table->string('algorithm_code', 100)->nullable()->comment = trans('db_dx_users_accrual_policies.algorithm_code');
         });
     }
@@ -24,7 +24,7 @@ class DxUsersAccrualPoliciesAddAlgorithmCode extends Migration
      */
     public function down()
     {
-        Schema::table('dx_users_accrual_policies', function (Blueprint $table) {
+        Schema::table('dx_accrual_policies', function (Blueprint $table) {
             $table->dropColumn(['algorithm_code']);
         });
     }

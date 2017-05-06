@@ -47,12 +47,17 @@ var RelIdField = function()
      */
     var handleBtnView = function(fld_elem) {
         fld_elem.find(".dx-rel-id-view-btn").click(function() {
-                        
+            var self = $(this);            
             var update_fld = function(frm) {
-                alert(frm.html());
-            }
+                var fld = frm.find(".dx-form-field-line[data-field-id=" + fld_elem.attr("data-rel-field-id") + "]");
+                var inp = fld.find("input");
+                
+                if (inp.length > 0) {
+                    self.closest(".dx-rel-id-field").find(".dx-rel-id-text").val(inp.val());
+                }
+            };
             
-            open_form(fld_elem.attr("data-form-url"), $(this).attr("data-item-id"), fld_elem.attr("data-rel-list-id"), 0, 0, "", "", {after_save: update_fld});             
+            open_form(fld_elem.attr("data-form-url"), $(this).attr("data-item-id"), fld_elem.attr("data-rel-list-id"), 0, 0, "", 0, "", {after_close: update_fld});             
         });
     };
     

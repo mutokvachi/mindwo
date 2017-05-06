@@ -108,7 +108,7 @@ namespace App\Libraries\Timeoff
                                         'co.code as co_code', 
                                         'm.nr as co_month_nr', 
                                         'd.code as co_day_code',
-                                        'up.algorithm_code'
+                                        'p.algorithm_code'
                                 )
                                 ->leftJoin('dx_accrual_policies as p', 'up.accrual_policy_id', '=', 'p.id')
                                 ->leftJoin('dx_carryover_dates as co', 'p.carryover_date_id', '=', 'co.id')
