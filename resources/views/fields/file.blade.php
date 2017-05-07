@@ -33,17 +33,19 @@
 </div>
 @if (!$is_disabled)
 <script>
-    $(".fileinput[data-is-init=0]").each(function() {
-        $(this).on('clear.bs.fileinput', function() {
-            $(this).find('input[data-required=1]').prop('required', true);
+    window.document.onload = function() {
+        $(".fileinput[data-is-init=0]").each(function() {
+            $(this).on('clear.bs.fileinput', function() {
+                $(this).find('input[data-required=1]').prop('required', true);
+            });
+
+            $(this).on('change.bs.fileinput', function() {
+                $(this).find('input[data-required=1]').prop('required', false);
+                $(this).closest(".form-group").removeClass('has-error').find('.with-errors').html("");
+            });
+
+            $(this).attr('data-is-init', 1);
         });
-        
-        $(this).on('change.bs.fileinput', function() {
-            $(this).find('input[data-required=1]').prop('required', false);
-            $(this).closest(".form-group").removeClass('has-error').find('.with-errors').html("");
-        });
-        
-        $(this).attr('data-is-init', 1);
-    });
+    }
 </script>
 @endif
