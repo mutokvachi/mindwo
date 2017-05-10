@@ -54,9 +54,9 @@
 
             self.domObject.data('dx_is_init', 1);
 
-            $('.dx-crypto-generate-cert-btn', self.domObject).click(this.openGenerateCertificate);
+            self.domObject.find('.dx-crypto-generate-cert-btn').click(this.openGenerateCertificate);
 
-            $('.dx-crypto-generate-new-cert-btn', self.domObject).click(function () {
+            self.domObject.find('.dx-crypto-generate-new-cert-btn').click(function () {
                 var title = Lang.get('crypto.btn_generate_new_cert');
                 var body = Lang.get('crypto.w_confirm_generate_new_cert');
 
@@ -70,7 +70,13 @@
          * @returns {undefined}
          */
         openGenerateCertificate: function () {
-            $('#dx-crypto-modal-generate-cert').modal('show');
+            var modal = $('#dx-crypto-modal-generate-cert');
+
+            modal.on('shown.bs.modal', function () {
+                modal.find('#dx-crypto-modal-gen-input-password').focus();
+            });
+
+            modal.modal('show');
         },
         /**
          * Validates users password

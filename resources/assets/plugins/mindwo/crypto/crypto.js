@@ -22,7 +22,6 @@ $.extend(window.DxCryptoClass.prototype, {
      */
     catchError: function (err, msg) {
         hide_page_splash(1);
-        hide_form_splash(1);
 
         if (err && err.exit) {
             throw {exit: true};
@@ -69,7 +68,7 @@ $.extend(window.DxCryptoClass.prototype, {
                 'raw',
                 passwordBuffer,
                 {name: 'PBKDF2'},
-        false,
+                false,
                 ['deriveKey']
                 )
                 .then(function (baseKey) {
@@ -94,10 +93,10 @@ $.extend(window.DxCryptoClass.prototype, {
                     "iterations": 1000,
                     "hash": 'SHA-256'
                 },
-        baseKey,
+                baseKey,
                 {"name": 'AES-CTR', "length": 256}, // For AES the length required to be 128 or 256 bits (not bytes)
 
-        false, // Whether or not the key is extractable (less secure) or not (more secure) when false, the key can only be passed as a web crypto object, not 
+                false, // Whether or not the key is extractable (less secure) or not (more secure) when false, the key can only be passed as a web crypto object, not 
 
                 ["wrapKey", "unwrapKey"] // this web crypto object will only be allowed for these functions
                 )
@@ -116,7 +115,7 @@ $.extend(window.DxCryptoClass.prototype, {
                     publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
                     hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
                 },
-        true, //whether the key is extractable (i.e. can be used in exportKey)
+                true, //whether the key is extractable (i.e. can be used in exportKey)
                 ["wrapKey", "unwrapKey"] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
                 )
                 .then(function (asyncKey) {
@@ -288,7 +287,6 @@ $.extend(window.DxCryptoClass.prototype, {
         }
 
         show_page_splash(1);
-        show_form_splash(1);
 
         var self = window.DxCrypto;
 
@@ -417,7 +415,6 @@ $.extend(window.DxCryptoClass.prototype, {
         }
 
         show_page_splash(1);
-        show_form_splash(1);
 
         var self = window.DxCrypto;
 
@@ -438,7 +435,6 @@ $.extend(window.DxCryptoClass.prototype, {
             if ($(cryptoField).hasClass('dx-crypto-field') && $(cryptoField).data('is-decrypted') == 1) {
                 if (cryptoFieldCount == ++cryptoFieldCounter) {
                     hide_page_splash(1);
-                    hide_form_splash(1);
                 }
                 return true;
             }
@@ -447,7 +443,6 @@ $.extend(window.DxCryptoClass.prototype, {
             if (!(masterKeyGroupId in self.masterKeyGroups)) {
                 if (cryptoFieldCount === ++cryptoFieldCounter) {
                     hide_page_splash(1);
-                    hide_form_splash(1);
                 }
 
                 cryptoField.crypto.setAccessError();
@@ -468,8 +463,7 @@ $.extend(window.DxCryptoClass.prototype, {
 
                     // If end move to next field
                     if (cryptoFieldCount === cryptoFieldCounter) {
-                        hide_page_splash(1);
-                        hide_form_splash(1);
+                      hide_page_splash(1);
                         return true;
                     }
                 };
@@ -508,7 +502,6 @@ $.extend(window.DxCryptoClass.prototype, {
      */
     requestUserCertificatePassword: function (callback) {
         hide_page_splash(1);
-        hide_form_splash(1);
 
         var modal = $('#dx-crypto-modal-psw');
 
@@ -517,6 +510,8 @@ $.extend(window.DxCryptoClass.prototype, {
         accept_btn.off('click');
 
         accept_btn.click(function () {
+            show_page_splash(1);
+
             var res = window.DxCrypto.decryptUserCertificate(callback);
 
             if (res || typeof (res) == 'undefined') {
@@ -562,7 +557,6 @@ $.extend(window.DxCryptoClass.prototype, {
      */
     decryptUserCertificate: function (callback) {
         show_page_splash(1);
-        show_form_splash(1);
 
         var password = $('#dx-crypto-modal-input-password').val();
         $('#dx-crypto-modal-input-password').val('');
@@ -624,13 +618,13 @@ $.extend(window.DxCryptoClass.prototype, {
                     counter: new Uint8Array(16),
                     length: 128 //can be 1-128
                 },
-        {//this what you want the wrapped key to become (same as when wrapping)
-            name: "RSA-OAEP",
-            modulusLength: 2048, //can be 1024, 2048, or 4096
-            publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-            hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
-        },
-        false, //whether the key is extractable (i.e. can be used in exportKey)
+                {//this what you want the wrapped key to become (same as when wrapping)
+                    name: "RSA-OAEP",
+                    modulusLength: 2048, //can be 1024, 2048, or 4096
+                    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+                    hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+                },
+                false, //whether the key is extractable (i.e. can be used in exportKey)
                 ["unwrapKey"] //the usages you want the unwrapped key to have
                 )
                 .then(function (privateKey) {
@@ -671,11 +665,11 @@ $.extend(window.DxCryptoClass.prototype, {
                     publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
                     hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
                 },
-        {
-            name: "AES-CTR",
-            length: 256
-        },
-        true, //whether the key is extractable (i.e. can be used in exportKey)
+                {
+                    name: "AES-CTR",
+                    length: 256
+                },
+                true, //whether the key is extractable (i.e. can be used in exportKey)
                 ["encrypt", "decrypt"] //the usages you want the unwrapped key to have
                 )
                 .then(function (masterKey) {
@@ -768,7 +762,7 @@ $.extend(window.DxCryptoClass.prototype, {
                     name: "AES-CTR",
                     length: 256 //can be  128, 192, or 256
                 },
-        true, //whether the key is extractable (i.e. can be used in exportKey)
+                true, //whether the key is extractable (i.e. can be used in exportKey)
                 ["encrypt", "decrypt"] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
                 )
                 .then(function (masterKey) {
@@ -879,7 +873,6 @@ $.extend(window.DxCryptoClass.prototype, {
         }
 
         show_page_splash(1);
-        show_form_splash(1);
 
         event.stopImmediatePropagation();
 
@@ -895,7 +888,6 @@ $.extend(window.DxCryptoClass.prototype, {
             $('input[name=master_key]', form).val(masterKeyHex);
 
             hide_page_splash(1);
-            hide_form_splash(1);
 
             btnSave.data('is-masterkey-generated', 1);
 
