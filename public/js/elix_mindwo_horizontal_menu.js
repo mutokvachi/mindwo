@@ -299,7 +299,7 @@ var HMenuUI = function()
 		//hideErrorImages();
 		setActiveMenu();
 		
-		if(!dx_is_cssonly)
+		if((typeof dx_is_cssonly === 'undefined') || !dx_is_cssonly)
 		{
 			setContentMargin();
 			PageMain.addResizeCallback(setContentMargin);
@@ -311,7 +311,7 @@ var HMenuUI = function()
 		PageMain.addResizeCallback(positionDIVs);
 		PageMain.addResizeCallback(hideSubmenus);
 		
-		if(dx_is_cssonly)
+		if((typeof dx_is_cssonly !== 'undefined') && dx_is_cssonly)
 		{
 			emulateTabdrop();
 			PageMain.addResizeCallback(emulateTabdrop);

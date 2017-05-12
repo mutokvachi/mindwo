@@ -17330,7 +17330,7 @@ var BlockViews = function () {
                 $("body").addClass("dx-grid-in-page");
             }
             
-            if(!dx_is_cssonly)
+            if((typeof dx_is_cssonly === 'undefined') || !dx_is_cssonly)
 			{
 				PageMain.addResizeCallback(initHeight);
 	

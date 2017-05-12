@@ -309,7 +309,7 @@ var SearchTop = function()
      * @returns {undefined}
      */
     var initHandlers = function() {
-        if(dx_is_cssonly)
+        if((typeof dx_is_cssonly !== 'undefined') && dx_is_cssonly)
         {
 			handleTypeChooseCSSOnly();
         }
@@ -355,7 +355,7 @@ var SearchTop = function()
         $("#searchType").val(search_obj.attr('trans_default'));
         current_type = search_obj.attr('trans_default');
 
-        if(!dx_is_cssonly)
+        if((typeof dx_is_cssonly === 'undefined') || !dx_is_cssonly)
 		{
 			placeSearchBox();
 		}
@@ -363,7 +363,7 @@ var SearchTop = function()
         // Pievienojam izslīdošā darbinieku rezultātu bloka pārzīmēšanas izsaukumu uz lapas/loga izmēra izmaiņām
         PageMain.addResizeCallback(initSidebarStyle);
         
-		if(!dx_is_cssonly)
+		if((typeof dx_is_cssonly === 'undefined') || !dx_is_cssonly)
 		{
 			PageMain.addResizeCallback(placeSearchBox);
 		}
