@@ -132,6 +132,11 @@ Route::group(['middleware' => 'auth', 'prefix' => 'meetings', 'namespace' => 'Me
     Route::post('/get_agendas_list', 'MeetingsController@getAgendasList');
 });
 
+Route::group(['middleware' => 'auth', 'prefix' => 'constructor', 'namespace' => 'Constructor'], function() {
+    Route::get('/register/new', 'RegisterController@getNewConstructor');
+    Route::get('/register/{list_id}', array('as' => 'register_constructor', 'uses' => 'RegisterController@getEditConstructor'));
+});
+
 // Startē procesu forsēti
 Route::get('/force_process/{id}', array('as' => 'force_process', 'middleware' => 'auth', 'uses' => 'ProcessController@forceProcess'));
 
