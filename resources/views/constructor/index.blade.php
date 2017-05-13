@@ -35,6 +35,16 @@
                 view_list_item('form', list_id, 3, 0, 0, "", "", {after_close: settings_closed});
             });
             
+            $('.dx-preview-btn').click(function() {
+                
+                var list_id = $(this).closest('.dx-cms-register-constructor').data('list-id');
+                
+                // if list_id = 0 then try to save with AJAX (must be register title provided)
+                // for new registers user object_id = 140
+                
+                new_list_item(list_id, 0, 0, "", "");
+            });
+            
             $('.dx-new-field').click(function() {
                 var field_closed = function(frm) {
                     // update here fields list
@@ -52,8 +62,8 @@
                 new_list_item(7, 17, list_id, "", "", {after_close: field_closed});
             });
             
-            $(".dx-fields-container").nestable();
-            $(".dx-constructor-cell").nestable();
+            $(".dx-cms-nested-list").nestable();
+           
         });
     </script>
 @endsection
@@ -67,7 +77,10 @@
                 <i class="fa fa-list"></i> Register                 
             </div>
             <div class="btn-group dx-register-tools pull-right">
-                  <button type="button" class="btn btn-white dx-adv-btn">
+                <button type="button" class="btn btn-primary dx-preview-btn" style='margin-right: 10px;'>
+                      <i class="fa fa-search"></i> Preview form
+                </button>  
+                <button type="button" class="btn btn-white dx-adv-btn">
                       <i class="fa fa-cog"></i> Advanced settings
                   </button>
             </div>
@@ -96,6 +109,7 @@
                                 <div class="help-block with-errors" style="position: absolute; margin-top: -2px; max-height: 20px; overflow-y: hidden;"></div>
 
                             </div>
+                  @include('constructor.menu_field')
               </div>
                 <div class="inbox">
                     

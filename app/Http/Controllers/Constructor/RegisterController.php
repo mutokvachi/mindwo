@@ -7,6 +7,7 @@ use DB;
 use App\Exceptions; 
 use Auth;
 use Illuminate\Http\Request;
+use App\Libraries\Blocks;
 
 /**
  * Registers UI constructor controller
@@ -44,6 +45,13 @@ class RegisterController extends Controller
         // register meta data is in db table dx_lists
         
         return view('constructor.index', ['self' => $this]);
+    }
+    
+    public function getRolesHtml() {
+        $block_grid = Blocks\BlockFactory::build_block("OBJ=VIEW|VIEW_ID=25");
+        $block_grid->rel_field_id = 105;
+        $block_grid->rel_field_value = $this->list_id;
+        return $block_grid->getHTML();
     }
     
     
