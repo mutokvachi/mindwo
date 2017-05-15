@@ -62,7 +62,16 @@ class CalculateTimeoffAll extends Command
      * @return Array
      */
     private function getEmployeesIDs() {
-        return DB::table('dx_users')->select('id')->get();
+        return DB::table('dx_users as u')
+                ->select('u.id')
+                ->whereExists(function ($query) {
+                        $query->select(DB::raw(1))
+                              ->from('dx_users_accrual_policies as a')
+                              ->whereRaw('a.user_id = u.id')
+                              ->where('a.timeoff_type_id', '=', $this->argument('timeoff_id'))
+                              ->whereNull('a.end_date');
+                })
+                ->get();
     }
     
          
