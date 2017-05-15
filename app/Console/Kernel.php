@@ -67,7 +67,7 @@ class Kernel extends ConsoleKernel
         }
         
         if (Config::get('server_log.is_server_audit_on', false)) {
-            $schedule->command('mindwo:save-log')->everyMinute();
+            $schedule->command('mindwo:save-log')->everyFiveMinutes();
         }
     }
 }

@@ -41,6 +41,27 @@ var RelIdField = function()
     };
     
     /**
+     * Handles view button click event - opens related form
+     * @param {object} fld_elem Field HTML element
+     * @returns {undefined}
+     */
+    var handleBtnView = function(fld_elem) {
+        fld_elem.find(".dx-rel-id-view-btn").click(function() {
+            var self = $(this);            
+            var update_fld = function(frm) {
+                var fld = frm.find(".dx-form-field-line[data-field-id=" + fld_elem.attr("data-rel-field-id") + "]");
+                var inp = fld.find("input");
+                
+                if (inp.length > 0) {
+                    self.closest(".dx-rel-id-field").find(".dx-rel-id-text").val(inp.val());
+                }
+            };
+            
+            open_form(fld_elem.attr("data-form-url"), $(this).attr("data-item-id"), fld_elem.attr("data-rel-list-id"), 0, 0, "", 0, "", {after_close: update_fld});             
+        });
+    };
+    
+    /**
      * Call back function after new item added - so it appear in dropdown
      * @param {string} fld_htm_id Dropdown field HTML element ID
      * @param {integer} val_id Saved related item ID
@@ -91,6 +112,7 @@ var RelIdField = function()
         $(".dx-rel-id-field[data-is-init=0]").each(function() {            
             handleBtnAdd($(this));
             handleBtnEdit($(this));
+            handleBtnView($(this));
             initBinded($(this));            
             $(this).attr('data-is-init', 1);
         });       

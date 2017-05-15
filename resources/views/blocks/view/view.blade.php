@@ -101,8 +101,8 @@
                                                 
                                             </select>
                                                 @if ($is_view_rights)
-                                                    <span class="input-group-btn" style="padding-left: 2px;">
-                                                        <button class='btn btn-white dx-view-edit-btn' type='button' id ='{{ $menu_id}}_view_edit_btn'><i class='fa fa-list'></i></button>                                                    
+                                                    <span class="input-group-btn">
+                                                        <button class='btn btn-white dx-view-edit-btn' type='button' id ='{{ $menu_id}}_view_edit_btn' style="border: 1px solid #c2cad8!important; margin-left: -2px!important;"><i class='fa fa-list'></i></button>                                                    
                                                     </span>
                                                 @endif
                                         </div>

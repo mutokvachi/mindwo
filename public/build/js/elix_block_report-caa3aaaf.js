@@ -1865,7 +1865,8 @@ hh:"%d hours",d:"a day",dd:"%d days",M:"a month",MM:"%d months",y:"a year",yy:"%
                 },
                 "startDate": this.dateFrom,
                 "endDate": this.dateTo,
-                "showDropdowns": true
+                "showDropdowns": true,
+                "linkedCalendars": false
             }, function (start, end, label) {
                 self.yearSelect(start, end, label, self);
             });

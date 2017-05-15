@@ -4,7 +4,7 @@
     </div>
 @endif
 
-<div class='form-group has-feedback dx-form-field-line {{ isset($fld_row_code) ? $fld_row_code : "" }}' dx_fld_name_form="{{ $fld_name }}">
+<div class='form-group has-feedback dx-form-field-line {{ isset($fld_row_code) ? $fld_row_code : "" }}' dx_fld_name_form="{{ $fld_name }}" data-field-id="{{ isset($field_id) ? $field_id : 0 }}">
     <label for="{{ $frm_uniq_id }}_{{ $fld_name }}" style="vertical-align: top; margin-right: 10px;">
         @if ($hint)
         <i class='fa fa-question-circle dx-form-help-popup' title='{{ $hint }}' style='cursor: help;'></i>&nbsp;

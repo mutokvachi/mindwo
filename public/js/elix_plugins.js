@@ -3975,6 +3975,11 @@ var is_splash_lock = 0;
  */
 function show_page_splash(is_lock)
 {
+    // If modal is opened then redirect to form splash function
+    if($('.modal.in').length > 0){
+        show_form_splash(is_lock);
+    }
+    
     if (is_splash_lock == 1) {
         return;
     }
@@ -3996,6 +4001,11 @@ function show_page_splash(is_lock)
  */
 function hide_page_splash(is_unlock)
 {
+    // If modal is opened then redirect to form splash function
+    if($('.modal.in').length > 0){
+        hide_form_splash(is_unlock);
+    }
+    
     if (is_splash_lock == 1 && is_unlock != 1) {
         return;
     }

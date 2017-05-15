@@ -229,6 +229,8 @@ class TimeoffController extends Controller
                                 ->where('timeoff_type_id', $timeoff_type_id)
                                 ->where('calc_date', '>=', $date_from_o)
                                 ->where('calc_date', '<=', $date_to_o)
+                                ->orderBy('calc_date', 'DESC')
+                                ->orderBy('id', 'DESC')
                         )
                         ->make(true);
     }

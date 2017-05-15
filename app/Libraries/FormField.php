@@ -144,7 +144,8 @@ namespace App\Libraries {
 						'fld_name' => $this->fld_attr->db_name,
 						'group_label' => $this->fld_attr->group_label,
 						'frm_uniq_id' => $this->frm_uniq_id,
-						'fld_row_code' => $this->fld_attr->row_type_code
+						'fld_row_code' => $this->fld_attr->row_type_code,
+                                                'field_id' => $this->fld_attr->field_id
 					]);
 				}
 				else

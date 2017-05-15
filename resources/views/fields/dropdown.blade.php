@@ -27,23 +27,27 @@
             @if ($binded_field_name)
                 onchange="load_binded_field('{{ $frm_uniq_id }}_{{ $item_field }}', '{{ $frm_uniq_id }}_{{ $binded_field_name }}', {{ $binded_field_id }}, {{ $binded_rel_field_id }})"
             @endif
-             data-foo="bar" dx_binded_field_id = '{{ $binded_field_id }}' dx_binded_rel_field_id = '{{ $binded_rel_field_id }}'
-            >
-
-            @if (!((count($items) == 1 && $is_required) || ($item_value > 0 && $is_required))))
+             data-foo="bar" dx_binded_field_id = '{{ $binded_field_id }}' dx_binded_rel_field_id = '{{ $binded_rel_field_id }}' 
+            >@if (!((count($items) == 1 && $is_required) || ($item_value > 0 && $is_required)))
                 <option value=0></option>
             @endif
-
             @foreach($items as $item)
                 <option {{ ($item->id == $item_value) ? 'selected' : '' }} value='{{ $item->id }}'>{{ $item->txt }}</option>
             @endforeach
         </select>
         <span class="glyphicon form-control-feedback" aria-hidden="true" style="margin-right: 40px;"></span>
-        <span class="input-group-btn" style="padding-left: 1px;">
-            <button class="btn btn-white dx-rel-id-edit-btn" type="button" title="{{ trans('fields.edit_value') }}" style="margin-right: 2px; margin-left: 2px;"><i class='fa fa-pencil-square-o'></i></button>
-            <button class="btn btn-white dx-rel-id-add-btn" type="button" title="{{ trans('fields.add_value') }}"><i class='fa fa-plus'></i></button>
-        </span>
     @endif
+        <span class="input-group-btn" style="padding-left: 1px;">
+            @if ($is_disabled && $item_value)
+                <button class="btn btn-white dx-rel-id-view-btn" type="button" title="{{ trans('fields.view_value') }}" data-item-id="{{ $item_value }}" style="border: 1px solid #c2cad8!important; margin-left: -2px!important;"><i class='fa fa-external-link'></i></button>
+            @endif
+            
+            @if (!$is_disabled)
+                <button class="btn btn-white dx-rel-id-edit-btn" type="button" title="{{ trans('fields.edit_value') }}" style="border: 1px solid #c2cad8!important; margin-left: -2px!important;" data-readmode="{{ $is_disabled}}" data-item-id="{{ $item_value }}"><i class='fa fa-pencil-square-o'></i></button>
+                <button class="btn btn-white dx-rel-id-add-btn" type="button" title="{{ trans('fields.add_value') }}" style="border: 1px solid #c2cad8!important; margin-left: -2px!important;"><i class='fa fa-plus'></i></button>
+            @endif
+        </span>
+    
     
 
 </div>

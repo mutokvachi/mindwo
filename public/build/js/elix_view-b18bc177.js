@@ -14594,6 +14594,7 @@ var DateRange = function()
                 ranges: arr_params['arr_ranges'],
                 autoUpdateInput: true,
                 alwaysShowCalendars: true,
+                linkedCalendars: false
             },
             function (start, end) {                
                 $('#' + arr_params['range_id'] + ' input').val(getDateIntervalLV(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD')));
@@ -14729,7 +14730,9 @@ function view_list_item(ajax_url, item_id, list_id, rel_field_id, rel_field_valu
             return;
 	}
         
+        show_page_splash();
         show_form_splash();
+        
 	start_executing(grid_htm_id);
         
         var formData = new FormData();
@@ -14773,26 +14776,12 @@ function view_list_item(ajax_url, item_id, list_id, rel_field_id, rel_field_valu
             }
                     
             hide_form_splash(1);
+            hide_page_splash(1);
         };
 
         // izpildam AJAX pieprasījumu
         request.doRequest();
 }
-
-/**
- * Opens list item form - gets form's HTML in JSON and opens bootstrap modal form (in view or new entry entering mode - depending on item_id value)
- * After save form is reloaded in view mode.
- * 
- * @param {string} ajax_url             Relative URL for forms opening. Must be defined Laravel route.
- * @param {integer} item_id             List item ID. If 0, then form will be opened in new entry entering mode
- * @param {integer} list_id             List ID
- * @param {integer} rel_field_id        Used for sub-grids forms opening - field ID by which subgrid is joined (or 0 if no subgrid)
- * @param {integer} rel_field_value     Used for sub-grids forms opening - related item ID (or 0 if no subgrid)
- * @param {string} grid_htm_id          Grid HTML element ID, from which form is opened
- * @param {string} parent_form_htm_id   Parent form HTML element ID, if form is opened from an subgrid (which is placed in parent form)
- * @param {object} arr_callbacks        Callback functions object, for example: {before_show: callback1, after_close: callback2, before_save: callback3, after_save: callback4}. Before_save callback is used for pre-validation and can return True or False.
- * @returns {undefined}
- */
 
 /**
  * Opens list item form - gets form's HTML in JSON and opens bootstrap modal form (in view or new entry entering mode - depending in item_id value and form_is_edit_mode option)
@@ -15258,7 +15247,15 @@ function process_Input_simple(post_form_htm_id, formData){
                     return;
                 }
                 
-                formData.append(obj.name, obj.files[0]);
+                if ($(obj).hasClass('dx-crypto-field-file')) {
+                    if ($(obj).data('is-decrypted') == 0) {
+                        var cryptoVal = $(obj).data('crypto-value');
+
+                        formData.append(obj.name, cryptoVal, obj.files[0].name);
+                    }
+                } else {
+                    formData.append(obj.name, obj.files[0]);
+                }
             }
         }
         else
@@ -15742,6 +15739,22 @@ function reload_grid_by_id(grid_id)
     formData.append("sorting_field", $("#" + grid_id).data("sorting_field"));
     formData.append("sorting_direction", $("#" + grid_id).data("sorting_direction"));
     
+    var view_container = $("#" + grid_id).closest(".dx-block-container-view");
+    
+    var report_date_from = view_container.find("input[name=dx_filter_date_from]");
+    if (report_date_from.length > 0) {
+        formData.append("dx_filter_date_from", report_date_from.val());
+    }
+    
+    var report_date_to = view_container.find("input[name=dx_filter_date_to]");
+    if (report_date_to.length > 0) {
+        formData.append("dx_filter_date_to", report_date_to.val());
+    }
+    
+    if (report_date_from.length > 0 || report_date_to.length > 0) {
+        formData.append("dx_filter_field_id", view_container.data("filter-field-id"));
+    }
+    
     post_grid_ajax(formData, grid_data_htm_id, "", 0);    
 }
 
@@ -15898,15 +15911,14 @@ function get_filter_data(grid_id)
 
 /**
  * Tabulāro sarakstu JavaScript funkcionalitāte
- * 
+ *
  * @type _L4.Anonym$0|Function
  */
-var BlockViews = function()
-{
+var BlockViews = function () {
     /**
      * SVS saknes domēna adrese
      * Šo parametru uzstāda PHP pusē ar Request::root() vērtību
-     * @type String 
+     * @type String
      */
     var root_url = "";
 
@@ -15915,15 +15927,15 @@ var BlockViews = function()
      * @type Number
      */
     var scrollTop = 0;
-    
+
     /**
      * Atveramā ieraksta ID
      * Ja vienā lapā būs n reģistri, tad pēc ID mēģinās atvērt pirmā reģistra kartiņu
-     * 
+     *
      * @type Number
      */
     var open_item_id = 0;
-    
+
     /**
      * Indicates if mouse pointer is in filtering menu area
      * 
@@ -15934,80 +15946,70 @@ var BlockViews = function()
     /**
      * Pārlādē bloka tabulārā saraksta datus.
      * Pārlādē vai nu sarakstu, kas ir galvenajā lapā vai arī formā iekļauto sadaļas sarakstu
-     * 
+     *
      * @param {string} grid_id Tabularā saraksta elementa HTML ID
-     * @param {string} tab_id  Formas sadaļas (TABa) HTML elementa ID   
+     * @param {string} tab_id  Formas sadaļas (TABa) HTML elementa ID
      * @returns {undefined}
      */
-    var reloadBlockGrid = function(grid_id, tab_id)
-    {
-        if (tab_id)
-        {
+    var reloadBlockGrid = function (grid_id, tab_id) {
+        if (tab_id) {
             reload_tab_grid(grid_id);
         }
-        else
-        {
+        else {
             reload_grid(grid_id);
         }
     };
 
     /**
      * Nodrošina ritjoslas noritināšanu līdz lejai pēc saraksta datu pārlādes
-     * 
+     *
      * @param {string} form_htm_id Formas HTML elementa ID
      * @returns {undefined}
      */
-    var scrollElement = function(form_htm_id)
-    {
+    var scrollElement = function (form_htm_id) {
         var elem = null;
-        if (form_htm_id)
-        {
+        if (form_htm_id) {
             elem = $('#' + form_htm_id).find(".modal-body");
         }
-        else
-        {
+        else {
             elem = $(document);
         }
-        
-        setTimeout(function() {
+
+        setTimeout(function () {
             elem.scrollTop(scrollTop);
         }, 100);
-            
-        
+
+
     };
-    
+
     /**
      * Nodrošina pašreizējo vertikālās ritjoslas pozīcijas atcerēšanos
-     * 
+     *
      * @param {string} form_htm_id Formas HTML elementa ID
      * @returns {undefined}
      */
-    var setScrollTop = function(form_htm_id)
-    {
+    var setScrollTop = function (form_htm_id) {
         var elem = null;
-        if (form_htm_id)
-        {
+        if (form_htm_id) {
             elem = $('#' + form_htm_id).find(".modal-body");
         }
-        else
-        {
+        else {
             elem = $(document);
         }
 
         scrollTop = elem.scrollTop();
     };
-    
+
     /**
      * Nodrošina tabulārā saraksta lapošanas funkcionalitāti
-     * 
+     *
      * @param {string} grid_id    Tabulārā saraksta HTML elementa ID
      * @param {string} tab_id     Formas sadaļas (TABa) HTML elementa ID
      * @param {string} menu_id    Tabulārā saraksta augšējās rīkjoslas izvēlnes HTML elementa ID
      * @returns {undefined}
      */
-    var handlePaginator = function(grid_id, tab_id, menu_id)
-    {
-        $('#paginator_' + grid_id + ' .dx-paginator-butons button').on('click', function(event) {
+    var handlePaginator = function (grid_id, tab_id, menu_id) {
+        $('#paginator_' + grid_id + ' .dx-paginator-butons button').on('click', function (event) {
             event.preventDefault();
             $('#' + grid_id).data('grid_page_nr', $(this).attr('data_page_nr'));
             $('#' + grid_id).data('view_id', $('#' + menu_id + '_viewcbo option:selected').val());
@@ -16018,7 +16020,7 @@ var BlockViews = function()
 
     /**
      * Nodrošina tabulārā saraksta pārlādi atbilstoši izvēlētajam skatam no izkrītošās izvēlnes
-     * 
+     *
      * @param {string} menu_id            Tabulārā saraksta augšējās rīkjoslas izvēlnes HTML elementa ID
      * @param {string} tab_id             Formas sadaļas (TABa) HTML elementa ID
      * @param {integer} list_id           Reģistra ID no datu bāzes tabulas dx_lists
@@ -16027,17 +16029,14 @@ var BlockViews = function()
      * @param {string} form_htm_id        Formas, kuras sadaļā iekļauts tabulārais saraksts, HTML elementa ID
      * @returns {undefined}
      */
-    var handleView = function(menu_id, tab_id, list_id, rel_field_id, rel_field_value, form_htm_id)
-    {
-        $('#' + menu_id + '_viewcbo').change(function(event) {
+    var handleView = function (menu_id, tab_id, list_id, rel_field_id, rel_field_value, form_htm_id) {
+        $('#' + menu_id + '_viewcbo').change(function (event) {
             event.preventDefault();
 
-            if (tab_id)
-            {
+            if (tab_id) {
                 load_tab_grid(tab_id, list_id, $('#' + menu_id + '_viewcbo option:selected').val(), rel_field_id, rel_field_value, form_htm_id, 1, 5, 1);
             }
-            else
-            {
+            else {
                 show_page_splash(1);
                 var url = root_url + 'skats_' + $('#' + menu_id + '_viewcbo option:selected').val();
                 window.location.assign(encodeURI(url));
@@ -16048,17 +16047,15 @@ var BlockViews = function()
     /**
      * Nodrošina tabulārā saraksta filtrēšanas funkcionalitāti
      * Virs katras kolonnas ir teksta lauks, kurā, ievadot tekstu, notiek datu atlase ar AJAX pieprasījumu
-     * 
+     *
      * @param {string} grid_id Tabularā saraksta elementa HTML ID
-     * @param {string} tab_id  Formas sadaļas (TABa) HTML elementa ID   
+     * @param {string} tab_id  Formas sadaļas (TABa) HTML elementa ID
      * @returns {undefined}
      */
-    var handleFilter = function(grid_id, tab_id)
-    {
-        $('#filter_' + grid_id + ' input').on('keypress', function(event) {
+    var handleFilter = function (grid_id, tab_id) {
+        $('#filter_' + grid_id + ' input').on('keypress', function (event) {
 
-            if (event.which === 13)
-            {
+            if (event.which === 13) {
                 $('#' + grid_id).data('grid_page_nr', '1');
                 reloadBlockGrid(grid_id, tab_id);
             }
@@ -16069,14 +16066,13 @@ var BlockViews = function()
     /**
      * Nodrošina tabulārā saraksta kārtošanas funkcionalitāti
      * Noklikšķinot uz kolonnas virsraksta, notiek datu kārtošana/atlase ar AJAX pieprasījumu
-     * 
+     *
      * @param {string} grid_id Tabularā saraksta elementa HTML ID
-     * @param {string} tab_id  Formas sadaļas (TABa) HTML elementa ID   
+     * @param {string} tab_id  Formas sadaļas (TABa) HTML elementa ID
      * @returns {undefined}
      */
-    var handleSorting = function(grid_id, tab_id)
-    {
-        $('#' + grid_id + ' th.t_header').on('click', function(event) {
+    var handleSorting = function (grid_id, tab_id) {
+        $('#' + grid_id + ' th.t_header').on('click', function (event) {
             event.preventDefault();
             performSorting(grid_id, tab_id, $(this).attr('fld_name'));            
         });
@@ -16110,7 +16106,7 @@ var BlockViews = function()
 
     /**
      * Nodrošina jaunu ierakstu pievienošanu uz pogas "Jauns" nospiešanu
-     * 
+     *
      * @param {string} grid_id            Tabularā saraksta elementa HTML ID
      * @param {string} menu_id            Tabulārā saraksta augšējās rīkjoslas izvēlnes HTML elementa ID
      * @param {integer} list_id           Reģistra ID no datu bāzes tabulas dx_lists
@@ -16119,9 +16115,8 @@ var BlockViews = function()
      * @param {string} form_htm_id        Formas, kuras sadaļā iekļauts tabulārais saraksts, HTML elementa ID
      * @returns {undefined}
      */
-    var handleBtnNew = function(grid_id, menu_id, list_id, rel_field_id, rel_field_value, form_htm_id)
-    {
-        $('#' + menu_id + '_new').button().click(function(event) {
+    var handleBtnNew = function (grid_id, menu_id, list_id, rel_field_id, rel_field_value, form_htm_id) {
+        $('#' + menu_id + '_new').button().click(function (event) {
             event.preventDefault();
             new_list_item(list_id, rel_field_id, rel_field_value, form_htm_id, grid_id);
         });
@@ -16129,38 +16124,52 @@ var BlockViews = function()
 
     /**
      * Nodrošina tabulārā sarakta pārlādēšanu (datu atjaunināšanu) uz pogas "Pārlādēt" nospiešanu
-     * 
+     *
      * @param {string} menu_id Tabulārā saraksta augšējās rīkjoslas izvēlnes HTML elementa ID
      * @param {string} grid_id Tabularā saraksta elementa HTML ID
-     * @param {string} tab_id  Formas sadaļas (TABa) HTML elementa ID   
+     * @param {string} tab_id  Formas sadaļas (TABa) HTML elementa ID
      * @returns {undefined}
      */
-    var handleBtnRefresh = function(menu_id, grid_id, tab_id)
-    {
-        $('#' + menu_id + '_refresh').button().click(function(event) {
+    var handleBtnRefresh = function (menu_id, grid_id, tab_id) {
+        $('#' + menu_id + '_refresh').button().click(function (event) {
             event.preventDefault();
             reloadBlockGrid(grid_id, tab_id);
         });
     };
     
     /**
-     * Show or hide filtering fields
+     * Reloads report's grid with date from/to parameters
      * 
+     * @param {string} grid_id Grid's HTML element ID
+     * @param {string} tab_id Tab's grid HTML element ID
+     * @param {object} el_block View's element
+     * @returns {undefined}
+     */
+    var handleBtnPrepareReport = function(grid_id, tab_id, el_block) {
+        el_block.find('.dx-report-filter-btn').click(function() {
+            event.preventDefault();
+            reloadBlockGrid(grid_id, tab_id);
+        });  
+    };
+
+    /**
+     * Show or hide filtering fields
+     *
      * @param {string} menu_id Grid's toolbar section HTML element's ID
      * @param {string} grid_id Grid's HTML element ID
      * @param {string} tab_id  Tab's HTML element ID in case if this is subgrid in an form
      * @param {object} el_block View's block HTML element
      * @returns {undefined}
      */
-    var handleMenuFilter = function(menu_id, grid_id, tab_id, el_block) {
-        $('#' + menu_id + '_filter').click(function() {
+    var handleMenuFilter = function (menu_id, grid_id, tab_id, el_block) {
+        el_block.find(".dx-filter").click(function () {
             var el_icon = $(this).find("i.fa-check");
             var el_filters = $("#filter_" + grid_id);
             if (el_icon.is(':visible')) {
                 // hide filters row
-                                
+
                 var el_filt_data = el_block.find('input[name=filter_data]');
-                
+
                 if (el_filt_data.val().length > 0 && el_filt_data.val() != '[]') {
                     // was filtered grid - lets reload with clear data
                     el_filt_data.val('');
@@ -16175,41 +16184,51 @@ var BlockViews = function()
             }
             else {
                 // show filters row
+                                   
+                var menu = $("#grid_popup_" + grid_id);
+                var fld_name = menu.attr('data-field');
+                                
                 el_filters.show();
                 el_icon.show();
+                
+                setTimeout(function(){ 
+                    el_block.find("input[sql_name=" + fld_name + "]").focus(); 
+                }, 100);
+                
                 PageMain.resizePage();
             }
+            $(this).closest(".dx-dropdown-content").hide();
         });
     };
-    
+
     /**
      * Opend view editing form
-     * 
+     *
      * @param {object} view_container Grid view main object's HTML element
      * @returns {undefined}
      */
-    var handleBtnEditView = function(view_container) {
-        view_container.find('.dx-view-edit-btn').click(function() {
-            
+    var handleBtnEditView = function (view_container) {
+        view_container.find('.dx-view-edit-btn').click(function () {
+
             var view_id = view_container.find('select.dx-views-cbo option:selected').val();
             var frm_el = $("#" + view_container.attr("id") + "_popup");
-            
+
             var formData = "view_id=" + view_id;
 
-            var request = new FormAjaxRequestIE9 ('view/open', "", "", formData);            
-            request.progress_info = true;                       
-            
-            request.callback = function(data) {
+            var request = new FormAjaxRequestIE9('view/open', "", "", formData);
+            request.progress_info = true;
+
+            request.callback = function (data) {
                 frm_el.find(".modal-body").html(data['html']);
                 frm_el.find(".modal-body .dx-cms-nested-list").nestable();
                 setFldEventHandlers(frm_el, frm_el, view_container);
                 handleSearchField();
                 handleIsMyCheck(frm_el);
-                
+
                 frm_el.find(".dx-view-btn-copy").show();
                 frm_el.find(".dx-view-btn-delete").show();
                 frm_el.find("span.badge").html(Lang.get('grid.badge_edit'));
-                
+
                 frm_el.modal('show');
             };
 
@@ -16217,77 +16236,77 @@ var BlockViews = function()
             request.doRequest();
         });
     };
-    
+
     /**
      * Sets handles for checkboxies (is default and is my view only)
-     * 
+     *
      * @param {object} frm_el Fields UI forms HTML object
      * @returns {undefined}
      */
-    var handleIsMyCheck = function(frm_el) {
-        frm_el.find("input[name=is_my_view]").change(function() {
-           if ($(this).prop('checked')) {
-               frm_el.find("input[name=is_default]").prop('checked', '').closest('span').hide();
-           }
-           else {
-               frm_el.find("input[name=is_default]").closest('span').show();
-           }
+    var handleIsMyCheck = function (frm_el) {
+        frm_el.find("input[name=is_my_view]").change(function () {
+            if ($(this).prop('checked')) {
+                frm_el.find("input[name=is_default]").prop('checked', '').closest('span').hide();
+            }
+            else {
+                frm_el.find("input[name=is_default]").closest('span').show();
+            }
         });
-        
-        frm_el.find("input[name=is_default]").change(function() {
-           if ($(this).prop('checked')) {
-               frm_el.find("input[name=is_my_view]").prop('checked', '').closest('span').hide();
-           }
-           else {
-               frm_el.find("input[name=is_my_view]").closest('span').show();
-           }
+
+        frm_el.find("input[name=is_default]").change(function () {
+            if ($(this).prop('checked')) {
+                frm_el.find("input[name=is_my_view]").prop('checked', '').closest('span').hide();
+            }
+            else {
+                frm_el.find("input[name=is_my_view]").closest('span').show();
+            }
         });
     };
-    
-     /**
+
+    /**
      * Moves field from used section to available fields section
-     * 
+     *
      * @param {object} frm_el Fields UI forms HTML object
      * @param {object} fld_el Field element HTML object
      * @param {object} view_container Grid view main object's HTML element
      * @returns {undefined}
      */
-    var removeFld = function(frm_el, fld_el, view_container) {
+    var removeFld = function (frm_el, fld_el, view_container) {
         frm_el.find('.dx-fields-container .dx-available ol.dd-list').append(fld_el.closest('.dd-item').clone());
         fld_el.closest('.dd-item').remove();
 
         var new_el = frm_el.find('.dx-fields-container .dx-available ol.dd-list .dd-item').last();
         setFldEventHandlers(frm_el, new_el, view_container);
-        
+
         clearSearchIfLast(frm_el, 'dx-used');
     };
-    
+
     /**
      * Moves field from available section to used fields section
-     * 
+     *
      * @param {object} frm_el Fields UI forms HTML object
      * @param {object} fld_el Field element HTML object
      * @param {object} view_container Grid view main object's HTML element
      * @returns {undefined}
      */
-    var addFld = function(frm_el, fld_el, view_container) {
+    var addFld = function (frm_el, fld_el, view_container) {
         frm_el.find('.dx-fields-container .dx-used ol.dd-list').append(fld_el.closest('.dd-item').clone());
         fld_el.closest('.dd-item').remove();
 
         var new_el = frm_el.find('.dx-fields-container .dx-used ol.dd-list .dd-item').last();
         setFldEventHandlers(frm_el, new_el, view_container);
-        
-        clearSearchIfLast(frm_el, 'dx-available');        
+
+        clearSearchIfLast(frm_el, 'dx-available');
     };
-    
+
     /**
      * Clear fields search input in case if no more fields in container (and show again all fields in container)
-     *      * 
+     *      *
      * @param {object} frm_el Fields UI forms HTML object
      * @param {string} fields_class HTML class name of fields container (dx-used or dx-available)
      * @returns {undefined}
      */
-    var clearSearchIfLast = function(frm_el, fields_class) {
+    var clearSearchIfLast = function (frm_el, fields_class) {
         if (frm_el.find('.dx-fields-container .' + fields_class + ' ol.dd-list .dd-item:visible').length == 0) {
             var txt = frm_el.find('.dx-fields-container .' + fields_class).closest('.portlet').find('input.dx-search');
             if (txt.val().length > 0) {
@@ -16297,32 +16316,32 @@ var BlockViews = function()
             }
         }
     };
-    
+
     /**
      * Sets events for added/moved field
-     * 
+     *
      * @param {object} frm_el Fields UI forms HTML object
      * @param {object} fld_el Field element HTML object
      * @param {object} view_container Grid view main object's HTML element
      * @returns {undefined}
      */
-    var setFldEventHandlers = function(frm_el, fld_el, view_container) {
-        fld_el.find('.dx-cms-field-remove').click(function() {
+    var setFldEventHandlers = function (frm_el, fld_el, view_container) {
+        fld_el.find('.dx-cms-field-remove').click(function () {
             removeFld(frm_el, $(this), view_container);
         });
-        
-        fld_el.find('.dx-cms-field-add').click(function() {
+
+        fld_el.find('.dx-cms-field-add').click(function () {
             addFld(frm_el, $(this), view_container);
         });
-        
-        fld_el.find('.dx-fld-title').click(function() {
-           openSettings($(this), view_container);
+
+        fld_el.find('.dx-fld-title').click(function () {
+            openSettings($(this), view_container);
         });
     };
-    
+
     /**
      * Opens field's setting form
-     * 
+     *
      * @param {object} title_el Field item title HTML element
      * @param {object} view_container Grid view main object's HTML element
      * @returns {undefined}
@@ -16331,57 +16350,57 @@ var BlockViews = function()
         if (title_el.closest('.dx-cms-nested-list').hasClass('dx-used')) {
             var item = title_el.closest('.dd-item');
             var sett_el = view_container.find('.dx-popup-modal-settings');
-                        
-            sett_el.find("input[name=is_hidden]").prop("checked", (item.attr("data-is-hidden")=="1") ? "checked" : "");
+
+            sett_el.find("input[name=is_hidden]").prop("checked", (item.attr("data-is-hidden") == "1") ? "checked" : "");
             sett_el.find("input[name=field_title]").val(title_el.text());
             sett_el.find("select[name=field_operation]").val(item.attr("data-operation-id"));
-            
+
             if (item.attr("data-field-type") == "autocompleate" || item.attr("data-field-type") == "rel_id") {
                 sett_el.find("select[name=field_operation]").attr("data-criteria", "auto");
-                
+
                 var auto_fld = sett_el.find("div.dx-autocompleate-field");
                 auto_fld.attr("data-rel-list-id", item.attr('data-rel-list-id'));
                 auto_fld.attr("data-rel-field-id", item.attr('data-rel-field-id'));
                 auto_fld.attr("data-item-value", item.attr('data-criteria'));
                 auto_fld.attr("data-field-id", item.attr('data-id'));
-                
+
                 var formData = new FormData();
                 formData.append("list_id", item.attr('data-rel-list-id'));
                 formData.append("txt_field_id", item.attr('data-rel-field-id'));
                 formData.append("txt_field_id", item.attr('data-rel-field-id'));
                 formData.append("value_id", item.attr('data-criteria'));
-                
+
                 show_form_splash();
-                $.ajax({ 
+                $.ajax({
                     type: 'POST',
-                    url: DX_CORE.site_url  + "view/auto_data",
+                    url: DX_CORE.site_url + "view/auto_data",
                     data: formData,
                     processData: false,
                     contentType: false,
                     dataType: "json",
                     async: false,
-                    success : function(data) {
+                    success: function (data) {
                         hide_form_splash();
                         auto_fld.attr("data-min-length", data['count']);
                         auto_fld.attr("data-item-text", data['txt']);
                     }
                 });
-                
+
                 AutocompleateField.initSelect(auto_fld);
             }
             else {
                 sett_el.find("select[name=field_operation]").attr("data-criteria", "text");
                 sett_el.find("input[name=criteria_value]").val(item.attr("data-criteria"));
             }
-            
+
             showHideCriteria(sett_el, sett_el.find("select[name=field_operation]"));
-            
+
             var btn_save = sett_el.find('.dx-settings-btn-save');
-            
+
             btn_save.off("click");
-            btn_save.click(function() {
+            btn_save.click(function () {
                 var oper_el = sett_el.find('select[name=field_operation]');
-                
+
                 var crit_val = "";
                 if (oper_el.attr("data-criteria") == "text") {
                     crit_val = sett_el.find('input[name=criteria_value]').val();
@@ -16389,43 +16408,43 @@ var BlockViews = function()
                 else {
                     crit_val = parseInt(sett_el.find('input.dx-auto-input-id').val());
                 }
-                
+
                 if (oper_el.val() && oper_el.find('option:selected').attr('data-is-criteria') != "0" && !crit_val) {
                     notify_err(Lang.get('grid.error_filter_must_be_set'));
                     return false;
                 }
-                
+
                 item.attr("data-criteria", crit_val);
                 item.attr("data-is-hidden", sett_el.find('input[name=is_hidden]').is(":checked") ? 1 : 0);
                 item.attr("data-operation-id", oper_el.val());
-                
+
                 sett_el.modal('hide');
             });
-            
+
             sett_el.modal('show');
         }
     };
-    
+
     /**
      * Handles event for show or hide criteria field depending on selected operation
-     * 
+     *
      * @param {object} view_container Grid view main object's HTML element
      * @returns {undefined}
      */
-    var handleFieldOperation = function(view_container) {
+    var handleFieldOperation = function (view_container) {
         var sett_el = view_container.find('.dx-popup-modal-settings');
-        sett_el.find('select[name=field_operation]').change(function() {
-            showHideCriteria(sett_el, $(this));            
+        sett_el.find('select[name=field_operation]').change(function () {
+            showHideCriteria(sett_el, $(this));
         });
     };
-    
+
     /**
      * Shoe or hide criteria field depending on selected operation
      * @param {object} sett_el Setting popup form HTML element
      * @param {object} sel_el Operation select HTML element
      * @returns {undefined}
      */
-    var showHideCriteria = function(sett_el, sel_el) {
+    var showHideCriteria = function (sett_el, sel_el) {
         if (sel_el.find('option:selected').attr('data-is-criteria') != "0") {
             if (sel_el.attr("data-criteria") == "text") {
                 sett_el.find(".dx-criteria-text").show();
@@ -16434,7 +16453,7 @@ var BlockViews = function()
             }
             else {
                 sett_el.find(".dx-criteria-text").hide();
-                sett_el.find(".dx-criteria-auto").show(); 
+                sett_el.find(".dx-criteria-auto").show();
                 sett_el.find('.dx-auto-input-select2').select2("open");
             }
         }
@@ -16442,104 +16461,104 @@ var BlockViews = function()
             sett_el.find("input[name=criteria_value]").val('');
             sett_el.find(".dx-criteria-auto").hide();
             sett_el.find(".dx-criteria-text").hide();
-            sett_el.find('.dx-auto-input-select2').select2('data', {id:0, text:""});
+            sett_el.find('.dx-auto-input-select2').select2('data', {id: 0, text: ""});
             sett_el.find("input.dx-auto-input-id").val(0);
         }
     };
-    
+
     /**
      * Handles fields searching functionality
      * @returns {undefined}
      */
-    var handleSearchField = function() {
-        $("input.dx-search").on("keyup", function() {
+    var handleSearchField = function () {
+        $("input.dx-search").on("keyup", function () {
             if (!$(this).val()) {
                 $(this).closest(".portlet").find(".dx-fields-container .dd-item").show();
                 return;
             }
             $(this).closest(".portlet").find(".dx-fields-container .dd-item").hide();
             $(this).closest(".portlet").find(".dx-fields-container .dx-fld-title:contains('" + $(this).val() + "')").closest(".dd-item").show();
-            
+
         });
     };
-    
+
     /**
      * Handles view copy function
-     * 
+     *
      * @param {object} view_container Grid view main object's HTML element
      * @returns {undefined}
      */
-    var handleBtnCopy = function(view_container) {
+    var handleBtnCopy = function (view_container) {
         var pop_el = $("#" + view_container.attr("id") + "_popup");
-        pop_el.find(".dx-view-btn-copy").click(function() {
+        pop_el.find(".dx-view-btn-copy").click(function () {
             var frm_el = pop_el.find(".dx-view-edit-form");
             frm_el.data('view-id', 0);
             pop_el.find(".dx-view-btn-copy").hide();
             pop_el.find(".dx-view-btn-delete").hide();
             pop_el.find("span.badge").html(Lang.get('grid.badge_new'));
             frm_el.find("input[name=view_title]").val(frm_el.find("input[name=view_title]").val() + " - " + Lang.get('grid.title_copy')).focus();
-            
+
             frm_el.find('input[name=is_default]').prop("checked", '').show().closest('span').show();
             frm_el.find('input[name=is_my_view]').prop("checked", '').closest('span').show();
         });
     };
-    
+
     /**
      * Handles button "Delete" pressing
-     * 
+     *
      * @param {object} view_container Grid view main object's HTML element
      * @returns {undefined}
      */
-    var handleBtnDelete = function(view_container) {
+    var handleBtnDelete = function (view_container) {
         var pop_el = $("#" + view_container.attr("id") + "_popup");
-        pop_el.find(".dx-view-btn-delete").click(function() {
-            PageMain.showConfirm(deleteView, view_container, null, Lang.get('grid.confirm_delete'), Lang.get('form.btn_yes'), Lang.get('form.btn_no'));           
+        pop_el.find(".dx-view-btn-delete").click(function () {
+            PageMain.showConfirm(deleteView, view_container, null, Lang.get('grid.confirm_delete'), Lang.get('form.btn_yes'), Lang.get('form.btn_no'));
         });
     };
-    
+
     /**
      * Handles view deletion functionality
-     * 
+     *
      * @param {object} view_container Grid view main object's HTML element
      * @returns {undefined}
      */
-    var deleteView = function(view_container) {
+    var deleteView = function (view_container) {
         var pop_el = $("#" + view_container.attr("id") + "_popup");
         var frm_el = pop_el.find(".dx-view-edit-form");
-                
+
         var formData = new FormData();
         formData.append("view_id", frm_el.data('view-id'));
         formData.append("list_id", frm_el.data('list-id'));
         formData.append('tab_id', view_container.attr('dx_tab_id'));
-        
-        var request = new FormAjaxRequest ('view/delete', "", "", formData);
-        request.progress_info = true;                       
 
-        request.callback = function(data) {
+        var request = new FormAjaxRequest('view/delete', "", "", formData);
+        request.progress_info = true;
+
+        request.callback = function (data) {
             if (data["success"] == 1) {
                 pop_el.modal('hide');
-                reloadAnotherView(view_container, data["view_id"]);                
+                reloadAnotherView(view_container, data["view_id"]);
             }
         };
 
         // execute AJAX request
         request.doRequest();
     };
-    
+
     /**
      * Handles button event - save view data
-     * 
+     *
      * @param {object} view_container Grid view main object's HTML element
      * @returns {undefined}
      */
-    var handleBtnSaveView = function(view_container) {        
+    var handleBtnSaveView = function (view_container) {
         var pop_el = $("#" + view_container.attr("id") + "_popup");
-        pop_el.find(".dx-view-btn-save").click(function() {
-            
+        pop_el.find(".dx-view-btn-save").click(function () {
+
             var frm_el = pop_el.find(".dx-view-edit-form");
             var view_id = frm_el.data('view-id');
             var grid_el = view_container.find('.dx-grid-table').last();
-            
+
             var formData = new FormData();
             formData.append("view_id", view_id);
             formData.append("list_id", frm_el.data('list-id'));
@@ -16548,202 +16567,197 @@ var BlockViews = function()
             formData.append("is_my_view", frm_el.find('input[name=is_my_view]').is(":checked") ? 1 : 0);
             formData.append("fields", getFieldsState(frm_el.find('.dx-fields-container .dx-used')));
             formData.append('grid_id', grid_el.attr('id'));
-            
-            var request = new FormAjaxRequest ('view/save', "", "", formData);
-            request.progress_info = true;                       
-            
-            request.callback = function(data) {
+
+            var request = new FormAjaxRequest('view/save', "", "", formData);
+            request.progress_info = true;
+
+            request.callback = function (data) {
                 if (data["success"] == 1) {
-                    
+
                     pop_el.modal('hide');
                     pop_el.attr("id", pop_el.attr("id") + "_" + $(".dx-popup-modal").length);
-                    
-                    if (view_id ==0) {
-                        reloadAnotherView(view_container, data["view_id"]);                        
+
+                    if (view_id == 0) {
+                        reloadAnotherView(view_container, data["view_id"]);
                     }
                     else {
                         reloadBlockGrid(grid_el.attr('id'), grid_el.data('tab_id'));
                     }
                 }
             };
-            
+
             // execute AJAX request
             request.doRequest();
-    
+
         });
     };
-    
+
     /**
      * Loads view after previous view deletion or new view creation
-     * 
+     *
      * @param {object} view_container Grid view main object's HTML element
      * @param {integer} view_id View ID
      * @returns {undefined}
      */
-    var reloadAnotherView = function(view_container, view_id) {
+    var reloadAnotherView = function (view_container, view_id) {
         if (view_container.attr('dx_tab_id')) {
             load_tab_grid(view_container.attr('dx_tab_id'), view_container.attr('dx_list_id'), view_id, view_container.attr('dx_rel_field_id'), view_container.attr('dx_rel_field_value'), view_container.attr('dx_form_htm_id'), 1, 5, 1);
         }
         else {
             show_page_splash(1);
             var url = root_url + 'skats_' + view_id;
-            window.location.assign(encodeURI(url));                
+            window.location.assign(encodeURI(url));
         }
     };
-    
+
     /**
-    * Prepares JSON string with all fields included in view (in correct order)
-    * 
-    * @param {object} block Fields container HTML element
-    * @returns {string}
-    */
-   var getFieldsState = function(block) {
-       var ret_arr = new Array();
-       
-       block.find(".dd-item").each(function() {
+     * Prepares JSON string with all fields included in view (in correct order)
+     *
+     * @param {object} block Fields container HTML element
+     * @returns {string}
+     */
+    var getFieldsState = function (block) {
+        var ret_arr = new Array();
+
+        block.find(".dd-item").each(function () {
             var item = {
-               "field_id": $(this).attr('data-id'),
-               "aggregation_id": $(this).attr('data-aggregation-id'),
-               "list_id": $(this).attr('data-list-id'),
-               "is_hidden": $(this).attr('data-is-hidden'),
-               "operation_id": $(this).attr('data-operation-id'),
-               "criteria": $(this).attr('data-criteria')
+                "field_id": $(this).attr('data-id'),
+                "aggregation_id": $(this).attr('data-aggregation-id'),
+                "list_id": $(this).attr('data-list-id'),
+                "is_hidden": $(this).attr('data-is-hidden'),
+                "operation_id": $(this).attr('data-operation-id'),
+                "criteria": $(this).attr('data-criteria')
             };
-           ret_arr.push(item);
-       });
-       
-       return JSON.stringify(ret_arr);
-   };
+            ret_arr.push(item);
+        });
+
+        return JSON.stringify(ret_arr);
+    };
 
     /**
      * Exports grid data to the Excel
-     * 
+     *
      * @param {string} menu_id            Grid's menu HTML element ID
      * @param {integer} view_id           View ID from the table dx_views
      * @param {integer} rel_field_id      Related field ID (by which grid is binded)
      * @param {integer} rel_field_value   Related field value
      * @param {string} form_htm_id        Form's HTML ID
-     
+     * @param {string} grid_id            Grid's GUID
      * @returns {undefined}
      */
-    var handleBtnExcel = function(menu_id, view_id, rel_field_id, rel_field_value, form_htm_id)
-    {
-        $('#' + menu_id + '_excel').button().click(function(event) {
+    var handleBtnExcel = function (menu_id, view_id, rel_field_id, rel_field_value, form_htm_id, grid_id) {
+        $('#' + menu_id + '_excel').button().click(function (event) {
             event.preventDefault();
-            
+
             if (!isRelatedItemSaved(rel_field_id, rel_field_value, form_htm_id)) {
                 return;
             }
-            
-            download_excel(view_id, rel_field_id, rel_field_value);
+
+            download_excel(view_id, rel_field_id, rel_field_value, grid_id);
         });
     };
-    
+
     /**
      * Opens data import form
-     * 
+     *
      * @param {string} menu_id Menu item HTML id
      * @param {integer} rel_field_id Related field ID (by which grid is binded)
      * @param {integer} rel_field_value Related field value
      * @param {string} form_htm_id Form's HTML ID
      * @returns {undefined}
      */
-    var handleBtnImport = function(menu_id, rel_field_id, rel_field_value, form_htm_id)
-    {
-        $('#' + menu_id + '_import').button().click(function(event) {
+    var handleBtnImport = function (menu_id, rel_field_id, rel_field_value, form_htm_id) {
+        $('#' + menu_id + '_import').button().click(function (event) {
             event.preventDefault();
-            
+
             if (!isRelatedItemSaved(rel_field_id, rel_field_value, form_htm_id)) {
                 return;
             }
-            
+
             var import_frm = $("#form_import_" + menu_id);
-            
+
             import_frm.modal('show');
-            
+
         });
     };
-    
+
     /**
      * Checks if form is saved (item have an ID)
      * This check must be done for forms, where an subgrid is included
-     * 
+     *
      * @param {integer} rel_field_id Related field ID (by which grid is binded)
      * @param {integer} rel_field_value Related field value
      * @param {string} form_htm_id Form's HTML ID
      * @returns {Boolean} True - if everything ok, False - if form must be saved before
      */
-    var isRelatedItemSaved = function(rel_field_id, rel_field_value, form_htm_id) {
-       		
-	if (rel_field_id > 0 && rel_field_value == 0)
-	{
-            rel_field_value = $( "#" + form_htm_id  +" input[name='item_id']").val();
+    var isRelatedItemSaved = function (rel_field_id, rel_field_value, form_htm_id) {
 
-            if (rel_field_value == 0)
-            {
+        if (rel_field_id > 0 && rel_field_value == 0) {
+            rel_field_value = $("#" + form_htm_id + " input[name='item_id']").val();
+
+            if (rel_field_value == 0) {
                 notify_err(Lang.get('errors.first_save_for_related'));
                 return false;
             }
-	}
-        
+        }
+
         return true;
     };
-    
+
     /**
      * Starts data importing from Excel
-     * 
+     *
      * @param {string} menu_id Menu item HTML id
      * @returns {undefined}
      */
-    var handleBtnStartImport = function(menu_id)
-    {
-        $('#btn_start_import_' + menu_id).button().click(function(event) {
+    var handleBtnStartImport = function (menu_id) {
+        $('#btn_start_import_' + menu_id).button().click(function (event) {
             event.preventDefault();
-            
+
             var import_frm = $("#form_import_" + menu_id);
             var file_name = import_frm.find("input[name=import_file]").val();
-            
+
             var formData = new FormData();
-            
+
             if (!process_Input_simple(import_frm.attr("id"), formData) || file_name.length == 0) {
                 notify_err(import_frm.attr("data-trans-invalid-file"));
                 return;
             }
-            
+
             if (!isOkImportFileExt(import_frm, file_name)) {
                 return;
             }
-            
+
             formData.append("list_id", import_frm.attr("data-list-id"));
-            
+
             import_frm.find(".dx-import-fields").hide();
             import_frm.find(".dx-import-progress").show();
             import_frm.find('.alert-error').hide();
-            
+
             $('#btn_start_import_' + menu_id).hide();
-            
-            var request = new FormAjaxRequest ("import_excel", "", "", formData);
-    
+
+            var request = new FormAjaxRequest("import_excel", "", "", formData);
+
             request.progress_info = "";
-            request.err_callback = function(err) {
+            request.err_callback = function (err) {
                 import_frm.find(".dx-import-progress").hide();
                 import_frm.find(".dx-import-fields").show();
                 $('#btn_start_import_' + menu_id).show();
-                
+
                 import_frm.find('.alert-error').html(err).show();
             };
-            
-            request.callback = function(data) {
+
+            request.callback = function (data) {
                 var msg = getImportMsg(data);
-                
-                reload_grid(import_frm.attr("data-grid-id"));                
+
+                reload_grid(import_frm.attr("data-grid-id"));
                 notify_info(msg);
-                
+
                 import_frm.find(".dx-import-progress").hide();
-                
-                
+
+
                 import_frm.find('.alert-info').html(msg).show();
-                
+
                 prepareErrors(data, import_frm);
             };
 
@@ -16751,11 +16765,11 @@ var BlockViews = function()
             request.doRequest();
         });
     };
-    
-    var getImportMsg = function(data) {
+
+    var getImportMsg = function (data) {
         var msg = Lang.get('grid.success');
         var cnt = "";
-        
+
         if (data["imported_count"] > 0) {
             cnt = Lang.get('grid.count_imported') + data["imported_count"];
         }
@@ -16766,60 +16780,60 @@ var BlockViews = function()
             }
             cnt = Lang.get('grid.count_updated') + data["updated_count"] + ".";
         }
-        
+
         if (cnt == "") {
             msg = msg + " " + Lang.get('grid.nothing_imported');
         }
         else {
             msg = msg + " " + cnt;
         }
-        
+
         return msg;
     };
-    
+
     /**
      * Validated uploaded file extension - is it supported
-     * 
+     *
      * @param {object} import_frm Importing HTML form's element
      * @param {string} file_name File name
      * @returns {Boolean}   True - if extension is valid, False - if invalid
      */
-    var isOkImportFileExt = function(import_frm, file_name) {
+    var isOkImportFileExt = function (import_frm, file_name) {
         var ext = file_name.split('.').pop().toLowerCase();   //Check file extension if valid or expected
-        
+
         var valid_ext = ['xlsx', 'xls', 'csv', 'zip'];
-        
+
         if ($.inArray(ext, valid_ext) == -1) {
             notify_err(import_frm.attr("data-trans-invalid-file-format"));
             return false;
         }
-        
+
         return true;
     };
-    
+
     /**
      * Prepares/set importing error message - there can be several errors in 1 response, we need to concatenate them
-     * 
+     *
      * @param {JSON} data           AJAX JSON response object
      * @param {object} import_frm   HTML element ID for import form
      * @returns {undefined}
      */
-    var prepareErrors = function(data, import_frm) {
+    var prepareErrors = function (data, import_frm) {
         var err_arr = [];
-                
-        err_arr[0] = concatErrFields(import_frm, data["not_match"]); 
-        err_arr[1] = concatErr(import_frm, data["duplicate"], "data-trans-excel-row"); 
+
+        err_arr[0] = concatErrFields(import_frm, data["not_match"]);
+        err_arr[1] = concatErr(import_frm, data["duplicate"], "data-trans-excel-row");
         err_arr[2] = concatErr(import_frm, data["dependency"], "data-trans-excel-dependent");
 
         var err_txt = "";
-        for(var $i=0; $i<err_arr.length; $i++) {
+        for (var $i = 0; $i < err_arr.length; $i++) {
             if (err_txt.length > 0) {
                 err_txt = err_txt + "<br /><br />";
             }
 
             err_txt = err_txt + err_arr[$i];
         }
-        
+
         if (data["errors"].length > 0) {
             if (err_txt.length > 0) {
                 err_txt = err_txt + "<br /><br />";
@@ -16832,7 +16846,7 @@ var BlockViews = function()
             import_frm.find('.alert-error').html(err_txt).show();
         }
     };
-    
+
     /**
      * Prepare message with error rows
      * @param {object} import_frm Importing form HTML element
@@ -16840,33 +16854,33 @@ var BlockViews = function()
      * @param {string} err_attribute Error data attribute of importing from
      * @returns {Function|_L19.String|String}
      */
-    var concatErr = function(import_frm, rows, err_attribute) {
+    var concatErr = function (import_frm, rows, err_attribute) {
         if (!rows) {
             return "";
         }
-        
+
         var htm = "";
-        
+
         if (rows.length > 0) {
             htm = import_frm.attr(err_attribute) + rows;
         }
-        
+
         return htm;
     };
-    
+
     /**
      * Prepare message with ignored fields
      * @param {object} import_frm Importing form HTML element
      * @param {array} flds JSON array with ignored fields
      * @returns {undefined}
      */
-    var concatErrFields = function(import_frm, flds) {
+    var concatErrFields = function (import_frm, flds) {
         if (!flds) {
             return "";
-        }        
-        
+        }
+
         var htm = "";
-        var not_match = function(item, index) {
+        var not_match = function (item, index) {
             if (htm.length > 0) {
                 htm = htm + ", ";
             }
@@ -16878,13 +16892,13 @@ var BlockViews = function()
         if (htm.length > 0) {
             htm = import_frm.attr("data-trans-ignored-columns") + htm;
         }
-        
+
         return htm;
     };
 
     /**
      * Nodrošina tabulas rindas konteksta izvēlnes "Skatīt" funcionalitāti - atver ieraksta skatīšanās formu
-     * 
+     *
      * @param {string} grid_form          Formas URL (bez root daļas), kas piesaistīta reģistram ierakstu attēlošanai
      * @param {string} grid_id            Tabularā saraksta elementa HTML ID
      * @param {integer} list_id           Reģistra ID no datu bāzes tabulas dx_lists
@@ -16893,9 +16907,8 @@ var BlockViews = function()
      * @param {string} form_htm_id        Formas, kuras sadaļā iekļauts tabulārais saraksts, HTML elementa ID
      * @returns {undefined}
      */
-    var handleRowBtnView = function(grid_form, grid_id, list_id, rel_field_id, rel_field_value, form_htm_id)
-    {
-        $('#' + grid_id + ' a.dx-grid-cmd-view').click(function(event) {
+    var handleRowBtnView = function (grid_form, grid_id, list_id, rel_field_id, rel_field_value, form_htm_id) {
+        $('#' + grid_id + ' a.dx-grid-cmd-view').click(function (event) {
             event.preventDefault();
             show_form_splash();
             show_page_splash();
@@ -16905,7 +16918,7 @@ var BlockViews = function()
 
     /**
      * Nodrošina tabulas rindas konteksta izvēlnes "Rediģēt" funkcionalitāti - atver ieraksta redigēšanas formu
-     * 
+     *
      * @param {string} grid_form          Formas URL (bez root daļas), kas piesaistīta reģistram ierakstu attēlošanai
      * @param {string} grid_id            Tabularā saraksta elementa HTML ID
      * @param {integer} list_id           Reģistra ID no datu bāzes tabulas dx_lists
@@ -16913,9 +16926,8 @@ var BlockViews = function()
      * @param {integer} rel_field_value   Saistīta ieraksta lauka vērtība
      * @returns {undefined}
      */
-    var handleRowBtnEdit = function(grid_form, grid_id, list_id, rel_field_id, rel_field_value)
-    {
-        $('#' + grid_id + ' a.dx-grid-cmd-edit').click(function(event) {
+    var handleRowBtnEdit = function (grid_form, grid_id, list_id, rel_field_id, rel_field_value) {
+        $('#' + grid_id + ' a.dx-grid-cmd-edit').click(function (event) {
             event.preventDefault();
             show_form_splash();
             show_page_splash();
@@ -16925,17 +16937,15 @@ var BlockViews = function()
 
     /**
      * Nodrošina tabulas rindas konteksta izvēlnes "Dzēst" funkcionalitāti - atver ieraksta dzēšanas formu
-     * 
+     *
      * @param {string} grid_id  Tabularā saraksta elementa HTML ID
      * @param {integer} list_id Reģistra ID no datu bāzes tabulas dx_lists
      * @returns {undefined}
      */
-    var handleRowBtnDel = function(grid_id, list_id)
-    {
-        $('#' + grid_id + ' a.dx-grid-cmd-delete').click(function(event) {
+    var handleRowBtnDel = function (grid_id, list_id) {
+        $('#' + grid_id + ' a.dx-grid-cmd-delete').click(function (event) {
             event.preventDefault();
-            if (!confirm(DX_CORE.trans_confirm_delete))
-            {
+            if (!confirm(DX_CORE.trans_confirm_delete)) {
                 return;
             }
             delete_multiple_items(list_id, grid_id, $(this).attr('dx_item_id'), 1);
@@ -16944,105 +16954,126 @@ var BlockViews = function()
 
     /**
      * Nodrošina iezīmēto tabulas rindu dzēšanu
-     * 
+     *
      * @param {object} block    Grida bloka elements
      * @param {string} grid_id  Tabularā saraksta elementa HTML ID
      * @param {integer} list_id Reģistra ID no datu bāzes tabulas dx_lists
      * @returns {undefined}
      */
-    var handleMarkBtnDel = function(block, grid_id, list_id)
-    {
-        $('#paginator_' + grid_id + ' a.dx-grid-cmd-delall').click(function(event) {
+    var handleMarkBtnDel = function (block, grid_id, list_id) {
+        $('#paginator_' + grid_id + ' a.dx-grid-cmd-delall').click(function (event) {
             event.preventDefault();
 
             var items = "";
             var cnt = 0;
-            $('#' + grid_id + ' input.dx-grid-input-check:checked').each(function() {
-                if (items.length > 0)
-                {
+            $('#' + grid_id + ' input.dx-grid-input-check:checked').each(function () {
+                if (items.length > 0) {
                     items = items + "|";
                 }
                 items = items + $(this).attr('dx_item_id');
                 cnt++;
             });
 
-            if (cnt === 0)
-            {
+            if (cnt === 0) {
                 notify_err(block.attr("data-trans-msg-marked"));
                 return;
             }
 
             var msg = block.attr("data-trans-confirm-del1");
 
-            if (cnt > 1)
-            {
+            if (cnt > 1) {
                 msg = block.attr("data-trans-confirm-del-all").replace('%s', cnt);
             }
 
-            if (!confirm(msg))
-            {
+            if (!confirm(msg)) {
                 return;
             }
 
             delete_multiple_items(list_id, grid_id, items, ((cnt > 1) ? 0 : 1));
         });
     };
-    
+
     /**
      * Nodrošina visu tabulas rindu iezīmēšanu
-     * 
+     *
      * @param {string} grid_id      Tabularā saraksta elementa HTML ID
      * @param {string} form_htm_id  Formas HTML elementa ID
      * @returns {undefined}
      */
-    var handleMarkBtnCheck = function(grid_id, form_htm_id)
-    {
-        $('#paginator_' + grid_id + ' a.dx-grid-cmd-markall').click(function(e) {        
-        
+    var handleMarkBtnCheck = function (grid_id, form_htm_id) {
+        $('#paginator_' + grid_id + ' a.dx-grid-cmd-markall').click(function (e) {
+
             setScrollTop(form_htm_id);
-            
+
             var cnt = 0;
-            $('#' + grid_id + ' input.dx-grid-input-check').each(function() {
-                $(this).prop('checked', true);            
+            $('#' + grid_id + ' input.dx-grid-input-check').each(function () {
+                $(this).prop('checked', true);
                 cnt++;
             });
 
             $('#paginator_' + grid_id + ' span.dx-marked-count-lbl').text(cnt);
 
-            scrollElement(form_htm_id);           
+            scrollElement(form_htm_id);
         });
     };
-    
+
     /**
      * Nodrošina iezīmēto tabulas rindu skaita atjaunināšanu pēc rindas iezīmēšanas/atzīmēšanas
-     * 
+     *
      * @param {string} grid_id Tabularā saraksta elementa HTML ID
      * @returns {undefined}
      */
-    var handleMarkCounter = function(grid_id)
-    {
-        $('#' + grid_id + ' input.dx-grid-input-check').change(function() {
+    var handleMarkCounter = function (grid_id) {
+        $('#' + grid_id + ' input.dx-grid-input-check').change(function () {
             $('#paginator_' + grid_id + ' span.dx-marked-count-lbl').text($('#' + grid_id + ' input.dx-grid-input-check:checked').length);
         });
     };
 
     /**
      * Opens settings form for register
-     * 
+     *
      * @param {string} block_el HTML element id
      * @param {string} grid_id  Register grid HTML element id
      * @param {integer} list_id  Register id (from db table dx_lists)
      * @returns {undefined}
      */
-    var handleRegisterSettings = function(block_el, grid_id, list_id) {        
-        block_el.find(".dx-register-tools a.dx-register-settings").click(function() {            
+    var handleRegisterSettings = function (block_el, grid_id, list_id) {
+        block_el.find(".dx-register-tools a.dx-register-settings").click(function () {
             view_list_item("form", list_id, 3, 0, 0, grid_id, "");
+        });
+    };
+
+     /**
+     * Opens settings form for form
+     *
+     * @param {string} block_el HTML element id
+     * @param {string} grid_id  Register grid HTML element id
+     * @param {integer} form_id  Form id (from db table dx_forms)
+     * @returns {undefined}
+     */
+    var handleFormSettings = function (block_el, grid_id, form_id) {
+        block_el.find(".dx-register-tools a.dx-form-settings").click(function () {
+            view_list_item("form", form_id, 10, 0, 0, grid_id, "");
+        });
+    };
+    
+     /**
+     * Opens settings form for view
+     *
+     * @param {string} block_el HTML element id
+     * @param {string} grid_id  Register grid HTML element id
+     * @param {integer} view_id  View id (from db table dx_views)
+     * @returns {undefined}
+     */
+    var handleViewSettings = function (block_el, grid_id, view_id) {
+        block_el.find(".dx-register-tools a.dx-view-settings").click(function () {
+            view_list_item("form", view_id, 6, 0, 0, grid_id, "");
         });
     };
     
     /**
      * Nodrošina tabulas rindas konteksta izvēlnes "Skatīt" funcionalitāti - atver ieraksta skatīšanās formu
-     * 
+     *
      * @param {object} grid_elem          Reģistra HTML elementa objekts
      * @param {string} grid_form          Formas URL (bez root daļas), kas piesaistīta reģistram ierakstu attēlošanai
      * @param {string} grid_id            Tabularā saraksta elementa HTML ID
@@ -17052,43 +17083,42 @@ var BlockViews = function()
      * @param {string} form_htm_id        Formas, kuras sadaļā iekļauts tabulārais saraksts, HTML elementa ID
      * @returns {undefined}
      */
-    var openItemByID = function(grid_elem, grid_form, grid_id, list_id, rel_field_id, rel_field_value, form_htm_id)
-    {
+    var openItemByID = function (grid_elem, grid_form, grid_id, list_id, rel_field_id, rel_field_value, form_htm_id) {
         if (open_item_id > 0) {
             return; // vienā lapā pieļaujams atvērt tikai 1 reģistra kartiņu
         }
-        
+
         var item_id = parseInt(grid_elem.attr('dx_open_item_id'));
-        
+
         if (!isNaN(item_id) && item_id > 0) {
             open_item_id = item_id;
             view_list_item(grid_form, item_id, list_id, rel_field_id, rel_field_value, grid_id, form_htm_id);
         }
     };
-    
+
     /**
      * Recalculates grid height to set scrollbars
-     * 
+     *
      * @returns {undefined}
      */
-    var initHeight = function() {
+    var initHeight = function () {
         try {
             var grid_el = $("#td_data .dx-grid-outer-div");
-            var grid_top = grid_el.offset().top;                
-            var win_h = $( window ).height();
-            
+            var grid_top = grid_el.offset().top;
+            var win_h = $(window).height();
+
             var scrl = 0;
-            
+
             if (grid_el.hasScrollBar('horizontal')) {
-                scrl = 8;                
+                scrl = 8;
             }
-            
+
             var adjust_h = 80;
-            
+
             if ($("body").hasClass("dx-horizontal-menu-ui")) {
                 adjust_h = 70;
             }
-            
+
             var max_h = win_h - grid_top - adjust_h + scrl; //bija 100 / 70
             grid_el.css('max-height', max_h + 'px');
 
@@ -17099,7 +17129,7 @@ var BlockViews = function()
             $(".dx-page-container").css('padding-bottom', '0px');
             $("#td_data .dx-paginator-butons").css('margin-right', 'auto');
         }
-        catch(e){
+        catch (e) {
             console.log("Init Height error");
         }
     };
@@ -17113,7 +17143,7 @@ var BlockViews = function()
     var addHoverDropdowns = function(el_block) {
         el_block.find(".dropdown-toggle").dropdownHover();
     };
-    
+
     /**
      * Show/hide popup on filtering button hovering
      * 
@@ -17138,8 +17168,8 @@ var BlockViews = function()
         
         el_block.find("a.header-filter").hover(
             function() {
-                
-                var menu = el_block.find('div.dx-dropdown-content');
+                var grid_id = el_block.attr("dx_grid_id");                    
+                var menu = $("#grid_popup_" + grid_id);
                 
                 var offset = $(this).offset();
                 var height = $(this).closest('thead').height();
@@ -17154,10 +17184,12 @@ var BlockViews = function()
                 menu.show();
             }, function() {
                 var fld_name = $(this).closest('th').attr('fld_name');
-                setTimeout(function(){ 
-                    var menu = el_block.find('div.dx-dropdown-content');                    
+                setTimeout(function(){
+                    var grid_id = el_block.attr("dx_grid_id");                    
+                    var menu = $("#grid_popup_" + grid_id);  
+                    
                     if (!is_filter_menu_in && fld_name === menu.attr('data-field')) {
-                        el_block.find('div.dx-dropdown-content').hide();
+                        menu.hide();
                     }
                 }, 500);
                 
@@ -17184,7 +17216,10 @@ var BlockViews = function()
      */
     var handleFilteringOptions = function(el_block, grid_id, tab_id) {
         el_block.find('div.dx-dropdown-content a.dx-sort-asc').click(function() {
-            var field_name = $(this).closest('.dx-dropdown-content').data('field');
+            var grid_id = el_block.attr("dx_grid_id");
+            var menu = $("#grid_popup_" + grid_id); 
+                    
+            var field_name = menu.attr('data-field');
             
             $('#' + grid_id).data('sorting_field', field_name);
             $('#' + grid_id).data('sorting_direction', '1');
@@ -17192,8 +17227,11 @@ var BlockViews = function()
             reloadBlockGrid(grid_id, tab_id);
         });
         
-        el_block.find('div.dx-dropdown-content a.dx-sort-desc').click(function() {            
-            var field_name = $(this).closest('.dx-dropdown-content').data('field');
+        el_block.find('div.dx-dropdown-content a.dx-sort-desc').click(function() {
+            var grid_id = el_block.attr("dx_grid_id");
+            var menu = $("#grid_popup_" + grid_id); 
+                    
+            var field_name = menu.attr('data-field');
             
             $('#' + grid_id).data('sorting_field', field_name);
             $('#' + grid_id).data('sorting_direction', '2');
@@ -17214,12 +17252,11 @@ var BlockViews = function()
      * Apstrādā un inicializē vēl neinicializētos skatu blokus
      * @returns {undefined}
      */
-    var initViews = function()
-    {        
+    var initViews = function () {
         root_url = getBaseUrl();
-        
-        $(".dx-block-container-view[dx_block_init='0']").each(function() {
-            
+
+        $(".dx-block-container-view[dx_block_init='0']").each(function () {
+
             var grid_id = $(this).attr('dx_grid_id');
             var tab_id = $(this).attr('dx_tab_id');
             var menu_id = $(this).attr('dx_menu_id');
@@ -17228,18 +17265,24 @@ var BlockViews = function()
             var rel_field_value = $(this).attr('dx_rel_field_value');
             var form_htm_id = $(this).attr('dx_form_htm_id');
             var view_id = $(this).attr('dx_view_id');
-            var grid_form = $(this).attr('dx_grid_form');            
-            
+            var grid_form = $(this).attr('dx_grid_form');
+
             // Augšējā rīkjosla ar pogām un skatu izkrītošo izvēlni
             handleView(menu_id, tab_id, list_id, rel_field_id, rel_field_value, form_htm_id);
             handleBtnNew(grid_id, menu_id, list_id, rel_field_id, rel_field_value, form_htm_id);
             handleBtnRefresh(menu_id, grid_id, tab_id);
-            handleBtnExcel(menu_id, view_id, rel_field_id, rel_field_value, form_htm_id);
-            handleRegisterSettings($(this), grid_id, list_id);
+            handleBtnPrepareReport(grid_id, tab_id, $(this));
+            handleBtnExcel(menu_id, view_id, rel_field_id, rel_field_value, form_htm_id, grid_id);
+            
+            // Setting menu items handlers
+            handleRegisterSettings($(this), grid_id, list_id); // grid settings
+            handleFormSettings($(this), grid_id, $(this).attr('data-form-id')); // form settings
+            handleViewSettings($(this), grid_id, view_id); // view settings
+            
             handleBtnImport(menu_id, rel_field_id, rel_field_value, form_htm_id);
             handleBtnStartImport(menu_id);
             handleMenuFilter(menu_id, grid_id, tab_id, $(this));
-            
+
             addHoverDropdowns($(this));
             addHoverFilters($(this));
             
@@ -17251,7 +17294,7 @@ var BlockViews = function()
             handleBtnCopy($(this));
             handleBtnDelete($(this));
             handleFieldOperation($(this));
-            
+
             // Saraksta kolonnu funkcionalitāte
             handleFilter(grid_id, tab_id);
             handleSorting(grid_id, tab_id);
@@ -17268,81 +17311,91 @@ var BlockViews = function()
             handleMarkBtnDel($(this), grid_id, list_id);
             handleMarkBtnCheck(grid_id, form_htm_id);
             handleMarkCounter(grid_id);
-            
+
             openItemByID($(this), grid_form, grid_id, list_id, rel_field_id, rel_field_value, form_htm_id);
-            
-            if (!tab_id) {
+
+            if (!tab_id && $(this).hasClass('dx-view-fullpage')) {
                 $("body").addClass("dx-grid-in-page");
             }
             
-            /*
-            PageMain.addResizeCallback(initHeight);
-            
-            initHeight();
-            
-            var $table = $(this).find('table.dx-grid-table');
-            
-            $table.floatThead({
-                scrollContainer: function($table){
-                    return $table.closest('.dx-grid-outer-div');
-                }
-            });
-            
-            PageMain.addResizeCallback(function() {
-                $table.floatThead('reflow');
-            });
-            */
+            if((typeof dx_is_cssonly === 'undefined') || !dx_is_cssonly)
+			{
+				PageMain.addResizeCallback(initHeight);
 	
-            var container = $('.dx-grid-inner-container');
-			var divs = $('.dx-grid-table thead div');
-			container.scroll(function()
-            {
-				divs.css({
-                    top: container.scrollTop()
+				initHeight();
+	
+				var $table = $(this).find('table.dx-grid-table');
+	
+				$table.floatThead({
+					scrollContainer: function($table)
+					{
+						return $table.closest('.dx-grid-outer-div');
+					}
 				});
-			});
-            
+	
+				PageMain.addResizeCallback(function()
+				{
+					$table.floatThead('reflow');
+				});
+				setTimeout(function() { PageMain.resizePage(); }, 100);
+			}
+			
+			else
+			{
+				var container = $('.dx-grid-inner-container');
+				var thead = $('.dx-grid-table thead');
+				var divs = $('.dx-grid-table thead div');
+				container.scroll(function()
+				{
+					divs
+                    //thead
+                        .css({
+                        //top: container.scrollTop() + 'px'
+						transform: 'translateY(' + container.scrollTop() + 'px)'
+					});
+				});
+			}
+			
             $(this).attr('dx_block_init', 1); // uzstādam pazīmi, ka skata bloks ir inicializēts
-        });  
+        });
     };
 
     return {
-        init: function() {
+        init: function () {
             initViews();
         },
-        initHeight: function() {
+        initHeight: function () {
             initHeight();
         }
     };
 }();
 
 // Overide default jQuery "contains" function to search case insensitive
-$.expr[":"].contains = $.expr.createPseudo(function(arg) {
-    return function( elem ) {
+$.expr[":"].contains = $.expr.createPseudo(function (arg) {
+    return function (elem) {
         return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
     };
 });
 
-$.fn.hasScrollBar = function(direction){
-  if (direction == 'vertical')
-  {
-    return this.get(0).scrollHeight > this.innerHeight();
-  }
-  else if (direction == 'horizontal')
-  {
-    return this.get(0).scrollWidth > this.innerWidth();
-  }
-  return false;
+$.fn.hasScrollBar = function (direction) {
+    if (direction == 'vertical') {
+        return this.get(0).scrollHeight > this.innerHeight();
+    }
+    else if (direction == 'horizontal') {
+        return this.get(0).scrollWidth > this.innerWidth();
+    }
+    return false;
 
 };
 
-$(function() {        
-    BlockViews.init();    
+$(function () {
+    BlockViews.init();
 });
 
-$(document).ajaxComplete(function(event, xhr, settings) {            
-    BlockViews.init();           
+$(document).ajaxComplete(function (event, xhr, settings) {
+    BlockViews.init();
 });
+
 /**
  * Uzdevumu JavaScript funkcionalitāte
  * 
@@ -18988,6 +19041,27 @@ var RelIdField = function()
     };
     
     /**
+     * Handles view button click event - opens related form
+     * @param {object} fld_elem Field HTML element
+     * @returns {undefined}
+     */
+    var handleBtnView = function(fld_elem) {
+        fld_elem.find(".dx-rel-id-view-btn").click(function() {
+            var self = $(this);            
+            var update_fld = function(frm) {
+                var fld = frm.find(".dx-form-field-line[data-field-id=" + fld_elem.attr("data-rel-field-id") + "]");
+                var inp = fld.find("input");
+                
+                if (inp.length > 0) {
+                    self.closest(".dx-rel-id-field").find(".dx-rel-id-text").val(inp.val());
+                }
+            };
+            
+            open_form(fld_elem.attr("data-form-url"), $(this).attr("data-item-id"), fld_elem.attr("data-rel-list-id"), 0, 0, "", 0, "", {after_close: update_fld});             
+        });
+    };
+    
+    /**
      * Call back function after new item added - so it appear in dropdown
      * @param {string} fld_htm_id Dropdown field HTML element ID
      * @param {integer} val_id Saved related item ID
@@ -19038,6 +19112,7 @@ var RelIdField = function()
         $(".dx-rel-id-field[data-is-init=0]").each(function() {            
             handleBtnAdd($(this));
             handleBtnEdit($(this));
+            handleBtnView($(this));
             initBinded($(this));            
             $(this).attr('data-is-init', 1);
         });       
@@ -19412,6 +19487,260 @@ $(document).ajaxComplete(function(event, xhr, settings)
 $(document).ready(function()
 {
 	$("input.dx-bool").BoolField();
+});
+(function($)
+{
+	/**
+	 * ImageField - a jQuery plugin that inits image field functionality
+	 *
+	 * @param root
+	 * @returns {*}
+	 * @constructor
+	 */
+	$.fn.ImageField = function(opts)
+	{
+		var options = $.extend({}, $.fn.ImageField.defaults, opts);
+		return this.each(function()
+		{
+			new $.ImageField(this, options);
+		});
+	};
+	
+	$.fn.ImageField.defaults = {};
+	
+	/**
+	 * ImageField constructor
+	 *
+	 * @param root
+	 * @constructor
+	 */
+	$.ImageField = function(root, opts)
+	{
+		$.data(root, 'ImageField', this);
+				
+		this.root = $(root);		
+		if(this.root.hasClass("is-init"))
+		{
+			return; // field is allready initialized
+		}
+                
+		this.options = opts;
+                
+		var btn_rotate = this.root.find(".dx-rotate-btn");                
+                var input_rotate = this.root.find(".dx-rotate-angle-input");
+                var input_file = this.root.find(".dx-img-file-input");
+                
+                var rotateElement = function (img, side) {
+
+                    var deg = img.data('rotate') || 0;
+                    var angle = 0;
+
+                    if (side == 'left') {
+                        angle = parseInt(deg) - 90;
+                    } else if (side == 'right') {
+                        angle = parseInt(deg) + 90;
+                    }
+
+                    var rotate = 'rotate(' + angle + 'deg)';
+
+                    img.css({
+                        'transition': 'all 400ms',
+                        '-webkit-transform': rotate,
+                        '-moz-transform': rotate,
+                        '-o-transform': rotate,
+                        '-ms-transform': rotate,
+                        'transform': rotate
+                    });
+
+                    img.data('rotate', angle);
+                    input_rotate.val(angle);
+                };
+                
+                btn_rotate.click(function() {
+                    var img = $(this).closest(".dx-image-fld").find(".thumbnail img")
+                    rotateElement(img, 'right');                    
+                });
+                
+                input_file.on("change", function() {
+                    
+                    var img = $(this).closest(".dx-image-fld").find(".thumbnail img")
+                    img.data('rotate', 0);
+                    input_rotate.val(0);
+                });
+		
+		this.root.addClass("is-init");
+	};
+	
+})(jQuery);
+
+$(document).ajaxComplete(function()
+{
+	$(".dx-image-fld").ImageField();
+});
+
+$(document).ready(function()
+{
+	$(".dx-image-fld").ImageField();
+});
+(function($)
+{
+	/**
+	 * PhoneField - a jQuery plugin that inits phone field functionality (phone codes dropdown)
+	 *
+	 * @param root
+	 * @returns {*}
+	 * @constructor
+	 */
+	$.fn.PhoneField = function(opts)
+	{
+		var options = $.extend({}, $.fn.PhoneField.defaults, opts);
+		return this.each(function()
+		{
+			new $.PhoneField(this, options);
+		});
+	};
+	
+	$.fn.PhoneField.defaults = {
+	};
+	
+	/**
+	 * PhoneField constructor
+	 *
+	 * @param root
+	 * @constructor
+	 */
+	$.PhoneField = function(root, opts)
+	{
+		$.data(root, 'PhoneField', this);
+		var self = this;
+		this.options = opts;
+		this.root = $(root);
+                
+                if (this.root.data("is-init")) {
+                    return; // field is allready initialized
+                }
+                
+		this.input = $('.dx-phone-input', this.root);
+		this.select = $('.dx-phone-select', this.root);
+		this.hidden = $('.dx-phone-hidden', this.root);
+                this.current_select = this.select.val();
+                
+                if (this.select.val() == 0) {
+                    this.input.prop("readonly", true);
+                }                
+                
+                /**
+                 * Updates phone value which will be saved in database
+                 * @returns {undefined}
+                 */
+                var setHiddenVal = function() {
+                   
+                    if (self.input.val().length > 0) {
+                        self.hidden.val("(" + self.select.val() + ") " + self.input.val());
+                    }
+                    else {
+                        self.hidden.val('');
+                    }
+                    
+                };
+            
+                /**
+                 * Re-order phone codes dropdown asccending
+                 * @returns {undefined}
+                 */
+                var resortSelect = function() {
+                    var options = self.select.find('option');
+                    var arr = options.map(function(_, o) { return { t: $(o).text(), v: o.value }; }).get();
+                    arr.sort(function(o1, o2) { return o1.t > o2.t ? 1 : o1.t < o2.t ? -1 : 0; });
+                    options.each(function(i, o) {
+                      o.value = arr[i].v;
+                      $(o).text(arr[i].t);
+                    });
+                };
+                
+                /**
+                 * Callback after new country insert
+                 * @param {object} frm New country insertion form object
+                 * @returns {undefined}
+                 */
+                var newCallback = function(frm) {
+                    
+                    var country_code = frm.find("input[name=code]").val();
+                    var phone_code = frm.find("input[name=phone_code]").val();
+                    
+                    var title = country_code + " (" + phone_code + ")";
+                    
+                    self.select.append($('<option>', {
+                        value: phone_code,
+                        text: title
+                    }));
+                    
+                    resortSelect();
+                    
+                    self.select.val(phone_code);
+                    self.current_select = phone_code;
+                    
+                    frm.modal('hide');
+                    self.input.prop("readonly", false);
+                    setHiddenVal();
+                    self.input.focus();
+                };
+                
+		/**
+                 * Handles dropdown change event
+                 */
+		this.select.change(function(e){
+                    
+                    if ($(this).val() == "new") {
+                        var list_id = self.root.data("country-list-id");
+                        view_list_item("form", 0, list_id, 0, 0, "", "", {after_save: newCallback});
+                        $(this).val(self.current_select);
+                        return;
+                    }
+                    
+                    self.current_select = $(this).val();
+                    
+                    if ($(this).val() != 0) {
+                        self.input.prop("readonly", false);
+                        setHiddenVal();
+                        self.input.focus();
+                    }
+                    else {
+                        self.input.prop("readonly", true);
+                        self.input.val('');
+                        self.hidden.val('');
+                    }
+		});
+                
+                /**
+                 * Handlses input box change event - performs validation
+                 */
+                this.input.change(function() {
+                    var val = $(this).val().replace(/\D/g,'');
+                    if (val != $(this).val()) {
+                        notify_err(Lang.get('errors.phone_format_err'));
+                        $(this).val(val);
+                    }
+                    setHiddenVal();
+                });
+                
+                /**
+                 * Allow to enter only numbers
+                 */
+                this.input.keydown(function(e) {
+                    -1!==$.inArray(e.keyCode,[46,8,9,27,13,110])||/65|67|86|88/.test(e.keyCode)&&(!0===e.ctrlKey||!0===e.metaKey)||35<=e.keyCode&&40>=e.keyCode||(e.shiftKey||48>e.keyCode||57<e.keyCode)&&(96>e.keyCode||105<e.keyCode)&&e.preventDefault()
+                });
+                                
+                this.root.data("is-init", 1);
+	};
+})(jQuery);
+
+$(document).ajaxComplete(function() {
+    $(".dx-phone-field").PhoneField();
+});
+
+$(document).ready(function() {
+    $(".dx-phone-field").PhoneField();
 });
 /*
  * This combined file was created by the DataTables downloader builder:
@@ -21525,5 +21854,1364 @@ $.extend($.fn.dataTableExt.oPagination, {
   })();
 })(jQuery);
 
+
+/**
+ * Crypto library which encrypt and decrypt data
+ * @returns {window.DxCryptoClass}
+ */
+window.DxCryptoClass = function () {
+    this.certificate;
+    this.masterKeyGroups = new Array();
+    this.userId;
+};
+
+/**
+ * Extends crypto library prototype
+ * @param {object} param1 Crypto library
+ * @param {function} param2 Extended functionality
+ */
+$.extend(window.DxCryptoClass.prototype, {
+    /**
+     * Catches error and output error to user
+     * @param {object} err Error details
+     * @param {type} msg Error message (optional)
+     * @returns {undefined}
+     */
+    catchError: function (err, msg) {
+        hide_page_splash(1);
+
+        if (err && err.exit) {
+            throw {exit: true};
+        }
+
+        if (!msg) {
+            msg = Lang.get('crypto.e_unknown');
+        }
+
+        if (err && err.e_custom) {
+            msg = err.msg;
+        }
+
+        notify_err(msg);
+
+        throw {exit: true};
+    },
+    /**
+     * Clears crypto cache
+     * @returns {undefined}
+     */
+    clearCryptoCache: function () {
+        window.DxCrypto.certificate = undefined;
+        window.DxCrypto.userId = undefined;
+        window.DxCrypto.rawCertificate = undefined;
+        window.DxCrypto.rawMasterKeys = new Array();
+        window.DxCrypto.masterKeyGroups = new Array();
+    },
+    /**
+     * Create passwords CryptoKey object from given password
+     * @param {string} password
+     * @returns {undefined}
+     */
+    createPasswordKey: function (password) {
+        var self = window.DxCrypto;
+
+        // don't use native approaches for converting text, otherwise international
+        // characters won't have the correct byte sequences. Use TextEncoder when
+        // available or otherwise use relevant polyfills
+        var passwordBuffer = self.stringToArrayBuffer(password);
+
+        // Import password to CryptoKey object - base key which contains plain password castet as CryptoKey object
+        return window.crypto.subtle.importKey(
+                'raw',
+                passwordBuffer,
+                {name: 'PBKDF2'},
+                false,
+                ['deriveKey']
+                )
+                .then(function (baseKey) {
+                    return self.derivePasswordKey(baseKey);
+                })
+                .catch(window.DxCrypto.catchError);
+    },
+    /**
+     * Derives password CryptoKey from base CryptoKey object
+     * @param {CryptoKey} baseKey Key imported from plain string
+     * @returns {undefined}
+     */
+    derivePasswordKey: function (baseKey) {
+        // salt should be Uint8Array or ArrayBuffer
+        var saltBuffer = window.DxCrypto.stringToArrayBuffer('YyZYm6EuGaa1BhbDPwjy');
+
+        return window.crypto.subtle.deriveKey(
+                {"name": 'PBKDF2',
+                    "salt": saltBuffer,
+                    // don't get too ambitious, or at least remember
+                    // that low-power phones will access your app
+                    "iterations": 1000,
+                    "hash": 'SHA-256'
+                },
+                baseKey,
+                {"name": 'AES-CTR', "length": 256}, // For AES the length required to be 128 or 256 bits (not bytes)
+
+                false, // Whether or not the key is extractable (less secure) or not (more secure) when false, the key can only be passed as a web crypto object, not 
+
+                ["wrapKey", "unwrapKey"] // this web crypto object will only be allowed for these functions
+                )
+                .catch(window.DxCrypto.catchError);
+    },
+    /**
+     * Generates users certificate (with public and private keys)
+     * @param {CryptoKey} passwordKey Password 
+     * @returns {undefined}
+     */
+    generateUserCert: function (passwordKey) {
+        window.crypto.subtle.generateKey(
+                {
+                    name: "RSA-OAEP",
+                    modulusLength: 2048, //can be 1024, 2048, or 4096
+                    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+                    hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+                },
+                true, //whether the key is extractable (i.e. can be used in exportKey)
+                ["wrapKey", "unwrapKey"] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
+                )
+                .then(function (asyncKey) {
+                    window.DxCrypto.wrapPrivateKey(passwordKey, asyncKey);
+                })
+                .catch(window.DxCrypto.catchError);
+    },
+    /**
+     * Wraps users private key with passwords key
+     * @param {CryptoKey} passwordKey Password key
+     * @param {CryptoKey} asyncKey Users certificate
+     * @returns {undefined}
+     */
+    wrapPrivateKey: function (passwordKey, asyncKey) {
+        window.DxCrypto.certificate = asyncKey;
+
+        window.crypto.subtle.wrapKey(
+                "pkcs8", //can be "jwk", "raw", "spki", or "pkcs8"
+                asyncKey.privateKey, // CTR the key you want to wrap, must be able to export to "raw" format // CBC the key you want to wrap, must be able to export to above format
+                passwordKey, //the AES-CTR key with "wrapKey" usage flag
+                {//these are the wrapping key's algorithm options
+                    name: "AES-CTR",
+                    //Don't re-use counters!
+                    //Always use a new counter every time your encrypt!
+                    counter: new Uint8Array(16),
+                    length: 128 //can be 1-128
+                })
+                .then(function (wrappedPrivateKey) {
+                    window.crypto.subtle.exportKey(
+                            "spki", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
+                            asyncKey.publicKey //can be a publicKey or privateKey, as long as extractable was true
+                            )
+                            .then(function (publicKeyBuffer) {
+                                window.DxCrypto.saveUserCert(publicKeyBuffer, wrappedPrivateKey);
+                            })
+                            .catch(window.DxCrypto.catchError);
+                })
+                .catch(window.DxCrypto.catchError);
+    },
+    /**
+     * Saves users certificate
+     * @param {array} publicKeyBuffer Public key's array buffer
+     * @param {array} wrappedPrivateKey Wrapped private key's array buffer
+     * @returns {undefined}
+     */
+    saveUserCert: function (publicKeyBuffer, wrappedPrivateKey) {
+        var self = window.DxCrypto;
+
+        var publicKeyBlob = new Blob([new Uint8Array(publicKeyBuffer)], {type: "application/octet-stream"});
+        var privateKeyBlob = new Blob([new Uint8Array(wrappedPrivateKey)], {type: "application/octet-stream"});
+
+        var container = new FormData();
+        container.append('public_key', publicKeyBlob);
+        container.append('private_key', privateKeyBlob);
+
+        $.ajax({
+            url: DX_CORE.site_url + 'crypto/save_cert',
+            data: container,
+            type: "post",
+            processData: false,
+            dataType: "json",
+            contentType: false,
+            success: function (res) {
+                hide_page_splash(1);
+
+                if (res && res.success) {
+                    notify_info(Lang.get('crypto.i_save_cert_success'));
+                    $('.dx-crypto-generate-cert-btn').hide();
+                    $('.dx-crypto-generate-new-cert-btn').show();
+                    $('.dx-crypto-generate-cert-info').hide();
+                    $('.dx-crypto-generate-new-cert-info').show();
+                } else {
+                    self.catchError(res);
+                }
+            },
+            error: function (err) {
+                self.catchError(err, Lang.get('crypto.e_save'));
+            }
+        });
+    },
+    /**
+     * Converts string to array buffer
+     * @param {string} string Inpur string
+     * @returns {array} String converted to array buffer
+     */
+    stringToArrayBuffer: function (string) {
+        var encoder = new TextEncoder("utf-8");
+        return encoder.encode(string);
+    },
+    /**
+     * Converts array buffer to string
+     * @param {ArrayBuffer} arrayBuffer Buffer which must be converted
+     * @returns {string} Array Buffer converted to string
+     */
+    arrayBufferToString: function (arrayBuffer) {
+        var decoder = new TextDecoder("utf-8");
+
+        return decoder.decode(new Uint8Array(arrayBuffer));
+    },
+    /**
+     * Converts array buffer to Hex string
+     * @param {ArrayBuffer} arrayBuffer Array buffer which will be converted to Hex string
+     * @returns {string} Output Hex string
+     */
+    arrayBufferToHexString: function (arrayBuffer) {
+        var byteArray = new Uint8Array(arrayBuffer);
+        var hexString = "";
+        var nextHexByte;
+
+        for (var i = 0; i < byteArray.byteLength; i++) {
+            nextHexByte = byteArray[i].toString(16);
+            if (nextHexByte.length < 2) {
+                nextHexByte = "0" + nextHexByte;
+            }
+            hexString += nextHexByte;
+        }
+        return hexString;
+    },
+    /**
+     * Converts Hex string to Array Buffer
+     * @param {string} hex Hexstring to convert
+     * @returns {Uint8Array} Output buffer
+     */
+    hexStringToArrayBuffer: function (hex) {
+        var view = new Uint8Array(hex.length / 2)
+
+        for (var i = 0; i < hex.length; i += 2) {
+            view[i / 2] = parseInt(hex.substring(i, i + 2), 16)
+        }
+
+        return view;
+    },
+    /**
+     * Convert base64 string to array buffer
+     * @param {string} base64 Base 64 string to convert
+     * @returns {ArrayBuffer} Output buffer
+     */
+    base64ToArrayBuffer: function (base64) {
+        var binary_string = window.atob(base64);
+        var len = binary_string.length;
+        var bytes = new Uint8Array(len);
+        for (var i = 0; i < len; i++) {
+            bytes[i] = binary_string.charCodeAt(i);
+        }
+        return bytes.buffer;
+    },
+    /**
+     * Encryptes fields
+     * @param {DOM} cryptoFields Jquery crypto objects to encrypt
+     * @param {obj} event Current event object
+     * @param {function} callback Function which will be called after data is encrypted
+     * @returns {Boolean} If operation succedded
+     */
+    encryptFields: function (cryptoFields, event, callback) {
+        var cryptoFieldCount = cryptoFields.length;
+        var cryptoFieldCounter = 0;
+
+        var onFinishing = function () {
+            // Modifies original event data by setting that encryption is finished
+            event.encryptionFinished = true;
+
+            // Calls forms save button
+            callback(event);
+        };
+
+        if (cryptoFieldCount <= 0) {
+            onFinishing();
+            return true;
+        }
+
+        show_page_splash(1);
+
+        var self = window.DxCrypto;
+
+        // Check if crypto file field has been changed then request certificate check 
+        var hasChangedFileFields = self.checkFileCryptoFields(cryptoFields);
+
+        // If user have changed crypto file then must have certificate
+        if (hasChangedFileFields && (!self.certificate || !self.certificate.publicKey)) {
+            // Retrieves certificate and calls this function again
+            self.getCurrentUserCertificate(0, function () {
+                self.encryptFields(cryptoFields, event, callback);
+            });
+            return false;
+        }
+
+        if (!self.certificate || !self.certificate.publicKey) {
+            onFinishing();
+
+            return false;
+        }
+
+        cryptoFields.each(function () {
+            var cryptoField = this;
+
+            var masterKeyGroupId = $(cryptoField).data('masterkey-group');
+
+            if ($(cryptoField).hasClass('dx-crypto-field-file') && $(cryptoField).is('input') && cryptoField.files.length === 0) {
+                if (cryptoFieldCount === ++cryptoFieldCounter) {
+                    onFinishing();
+                }
+
+                return true;
+            }
+
+            if ($(cryptoField).hasClass('dx-crypto-field') && $(cryptoField).data('is-decrypted') != 1) {
+                if (cryptoFieldCount === ++cryptoFieldCounter) {
+                    onFinishing();
+                }
+
+                return true;
+            }
+
+            // Key is not found for user
+            if (!(masterKeyGroupId in self.masterKeyGroups)) {
+                cryptoField.crypto.setAccessError();
+
+                if (cryptoFieldCount === ++cryptoFieldCounter) {
+                    onFinishing();
+                }
+
+                return true;
+            }
+
+            var onReceiveValue = function (decryptedData) {
+                var counterBuffer = new Uint8Array(16);
+
+                window.crypto.subtle.encrypt(
+                        {
+                            name: "AES-CTR",
+                            //Don't re-use counters!
+                            //Always use a new counter every time your encrypt!
+                            counter: counterBuffer,
+                            length: 128, //can be 1-128
+                        },
+                        self.masterKeyGroups[masterKeyGroupId], //from generateKey or importKey above
+                        decryptedData //ArrayBuffer of the data
+                        )
+                        .then(function (encryptedValue) {
+                            encryptedValue = new Uint8Array(encryptedValue);
+
+                            var resBuffer = new Uint8Array(encryptedValue.length + counterBuffer.length);
+                            resBuffer.set(counterBuffer);
+                            resBuffer.set(encryptedValue, counterBuffer.length);
+
+                            if ($(cryptoField).hasClass('dx-crypto-field-file')) {
+                                cryptoField.crypto.setValue(resBuffer);
+                            } else {
+                                cryptoField.crypto.setValue(resBuffer, false);
+                            }
+
+                            $(cryptoField).data('is-decrypted', 0);
+
+                            // If end move to next field
+                            if (cryptoFieldCount === ++cryptoFieldCounter) {
+                                onFinishing();
+
+                                return true;
+                            }
+                        })
+                        .catch(window.DxCrypto.catchError);
+            };
+
+            cryptoField.crypto.getValue(onReceiveValue);
+        });
+    },
+    /**
+     * Check if crypto file field has been changed then request certificate check
+     * @param {DOM} cryptoFields Fields which are encrypted
+     * @returns {Boolean} If true then must have valid certificate
+     */
+    checkFileCryptoFields: function (cryptoFields) {
+        var res = false;
+
+        cryptoFields.each(function () {
+            var cryptoField = this;
+
+            if ($(cryptoField).hasClass('dx-crypto-field-file') && $(cryptoField).is('input') && cryptoField.files.length > 0) {
+                res = true;
+                return;
+            }
+        });
+
+        return res;
+    },
+    /**
+     * Decryptes all fields
+     * @param {DOM} cryptoFields Jquery crypto objects to encrypt
+     * @returns {Boolean} If operation succedded
+     */
+    decryptFields: function (cryptoFields) {
+        var cryptoFieldCount = cryptoFields.length;
+        var cryptoFieldCounter = 0;
+
+        if (cryptoFieldCount <= 0) {
+            return true;
+        }
+
+        show_page_splash(1);
+
+        var self = window.DxCrypto;
+
+        if (!self.certificate || !self.certificate.privateKey) {
+            // Retrieves certificate and calls this function again
+            self.getCurrentUserCertificate(0, function () {
+                self.decryptFields(cryptoFields);
+            });
+            return false;
+        }
+
+        // Async recursive action...
+        cryptoFields.each(function () {
+            var cryptoField = this;
+
+            var masterKeyGroupId = $(cryptoField).data('masterkey-group');
+
+            if ($(cryptoField).hasClass('dx-crypto-field') && $(cryptoField).data('is-decrypted') == 1) {
+                if (cryptoFieldCount == ++cryptoFieldCounter) {
+                    hide_page_splash(1);
+                }
+                return true;
+            }
+
+            // Key is not found for user
+            if (!(masterKeyGroupId in self.masterKeyGroups)) {
+                if (cryptoFieldCount === ++cryptoFieldCounter) {
+                    hide_page_splash(1);
+                }
+
+                cryptoField.crypto.setAccessError();
+                return true;
+            }
+
+            var onReceiveValue = function (encryptedData, fileType) {
+                var setDecryptedValue = function (resBuffer) {
+                    if ($(cryptoField).hasClass('dx-crypto-field-file')) {
+                        cryptoField.crypto.setValue(resBuffer, fileType);
+                    } else {
+                        cryptoField.crypto.setValue(resBuffer, true);
+                    }
+
+                    $(cryptoField).data('is-decrypted', 1);
+
+                    cryptoFieldCounter++;
+
+                    // If end move to next field
+                    if (cryptoFieldCount === cryptoFieldCounter) {
+                      hide_page_splash(1);
+                        return true;
+                    }
+                };
+
+                if (encryptedData == '') {
+                    setDecryptedValue('');
+                    return true;
+                }
+
+                var counterBuffer = encryptedData.subarray(0, 16);
+
+                var resBuffer = encryptedData.subarray(16, encryptedData.length);
+
+                window.crypto.subtle.decrypt(
+                        {
+                            name: "AES-CTR",
+                            counter: counterBuffer, //The same counter you used to encrypt
+                            length: 128, //The same length you used to encrypt
+                        },
+                        self.masterKeyGroups[masterKeyGroupId], //from generateKey or importKey above
+                        resBuffer //ArrayBuffer of the data
+                        )
+                        .then(function (decryptedValue) {
+                            setDecryptedValue(decryptedValue);
+                        })
+                        .catch(window.DxCrypto.catchError);
+            };
+
+            cryptoField.crypto.getValue(onReceiveValue);
+        });
+    },
+    /**
+     * Open modal window and ask user to input his certificate's password
+     * @param {function} callback Function to call after certificate has been retrieved
+     * @returns {undefined}
+     */
+    requestUserCertificatePassword: function (callback) {
+        hide_page_splash(1);
+
+        var modal = $('#dx-crypto-modal-psw');
+
+        var accept_btn = $('.dx-crypto-modal-accept', modal);
+
+        accept_btn.off('click');
+
+        accept_btn.click(function () {
+            show_page_splash(1);
+
+            var res = window.DxCrypto.decryptUserCertificate(callback);
+
+            if (res || typeof (res) == 'undefined') {
+                modal.modal('hide');
+            }
+        });
+
+        $('#dx-crypto-modal-input-password', modal).off('keypress');
+        $('#dx-crypto-modal-input-password', modal).keypress(function (e) {
+            if (e.keyCode == 13)
+                accept_btn[0].click();
+        });
+
+        modal.on('shown.bs.modal', function () {
+            $('#dx-crypto-modal-input-password', modal).focus();
+        });
+
+        modal.modal('show');
+    },
+    /**
+     * Compares array buffers if they are equal
+     * @param {ArrayBuffer} buf1
+     * @param {ArrayBuffer} buf2
+     * @returns {Boolean} Result if buffer are equal
+     */
+    compareArrayBuffers: function (buf1, buf2)
+    {
+        if (buf1.byteLength != buf2.byteLength)
+            return false;
+        var dv1 = new Int8Array(buf1);
+        var dv2 = new Int8Array(buf2);
+        for (var i = 0; i != buf1.byteLength; i++)
+        {
+            if (dv1[i] != dv2[i])
+                return false;
+        }
+        return true;
+    },
+    /**
+     * Decryptes user's certificate and stores in memory
+     * @param {function} callback Function to call after certificate has been retrieved
+     * @returns {undefined}
+     */
+    decryptUserCertificate: function (callback) {
+        show_page_splash(1);
+
+        var password = $('#dx-crypto-modal-input-password').val();
+        $('#dx-crypto-modal-input-password').val('');
+
+        var self = window.DxCrypto;
+
+        // Import public key from raw format to CryptoKey object
+        window.crypto.subtle.importKey(
+                "spki", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
+                self.rawCertificate.publicKey,
+                {//these are the algorithm options
+                    name: "RSA-OAEP",
+                    hash: {name: "SHA-256"}, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+                },
+                false, //whether the key is extractable (i.e. can be used in exportKey)
+                ["wrapKey"] //"encrypt" or "wrapKey" for public key import or
+                //"decrypt" or "unwrapKey" for private key imports
+                )
+                .then(function (publicKey) {
+                    // Saves imported public key
+                    window.DxCrypto.certificate = {
+                        publicKey: publicKey
+                    };
+
+                    // Generate password key (Cryptokey object) from password
+                    return window.DxCrypto.createPasswordKey(password);
+                })
+                .then(function (passwordKey) {
+                    // Unwraps password
+                    return self.unwrapPrivateKey(passwordKey, self.rawCertificate.privateKey);
+                })
+                .then(function (privateKey) {
+                    self.certificate.privateKey = privateKey;
+
+                    self.rawCertificate = undefined;
+
+                    return self.unwrapMasterKey();
+                })
+                .then(function () {
+                    callback();
+                })
+                .catch(self.catchError);
+    },
+    /**
+     * Unwraps user's private key
+     * @param {CryptoKey} passwordKey Password CryptoKey object derived from password
+     * @param {ArrayBuffer} wrappedPrivateKey ArrayBuffer contains private key
+     * @returns {CryptoKey} Unwrapped private key
+     */
+    unwrapPrivateKey: function (passwordKey, wrappedPrivateKey) {
+        return window.crypto.subtle.unwrapKey(
+                "pkcs8", //"jwk", "raw", "spki", or "pkcs8" (whatever was used in wrapping)
+                wrappedPrivateKey, //the key you want to unwrap
+                passwordKey, //the AES-CTR key with "unwrapKey" usage flag
+                {//these are the wrapping key's algorithm options
+                    name: "AES-CTR",
+                    //Don't re-use counters!
+                    //Always use a new counter every time your encrypt!
+                    counter: new Uint8Array(16),
+                    length: 128 //can be 1-128
+                },
+                {//this what you want the wrapped key to become (same as when wrapping)
+                    name: "RSA-OAEP",
+                    modulusLength: 2048, //can be 1024, 2048, or 4096
+                    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+                    hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+                },
+                false, //whether the key is extractable (i.e. can be used in exportKey)
+                ["unwrapKey"] //the usages you want the unwrapped key to have
+                )
+                .then(function (privateKey) {
+                    return privateKey;
+                })
+                .catch(function (err) {
+                    window.DxCrypto.clearCryptoCache();
+
+                    window.DxCrypto.catchError(err, Lang.get('crypto.e_password_incorrect'));
+                });
+    },
+    /**
+     * Unwraps master key (recursive - after unwraping one key, proceedes to next one)
+     * @param {type} counter Counts current master key which i being unwrapped
+     * @returns {Boolean} Result if operation succeeded
+     */
+    unwrapMasterKey: function (counter) {
+        var self = window.DxCrypto;
+
+        if (counter == undefined) {
+            counter = 0;
+        }
+
+        if (!self.rawMasterKeys || self.rawMasterKeys == undefined || (self.rawMasterKeys && !(counter < self.rawMasterKeys.length && 0 < self.rawMasterKeys.length))) {
+            self.rawMasterKeys = new Array();
+            return false;
+        }
+
+        var masterKeyObj = self.rawMasterKeys[counter];
+
+        return   window.crypto.subtle.unwrapKey(
+                "raw", //"jwk", "raw", "spki", or "pkcs8" (whatever was used in wrapping)
+                masterKeyObj.value, //the key you want to unwrap
+                self.certificate.privateKey, //the AES-CTR key with "unwrapKey" usage flag
+                {//these are the wrapping key's algorithm options
+                    name: "RSA-OAEP",
+                    modulusLength: 2048, //can be 1024, 2048, or 4096
+                    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+                    hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+                },
+                {
+                    name: "AES-CTR",
+                    length: 256
+                },
+                true, //whether the key is extractable (i.e. can be used in exportKey)
+                ["encrypt", "decrypt"] //the usages you want the unwrapped key to have
+                )
+                .then(function (masterKey) {
+                    self.masterKeyGroups[masterKeyObj.id] = masterKey;
+
+                    // Iterate to next master key
+                    return self.unwrapMasterKey(++counter);
+                })
+                .catch(window.DxCrypto.catchError);
+    },
+    /**
+     * Get specified users certificate
+     * @param {int} userId User's ID whose certificate we want to retrieve
+     * @param {int} masterKeyGroupId Master key's group which will be retrieved while getting certificate. Can be 0 tu retrieve all keys
+     * @param {function} callback Function to call after certificate has been retrieved
+     * @returns {undefined}
+     */
+    getUserCertificate: function (userId, masterKeyGroupId, callback) {
+        var self = window.DxCrypto;
+
+        $.ajax({
+            url: DX_CORE.site_url + 'crypto/get_user_cert/' + userId + '/' + masterKeyGroupId,
+            type: "get",
+            success: function (res) {
+                if (res && res.success && res.success == 1) {
+                    if (!userId || userId <= 0) {
+                        self.userId = res.user_id;
+                    }
+
+                    var public_key = new Uint8Array(self.base64ToArrayBuffer(res.public_key));
+                    var private_key = new Uint8Array(self.base64ToArrayBuffer(res.private_key));
+
+                    var master_keys = new Array();
+                    if (res.master_keys) {
+                        for (var i = 0; i < res.master_keys.length; i++) {
+                            res.master_keys[i].value = self.hexStringToArrayBuffer(res.master_keys[i].value);
+                        }
+
+                        master_keys = res.master_keys;
+                    }
+
+                    callback(public_key, private_key, master_keys);
+                } else {
+                    if (res.msg) {
+                        self.catchError(res, res.msg);
+                    } else {
+                        self.catchError(res, Lang.get('crypto.e_get_user_cert'));
+                    }
+                }
+            },
+            error: function (err) {
+                self.catchError(err, Lang.get('crypto.e_get_user_cert'));
+            }
+        });
+    },
+    /**
+     * Gets current users certificate from server and the store it in memory.
+     * @param {int} masterKeyGroupId Master key's group which will be retrieved while getting certificate. Can be 0 tu retrieve all keys
+     * @param {function} callback Function to call after certificate has been stored in memory
+     * @returns {undefined}
+     */
+    getCurrentUserCertificate: function (masterKeyGroupId, callback) {
+        var self = window.DxCrypto;
+
+        self.getUserCertificate(0, masterKeyGroupId, function (public_key, private_key, master_keys) {
+            if (master_keys) {
+                self.rawMasterKeys = master_keys;
+            } else {
+                self.rawMasterKeys = new Array();
+            }
+
+            self.rawCertificate = {
+                publicKey: public_key,
+                privateKey: private_key
+            };
+
+            self.requestUserCertificatePassword(callback);
+        });
+    },
+    /**
+     * Generates completely new master key
+     * @param {CryptoKey} publicKey Key which will be used to wrap master key
+     * @param {int} masterKeyGroupId Master key group ID
+     * @param {function} callback Function to call after master key has been generated
+     * @returns {ArrayBuffer} Master key which is generated
+     */
+    generateNewMasterKey: function (publicKey, masterKeyGroupId, callback) {
+        return window.crypto.subtle.generateKey(
+                {
+                    name: "AES-CTR",
+                    length: 256 //can be  128, 192, or 256
+                },
+                true, //whether the key is extractable (i.e. can be used in exportKey)
+                ["encrypt", "decrypt"] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
+                )
+                .then(function (masterKey) {
+                    window.DxCrypto.masterKeyGroups[masterKeyGroupId] = masterKey;
+
+                    return window.crypto.subtle.wrapKey(
+                            "raw", //the export format, must be "raw" (only available sometimes)
+                            masterKey, //the key you want to wrap, must be able to fit in RSA-OAEP padding
+                            publicKey, //the public key with "wrapKey" usage flag
+                            {//these are the wrapping key's algorithm options
+                                name: "RSA-OAEP",
+                                hash: {name: "SHA-256"}
+                            });
+                })
+                .then(function (wrappedMasterKey) {
+                    callback(wrappedMasterKey);
+                })
+                .catch(window.DxCrypto.catchError);
+    },
+    /**
+     * Generates master key for user in specified master key group
+     * @param {int} masterKeygroupId Master keys group ID
+     * @param {int} userId User's ID
+     * @param {function} callback Function to call after master key has been created
+     * @returns {undefined}
+     */
+    generateMasterKey: function (masterKeyGroupId, userId, callback) {
+        var self = window.DxCrypto;
+
+        var selfCall = function () {
+            self.generateMasterKey(masterKeyGroupId, userId, callback);
+        };
+
+        if (!self.certificate || !self.certificate.publicKey) {
+            // Retrieves certificate and calls this function again
+            self.getCurrentUserCertificate(0, selfCall);
+            return false;
+        }
+
+        if (!(masterKeyGroupId in self.masterKeyGroups)) {
+            if (self.userId == userId) {
+                $.ajax({
+                    url: DX_CORE.site_url + 'crypto/check_existing_keys/' + masterKeyGroupId,
+                    type: "get",
+                    dataType: "json",
+                    success: function (res) {
+                        hide_page_splash(1);
+
+                        if (res && res.has_keys && res.has_keys == 1) {
+                            self.catchError(null, Lang.get('crypto.e_master_key_already_exist'));
+                        } else {
+                            // Generates master key for current user
+                            self.generateNewMasterKey(window.DxCrypto.certificate.publicKey, masterKeyGroupId, callback);
+                        }
+                    },
+                    error: function (err) {
+                        self.catchError(err, Lang.get('crypto.e_master_key_already_exist'));
+                    }
+                });
+            } else {
+                self.catchError(null, Lang.get('crypto.e_add_yourself_first'));
+            }
+        } else {
+            // Try to get certificate for specified user
+            self.getUserCertificate(userId, masterKeyGroupId, function (raw_public_key) {
+                window.crypto.subtle.importKey(
+                        "spki", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
+                        raw_public_key,
+                        {//these are the algorithm options
+                            name: "RSA-OAEP",
+                            hash: {name: "SHA-256"}, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+                        },
+                        false, //whether the key is extractable (i.e. can be used in exportKey)
+                        ["wrapKey"] //"encrypt" or "wrapKey" for public key import or
+                        //"decrypt" or "unwrapKey" for private key imports
+                        )
+                        .then(function (public_key) {
+                            // Wraps current user's master key with other user's public key 
+                            return window.crypto.subtle.wrapKey(
+                                    "raw", //the export format, must be "raw" (only available sometimes)
+                                    window.DxCrypto.masterKeyGroups[masterKeyGroupId], //the key you want to wrap, must be able to fit in RSA-OAEP padding
+                                    public_key, //the public key with "wrapKey" usage flag
+                                    {//these are the wrapping key's algorithm options
+                                        name: "RSA-OAEP",
+                                        hash: {name: "SHA-256"}
+                                    });
+                        })
+                        .then(function (wrappedMasterKey) {
+                            callback(wrappedMasterKey);
+                        })
+                        .catch(window.DxCrypto.catchError);
+            });
+        }
+    },
+    /**
+     * Event on master key save button click - calls function which generates key derived from existing one or creates a new one
+     * @param {type} event
+     * @param {type} form
+     * @returns {Boolean}
+     */
+    onMasterKeysSave: function (event, form) {
+        var btnSave = $('.dx-btn-save-form', form);
+
+        var isMasterKeyGenerated = btnSave.data('is-masterkey-generated');
+
+        if (isMasterKeyGenerated == 1) {
+            return true;
+        }
+
+        show_page_splash(1);
+
+        event.stopImmediatePropagation();
+
+        var userId = $('input[name=user_id]', form).val();
+
+        var masterKeyGroupId = $('input[name=master_key_group_id]', form).val();
+
+        window.DxCrypto.clearCryptoCache();
+
+        window.DxCrypto.generateMasterKey(masterKeyGroupId, userId, function (wrappedMasterKey) {
+            var masterKeyHex = window.DxCrypto.arrayBufferToHexString(wrappedMasterKey);
+
+            $('input[name=master_key]', form).val(masterKeyHex);
+
+            hide_page_splash(1);
+
+            btnSave.data('is-masterkey-generated', 1);
+
+            btnSave.click();
+        });
+    }
+});
+
+window.DxCrypto = new window.DxCryptoClass();
+
+(function ($)
+{
+    /**
+     * Creates jQuery plugin for crypto fields
+     * @returns DxCryptoField
+     */
+    $.fn.DxCryptoField = function ()
+    {
+        return this.each(function ()
+        {
+            if ($(this).data('dx_is_init') == 1) {
+                return;
+            }
+
+            this.crypto = new $.DxCryptoField($(this));
+
+            if (window.DxCrypto.certificate &&
+                    window.DxCrypto.certificate.privateKey &&
+                    $(this).data('is-decrypted') != 1) {
+                window.DxCrypto.decryptFields($(this));
+            }
+        });
+    };
+
+    /**
+     * Class for managing crypto fields
+     * @type DxCryptoField 
+     */
+    $.DxCryptoField = function (domObject) {
+        /**
+         * Field's DOM object which is related to this class
+         */
+        this.domObject = domObject;
+
+        // Initializes class
+        this.init();
+    };
+
+    /**
+     * Initializes component
+     * @returns {undefined}
+     */
+    $.extend($.DxCryptoField.prototype, {
+        /**
+         * Initializes field
+         * @returns {undefined}
+         */
+        init: function () {
+            var self = this;
+
+            self.domObject.data('dx_is_init', 1);
+
+            self.addDecryptButton();
+        },
+        /**
+         * Replaces field's html with button for decryption
+         * @returns {undefined}
+         */
+        addDecryptButton: function () {
+            var self = this;
+
+            self.domObject.hide();
+
+            var button = $('<button class="btn btn-xs default dx-crypto-decrypt-btn"> ' +
+                    Lang.get('crypto.decrypt_btn') +
+                    ' <i class="fa fa-lock"></i></button>');
+
+            self.domObject.after(button);
+
+            button.click(function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+                window.DxCrypto.decryptFields($('.dx-crypto-field'));
+            });
+        },
+        setAccessError: function () {
+            var label = '<span class="label label-danger"> ' + Lang.get('crypto.e_no_access') + ' </span>';
+
+            this.domObject.next('.dx-crypto-decrypt-btn').remove();
+            this.domObject.after(label);
+        },
+        /**
+         * Gets value of current element. It can be input or other container (e.g. div, span)
+         * @returns {string}
+         */
+        getValue: function (callback) {
+            var value;
+            if (this.domObject.is('input') || this.domObject.is('textarea')) {
+                value = this.domObject.val();
+            } else {
+                value = this.domObject.html();
+            }
+
+            if (this.domObject.data('is-decrypted')) {
+                value = window.DxCrypto.stringToArrayBuffer(value);
+            } else {
+                value = window.DxCrypto.hexStringToArrayBuffer(value);
+            }
+
+            callback(value);
+        },
+        /**
+         * Sets value of current element. It can be input or other container (e.g. div, span)
+         * @param {string} value It will be set to element
+         * @param {boolean} isVisible Shows element and hides decrypt button
+         * @returns {undefined}
+         */
+        setValue: function (value, isVisible) {
+            if (value != '') {
+                if (this.domObject.data('is-decrypted')) {
+                    value = window.DxCrypto.arrayBufferToHexString(value);
+                } else {
+                    value = window.DxCrypto.arrayBufferToString(value);
+                }
+            }
+
+            if (this.domObject.is('input') || this.domObject.is('textarea')) {
+                this.domObject.val(value);
+            } else {
+                this.domObject.html(value);
+            }
+
+            if (isVisible) {
+                // Shows field
+                this.showField();
+            } else {
+                this.addDecryptButton();
+            }
+        },
+        /**
+         * Shows field
+         * @returns {undefined}
+         */
+        showField: function () {
+            this.domObject.next('.dx-crypto-decrypt-btn').remove();
+            this.domObject.show();
+        }
+    });
+})(jQuery);
+
+// ajaxComplete ready
+$(document).ready(function () {
+    // Initializes all found worklfow containers
+    $('.dx-crypto-field').DxCryptoField();
+});
+
+$(document).ajaxComplete(function () {
+    // Initializes all found worklfow containers
+    $('.dx-crypto-field').DxCryptoField();
+});
+
+(function ($)
+{
+    /**
+     * Creates jQuery plugin for crypto fields
+     * @returns DxCryptoFileField
+     */
+    $.fn.DxCryptoFileField = function ()
+    {
+        /*for (var i=0; i < this.length; i++){
+         var selfR = this[i];
+         
+         var self = $(selfR);
+         
+         if (self.data('dx_is_init') == 1) {
+         continue;
+         }
+         
+         self.data('dx_is_init', 1);
+         
+         var cr = new $.DxCryptoFileField(self);
+         
+         this.crypto = cr;
+         }*/
+
+        return this.each(function ()
+        {
+            var self = $(this);
+
+            if (self.data('dx_is_init') == 1) {
+                return;
+            }
+
+            self.data('dx_is_init', 1);
+
+            this.crypto = new $.DxCryptoFileField(self);
+        });
+    };
+
+    /**
+     * Class for managing crypto fields
+     * @type DxCryptoFileField 
+     */
+    $.DxCryptoFileField = function (domObject) {
+        /**
+         * Field's DOM object which is related to this class
+         */
+        this.domObject = domObject;
+
+        // Initializes class
+        this.init();
+    };
+
+    /**
+     * Initializes component
+     * @returns {undefined}
+     */
+    $.extend($.DxCryptoFileField.prototype, {
+        /**
+         * Initializes field
+         * @returns {undefined}
+         */
+        init: function () {
+            var self = this;
+
+            if (this.domObject.is('input')) {
+                this.inputInit();
+            } else if (this.domObject.is('a')) {
+                this.linkInit();
+            }
+        },
+        inputInit: function () {
+
+        },
+        linkInit: function () {
+            this.domObject.click(this.onLinkClick);
+        },
+        onLinkClick: function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+
+            window.DxCrypto.decryptFields($(this));
+        },
+        setAccessError: function () {
+            /*  var label = '<span class="label label-danger"> ' + Lang.get('crypto.e_no_access') + ' </span>';
+             
+             this.domObject.next('.dx-crypto-decrypt-btn').remove();
+             this.domObject.after(label);*/
+        },
+        /**
+         * Gets value of current element. It can be input or other container (e.g. div, span)
+         * @returns {string}
+         */
+        getValue: function (callback) {
+            if (this.domObject.is('input')) {
+                this.getFileValue(callback);
+            } else if (this.domObject.is('a')) {
+                this.getLinkValue(callback);
+            }
+        },
+        getFileValue: function (callback) {
+            if (this.domObject[0].files.length === 0) {
+                return new ArrayBuffer(0);
+            }
+
+            var fr = new FileReader();
+            fr.onload = function () {
+                var data = fr.result;
+                var dataArray = new Uint8Array(data);
+
+                callback(dataArray);
+            };
+
+            fr.readAsArrayBuffer(this.domObject[0].files[0]);
+        },
+        getLinkValue: function (callback) {
+            var xhr = new XMLHttpRequest();
+
+            xhr.onload = function () {
+                var reader = new FileReader();
+
+                reader.readAsArrayBuffer(xhr.response);
+
+                reader.onloadend = function () {
+
+                    var arrayBuffer = new Uint8Array(reader.result);
+
+                    callback(arrayBuffer, xhr.response.type);
+                };
+            };
+            xhr.open('GET', this.domObject.attr("href"));
+            xhr.responseType = 'blob';
+            xhr.send();
+        },
+        /**
+         * Sets value of current element. It can be input or other container (e.g. div, span)
+         * @param {string} value It will be set to element
+         * @returns {undefined}
+         */
+        setValue: function (value, fileType) {
+            if (this.domObject.is('input')) {
+                return this.setFileValue(value);
+            } else if (this.domObject.is('a')) {
+                return this.setLinkValue(value, fileType);
+            }
+        },
+        setFileValue: function (value) {
+            var valueBlob = new Blob([new Uint8Array(value)], {type: "application/octet-stream"});
+
+            this.domObject.data('crypto-value', valueBlob);
+        },
+        setLinkValue: function (value, fileType) {
+            var blob = new Blob([value], {type: fileType});
+            var newUrl = URL.createObjectURL(blob);
+
+            var a = document.createElement("a");
+            a.style.display = "none";
+            a.href = newUrl;
+            a.download = this.domObject.text().trim();
+            $("body").append($(a));
+            a.click();
+            window.URL.revokeObjectURL(newUrl);
+            a.remove();
+        }
+    });
+})(jQuery);
+
+// ajaxComplete ready
+$(document).ready(function () {
+    // Initializes all found worklfow containers
+    $('.dx-crypto-field-file').DxCryptoFileField();
+});
+
+$(document).ajaxComplete(function () {
+    // Initializes all found worklfow containers
+    $('.dx-crypto-field-file').DxCryptoFileField();
+});
+
+(function ($)
+{
+    /**
+     * Creates jQuery plugin for crypto fields
+     * @returns DxCryptoUserPanel
+     */
+    $.fn.DxCryptoUserPanel = function ()
+    {
+        return this.each(function ()
+        {
+            this.crypto = new $.DxCryptoUserPanel($(this));
+        });
+    };
+
+    /**
+     * Class for managing crypto fields
+     * @type DxCryptoUserPanel 
+     */
+    $.DxCryptoUserPanel = function (domObject) {
+        /**
+         * Field's DOM object which is related to this class
+         */
+        this.domObject = domObject;
+
+        // Initializes class
+        this.init();
+    };
+    /**
+     * Extends crypto library prototype
+     * @param {object} param1 Crypto library
+     * @param {function} param2 Extended functionality
+     */
+    $.extend($.DxCryptoUserPanel.prototype, {
+        /**
+         * Initializes user panel
+         * @returns {undefined}
+         */
+        init: function () {
+            var self = this;
+
+            if (!window.crypto || !window.crypto.subtle) {
+                return;
+            }
+
+            if (!window.TextEncoder) {
+                return;
+            }
+
+            var self = this;
+
+            if (self.domObject.data('dx_is_init') == 1) {
+                return;
+            }
+
+            self.domObject.data('dx_is_init', 1);
+
+            self.domObject.find('.dx-crypto-generate-cert-btn').click(this.openGenerateCertificate);
+
+            self.domObject.find('.dx-crypto-generate-new-cert-btn').click(function () {
+                var title = Lang.get('crypto.btn_generate_new_cert');
+                var body = Lang.get('crypto.w_confirm_generate_new_cert');
+
+                PageMain.showConfirm(self.openGenerateCertificate, null, title, body);
+            });
+
+            $('#dx-crypto-modal-generate-cert').on('click', '.dx-crypto-modal-gen-accept', this.validateCertPassword);
+        },
+        /**
+         * Opens modal windows where user inputs password for certificate
+         * @returns {undefined}
+         */
+        openGenerateCertificate: function () {
+            var modal = $('#dx-crypto-modal-generate-cert');
+
+            modal.on('shown.bs.modal', function () {
+                modal.find('#dx-crypto-modal-gen-input-password').focus();
+            });
+
+            modal.modal('show');
+        },
+        /**
+         * Validates users password
+         * @returns {Boolean}
+         */
+        validateCertPassword: function () {
+            var password = $('#dx-crypto-modal-gen-input-password').val();
+            var password_2 = $('#dx-crypto-modal-gen-input-password-again').val();
+
+            if (!password || password.length <= 0 || !password_2 || password_2.length <= 0) {
+                notify_err(Lang.get('crypto.e_cert_both_psw'));
+                return false;
+            }
+
+            if (password.length < 8) {
+                notify_err(Lang.get('crypto.e_cert_psw_short'));
+                return false;
+            }
+
+            if (password != password_2) {
+                notify_err(Lang.get('crypto.e_cert_psw_not_match'));
+                return false;
+            }
+
+            show_page_splash(1);
+
+            window.DxCrypto.createPasswordKey(password)
+                    .then(function (passwordKey) {
+                        window.DxCrypto.generateUserCert(passwordKey);
+                    })
+                    .catch(window.DxCrypto.catchError);
+
+            $('#dx-crypto-modal-generate-cert').modal('hide');
+            $('#dx-crypto-modal-gen-input-password').val('');
+            $('#dx-crypto-modal-gen-input-password-again').val('');
+        }
+    });
+})(jQuery);
+
+// ajaxComplete ready
+$(document).ready(function () {
+    // Initializes all found worklfow containers
+    $('.dx-crypto-user_panel-page[data-dx_is_init!=1]').DxCryptoUserPanel();
+});
+
+$(document).ajaxComplete(function () {
+    // Initializes all found worklfow containers
+    $('.dx-crypto-user_panel-page[data-dx_is_init!=1]').DxCryptoUserPanel();
+});
 
 //# sourceMappingURL=elix_view.js.map

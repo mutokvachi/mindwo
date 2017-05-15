@@ -69,7 +69,7 @@ namespace App\Libraries\Blocks
         public function getHTML()
         {
             if (strlen($this->rights_htm) !== 0) {
-                return $this->rights_htm; // nav tiesību
+                return ($this->is_full_page) ? $this->rights_htm : ""; // nav tiesību
             }
             
             return view('blocks.view.view', [

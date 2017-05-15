@@ -1621,6 +1621,12 @@ a.header-filter:hover {
     margin-right: -15px;
 }
 
+// Dropdown field buttons
+.dx-rel-id-view-btn {
+    border: 1px solid #c2cad8!important;
+    margin-left: -2px!important;
+}
+
 .dx-top-right-menu .dropdown-submenu .dropdown-menu {
 	left: auto;
 	right: 100%;
