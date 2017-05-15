@@ -12,6 +12,71 @@
           border: 1px dashed lightgray;
           height: 40px;
       }
+      
+      // wizard 
+      .dx-step-naming .dx-panel-naming {
+          display: block;
+      }
+      
+      .dx-step-naming .dx-panel-fields {
+          display: none;
+      }
+      
+      .dx-step-naming .dx-panel-roles {
+          display: none;
+      }
+      
+      .dx-step-naming .dx-panel-navigation {
+          display: none;
+      }
+      
+      .dx-step-fields .dx-panel-fields {
+          display: block;
+      }
+      
+      .dx-step-fields .dx-panel-naming {
+          display: none;
+      }
+      
+      .dx-step-fields .dx-panel-roles {
+          display: none;
+      }
+      
+      .dx-step-fields .dx-panel-navigation {
+          display: none;
+      }
+      
+      .dx-step-roles .dx-panel-roles {
+          display: block;
+      }
+      
+      .dx-step-roles .dx-panel-fields {
+          display: none;
+      }
+      
+      .dx-step-roles .dx-panel-naming {
+          display: none;
+      }
+      
+      .dx-step-roles .dx-panel-navigation {
+          display: none;
+      }
+      
+      .dx-step-navigation .dx-panel-navigation {
+          display: block;
+      }
+      
+      .dx-step-navigation .dx-panel-fields {
+          display: none;
+      }
+      
+      .dx-step-navigation .dx-panel-naming {
+          display: none;
+      }
+      
+      .dx-step-navigation .dx-panel-roles {
+          display: none;
+      }
   </style>
 @endsection
 
@@ -64,6 +129,32 @@
             
             $(".dx-cms-nested-list").nestable();
            
+            $(".dx-wizard-btn").click(function() {
+                // perform ajax save or current panel data
+                $(".dx-constructor-wizard").removeClass($(this).attr('data-current-step')).addClass($(this).attr('data-next-step'));
+                
+                $(this).attr('data-current-step', $(this).attr('data-next-step'));
+                
+                if ($(this).attr('data-next-step') == 'dx-step-fields') {
+                    $('.mt-element-step .dx-step-naming').removeClass('active').addClass('done');
+                    $('.mt-element-step .dx-step-fields').addClass('active').removeClass('done');
+                    $(this).attr('data-next-step', 'dx-step-roles');
+                }else if ($(this).attr('data-next-step') == 'dx-step-roles') {
+                    $('.mt-element-step .dx-step-fields').removeClass('active').addClass('done');
+                    $('.mt-element-step .dx-step-roles').addClass('active').removeClass('done');
+                    $(this).attr('data-next-step', 'dx-step-navigation');
+                }else if ($(this).attr('data-next-step') == 'dx-step-navigation') {
+                    $('.mt-element-step .dx-step-roles').removeClass('active').addClass('done');
+                    $('.mt-element-step .dx-step-navigation').addClass('active').removeClass('done');
+                    $(this).attr('data-next-step', 'dx-step-naming');
+                }else if ($(this).attr('data-next-step') == 'dx-step-naming') {
+                    $('.mt-element-step .dx-step-navigation').removeClass('active').addClass('done');
+                    $('.mt-element-step .dx-step-naming').addClass('active').removeClass('done');
+                    $(this).attr('data-next-step', 'dx-step-fields');
+                }
+                
+                
+            });
         });
     </script>
 @endsection
@@ -76,42 +167,71 @@
             <div class="caption font-grey-cascade uppercase">
                 <i class="fa fa-list"></i> Register                 
             </div>
-            <div class="btn-group dx-register-tools pull-right">
-                <button type="button" class="btn btn-primary dx-preview-btn" style='margin-right: 10px;'>
-                      <i class="fa fa-search"></i> Preview form
-                </button>  
+            <div class="btn-group dx-register-tools pull-right">                
                 <button type="button" class="btn btn-white dx-adv-btn">
                       <i class="fa fa-cog"></i> Advanced settings
                   </button>
             </div>
           </div>
           <div class="portlet-body">
-              <div class="row">
-                <div class="form-group has-feedback dx-form-field-line col-lg-6 col-md-6 col-sm-12 col-xs-12" dx_fld_name_form="skype" data-field-id="2106">
-                                <label for="32f6de8d-dfa2-407a-bb43-cac4a6ece0b5_skype" style="vertical-align: top; margin-right: 10px;">
-                                            <span class="dx-fld-title">Register name</span>
-                                        </label>
+              
+                <div class="mt-element-step">
+                    <div class="row step-line">
+                        <div class="dx-step-naming col-md-3 mt-step-col first active">
+                            <div class="mt-step-number bg-white">1</div>
+                            <div class="mt-step-title uppercase font-grey-cascade">Naming</div>
+                            <div class="mt-step-content font-grey-cascade">Register & item titles</div>
+                        </div>
+                        <div class="dx-step-fields col-md-3 mt-step-col">
+                            <div class="mt-step-number bg-white">2</div>
+                            <div class="mt-step-title uppercase font-grey-cascade">Fields</div>
+                            <div class="mt-step-content font-grey-cascade">View & form fields</div>
+                        </div>
+                        <div class="dx-step-roles col-md-3 mt-step-col">
+                            <div class="mt-step-number bg-white">3</div>
+                            <div class="mt-step-title uppercase font-grey-cascade">Rights</div>
+                            <div class="mt-step-content font-grey-cascade">Assign users roles</div>
+                        </div>
+                        <div class="dx-step-navigation col-md-3 mt-step-col last">
+                            <div class="mt-step-number bg-white">4</div>
+                            <div class="mt-step-title uppercase font-grey-cascade">Navigation</div>
+                            <div class="mt-step-content font-grey-cascade">Setup link in menu</div>
+                        </div>
+                    </div>
 
-                                <input class="form-control" autocomplete="off" type="text" id="32f6de8d-dfa2-407a-bb43-cac4a6ece0b5_skype" name="skype" maxlength="100" value="">
-                                <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                </div>
+              
+              <div class='dx-constructor-wizard dx-step-naming'>
+                <div class="row dx-panel-naming" style='width: 50%; margin: 0 auto;'>
+                  <div class="form-group has-feedback dx-form-field-line col-lg-12 col-md-12 col-sm-12 col-xs-12" dx_fld_name_form="skype" data-field-id="2106">
+                                  <label for="32f6de8d-dfa2-407a-bb43-cac4a6ece0b5_skype" style="vertical-align: top; margin-right: 10px;">
+                                              <span class="dx-fld-title">Register name</span>
+                                          </label>
 
-                                <div class="help-block with-errors" style="position: absolute; margin-top: -2px; max-height: 20px; overflow-y: hidden;"></div>
+                                  <input class="form-control" autocomplete="off" type="text" id="32f6de8d-dfa2-407a-bb43-cac4a6ece0b5_skype" name="skype" maxlength="100" value="">
+                                  <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
 
-                            </div>
-                  <div class="form-group has-feedback dx-form-field-line col-lg-6 col-md-6 col-sm-12 col-xs-12" dx_fld_name_form="skype" data-field-id="2106">
-                                <label for="32f6de8d-dfa2-407a-bb43-cac4a6ece0b5_skype" style="vertical-align: top; margin-right: 10px;">
-                                            <span class="dx-fld-title">Item name</span>
-                                        </label>
+                                  <div class="help-block with-errors" style="position: absolute; margin-top: -2px; max-height: 20px; overflow-y: hidden;"></div>
 
-                                <input class="form-control" autocomplete="off" type="text" id="32f6de8d-dfa2-407a-bb43-cac4a6ece0b5_skype" name="skype" maxlength="100" value="">
-                                <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                              </div>
+                    <div class="form-group has-feedback dx-form-field-line col-lg-12 col-md-12 col-sm-12 col-xs-12" dx_fld_name_form="skype" data-field-id="2106">
+                                  <label for="32f6de8d-dfa2-407a-bb43-cac4a6ece0b5_skype" style="vertical-align: top; margin-right: 10px;">
+                                              <span class="dx-fld-title">Item name</span>
+                                          </label>
 
-                                <div class="help-block with-errors" style="position: absolute; margin-top: -2px; max-height: 20px; overflow-y: hidden;"></div>
+                                  <input class="form-control" autocomplete="off" type="text" id="32f6de8d-dfa2-407a-bb43-cac4a6ece0b5_skype" name="skype" maxlength="100" value="">
+                                  <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
 
-                            </div>
-                  @include('constructor.menu_field')
-              </div>
-                <div class="inbox">
+                                  <div class="help-block with-errors" style="position: absolute; margin-top: -2px; max-height: 20px; overflow-y: hidden;"></div>
+
+                              </div>
+                </div>
+                  
+                <div class="row dx-panel-navigation" style='width: 70%; margin: 0 auto;'>                  
+                    @include('constructor.menu_field')
+                </div>
+                  
+                <div class="inbox dx-panel-fields">
                     
                   <div class="row">
                     <div class="col-md-3">
@@ -120,7 +240,16 @@
                     <div class="col-md-9">    
                         @include('constructor.form_cells')
                     </div>
-                  </div>
+                  </div>                  
+                    
+                </div>
+                @include('constructor.roles')
+                <br><br>
+                <hr>
+                <div style='text-align: center;'>
+                    <button type="button" class="btn btn-primary dx-wizard-btn" style='margin: 0 auto;' data-current-step='dx-step-naming' data-next-step='dx-step-fields'>
+                          Save & next <i class="fa fa-arrow-right"></i>
+                    </button>
                 </div>
           </div>
         </div>   

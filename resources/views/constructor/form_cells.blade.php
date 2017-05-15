@@ -1,6 +1,8 @@
 {{-- of course make here foreach and must be that dynamyc with Javascript addes new row if needed --}}
 <div style="margin-right: 15px">
-    <h4>Form fields</h4>    
+    <h4>Form fields <button type="button" class="btn btn-white dx-preview-btn pull-right" style='margin-right: -15px; margin-top: -15px;'>
+                      <i class="fa fa-search"></i> Preview form
+                </button>  </h4>    
     <div class="row">
         <div class="dx-constructor-cell dx-cms-nested-list col-lg-3 dd">
             <ol class="dd-list">
@@ -133,9 +135,4 @@
             <ol class="dd-list"></ol>
         </div>
     </div>
-    <hr>
-    <h4>Roles <a class="btn btn-primary btn-sm" href='javascript:;' style="font-size: 12px;"><i class='fa fa-plus-circle'></i> Add new role</a></h4>
-    <a href="javascript:;" ><i class="fa fa-key"></i> System administrators</a>&nbsp; <label class="badge badge-default">Can edit</label>&nbsp;<label class="badge badge-default">Can add new</label>&nbsp;<label class="badge badge-default">Can delete</label><br>
-    <a href="javascript:;" ><i class="fa fa-key"></i> IT department</a>&nbsp; <label class="badge badge-default">Can edit</label>&nbsp;<label class="badge badge-default">Can add new</label>&nbsp;<label class="badge badge-default">Can delete</label><br>
-    <a href="javascript:;" ><i class="fa fa-key"></i> Some example role name</a>&nbsp; <label class="badge badge-default">Can edit</label>&nbsp;<label class="badge badge-default">Can add new</label>
-</div>
+    </div>
