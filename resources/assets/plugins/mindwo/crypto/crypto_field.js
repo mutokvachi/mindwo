@@ -8,7 +8,17 @@
     {
         return this.each(function ()
         {
+            if ($(this).data('dx_is_init') == 1) {
+                return;
+            }
+
             this.crypto = new $.DxCryptoField($(this));
+
+            if (window.DxCrypto.certificate &&
+                    window.DxCrypto.certificate.privateKey &&
+                    $(this).data('is-decrypted') != 1) {
+                window.DxCrypto.decryptFields($(this));
+            }
         });
     };
 
@@ -38,10 +48,6 @@
         init: function () {
             var self = this;
 
-            if (self.domObject.data('dx_is_init') == 1) {
-                return;
-            }
-
             self.domObject.data('dx_is_init', 1);
 
             self.addDecryptButton();
@@ -52,7 +58,7 @@
          */
         addDecryptButton: function () {
             var self = this;
-            
+
             self.domObject.hide();
 
             var button = $('<button class="btn btn-xs default dx-crypto-decrypt-btn"> ' +
