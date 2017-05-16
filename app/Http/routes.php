@@ -173,7 +173,8 @@ Route::group(['prefix' => 'crypto', 'namespace' => 'Crypto'], function() {
         Route::get('/user_panel', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@getUserPanelView'));   
         Route::get('/get_user_cert/{user_id?}/{master_key_group_id?}', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@getUserCertificate'));    
         Route::get('/check_existing_keys/{master_key_group_id?}', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@hasExistingKeys'));    
-        Route::post('/save_cert', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@saveUserCertificate'));   
+        Route::post('/save_cert', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@saveUserCertificate'));
+        Route::get('/pending_data/{master_key_group_id?}', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@prepareRecrypt'));
 });
 
 // Lietotāji - autorizācija, atslēgšanās

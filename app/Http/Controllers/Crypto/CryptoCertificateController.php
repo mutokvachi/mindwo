@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Crypto;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Crypto;
+use DB;
 
 /**
  * Controlls certificate generation
@@ -145,5 +146,161 @@ class CryptoCertificateController extends Controller
         $cert->save();
 
         return response()->json(['success' => 1]);
+    }
+
+    /**
+     * Prepares data to be recrypted with new master key
+     * @param int $masterKeyGroupId Master key groups ID
+     * @return array Data which must pe recrypted
+     */
+    public function prepareRecrypt($masterKeyGroupId)
+    {
+        $masterKeyGroup = \App\Models\Crypto\MasterkeyGroup::find($masterKeyGroupId);
+
+        if (!$masterKeyGroup) {
+            return response()->json(['success' => 0, 'msg' => trans('crypto.e_masterkey_group_not_exists')]);
+        }
+
+        \App\Models\Crypto\Cache::where('master_key_group_id', $masterKeyGroupId)
+                ->delete();
+        
+        
+
+        $cryptoFields = $this->retrieveCryptedFieldsByMasterKey($masterKeyGroupId);
+
+        $this->createCryptedDataCache($cryptoFields, $masterKeyGroupId);
+
+        $cachedDataCount = $this->getCachedRowCount($masterKeyGroupId);
+
+        $pendingData = $this->getPendingData($masterKeyGroupId);
+
+        return response()->json(['success' => 1, 'pendingData' => $pendingData, 'cachedDataCount' => $cachedDataCount]);
+    }
+
+    /**
+     * Retrieves all columns which must be recrypted
+     * @param int $masterKeyGroupId Master key groups ID
+     * @return type
+     */
+    private function retrieveCryptedFieldsByMasterKey($masterKeyGroupId)
+    {
+        $cryptoFields = \DB::table('dx_lists AS l')
+                ->selectRaw('l.id list_id, o.db_name as table_name, f.db_name as column_name, case when f.type_id = 12 then 1 else 0 end as is_file')
+                ->leftJoin('dx_objects AS o', 'o.id', '=', 'l.object_id')
+                ->leftJoin('dx_lists_fields AS f', 'f.list_id', '=', 'l.id')
+                ->where('f.is_crypted', 1)
+                ->where('l.masterkey_group_id', $masterKeyGroupId)
+                ->get();
+
+        return $cryptoFields;
+    }
+
+    /**
+     * Creates cache of records which must be recrypted
+     * @param type $cryptoFields
+     * @param int $masterKeyGroupId Master key groups ID
+     * @return type
+     */
+    private function createCryptedDataCache($cryptoFields, $masterKeyGroupId)
+    {
+        $data_array = array();
+
+        $item_lock = array();
+
+        foreach ($cryptoFields as $cryptoField) {
+            $cryptoField->column_name = $this->getFileGuidColumn($cryptoField);
+
+            $data = \DB::table($cryptoField->table_name)
+                    ->select('id', $cryptoField->column_name . ' as value')
+                    ->whereNotNull($cryptoField->column_name)
+                    ->get();
+
+            foreach ($data as $dataRow) {
+                if (!$this->isRowInCryptoCache($cryptoField->table_name, $cryptoField->column_name, $dataRow->id)) {
+                    $data_array[] = array(
+                        'master_key_group_id' => $masterKeyGroupId,
+                        'ref_table' => $cryptoField->table_name,
+                        'ref_column' => $cryptoField->column_name,
+                        'ref_id' => $dataRow->id,
+                        'is_file' => $cryptoField->is_file,
+                        'old_value' => $dataRow->value
+                    );
+                }
+
+                if (!\App\Libraries\DBHelper::isItemLockedStatus($cryptoField->list_id, $dataRow->id)) {
+                    $item_lock[] = array(
+                        'list_id' => $cryptoField->list_id,
+                        'item_id' => $dataRow->id,
+                        'user_id' => \Auth::user()->id,
+                        'locked_time' => date('Y-n-d H:i:s')
+                    );
+                }
+            }
+        }
+
+        DB::transaction(function () use ($data_array, $item_lock) {
+            \App\Models\Crypto\Cache::insert($data_array);
+            \DB::table('dx_locks')->insert($item_lock);
+        });
+
+        return $data_array;
+    }
+
+    /**
+     * Gets file columns guid column from name column
+     * @param string $cryptoField
+     * @return string File guid column name
+     */
+    private function getFileGuidColumn($cryptoField)
+    {
+        if ($cryptoField->is_file == 1) {
+            $cryptoField->column_name = str_replace('_name', '_guid', $cryptoField->column_name);
+        }
+
+        return $cryptoField->column_name;
+    }
+
+    /**
+     * Check if data row has been put into crypto cache
+     * @param string $ref_table Reference table
+     * @param string $ref_column Reference column
+     * @param string $ref_id Reference ID
+     * @return boolean True of false if data row is in cache
+     */
+    private function isRowInCryptoCache($ref_table, $ref_column, $ref_id)
+    {
+        $cryptoCacheData = \App\Models\Crypto\Cache::where('ref_table', $ref_table)
+                ->where('ref_column', $ref_column)
+                ->where('ref_id', $ref_id)
+                ->count();
+
+        return $cryptoCacheData > 0 ? true : false;
+    }
+
+    /**
+     * Get count of how many data rows has been recrypted
+     * @param int $masterKeyGroupId Master key groups ID
+     */
+    private function getCachedRowCount($masterKeyGroupId)
+    {
+
+        \App\Models\Crypto\Cache::where('master_key_group_id', $masterKeyGroupId)
+                ->whereNotNull('new_value')
+                ->count();
+    }
+
+    /**
+     * Gets data which must be recrypted with new master key
+     * @param int $masterKeyGroupId Master key groups ID
+     * @return \App\Models\Crypto\Cache Data to recrypt
+     */
+    private function getPendingData($masterKeyGroupId)
+    {
+        return \App\Models\Crypto\Cache::where('master_key_group_id', $masterKeyGroupId)
+                        ->whereNull('new_value')
+                        ->orderBy('ref_table', 'asc')
+                        ->orderBy('ref_column', 'asc')
+                        ->orderBy('ref_id', 'asc')
+                        ->get();
     }
 }
