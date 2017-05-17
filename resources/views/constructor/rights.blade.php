@@ -1,4 +1,6 @@
-<div class="row dx-panel-roles" style='width: 70%; margin: 0 auto;'>
+@extends('constructor.common')
+
+@section('constructor_content')
   <div class="col-md-12">
     <div class='table-scrollable'>
       <table class="table table-bordered table-hover">
@@ -28,4 +30,4 @@
     <a class="btn btn-primary btn-sm" href='javascript:;' style="font-size: 12px;"><i class='fa fa-plus-circle'></i> Add
       new role</a>
   </div>
-</div>
+@endsection

@@ -110,7 +110,7 @@ return [
     
     'employee_name_exception' => "Employee name '%s' can't be splited as first name and last name",
     
-    'unsuported_action_code' => "Unsuported form's action code '%s'!",
+    'unsuported_action_code' => "Unsupported form's action code '%s'!",
     
     'wrong_date_format' => "Data can't be saved! Wrong date format for the field '%s'. Date must be in format %s!",
     
@@ -135,7 +135,9 @@ return [
     'no_rights_on_reports' => "Report does not exist or You do not have rights to access reports!",
     
     'no_rights_on_meetings' => "Meeting does not exist or You do not have rights to access meeting!",
-    
+
+	'no_rights_on_constructor' => "Register does not exist or You do not have rights to access constructor!",
+	
     'phone_format_err' => "Phone number can contain only numbers!",
     
     'lookup_sql_error' => "SQL error for the lookup field '%s'!",

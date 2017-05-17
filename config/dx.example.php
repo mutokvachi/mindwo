@@ -355,6 +355,10 @@ return [
             // Path for storing thumbnails, relative to public directory
             'thumbnail_path' => 'formated_img/mail_thumbn',
     ],
+	
+	'constructor' => [
+		'access_role_id' => 1,
+	],
     
     /*
     |--------------------------------------------------------------------------

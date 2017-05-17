@@ -132,11 +132,6 @@ Route::group(['middleware' => 'auth', 'prefix' => 'meetings', 'namespace' => 'Me
     Route::post('/get_agendas_list', 'MeetingsController@getAgendasList');
 });
 
-Route::group(['middleware' => 'auth', 'prefix' => 'constructor', 'namespace' => 'Constructor'], function() {
-    Route::get('/register/new', 'RegisterController@getNewConstructor');
-    Route::get('/register/{list_id}', array('as' => 'register_constructor', 'uses' => 'RegisterController@getEditConstructor'));
-});
-
 // Startē procesu forsēti
 Route::get('/force_process/{id}', array('as' => 'force_process', 'middleware' => 'auth', 'uses' => 'ProcessController@forceProcess'));
 
@@ -264,6 +259,20 @@ Route::group(['middleware' => ['auth', 'mail_access'], 'prefix' => 'mail'], func
 });
 
 Route::post('theme/select/{id}', ['middleware' => 'auth_ajax', 'uses' => 'ThemeController@select']);
+
+Route::group(['middleware' => ['auth', 'constructor_access'], 'prefix' => 'constructor', 'namespace' => 'Constructor'], function() {
+	Route::get('/register', ['as' => 'register_index', 'uses' => 'RegisterController@index']);
+	Route::get('/register/create', ['as' => 'register_create', 'uses' => 'RegisterController@create']);
+	Route::post('/register', ['as' => 'register_store', 'uses' => 'RegisterController@store']);
+	Route::get('/register/{id}', ['as' => 'register_edit', 'uses' => 'RegisterController@edit']);
+	Route::put('/register/{id}', ['as' => 'register_update', 'uses' => 'RegisterController@update']);
+	Route::get('/register/{id}/fields', ['as' => 'register_edit_fields', 'uses' => 'RegisterController@editFields']);
+	Route::put('/register/{id}/fields', ['as' => 'register_update_fields', 'uses' => 'RegisterController@updateFields']);
+	Route::get('/register/{id}/rights', ['as' => 'register_edit_rights', 'uses' => 'RegisterController@editRights']);
+	Route::put('/register/{id}/rights', ['as' => 'register_update_rights', 'uses' => 'RegisterController@updateRights']);
+	Route::get('/register/{id}/menu', ['as' => 'register_edit_menu', 'uses' => 'RegisterController@editMenu']);
+	Route::put('/register/{id}/menu', ['as' => 'register_update_menu', 'uses' => 'RegisterController@updateMenu']);
+});
 
 // Lapas
 /*
