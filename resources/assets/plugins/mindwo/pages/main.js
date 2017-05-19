@@ -700,6 +700,7 @@ var PageMain = function()
         
         if (!err_txt) {
             // unknown error
+            console.log('Unknown AJAX error. XHR info: status = ' + xhr.status  + '; txt = ' + xhr.responseText);
             err_txt = DX_CORE.trans_general_error;
         }
         

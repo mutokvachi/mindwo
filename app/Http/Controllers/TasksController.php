@@ -559,6 +559,7 @@ class TasksController extends Controller
                         })
                         ->where('ur.role_id', '=', $role_id)
                         ->whereNull('t.id')
+                        ->whereNotIn('u.id', Config::get('dx.empl_ignore_ids', []))
                         ->union($users_by_id)
                         ->get();
         }
