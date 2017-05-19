@@ -52,6 +52,11 @@ class SendMonitoringMail extends Job implements ShouldQueue
      */
     public function handle(Mailer $mailer)
     {
+        if (!filter_var($this->arr_data['email'], FILTER_VALIDATE_EMAIL)) {
+            \Log::info("Email sending error. Not valid e-mail address. Data: " . json_encode($this->arr_data));
+            return; // no valid email address provided
+        }
+        
         $mailer->send(
                 $this->blade_mail, $this->arr_data, function ($message)
                 {
