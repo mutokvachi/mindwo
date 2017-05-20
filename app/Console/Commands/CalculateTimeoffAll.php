@@ -48,7 +48,7 @@ class CalculateTimeoffAll extends Command
             }
             catch(Exceptions\DXCustomException $e)
             {
-                $err = "Employee id " . $user->id . " error: " . $e->getMessage();
+                $err = "Timeoff calculation error for employee with ID " . $user->id . ". Error: " . $e->getMessage();
                 $this->warn($err);
                 \Log::info($err);
             }
