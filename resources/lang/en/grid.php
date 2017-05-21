@@ -96,4 +96,6 @@ return [
     
     'lbl_total' => 'Total',
     
+    'excel_description' => 'Data export from %s',
+    'excel_sheet' => 'Data',
 ];

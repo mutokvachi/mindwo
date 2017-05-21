@@ -136,24 +136,29 @@ class GridController extends Controller
         $view_row = getViewRowByID($request->url(), $view_id);
 
         $view_obj = DataView\DataViewFactory::build_view('Excel', $view_row->id);
-
-        Excel::create($view_obj->getViewTitle(), function($excel) use ($view_obj)
+        $view_title = $view_obj->getViewTitle();
+        
+        Excel::create($view_title, function($excel) use ($view_obj, $view_title)
         {
-
             // Set the title
-            $excel->setTitle('Our new awesome title');
+            $excel->setTitle($view_title);
 
+            $portal_name = get_portal_config('PORTAL_NAME');
+            
             // Chain the setters
-            $excel->setCreator('MEDUS')
-                    ->setCompany('MEDUS');
-
-            // Call them separately
-            $excel->setDescription('A demonstration to change the file properties');
-
-            $excel->sheet('Dati', function($sheet) use ($view_obj)
+            $excel->setCreator(Auth::user()->display_name)
+                    ->setCompany($portal_name);
+            
+            $excel->setDescription(sprintf(trans('grid.excel_description'), $portal_name));
+                       
+            $excel->sheet(trans('grid.excel_sheet'), function($sheet) use ($view_obj)
             {
                 $sheet->loadView('excel.table', ['htm' => $view_obj->getViewHtml()]);
-            });
+                
+                if (count($view_obj->formaters)) {
+                    $sheet->setColumnFormat($view_obj->formaters);
+                }
+            });  
             
         })->download('xlsx', [
             'Set-Cookie'  => 'fileDownload=true; path=/'

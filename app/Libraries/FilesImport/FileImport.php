@@ -54,9 +54,9 @@ namespace App\Libraries\FilesImport
         {
             $this->setTmpDir();
             
-            $this->file = $file;
+            $this->file = $file;            
             
-            $this->file_name = $this->file->getClientOriginalName();
+            $this->file_name = "import_data." . File::extension($this->file->getClientOriginalName());
             
             //save uploaded file in tmp dir
             $this->file->move($this->tmp_dir, $this->file_name);
