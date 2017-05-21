@@ -98,4 +98,7 @@ return [
     'btn_prepare_report' => 'Sagatavot atskaiti',
     
     'lbl_total' => 'Kopā',
+    
+    'excel_description' => 'Datu eksports no sistēmas %s',
+    'excel_sheet' => 'Dati',
 ];
