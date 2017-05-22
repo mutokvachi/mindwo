@@ -25,10 +25,6 @@
             <button class="btn dx-crypto-generate-new-cert-btn" style="{{ $has_cert ? '' : 'display: none;'  }}">
                 {{ trans('crypto.btn_generate_new_cert') }} <i class="fa fa-warning"></i>
             </button>
-            
-            <button class="btn dx-crypto-regen">
-                TEST Master key regen <i class="fa fa-car"></i>
-            </button>
         </div>
     </div>
     @include('pages.crypto.modal_generate_cert')

@@ -62,10 +62,6 @@
 
                 PageMain.showConfirm(self.openGenerateCertificate, null, title, body);
             });
-            
-            self.domObject.find('.dx-crypto-regen').click(function(){
-                 window.DxCrypto.regenMasterKey(1);
-            });
 
             $('#dx-crypto-modal-generate-cert').on('click', '.dx-crypto-modal-gen-accept', this.validateCertPassword);
         },

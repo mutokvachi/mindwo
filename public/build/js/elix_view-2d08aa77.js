@@ -21902,7 +21902,7 @@ $.extend(window.DxCryptoClass.prototype, {
                 'raw',
                 passwordBuffer,
                 {name: 'PBKDF2'},
-        false,
+                false,
                 ['deriveKey']
                 )
                 .then(function (baseKey) {
@@ -21927,10 +21927,10 @@ $.extend(window.DxCryptoClass.prototype, {
                     "iterations": 1000,
                     "hash": 'SHA-256'
                 },
-        baseKey,
+                baseKey,
                 {"name": 'AES-CTR', "length": 256}, // For AES the length required to be 128 or 256 bits (not bytes)
 
-        false, // Whether or not the key is extractable (less secure) or not (more secure) when false, the key can only be passed as a web crypto object, not 
+                false, // Whether or not the key is extractable (less secure) or not (more secure) when false, the key can only be passed as a web crypto object, not 
 
                 ["wrapKey", "unwrapKey"] // this web crypto object will only be allowed for these functions
                 )
@@ -21949,7 +21949,7 @@ $.extend(window.DxCryptoClass.prototype, {
                     publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
                     hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
                 },
-        true, //whether the key is extractable (i.e. can be used in exportKey)
+                true, //whether the key is extractable (i.e. can be used in exportKey)
                 ["wrapKey", "unwrapKey"] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
                 )
                 .then(function (asyncKey) {
@@ -22397,18 +22397,7 @@ $.extend(window.DxCryptoClass.prototype, {
 
         var self = window.DxCrypto;
 
-        // Import public key from raw format to CryptoKey object
-        window.crypto.subtle.importKey(
-                "spki", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
-                self.rawCertificate.publicKey,
-                {//these are the algorithm options
-                    name: "RSA-OAEP",
-                    hash: {name: "SHA-256"}, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
-                },
-                false, //whether the key is extractable (i.e. can be used in exportKey)
-                ["wrapKey"] //"encrypt" or "wrapKey" for public key import or
-                //"decrypt" or "unwrapKey" for private key imports
-                )
+        self.importPublicKey(self.rawCertificate.publicKey)
                 .then(function (publicKey) {
                     // Saves imported public key
                     window.DxCrypto.certificate = {
@@ -22435,6 +22424,25 @@ $.extend(window.DxCryptoClass.prototype, {
                 .catch(self.catchError);
     },
     /**
+     * Imports public key
+     * @param {ArrayBuffer} publicKey ArrayBuffer for public key
+     * @returns {CryptoKey} Crypto Key's object
+     */
+    importPublicKey: function (publicKey) {
+        // Import public key from raw format to CryptoKey object
+        return window.crypto.subtle.importKey(
+                "spki", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
+                publicKey,
+                {//these are the algorithm options
+                    name: "RSA-OAEP",
+                    hash: {name: "SHA-256"}, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+                },
+                false, //whether the key is extractable (i.e. can be used in exportKey)
+                ["wrapKey"] //"encrypt" or "wrapKey" for public key import or
+                //"decrypt" or "unwrapKey" for private key imports
+                );
+    },
+    /**
      * Unwraps user's private key
      * @param {CryptoKey} passwordKey Password CryptoKey object derived from password
      * @param {ArrayBuffer} wrappedPrivateKey ArrayBuffer contains private key
@@ -22452,13 +22460,13 @@ $.extend(window.DxCryptoClass.prototype, {
                     counter: new Uint8Array(16),
                     length: 128 //can be 1-128
                 },
-        {//this what you want the wrapped key to become (same as when wrapping)
-            name: "RSA-OAEP",
-            modulusLength: 2048, //can be 1024, 2048, or 4096
-            publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-            hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
-        },
-        false, //whether the key is extractable (i.e. can be used in exportKey)
+                {//this what you want the wrapped key to become (same as when wrapping)
+                    name: "RSA-OAEP",
+                    modulusLength: 2048, //can be 1024, 2048, or 4096
+                    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+                    hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+                },
+                false, //whether the key is extractable (i.e. can be used in exportKey)
                 ["unwrapKey"] //the usages you want the unwrapped key to have
                 )
                 .then(function (privateKey) {
@@ -22472,7 +22480,7 @@ $.extend(window.DxCryptoClass.prototype, {
     },
     /**
      * Unwraps master key (recursive - after unwraping one key, proceedes to next one)
-     * @param {type} counter Counts current master key which i being unwrapped
+     * @param {type} counter Counts current master key which is being unwrapped
      * @returns {Boolean} Result if operation succeeded
      */
     unwrapMasterKey: function (counter) {
@@ -22489,7 +22497,7 @@ $.extend(window.DxCryptoClass.prototype, {
 
         var masterKeyObj = self.rawMasterKeys[counter];
 
-        return   window.crypto.subtle.unwrapKey(
+        return window.crypto.subtle.unwrapKey(
                 "raw", //"jwk", "raw", "spki", or "pkcs8" (whatever was used in wrapping)
                 masterKeyObj.value, //the key you want to unwrap
                 self.certificate.privateKey, //the AES-CTR key with "unwrapKey" usage flag
@@ -22499,11 +22507,11 @@ $.extend(window.DxCryptoClass.prototype, {
                     publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
                     hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
                 },
-        {
-            name: "AES-CTR",
-            length: 256
-        },
-        true, //whether the key is extractable (i.e. can be used in exportKey)
+                {
+                    name: "AES-CTR",
+                    length: 256
+                },
+                true, //whether the key is extractable (i.e. can be used in exportKey)
                 ["encrypt", "decrypt"] //the usages you want the unwrapped key to have
                 )
                 .then(function (masterKey) {
@@ -22511,6 +22519,37 @@ $.extend(window.DxCryptoClass.prototype, {
 
                     // Iterate to next master key
                     return self.unwrapMasterKey(++counter);
+                })
+                .catch(window.DxCrypto.catchError);
+    },
+    /**
+     * Unwraps master key and returns unwrapped kye
+     * @param {ArrayBuffer} wrappedMasterKey Key you want to unwrap
+     * @returns {CryptoKey} Unwrapped master key
+     */
+    unwrapMasterKeyByValue: function (wrappedMasterKey) {
+        var self = window.DxCrypto;
+
+        return window.crypto.subtle.unwrapKey(
+                "raw", //"jwk", "raw", "spki", or "pkcs8" (whatever was used in wrapping)
+                wrappedMasterKey, //the key you want to unwrap
+                self.certificate.privateKey, //the AES-CTR key with "unwrapKey" usage flag
+                {//these are the wrapping key's algorithm options
+                    name: "RSA-OAEP",
+                    modulusLength: 2048, //can be 1024, 2048, or 4096
+                    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+                    hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+                },
+                {
+                    name: "AES-CTR",
+                    length: 256
+                },
+                true, //whether the key is extractable (i.e. can be used in exportKey)
+                ["encrypt", "decrypt"] //the usages you want the unwrapped key to have
+                )
+                .then(function (masterKey) {
+                    // Iterate to next master key
+                    return masterKey;
                 })
                 .catch(window.DxCrypto.catchError);
     },
@@ -22597,25 +22636,34 @@ $.extend(window.DxCryptoClass.prototype, {
                     name: "AES-CTR",
                     length: 256 //can be  128, 192, or 256
                 },
-        true, //whether the key is extractable (i.e. can be used in exportKey)
+                true, //whether the key is extractable (i.e. can be used in exportKey)
                 ["encrypt", "decrypt"] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
                 )
                 .then(function (masterKey) {
                     rawMasterKey = masterKey;
 
-                    return window.crypto.subtle.wrapKey(
-                            "raw", //the export format, must be "raw" (only available sometimes)
-                            masterKey, //the key you want to wrap, must be able to fit in RSA-OAEP padding
-                            publicKey, //the public key with "wrapKey" usage flag
-                            {//these are the wrapping key's algorithm options
-                                name: "RSA-OAEP",
-                                hash: {name: "SHA-256"}
-                            });
+                    return window.DxCrypto.wrapMasterKey(publicKey, masterKey);
                 })
                 .then(function (wrappedMasterKey) {
                     callback(wrappedMasterKey, rawMasterKey);
                 })
                 .catch(window.DxCrypto.catchError);
+    },
+    /**
+     * 
+     * @param {CryptoKey} publicKey Key which will be used to wrap master key
+     * @param {CryptoKey} masterKey Master key which will be wrapped
+     * @returns {ArrayBuffer} Master key which is generated
+     */
+    wrapMasterKey: function (publicKey, masterKey) {
+        return window.crypto.subtle.wrapKey(
+                "raw", //the export format, must be "raw" (only available sometimes)
+                masterKey, //the key you want to wrap, must be able to fit in RSA-OAEP padding
+                publicKey, //the public key with "wrapKey" usage flag
+                {//these are the wrapping key's algorithm options
+                    name: "RSA-OAEP",
+                    hash: {name: "SHA-256"}
+                });
     },
     /**
      * Generates master key for user in specified master key group
@@ -22730,6 +22778,64 @@ $.extend(window.DxCryptoClass.prototype, {
 
             btnSave.click();
         });
+    }
+});
+
+window.DxCrypto = new window.DxCryptoClass();
+
+/**
+ * Crypto library which encrypt and decrypt data
+ * @returns {window.DxCryptoRegenClass}
+ */
+window.DxCryptoRegenClass = function () {
+    this.regenRecordTotalProcessedCounter = 0;
+    this.regenRecordTotalCount = 0;
+    this.regenRecordProcessedCount = 0;
+    this.regenProcessId = 0;
+    this.masterKeyGroupId = 0;
+    this.regenCache;
+    this.regenCancel = false;
+    this.newMasterKey;
+    this.wrappedMasterKeys = {};
+};
+
+/**
+ * Extends crypto library prototype
+ * @param {object} param1 Crypto library
+ * @param {function} param2 Extended functionality
+ */
+$.extend(window.DxCryptoRegenClass.prototype, {
+    catchError: function (err) {
+        var self = window.DxCryptoRegen;
+
+        self.resetRegenTempData();
+
+        self.cancelProcess();
+
+        $('#dx-crypto-modal-regen-masterkey').modal('hide');
+
+        window.DxCrypto.catchError(err);
+    },
+    resetRegenTempData: function () {
+        var self = window.DxCryptoRegen;
+
+        self.regenRecordTotalProcessedCounter = 0;
+        self.regenRecordTotalCount = 0;
+        self.regenRecordProcessedCount = 0;
+        self.regenProcessId = 0;
+        self.masterKeyGroupId = 0;
+        self.regenCache = undefined;
+        self.newMasterKey = undefined;
+        self.wrappedMasterKeys = {};
+        self.regenCancel = false;
+
+        var modal = $('#dx-crypto-modal-regen-masterkey');
+
+        var bar = modal.find('.dx-crypto-modal-regen-progress-bar');
+        bar.attr('aria-valuenow', 0);
+        bar.attr('aria-valuemax', 100);
+        bar.width(0 + '%');
+
     },
     /**
      * Generate new masterkey and regenrate data
@@ -22737,77 +22843,208 @@ $.extend(window.DxCryptoClass.prototype, {
      * @returns {Boolean}
      */
     regenMasterKey: function (masterKeyGroupId) {
-        var self = window.DxCrypto;
+        var self = window.DxCryptoRegen;
 
-        if (!self.certificate || !self.certificate.publicKey || !self.certificate.privateKey) {
+        self.resetRegenTempData();
+
+        self.masterKeyGroupId = masterKeyGroupId;
+
+        show_page_splash(1);
+
+        if (!window.DxCrypto.certificate || !window.DxCrypto.certificate.publicKey || !window.DxCrypto.certificate.privateKey) {
             // Retrieves certificate and calls this function again
-            self.getCurrentUserCertificate(0, function () {
-                self.regenMasterKey(masterKeyGroupId)
+            window.DxCrypto.getCurrentUserCertificate(0, function () {
+                self.regenMasterKey(self.masterKeyGroupId);
             });
             return false;
         }
 
-        if (!(masterKeyGroupId in self.masterKeyGroups)) {
-            self.catchError(null, Lang.get('crypto.e_missing_masterkey'));
+        if (!(self.masterKeyGroupId in window.DxCrypto.masterKeyGroups)) {
+            window.DxCrypto.catchError(null, Lang.get('crypto.e_missing_masterkey'));
             return false;
         }
 
-        self.showRegenProgress();
+        self.regenCancel = false;
 
-        // Generates new master key for current user
-        self.generateNewMasterKey(window.DxCrypto.certificate.publicKey, function (wrappedMasterKey, rawMasterKey) {
-            hide_page_splash(1);
-
-            self.retrieveEncryptedData(masterKeyGroupId, rawMasterKey);
-        });
+        self.checkExistingRecrypt();
     },
     /**
-     * Gets encrypted data from server
-     * @param {int} masterKeyGroupId Master key group's ID
-     * @param {CryptoKey} newMasterKey Master key's CryptoKey object
+     * Find if there already exist recryption process in progress
      * @returns {undefined}
      */
-    retrieveEncryptedData: function (masterKeyGroupId, newMasterKey) {
-        var self = window.DxCrypto;
+    checkExistingRecrypt: function () {
+        var self = window.DxCryptoRegen;
+
+        show_page_splash(1);
 
         $.ajax({
-            url: DX_CORE.site_url + 'crypto/pending_data/' + masterKeyGroupId,
+            url: DX_CORE.site_url + 'crypto/check_regen/' + self.masterKeyGroupId,
             type: "get",
             dataType: "json",
             success: function (res) {
                 if (res && res.success && res.success == 1) {
-                    self.recryptData(masterKeyGroupId, res.pendingData, res.cachedDataCount, newMasterKey, 0);
+
+                    if (res.process_id && res.process_id != 0) {
+                        hide_page_splash(1);
+
+                        var title = Lang.get('crypto.regen_process_exist');
+                        var body = Lang.get('crypto.w_regen_process_exist');
+                        var btn_yes = Lang.get('form.btn_yes');
+                        var btn_no = Lang.get('form.btn_no');
+
+                        var acceptFunc = function () {
+                            show_page_splash(1);
+                            self.continueReencryption(res.process_id);
+                        };
+
+                        var declineFunc = function () {
+                            show_page_splash(1);
+                            self.generateNewMasterKey();
+                        };
+
+                        PageMain.showConfirm(acceptFunc, null, title, body, btn_yes, btn_no, declineFunc);
+                    } else {
+                        self.generateNewMasterKey();
+                    }
                 } else {
-                    self.catchError(null);
+                    window.DxCryptoRegen.catchError(null);
                 }
             },
             error: function (err) {
-                self.catchError(err);
+                window.DxCryptoRegen.catchError(err);
             }
         });
     },
-    recryptData: function (masterKeyGroupId, pendingData, cachedDataCount, newMasterKey, rowNum) {
-        var self = window.DxCrypto;
+    /**
+     * Continues existing reencryption process
+     * @param {int} regenProcessId Data regeneration (reencryption) process' id 
+     * @returns {undefined}
+     */
+    continueReencryption: function (regenProcessId) {
+        var self = window.DxCryptoRegen;
 
-        self.updateRegenProgress(rowNum + cachedDataCount, pendingData.length + cachedDataCount);
+        self.showRegenProgress();
+        hide_page_splash(1);
+        self.updateRegenStatus(Lang.get('crypto.i_gathering_data'));
+
+        self.retrieveEncryptedData(regenProcessId, '');
+    },
+    /**
+     * Generates new master key and starts new encryption process
+     * @returns {undefined}
+     */
+    generateNewMasterKey: function () {
+        var self = window.DxCryptoRegen;
+
+        show_page_splash(1);
+
+        // Generates new master key for current user
+        window.DxCrypto.generateNewMasterKey(window.DxCrypto.certificate.publicKey, function (wrappedMasterKey, rawMasterKey) {
+            self.newMasterKey = rawMasterKey;
+
+            self.showRegenProgress();
+            hide_page_splash(1);
+            self.updateRegenStatus(Lang.get('crypto.i_gathering_data'));
+
+            var masterKeyHex = window.DxCrypto.arrayBufferToHexString(wrappedMasterKey);
+
+            self.retrieveEncryptedData(0, masterKeyHex);
+
+        });
+    },
+    /**
+     * Gets encrypted data from server
+     * @param {int} regenProcessId Data regeneration (reencryption) process' id 
+     * @param {CryptoKey} newWrappedMasterKey Master key's CryptoKey object
+     * @returns {undefined}
+     */
+    retrieveEncryptedData: function (regenProcessId, newWrappedMasterKey) {
+        var self = window.DxCryptoRegen;
+
+        if (!self.validateProgress()) {
+            return false;
+        }
+
+        var url = DX_CORE.site_url + 'crypto/pending_data/' + regenProcessId + '/' + self.masterKeyGroupId + '/' + (self.newMasterKey ? 0 : 1) + '/' + newWrappedMasterKey;
+
+        $.ajax({
+            url: url,
+            type: "get",
+            dataType: "json",
+            success: function (res) {
+                if (res && res.success && res.success == 1) {
+                    self.regenRecordTotalProcessedCounter = res.cachedDataCount ? res.cachedDataCount : 0;
+                    self.regenRecordTotalCount = res.totalDataCount ? res.totalDataCount : 0;
+                    self.regenRecordProcessedCount = 0;
+                    self.regenCache = new FormData();
+                    self.regenProcessId = res.regenProcessId;
+
+                    // If master key received unwraps it and then continues
+                    if (res.masterKey && res.masterKey != '') {
+                        var wrappedMasterKey = window.DxCrypto.hexStringToArrayBuffer(res.masterKey);
+
+                        window.DxCrypto.unwrapMasterKeyByValue(wrappedMasterKey)
+                                .then(function (masterKey) {
+                                    self.newMasterKey = masterKey;
+
+                                    self.recryptData(res.pendingData);
+                                })
+                                .catch(self.catchError);
+                        ;
+                    } else {
+                        self.recryptData(res.pendingData);
+                    }
+                } else {
+                    window.DxCryptoRegen.catchError(null);
+                }
+            },
+            error: function (err) {
+                window.DxCryptoRegen.catchError(err);
+            }
+        });
+    },
+    recryptData: function (pendingData) {
+        var self = window.DxCryptoRegen;
+
+        for (var i = 0; i < pendingData.length; i++) {
+            self.recryptDataRow(pendingData, i);
+        }
+
+        // All already done
+        if (pendingData.length <= 0) {
+            // Starts to wrap new master key with user public keys. First must retrieve all public keys from data base
+            self.getAllUserPublicKeys();
+        }
+    },
+    onRecryptedDataRow: function (resBuffer, record, batchSize) {
+        var self = window.DxCryptoRegen;
+        var newValue;
+
+        if (record.is_file == 1) {
+            newValue = new Blob([new Uint8Array(resBuffer)], {type: "application/octet-stream"});
+        } else {
+            newValue = window.DxCrypto.arrayBufferToHexString(resBuffer);
+        }
+
+        ++self.regenRecordTotalProcessedCounter;
+        ++self.regenRecordProcessedCount;
+
+        self.updateRegenProgress();
+
+        self.regenCache.append(record.id, newValue);
+
+        if (self.regenRecordProcessedCount >= batchSize) {
+            self.postCache();
+        }
+    },
+    recryptDataRow: function (pendingData, rowNum) {
+        var self = window.DxCryptoRegen;
+
+        if (!self.validateProgress()) {
+            return false;
+        }
 
         var record = pendingData[rowNum];
-
-        var callback = function (resBuffer) {
-            if (record.is_file == 1) {
-                record.new_value = new Blob([new Uint8Array(resBuffer)], {type: "application/octet-stream"});
-            } else {
-                record.new_value = self.arrayBufferToHexString(resBuffer);
-            }
-
-            if (++rowNum < pendingData.length) {
-                self.recryptData(masterKeyGroupId, pendingData, cachedDataCount, newMasterKey, rowNum);
-            } else {
-                alert('done');
-            }
-        };
-
-
 
         if (record.is_file == 1) {
             var xhr = new XMLHttpRequest();
@@ -22823,22 +23060,32 @@ $.extend(window.DxCryptoClass.prototype, {
 
                     //callback(arrayBuffer, xhr.response.type);
 
-                    self.encryptDecryptData(masterKeyGroupId, newMasterKey, oldValue, callback);
+                    self.encryptDecryptData(oldValue, function (resBuffer) {
+                        self.onRecryptedDataRow(resBuffer, record, pendingData.length);
+                    });
                 };
             };
-            xhr.open('GET', DX_CORE.site_url + 'download_by_guid_' + record.old_value);
+            xhr.open('GET', DX_CORE.site_url + 'download_by_field_' + record.old_value);
             xhr.responseType = 'blob';
             xhr.send();
 
         } else {
-            var oldValue = self.hexStringToArrayBuffer(record.old_value);
+            var oldValue = window.DxCrypto.hexStringToArrayBuffer(record.old_value);
 
-            self.encryptDecryptData(masterKeyGroupId, newMasterKey, oldValue, callback);
+            self.encryptDecryptData(oldValue, function (resBuffer) {
+                self.onRecryptedDataRow(resBuffer, record, pendingData.length);
+            });
         }
     },
-    encryptDecryptData: function (masterKeyGroupId, newMasterKey, oldValue, callback) {
+    encryptDecryptData: function (oldValue, callback) {
+        var self = window.DxCryptoRegen;
+
         var counterBuffer = oldValue.subarray(0, 16);
         var resBuffer = oldValue.subarray(16, oldValue.length);
+
+        if (!self.validateProgress()) {
+            return false;
+        }
 
         window.crypto.subtle.decrypt(
                 {
@@ -22846,10 +23093,14 @@ $.extend(window.DxCryptoClass.prototype, {
                     counter: counterBuffer, //The same counter you used to encrypt
                     length: 128, //The same length you used to encrypt
                 },
-                window.DxCrypto.masterKeyGroups[masterKeyGroupId], //from generateKey or importKey above
+                window.DxCrypto.masterKeyGroups[self.masterKeyGroupId], //from generateKey or importKey above
                 resBuffer //ArrayBuffer of the data
                 )
                 .then(function (decryptedValue) {
+                    if (!self.validateProgress()) {
+                        return false;
+                    }
+
                     // ENCRYPT DECRYPTED DATA WITH NEW MASTERKEY
                     var counterBuffer = new Uint8Array(16);
 
@@ -22861,11 +23112,15 @@ $.extend(window.DxCryptoClass.prototype, {
                                 counter: counterBuffer,
                                 length: 128, //can be 1-128
                             },
-                            newMasterKey, //from generateKey or importKey above
+                            window.DxCryptoRegen.newMasterKey, //from generateKey or importKey above
                             decryptedValue //ArrayBuffer of the data
                             );
                 })
                 .then(function (encryptedValue) {
+                    if (!self.validateProgress()) {
+                        return false;
+                    }
+
                     encryptedValue = new Uint8Array(encryptedValue);
 
                     var resBuffer = new Uint8Array(encryptedValue.length + counterBuffer.length);
@@ -22874,7 +23129,55 @@ $.extend(window.DxCryptoClass.prototype, {
 
                     callback(resBuffer);
                 })
-                .catch(window.DxCrypto.catchError);
+                .catch(window.DxCryptoRegen.catchError);
+    },
+    postCache: function () {
+        var self = window.DxCryptoRegen;
+
+        if (!self.validateProgress()) {
+            return false;
+        }
+
+        $.ajax({
+            url: DX_CORE.site_url + 'crypto/save_regen_cache',
+            data: self.regenCache,
+            type: "post",
+            processData: false,
+            dataType: "json",
+            contentType: false,
+            success: function (res) {
+                if (res && res.success) {
+                    if (self.regenRecordTotalProcessedCounter >= self.regenRecordTotalCount) {
+                        // Starts to wrap new master key with user public keys. First must retrieve all public keys from data base
+                        self.getAllUserPublicKeys();
+                    } else {
+                        self.retrieveEncryptedData(self.regenProcessId, self.masterKeyGroupId, '');
+                    }
+                } else {
+                    self.catchError(res);
+                }
+            },
+            error: self.catchError
+        });
+
+        self.regenCache = new FormData();
+    },
+    /**
+     * Sets regeneration modal progress window to successful state
+     * @returns {undefined}
+     */
+    finishRegenProgress: function () {
+        var modal = $('#dx-crypto-modal-regen-masterkey');
+
+        modal.find('.dx-crypto-modal-regen-progress').hide();
+        modal.find('.dx-crypto-modal-regen-succ').show();
+        modal.find('.dx-crypto-modal-regen-btn-cancel').hide();
+        modal.find('.dx-crypto-modal-regen-btn-close').show();
+
+        var bar = modal.find('.dx-crypto-modal-regen-progress-bar');
+        bar.attr('aria-valuenow', 0);
+        bar.attr('aria-valuemax', 100);
+        bar.width(0 + '%');
     },
     /**
      * Opens dialog to show progress of data reencryption
@@ -22884,25 +23187,145 @@ $.extend(window.DxCryptoClass.prototype, {
         var modal = $('#dx-crypto-modal-regen-masterkey');
 
         modal.on('shown.bs.modal', function () {
-            modal.find('#dx-crypto-modal-gen-input-password').focus();
+            modal.find('.dx-crypto-modal-regen-progress').show();
+            modal.find('.dx-crypto-modal-regen-succ').hide();
+            modal.find('.dx-crypto-modal-regen-btn-cancel').show();
+            modal.find('.dx-crypto-modal-regen-btn-close').hide();
+        });
+
+        modal.find('.dx-crypto-modal-regen-btn-cancel').click(window.DxCryptoRegen.cancelProcess);
+
+        modal.on('hiden.bs.modal', function () {
+            window.DxCryptoRegen.cancelProcess();
         });
 
         modal.modal('show');
     },
-    updateRegenProgress: function (current, total) {
+    cancelProcess: function () {
+        var self = window.DxCryptoRegen;
+
+        self.regenCancel = true;
+        self.updateRegenStatus(Lang.get('crypto.i_cancel_regen_process'));
+    },
+    validateProgress: function () {
+        if (window.DxCryptoRegen.regenCancel) {
+            var modal = $('#dx-crypto-modal-regen-masterkey');
+
+            modal.modal('hide');
+
+            return false;
+        }
+
+        return true;
+    },
+    updateRegenProgress: function () {
+        var self = window.DxCryptoRegen;
+
         var modal = $('#dx-crypto-modal-regen-masterkey');
+
+        var current = self.regenRecordTotalProcessedCounter;
+        var total = self.regenRecordTotalCount;
 
         var bar = modal.find('.dx-crypto-modal-regen-progress-bar');
         bar.attr('aria-valuenow', current);
         bar.attr('aria-valuemax', total);
-        bar.width(current + '%');
+        bar.width((current / total * 100) + '%');
 
         var label = modal.find('.dx-crypto-modal-regen-progress-label');
-        label.html(current + '/' + total);
+        label.html(Lang.get('crypto.regen_masterkey_records_label') + ': ' + current + '/' + total);
+    },
+    updateRegenStatus: function (text) {
+        var modal = $('#dx-crypto-modal-regen-masterkey');
+
+        modal.find('.dx-crypto-modal-regen-progress-label').html(text);
+    },
+    getAllUserPublicKeys: function () {
+        var self = window.DxCryptoRegen;
+
+        if (!self.validateProgress()) {
+            return false;
+        }
+
+        self.updateRegenStatus(Lang.get('crypto.i_gathering_certs'));
+
+        $.ajax({
+            url: DX_CORE.site_url + 'crypto/get_user_public_keys',
+            type: "get",
+            success: function (res) {
+                if (res && res.success && res.user_keys) {
+                    self.updateRegenStatus(Lang.get('crypto.i_encrypting_master_keys'));
+
+                    self.wrapMasterkeys(res.user_keys, 0);
+                } else {
+                    self.catchError(res);
+                }
+            },
+            error: self.catchError
+        });
+    },
+    wrapMasterkeys: function (userKeyData, i) {
+        var self = window.DxCryptoRegen;
+
+        if (!self.validateProgress()) {
+            return false;
+        }
+
+        if (i >= userKeyData.length) {
+            self.applyCache();
+            return false;
+        }
+
+        var userKeyDataRow = userKeyData[i];
+
+        var publicKeyBuffer = new Uint8Array(window.DxCrypto.base64ToArrayBuffer(userKeyDataRow.public_key));
+
+        window.DxCrypto.importPublicKey(publicKeyBuffer)
+                .then(function (publicKey) {
+                    return window.DxCrypto.wrapMasterKey(publicKey, self.newMasterKey)
+                })
+                .then(function (wrappedMasterKey) {
+                    self.wrappedMasterKeys[userKeyDataRow.user_id] = window.DxCrypto.arrayBufferToHexString(wrappedMasterKey);
+
+                    /*{
+                     master_key : window.DxCrypto.arrayBufferToHexString(wrappedMasterKey),
+                     user_id: userKeyDataRow.user_id
+                     };*/
+
+                    self.wrapMasterkeys(userKeyData, ++i);
+                })
+                .catch(self.catchError);
+    },
+    applyCache: function () {
+        var self = window.DxCryptoRegen;
+
+        if (!self.validateProgress()) {
+            return false;
+        }
+
+        self.updateRegenStatus(Lang.get('crypto.i_saving_regen_data'));
+
+        $.ajax({
+            url: DX_CORE.site_url + 'crypto/apply_regen_cache',
+            data: {
+                regen_process_id: self.regenProcessId,
+                master_keys: self.wrappedMasterKeys
+            },
+            type: "post",
+            success: function (res) {
+                if (res && res.success) {
+                    self.finishRegenProgress();
+
+                    window.DxCrypto.masterKeyGroups[self.masterKeyGroupId] = self.newMasterKey;
+                } else {
+                    self.catchError(res);
+                }
+            },
+            error: self.catchError
+        });
     }
 });
 
-window.DxCrypto = new window.DxCryptoClass();
+window.DxCryptoRegen = new window.DxCryptoRegenClass();
 
 (function ($)
 {
@@ -23297,10 +23720,6 @@ $(document).ajaxComplete(function () {
                 var body = Lang.get('crypto.w_confirm_generate_new_cert');
 
                 PageMain.showConfirm(self.openGenerateCertificate, null, title, body);
-            });
-            
-            self.domObject.find('.dx-crypto-regen').click(function(){
-                 window.DxCrypto.regenMasterKey(1);
             });
 
             $('#dx-crypto-modal-generate-cert').on('click', '.dx-crypto-modal-gen-accept', this.validateCertPassword);

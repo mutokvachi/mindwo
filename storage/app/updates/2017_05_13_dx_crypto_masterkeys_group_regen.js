@@ -10,6 +10,6 @@
     btnRegen.click(function () {
         var masterkey_group_id = form_object.find("input[name=id]").val();
 
-        window.DxCrypto.regenMasterKey(masterkey_group_id);
+        window.DxCryptoRegen.regenMasterKey(masterkey_group_id);
     });
 })(form_object);

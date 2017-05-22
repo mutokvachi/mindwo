@@ -18,12 +18,12 @@ return [
     'btn_regen_masterkey' => 'Generate new master key',
     'regen_masterkey_label' => 'Encrypting data with new master key',
     'regen_masterkey_records_label' => 'Processed records',
-    
     'help_warning' => 'Warning!',
     'help_success' => 'Info:',
     'help_warning_text' => 'To proceed You need to generate certificate',
     'help_success_text' => 'You have generated certificate',
-    
+    'help_success_func' => 'Operation is finished',
+    'help_success_regen_text' => 'Data is successfully encrypted and saved with new master key',
     'e_unknown' => 'Uknown error',
     'e_add_yourself_first' => 'First You need to add yourslef to master key group and only then it is possible to add other users',
     'e_missing_masterkey' => "You don't have access to this master key group",
@@ -41,9 +41,15 @@ return [
     'e_masterkey_group_not_exists' => 'Master key group was not found',
     'i_save_masterkey_success' => 'Master key successfully generated and saved',
     'i_save_cert_success' => 'Certificate successfully generated and saved',
+    'i_gathering_data' => 'Gathering data...',
+    'i_gathering_certs' => "Gathering user certificates...",
+    'i_encrypting_master_keys' => 'Encrypting master keys...',
+    'i_saving_regen_data' => 'Saving data...',
+    'i_cancel_regen_process' => 'Canceling process...',
     'w_confirm_generate_new_cert' => '<b>Do You realy want to generate a new certificate?</b></br>Your access for encrypted data will be lost - access can be restored only by someone else who has access for encrypted data.',
-    
-    'db'=>[
+    'regen_process_exist' => 'Reencryption process already started',
+    'w_regen_process_exist' => 'Data reencryption process has been already started. If You choose "No", then a new reencryption process will start. </b></br><b>Do You want to continue same process?</b>',
+    'db' => [
         'user_id' => 'User',
         'master_key' => 'Master key',
         'public_key' => 'Public key',
@@ -55,5 +61,6 @@ return [
         'ref_table' => 'Related table',
         'ref_column' => 'Related column',
         'ref_id' => 'Related ID',
+        'master_key_regen' => 'Master key regeneration process',
     ]
 ];

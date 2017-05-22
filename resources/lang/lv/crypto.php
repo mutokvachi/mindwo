@@ -18,12 +18,12 @@ return [
     'btn_regen_masterkey' => 'Ģenerēt jaunu galveno atslēgu',
     'regen_masterkey_label' => 'Datu šifrēšana ar jaunu galveno atslēgu',
     'regen_masterkey_records_label' => 'Apstrādātie ieraksti',
-    
     'help_warning' => 'Uzmanību!',
     'help_success' => 'Informācija:',
     'help_warning_text' => 'Lai turpinātu, nepieciešams uzģenerēt sertifikātu',
     'help_success_text' => 'Jums ir uzģenerēts sertifikāts',
-    
+    'help_success_func' => 'Operācija izpildīta',
+    'help_success_regen_text' => 'Dati ir sekmīgi pāršifrēti un saglabāti',
     'e_unknown' => 'Nezināma kļūda',
     'e_add_yourself_first' => 'Vispirms Jums jāpievieno pašiem sevi pie galvenās atslēgas grupas un tikai tad ir iespējams pievienot citus lietotājus',
     'e_missing_masterkey' => "Jums nav pieškirta piekļuve šai galvenās atslēgas grupai",
@@ -41,9 +41,15 @@ return [
     'e_masterkey_group_not_exists' => 'Galvenās atslēgas grupa netika atrasta',
     'i_save_masterkey_success' => 'Galvenā atslēga sekmīgi uzģenerēta un saglabāta',
     'i_save_cert_success' => 'Sertifikāts sekmīgi uzģenerēts un saglabāts',
+    'i_gathering_data' => 'Atlasa datus...',
+    'i_gathering_certs' => 'Atlasa lietotāju sertifikātus...',
+    'i_encrypting_master_keys' => 'Šifrē galvenās atslēgas...',
+    'i_saving_regen_data' => 'Saglabā datus...',
+    'i_cancel_regen_process' => 'Apstādina procesu...',
     'w_confirm_generate_new_cert' => '<b>Vai Jūs tiešām vēlaties ģenerēt jaunu sertifikātu?</b></br>Jūsu pieeja šifrētiem datiem tiks zaudēta - pieeju var atjaunot tikai cits lietotājs ar tiesībām uz šifrētajiem datiem.',
-    
-    'db'=>[
+    'regen_process_exist' => 'Pāršifrēšanas process jau sācies',
+    'w_regen_process_exist' => 'Datu pāršifrēšanas process jau ir sācies. Ja Jūs izvēlaties "Nē", tad tiks uzsākts jauns pāršifrēšnas process.</b></br><b>Vai vēlaties turpināt esošo procesu?</b>',
+    'db' => [
         'user_id' => 'Lietotājs',
         'master_key' => 'Galvenā atslēga',
         'public_key' => 'Publiskā atslēga',
@@ -55,5 +61,6 @@ return [
         'ref_table' => 'Saistītā tabula',
         'ref_column' => 'Saistītā kolonna',
         'ref_id' => 'Saistītais ID',
+        'master_key_regen' => 'Galvenās atslēgas pārģenerēšanas process',
     ]
 ];
