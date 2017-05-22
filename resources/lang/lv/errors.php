@@ -143,4 +143,6 @@ return [
     'no_view_config_rights' => 'Jums nav tiesību konfigurēt šī reģistra skatus!',
     
     'form_validation_err' => "Datus nav iespējams saglabāt, jo nav norādītas obligāto lauku vērtības!",
+    
+    'no_id_field_in_import_excel' => 'Importējamajā Excel datnē nav ietverta ID kolonna. Bez ID informācijas nav iespējams identificēt ierakstus un visi ieraksti tiktu importēti kā jauni. Lūdzu, ietveriet Excel datnē ID kolonnu.',
 ];
