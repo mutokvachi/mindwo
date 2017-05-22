@@ -187,6 +187,7 @@ gulp.task('mix_all', function() {
             'datatables/plugins/bootstrap/datatables.bootstrap.js',
             'float-thead/dist/jquery.floatThead.js',
             'mindwo/crypto/crypto.js',
+            'mindwo/crypto/crypto_regen.js',
             'mindwo/crypto/crypto_field.js',
             'mindwo/crypto/crypto_file_field.js',
             'mindwo/crypto/crypto_user_panel.js',

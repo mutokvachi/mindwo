@@ -820,9 +820,10 @@ var PageMain = function()
      * @param {string} bodyText Modal body text
      * @param {string} acceptText Modal accept button text
      * @param {string} declineText Modal decline button text
+     * @param {function} declineCallback Callback function executed after declined
      * @returns {undefined}
      */
-    var showConfirm = function(callback, callbackParameters, title, bodyText, acceptText, declineText){
+    var showConfirm = function(callback, callbackParameters, title, bodyText, acceptText, declineText, declineCallback){
         if(!title){
             title = Lang.get('form.modal_confirm_title');
         }
@@ -844,9 +845,16 @@ var PageMain = function()
         
         modal.find('#mindwo-modal-label').html(title);
         modal.find('#mindwo-modal-body').html(bodyText);
-        modal.find('#mindwo-modal-decline').html(declineText);
+        
+        var decline_btn = modal.find('#mindwo-modal-decline');
+        decline_btn.html(declineText);
+        decline_btn.off('click');   
+        
+        if(declineCallback != undefined){
+            decline_btn.click(declineCallback);
+        }
          
-        var accept_btn  = modal.find('#mindwo-modal-accept')
+        var accept_btn  = modal.find('#mindwo-modal-accept');
         accept_btn.html(acceptText);
        
         accept_btn.off('click');
@@ -897,8 +905,8 @@ var PageMain = function()
         getAjaxErrTxt: function(xhr) {
             return getAjaxErrorText(xhr);
         },
-        showConfirm:function(callback, callbackParameters, title, bodyText, acceptText, declineText){
-            showConfirm(callback, callbackParameters, title, bodyText, acceptText, declineText);
+        showConfirm:function(callback, callbackParameters, title, bodyText, acceptText, declineText, declineCallback){
+            showConfirm(callback, callbackParameters, title, bodyText, acceptText, declineText, declineCallback);
         }
     };
 }();
