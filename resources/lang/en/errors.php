@@ -147,4 +147,6 @@ return [
     'no_id_field_in_import_excel' => 'There is no ID column in Excel field which is required to identify records. Please include ID column in Excel file.',
     
     'crypto_regeneration_in_process' => 'Crypted data is in re-crypting process started by :user_name. New entry adding in system is locked.',
+    
+    'view_must_have_id_field' => 'The ID field is not included in the view as column. Please, include ID field - it can be set as hidden as well.',
 ];
