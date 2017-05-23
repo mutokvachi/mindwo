@@ -188,11 +188,13 @@ class GridController extends Controller
         $table_row = FormSave::getFormTable($form_row->id);
         $fields = FormSave::getFormsFields(-1, $form_row->id);
 
+        foreach ($items_arr as $item_id) {
+            validateRelations($list_id, $item_id);
+        }
+            
         DB::transaction(function () use ($items_arr, $list_id, $table_row, $fields)
         {
             foreach ($items_arr as $item_id) {
-                validateRelations($list_id, $item_id);
-
                 \App\Libraries\Helper::deleteItem($table_row, $fields, $item_id);
             }
         });
