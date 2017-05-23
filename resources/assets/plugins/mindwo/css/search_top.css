@@ -116,3 +116,11 @@
 #dx-search-box-top-li {
     padding-top: 15px;
 }
+
+.page-boxed .top-menu ul.nav.navbar-nav {
+    margin-right: 0 !important;
+}
+
+.page-boxed .page-top {
+    padding-right: 20px;
+}

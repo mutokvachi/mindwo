@@ -32,7 +32,7 @@
   </div>
   <div class="col-md-9">
     <h4>Form fields
-      <button type="button" class="btn btn-white dx-preview-btn pull-right" style='margin-right: -15px; margin-top: -15px;'>
+      <button type="button" class="btn btn-white dx-preview-btn pull-right" style="margin-top: -15px;">
         <i class="fa fa-search"></i> Preview form
       </button>
     </h4>
