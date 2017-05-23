@@ -428,11 +428,11 @@ class FormController extends Controller
 
         validateRelations($tbl->list_id, $item_id);
         
-        DB::transaction(function () use ($form_id, $item_id, $tbl)
+        $table_row = FormSave::getFormTable($form_id);
+        $fields = FormSave::getFormsFields(-1, $form_id);
+            
+        DB::transaction(function () use ($table_row, $fields, $item_id)
         {
-            $table_row = FormSave::getFormTable($form_id);
-            $fields = FormSave::getFormsFields(-1, $form_id);
-
             \App\Libraries\Helper::deleteItem($table_row, $fields, $item_id);
         });        
 
