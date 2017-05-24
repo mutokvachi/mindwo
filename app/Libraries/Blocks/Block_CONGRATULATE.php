@@ -181,76 +181,80 @@ END;
 		$now = Carbon::now(Config::get('dx.time_zone'));
 		$user = App\User::find(Auth::user()->id);
 		
-		$this->employees = App\User::where(function ($query) use ($now)
-		{
-			$query
-				->whereMonth('birth_date', '=', $now->month)
-				->whereDay('birth_date', '=', $now->day);
-		})
-                ->orWhere(function ($query) use ($now)
-                {
-                        $now1 = $now->copy()->addDay();
-                        $query
-                                ->whereMonth('birth_date', '=', $now1->month)
-                                ->whereDay('birth_date', '=', $now1->day);
-                })                
-                ->orWhere(function ($query) use ($now)
-                {
-                        $now2 = $now->copy()->addDays(2);
-                        $query
-                                ->whereMonth('birth_date', '=', $now2->month)
-                                ->whereDay('birth_date', '=', $now2->day);
-                })
-                ->orWhere(function ($query) use ($now)
-                {
-                        $now_1 = $now->copy()->subDay();
-                        
-                        $query
-                                ->whereMonth('birth_date', '=', $now_1->month)
-                                ->whereDay('birth_date', '=', $now_1->day);
-                })
-                ->orWhere(function ($query) use ($now)
-                {
-                        $now_2 = $now->copy()->subDays(2);
-                        $query
-                                ->whereMonth('birth_date', '=', $now_2->month)
-                                ->whereDay('birth_date', '=', $now_2->day);
-                })                
-                ->orWhere(function ($query) use ($now)
-                {
-                        $query
-                                ->whereMonth('join_date', '=', $now->month)
-                                ->whereDay('join_date', '=', $now->day);
-                })
-                ->orWhere(function ($query) use ($now)
-                {
-                        $now1 = $now->copy()->addDay();
-                        $query
-                                ->whereMonth('join_date', '=', $now1->month)
-                                ->whereDay('join_date', '=', $now1->day);
-                })                
-                ->orWhere(function ($query) use ($now)
-                {
-                        $now2 = $now->copy()->addDays(2);
-                        $query
-                                ->whereMonth('join_date', '=', $now2->month)
-                                ->whereDay('join_date', '=', $now2->day);
-                })
-                ->orWhere(function ($query) use ($now)
-                {
-                        $now_1 = $now->copy()->subDay();
-                        $query
-                                ->whereMonth('join_date', '=', $now_1->month)
-                                ->whereDay('join_date', '=', $now_1->day);
-                })
-                ->orWhere(function ($query) use ($now)
-                {
-                        $now_2 = $now->copy()->subDays(2);
-                        $query
-                                ->whereMonth('join_date', '=', $now_2->month)
-                                ->whereDay('join_date', '=', $now_2->day);
-                })                
-                ->get();
+		$this->employees = App\User::whereNull(Config::get('dx.empl_fields.empl_end_date'))
+                        ->where(function($query_dates) use ($now) {
+                            
+                            $query_dates->where(function ($query) use ($now)
+                            {
+                                    $query
+                                            ->whereMonth('birth_date', '=', $now->month)
+                                            ->whereDay('birth_date', '=', $now->day);
+                            })
+                            ->orWhere(function ($query) use ($now)
+                            {
+                                    $now1 = $now->copy()->addDay();
+                                    $query
+                                            ->whereMonth('birth_date', '=', $now1->month)
+                                            ->whereDay('birth_date', '=', $now1->day);
+                            })                
+                            ->orWhere(function ($query) use ($now)
+                            {
+                                    $now2 = $now->copy()->addDays(2);
+                                    $query
+                                            ->whereMonth('birth_date', '=', $now2->month)
+                                            ->whereDay('birth_date', '=', $now2->day);
+                            })
+                            ->orWhere(function ($query) use ($now)
+                            {
+                                    $now_1 = $now->copy()->subDay();
+
+                                    $query
+                                            ->whereMonth('birth_date', '=', $now_1->month)
+                                            ->whereDay('birth_date', '=', $now_1->day);
+                            })
+                            ->orWhere(function ($query) use ($now)
+                            {
+                                    $now_2 = $now->copy()->subDays(2);
+                                    $query
+                                            ->whereMonth('birth_date', '=', $now_2->month)
+                                            ->whereDay('birth_date', '=', $now_2->day);
+                            })                
+                            ->orWhere(function ($query) use ($now)
+                            {
+                                    $query
+                                            ->whereMonth('join_date', '=', $now->month)
+                                            ->whereDay('join_date', '=', $now->day);
+                            })
+                            ->orWhere(function ($query) use ($now)
+                            {
+                                    $now1 = $now->copy()->addDay();
+                                    $query
+                                            ->whereMonth('join_date', '=', $now1->month)
+                                            ->whereDay('join_date', '=', $now1->day);
+                            })                
+                            ->orWhere(function ($query) use ($now)
+                            {
+                                    $now2 = $now->copy()->addDays(2);
+                                    $query
+                                            ->whereMonth('join_date', '=', $now2->month)
+                                            ->whereDay('join_date', '=', $now2->day);
+                            })
+                            ->orWhere(function ($query) use ($now)
+                            {
+                                    $now_1 = $now->copy()->subDay();
+                                    $query
+                                            ->whereMonth('join_date', '=', $now_1->month)
+                                            ->whereDay('join_date', '=', $now_1->day);
+                            })
+                            ->orWhere(function ($query) use ($now)
+                            {
+                                    $now_2 = $now->copy()->subDays(2);
+                                    $query
+                                            ->whereMonth('join_date', '=', $now_2->month)
+                                            ->whereDay('join_date', '=', $now_2->day);
+                            });
+                        })
+                        ->get();
                 
                 $srt = array();
                 $empl_arr = array();
