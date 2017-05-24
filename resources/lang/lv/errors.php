@@ -147,4 +147,6 @@ return [
     'no_id_field_in_import_excel' => 'Importējamajā Excel datnē nav ietverta ID kolonna. Bez ID informācijas nav iespējams identificēt ierakstus un visi ieraksti tiktu importēti kā jauni. Lūdzu, ietveriet Excel datnē ID kolonnu.',
     
     'crypto_regeneration_in_process' => 'Jaunu ierakstu pievienošana nav iespējama, jo lietotājs :user_name pašlaik veic konfidenciālo datu pāršifrēšanu.',
+    
+    'view_must_have_id_field' => 'Skatā nav iekļauts ID lauks! Lūdzu, iekļaujiet skatā ID lauku - tas var būt arī kā neredzamais lauks.',
 ];
