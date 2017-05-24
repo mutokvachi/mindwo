@@ -22808,9 +22808,10 @@ $.extend(window.DxCryptoRegenClass.prototype, {
     /**
      * Catch error and stops process
      * @param {object} err Error object
+     * @param {string} msg Error message if specified will be shown
      * @returns {undefined}
      */
-    catchError: function (err) {
+    catchError: function (err, msg) {
         var self = window.DxCryptoRegen;
 
         self.resetRegenTempData();
@@ -22819,7 +22820,11 @@ $.extend(window.DxCryptoRegenClass.prototype, {
 
         $('#dx-crypto-modal-regen-masterkey').modal('hide');
 
-        window.DxCrypto.catchError(err);
+        if (msg && msg != undefined) {
+            window.DxCrypto.catchError(err, msg);
+        } else {
+            window.DxCrypto.catchError(err);
+        }
     },
     /**
      * Resets all data to initialization state. Resets modal window data
@@ -22916,7 +22921,11 @@ $.extend(window.DxCryptoRegenClass.prototype, {
                         self.generateNewMasterKey();
                     }
                 } else {
-                    window.DxCryptoRegen.catchError(null);
+                    if (res.msg) {
+                        window.DxCryptoRegen.catchError(null, res.msg);
+                    } else {
+                        window.DxCryptoRegen.catchError(null);
+                    }
                 }
             },
             error: function (err) {
@@ -23004,7 +23013,11 @@ $.extend(window.DxCryptoRegenClass.prototype, {
                         self.recryptData(res.pendingData);
                     }
                 } else {
-                    window.DxCryptoRegen.catchError(null);
+                    if (res.msg) {
+                        window.DxCryptoRegen.catchError(null, res.msg);
+                    } else {
+                        window.DxCryptoRegen.catchError(null);
+                    }
                 }
             },
             error: function (err) {

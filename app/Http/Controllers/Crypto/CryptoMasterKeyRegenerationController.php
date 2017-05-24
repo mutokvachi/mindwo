@@ -51,7 +51,6 @@ class CryptoMasterKeyRegenerationController extends Controller
             return response()->json(['success' => 0, 'msg' => trans('crypto.e_masterkey_group_not_exists')]);
         }
 
-        // Deletes old processes if found for current user
         if ($regenProcessId == 0) {
             \App\Models\Crypto\Regen::where('master_key_group_id', $masterKeyGroupId)
                     ->where('created_user_id', \Auth::user()->id)
@@ -121,8 +120,6 @@ class CryptoMasterKeyRegenerationController extends Controller
         $item_lock = array();
 
         foreach ($cryptoFields as $cryptoField) {
-            // $cryptoField->column_name = $this->getFileGuidColumn($cryptoField);
-
             if ($cryptoField->is_file == 1) {
                 $list = \App\Libraries\DBHelper::getListByTable($cryptoField->table_name);
             } else {
@@ -137,7 +134,7 @@ class CryptoMasterKeyRegenerationController extends Controller
             $column_name = $this->getFileGuidColumn($cryptoField);
 
             foreach ($data as $dataRow) {
-                if (!$this->isRowInCryptoCache($cryptoField->table_name, $column_name, $dataRow->id)) {
+                if (!$this->isRowInCryptoCache($cryptoField->table_name, $column_name, $dataRow->id, $regenProcessId)) {
                     $old_value = $this->getOldValue($cryptoField, $dataRow, $list);
 
                     $data_array[] = array(
@@ -214,13 +211,15 @@ class CryptoMasterKeyRegenerationController extends Controller
      * @param string $ref_table Reference table
      * @param string $ref_column Reference column
      * @param string $ref_id Reference ID
+     * @param int $regenProcessId Regeneration process ID
      * @return boolean True of false if data row is in cache
      */
-    private function isRowInCryptoCache($ref_table, $ref_column, $ref_id)
+    private function isRowInCryptoCache($ref_table, $ref_column, $ref_id, $regenProcessId)
     {
         $cryptoCacheData = \App\Models\Crypto\Cache::where('ref_table', $ref_table)
                 ->where('ref_column', $ref_column)
                 ->where('ref_id', $ref_id)
+                ->where('regen_id', $regenProcessId)
                 ->count();
 
         return $cryptoCacheData > 0 ? true : false;
@@ -345,7 +344,8 @@ class CryptoMasterKeyRegenerationController extends Controller
                     ->where('user_id', '=', \Auth::user()->id)
                     ->delete();
 
-            $process->delete();
+            // Removes all existing regeneration processes becuase it is forbidden to continue them after other process has been already processed
+            \App\Models\Crypto\Regen::where('master_key_group_id', $process->master_key_group_id)->delete();
         });
 
         return response()->json(['success' => 1]);
