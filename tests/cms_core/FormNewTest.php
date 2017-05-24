@@ -25,7 +25,7 @@ class FormNewTest extends TestCase
     {    
         $this->startSession();
          
-        $user = factory(App\User::class)->create()->find(1); // superadmin
+        $user = \App\User::find(1); // superadmin
         
         $forms = DB::table('dx_forms as f')
                 ->where('f.form_type_id', '=', self::FORM_TYPE_STANDART)

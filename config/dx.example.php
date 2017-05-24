@@ -147,7 +147,7 @@ return [
     'empl_fields' => array(
             'empl_name' => 'display_name',
             'empl_position' => 'position_title',
-            'empl_end_date' => 'valid_to'
+            'empl_end_date' => 'termination_date'
         ),
     
     /*
