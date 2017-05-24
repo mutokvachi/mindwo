@@ -22784,7 +22784,7 @@ $.extend(window.DxCryptoClass.prototype, {
 window.DxCrypto = new window.DxCryptoClass();
 
 /**
- * Crypto library which encrypt and decrypt data
+ * Crypto master key regeneration library
  * @returns {window.DxCryptoRegenClass}
  */
 window.DxCryptoRegenClass = function () {
@@ -22800,11 +22800,16 @@ window.DxCryptoRegenClass = function () {
 };
 
 /**
- * Extends crypto library prototype
+ * Extends crypto master key regeneration library prototype
  * @param {object} param1 Crypto library
  * @param {function} param2 Extended functionality
  */
 $.extend(window.DxCryptoRegenClass.prototype, {
+    /**
+     * Catch error and stops process
+     * @param {object} err Error object
+     * @returns {undefined}
+     */
     catchError: function (err) {
         var self = window.DxCryptoRegen;
 
@@ -22816,6 +22821,10 @@ $.extend(window.DxCryptoRegenClass.prototype, {
 
         window.DxCrypto.catchError(err);
     },
+    /**
+     * Resets all data to initialization state. Resets modal window data
+     * @returns {undefined}
+     */
     resetRegenTempData: function () {
         var self = window.DxCryptoRegen;
 
@@ -22840,7 +22849,7 @@ $.extend(window.DxCryptoRegenClass.prototype, {
     /**
      * Generate new masterkey and regenrate data
      * @param {int} masterKeyGroupId Master key group's ID
-     * @returns {Boolean}
+     * @returns {Boolean} Return false if function failed or has been stopped
      */
     regenMasterKey: function (masterKeyGroupId) {
         var self = window.DxCryptoRegen;
@@ -23003,6 +23012,11 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             }
         });
     },
+    /**
+     * Iterates data and reencrypt
+     * @param {Array} pendingData Data which will be encrypted
+     * @returns {undefined}
+     */
     recryptData: function (pendingData) {
         var self = window.DxCryptoRegen;
 
@@ -23016,6 +23030,13 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             self.getAllUserPublicKeys();
         }
     },
+    /**
+     * Event after data row has been reencrypted. Proceeeds to next row or search for an other batch of data
+     * @param {ArrayBuffer} resBuffer Encrypted value
+     * @param {object} record Encryption cache row
+     * @param {int} batchSize Size of batch (data which is encrypted in this iteration)
+     * @returns {undefined}
+     */
     onRecryptedDataRow: function (resBuffer, record, batchSize) {
         var self = window.DxCryptoRegen;
         var newValue;
@@ -23037,6 +23058,12 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             self.postCache();
         }
     },
+    /**
+     * Recrypt value depending if ti is file or text
+     * @param {Array} pendingData All data in current batch which is reencrypted
+     * @param {int} rowNum Number for current row
+     * @returns {Boolean} Return false if function failed or has been stopped
+     */
     recryptDataRow: function (pendingData, rowNum) {
         var self = window.DxCryptoRegen;
 
@@ -23077,6 +23104,12 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             });
         }
     },
+    /**
+     * Decryptes value with old master key and encryptes it with new master key
+     * @param {ArrayBuffer} oldValue Value which will be reencrypted
+     * @param {function} callback Called after value is reencrypted
+     * @returns {Boolean} Return false if function failed or has been stopped
+     */
     encryptDecryptData: function (oldValue, callback) {
         var self = window.DxCryptoRegen;
 
@@ -23131,6 +23164,10 @@ $.extend(window.DxCryptoRegenClass.prototype, {
                 })
                 .catch(window.DxCryptoRegen.catchError);
     },
+    /**
+     * Post proceessed data to server. If there is more data to reencrypt then gets next batch else finished process by applying reencrypted data from cache
+     * @returns {Boolean} Return false if function failed or has been stopped
+     */
     postCache: function () {
         var self = window.DxCryptoRegen;
 
@@ -23201,12 +23238,20 @@ $.extend(window.DxCryptoRegenClass.prototype, {
 
         modal.modal('show');
     },
+    /**
+     * Start to cancel process because it is async we need to wait until last async operation finishes
+     * @returns {undefined}
+     */
     cancelProcess: function () {
         var self = window.DxCryptoRegen;
 
         self.regenCancel = true;
         self.updateRegenStatus(Lang.get('crypto.i_cancel_regen_process'));
     },
+    /**
+     * Validate if process can continue. If process has been canceled then close modal progress window.
+     * @returns {Boolean} Return false if function failed or has been stopped
+     */
     validateProgress: function () {
         if (window.DxCryptoRegen.regenCancel) {
             var modal = $('#dx-crypto-modal-regen-masterkey');
@@ -23218,6 +23263,10 @@ $.extend(window.DxCryptoRegenClass.prototype, {
 
         return true;
     },
+    /**
+     * Updates progress bar in modal window.
+     * @returns {undefined}
+     */
     updateRegenProgress: function () {
         var self = window.DxCryptoRegen;
 
@@ -23234,11 +23283,20 @@ $.extend(window.DxCryptoRegenClass.prototype, {
         var label = modal.find('.dx-crypto-modal-regen-progress-label');
         label.html(Lang.get('crypto.regen_masterkey_records_label') + ': ' + current + '/' + total);
     },
+    /**
+     * Change statuss text for modal window
+     * @param {string} text Text to display in modal window
+     * @returns {undefined}
+     */
     updateRegenStatus: function (text) {
         var modal = $('#dx-crypto-modal-regen-masterkey');
 
         modal.find('.dx-crypto-modal-regen-progress-label').html(text);
     },
+    /**
+     * Retrieves all public keys from server
+     * @returns {Boolean} Return false if function failed or has been stopped
+     */
     getAllUserPublicKeys: function () {
         var self = window.DxCryptoRegen;
 
@@ -23249,7 +23307,7 @@ $.extend(window.DxCryptoRegenClass.prototype, {
         self.updateRegenStatus(Lang.get('crypto.i_gathering_certs'));
 
         $.ajax({
-            url: DX_CORE.site_url + 'crypto/get_user_public_keys',
+            url: DX_CORE.site_url + 'crypto/get_user_public_keys/' + self.masterKeyGroupId,
             type: "get",
             success: function (res) {
                 if (res && res.success && res.user_keys) {
@@ -23263,6 +23321,12 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             error: self.catchError
         });
     },
+    /**
+     * Wrapps new master key with each user's public key
+     * @param {Array} userKeyData Public keys for each user
+     * @param {int} i Iteration number
+     * @returns {Boolean} Return false if function failed or has been stopped
+     */
     wrapMasterkeys: function (userKeyData, i) {
         var self = window.DxCryptoRegen;
 
@@ -23295,6 +23359,10 @@ $.extend(window.DxCryptoRegenClass.prototype, {
                 })
                 .catch(self.catchError);
     },
+    /**
+     * Sends wrapped master keys to server and applies reencrption cache
+     * @returns {Boolean} Return false if function failed or has been stopped
+     */
     applyCache: function () {
         var self = window.DxCryptoRegen;
 
