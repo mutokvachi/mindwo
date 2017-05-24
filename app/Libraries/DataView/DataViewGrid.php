@@ -487,7 +487,7 @@ namespace App\Libraries\DataView {
         */ 
         private function formatLinkValue($cell_obj, $model_row, $data_row)
         {
-            if ($cell_obj->is_link) {
+            if ($cell_obj->is_link || $model_row['is_crypted']) {
                 return $cell_obj;
             }
             
