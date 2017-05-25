@@ -123,6 +123,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'reports', 'namespace' => 'Rep
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'meetings', 'namespace' => 'Meetings'], function() { 
+    Route::get('/test', 'TestView@test');
     Route::get('/{meeting_type_id}', 'MeetingsController@getDefault');
     Route::get('/{meeting_type_id}/{meeting_id}', array('as' => 'meeting', 'uses' => 'MeetingsController@getById'));
     Route::get('/{meeting_type_id}/{meeting_id}/start', 'MeetingsController@startMeeting');
@@ -130,6 +131,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'meetings', 'namespace' => 'Me
     Route::get('/{meeting_type_id}/{meeting_id}/next', 'MeetingsController@nextAgenda');
     Route::post('/agenda', 'MeetingsController@getAgenda');
     Route::post('/get_agendas_list', 'MeetingsController@getAgendasList');
+    
 });
 
 // Startē procesu forsēti

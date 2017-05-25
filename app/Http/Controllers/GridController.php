@@ -270,16 +270,13 @@ class GridController extends Controller
     }
     
     /**
-     * Gets JSON with view columns re-ordering interface (HTML)
+     * Gets HTML with view columns re-ordering interface
      * 
      * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return string
      */
-    public function getViewEditForm(Request $request) {
-        $this->validate($request, [
-            'view_id' => 'required'
-        ]);
-        
+    public static function getViewEditFormHTML(Request $request) {
+                
         $view_id = $request->input('view_id');
         
         $view = getViewRowByID($view_id, $view_id);          
@@ -360,6 +357,22 @@ class GridController extends Controller
                 'is_default' => $view->is_default,
                 'is_my_view' => ($view->me_user_id == Auth::user()->id),                
         ])->render();
+        
+        return $htm;
+    }
+    
+    /**
+     * Gets JSON with view columns re-ordering interface (HTML)
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getViewEditForm(Request $request) {
+        $this->validate($request, [
+            'view_id' => 'required'
+        ]);
+        
+        $htm = self::getViewEditFormHTML($request);
         
         return response()->json(['success' => 1, 'html' => $htm]);
     }

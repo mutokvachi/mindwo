@@ -191,6 +191,7 @@ gulp.task('mix_all', function() {
             'mindwo/crypto/crypto_field.js',
             'mindwo/crypto/crypto_file_field.js',
             'mindwo/crypto/crypto_user_panel.js',
+            'mindwo/blocks/view_editor.js',
                     //'mindwo/visual_ui/workflow.js',
                     //'mxgraph/src/js/mxClient.js',
         ], 'public/js/elix_view.js', 'resources/assets/plugins');
