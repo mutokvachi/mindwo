@@ -17,6 +17,7 @@
              <button type='button' class='btn btn-primary dx-view-btn-save'>{{ trans('form.btn_save') }}</button>                                             
         </div>
     </div>
+    @include('blocks.view.field_settings', ['block_id' => 'view_editor'])
 </div>
 @stop
 

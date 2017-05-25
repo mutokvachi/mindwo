@@ -23,7 +23,8 @@ class TestView extends Controller
         $htm = \App\Http\Controllers\GridController::getViewEditFormHTML($request);
         return  view('meetings.test', [
             'htm' => $htm,
-            'view_id' => $view_id
+            'view_id' => $view_id,
+            'operations' => DB::table('dx_field_operations')->orderBy('title')->get()
         ]);
     }
 }
