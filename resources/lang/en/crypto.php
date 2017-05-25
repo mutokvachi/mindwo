@@ -62,5 +62,10 @@ return [
         'ref_column' => 'Related column',
         'ref_id' => 'Related ID',
         'master_key_regen' => 'Master key regeneration process',
+        'master_key_regens' => 'Master key regeneration processes',
+        'created_user' => 'Created by user',
+        'created_time' => 'Created time',
+        'modified_time' => 'Modified time',
+        'crypto' => 'Cryptography',
     ]
 ];
