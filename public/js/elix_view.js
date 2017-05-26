@@ -22740,7 +22740,7 @@ $.extend(window.DxCryptoClass.prototype, {
                                     });
                         })
                         .then(function (wrappedMasterKey) {
-                            callback(wrappedMasterKey);
+                            callback(wrappedMasterKey, window.DxCrypto.masterKeyGroups[masterKeyGroupId]);
                         })
                         .catch(window.DxCrypto.catchError);
             });
@@ -22803,6 +22803,7 @@ window.DxCryptoRegenClass = function () {
     this.regenCancel = false;
     this.newMasterKey;
     this.wrappedMasterKeys = {};
+    this.masterKeyGroupUsers = [];
 };
 
 /**
@@ -23139,6 +23140,9 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             return false;
         }
 
+        var newCounterBuffer = new Uint8Array(16);
+        window.crypto.getRandomValues(newCounterBuffer);
+
         window.crypto.subtle.decrypt(
                 {
                     name: "AES-CTR",
@@ -23154,14 +23158,12 @@ $.extend(window.DxCryptoRegenClass.prototype, {
                     }
 
                     // ENCRYPT DECRYPTED DATA WITH NEW MASTERKEY
-                    var counterBuffer = new Uint8Array(16);
-
                     return window.crypto.subtle.encrypt(
                             {
                                 name: "AES-CTR",
                                 //Don't re-use counters!
                                 //Always use a new counter every time your encrypt!
-                                counter: counterBuffer,
+                                counter: newCounterBuffer,
                                 length: 128, //can be 1-128
                             },
                             window.DxCryptoRegen.newMasterKey, //from generateKey or importKey above
@@ -23175,9 +23177,9 @@ $.extend(window.DxCryptoRegenClass.prototype, {
 
                     encryptedValue = new Uint8Array(encryptedValue);
 
-                    var resBuffer = new Uint8Array(encryptedValue.length + counterBuffer.length);
-                    resBuffer.set(counterBuffer);
-                    resBuffer.set(encryptedValue, counterBuffer.length);
+                    var resBuffer = new Uint8Array(encryptedValue.length + newCounterBuffer.length);
+                    resBuffer.set(newCounterBuffer);
+                    resBuffer.set(encryptedValue, newCounterBuffer.length);
 
                     callback(resBuffer);
                 })
@@ -23433,6 +23435,82 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             obj.addEventListener('DOMNodeInserted', callback, false);
             obj.addEventListener('DOMNodeRemoved', callback, false);
         }
+    },
+    /**
+     * Checks if there has been removed user from table
+     * @param {DOM} form_object Form object
+     * @param {int} masterkey_group_id Master key group ID
+     * @returns {undefined}
+     */
+    checkForRemovedUsers: function (form_object, masterkey_group_id) {
+        var self = window.DxCryptoRegen;
+
+        var newMasterKeyUser = self.retrieveUsersFromMasterKeyGroupTable(form_object);
+
+        if (newMasterKeyUser.length > 1) {
+            for (var i = 0; i < self.masterKeyGroupUsers.length; i++) {
+                var itemValue = self.masterKeyGroupUsers[i];
+
+                if ($.inArray(itemValue, newMasterKeyUser) == -1) {
+                    self.masterKeyGroupUsers = newMasterKeyUser;
+                    setTimeout(function () {
+                        self.checkForRemovedUsers(form_object, masterkey_group_id);
+                    }, 1000);
+
+                    window.DxCryptoRegen.regenMasterKey(masterkey_group_id);
+
+                    return;
+                }
+            }
+        }
+
+        self.masterKeyGroupUsers = newMasterKeyUser;
+        setTimeout(function () {
+            self.checkForRemovedUsers(form_object, masterkey_group_id);
+        }, 1000);
+    },
+    /**
+     * Retrieves users records from table
+     * @param {DOM} form_object Form object
+     * @returns {Array} Retrieves master key 
+     */
+    retrieveUsersFromMasterKeyGroupTable: function (form_object) {
+        var userItems = [];
+
+        var table = form_object.find('table[data-list_id]');
+
+        table.find('tr').each(function () {
+            var itemId = $(this).find('[dx_item_id]:first').attr('dx_item_id');
+            userItems.push(itemId);
+        });
+
+        return userItems;
+    },
+    /**
+     * Initializes master key group managing modal
+     * @param {DOM} form_object Form object
+     * @returns {undefined}
+     */
+    initGroupManageView: function (form_object) {
+        var self = window.DxCryptoRegen;
+
+        var masterkey_group_id = form_object.find("input[name=id]").val();
+
+        var table = form_object.find('table[data-list_id]');
+
+        if (table.length == 0) {
+            setTimeout(function () {
+                self.initGroupManageView(form_object);
+            }, 1000);
+            return;
+        }
+
+        self.masterKeyGroupUsers = self.retrieveUsersFromMasterKeyGroupTable(form_object);
+
+        setTimeout(function () {
+            self.checkForRemovedUsers(form_object, masterkey_group_id);
+        }, 1000);
+
     }
 });
 

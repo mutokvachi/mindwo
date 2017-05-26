@@ -906,7 +906,7 @@ $.extend(window.DxCryptoClass.prototype, {
                                     });
                         })
                         .then(function (wrappedMasterKey) {
-                            callback(wrappedMasterKey);
+                            callback(wrappedMasterKey, window.DxCrypto.masterKeyGroups[masterKeyGroupId]);
                         })
                         .catch(window.DxCrypto.catchError);
             });
