@@ -150,6 +150,11 @@ namespace App\Libraries
          */
         private function saveData()
         {
+            
+            if($this->item_id == 0 && ($regen = \App\Models\Crypto\Regen::first())){                              
+                throw new Exceptions\DXCustomException(trans('errors.crypto_regeneration_in_process', ['user_name' => $regen->createdUser->display_name]));
+            }
+            
             $multi_fields = array();
 
             if ($this->item_id == 0) {

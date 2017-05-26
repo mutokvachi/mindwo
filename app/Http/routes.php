@@ -123,6 +123,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'reports', 'namespace' => 'Rep
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'meetings', 'namespace' => 'Meetings'], function() { 
+    Route::get('/test', 'TestView@test');
     Route::get('/{meeting_type_id}', 'MeetingsController@getDefault');
     Route::get('/{meeting_type_id}/{meeting_id}', array('as' => 'meeting', 'uses' => 'MeetingsController@getById'));
     Route::get('/{meeting_type_id}/{meeting_id}/start', 'MeetingsController@startMeeting');
@@ -130,6 +131,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'meetings', 'namespace' => 'Me
     Route::get('/{meeting_type_id}/{meeting_id}/next', 'MeetingsController@nextAgenda');
     Route::post('/agenda', 'MeetingsController@getAgenda');
     Route::post('/get_agendas_list', 'MeetingsController@getAgendasList');
+    
 });
 
 // Startē procesu forsēti
@@ -173,7 +175,12 @@ Route::group(['prefix' => 'crypto', 'namespace' => 'Crypto'], function() {
         Route::get('/user_panel', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@getUserPanelView'));   
         Route::get('/get_user_cert/{user_id?}/{master_key_group_id?}', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@getUserCertificate'));    
         Route::get('/check_existing_keys/{master_key_group_id?}', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@hasExistingKeys'));    
-        Route::post('/save_cert', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@saveUserCertificate'));   
+        Route::post('/save_cert', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@saveUserCertificate'));
+        Route::get('/pending_data/{regenProcessId}/{master_key_group_id}/{getMasterKey}/{masterKey?}', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@prepareRecrypt'));
+        Route::get('/check_regen/{master_key_group_id}', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@checkExistingRegenProcesses'));
+        Route::post('/save_regen_cache', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@saveRegenCache'));
+        Route::post('/apply_regen_cache', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@applyRegenCache'));
+        Route::get('/get_user_public_keys', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@getUserPublicKeys'));  
 });
 
 // Lietotāji - autorizācija, atslēgšanās

@@ -137,24 +137,29 @@ class GridController extends Controller
         $view_row = getViewRowByID($request->url(), $view_id);
 
         $view_obj = DataView\DataViewFactory::build_view('Excel', $view_row->id);
-
-        Excel::create($view_obj->getViewTitle(), function($excel) use ($view_obj)
+        $view_title = $view_obj->getViewTitle();
+        
+        Excel::create($view_title, function($excel) use ($view_obj, $view_title)
         {
-
             // Set the title
-            $excel->setTitle('Our new awesome title');
+            $excel->setTitle($view_title);
 
+            $portal_name = get_portal_config('PORTAL_NAME');
+            
             // Chain the setters
-            $excel->setCreator('MEDUS')
-                    ->setCompany('MEDUS');
-
-            // Call them separately
-            $excel->setDescription('A demonstration to change the file properties');
-
-            $excel->sheet('Dati', function($sheet) use ($view_obj)
+            $excel->setCreator(Auth::user()->display_name)
+                    ->setCompany($portal_name);
+            
+            $excel->setDescription(sprintf(trans('grid.excel_description'), $portal_name));
+                       
+            $excel->sheet(trans('grid.excel_sheet'), function($sheet) use ($view_obj)
             {
                 $sheet->loadView('excel.table', ['htm' => $view_obj->getViewHtml()]);
-            });
+                
+                if (count($view_obj->formaters)) {
+                    $sheet->setColumnFormat($view_obj->formaters);
+                }
+            });  
             
         })->download('xlsx', [
             'Set-Cookie'  => 'fileDownload=true; path=/'
@@ -184,11 +189,13 @@ class GridController extends Controller
         $table_row = FormSave::getFormTable($form_row->id);
         $fields = FormSave::getFormsFields(-1, $form_row->id);
 
+        foreach ($items_arr as $item_id) {
+            validateRelations($list_id, $item_id);
+        }
+            
         DB::transaction(function () use ($items_arr, $list_id, $table_row, $fields)
         {
             foreach ($items_arr as $item_id) {
-                validateRelations($list_id, $item_id);
-
                 \App\Libraries\Helper::deleteItem($table_row, $fields, $item_id);
             }
         });
@@ -264,16 +271,13 @@ class GridController extends Controller
     }
     
     /**
-     * Gets JSON with view columns re-ordering interface (HTML)
+     * Gets HTML with view columns re-ordering interface
      * 
      * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return string
      */
-    public function getViewEditForm(Request $request) {
-        $this->validate($request, [
-            'view_id' => 'required'
-        ]);
-        
+    public static function getViewEditFormHTML(Request $request) {
+                
         $view_id = $request->input('view_id');
         
         $view = getViewRowByID($view_id, $view_id);          
@@ -354,6 +358,22 @@ class GridController extends Controller
                 'is_default' => $view->is_default,
                 'is_my_view' => ($view->me_user_id == Auth::user()->id),                
         ])->render();
+        
+        return $htm;
+    }
+    
+    /**
+     * Gets JSON with view columns re-ordering interface (HTML)
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getViewEditForm(Request $request) {
+        $this->validate($request, [
+            'view_id' => 'required'
+        ]);
+        
+        $htm = self::getViewEditFormHTML($request);
         
         return response()->json(['success' => 1, 'html' => $htm]);
     }

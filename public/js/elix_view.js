@@ -16220,15 +16220,14 @@ var BlockViews = function () {
 
             request.callback = function (data) {
                 frm_el.find(".modal-body").html(data['html']);
-                frm_el.find(".modal-body .dx-cms-nested-list").nestable();
-                setFldEventHandlers(frm_el, frm_el, view_container);
-                handleSearchField();
-                handleIsMyCheck(frm_el);
-
-                frm_el.find(".dx-view-btn-copy").show();
-                frm_el.find(".dx-view-btn-delete").show();
-                frm_el.find("span.badge").html(Lang.get('grid.badge_edit'));
-
+                
+                frm_el.find(".dx-view-edit-form").ViewEditor({ 
+                    view_container: view_container,
+                    reloadBlockGrid: reloadBlockGrid,
+                    root_url: root_url,
+                    load_tab_grid: load_tab_grid,
+                });
+                
                 frm_el.modal('show');
             };
 
@@ -16236,404 +16235,7 @@ var BlockViews = function () {
             request.doRequest();
         });
     };
-
-    /**
-     * Sets handles for checkboxies (is default and is my view only)
-     *
-     * @param {object} frm_el Fields UI forms HTML object
-     * @returns {undefined}
-     */
-    var handleIsMyCheck = function (frm_el) {
-        frm_el.find("input[name=is_my_view]").change(function () {
-            if ($(this).prop('checked')) {
-                frm_el.find("input[name=is_default]").prop('checked', '').closest('span').hide();
-            }
-            else {
-                frm_el.find("input[name=is_default]").closest('span').show();
-            }
-        });
-
-        frm_el.find("input[name=is_default]").change(function () {
-            if ($(this).prop('checked')) {
-                frm_el.find("input[name=is_my_view]").prop('checked', '').closest('span').hide();
-            }
-            else {
-                frm_el.find("input[name=is_my_view]").closest('span').show();
-            }
-        });
-    };
-
-    /**
-     * Moves field from used section to available fields section
-     *
-     * @param {object} frm_el Fields UI forms HTML object
-     * @param {object} fld_el Field element HTML object
-     * @param {object} view_container Grid view main object's HTML element
-     * @returns {undefined}
-     */
-    var removeFld = function (frm_el, fld_el, view_container) {
-        frm_el.find('.dx-fields-container .dx-available ol.dd-list').append(fld_el.closest('.dd-item').clone());
-        fld_el.closest('.dd-item').remove();
-
-        var new_el = frm_el.find('.dx-fields-container .dx-available ol.dd-list .dd-item').last();
-        setFldEventHandlers(frm_el, new_el, view_container);
-
-        clearSearchIfLast(frm_el, 'dx-used');
-    };
-
-    /**
-     * Moves field from available section to used fields section
-     *
-     * @param {object} frm_el Fields UI forms HTML object
-     * @param {object} fld_el Field element HTML object
-     * @param {object} view_container Grid view main object's HTML element
-     * @returns {undefined}
-     */
-    var addFld = function (frm_el, fld_el, view_container) {
-        frm_el.find('.dx-fields-container .dx-used ol.dd-list').append(fld_el.closest('.dd-item').clone());
-        fld_el.closest('.dd-item').remove();
-
-        var new_el = frm_el.find('.dx-fields-container .dx-used ol.dd-list .dd-item').last();
-        setFldEventHandlers(frm_el, new_el, view_container);
-
-        clearSearchIfLast(frm_el, 'dx-available');
-    };
-
-    /**
-     * Clear fields search input in case if no more fields in container (and show again all fields in container)
-     *      *
-     * @param {object} frm_el Fields UI forms HTML object
-     * @param {string} fields_class HTML class name of fields container (dx-used or dx-available)
-     * @returns {undefined}
-     */
-    var clearSearchIfLast = function (frm_el, fields_class) {
-        if (frm_el.find('.dx-fields-container .' + fields_class + ' ol.dd-list .dd-item:visible').length == 0) {
-            var txt = frm_el.find('.dx-fields-container .' + fields_class).closest('.portlet').find('input.dx-search');
-            if (txt.val().length > 0) {
-                txt.val('');
-                txt.closest(".portlet").find(".dx-fields-container .dd-item").show();
-                txt.focus();
-            }
-        }
-    };
-
-    /**
-     * Sets events for added/moved field
-     *
-     * @param {object} frm_el Fields UI forms HTML object
-     * @param {object} fld_el Field element HTML object
-     * @param {object} view_container Grid view main object's HTML element
-     * @returns {undefined}
-     */
-    var setFldEventHandlers = function (frm_el, fld_el, view_container) {
-        fld_el.find('.dx-cms-field-remove').click(function () {
-            removeFld(frm_el, $(this), view_container);
-        });
-
-        fld_el.find('.dx-cms-field-add').click(function () {
-            addFld(frm_el, $(this), view_container);
-        });
-
-        fld_el.find('.dx-fld-title').click(function () {
-            openSettings($(this), view_container);
-        });
-    };
-
-    /**
-     * Opens field's setting form
-     *
-     * @param {object} title_el Field item title HTML element
-     * @param {object} view_container Grid view main object's HTML element
-     * @returns {undefined}
-     */
-    var openSettings = function (title_el, view_container) {
-        if (title_el.closest('.dx-cms-nested-list').hasClass('dx-used')) {
-            var item = title_el.closest('.dd-item');
-            var sett_el = view_container.find('.dx-popup-modal-settings');
-
-            sett_el.find("input[name=is_hidden]").prop("checked", (item.attr("data-is-hidden") == "1") ? "checked" : "");
-            sett_el.find("input[name=field_title]").val(title_el.text());
-            sett_el.find("select[name=field_operation]").val(item.attr("data-operation-id"));
-
-            if (item.attr("data-field-type") == "autocompleate" || item.attr("data-field-type") == "rel_id") {
-                sett_el.find("select[name=field_operation]").attr("data-criteria", "auto");
-
-                var auto_fld = sett_el.find("div.dx-autocompleate-field");
-                auto_fld.attr("data-rel-list-id", item.attr('data-rel-list-id'));
-                auto_fld.attr("data-rel-field-id", item.attr('data-rel-field-id'));
-                auto_fld.attr("data-item-value", item.attr('data-criteria'));
-                auto_fld.attr("data-field-id", item.attr('data-id'));
-
-                var formData = new FormData();
-                formData.append("list_id", item.attr('data-rel-list-id'));
-                formData.append("txt_field_id", item.attr('data-rel-field-id'));
-                formData.append("txt_field_id", item.attr('data-rel-field-id'));
-                formData.append("value_id", item.attr('data-criteria'));
-
-                show_form_splash();
-                $.ajax({
-                    type: 'POST',
-                    url: DX_CORE.site_url + "view/auto_data",
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    dataType: "json",
-                    async: false,
-                    success: function (data) {
-                        hide_form_splash();
-                        auto_fld.attr("data-min-length", data['count']);
-                        auto_fld.attr("data-item-text", data['txt']);
-                    }
-                });
-
-                AutocompleateField.initSelect(auto_fld);
-            }
-            else {
-                sett_el.find("select[name=field_operation]").attr("data-criteria", "text");
-                sett_el.find("input[name=criteria_value]").val(item.attr("data-criteria"));
-            }
-
-            showHideCriteria(sett_el, sett_el.find("select[name=field_operation]"));
-
-            var btn_save = sett_el.find('.dx-settings-btn-save');
-
-            btn_save.off("click");
-            btn_save.click(function () {
-                var oper_el = sett_el.find('select[name=field_operation]');
-
-                var crit_val = "";
-                if (oper_el.attr("data-criteria") == "text") {
-                    crit_val = sett_el.find('input[name=criteria_value]').val();
-                }
-                else {
-                    crit_val = parseInt(sett_el.find('input.dx-auto-input-id').val());
-                }
-
-                if (oper_el.val() && oper_el.find('option:selected').attr('data-is-criteria') != "0" && !crit_val) {
-                    notify_err(Lang.get('grid.error_filter_must_be_set'));
-                    return false;
-                }
-
-                item.attr("data-criteria", crit_val);
-                item.attr("data-is-hidden", sett_el.find('input[name=is_hidden]').is(":checked") ? 1 : 0);
-                item.attr("data-operation-id", oper_el.val());
-
-                sett_el.modal('hide');
-            });
-
-            sett_el.modal('show');
-        }
-    };
-
-    /**
-     * Handles event for show or hide criteria field depending on selected operation
-     *
-     * @param {object} view_container Grid view main object's HTML element
-     * @returns {undefined}
-     */
-    var handleFieldOperation = function (view_container) {
-        var sett_el = view_container.find('.dx-popup-modal-settings');
-        sett_el.find('select[name=field_operation]').change(function () {
-            showHideCriteria(sett_el, $(this));
-        });
-    };
-
-    /**
-     * Shoe or hide criteria field depending on selected operation
-     * @param {object} sett_el Setting popup form HTML element
-     * @param {object} sel_el Operation select HTML element
-     * @returns {undefined}
-     */
-    var showHideCriteria = function (sett_el, sel_el) {
-        if (sel_el.find('option:selected').attr('data-is-criteria') != "0") {
-            if (sel_el.attr("data-criteria") == "text") {
-                sett_el.find(".dx-criteria-text").show();
-                sett_el.find(".dx-criteria-auto").hide();
-                sett_el.find("input[name=criteria_value]").focus();
-            }
-            else {
-                sett_el.find(".dx-criteria-text").hide();
-                sett_el.find(".dx-criteria-auto").show();
-                sett_el.find('.dx-auto-input-select2').select2("open");
-            }
-        }
-        else {
-            sett_el.find("input[name=criteria_value]").val('');
-            sett_el.find(".dx-criteria-auto").hide();
-            sett_el.find(".dx-criteria-text").hide();
-            sett_el.find('.dx-auto-input-select2').select2('data', {id: 0, text: ""});
-            sett_el.find("input.dx-auto-input-id").val(0);
-        }
-    };
-
-    /**
-     * Handles fields searching functionality
-     * @returns {undefined}
-     */
-    var handleSearchField = function () {
-        $("input.dx-search").on("keyup", function () {
-            if (!$(this).val()) {
-                $(this).closest(".portlet").find(".dx-fields-container .dd-item").show();
-                return;
-            }
-            $(this).closest(".portlet").find(".dx-fields-container .dd-item").hide();
-            $(this).closest(".portlet").find(".dx-fields-container .dx-fld-title:contains('" + $(this).val() + "')").closest(".dd-item").show();
-
-        });
-    };
-
-    /**
-     * Handles view copy function
-     *
-     * @param {object} view_container Grid view main object's HTML element
-     * @returns {undefined}
-     */
-    var handleBtnCopy = function (view_container) {
-        var pop_el = $("#" + view_container.attr("id") + "_popup");
-        pop_el.find(".dx-view-btn-copy").click(function () {
-            var frm_el = pop_el.find(".dx-view-edit-form");
-            frm_el.data('view-id', 0);
-            pop_el.find(".dx-view-btn-copy").hide();
-            pop_el.find(".dx-view-btn-delete").hide();
-            pop_el.find("span.badge").html(Lang.get('grid.badge_new'));
-            frm_el.find("input[name=view_title]").val(frm_el.find("input[name=view_title]").val() + " - " + Lang.get('grid.title_copy')).focus();
-
-            frm_el.find('input[name=is_default]').prop("checked", '').show().closest('span').show();
-            frm_el.find('input[name=is_my_view]').prop("checked", '').closest('span').show();
-        });
-    };
-
-    /**
-     * Handles button "Delete" pressing
-     *
-     * @param {object} view_container Grid view main object's HTML element
-     * @returns {undefined}
-     */
-    var handleBtnDelete = function (view_container) {
-        var pop_el = $("#" + view_container.attr("id") + "_popup");
-        pop_el.find(".dx-view-btn-delete").click(function () {
-            PageMain.showConfirm(deleteView, view_container, null, Lang.get('grid.confirm_delete'), Lang.get('form.btn_yes'), Lang.get('form.btn_no'));
-        });
-    };
-
-    /**
-     * Handles view deletion functionality
-     *
-     * @param {object} view_container Grid view main object's HTML element
-     * @returns {undefined}
-     */
-    var deleteView = function (view_container) {
-        var pop_el = $("#" + view_container.attr("id") + "_popup");
-        var frm_el = pop_el.find(".dx-view-edit-form");
-
-        var formData = new FormData();
-        formData.append("view_id", frm_el.data('view-id'));
-        formData.append("list_id", frm_el.data('list-id'));
-        formData.append('tab_id', view_container.attr('dx_tab_id'));
-
-        var request = new FormAjaxRequest('view/delete', "", "", formData);
-        request.progress_info = true;
-
-        request.callback = function (data) {
-            if (data["success"] == 1) {
-                pop_el.modal('hide');
-                reloadAnotherView(view_container, data["view_id"]);
-            }
-        };
-
-        // execute AJAX request
-        request.doRequest();
-    };
-
-    /**
-     * Handles button event - save view data
-     *
-     * @param {object} view_container Grid view main object's HTML element
-     * @returns {undefined}
-     */
-    var handleBtnSaveView = function (view_container) {
-        var pop_el = $("#" + view_container.attr("id") + "_popup");
-        pop_el.find(".dx-view-btn-save").click(function () {
-
-            var frm_el = pop_el.find(".dx-view-edit-form");
-            var view_id = frm_el.data('view-id');
-            var grid_el = view_container.find('.dx-grid-table').last();
-
-            var formData = new FormData();
-            formData.append("view_id", view_id);
-            formData.append("list_id", frm_el.data('list-id'));
-            formData.append("view_title", frm_el.find('input[name=view_title]').val());
-            formData.append("is_default", frm_el.find('input[name=is_default]').is(":checked") ? 1 : 0);
-            formData.append("is_my_view", frm_el.find('input[name=is_my_view]').is(":checked") ? 1 : 0);
-            formData.append("fields", getFieldsState(frm_el.find('.dx-fields-container .dx-used')));
-            formData.append('grid_id', grid_el.attr('id'));
-
-            var request = new FormAjaxRequest('view/save', "", "", formData);
-            request.progress_info = true;
-
-            request.callback = function (data) {
-                if (data["success"] == 1) {
-
-                    pop_el.modal('hide');
-                    pop_el.attr("id", pop_el.attr("id") + "_" + $(".dx-popup-modal").length);
-
-                    if (view_id == 0) {
-                        reloadAnotherView(view_container, data["view_id"]);
-                    }
-                    else {
-                        reloadBlockGrid(grid_el.attr('id'), grid_el.data('tab_id'));
-                    }
-                }
-            };
-
-            // execute AJAX request
-            request.doRequest();
-
-        });
-    };
-
-    /**
-     * Loads view after previous view deletion or new view creation
-     *
-     * @param {object} view_container Grid view main object's HTML element
-     * @param {integer} view_id View ID
-     * @returns {undefined}
-     */
-    var reloadAnotherView = function (view_container, view_id) {
-        if (view_container.attr('dx_tab_id')) {
-            load_tab_grid(view_container.attr('dx_tab_id'), view_container.attr('dx_list_id'), view_id, view_container.attr('dx_rel_field_id'), view_container.attr('dx_rel_field_value'), view_container.attr('dx_form_htm_id'), 1, 5, 1);
-        }
-        else {
-            show_page_splash(1);
-            var url = root_url + 'skats_' + view_id;
-            window.location.assign(encodeURI(url));
-        }
-    };
-
-    /**
-     * Prepares JSON string with all fields included in view (in correct order)
-     *
-     * @param {object} block Fields container HTML element
-     * @returns {string}
-     */
-    var getFieldsState = function (block) {
-        var ret_arr = new Array();
-
-        block.find(".dd-item").each(function () {
-            var item = {
-                "field_id": $(this).attr('data-id'),
-                "aggregation_id": $(this).attr('data-aggregation-id'),
-                "list_id": $(this).attr('data-list-id'),
-                "is_hidden": $(this).attr('data-is-hidden'),
-                "operation_id": $(this).attr('data-operation-id'),
-                "criteria": $(this).attr('data-criteria')
-            };
-            ret_arr.push(item);
-        });
-
-        return JSON.stringify(ret_arr);
-    };
-
+   
     /**
      * Exports grid data to the Excel
      *
@@ -17290,11 +16892,7 @@ var BlockViews = function () {
             
             // view editing
             handleBtnEditView($(this));
-            handleBtnSaveView($(this));
-            handleBtnCopy($(this));
-            handleBtnDelete($(this));
-            handleFieldOperation($(this));
-
+                       
             // Saraksta kolonnu funkcionalitāte
             handleFilter(grid_id, tab_id);
             handleSorting(grid_id, tab_id);
@@ -22320,7 +21918,7 @@ $.extend(window.DxCryptoClass.prototype, {
 
                     // If end move to next field
                     if (cryptoFieldCount === cryptoFieldCounter) {
-                      hide_page_splash(1);
+                        hide_page_splash(1);
                         return true;
                     }
                 };
@@ -22420,18 +22018,7 @@ $.extend(window.DxCryptoClass.prototype, {
 
         var self = window.DxCrypto;
 
-        // Import public key from raw format to CryptoKey object
-        window.crypto.subtle.importKey(
-                "spki", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
-                self.rawCertificate.publicKey,
-                {//these are the algorithm options
-                    name: "RSA-OAEP",
-                    hash: {name: "SHA-256"}, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
-                },
-                false, //whether the key is extractable (i.e. can be used in exportKey)
-                ["wrapKey"] //"encrypt" or "wrapKey" for public key import or
-                //"decrypt" or "unwrapKey" for private key imports
-                )
+        self.importPublicKey(self.rawCertificate.publicKey)
                 .then(function (publicKey) {
                     // Saves imported public key
                     window.DxCrypto.certificate = {
@@ -22456,6 +22043,25 @@ $.extend(window.DxCryptoClass.prototype, {
                     callback();
                 })
                 .catch(self.catchError);
+    },
+    /**
+     * Imports public key
+     * @param {ArrayBuffer} publicKey ArrayBuffer for public key
+     * @returns {CryptoKey} Crypto Key's object
+     */
+    importPublicKey: function (publicKey) {
+        // Import public key from raw format to CryptoKey object
+        return window.crypto.subtle.importKey(
+                "spki", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
+                publicKey,
+                {//these are the algorithm options
+                    name: "RSA-OAEP",
+                    hash: {name: "SHA-256"}, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+                },
+                false, //whether the key is extractable (i.e. can be used in exportKey)
+                ["wrapKey"] //"encrypt" or "wrapKey" for public key import or
+                //"decrypt" or "unwrapKey" for private key imports
+                );
     },
     /**
      * Unwraps user's private key
@@ -22495,7 +22101,7 @@ $.extend(window.DxCryptoClass.prototype, {
     },
     /**
      * Unwraps master key (recursive - after unwraping one key, proceedes to next one)
-     * @param {type} counter Counts current master key which i being unwrapped
+     * @param {type} counter Counts current master key which is being unwrapped
      * @returns {Boolean} Result if operation succeeded
      */
     unwrapMasterKey: function (counter) {
@@ -22512,7 +22118,7 @@ $.extend(window.DxCryptoClass.prototype, {
 
         var masterKeyObj = self.rawMasterKeys[counter];
 
-        return   window.crypto.subtle.unwrapKey(
+        return window.crypto.subtle.unwrapKey(
                 "raw", //"jwk", "raw", "spki", or "pkcs8" (whatever was used in wrapping)
                 masterKeyObj.value, //the key you want to unwrap
                 self.certificate.privateKey, //the AES-CTR key with "unwrapKey" usage flag
@@ -22534,6 +22140,37 @@ $.extend(window.DxCryptoClass.prototype, {
 
                     // Iterate to next master key
                     return self.unwrapMasterKey(++counter);
+                })
+                .catch(window.DxCrypto.catchError);
+    },
+    /**
+     * Unwraps master key and returns unwrapped kye
+     * @param {ArrayBuffer} wrappedMasterKey Key you want to unwrap
+     * @returns {CryptoKey} Unwrapped master key
+     */
+    unwrapMasterKeyByValue: function (wrappedMasterKey) {
+        var self = window.DxCrypto;
+
+        return window.crypto.subtle.unwrapKey(
+                "raw", //"jwk", "raw", "spki", or "pkcs8" (whatever was used in wrapping)
+                wrappedMasterKey, //the key you want to unwrap
+                self.certificate.privateKey, //the AES-CTR key with "unwrapKey" usage flag
+                {//these are the wrapping key's algorithm options
+                    name: "RSA-OAEP",
+                    modulusLength: 2048, //can be 1024, 2048, or 4096
+                    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+                    hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+                },
+                {
+                    name: "AES-CTR",
+                    length: 256
+                },
+                true, //whether the key is extractable (i.e. can be used in exportKey)
+                ["encrypt", "decrypt"] //the usages you want the unwrapped key to have
+                )
+                .then(function (masterKey) {
+                    // Iterate to next master key
+                    return masterKey;
                 })
                 .catch(window.DxCrypto.catchError);
     },
@@ -22609,11 +22246,12 @@ $.extend(window.DxCryptoClass.prototype, {
     /**
      * Generates completely new master key
      * @param {CryptoKey} publicKey Key which will be used to wrap master key
-     * @param {int} masterKeyGroupId Master key group ID
      * @param {function} callback Function to call after master key has been generated
      * @returns {ArrayBuffer} Master key which is generated
      */
-    generateNewMasterKey: function (publicKey, masterKeyGroupId, callback) {
+    generateNewMasterKey: function (publicKey, callback) {
+        var rawMasterKey;
+
         return window.crypto.subtle.generateKey(
                 {
                     name: "AES-CTR",
@@ -22623,21 +22261,30 @@ $.extend(window.DxCryptoClass.prototype, {
                 ["encrypt", "decrypt"] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
                 )
                 .then(function (masterKey) {
-                    window.DxCrypto.masterKeyGroups[masterKeyGroupId] = masterKey;
+                    rawMasterKey = masterKey;
 
-                    return window.crypto.subtle.wrapKey(
-                            "raw", //the export format, must be "raw" (only available sometimes)
-                            masterKey, //the key you want to wrap, must be able to fit in RSA-OAEP padding
-                            publicKey, //the public key with "wrapKey" usage flag
-                            {//these are the wrapping key's algorithm options
-                                name: "RSA-OAEP",
-                                hash: {name: "SHA-256"}
-                            });
+                    return window.DxCrypto.wrapMasterKey(publicKey, masterKey);
                 })
                 .then(function (wrappedMasterKey) {
-                    callback(wrappedMasterKey);
+                    callback(wrappedMasterKey, rawMasterKey);
                 })
                 .catch(window.DxCrypto.catchError);
+    },
+    /**
+     * 
+     * @param {CryptoKey} publicKey Key which will be used to wrap master key
+     * @param {CryptoKey} masterKey Master key which will be wrapped
+     * @returns {ArrayBuffer} Master key which is generated
+     */
+    wrapMasterKey: function (publicKey, masterKey) {
+        return window.crypto.subtle.wrapKey(
+                "raw", //the export format, must be "raw" (only available sometimes)
+                masterKey, //the key you want to wrap, must be able to fit in RSA-OAEP padding
+                publicKey, //the public key with "wrapKey" usage flag
+                {//these are the wrapping key's algorithm options
+                    name: "RSA-OAEP",
+                    hash: {name: "SHA-256"}
+                });
     },
     /**
      * Generates master key for user in specified master key group
@@ -22672,7 +22319,7 @@ $.extend(window.DxCryptoClass.prototype, {
                             self.catchError(null, Lang.get('crypto.e_master_key_already_exist'));
                         } else {
                             // Generates master key for current user
-                            self.generateNewMasterKey(window.DxCrypto.certificate.publicKey, masterKeyGroupId, callback);
+                            self.generateNewMasterKey(window.DxCrypto.certificate.publicKey, callback);
                         }
                     },
                     error: function (err) {
@@ -22739,7 +22386,9 @@ $.extend(window.DxCryptoClass.prototype, {
 
         window.DxCrypto.clearCryptoCache();
 
-        window.DxCrypto.generateMasterKey(masterKeyGroupId, userId, function (wrappedMasterKey) {
+        window.DxCrypto.generateMasterKey(masterKeyGroupId, userId, function (wrappedMasterKey, rawMasterKey) {
+            window.DxCrypto.masterKeyGroups[masterKeyGroupId] = rawMasterKey;
+
             var masterKeyHex = window.DxCrypto.arrayBufferToHexString(wrappedMasterKey);
 
             $('input[name=master_key]', form).val(masterKeyHex);
@@ -22754,6 +22403,550 @@ $.extend(window.DxCryptoClass.prototype, {
 });
 
 window.DxCrypto = new window.DxCryptoClass();
+
+/**
+ * Crypto library which encrypt and decrypt data
+ * @returns {window.DxCryptoRegenClass}
+ */
+window.DxCryptoRegenClass = function () {
+    this.regenRecordTotalProcessedCounter = 0;
+    this.regenRecordTotalCount = 0;
+    this.regenRecordProcessedCount = 0;
+    this.regenProcessId = 0;
+    this.masterKeyGroupId = 0;
+    this.regenCache;
+    this.regenCancel = false;
+    this.newMasterKey;
+    this.wrappedMasterKeys = {};
+};
+
+/**
+ * Extends crypto library prototype
+ * @param {object} param1 Crypto library
+ * @param {function} param2 Extended functionality
+ */
+$.extend(window.DxCryptoRegenClass.prototype, {
+    catchError: function (err) {
+        var self = window.DxCryptoRegen;
+
+        self.resetRegenTempData();
+
+        self.cancelProcess();
+
+        $('#dx-crypto-modal-regen-masterkey').modal('hide');
+
+        window.DxCrypto.catchError(err);
+    },
+    resetRegenTempData: function () {
+        var self = window.DxCryptoRegen;
+
+        self.regenRecordTotalProcessedCounter = 0;
+        self.regenRecordTotalCount = 0;
+        self.regenRecordProcessedCount = 0;
+        self.regenProcessId = 0;
+        self.masterKeyGroupId = 0;
+        self.regenCache = undefined;
+        self.newMasterKey = undefined;
+        self.wrappedMasterKeys = {};
+        self.regenCancel = false;
+
+        var modal = $('#dx-crypto-modal-regen-masterkey');
+
+        var bar = modal.find('.dx-crypto-modal-regen-progress-bar');
+        bar.attr('aria-valuenow', 0);
+        bar.attr('aria-valuemax', 100);
+        bar.width(0 + '%');
+
+    },
+    /**
+     * Generate new masterkey and regenrate data
+     * @param {int} masterKeyGroupId Master key group's ID
+     * @returns {Boolean}
+     */
+    regenMasterKey: function (masterKeyGroupId) {
+        var self = window.DxCryptoRegen;
+
+        self.resetRegenTempData();
+
+        self.masterKeyGroupId = masterKeyGroupId;
+
+        show_page_splash(1);
+
+        if (!window.DxCrypto.certificate || !window.DxCrypto.certificate.publicKey || !window.DxCrypto.certificate.privateKey) {
+            // Retrieves certificate and calls this function again
+            window.DxCrypto.getCurrentUserCertificate(0, function () {
+                self.regenMasterKey(self.masterKeyGroupId);
+            });
+            return false;
+        }
+
+        if (!(self.masterKeyGroupId in window.DxCrypto.masterKeyGroups)) {
+            window.DxCrypto.catchError(null, Lang.get('crypto.e_missing_masterkey'));
+            return false;
+        }
+
+        self.regenCancel = false;
+
+        self.checkExistingRecrypt();
+    },
+    /**
+     * Find if there already exist recryption process in progress
+     * @returns {undefined}
+     */
+    checkExistingRecrypt: function () {
+        var self = window.DxCryptoRegen;
+
+        show_page_splash(1);
+
+        $.ajax({
+            url: DX_CORE.site_url + 'crypto/check_regen/' + self.masterKeyGroupId,
+            type: "get",
+            dataType: "json",
+            success: function (res) {
+                if (res && res.success && res.success == 1) {
+
+                    if (res.process_id && res.process_id != 0) {
+                        hide_page_splash(1);
+
+                        var title = Lang.get('crypto.regen_process_exist');
+                        var body = Lang.get('crypto.w_regen_process_exist');
+                        var btn_yes = Lang.get('form.btn_yes');
+                        var btn_no = Lang.get('form.btn_no');
+
+                        var acceptFunc = function () {
+                            show_page_splash(1);
+                            self.continueReencryption(res.process_id);
+                        };
+
+                        var declineFunc = function () {
+                            show_page_splash(1);
+                            self.generateNewMasterKey();
+                        };
+
+                        PageMain.showConfirm(acceptFunc, null, title, body, btn_yes, btn_no, declineFunc);
+                    } else {
+                        self.generateNewMasterKey();
+                    }
+                } else {
+                    window.DxCryptoRegen.catchError(null);
+                }
+            },
+            error: function (err) {
+                window.DxCryptoRegen.catchError(err);
+            }
+        });
+    },
+    /**
+     * Continues existing reencryption process
+     * @param {int} regenProcessId Data regeneration (reencryption) process' id 
+     * @returns {undefined}
+     */
+    continueReencryption: function (regenProcessId) {
+        var self = window.DxCryptoRegen;
+
+        self.showRegenProgress();
+        hide_page_splash(1);
+        self.updateRegenStatus(Lang.get('crypto.i_gathering_data'));
+
+        self.retrieveEncryptedData(regenProcessId, '');
+    },
+    /**
+     * Generates new master key and starts new encryption process
+     * @returns {undefined}
+     */
+    generateNewMasterKey: function () {
+        var self = window.DxCryptoRegen;
+
+        show_page_splash(1);
+
+        // Generates new master key for current user
+        window.DxCrypto.generateNewMasterKey(window.DxCrypto.certificate.publicKey, function (wrappedMasterKey, rawMasterKey) {
+            self.newMasterKey = rawMasterKey;
+
+            self.showRegenProgress();
+            hide_page_splash(1);
+            self.updateRegenStatus(Lang.get('crypto.i_gathering_data'));
+
+            var masterKeyHex = window.DxCrypto.arrayBufferToHexString(wrappedMasterKey);
+
+            self.retrieveEncryptedData(0, masterKeyHex);
+
+        });
+    },
+    /**
+     * Gets encrypted data from server
+     * @param {int} regenProcessId Data regeneration (reencryption) process' id 
+     * @param {CryptoKey} newWrappedMasterKey Master key's CryptoKey object
+     * @returns {undefined}
+     */
+    retrieveEncryptedData: function (regenProcessId, newWrappedMasterKey) {
+        var self = window.DxCryptoRegen;
+
+        if (!self.validateProgress()) {
+            return false;
+        }
+
+        var url = DX_CORE.site_url + 'crypto/pending_data/' + regenProcessId + '/' + self.masterKeyGroupId + '/' + (self.newMasterKey ? 0 : 1) + '/' + newWrappedMasterKey;
+
+        $.ajax({
+            url: url,
+            type: "get",
+            dataType: "json",
+            success: function (res) {
+                if (res && res.success && res.success == 1) {
+                    self.regenRecordTotalProcessedCounter = res.cachedDataCount ? res.cachedDataCount : 0;
+                    self.regenRecordTotalCount = res.totalDataCount ? res.totalDataCount : 0;
+                    self.regenRecordProcessedCount = 0;
+                    self.regenCache = new FormData();
+                    self.regenProcessId = res.regenProcessId;
+
+                    // If master key received unwraps it and then continues
+                    if (res.masterKey && res.masterKey != '') {
+                        var wrappedMasterKey = window.DxCrypto.hexStringToArrayBuffer(res.masterKey);
+
+                        window.DxCrypto.unwrapMasterKeyByValue(wrappedMasterKey)
+                                .then(function (masterKey) {
+                                    self.newMasterKey = masterKey;
+
+                                    self.recryptData(res.pendingData);
+                                })
+                                .catch(self.catchError);
+                        ;
+                    } else {
+                        self.recryptData(res.pendingData);
+                    }
+                } else {
+                    window.DxCryptoRegen.catchError(null);
+                }
+            },
+            error: function (err) {
+                window.DxCryptoRegen.catchError(err);
+            }
+        });
+    },
+    recryptData: function (pendingData) {
+        var self = window.DxCryptoRegen;
+
+        for (var i = 0; i < pendingData.length; i++) {
+            self.recryptDataRow(pendingData, i);
+        }
+
+        // All already done
+        if (pendingData.length <= 0) {
+            // Starts to wrap new master key with user public keys. First must retrieve all public keys from data base
+            self.getAllUserPublicKeys();
+        }
+    },
+    onRecryptedDataRow: function (resBuffer, record, batchSize) {
+        var self = window.DxCryptoRegen;
+        var newValue;
+
+        if (record.is_file == 1) {
+            newValue = new Blob([new Uint8Array(resBuffer)], {type: "application/octet-stream"});
+        } else {
+            newValue = window.DxCrypto.arrayBufferToHexString(resBuffer);
+        }
+
+        ++self.regenRecordTotalProcessedCounter;
+        ++self.regenRecordProcessedCount;
+
+        self.updateRegenProgress();
+
+        self.regenCache.append(record.id, newValue);
+
+        if (self.regenRecordProcessedCount >= batchSize) {
+            self.postCache();
+        }
+    },
+    recryptDataRow: function (pendingData, rowNum) {
+        var self = window.DxCryptoRegen;
+
+        if (!self.validateProgress()) {
+            return false;
+        }
+
+        var record = pendingData[rowNum];
+
+        if (record.is_file == 1) {
+            var xhr = new XMLHttpRequest();
+
+            xhr.onload = function () {
+                var reader = new FileReader();
+
+                reader.readAsArrayBuffer(xhr.response);
+
+                reader.onloadend = function () {
+
+                    var oldValue = new Uint8Array(reader.result);
+
+                    //callback(arrayBuffer, xhr.response.type);
+
+                    self.encryptDecryptData(oldValue, function (resBuffer) {
+                        self.onRecryptedDataRow(resBuffer, record, pendingData.length);
+                    });
+                };
+            };
+            xhr.open('GET', DX_CORE.site_url + 'download_by_field_' + record.old_value);
+            xhr.responseType = 'blob';
+            xhr.send();
+
+        } else {
+            var oldValue = window.DxCrypto.hexStringToArrayBuffer(record.old_value);
+
+            self.encryptDecryptData(oldValue, function (resBuffer) {
+                self.onRecryptedDataRow(resBuffer, record, pendingData.length);
+            });
+        }
+    },
+    encryptDecryptData: function (oldValue, callback) {
+        var self = window.DxCryptoRegen;
+
+        var counterBuffer = oldValue.subarray(0, 16);
+        var resBuffer = oldValue.subarray(16, oldValue.length);
+
+        if (!self.validateProgress()) {
+            return false;
+        }
+
+        window.crypto.subtle.decrypt(
+                {
+                    name: "AES-CTR",
+                    counter: counterBuffer, //The same counter you used to encrypt
+                    length: 128, //The same length you used to encrypt
+                },
+                window.DxCrypto.masterKeyGroups[self.masterKeyGroupId], //from generateKey or importKey above
+                resBuffer //ArrayBuffer of the data
+                )
+                .then(function (decryptedValue) {
+                    if (!self.validateProgress()) {
+                        return false;
+                    }
+
+                    // ENCRYPT DECRYPTED DATA WITH NEW MASTERKEY
+                    var counterBuffer = new Uint8Array(16);
+
+                    return window.crypto.subtle.encrypt(
+                            {
+                                name: "AES-CTR",
+                                //Don't re-use counters!
+                                //Always use a new counter every time your encrypt!
+                                counter: counterBuffer,
+                                length: 128, //can be 1-128
+                            },
+                            window.DxCryptoRegen.newMasterKey, //from generateKey or importKey above
+                            decryptedValue //ArrayBuffer of the data
+                            );
+                })
+                .then(function (encryptedValue) {
+                    if (!self.validateProgress()) {
+                        return false;
+                    }
+
+                    encryptedValue = new Uint8Array(encryptedValue);
+
+                    var resBuffer = new Uint8Array(encryptedValue.length + counterBuffer.length);
+                    resBuffer.set(counterBuffer);
+                    resBuffer.set(encryptedValue, counterBuffer.length);
+
+                    callback(resBuffer);
+                })
+                .catch(window.DxCryptoRegen.catchError);
+    },
+    postCache: function () {
+        var self = window.DxCryptoRegen;
+
+        if (!self.validateProgress()) {
+            return false;
+        }
+
+        $.ajax({
+            url: DX_CORE.site_url + 'crypto/save_regen_cache',
+            data: self.regenCache,
+            type: "post",
+            processData: false,
+            dataType: "json",
+            contentType: false,
+            success: function (res) {
+                if (res && res.success) {
+                    if (self.regenRecordTotalProcessedCounter >= self.regenRecordTotalCount) {
+                        // Starts to wrap new master key with user public keys. First must retrieve all public keys from data base
+                        self.getAllUserPublicKeys();
+                    } else {
+                        self.retrieveEncryptedData(self.regenProcessId, self.masterKeyGroupId, '');
+                    }
+                } else {
+                    self.catchError(res);
+                }
+            },
+            error: self.catchError
+        });
+
+        self.regenCache = new FormData();
+    },
+    /**
+     * Sets regeneration modal progress window to successful state
+     * @returns {undefined}
+     */
+    finishRegenProgress: function () {
+        var modal = $('#dx-crypto-modal-regen-masterkey');
+
+        modal.find('.dx-crypto-modal-regen-progress').hide();
+        modal.find('.dx-crypto-modal-regen-succ').show();
+        modal.find('.dx-crypto-modal-regen-btn-cancel').hide();
+        modal.find('.dx-crypto-modal-regen-btn-close').show();
+
+        var bar = modal.find('.dx-crypto-modal-regen-progress-bar');
+        bar.attr('aria-valuenow', 0);
+        bar.attr('aria-valuemax', 100);
+        bar.width(0 + '%');
+    },
+    /**
+     * Opens dialog to show progress of data reencryption
+     * @returns {undefined}
+     */
+    showRegenProgress: function () {
+        var modal = $('#dx-crypto-modal-regen-masterkey');
+
+        modal.on('shown.bs.modal', function () {
+            modal.find('.dx-crypto-modal-regen-progress').show();
+            modal.find('.dx-crypto-modal-regen-succ').hide();
+            modal.find('.dx-crypto-modal-regen-btn-cancel').show();
+            modal.find('.dx-crypto-modal-regen-btn-close').hide();
+        });
+
+        modal.find('.dx-crypto-modal-regen-btn-cancel').click(window.DxCryptoRegen.cancelProcess);
+
+        modal.on('hiden.bs.modal', function () {
+            window.DxCryptoRegen.cancelProcess();
+        });
+
+        modal.modal('show');
+    },
+    cancelProcess: function () {
+        var self = window.DxCryptoRegen;
+
+        self.regenCancel = true;
+        self.updateRegenStatus(Lang.get('crypto.i_cancel_regen_process'));
+    },
+    validateProgress: function () {
+        if (window.DxCryptoRegen.regenCancel) {
+            var modal = $('#dx-crypto-modal-regen-masterkey');
+
+            modal.modal('hide');
+
+            return false;
+        }
+
+        return true;
+    },
+    updateRegenProgress: function () {
+        var self = window.DxCryptoRegen;
+
+        var modal = $('#dx-crypto-modal-regen-masterkey');
+
+        var current = self.regenRecordTotalProcessedCounter;
+        var total = self.regenRecordTotalCount;
+
+        var bar = modal.find('.dx-crypto-modal-regen-progress-bar');
+        bar.attr('aria-valuenow', current);
+        bar.attr('aria-valuemax', total);
+        bar.width((current / total * 100) + '%');
+
+        var label = modal.find('.dx-crypto-modal-regen-progress-label');
+        label.html(Lang.get('crypto.regen_masterkey_records_label') + ': ' + current + '/' + total);
+    },
+    updateRegenStatus: function (text) {
+        var modal = $('#dx-crypto-modal-regen-masterkey');
+
+        modal.find('.dx-crypto-modal-regen-progress-label').html(text);
+    },
+    getAllUserPublicKeys: function () {
+        var self = window.DxCryptoRegen;
+
+        if (!self.validateProgress()) {
+            return false;
+        }
+
+        self.updateRegenStatus(Lang.get('crypto.i_gathering_certs'));
+
+        $.ajax({
+            url: DX_CORE.site_url + 'crypto/get_user_public_keys',
+            type: "get",
+            success: function (res) {
+                if (res && res.success && res.user_keys) {
+                    self.updateRegenStatus(Lang.get('crypto.i_encrypting_master_keys'));
+
+                    self.wrapMasterkeys(res.user_keys, 0);
+                } else {
+                    self.catchError(res);
+                }
+            },
+            error: self.catchError
+        });
+    },
+    wrapMasterkeys: function (userKeyData, i) {
+        var self = window.DxCryptoRegen;
+
+        if (!self.validateProgress()) {
+            return false;
+        }
+
+        if (i >= userKeyData.length) {
+            self.applyCache();
+            return false;
+        }
+
+        var userKeyDataRow = userKeyData[i];
+
+        var publicKeyBuffer = new Uint8Array(window.DxCrypto.base64ToArrayBuffer(userKeyDataRow.public_key));
+
+        window.DxCrypto.importPublicKey(publicKeyBuffer)
+                .then(function (publicKey) {
+                    return window.DxCrypto.wrapMasterKey(publicKey, self.newMasterKey)
+                })
+                .then(function (wrappedMasterKey) {
+                    self.wrappedMasterKeys[userKeyDataRow.user_id] = window.DxCrypto.arrayBufferToHexString(wrappedMasterKey);
+
+                    /*{
+                     master_key : window.DxCrypto.arrayBufferToHexString(wrappedMasterKey),
+                     user_id: userKeyDataRow.user_id
+                     };*/
+
+                    self.wrapMasterkeys(userKeyData, ++i);
+                })
+                .catch(self.catchError);
+    },
+    applyCache: function () {
+        var self = window.DxCryptoRegen;
+
+        if (!self.validateProgress()) {
+            return false;
+        }
+
+        self.updateRegenStatus(Lang.get('crypto.i_saving_regen_data'));
+
+        $.ajax({
+            url: DX_CORE.site_url + 'crypto/apply_regen_cache',
+            data: {
+                regen_process_id: self.regenProcessId,
+                master_keys: self.wrappedMasterKeys
+            },
+            type: "post",
+            success: function (res) {
+                if (res && res.success) {
+                    self.finishRegenProgress();
+
+                    window.DxCrypto.masterKeyGroups[self.masterKeyGroupId] = self.newMasterKey;
+                } else {
+                    self.catchError(res);
+                }
+            },
+            error: self.catchError
+        });
+    }
+});
+
+window.DxCryptoRegen = new window.DxCryptoRegenClass();
 
 (function ($)
 {
@@ -23214,4 +23407,502 @@ $(document).ajaxComplete(function () {
     $('.dx-crypto-user_panel-page[data-dx_is_init!=1]').DxCryptoUserPanel();
 });
 
+(function($)
+{
+	/**
+	 * ViewEditor - a jQuery plugin that inits view editor functionality (columns setting by drag & drop)
+	 *
+	 * @param root
+	 * @returns {*}
+	 * @constructor
+	 */
+	$.fn.ViewEditor = function(opts)
+	{
+		var options = $.extend({}, $.fn.ViewEditor.defaults, opts);
+		return this.each(function()
+		{
+			new $.ViewEditor(this, options);
+		});
+	};
+	
+	$.fn.ViewEditor.defaults = {
+            view_container: null,
+            reloadBlockGrid: null,
+            root_url: "/",
+            load_tab_grid: null,
+            onsave: null,
+        };
+	
+	/**
+	 * ViewEditor constructor
+	 *
+	 * @param root
+	 * @constructor
+	 */
+	$.ViewEditor = function(root, opts)
+	{
+		$.data(root, 'ViewEditor', this);
+		var self = this;
+                
+		this.options = opts;
+		this.root = $(root);
+		
+		if(this.root.hasClass("is-init"))
+		{
+			return; // editor is allready initialized
+		}
+		
+		this.root.find(".dx-cms-nested-list").nestable();
+                
+                this.handleBtnSaveView(this.options.view_container);
+                this.handleBtnCopy(this.options.view_container);
+                this.handleBtnDelete(this.options.view_container);
+                this.handleFieldOperation(this.options.view_container);
+                
+                var frm_el = this.root.closest(".dx-popup-modal");
+                this.setFldEventHandlers(frm_el, frm_el, this.options.view_container);
+                this.handleSearchField();
+                this.handleIsMyCheck(this.root);
+
+                this.root.find(".dx-view-btn-copy").show();
+                this.root.find(".dx-view-btn-delete").show();
+		
+		this.root.addClass("is-init");
+	};
+        
+        /**
+	 * InlineForm methods
+	 */
+	$.extend($.ViewEditor.prototype, {
+            
+            /**
+            * Sets events for added/moved field
+            *
+            * @param {object} frm_el Fields UI forms HTML object
+            * @param {object} fld_el Field element HTML object
+            * @param {object} view_container Grid view main object's HTML element
+            * @returns {undefined}
+            */
+            setFldEventHandlers: function(frm_el, fld_el, view_container)
+            {
+                var self = this;
+                
+                fld_el.find('.dx-cms-field-remove').click(function () {
+                    self.removeFld(frm_el, $(this), view_container);
+                });
+
+                fld_el.find('.dx-cms-field-add').click(function () {
+                    self.addFld(frm_el, $(this), view_container);
+                });
+
+                fld_el.find('.dx-fld-title').click(function () {
+                    self.openSettings($(this), view_container);
+                });
+            },
+            
+            /**
+            * Moves field from used section to available fields section
+            *
+            * @param {object} frm_el Fields UI forms HTML object
+            * @param {object} fld_el Field element HTML object
+            * @param {object} view_container Grid view main object's HTML element
+            * @returns {undefined}
+            */
+            removeFld: function (frm_el, fld_el, view_container) {
+                frm_el.find('.dx-fields-container .dx-available ol.dd-list').append(fld_el.closest('.dd-item').clone());
+                fld_el.closest('.dd-item').remove();
+
+                var new_el = frm_el.find('.dx-fields-container .dx-available ol.dd-list .dd-item').last();
+                this.setFldEventHandlers(frm_el, new_el, view_container);
+
+                this.clearSearchIfLast(frm_el, 'dx-used');
+            },
+
+            /**
+             * Moves field from available section to used fields section
+             *
+             * @param {object} frm_el Fields UI forms HTML object
+             * @param {object} fld_el Field element HTML object
+             * @param {object} view_container Grid view main object's HTML element
+             * @returns {undefined}
+             */
+            addFld: function (frm_el, fld_el, view_container) {
+                frm_el.find('.dx-fields-container .dx-used ol.dd-list').append(fld_el.closest('.dd-item').clone());
+                fld_el.closest('.dd-item').remove();
+
+                var new_el = frm_el.find('.dx-fields-container .dx-used ol.dd-list .dd-item').last();
+                this.setFldEventHandlers(frm_el, new_el, view_container);
+
+                this.clearSearchIfLast(frm_el, 'dx-available');
+            },
+            
+            /**
+            * Sets handles for checkboxies (is default and is my view only)
+            *
+            * @param {object} frm_el Fields UI forms HTML object
+            * @returns {undefined}
+            */
+            handleIsMyCheck: function (frm_el) {
+                frm_el.find("input[name=is_my_view]").change(function () {
+                    if ($(this).prop('checked')) {
+                        frm_el.find("input[name=is_default]").prop('checked', '').closest('span').hide();
+                    }
+                    else {
+                        frm_el.find("input[name=is_default]").closest('span').show();
+                    }
+                });
+
+                frm_el.find("input[name=is_default]").change(function () {
+                    if ($(this).prop('checked')) {
+                        frm_el.find("input[name=is_my_view]").prop('checked', '').closest('span').hide();
+                    }
+                    else {
+                        frm_el.find("input[name=is_my_view]").closest('span').show();
+                    }
+                });
+            },
+            
+            /**
+            * Clear fields search input in case if no more fields in container (and show again all fields in container)
+            *      *
+            * @param {object} frm_el Fields UI forms HTML object
+            * @param {string} fields_class HTML class name of fields container (dx-used or dx-available)
+            * @returns {undefined}
+            */
+            clearSearchIfLast: function (frm_el, fields_class) {
+                if (frm_el.find('.dx-fields-container .' + fields_class + ' ol.dd-list .dd-item:visible').length == 0) {
+                    var txt = frm_el.find('.dx-fields-container .' + fields_class).closest('.portlet').find('input.dx-search');
+                    if (txt.val().length > 0) {
+                        txt.val('');
+                        txt.closest(".portlet").find(".dx-fields-container .dd-item").show();
+                        txt.focus();
+                    }
+                }
+            },
+            
+            /**
+            * Opens field's setting form
+            *
+            * @param {object} title_el Field item title HTML element
+            * @param {object} view_container Grid view main object's HTML element
+            * @returns {undefined}
+            */
+            openSettings: function (title_el, view_container) {
+               if (title_el.closest('.dx-cms-nested-list').hasClass('dx-used')) {
+                   var item = title_el.closest('.dd-item');
+                   var sett_el = view_container.find('.dx-popup-modal-settings');
+
+                   sett_el.find("input[name=is_hidden]").prop("checked", (item.attr("data-is-hidden") == "1") ? "checked" : "");
+                   sett_el.find("input[name=field_title]").val(title_el.text());
+                   sett_el.find("select[name=field_operation]").val(item.attr("data-operation-id"));
+
+                   if (item.attr("data-field-type") == "autocompleate" || item.attr("data-field-type") == "rel_id") {
+                       sett_el.find("select[name=field_operation]").attr("data-criteria", "auto");
+
+                       var auto_fld = sett_el.find("div.dx-autocompleate-field");
+                       auto_fld.attr("data-rel-list-id", item.attr('data-rel-list-id'));
+                       auto_fld.attr("data-rel-field-id", item.attr('data-rel-field-id'));
+                       auto_fld.attr("data-item-value", item.attr('data-criteria'));
+                       auto_fld.attr("data-field-id", item.attr('data-id'));
+
+                       var formData = new FormData();
+                       formData.append("list_id", item.attr('data-rel-list-id'));
+                       formData.append("txt_field_id", item.attr('data-rel-field-id'));
+                       formData.append("txt_field_id", item.attr('data-rel-field-id'));
+                       formData.append("value_id", item.attr('data-criteria'));
+
+                       show_form_splash();
+                       $.ajax({
+                           type: 'POST',
+                           url: DX_CORE.site_url + "view/auto_data",
+                           data: formData,
+                           processData: false,
+                           contentType: false,
+                           dataType: "json",
+                           async: false,
+                           success: function (data) {
+                               hide_form_splash();
+                               auto_fld.attr("data-min-length", data['count']);
+                               auto_fld.attr("data-item-text", data['txt']);
+                           }
+                       });
+
+                       AutocompleateField.initSelect(auto_fld);
+                   }
+                   else {
+                       sett_el.find("select[name=field_operation]").attr("data-criteria", "text");
+                       sett_el.find("input[name=criteria_value]").val(item.attr("data-criteria"));
+                   }
+
+                   this.showHideCriteria(sett_el, sett_el.find("select[name=field_operation]"));
+
+                   var btn_save = sett_el.find('.dx-settings-btn-save');
+
+                   btn_save.off("click");
+                   btn_save.click(function () {
+                       var oper_el = sett_el.find('select[name=field_operation]');
+
+                       var crit_val = "";
+                       if (oper_el.attr("data-criteria") == "text") {
+                           crit_val = sett_el.find('input[name=criteria_value]').val();
+                       }
+                       else {
+                           crit_val = parseInt(sett_el.find('input.dx-auto-input-id').val());
+                       }
+
+                       if (oper_el.val() && oper_el.find('option:selected').attr('data-is-criteria') != "0" && !crit_val) {
+                           notify_err(Lang.get('grid.error_filter_must_be_set'));
+                           return false;
+                       }
+
+                       item.attr("data-criteria", crit_val);
+                       item.attr("data-is-hidden", sett_el.find('input[name=is_hidden]').is(":checked") ? 1 : 0);
+                       item.attr("data-operation-id", oper_el.val());
+
+                       sett_el.modal('hide');
+                   });
+
+                   sett_el.modal('show');
+               }
+           },
+
+           /**
+            * Handles event for show or hide criteria field depending on selected operation
+            *
+            * @param {object} view_container Grid view main object's HTML element
+            * @returns {undefined}
+            */
+           handleFieldOperation: function (view_container) {
+               var self = this;
+               
+               var sett_el = view_container.find('.dx-popup-modal-settings');
+               sett_el.find('select[name=field_operation]').change(function () {
+                   self.showHideCriteria(sett_el, $(this));
+               });
+           },
+
+           /**
+            * Shoe or hide criteria field depending on selected operation
+            * @param {object} sett_el Setting popup form HTML element
+            * @param {object} sel_el Operation select HTML element
+            * @returns {undefined}
+            */
+           showHideCriteria: function (sett_el, sel_el) {
+               if (sel_el.find('option:selected').attr('data-is-criteria') != "0") {
+                   if (sel_el.attr("data-criteria") == "text") {
+                       sett_el.find(".dx-criteria-text").show();
+                       sett_el.find(".dx-criteria-auto").hide();
+                       sett_el.find("input[name=criteria_value]").focus();
+                   }
+                   else {
+                       sett_el.find(".dx-criteria-text").hide();
+                       sett_el.find(".dx-criteria-auto").show();
+                       sett_el.find('.dx-auto-input-select2').select2("open");
+                   }
+               }
+               else {
+                   sett_el.find("input[name=criteria_value]").val('');
+                   sett_el.find(".dx-criteria-auto").hide();
+                   sett_el.find(".dx-criteria-text").hide();
+                   sett_el.find('.dx-auto-input-select2').select2('data', {id: 0, text: ""});
+                   sett_el.find("input.dx-auto-input-id").val(0);
+               }
+           },
+           
+           /**
+            * Handles fields searching functionality
+            * @returns {undefined}
+            */
+           handleSearchField: function () {
+               $("input.dx-search").on("keyup", function () {
+                   if (!$(this).val()) {
+                       $(this).closest(".portlet").find(".dx-fields-container .dd-item").show();
+                       return;
+                   }
+                   $(this).closest(".portlet").find(".dx-fields-container .dd-item").hide();
+                   $(this).closest(".portlet").find(".dx-fields-container .dx-fld-title:contains('" + $(this).val() + "')").closest(".dd-item").show();
+
+               });
+           },
+
+           /**
+            * Handles view copy function
+            *
+            * @param {object} view_container Grid view main object's HTML element
+            * @returns {undefined}
+            */
+           handleBtnCopy: function (view_container) {
+               var pop_el = $("#" + view_container.attr("id") + "_popup");
+               pop_el.find(".dx-view-btn-copy").click(function () {
+                   var frm_el = pop_el.find(".dx-view-edit-form");
+                   frm_el.data('view-id', 0);
+                   pop_el.find(".dx-view-btn-copy").hide();
+                   pop_el.find(".dx-view-btn-delete").hide();
+                   pop_el.find("span.badge").html(Lang.get('grid.badge_new'));
+                   frm_el.find("input[name=view_title]").val(frm_el.find("input[name=view_title]").val() + " - " + Lang.get('grid.title_copy')).focus();
+
+                   frm_el.find('input[name=is_default]').prop("checked", '').show().closest('span').show();
+                   frm_el.find('input[name=is_my_view]').prop("checked", '').closest('span').show();
+               });
+           },
+
+           /**
+            * Handles button "Delete" pressing
+            *
+            * @param {object} view_container Grid view main object's HTML element
+            * @returns {undefined}
+            */
+           handleBtnDelete: function (view_container) {
+               var self = this;
+               var pop_el = $("#" + view_container.attr("id") + "_popup");
+               pop_el.find(".dx-view-btn-delete").click(function () {
+                   PageMain.showConfirm(self.deleteView, {view_container: view_container, self: self}, null, Lang.get('grid.confirm_delete'), Lang.get('form.btn_yes'), Lang.get('form.btn_no'));
+               });
+           },
+           
+            /**
+            * Loads view after previous view deletion or new view creation
+            *
+            * @param {object} view_container Grid view main object's HTML element
+            * @param {integer} view_id View ID
+            * @returns {undefined}
+            */
+           reloadAnotherView: function (view_container, view_id) {
+               if (view_container.attr('dx_tab_id')) {
+                    if (this.options.load_tab_grid) {
+                        this.options.load_tab_grid(view_container.attr('dx_tab_id'), view_container.attr('dx_list_id'), view_id, view_container.attr('dx_rel_field_id'), view_container.attr('dx_rel_field_value'), view_container.attr('dx_form_htm_id'), 1, 5, 1);
+                    }
+               }
+               else {
+                   show_page_splash(1);
+                   var url = this.options.root_url + 'skats_' + view_id;
+                   window.location.assign(encodeURI(url));
+               }
+           },
+
+           /**
+            * Handles view deletion functionality
+            *
+            * @param {object} view_container Grid view main object's HTML element
+            * @returns {undefined}
+            */
+           deleteView: function (params) {
+               var self = params.self;
+               var view_container = params.view_container;
+                              
+               var pop_el = $("#" + view_container.attr("id") + "_popup");
+               var frm_el = pop_el.find(".dx-view-edit-form");
+
+               var formData = new FormData();
+               formData.append("view_id", frm_el.data('view-id'));
+               formData.append("list_id", frm_el.data('list-id'));
+               formData.append('tab_id', view_container.attr('dx_tab_id'));
+
+               var request = new FormAjaxRequest('view/delete', "", "", formData);
+               request.progress_info = true;
+
+               request.callback = function (data) {
+                   if (data["success"] == 1) {
+                       pop_el.modal('hide');
+                       self.reloadAnotherView(view_container, data["view_id"]);
+                   }
+               };
+
+               // execute AJAX request
+               request.doRequest();
+           },           
+          
+            /**
+            * Prepares JSON string with all fields included in view (in correct order)
+            *
+            * @param {object} block Fields container HTML element
+            * @returns {string}
+            */
+           getFieldsState: function (block) {
+               var ret_arr = new Array();
+
+               block.find(".dd-item").each(function () {
+                   var item = {
+                       "field_id": $(this).attr('data-id'),
+                       "aggregation_id": $(this).attr('data-aggregation-id'),
+                       "list_id": $(this).attr('data-list-id'),
+                       "is_hidden": $(this).attr('data-is-hidden'),
+                       "operation_id": $(this).attr('data-operation-id'),
+                       "criteria": $(this).attr('data-criteria')
+                   };
+                   ret_arr.push(item);
+               });
+
+               return JSON.stringify(ret_arr);
+           },
+           
+           /**
+            * Handles button event - save view data
+            *
+            * @param {object} view_container Grid view main object's HTML element
+            * @returns {undefined}
+            */
+           handleBtnSaveView: function (view_container) {
+               var self = this;
+               var pop_el = $("#" + view_container.attr("id") + "_popup");
+               pop_el.find(".dx-view-btn-save").click(function () {
+
+                   var frm_el = pop_el.find(".dx-view-edit-form");
+                   var view_id = frm_el.data('view-id');
+                   var grid_el = view_container.find('.dx-grid-table').last();
+
+                   var formData = new FormData();
+                   formData.append("view_id", view_id);
+                   formData.append("list_id", frm_el.data('list-id'));
+                   formData.append("view_title", frm_el.find('input[name=view_title]').val());
+                   formData.append("is_default", frm_el.find('input[name=is_default]').is(":checked") ? 1 : 0);
+                   formData.append("is_my_view", frm_el.find('input[name=is_my_view]').is(":checked") ? 1 : 0);
+                   formData.append("fields", self.getFieldsState(frm_el.find('.dx-fields-container .dx-used')));
+                   formData.append('grid_id', grid_el.attr('id'));
+
+                   var request = new FormAjaxRequest('view/save', "", "", formData);
+                   request.progress_info = true;
+
+                   request.callback = function (data) {
+                       if (data["success"] == 1) {
+                           
+                           if (self.options.onsave) {
+                               self.options.onsave.call(this, data["view_id"]);
+                           }
+                           else {
+                                pop_el.modal('hide');
+                                pop_el.attr("id", pop_el.attr("id") + "_" + $(".dx-popup-modal").length);
+
+                                if (view_id == 0) {
+                                    self.reloadAnotherView(view_container, data["view_id"]);
+                                }
+                                else {
+                                     if (self.options.reloadBlockGrid) {
+                                         self.options.reloadBlockGrid(grid_el.attr('id'), grid_el.data('tab_id'));
+                                     }
+                                }
+                            }
+                       }
+                   };
+
+                   // execute AJAX request
+                   request.doRequest();
+
+               });
+           },
+
+                
+        });
+	
+})(jQuery);
+
+$(document).ajaxComplete(function(event, xhr, settings)
+{
+	$("input.dx-bool").ViewEditor();
+});
+
+$(document).ready(function()
+{
+	$("input.dx-bool").ViewEditor();
+});
 //# sourceMappingURL=elix_view.js.map

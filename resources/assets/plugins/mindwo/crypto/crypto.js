@@ -463,7 +463,7 @@ $.extend(window.DxCryptoClass.prototype, {
 
                     // If end move to next field
                     if (cryptoFieldCount === cryptoFieldCounter) {
-                      hide_page_splash(1);
+                        hide_page_splash(1);
                         return true;
                     }
                 };
@@ -563,18 +563,7 @@ $.extend(window.DxCryptoClass.prototype, {
 
         var self = window.DxCrypto;
 
-        // Import public key from raw format to CryptoKey object
-        window.crypto.subtle.importKey(
-                "spki", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
-                self.rawCertificate.publicKey,
-                {//these are the algorithm options
-                    name: "RSA-OAEP",
-                    hash: {name: "SHA-256"}, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
-                },
-                false, //whether the key is extractable (i.e. can be used in exportKey)
-                ["wrapKey"] //"encrypt" or "wrapKey" for public key import or
-                //"decrypt" or "unwrapKey" for private key imports
-                )
+        self.importPublicKey(self.rawCertificate.publicKey)
                 .then(function (publicKey) {
                     // Saves imported public key
                     window.DxCrypto.certificate = {
@@ -599,6 +588,25 @@ $.extend(window.DxCryptoClass.prototype, {
                     callback();
                 })
                 .catch(self.catchError);
+    },
+    /**
+     * Imports public key
+     * @param {ArrayBuffer} publicKey ArrayBuffer for public key
+     * @returns {CryptoKey} Crypto Key's object
+     */
+    importPublicKey: function (publicKey) {
+        // Import public key from raw format to CryptoKey object
+        return window.crypto.subtle.importKey(
+                "spki", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
+                publicKey,
+                {//these are the algorithm options
+                    name: "RSA-OAEP",
+                    hash: {name: "SHA-256"}, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+                },
+                false, //whether the key is extractable (i.e. can be used in exportKey)
+                ["wrapKey"] //"encrypt" or "wrapKey" for public key import or
+                //"decrypt" or "unwrapKey" for private key imports
+                );
     },
     /**
      * Unwraps user's private key
@@ -638,7 +646,7 @@ $.extend(window.DxCryptoClass.prototype, {
     },
     /**
      * Unwraps master key (recursive - after unwraping one key, proceedes to next one)
-     * @param {type} counter Counts current master key which i being unwrapped
+     * @param {type} counter Counts current master key which is being unwrapped
      * @returns {Boolean} Result if operation succeeded
      */
     unwrapMasterKey: function (counter) {
@@ -655,7 +663,7 @@ $.extend(window.DxCryptoClass.prototype, {
 
         var masterKeyObj = self.rawMasterKeys[counter];
 
-        return   window.crypto.subtle.unwrapKey(
+        return window.crypto.subtle.unwrapKey(
                 "raw", //"jwk", "raw", "spki", or "pkcs8" (whatever was used in wrapping)
                 masterKeyObj.value, //the key you want to unwrap
                 self.certificate.privateKey, //the AES-CTR key with "unwrapKey" usage flag
@@ -677,6 +685,37 @@ $.extend(window.DxCryptoClass.prototype, {
 
                     // Iterate to next master key
                     return self.unwrapMasterKey(++counter);
+                })
+                .catch(window.DxCrypto.catchError);
+    },
+    /**
+     * Unwraps master key and returns unwrapped kye
+     * @param {ArrayBuffer} wrappedMasterKey Key you want to unwrap
+     * @returns {CryptoKey} Unwrapped master key
+     */
+    unwrapMasterKeyByValue: function (wrappedMasterKey) {
+        var self = window.DxCrypto;
+
+        return window.crypto.subtle.unwrapKey(
+                "raw", //"jwk", "raw", "spki", or "pkcs8" (whatever was used in wrapping)
+                wrappedMasterKey, //the key you want to unwrap
+                self.certificate.privateKey, //the AES-CTR key with "unwrapKey" usage flag
+                {//these are the wrapping key's algorithm options
+                    name: "RSA-OAEP",
+                    modulusLength: 2048, //can be 1024, 2048, or 4096
+                    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+                    hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+                },
+                {
+                    name: "AES-CTR",
+                    length: 256
+                },
+                true, //whether the key is extractable (i.e. can be used in exportKey)
+                ["encrypt", "decrypt"] //the usages you want the unwrapped key to have
+                )
+                .then(function (masterKey) {
+                    // Iterate to next master key
+                    return masterKey;
                 })
                 .catch(window.DxCrypto.catchError);
     },
@@ -752,11 +791,12 @@ $.extend(window.DxCryptoClass.prototype, {
     /**
      * Generates completely new master key
      * @param {CryptoKey} publicKey Key which will be used to wrap master key
-     * @param {int} masterKeyGroupId Master key group ID
      * @param {function} callback Function to call after master key has been generated
      * @returns {ArrayBuffer} Master key which is generated
      */
-    generateNewMasterKey: function (publicKey, masterKeyGroupId, callback) {
+    generateNewMasterKey: function (publicKey, callback) {
+        var rawMasterKey;
+
         return window.crypto.subtle.generateKey(
                 {
                     name: "AES-CTR",
@@ -766,21 +806,30 @@ $.extend(window.DxCryptoClass.prototype, {
                 ["encrypt", "decrypt"] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
                 )
                 .then(function (masterKey) {
-                    window.DxCrypto.masterKeyGroups[masterKeyGroupId] = masterKey;
+                    rawMasterKey = masterKey;
 
-                    return window.crypto.subtle.wrapKey(
-                            "raw", //the export format, must be "raw" (only available sometimes)
-                            masterKey, //the key you want to wrap, must be able to fit in RSA-OAEP padding
-                            publicKey, //the public key with "wrapKey" usage flag
-                            {//these are the wrapping key's algorithm options
-                                name: "RSA-OAEP",
-                                hash: {name: "SHA-256"}
-                            });
+                    return window.DxCrypto.wrapMasterKey(publicKey, masterKey);
                 })
                 .then(function (wrappedMasterKey) {
-                    callback(wrappedMasterKey);
+                    callback(wrappedMasterKey, rawMasterKey);
                 })
                 .catch(window.DxCrypto.catchError);
+    },
+    /**
+     * 
+     * @param {CryptoKey} publicKey Key which will be used to wrap master key
+     * @param {CryptoKey} masterKey Master key which will be wrapped
+     * @returns {ArrayBuffer} Master key which is generated
+     */
+    wrapMasterKey: function (publicKey, masterKey) {
+        return window.crypto.subtle.wrapKey(
+                "raw", //the export format, must be "raw" (only available sometimes)
+                masterKey, //the key you want to wrap, must be able to fit in RSA-OAEP padding
+                publicKey, //the public key with "wrapKey" usage flag
+                {//these are the wrapping key's algorithm options
+                    name: "RSA-OAEP",
+                    hash: {name: "SHA-256"}
+                });
     },
     /**
      * Generates master key for user in specified master key group
@@ -815,7 +864,7 @@ $.extend(window.DxCryptoClass.prototype, {
                             self.catchError(null, Lang.get('crypto.e_master_key_already_exist'));
                         } else {
                             // Generates master key for current user
-                            self.generateNewMasterKey(window.DxCrypto.certificate.publicKey, masterKeyGroupId, callback);
+                            self.generateNewMasterKey(window.DxCrypto.certificate.publicKey, callback);
                         }
                     },
                     error: function (err) {
@@ -882,7 +931,9 @@ $.extend(window.DxCryptoClass.prototype, {
 
         window.DxCrypto.clearCryptoCache();
 
-        window.DxCrypto.generateMasterKey(masterKeyGroupId, userId, function (wrappedMasterKey) {
+        window.DxCrypto.generateMasterKey(masterKeyGroupId, userId, function (wrappedMasterKey, rawMasterKey) {
+            window.DxCrypto.masterKeyGroups[masterKeyGroupId] = rawMasterKey;
+
             var masterKeyHex = window.DxCrypto.arrayBufferToHexString(wrappedMasterKey);
 
             $('input[name=master_key]', form).val(masterKeyHex);

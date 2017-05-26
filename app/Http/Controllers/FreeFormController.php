@@ -91,9 +91,7 @@ class FreeFormController extends FormController
 		$this->is_editable_wf = true; // we wont check workflow status here
 		$row_data = $this->getFormItemDataRow($list_id, $item_id, $params);
 		$fields = $this->getFormFields($params);
-		
-                Log::info("Ir te");
-                
+		                
 		$fieldset = [];
 		
 		foreach($request->input('fields') as $f)
@@ -184,7 +182,7 @@ class FreeFormController extends FormController
 		$model->save();
 		
 		$result['success'] = 1;
-		Log::info("Dati dati");
+		
 		return response($result);
 	}
 	

@@ -121,6 +121,74 @@
     </div>
     @include('main.modal_dialog')
     @include('main.modal_dialog_crypto_psw')
-    @include('main.body_scripts')    
+    @include('main.modal_dialog_crypto_regen_progress')
+    @include('main.body_scripts')
+    <script>
+		$(document).ready(function()
+		{
+			// select all dropdown toggles under the top level
+			$('.dx-main-menu .dropdown-submenu > a.dropdown-toggle').each(function()
+			{
+				$(this).click(function(e)
+				{
+					if($(window).width() < 768)
+					{
+						e.stopPropagation();
+					 
+						// select the ul element next to the toggle (submenu itself)
+						var submenu = $(this).next();
+					 
+						if(submenu.is(':visible'))
+						{
+							// hide submenu and all open sub-submenus of it
+							submenu.add('.dropdown-menu', submenu).attr('style', '');
+						}
+						else
+						{
+							// hide already open submenus at the same level
+							$(this).parent().siblings('.dropdown-submenu').find('.dropdown-menu:visible').attr('style', '');
+							submenu.show();
+						}
+					}
+				});
+			});
+		 
+			// close open submenus when closing a top-level menu
+			$('.dx-main-menu > li > a.dropdown-toggle').click(function()
+			{
+				if($(window).width() < 768)
+				{
+					// if user is closing menu, then hide submenus of it
+					if($(this).attr('aria-expanded') == 'true')
+					{
+						$(this).next().find('.dropdown-menu:visible').attr('style', '');
+					}
+					// if user opens another menu, hide submenus of an already open menu
+					else
+					{
+						$(this).parent().siblings('.open').find('.dropdown-submenu .dropdown-menu:visible').attr('style', '');
+					}
+				}
+			});
+		 
+			$('.dx-main-menu > li .dropdown-menu .dropdown-submenu > a.dropdown-toggle').click(function(e)
+			{
+				if($(window).width() >= 768)
+				{
+					e.stopPropagation();
+					$(this).trigger('mouseenter');
+				}
+			});
+		 
+			// hide open submenus after screen resize
+			$(window).resize(function()
+			{
+				if($(window).width() > 768)
+				{
+					$('.dx-main-menu .dropdown-submenu .dropdown-menu:visible').attr('style', '');
+				}
+			});
+		});
+    </script>
   </body>
 </html>

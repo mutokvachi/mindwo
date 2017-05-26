@@ -443,7 +443,7 @@ namespace App\Libraries
             ]);
         }
         
-        private static function isItemLocked($list_id, $item_id) {
+        public static function isItemLocked($list_id, $item_id) {
             $row = DB::table('dx_locks as l')
                     ->select('l.user_id', 'u.display_name', 'l.locked_time')
                     ->join('dx_users as u', 'l.user_id', '=', 'u.id')
@@ -460,6 +460,22 @@ namespace App\Libraries
                 
                 // item allready locked by another user
                 throw new Exceptions\DXCustomException(sprintf(trans('errors.item_locked'), long_date($row->locked_time), $row->display_name, $row->display_name));
+            }
+            
+            // item is not locked jet
+            return false;
+        }
+        
+        public static function isItemLockedStatus($list_id, $item_id) {
+            $row = DB::table('dx_locks as l')
+                    ->select('l.user_id', 'u.display_name', 'l.locked_time')
+                    ->join('dx_users as u', 'l.user_id', '=', 'u.id')
+                    ->where('l.list_id', '=', $list_id)
+                    ->where('l.item_id', '=', $item_id)
+                    ->first();
+            
+            if ($row) {
+                return true;
             }
             
             // item is not locked jet

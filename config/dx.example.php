@@ -147,7 +147,7 @@ return [
     'empl_fields' => array(
             'empl_name' => 'display_name',
             'empl_position' => 'position_title',
-            'empl_end_date' => 'valid_to'
+            'empl_end_date' => 'termination_date'
         ),
     
     /*
@@ -386,4 +386,21 @@ return [
     |--------------------------------------------------------------------------
     */
     'left_employees_access_role_id' => 1,
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Use as much as possible CSS instead of JS for responsive positioning
+    |--------------------------------------------------------------------------
+    |
+    | This feature brings increased performance of the UI on resize events.
+    | It also enables 'tabdrop' behavior for main menu.
+    */
+    'is_cssonly_ui' => false,
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Indicates if timeoff must be calculated daily by CRON JOB
+    |--------------------------------------------------------------------------
+    */
+    'is_timeoff_calculation' => env('APP_CALCULATE_TIMEOFF', false),
 ];

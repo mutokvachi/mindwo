@@ -280,6 +280,10 @@ namespace App\Libraries\DataView {
                         $dropup = "dropup";
                     }
 
+                    if (!isset($row['id'])) {
+                        throw new Exceptions\DXCustomException(trans('errors.view_must_have_id_field'));
+                    }
+                    
                     $cell_htm = $this->helper->getBtnsCol(['dropup' => $dropup, 'item_id' => $row['id'], 'form_type_id' => $this->form_type_id]);
                 }
                 else {
@@ -483,7 +487,7 @@ namespace App\Libraries\DataView {
         */ 
         private function formatLinkValue($cell_obj, $model_row, $data_row)
         {
-            if ($cell_obj->is_link) {
+            if ($cell_obj->is_link || $model_row['is_crypted']) {
                 return $cell_obj;
             }
             
