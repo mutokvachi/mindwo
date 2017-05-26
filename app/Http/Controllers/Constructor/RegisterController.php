@@ -21,6 +21,7 @@ class RegisterController extends Controller
 	 * @var integer
 	 */
 	protected $id = 0;
+	protected $view_id = 1;
 	protected $list = null;
 	
 	public function __construct()
@@ -29,6 +30,7 @@ class RegisterController extends Controller
 		
 		view()->share([
 			'list_id' => $this->id,
+			'view_id' => $this->view_id,
 			'list' => $this->getList()
 		]);
 	}
@@ -115,6 +117,21 @@ class RegisterController extends Controller
 		];
 		
 		return response($result);
+	}
+	
+	public function editColumns($id)
+	{
+		$result = view('constructor.columns', [
+			'step' => 'columns',
+			'fields' => $this->getList()->fields()->get(),
+			'formFields' => $this->getList()->form->fields()->orderBy('order_index')->get(),
+		])->render();
+		
+		return $result;
+	}
+	
+	public function updateColumns($id)
+	{
 	}
 	
 	public function editFields($id)

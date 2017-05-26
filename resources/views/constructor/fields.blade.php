@@ -3,8 +3,6 @@
 @section('constructor_content')
   <div class="col-md-3">
     <h4>Register fields</h4>
-    <a href="javascript:;" data-title="Add new field to default view and form" class="btn red dx-new-field btn-block">
-      <i class="fa fa-plus-square"></i> Add a new field </a>
     <div class="dx-fields-container">
       <div class="dd dx-cms-nested-list dx-used">
         <ol class="dd-list">

@@ -44,38 +44,19 @@
 
 @section('main_custom_javascripts')
   @include('pages.view_js_includes')
+	<script src="{{ elixir('js/elix_constructor_wizard.js') }}" type='text/javascript'></script>
   <script>
-	  var list_id = {{ $list_id }};
-	  var step = '{{ $step }}';
-	  var url = {
-		  base: '/constructor/register'
-	  };
+	  $(document).ready(function()
+	  {
+		  $('.dx-constructor-wizard').ConstructorWizard({
+			  list_id: {{ $list_id }},
+			  view_id: {{ $view_id }},
+			  step: '{{ $step }}'
+		  });
+	  });
 	  
 	  $(document).ready(function()
 	  {
-		  $('.dd-item').draggable({
-			  handle: '.dd-handle',
-			  revert: 'invalid',
-			  helper: 'clone'
-		  });
-		  
-		  $('.droppable-grid td').droppable({
-			  accept: '.dd-item',
-			  drop: function(event, ui)
-			  {
-				  $(this).append(ui.draggable);
-				  ui.draggable.addClass('dropped');
-			  }
-		  });
-		  
-		  $('.dx-cms-field-remove').click(function()
-		  {
-			  $(this)
-				  .closest('.dropped')
-				  .removeClass('dropped')
-				  .appendTo('.dd-list');
-		  });
-		  
 		  $('.dx-adv-btn').click(function()
 		  {
 			  var settings_closed = function()
@@ -113,111 +94,6 @@
 			  // if list_id = 0 then save list first with ajax then continue
 			  new_list_item(7, 17, list_id, "", "", {after_close: field_closed});
 		  });
-		  
-		  $('#submit_step').click(function()
-		  {
-			  if(step == 'names')
-			  {
-				  var listName = $('#list_name');
-				  var itemName = $('#item_name');
-				  
-				  if(listName.length && !listName.val())
-				  {
-					  toastr.error('Please enter register name.');
-					  return false;
-				  }
-				  
-				  if(itemName.length && !itemName.val())
-				  {
-					  toastr.error('Please enter item name.');
-					  return false;
-				  }
-				  
-				  show_page_splash(1);
-				  
-				  var request = {
-					  list_name: listName.val(),
-					  item_name: itemName.val()
-				  };
-				  
-				  if(list_id)
-				  {
-					  request._method = 'put';
-				  }
-				  
-				  $.ajax({
-					  type: 'post',
-					  url: url.base + (list_id ? '/' + list_id : ''),
-					  dataType: 'json',
-					  data: request,
-					  success: function(data)
-					  {
-						  hide_page_splash(1);
-						  window.location = url.base + '/' + data.list_id + '/fields';
-					  },
-					  error: function(jqXHR, textStatus, errorThrown)
-					  {
-						  console.log(textStatus);
-						  console.log(jqXHR);
-						  hide_page_splash(1);
-					  }
-				  });
-			  }
-			  
-			  else if(step == 'fields')
-			  {
-				  show_page_splash(1);
-				  
-				  var request = {
-					  _method: 'put',
-					  items: []
-				  };
-				  
-				  $('.droppable-grid td').each(function()
-				  {
-					  var dd = $(this).children('.dd-item');
-					  
-					  if(dd.length)
-					  {
-						  var item = {
-							  id: dd.data('id'),
-							  row: $(this).parent().prevAll().length + 1,
-							  col: $(this).prevAll().length + 1
-						  };
-						  request.items.push(item);
-					  }
-				  });
-				  
-				  $.ajax({
-					  type: 'post',
-					  url: url.base + '/' + list_id + '/fields',
-					  dataType: 'json',
-					  data: request,
-					  success: function(data)
-					  {
-						  hide_page_splash(1);
-						  window.location = url.base + '/' + list_id + '/rights';
-					  },
-					  error: function(jqXHR, textStatus, errorThrown)
-					  {
-						  console.log(textStatus);
-						  console.log(jqXHR);
-						  hide_page_splash(1);
-					  }
-				  });
-			  }
-			  
-			  else if(step == 'rights')
-			  {
-					window.location = url.base + '/' + list_id + '/menu';
-			  }
-			  
-			  else
-			  {
-				 
-			  }
-			  
-		  });
 	  });
   </script>
 @endsection
@@ -237,17 +113,22 @@
         </button>
       </div>
     </div>
-    <div class="portlet-body">
+    <div class="portlet-body dx-constructor-wizard">
       <div class="row">
         @include('constructor.steps')
       </div>
-      <div class="row">
+      <div class="row" style="margin-bottom: 20px">
         @section('constructor_content')
         @show
       </div>
       <div class="row">
         <div class="col-md-12" style="text-align: center">
-          <button id="submit_step" type="button" class="btn btn-primary dx-wizard-btn">
+          @if($step != 'names')
+            <button id="prev_step" type="button" class="btn btn-primary dx-wizard-btn pull-left">
+              <i class="fa fa-arrow-left"></i> Back
+            </button>
+          @endif
+          <button id="submit_step" type="button" class="btn btn-primary dx-wizard-btn pull-right">
             Save
             @if($step != 'menu')
               & next <i class="fa fa-arrow-right"></i>

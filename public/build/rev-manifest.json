@@ -23,5 +23,6 @@
   "js/elix_mail.js": "js/elix_mail-8cc81bb9.js",
   "css/elix_mail.css": "css/elix_mail-6af93681.css",
   "js/elix_birth.js": "js/elix_birth-8cfc1ddb.js",
-  "css/elix_colors_bamboo.css": "css/elix_colors_bamboo-fe766c83.css"
+  "css/elix_colors_bamboo.css": "css/elix_colors_bamboo-fe766c83.css",
+  "js/elix_constructor_wizard.js": "js/elix_constructor_wizard-6027fbf2.js"
 }

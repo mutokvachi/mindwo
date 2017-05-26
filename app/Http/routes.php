@@ -266,6 +266,8 @@ Route::group(['middleware' => ['auth', 'constructor_access'], 'prefix' => 'const
 	Route::post('/register', ['as' => 'register_store', 'uses' => 'RegisterController@store']);
 	Route::get('/register/{id}', ['as' => 'register_edit', 'uses' => 'RegisterController@edit']);
 	Route::put('/register/{id}', ['as' => 'register_update', 'uses' => 'RegisterController@update']);
+	Route::get('/register/{id}/columns', ['as' => 'register_edit_columns', 'uses' => 'RegisterController@editColumns']);
+	Route::put('/register/{id}/columns', ['as' => 'register_update_columns', 'uses' => 'RegisterController@updateColumns']);
 	Route::get('/register/{id}/fields', ['as' => 'register_edit_fields', 'uses' => 'RegisterController@editFields']);
 	Route::put('/register/{id}/fields', ['as' => 'register_update_fields', 'uses' => 'RegisterController@updateFields']);
 	Route::get('/register/{id}/rights', ['as' => 'register_edit_rights', 'uses' => 'RegisterController@editRights']);
