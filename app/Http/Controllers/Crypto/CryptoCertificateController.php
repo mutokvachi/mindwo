@@ -89,7 +89,7 @@ class CryptoCertificateController extends Controller
             }
         }
 
-        return response()->json(['success' => 1, 'user_id' => $user_id, 'public_key' => base64_encode($cert->public_key), 'private_key' => base64_encode($cert->private_key), 'master_keys' => $masterKeys]);
+        return response()->json(['success' => 1, 'user_id' => $user_id, 'salt' => $cert->salt, 'public_key' => base64_encode($cert->public_key), 'private_key' => base64_encode($cert->private_key), 'master_keys' => $masterKeys]);
     }
 
     /**
@@ -114,6 +114,7 @@ class CryptoCertificateController extends Controller
         $this->validate($request, [
             'private_key' => 'required',
             'public_key' => 'required',
+            'salt' => 'required',
         ]);
 
         $user = \App\User::find(\Auth::user()->id);
@@ -127,6 +128,7 @@ class CryptoCertificateController extends Controller
 
         $private_key = file_get_contents($request->file('private_key'));
         $public_key = file_get_contents($request->file('public_key'));
+        $salt = $request->input('salt');
 
         $cert = $user->cryptoCertificate;
 
@@ -138,6 +140,7 @@ class CryptoCertificateController extends Controller
 
         $cert->private_key = $private_key;
         $cert->public_key = $public_key;
+        $cert->salt = $salt;
         $cert->modified_user_id = $user->id;
         $cert->modified_time = new \DateTime();
 
