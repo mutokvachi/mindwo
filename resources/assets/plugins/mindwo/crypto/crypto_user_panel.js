@@ -102,6 +102,8 @@
             }
 
             show_page_splash(1);
+            
+            window.DxCrypto.generateSalt();
 
             window.DxCrypto.createPasswordKey(password)
                     .then(function (passwordKey) {

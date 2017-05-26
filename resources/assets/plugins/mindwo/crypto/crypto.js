@@ -6,6 +6,7 @@ window.DxCryptoClass = function () {
     this.certificate;
     this.masterKeyGroups = new Array();
     this.userId;
+    this.passwordSalt;
 };
 
 /**
@@ -49,10 +50,11 @@ $.extend(window.DxCryptoClass.prototype, {
         window.DxCrypto.rawCertificate = undefined;
         window.DxCrypto.rawMasterKeys = new Array();
         window.DxCrypto.masterKeyGroups = new Array();
+        window.DxCrypto.passwordSalt = undefined;
     },
     /**
      * Create passwords CryptoKey object from given password
-     * @param {string} password
+     * @param {string} password Password text
      * @returns {undefined}
      */
     createPasswordKey: function (password) {
@@ -68,7 +70,7 @@ $.extend(window.DxCryptoClass.prototype, {
                 'raw',
                 passwordBuffer,
                 {name: 'PBKDF2'},
-                false,
+        false,
                 ['deriveKey']
                 )
                 .then(function (baseKey) {
@@ -77,26 +79,30 @@ $.extend(window.DxCryptoClass.prototype, {
                 .catch(window.DxCrypto.catchError);
     },
     /**
+     * Generates random salt and stores in memory
+     */
+    generateSalt: function () {
+        window.DxCrypto.passwordSalt = new Uint8Array(16);
+        window.crypto.getRandomValues(window.DxCrypto.passwordSalt);
+    },
+    /**
      * Derives password CryptoKey from base CryptoKey object
      * @param {CryptoKey} baseKey Key imported from plain string
      * @returns {undefined}
      */
     derivePasswordKey: function (baseKey) {
-        // salt should be Uint8Array or ArrayBuffer
-        var saltBuffer = window.DxCrypto.stringToArrayBuffer('YyZYm6EuGaa1BhbDPwjy');
-
         return window.crypto.subtle.deriveKey(
                 {"name": 'PBKDF2',
-                    "salt": saltBuffer,
+                    "salt": window.DxCrypto.passwordSalt,
                     // don't get too ambitious, or at least remember
                     // that low-power phones will access your app
                     "iterations": 1000,
                     "hash": 'SHA-256'
                 },
-                baseKey,
+        baseKey,
                 {"name": 'AES-CTR', "length": 256}, // For AES the length required to be 128 or 256 bits (not bytes)
 
-                false, // Whether or not the key is extractable (less secure) or not (more secure) when false, the key can only be passed as a web crypto object, not 
+        false, // Whether or not the key is extractable (less secure) or not (more secure) when false, the key can only be passed as a web crypto object, not 
 
                 ["wrapKey", "unwrapKey"] // this web crypto object will only be allowed for these functions
                 )
@@ -115,7 +121,7 @@ $.extend(window.DxCryptoClass.prototype, {
                     publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
                     hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
                 },
-                true, //whether the key is extractable (i.e. can be used in exportKey)
+        true, //whether the key is extractable (i.e. can be used in exportKey)
                 ["wrapKey", "unwrapKey"] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
                 )
                 .then(function (asyncKey) {
@@ -138,8 +144,6 @@ $.extend(window.DxCryptoClass.prototype, {
                 passwordKey, //the AES-CTR key with "wrapKey" usage flag
                 {//these are the wrapping key's algorithm options
                     name: "AES-CTR",
-                    //Don't re-use counters!
-                    //Always use a new counter every time your encrypt!
                     counter: new Uint8Array(16),
                     length: 128 //can be 1-128
                 })
@@ -149,7 +153,7 @@ $.extend(window.DxCryptoClass.prototype, {
                             asyncKey.publicKey //can be a publicKey or privateKey, as long as extractable was true
                             )
                             .then(function (publicKeyBuffer) {
-                                window.DxCrypto.saveUserCert(publicKeyBuffer, wrappedPrivateKey);
+                                window.DxCrypto.saveUserCert(publicKeyBuffer, wrappedPrivateKey, window.DxCrypto.passwordSalt);
                             })
                             .catch(window.DxCrypto.catchError);
                 })
@@ -166,8 +170,10 @@ $.extend(window.DxCryptoClass.prototype, {
 
         var publicKeyBlob = new Blob([new Uint8Array(publicKeyBuffer)], {type: "application/octet-stream"});
         var privateKeyBlob = new Blob([new Uint8Array(wrappedPrivateKey)], {type: "application/octet-stream"});
+        var salt = self.arrayBufferToHexString(self.passwordSalt);
 
         var container = new FormData();
+        container.append('salt', salt);
         container.append('public_key', publicKeyBlob);
         container.append('private_key', privateKeyBlob);
 
@@ -342,12 +348,11 @@ $.extend(window.DxCryptoClass.prototype, {
 
             var onReceiveValue = function (decryptedData) {
                 var counterBuffer = new Uint8Array(16);
+                window.crypto.getRandomValues(counterBuffer);
 
                 window.crypto.subtle.encrypt(
                         {
                             name: "AES-CTR",
-                            //Don't re-use counters!
-                            //Always use a new counter every time your encrypt!
                             counter: counterBuffer,
                             length: 128, //can be 1-128
                         },
@@ -621,18 +626,16 @@ $.extend(window.DxCryptoClass.prototype, {
                 passwordKey, //the AES-CTR key with "unwrapKey" usage flag
                 {//these are the wrapping key's algorithm options
                     name: "AES-CTR",
-                    //Don't re-use counters!
-                    //Always use a new counter every time your encrypt!
                     counter: new Uint8Array(16),
                     length: 128 //can be 1-128
                 },
-                {//this what you want the wrapped key to become (same as when wrapping)
-                    name: "RSA-OAEP",
-                    modulusLength: 2048, //can be 1024, 2048, or 4096
-                    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-                    hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
-                },
-                false, //whether the key is extractable (i.e. can be used in exportKey)
+        {//this what you want the wrapped key to become (same as when wrapping)
+            name: "RSA-OAEP",
+            modulusLength: 2048, //can be 1024, 2048, or 4096
+            publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+            hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+        },
+        false, //whether the key is extractable (i.e. can be used in exportKey)
                 ["unwrapKey"] //the usages you want the unwrapped key to have
                 )
                 .then(function (privateKey) {
@@ -673,11 +676,11 @@ $.extend(window.DxCryptoClass.prototype, {
                     publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
                     hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
                 },
-                {
-                    name: "AES-CTR",
-                    length: 256
-                },
-                true, //whether the key is extractable (i.e. can be used in exportKey)
+        {
+            name: "AES-CTR",
+            length: 256
+        },
+        true, //whether the key is extractable (i.e. can be used in exportKey)
                 ["encrypt", "decrypt"] //the usages you want the unwrapped key to have
                 )
                 .then(function (masterKey) {
@@ -706,11 +709,11 @@ $.extend(window.DxCryptoClass.prototype, {
                     publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
                     hash: {name: "SHA-256"} //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
                 },
-                {
-                    name: "AES-CTR",
-                    length: 256
-                },
-                true, //whether the key is extractable (i.e. can be used in exportKey)
+        {
+            name: "AES-CTR",
+            length: 256
+        },
+        true, //whether the key is extractable (i.e. can be used in exportKey)
                 ["encrypt", "decrypt"] //the usages you want the unwrapped key to have
                 )
                 .then(function (masterKey) {
@@ -740,6 +743,7 @@ $.extend(window.DxCryptoClass.prototype, {
 
                     var public_key = new Uint8Array(self.base64ToArrayBuffer(res.public_key));
                     var private_key = new Uint8Array(self.base64ToArrayBuffer(res.private_key));
+                    var salt = self.hexStringToArrayBuffer(res.salt);
 
                     var master_keys = new Array();
                     if (res.master_keys) {
@@ -750,7 +754,7 @@ $.extend(window.DxCryptoClass.prototype, {
                         master_keys = res.master_keys;
                     }
 
-                    callback(public_key, private_key, master_keys);
+                    callback(public_key, private_key, master_keys, salt);
                 } else {
                     if (res.msg) {
                         self.catchError(res, res.msg);
@@ -773,12 +777,14 @@ $.extend(window.DxCryptoClass.prototype, {
     getCurrentUserCertificate: function (masterKeyGroupId, callback) {
         var self = window.DxCrypto;
 
-        self.getUserCertificate(0, masterKeyGroupId, function (public_key, private_key, master_keys) {
+        self.getUserCertificate(0, masterKeyGroupId, function (public_key, private_key, master_keys, salt) {
             if (master_keys) {
                 self.rawMasterKeys = master_keys;
             } else {
                 self.rawMasterKeys = new Array();
             }
+
+            self.passwordSalt = salt;
 
             self.rawCertificate = {
                 publicKey: public_key,
@@ -802,7 +808,7 @@ $.extend(window.DxCryptoClass.prototype, {
                     name: "AES-CTR",
                     length: 256 //can be  128, 192, or 256
                 },
-                true, //whether the key is extractable (i.e. can be used in exportKey)
+        true, //whether the key is extractable (i.e. can be used in exportKey)
                 ["encrypt", "decrypt"] //must be ["encrypt", "decrypt"] or ["wrapKey", "unwrapKey"]
                 )
                 .then(function (masterKey) {
@@ -900,7 +906,7 @@ $.extend(window.DxCryptoClass.prototype, {
                                     });
                         })
                         .then(function (wrappedMasterKey) {
-                            callback(wrappedMasterKey);
+                            callback(wrappedMasterKey, window.DxCrypto.masterKeyGroups[masterKeyGroupId]);
                         })
                         .catch(window.DxCrypto.catchError);
             });
