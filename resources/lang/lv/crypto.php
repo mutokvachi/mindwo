@@ -62,5 +62,11 @@ return [
         'ref_column' => 'Saistītā kolonna',
         'ref_id' => 'Saistītais ID',
         'master_key_regen' => 'Galvenās atslēgas pārģenerēšanas process',
+        'master_key_regens' => 'Galvenās atslēgas pārģenerēšanas procesi',
+        'created_user' => 'Izveides lietotājs',
+        'created_time' => 'Izveides laiks',
+        'modified_time' => 'Labošanas laiks',
+        'crypto' => 'Kriptogrāfija',
+        
     ]
 ];
