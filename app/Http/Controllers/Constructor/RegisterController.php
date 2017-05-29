@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Constructor;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\GridController;
 use App\Models\System\Form;
+use App\Models\System\ListRole;
 use App\Models\System\Lists;
 use App\Models\System\View;
 use App\Libraries\Blocks;
@@ -41,6 +42,13 @@ class RegisterController extends Controller
 			view()->share([
 				'view_id' => $this->getView()->id,
 				'view' => $this->getView()
+			]);
+		}
+		
+		else
+		{
+			view()->share([
+				'view_id' => 1
 			]);
 		}
 	}
@@ -93,6 +101,19 @@ class RegisterController extends Controller
 		]);
 		
 		$list->form()->save($form);
+		
+		$role = new ListRole([
+			'role_id' => config('dx.constructor.access_role_id', 1),
+			'is_edit_rights' => 1,
+			'is_delete_rights' => 1,
+			'is_new_rights' => 1,
+			'is_import_rights' => 1,
+			'is_view_rights' => 1,
+			'created_user_id' => $userId,
+			'modified_user_id' => $userId
+		]);
+		
+		$list->roles()->save($role);
 		
 		$result = [
 			'success' => 1,

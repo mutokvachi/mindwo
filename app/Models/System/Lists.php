@@ -14,6 +14,7 @@ class Lists extends Model
 	 * Changes default column name for column created_at
 	 */
 	const CREATED_AT = 'created_time';
+	
 	protected $table = 'dx_lists';
 	
 	protected $fillable = ['list_title', 'item_title', 'object_id', 'created_user_id', 'modified_user_id'];
@@ -36,5 +37,10 @@ class Lists extends Model
 	public function views()
 	{
 		return $this->hasMany('App\Models\System\View', 'list_id', 'id');
+	}
+	
+	public function roles()
+	{
+		return $this->hasMany('App\Models\System\ListRole', 'list_id', 'id');
 	}
 }
