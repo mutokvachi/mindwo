@@ -639,8 +639,7 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             });
             // have the observer observe foo for changes in children
             obs.observe(obj, {childList: true, subtree: true});
-        }
-        else if (eventListenerSupported) {
+        } else if (eventListenerSupported) {
             obj.addEventListener('DOMNodeInserted', callback, false);
             obj.addEventListener('DOMNodeRemoved', callback, false);
         }
@@ -674,9 +673,13 @@ $.extend(window.DxCryptoRegenClass.prototype, {
         }
 
         self.masterKeyGroupUsers = newMasterKeyUser;
-        setTimeout(function () {
-            self.checkForRemovedUsers(form_object, masterkey_group_id);
-        }, 1000);
+        if (form_object.is(':visible')) {
+            setTimeout(function () {
+                if (form_object.is(':visible')) {
+                    self.checkForRemovedUsers(form_object, masterkey_group_id);
+                }
+            }, 1000);
+        }
     },
     /**
      * Retrieves users records from table
