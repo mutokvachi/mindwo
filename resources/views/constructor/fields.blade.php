@@ -6,8 +6,7 @@
     <div class="dx-fields-container">
       <div class="dd dx-cms-nested-list dx-used">
         <div class="row dd-list columns">
-          @foreach($fields as $field)
-            @if(!$formFields->where('field_id', $field->id)->count())
+          @foreach($listFields as $field)
               <div class="col-md-12">
                 <div class="dd-item" data-id="{{ $field->id }}">
                   <div class="dd-handle dd3-handle"></div>
@@ -16,11 +15,10 @@
                       <a href="JavaScript:;" class="pull-right dx-cms-field-remove" title='Remove'><i class="fa fa-times"></i></a>
                       <a href="JavaScript:;" class="pull-right dx-cms-field-edit tooltipstered" title='Edit field properties'><i class="fa fa-cog"></i></a>
                     </span>
-                    <b class="dx-fld-title">{{ $field->title_list }}</b>
+                    <b class="dx-fld-title">{{ $field->title_form }}</b>
                   </div>
                 </div>
               </div>
-            @endif
           @endforeach
         </div>
       </div>
@@ -49,7 +47,7 @@
                         <a href="JavaScript:;" class="pull-right dx-cms-field-remove" title='Remove'><i class="fa fa-times"></i></a>
                         <a href="JavaScript:;" class="pull-right dx-cms-field-edit tooltipstered" title='Edit field properties'><i class="fa fa-cog"></i></a>
                       </span>
-                      <b class="dx-fld-title">{{ $fields->where('id', $field->field_id)->first()->title_form }}</b>
+                      <b class="dx-fld-title">{{ $field->title_form }}</b>
                     </div>
                   </div>
                 </div>

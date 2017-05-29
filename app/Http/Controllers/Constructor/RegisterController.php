@@ -55,7 +55,6 @@ class RegisterController extends Controller
 	
 	public function index()
 	{
-	
 	}
 	
 	public function create()
@@ -169,13 +168,23 @@ class RegisterController extends Controller
 	
 	public function editFields($id)
 	{
-		$fields = $this->getList()->form->fields()->orderBy('order_index')->get();
+		$formFields
+			= $this
+			->getList()
+			->form
+			->fields()
+			->leftJoin('dx_lists_fields', 'dx_forms_fields.field_id', '=', 'dx_lists_fields.id')
+			->orderBy('order_index')
+			->get();
 		
 		$grid = [];
 		$row = [];
+		$listFieldsIds = [];
 		
-		foreach($fields as $field)
+		foreach($formFields as $field)
 		{
+			$listFieldsIds[] = $field->field_id;
+			
 			if($field->row_type_id == 1)
 			{
 				// in case of errors in structure
@@ -200,10 +209,11 @@ class RegisterController extends Controller
 			}
 		}
 		
+		$listFields = $this->getList()->fields()->whereNotIn('id', $listFieldsIds)->get();
+		
 		$result = view('constructor.fields', [
 			'step' => 'fields',
-			'fields' => $this->getList()->fields()->get(),
-			'formFields' => $this->getList()->form->fields()->orderBy('order_index')->get(),
+			'listFields' => $listFields,
 			'grid' => $grid
 		])->render();
 		
@@ -292,7 +302,14 @@ class RegisterController extends Controller
 	
 	public function updateMenu($id)
 	{
+	}
 	
+	public function getRolesHtml()
+	{
+		$block_grid = Blocks\BlockFactory::build_block("OBJ=VIEW|VIEW_ID=25");
+		$block_grid->rel_field_id = 105;
+		$block_grid->rel_field_value = $this->id;
+		return $block_grid->getHTML();
 	}
 	
 	protected function getList()
@@ -313,13 +330,5 @@ class RegisterController extends Controller
 		}
 		
 		return $this->view;
-	}
-	
-	public function getRolesHtml()
-	{
-		$block_grid = Blocks\BlockFactory::build_block("OBJ=VIEW|VIEW_ID=25");
-		$block_grid->rel_field_id = 105;
-		$block_grid->rel_field_value = $this->id;
-		return $block_grid->getHTML();
 	}
 }
