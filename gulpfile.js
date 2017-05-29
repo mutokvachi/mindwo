@@ -340,8 +340,15 @@ gulp.task('mix_all', function() {
             'resources/assets/plugins/mindwo/pages/mail.js'
         ], 'public/js/elix_mail.js', './');
 	
-		// Scripts for mail interface
+		// Styles for constructor wizard interface
+		mix.styles([
+			'resources/assets/plugins/mindwo/css/constructor_wizard.css'
+		], 'public/css/elix_constructor_wizard.css', './');
+		
+		// Scripts for constructor wizard interface
 		mix.scripts([
+			'resources/assets/plugins/mindwo/blocks/view_editor.js',
+			'resources/assets/plugins/mindwo/pages/constructor_grid.js',
 		    'resources/assets/plugins/mindwo/pages/constructor_wizard.js'
         ], 'public/js/elix_constructor_wizard.js', './');
 		
@@ -372,7 +379,8 @@ gulp.task('mix_all', function() {
             'css/elix_mail.css',
             'js/elix_birth.js',
             'css/elix_colors_bamboo.css',
-            'js/elix_constructor_wizard.js'
+            'js/elix_constructor_wizard.js',
+			'css/elix_constructor_wizard.css'
         ]);
     });
 });

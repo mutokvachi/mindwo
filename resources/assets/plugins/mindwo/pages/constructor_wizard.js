@@ -37,9 +37,9 @@
 		var submitName = 'submit_' + this.options.step;
 		
 		// init current step
-		if($.isFunction(this[initName]))
+		if($.isFunction(self[initName]))
 		{
-			this[initName]();
+			self[initName]();
 		}
 		
 		// submit step
@@ -55,6 +55,19 @@
 		this.root.on('click', '#prev_step', function()
 		{
 			window.location = self.getPrevUrl();
+		});
+		
+		$('.dx-adv-btn').click(function()
+		{
+			var settings_closed = function()
+			{
+				window.location.reload();
+			};
+			
+			// if list_id = 0 then try to save with AJAX (must be register title provided)
+			// for new registers user object_id = 140
+			
+			view_list_item('form', self.options.list_id, 3, 0, 0, "", "", {after_close: settings_closed});
 		});
 	};
 	
@@ -101,29 +114,54 @@
 			return this.options.url + '/' + this.options.list_id + '/' + this.options.steps[this.getStepNumber() - 1];
 		},
 		
-		init_fields: function()
+		init_columns: function()
 		{
-			this.root.find('.dd-item').draggable({
-				handle: '.dd-handle',
-				revert: 'invalid',
-				helper: 'clone'
-			});
+			var self = this;
 			
-			this.root.find('.droppable-grid td').droppable({
-				accept: '.dd-item',
-				drop: function(event, ui)
+			$(".dx-view-edit-form").ViewEditor({
+				view_container: $("#view_editor"),
+				reloadBlockGrid: null,
+				root_url: getBaseUrl(),
+				load_tab_grid: null,
+				onsave: function()
 				{
-					$(this).append(ui.draggable);
-					ui.draggable.addClass('dropped');
+					window.location = self.getNextUrl();
 				}
 			});
 			
-			this.root.on('click', '.dx-cms-field-remove', function()
+			$('.dx-new-field').click(function()
 			{
-				$(this)
-					.closest('.dropped')
-					.removeClass('dropped')
-					.appendTo('.dd-list');
+				var field_closed = function(frm)
+				{
+					// update here fields list
+					// add in form in new row as last item too
+					
+					// get meta data from frm with jquery find
+					
+					// all cms forms have field item_id if it is 0 then item is not saved
+					alert(frm.html());
+				};
+				
+				// if list_id = 0 then save list first with ajax then continue
+				new_list_item(7, 17, self.options.list_id, "", "", {
+					after_close: field_closed
+				});
+			});
+		},
+		
+		init_fields: function()
+		{
+			var self = this;
+			
+			this.root.find('.constructor-grid').ConstructorGrid();
+			
+			$('.dx-preview-btn').click(function()
+			{
+				// if list_id = 0 then try to save with AJAX (must be register title provided)
+				// for new registers user object_id = 140
+				self.submit_fields(function(){
+					new_list_item(self.options.list_id, 0, 0, "", "");
+				});
 			});
 		},
 		
@@ -178,10 +216,10 @@
 		
 		submit_columns: function()
 		{
-			window.location = this.getNextUrl();
+			$(".dx-view-edit-form").data('ViewEditor').save();
 		},
 		
-		submit_fields: function()
+		submit_fields: function(onSuccess)
 		{
 			var self = this;
 			
@@ -192,18 +230,17 @@
 				items: []
 			};
 			
-			this.root.find('.droppable-grid td').each(function()
+			this.root.find('.constructor-grid .columns').each(function()
 			{
-				var dd = $(this).children('.dd-item');
+				var row = [];
 				
-				if(dd.length)
+				$(this).find('.dd-item').each(function(){
+					row.push($(this).data('id'));
+				});
+				
+				if(row.length)
 				{
-					var item = {
-						id: dd.data('id'),
-						row: $(this).parent().prevAll().length + 1,
-						col: $(this).prevAll().length + 1
-					};
-					request.items.push(item);
+					request.items.push(row);
 				}
 			});
 			
@@ -215,7 +252,14 @@
 				success: function(data)
 				{
 					hide_page_splash(1);
-					window.location = self.getNextUrl();
+					if(typeof onSuccess === 'function')
+					{
+						onSuccess();
+					}
+					else
+					{
+						window.location = self.getNextUrl();
+					}
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{

@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Constructor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\GridController;
 use App\Models\System\Form;
 use App\Models\System\Lists;
 use App\Models\System\View;
 use App\Libraries\Blocks;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -23,6 +25,7 @@ class RegisterController extends Controller
 	protected $id = 0;
 	protected $view_id = 1;
 	protected $list = null;
+	protected $view = null;
 	
 	public function __construct()
 	{
@@ -30,9 +33,16 @@ class RegisterController extends Controller
 		
 		view()->share([
 			'list_id' => $this->id,
-			'view_id' => $this->view_id,
 			'list' => $this->getList()
 		]);
+		
+		if($this->getView())
+		{
+			view()->share([
+				'view_id' => $this->getView()->id,
+				'view' => $this->getView()
+			]);
+		}
 	}
 	
 	public function index()
@@ -121,10 +131,12 @@ class RegisterController extends Controller
 	
 	public function editColumns($id)
 	{
+		$htm = GridController::getViewEditFormHTMLByViewId($this->getView()->id);
+		
 		$result = view('constructor.columns', [
 			'step' => 'columns',
-			'fields' => $this->getList()->fields()->get(),
-			'formFields' => $this->getList()->form->fields()->orderBy('order_index')->get(),
+			'htm' => $htm,
+			'operations' => DB::table('dx_field_operations')->orderBy('title')->get()
 		])->render();
 		
 		return $result;
@@ -136,10 +148,42 @@ class RegisterController extends Controller
 	
 	public function editFields($id)
 	{
+		$fields = $this->getList()->form->fields()->orderBy('order_index')->get();
+		
+		$grid = [];
+		$row = [];
+		
+		foreach($fields as $field)
+		{
+			if($field->row_type_id == 1)
+			{
+				// in case of errors in structure
+				if(!empty($row))
+				{
+					$grid[] = $row;
+					$row = [];
+				}
+				
+				$grid[] = [$field];
+			}
+			
+			else
+			{
+				$row[] = $field;
+				
+				if(count($row) == $field->row_type_id)
+				{
+					$grid[] = $row;
+					$row = [];
+				}
+			}
+		}
+		
 		$result = view('constructor.fields', [
 			'step' => 'fields',
 			'fields' => $this->getList()->fields()->get(),
 			'formFields' => $this->getList()->form->fields()->orderBy('order_index')->get(),
+			'grid' => $grid
 		])->render();
 		
 		return $result;
@@ -147,17 +191,19 @@ class RegisterController extends Controller
 	
 	public function updateFields($id, Request $request)
 	{
-		$items0 = $request->input('items', []);
-
 		$userId = Auth::user()->id;
-
+		$items0 = $request->input('items', []);
 		$items = [];
-		foreach($items0 as $item0)
+		
+		foreach($items0 as $rowIndex => $row)
 		{
-			$items[$item0['id']] = [
-				'col' => $item0['col'],
-				'row' => $item0['row'],
-			];
+			foreach($row as $itemIndex => $id)
+			{
+				$items[$id] = [
+					'order_index' => ($rowIndex + 1) . $itemIndex . '0',
+					'row_type_id' => count($row)
+				];
+			}
 		}
 		
 		$form = $this->getList()->form;
@@ -167,8 +213,8 @@ class RegisterController extends Controller
 			if(isset($items[$field->field_id]))
 			{
 				$item = $items[$field->field_id];
-				$field->col_number = $item['col'];
-				$field->row_number = $item['row'];
+				$field->order_index = $item['order_index'];
+				$field->row_type_id = $item['row_type_id'];
 				$field->modified_user_id = $userId;
 				$field->save();
 				
@@ -186,9 +232,8 @@ class RegisterController extends Controller
 			$form->fields()->create([
 				'list_id' => $this->id,
 				'field_id' => $id,
-				'order_index' => $item['row'].$item['col'].'0',
-				'row_number' => $item['row'],
-				'col_number' => $item['col'],
+				'order_index' => $item['order_index'],
+				'row_type_id' => $item['row_type_id'],
 				'created_user_id' => $userId,
 				'modified_user_id' => $userId,
 			]);
@@ -237,6 +282,16 @@ class RegisterController extends Controller
 		}
 		
 		return $this->list;
+	}
+	
+	protected function getView()
+	{
+		if(!$this->view && $this->getList())
+		{
+			$this->view = $this->getList()->views()->where('is_default', 1)->first();
+		}
+		
+		return $this->view;
 	}
 	
 	public function getRolesHtml()

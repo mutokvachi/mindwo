@@ -18,6 +18,7 @@
     </div>
     @include('main.modal_dialog')
     @include('main.modal_dialog_crypto_psw')
+    @include('main.modal_dialog_crypto_regen_progress')
     @include('main.body_scripts')
   </body>
 </html>
