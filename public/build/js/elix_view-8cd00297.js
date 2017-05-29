@@ -22134,7 +22134,7 @@ $.extend(window.DxCryptoClass.prototype, {
         var hasChangedFileFields = self.checkFileCryptoFields(cryptoFields);
 
         // If user have changed crypto file then must have certificate
-        if (hasChangedFileFields && (!self.certificate || !self.certificate.publicKey)) {
+        if (hasChangedFileFields && (!self.certificate || !self.certificate.privateKey)) {
             // Retrieves certificate and calls this function again
             self.getCurrentUserCertificate(0, function () {
                 self.encryptFields(cryptoFields, event, callback);
@@ -22142,7 +22142,7 @@ $.extend(window.DxCryptoClass.prototype, {
             return false;
         }
 
-        if (!self.certificate || !self.certificate.publicKey) {
+        if (!self.certificate || !self.certificate.privateKey) {
             onFinishing();
 
             return false;
@@ -22399,6 +22399,11 @@ $.extend(window.DxCryptoClass.prototype, {
 
         var password = $('#dx-crypto-modal-input-password').val();
         $('#dx-crypto-modal-input-password').val('');
+        
+        if(password.length <= 0){
+            window.DxCrypto.catchError(null, Lang.get('crypto.e_password_incorrect'));
+            return false;
+        }
 
         var self = window.DxCrypto;
 
@@ -22685,7 +22690,7 @@ $.extend(window.DxCryptoClass.prototype, {
             self.generateMasterKey(masterKeyGroupId, userId, callback);
         };
 
-        if (!self.certificate || !self.certificate.publicKey) {
+        if (!self.certificate || !self.certificate.privateKey) {
             // Retrieves certificate and calls this function again
             self.getCurrentUserCertificate(0, selfCall);
             return false;
@@ -23458,7 +23463,7 @@ $.extend(window.DxCryptoRegenClass.prototype, {
 
                     window.DxCryptoRegen.regenMasterKey(masterkey_group_id);
 
-                    return;
+                    return false;
                 }
             }
         }
@@ -23755,6 +23760,17 @@ $(document).ajaxComplete(function () {
             window.DxCrypto.decryptFields($(this));
         },
         setAccessError: function () {
+            if (this.domObject.is('input')) {
+                var parent = this.domObject.parent().parent();
+
+                if (parent.hasClass('fileinput')) {
+                    parent.fileinput('clear');
+                } else {
+                    this.domObject.val('');
+                }
+            }
+            
+            window.DxCrypto.catchError(null, Lang.get('crypto.e_no_access'));
             /*  var label = '<span class="label label-danger"> ' + Lang.get('crypto.e_no_access') + ' </span>';
              
              this.domObject.next('.dx-crypto-decrypt-btn').remove();

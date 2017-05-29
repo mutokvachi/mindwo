@@ -82,6 +82,17 @@
             window.DxCrypto.decryptFields($(this));
         },
         setAccessError: function () {
+            if (this.domObject.is('input')) {
+                var parent = this.domObject.parent().parent();
+
+                if (parent.hasClass('fileinput')) {
+                    parent.fileinput('clear');
+                } else {
+                    this.domObject.val('');
+                }
+            }
+            
+            window.DxCrypto.catchError(null, Lang.get('crypto.e_no_access'));
             /*  var label = '<span class="label label-danger"> ' + Lang.get('crypto.e_no_access') + ' </span>';
              
              this.domObject.next('.dx-crypto-decrypt-btn').remove();

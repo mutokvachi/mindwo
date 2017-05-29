@@ -667,7 +667,7 @@ $.extend(window.DxCryptoRegenClass.prototype, {
 
                     window.DxCryptoRegen.regenMasterKey(masterkey_group_id);
 
-                    return;
+                    return false;
                 }
             }
         }
