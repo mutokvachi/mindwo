@@ -15160,10 +15160,12 @@ function process_data_fields(post_form_htm_id) {
     var formData = new FormData();
     
     if (!process_Input_simple(post_form_htm_id, formData)) {
+        hide_page_splash(1);
         return null;
     }
     
     if (!process_dropzone(post_form_htm_id, formData)) {
+        hide_page_splash(1);
         return null;
     }
     
@@ -23044,10 +23046,8 @@ $.extend(window.DxCryptoRegenClass.prototype, {
      */
     recryptData: function (pendingData) {
         var self = window.DxCryptoRegen;
-
-        for (var i = 0; i < pendingData.length; i++) {
-            self.recryptDataRow(pendingData, i);
-        }
+        
+        self.recryptDataRow(pendingData, 0);
 
         // All already done
         if (pendingData.length <= 0) {
@@ -23096,26 +23096,31 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             return false;
         }
 
+        if (pendingData.length <= rowNum) {
+            return false;
+        }
+
         var record = pendingData[rowNum];
 
         if (record.is_file == 1) {
             var xhr = new XMLHttpRequest();
 
             xhr.onload = function () {
-                var reader = new FileReader();
+                    var reader = new FileReader();
 
                 reader.readAsArrayBuffer(xhr.response);
 
-                reader.onloadend = function () {
+                    reader.onloadend = function () {
 
-                    var oldValue = new Uint8Array(reader.result);
+                        var oldValue = new Uint8Array(reader.result);
 
-                    //callback(arrayBuffer, xhr.response.type);
+                        //callback(arrayBuffer, xhr.response.type);
 
-                    self.encryptDecryptData(oldValue, function (resBuffer) {
-                        self.onRecryptedDataRow(resBuffer, record, pendingData.length);
-                    });
-                };
+                        self.encryptDecryptData(oldValue, function (resBuffer) {
+                            self.onRecryptedDataRow(resBuffer, record, pendingData.length);
+                            self.recryptDataRow(pendingData, ++rowNum);
+                        });
+                    };
             };
             xhr.open('GET', DX_CORE.site_url + 'download_by_field_' + record.old_value);
             xhr.responseType = 'blob';
@@ -23126,6 +23131,7 @@ $.extend(window.DxCryptoRegenClass.prototype, {
 
             self.encryptDecryptData(oldValue, function (resBuffer) {
                 self.onRecryptedDataRow(resBuffer, record, pendingData.length);
+                self.recryptDataRow(pendingData, ++rowNum);
             });
         }
     },
@@ -23676,32 +23682,13 @@ $(document).ajaxComplete(function () {
     $('.dx-crypto-field').DxCryptoField();
 });
 
-(function ($)
-{
+(function ($) {
     /**
      * Creates jQuery plugin for crypto fields
      * @returns DxCryptoFileField
      */
-    $.fn.DxCryptoFileField = function ()
-    {
-        /*for (var i=0; i < this.length; i++){
-         var selfR = this[i];
-         
-         var self = $(selfR);
-         
-         if (self.data('dx_is_init') == 1) {
-         continue;
-         }
-         
-         self.data('dx_is_init', 1);
-         
-         var cr = new $.DxCryptoFileField(self);
-         
-         this.crypto = cr;
-         }*/
-
-        return this.each(function ()
-        {
+    $.fn.DxCryptoFileField = function () {
+        return this.each(function () {
             var self = $(this);
 
             if (self.data('dx_is_init') == 1) {
@@ -23769,12 +23756,8 @@ $(document).ajaxComplete(function () {
                     this.domObject.val('');
                 }
             }
-            
+
             window.DxCrypto.catchError(null, Lang.get('crypto.e_no_access'));
-            /*  var label = '<span class="label label-danger"> ' + Lang.get('crypto.e_no_access') + ' </span>';
-             
-             this.domObject.next('.dx-crypto-decrypt-btn').remove();
-             this.domObject.after(label);*/
         },
         /**
          * Gets value of current element. It can be input or other container (e.g. div, span)
@@ -23799,6 +23782,9 @@ $(document).ajaxComplete(function () {
 
                 callback(dataArray);
             };
+            fr.onerror = function () {
+                hide_page_splash(1);
+            }
 
             fr.readAsArrayBuffer(this.domObject[0].files[0]);
         },
@@ -23816,6 +23802,10 @@ $(document).ajaxComplete(function () {
 
                     callback(arrayBuffer, xhr.response.type);
                 };
+                reader.onerror = function () {
+                    hide_page_splash(1);
+                }
+
             };
             xhr.open('GET', this.domObject.attr("href"));
             xhr.responseType = 'blob';
@@ -23834,12 +23824,12 @@ $(document).ajaxComplete(function () {
             }
         },
         setFileValue: function (value) {
-            var valueBlob = new Blob([new Uint8Array(value)], {type: "application/octet-stream"});
+            var valueBlob = new Blob([new Uint8Array(value)], { type: "application/octet-stream" });
 
             this.domObject.data('crypto-value', valueBlob);
         },
         setLinkValue: function (value, fileType) {
-            var blob = new Blob([value], {type: fileType});
+            var blob = new Blob([value], { type: fileType });
             var newUrl = URL.createObjectURL(blob);
 
             var a = document.createElement("a");
@@ -23865,16 +23855,13 @@ $(document).ajaxComplete(function () {
     $('.dx-crypto-field-file').DxCryptoFileField();
 });
 
-(function ($)
-{
+(function ($) {
     /**
      * Creates jQuery plugin for crypto fields
      * @returns DxCryptoUserPanel
      */
-    $.fn.DxCryptoUserPanel = function ()
-    {
-        return this.each(function ()
-        {
+    $.fn.DxCryptoUserPanel = function () {
+        return this.each(function () {
             this.crypto = new $.DxCryptoUserPanel($(this));
         });
     };
@@ -23924,6 +23911,8 @@ $(document).ajaxComplete(function () {
             self.domObject.find('.dx-crypto-generate-cert-btn').click(this.openGenerateCertificate);
 
             self.domObject.find('.dx-crypto-generate-new-cert-btn').click(function () {
+                hide_page_splash(1);
+
                 var title = Lang.get('crypto.btn_generate_new_cert');
                 var body = Lang.get('crypto.w_confirm_generate_new_cert');
 
@@ -23938,6 +23927,8 @@ $(document).ajaxComplete(function () {
          */
         openGenerateCertificate: function () {
             var modal = $('#dx-crypto-modal-generate-cert');
+
+            hide_page_splash(1);
 
             modal.on('shown.bs.modal', function () {
                 modal.find('#dx-crypto-modal-gen-input-password').focus();
@@ -23968,19 +23959,19 @@ $(document).ajaxComplete(function () {
                 return false;
             }
 
-            show_page_splash(1);
-            
-            window.DxCrypto.generateSalt();
-
-            window.DxCrypto.createPasswordKey(password)
-                    .then(function (passwordKey) {
-                        window.DxCrypto.generateUserCert(passwordKey);
-                    })
-                    .catch(window.DxCrypto.catchError);
-
             $('#dx-crypto-modal-generate-cert').modal('hide');
             $('#dx-crypto-modal-gen-input-password').val('');
             $('#dx-crypto-modal-gen-input-password-again').val('');
+
+            show_page_splash(1);
+
+            window.DxCrypto.generateSalt();
+
+            window.DxCrypto.createPasswordKey(password)
+                .then(function (passwordKey) {
+                    window.DxCrypto.generateUserCert(passwordKey);
+                })
+                .catch(window.DxCrypto.catchError);
         }
     });
 })(jQuery);

@@ -1,13 +1,10 @@
-(function ($)
-{
+(function ($) {
     /**
      * Creates jQuery plugin for crypto fields
      * @returns DxCryptoUserPanel
      */
-    $.fn.DxCryptoUserPanel = function ()
-    {
-        return this.each(function ()
-        {
+    $.fn.DxCryptoUserPanel = function () {
+        return this.each(function () {
             this.crypto = new $.DxCryptoUserPanel($(this));
         });
     };
@@ -57,6 +54,8 @@
             self.domObject.find('.dx-crypto-generate-cert-btn').click(this.openGenerateCertificate);
 
             self.domObject.find('.dx-crypto-generate-new-cert-btn').click(function () {
+                hide_page_splash(1);
+
                 var title = Lang.get('crypto.btn_generate_new_cert');
                 var body = Lang.get('crypto.w_confirm_generate_new_cert');
 
@@ -71,6 +70,8 @@
          */
         openGenerateCertificate: function () {
             var modal = $('#dx-crypto-modal-generate-cert');
+
+            hide_page_splash(1);
 
             modal.on('shown.bs.modal', function () {
                 modal.find('#dx-crypto-modal-gen-input-password').focus();
@@ -101,19 +102,19 @@
                 return false;
             }
 
-            show_page_splash(1);
-            
-            window.DxCrypto.generateSalt();
-
-            window.DxCrypto.createPasswordKey(password)
-                    .then(function (passwordKey) {
-                        window.DxCrypto.generateUserCert(passwordKey);
-                    })
-                    .catch(window.DxCrypto.catchError);
-
             $('#dx-crypto-modal-generate-cert').modal('hide');
             $('#dx-crypto-modal-gen-input-password').val('');
             $('#dx-crypto-modal-gen-input-password-again').val('');
+
+            show_page_splash(1);
+
+            window.DxCrypto.generateSalt();
+
+            window.DxCrypto.createPasswordKey(password)
+                .then(function (passwordKey) {
+                    window.DxCrypto.generateUserCert(passwordKey);
+                })
+                .catch(window.DxCrypto.catchError);
         }
     });
 })(jQuery);
