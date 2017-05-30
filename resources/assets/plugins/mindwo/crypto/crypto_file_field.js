@@ -1,29 +1,10 @@
-(function ($)
-{
+(function ($) {
     /**
      * Creates jQuery plugin for crypto fields
      * @returns DxCryptoFileField
      */
-    $.fn.DxCryptoFileField = function ()
-    {
-        /*for (var i=0; i < this.length; i++){
-         var selfR = this[i];
-         
-         var self = $(selfR);
-         
-         if (self.data('dx_is_init') == 1) {
-         continue;
-         }
-         
-         self.data('dx_is_init', 1);
-         
-         var cr = new $.DxCryptoFileField(self);
-         
-         this.crypto = cr;
-         }*/
-
-        return this.each(function ()
-        {
+    $.fn.DxCryptoFileField = function () {
+        return this.each(function () {
             var self = $(this);
 
             if (self.data('dx_is_init') == 1) {
@@ -91,12 +72,8 @@
                     this.domObject.val('');
                 }
             }
-            
+
             window.DxCrypto.catchError(null, Lang.get('crypto.e_no_access'));
-            /*  var label = '<span class="label label-danger"> ' + Lang.get('crypto.e_no_access') + ' </span>';
-             
-             this.domObject.next('.dx-crypto-decrypt-btn').remove();
-             this.domObject.after(label);*/
         },
         /**
          * Gets value of current element. It can be input or other container (e.g. div, span)
@@ -121,6 +98,9 @@
 
                 callback(dataArray);
             };
+            fr.onerror = function () {
+                hide_page_splash(1);
+            }
 
             fr.readAsArrayBuffer(this.domObject[0].files[0]);
         },
@@ -138,6 +118,10 @@
 
                     callback(arrayBuffer, xhr.response.type);
                 };
+                reader.onerror = function () {
+                    hide_page_splash(1);
+                }
+
             };
             xhr.open('GET', this.domObject.attr("href"));
             xhr.responseType = 'blob';
@@ -156,12 +140,12 @@
             }
         },
         setFileValue: function (value) {
-            var valueBlob = new Blob([new Uint8Array(value)], {type: "application/octet-stream"});
+            var valueBlob = new Blob([new Uint8Array(value)], { type: "application/octet-stream" });
 
             this.domObject.data('crypto-value', valueBlob);
         },
         setLinkValue: function (value, fileType) {
-            var blob = new Blob([value], {type: fileType});
+            var blob = new Blob([value], { type: fileType });
             var newUrl = URL.createObjectURL(blob);
 
             var a = document.createElement("a");

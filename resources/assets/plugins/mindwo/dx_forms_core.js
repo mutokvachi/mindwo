@@ -515,10 +515,12 @@ function process_data_fields(post_form_htm_id) {
     var formData = new FormData();
     
     if (!process_Input_simple(post_form_htm_id, formData)) {
+        hide_page_splash(1);
         return null;
     }
     
     if (!process_dropzone(post_form_htm_id, formData)) {
+        hide_page_splash(1);
         return null;
     }
     
