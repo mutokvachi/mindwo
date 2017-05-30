@@ -7,8 +7,9 @@
     </div>
     @include('blocks.view.field_settings', ['block_id' => 'view_editor'])
   </div>
-    <div class="col-md-6">
-      <a href="javascript:;" data-title="Add new field to default view and form" class="btn red dx-new-field btn-block">
-        <i class="fa fa-plus-square"></i> Add a new field </a>
-    </div>
+  <div class="col-md-12" style="text-align: center;">
+    <a href="javascript:;" class="btn red dx-new-field">
+      <i class="fa fa-plus"></i> {{ trans('constructor.add_field') }}
+    </a>
+  </div>
 @endsection

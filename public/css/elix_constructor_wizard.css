@@ -38,12 +38,8 @@
 	border: 1px dashed #ccc;
 }
 
-.dx-cms-field-remove {
+.dx-fields-container .dx-cms-field-remove {
 	display: none;
-}
-
-.dropped .dx-cms-field-remove {
-	display: block;
 }
 
 .dx-fields-container .dd-list {

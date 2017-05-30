@@ -57,17 +57,15 @@
 			window.location = self.getPrevUrl();
 		});
 		
+		// Advanced settings button on the top of the page
 		$('.dx-adv-btn').click(function()
 		{
-			var settings_closed = function()
-			{
-				window.location.reload();
-			};
-			
-			// if list_id = 0 then try to save with AJAX (must be register title provided)
-			// for new registers user object_id = 140
-			
-			view_list_item('form', self.options.list_id, 3, 0, 0, "", "", {after_close: settings_closed});
+			view_list_item('form', self.options.list_id, 3, 0, 0, "", "", {
+				after_close: function()
+				{
+					window.location.reload();
+				}
+			});
 		});
 	};
 	
@@ -159,8 +157,24 @@
 			{
 				// if list_id = 0 then try to save with AJAX (must be register title provided)
 				// for new registers user object_id = 140
-				self.submit_fields(function(){
+				self.submit_fields(function()
+				{
 					new_list_item(self.options.list_id, 0, 0, "", "");
+				});
+			});
+		},
+		
+		init_rights: function()
+		{
+			var self = this;
+			
+			this.root.find('.dx-constructor-add-role').click(function()
+			{
+				new_list_item(23, 105, self.options.list_id, "", "", {
+					after_close: function(frm)
+					{
+					
+					}
 				});
 			});
 		},
@@ -173,13 +187,13 @@
 			
 			if(listName.length && !listName.val())
 			{
-				toastr.error('Please enter register name.');
+				toastr.error(Lang.get('constructor.enter_name'));
 				return false;
 			}
 			
 			if(itemName.length && !itemName.val())
 			{
-				toastr.error('Please enter item name.');
+				toastr.error(Lang.get('constructor.enter_item_name'));
 				return false;
 			}
 			
@@ -234,7 +248,8 @@
 			{
 				var row = [];
 				
-				$(this).find('.dd-item').each(function(){
+				$(this).find('.dd-item').each(function()
+				{
 					row.push($(this).data('id'));
 				});
 				

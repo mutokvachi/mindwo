@@ -570,6 +570,11 @@ $(document).ready(function()
 
 (function($)
 {
+	/**
+	 *
+	 * @param opts
+	 * @constructor
+	 */
 	$.fn.ConstructorGrid = function(opts)
 	{
 		var options = $.extend({}, $.fn.ConstructorGrid.defaults, opts);
@@ -591,6 +596,7 @@ $(document).ready(function()
 		this.options = opts;
 		this.fieldsContainer = $('.dx-fields-container .columns');
 		
+		// fields list at left side
 		this.fieldsContainer.sortable({
 			connectWith: '.columns',
 			handle: '.dd-handle',
@@ -602,13 +608,15 @@ $(document).ready(function()
 			}
 		});
 		
+		// form rows
 		this.root.sortable({
 			axis: 'y',
 			handle: '.row-handle',
 			containment: 'parent'
 		});
 		
-		var sortableOpts = {
+		// form row columns
+		this.sortableOpts = {
 			connectWith: '.columns',
 			handle: '.dd-handle',
 			placeholder: 'placeholder',
@@ -634,34 +642,63 @@ $(document).ready(function()
 			}
 		};
 		
-		this.root.find('.columns').sortable(sortableOpts);
+		this.root.find('.columns').sortable(this.sortableOpts);
 		
-		this.root.on('click', '.dx-constructor-row-remove', function()
+		this.root.on('click', '.dx-cms-field-remove', function()
 		{
-			var row = $(this).closest('.row-container');
-			
-			row.children('.columns').children().each(function()
-			{
-				$(this).appendTo(self.fieldsContainer).attr('class', 'col-md-12');
-			});
-			
-			row.remove();
+			var row = $(this).closest('.dd-list');
+			$(this).tooltipster('hide');
+			self.removeField($(this).closest('.dd-item').parent());
+			self.updateRow(row);
 		});
 		
+		// handle row deletion
+		this.root.on('click', '.dx-constructor-row-remove', function()
+		{
+			$(this).tooltipster('hide');
+			self.removeRow($(this).closest('.row-container'))
+		});
+		
+		// handle row creation
 		this.root.parent().on('click', '.dx-add-row-btn', function()
 		{
-			var row = $('<div class="row-container">' +
-				'<div class="row-box row-handle"><i class="fa fa-arrows-v"></i></div>' +
-				'<div class="row-box row-button"><a href="javascript:;" class="dx-constructor-row-remove"><i class="fa fa-times"></i></a></div>' +
-				'<div class="row columns dd-list"></div>' +
-				'</div>'
-			).appendTo(self.root);
-			
-			row.find('.columns').sortable(sortableOpts);
-		})
+			self.createRow();
+		});
 	};
 	
 	$.extend($.ConstructorGrid.prototype, {
+		createRow: function()
+		{
+			var row = $('<div class="row-container">' +
+				'<div class="row-box row-handle"><i class="fa fa-arrows-v"></i></div>' +
+				'<div class="row-box row-button">' +
+				'<a href="javascript:;" class="dx-constructor-row-remove" title="' + Lang.get('constructor.remove_row') + '"><i class="fa fa-times"></i></a>' +
+				'</div>' +
+				'<div class="row columns dd-list"></div>' +
+				'</div>'
+			).appendTo(this.root);
+			
+			row.find('.dx-constructor-row-remove').tooltipster({
+				theme: 'tooltipster-light',
+				animation: 'grow'
+			});
+			row.find('.columns').sortable(this.sortableOpts);
+		},
+		removeField: function(field)
+		{
+			field.appendTo(this.fieldsContainer).attr('class', 'col-md-12');
+		},
+		removeRow: function(row)
+		{
+			var self = this;
+			
+			row.children('.columns').children().each(function()
+			{
+				self.removeField($(this));
+			});
+			
+			row.remove();
+		},
 		updateGrid: function()
 		{
 			var self = this;
@@ -672,23 +709,20 @@ $(document).ready(function()
 		},
 		updateRow: function(row)
 		{
-			row.each(function()
+			var items = row.children().filter(function()
 			{
-				var items = row.children().filter(function()
+				return $(this).css('position') !== 'absolute';
+			});
+			var count = items.length;
+			var col = Math.floor(12 / count);
+			
+			items.each(function()
+			{
+				$(this).removeClass(function(index, className)
 				{
-					return $(this).css('position') !== 'absolute';
+					return (className.match(/(^|\s)col-\S+/g) || []).join(' ');
 				});
-				var count = items.length;
-				var col = Math.floor(12 / count);
-				
-				items.each(function()
-				{
-					$(this).removeClass(function(index, className)
-					{
-						return (className.match(/(^|\s)col-\S+/g) || []).join(' ');
-					});
-					$(this).addClass('col-md-' + col);
-				});
+				$(this).addClass('col-md-' + col);
 			});
 		}
 	});
@@ -752,17 +786,15 @@ $(document).ready(function()
 			window.location = self.getPrevUrl();
 		});
 		
+		// Advanced settings button on the top of the page
 		$('.dx-adv-btn').click(function()
 		{
-			var settings_closed = function()
-			{
-				window.location.reload();
-			};
-			
-			// if list_id = 0 then try to save with AJAX (must be register title provided)
-			// for new registers user object_id = 140
-			
-			view_list_item('form', self.options.list_id, 3, 0, 0, "", "", {after_close: settings_closed});
+			view_list_item('form', self.options.list_id, 3, 0, 0, "", "", {
+				after_close: function()
+				{
+					window.location.reload();
+				}
+			});
 		});
 	};
 	
@@ -854,8 +886,24 @@ $(document).ready(function()
 			{
 				// if list_id = 0 then try to save with AJAX (must be register title provided)
 				// for new registers user object_id = 140
-				self.submit_fields(function(){
+				self.submit_fields(function()
+				{
 					new_list_item(self.options.list_id, 0, 0, "", "");
+				});
+			});
+		},
+		
+		init_rights: function()
+		{
+			var self = this;
+			
+			this.root.find('.dx-constructor-add-role').click(function()
+			{
+				new_list_item(23, 105, self.options.list_id, "", "", {
+					after_close: function(frm)
+					{
+					
+					}
 				});
 			});
 		},
@@ -868,13 +916,13 @@ $(document).ready(function()
 			
 			if(listName.length && !listName.val())
 			{
-				toastr.error('Please enter register name.');
+				toastr.error(Lang.get('constructor.enter_name'));
 				return false;
 			}
 			
 			if(itemName.length && !itemName.val())
 			{
-				toastr.error('Please enter item name.');
+				toastr.error(Lang.get('constructor.enter_item_name'));
 				return false;
 			}
 			
@@ -929,7 +977,8 @@ $(document).ready(function()
 			{
 				var row = [];
 				
-				$(this).find('.dd-item').each(function(){
+				$(this).find('.dd-item').each(function()
+				{
 					row.push($(this).data('id'));
 				});
 				

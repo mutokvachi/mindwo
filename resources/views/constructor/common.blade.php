@@ -24,16 +24,18 @@
   <div class="portlet light">
     <div class="portlet-title">
       <div class="caption font-grey-cascade uppercase">
-        <i class="fa fa-list"></i> Register
+        <i class="fa fa-list"></i> {{ trans('constructor.register') }}
         @if($list)
           - {{ $list->list_title }}
         @endif
       </div>
-      <div class="btn-group dx-register-tools pull-right">
-        <button type="button" class="btn btn-white dx-adv-btn">
-          <i class="fa fa-cog"></i> Advanced settings
-        </button>
-      </div>
+      @if($list_id)
+        <div class="btn-group dx-register-tools pull-right">
+          <button type="button" class="btn btn-white dx-adv-btn">
+            <i class="fa fa-cog"></i> {{ trans('constructor.adv_settings') }}
+          </button>
+        </div>
+      @endif
     </div>
     <div class="portlet-body dx-constructor-wizard">
       <div class="row">
@@ -47,13 +49,14 @@
         <div class="col-md-12" style="text-align: center">
           @if($step != 'names')
             <button id="prev_step" type="button" class="btn btn-primary dx-wizard-btn pull-left">
-              <i class="fa fa-arrow-left"></i> Back
+              <i class="fa fa-arrow-left"></i> {{ trans('constructor.back') }}
             </button>
           @endif
           <button id="submit_step" type="button" class="btn btn-primary dx-wizard-btn pull-right">
-            Save
-            @if($step != 'menu')
-              & next <i class="fa fa-arrow-right"></i>
+            @if($step == 'menu')
+              {{ trans('constructor.save') }}
+            @else
+              {{ trans('constructor.next') }} <i class="fa fa-arrow-right"></i>
             @endif
           </button>
         </div>

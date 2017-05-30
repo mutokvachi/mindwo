@@ -27,7 +27,10 @@
         </tbody>
       </table>
     </div>
-    <a class="btn btn-primary btn-sm" href='javascript:;' style="font-size: 12px;"><i class='fa fa-plus-circle'></i> Add
-      new role</a>
+    <div class="col-md-12" style="text-align: center">
+      <a href="javascript:;" class="btn btn-primary red dx-constructor-add-role">
+        <i class='fa fa-plus'></i> {{ trans('constructor.add_role') }}
+      </a>
+    </div>
   </div>
 @endsection
