@@ -48,6 +48,7 @@ return [
     'i_cancel_regen_process' => 'Apstādina procesu...',
     'w_confirm_generate_new_cert' => '<b>Vai Jūs tiešām vēlaties ģenerēt jaunu sertifikātu?</b></br>Jūsu pieeja šifrētiem datiem tiks zaudēta - pieeju var atjaunot tikai cits lietotājs ar tiesībām uz šifrētajiem datiem.',
     'regen_process_exist' => 'Pāršifrēšanas process jau sācies',
+    'regen_process_exist_by_user' => 'Pāršifrēšanas process jau uzsākts no lietotāja :user_name',
     'w_regen_process_exist' => 'Datu pāršifrēšanas process jau ir sācies. Ja Jūs izvēlaties "Nē", tad tiks uzsākts jauns pāršifrēšnas process.</b></br><b>Vai vēlaties turpināt esošo procesu?</b>',
     'db' => [
         'user_id' => 'Lietotājs',
