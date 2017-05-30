@@ -26,6 +26,14 @@ class CryptoMasterKeyRegenerationController extends Controller
             return response()->json(['success' => 0, 'msg' => trans('crypto.e_masterkey_group_not_exists')]);
         }
 
+        $other_regen_process = \App\Models\Crypto\Regen::where('master_key_group_id', $masterKeyGroupId)
+                ->where('created_user_id', '<>', \Auth::user()->id)
+                ->first();
+
+        if ($other_regen_process) {
+            return response()->json(['success' => 0, 'msg' => trans('crypto.regen_process_exist_by_user', ['user_name' => $other_regen_process->createdUser->display_name])]);
+        }
+
         $regen_process = \App\Models\Crypto\Regen::where('master_key_group_id', $masterKeyGroupId)
                 ->where('created_user_id', \Auth::user()->id)
                 ->first();
@@ -171,10 +179,10 @@ class CryptoMasterKeyRegenerationController extends Controller
     }
 
     /**
-     * Retrieves old value. 
+     * Retrieves old value.
      * If it is file then old value will be part of url which is used to downlaod file from javascript.
      * If it is text then just returns same value
-     * @param object $cryptoField Inormation about field which will be encrypted 
+     * @param object $cryptoField Inormation about field which will be encrypted
      * @param object $dataRow Contains data of row - value and id
      * @param object $list Lists object for register where value is stored
      * @return satring Value for reencrpytion process - file url or text
@@ -192,7 +200,7 @@ class CryptoMasterKeyRegenerationController extends Controller
 
     /**
      * If value is file then gets file columns guid column from name column, else return same column name
-     * @param object $cryptoField Inormation about field which will be encrypted 
+     * @param object $cryptoField Inormation about field which will be encrypted
      * @return string File guid column name
      */
     private function getFileGuidColumn($cryptoField)
@@ -409,7 +417,7 @@ class CryptoMasterKeyRegenerationController extends Controller
     /**
      * Gets all users public keys
      * @param int $master_key_group_id Master key's group id
-     * @return json Response containig keys or error message 
+     * @return json Response containig keys or error message
      */
     public function getUserPublicKeys($master_key_group_id)
     {
@@ -431,7 +439,7 @@ class CryptoMasterKeyRegenerationController extends Controller
     /**
      * Check if user has master key for specified group
      * @param int $user_id User Id
-     * @param int $master_key_group_id Master key's group id 
+     * @param int $master_key_group_id Master key's group id
      * @return boolean Returns true if master key found
      */
     private function checkUserMasterKey($user_id, $master_key_group_id)
