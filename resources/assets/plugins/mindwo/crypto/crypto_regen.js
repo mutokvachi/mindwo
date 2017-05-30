@@ -248,10 +248,8 @@ $.extend(window.DxCryptoRegenClass.prototype, {
      */
     recryptData: function (pendingData) {
         var self = window.DxCryptoRegen;
-
-        for (var i = 0; i < pendingData.length; i++) {
-            self.recryptDataRow(pendingData, i);
-        }
+        
+        self.recryptDataRow(pendingData, 0);
 
         // All already done
         if (pendingData.length <= 0) {
@@ -300,26 +298,31 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             return false;
         }
 
+        if (pendingData.length <= rowNum) {
+            return false;
+        }
+
         var record = pendingData[rowNum];
 
         if (record.is_file == 1) {
             var xhr = new XMLHttpRequest();
 
             xhr.onload = function () {
-                var reader = new FileReader();
+                    var reader = new FileReader();
 
                 reader.readAsArrayBuffer(xhr.response);
 
-                reader.onloadend = function () {
+                    reader.onloadend = function () {
 
-                    var oldValue = new Uint8Array(reader.result);
+                        var oldValue = new Uint8Array(reader.result);
 
-                    //callback(arrayBuffer, xhr.response.type);
+                        //callback(arrayBuffer, xhr.response.type);
 
-                    self.encryptDecryptData(oldValue, function (resBuffer) {
-                        self.onRecryptedDataRow(resBuffer, record, pendingData.length);
-                    });
-                };
+                        self.encryptDecryptData(oldValue, function (resBuffer) {
+                            self.onRecryptedDataRow(resBuffer, record, pendingData.length);
+                            self.recryptDataRow(pendingData, ++rowNum);
+                        });
+                    };
             };
             xhr.open('GET', DX_CORE.site_url + 'download_by_field_' + record.old_value);
             xhr.responseType = 'blob';
@@ -330,6 +333,7 @@ $.extend(window.DxCryptoRegenClass.prototype, {
 
             self.encryptDecryptData(oldValue, function (resBuffer) {
                 self.onRecryptedDataRow(resBuffer, record, pendingData.length);
+                self.recryptDataRow(pendingData, ++rowNum);
             });
         }
     },

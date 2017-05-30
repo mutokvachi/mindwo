@@ -23044,10 +23044,8 @@ $.extend(window.DxCryptoRegenClass.prototype, {
      */
     recryptData: function (pendingData) {
         var self = window.DxCryptoRegen;
-
-        for (var i = 0; i < pendingData.length; i++) {
-            self.recryptDataRow(pendingData, i);
-        }
+        
+        self.recryptDataRow(pendingData, 0);
 
         // All already done
         if (pendingData.length <= 0) {
@@ -23096,26 +23094,31 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             return false;
         }
 
+        if (pendingData.length <= rowNum) {
+            return false;
+        }
+
         var record = pendingData[rowNum];
 
         if (record.is_file == 1) {
             var xhr = new XMLHttpRequest();
 
             xhr.onload = function () {
-                var reader = new FileReader();
+                    var reader = new FileReader();
 
                 reader.readAsArrayBuffer(xhr.response);
 
-                reader.onloadend = function () {
+                    reader.onloadend = function () {
 
-                    var oldValue = new Uint8Array(reader.result);
+                        var oldValue = new Uint8Array(reader.result);
 
-                    //callback(arrayBuffer, xhr.response.type);
+                        //callback(arrayBuffer, xhr.response.type);
 
-                    self.encryptDecryptData(oldValue, function (resBuffer) {
-                        self.onRecryptedDataRow(resBuffer, record, pendingData.length);
-                    });
-                };
+                        self.encryptDecryptData(oldValue, function (resBuffer) {
+                            self.onRecryptedDataRow(resBuffer, record, pendingData.length);
+                            self.recryptDataRow(pendingData, ++rowNum);
+                        });
+                    };
             };
             xhr.open('GET', DX_CORE.site_url + 'download_by_field_' + record.old_value);
             xhr.responseType = 'blob';
@@ -23126,6 +23129,7 @@ $.extend(window.DxCryptoRegenClass.prototype, {
 
             self.encryptDecryptData(oldValue, function (resBuffer) {
                 self.onRecryptedDataRow(resBuffer, record, pendingData.length);
+                self.recryptDataRow(pendingData, ++rowNum);
             });
         }
     },
@@ -23676,6 +23680,50 @@ $(document).ajaxComplete(function () {
     $('.dx-crypto-field').DxCryptoField();
 });
 
+
+// use this transport for "binary" data type
+$.ajaxTransport("+binary", function(options, originalOptions, jqXHR){
+    // check for conditions and support for blob / arraybuffer response type
+    if (window.FormData && ((options.dataType && (options.dataType == 'binary')) || (options.data && ((window.ArrayBuffer && options.data instanceof ArrayBuffer) || (window.Blob && options.data instanceof Blob)))))
+    {
+        return {
+            // create new XMLHttpRequest
+            send: function(headers, callback){
+		// setup all variables
+                var xhr = new XMLHttpRequest(),
+		url = options.url,
+		type = options.type,
+		async = options.async || true,
+		// blob or arraybuffer. Default is blob
+		dataType = options.responseType || "blob",
+		data = options.data || null,
+		username = options.username || null,
+		password = options.password || null;
+					
+                xhr.addEventListener('load', function(){
+			var data = {};
+			data[options.dataType] = xhr.response;
+			// make callback and send data
+			callback(xhr.status, xhr.statusText, data, xhr.getAllResponseHeaders());
+                });
+ 
+                xhr.open(type, url, async, username, password);
+				
+		// setup custom headers
+		for (var i in headers ) {
+			xhr.setRequestHeader(i, headers[i] );
+		}
+				
+                xhr.responseType = dataType;
+                xhr.send(data);
+            },
+            abort: function(){
+                jqXHR.abort();
+            }
+        };
+    }
+});
+
 (function ($)
 {
     /**
@@ -23924,6 +23972,8 @@ $(document).ajaxComplete(function () {
             self.domObject.find('.dx-crypto-generate-cert-btn').click(this.openGenerateCertificate);
 
             self.domObject.find('.dx-crypto-generate-new-cert-btn').click(function () {
+                hide_page_splash(1);
+
                 var title = Lang.get('crypto.btn_generate_new_cert');
                 var body = Lang.get('crypto.w_confirm_generate_new_cert');
 
@@ -23938,6 +23988,8 @@ $(document).ajaxComplete(function () {
          */
         openGenerateCertificate: function () {
             var modal = $('#dx-crypto-modal-generate-cert');
+            
+            hide_page_splash(1);
 
             modal.on('shown.bs.modal', function () {
                 modal.find('#dx-crypto-modal-gen-input-password').focus();
@@ -23968,6 +24020,10 @@ $(document).ajaxComplete(function () {
                 return false;
             }
 
+            $('#dx-crypto-modal-generate-cert').modal('hide');
+            $('#dx-crypto-modal-gen-input-password').val('');
+            $('#dx-crypto-modal-gen-input-password-again').val('');
+
             show_page_splash(1);
             
             window.DxCrypto.generateSalt();
@@ -23977,10 +24033,6 @@ $(document).ajaxComplete(function () {
                         window.DxCrypto.generateUserCert(passwordKey);
                     })
                     .catch(window.DxCrypto.catchError);
-
-            $('#dx-crypto-modal-generate-cert').modal('hide');
-            $('#dx-crypto-modal-gen-input-password').val('');
-            $('#dx-crypto-modal-gen-input-password-again').val('');
         }
     });
 })(jQuery);
