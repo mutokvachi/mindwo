@@ -379,11 +379,14 @@ class CryptoMasterKeyRegenerationController extends Controller
 
         $cache_rows = $process->cache;
 
+        $dt = new \DateTime();
+
         // Applys all data changes to db
         foreach ($cache_rows as $cache) {
             DB::table($cache->ref_table)
                     ->where('id', $cache->ref_id)
-                    ->update([$cache->ref_column => $cache->new_value]);
+                    ->update([$cache->ref_column => $cache->new_value,
+                    'modified_time' => $dt]);
         }
 
         return $process;

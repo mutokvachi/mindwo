@@ -298,7 +298,7 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             return false;
         }
 
-        if (pendingData.length <= rowNum) {
+        if (!(rowNum in pendingData)) {
             return false;
         }
 
