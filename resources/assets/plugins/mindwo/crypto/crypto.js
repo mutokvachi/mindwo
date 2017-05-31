@@ -885,10 +885,12 @@ $.extend(window.DxCryptoClass.prototype, {
                         }
                     },
                     error: function (err) {
+                        hide_page_splash(1);
                         self.catchError(err, Lang.get('crypto.e_master_key_already_exist'));
                     }
                 });
             } else {
+                hide_page_splash(1);
                 self.catchError(null, Lang.get('crypto.e_add_yourself_first'));
             }
         } else {
