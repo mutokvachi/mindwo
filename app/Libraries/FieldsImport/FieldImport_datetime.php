@@ -22,7 +22,7 @@ namespace App\Libraries\FieldsImport
         public function prepareVal()
         {
             $val = $this->excel_value;
-            Log::info("origin val: " . $val);
+            
             if (strlen($val) == 0)
             {
                 $val == null;

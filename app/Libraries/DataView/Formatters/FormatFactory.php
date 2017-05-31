@@ -10,7 +10,7 @@ namespace App\Libraries\DataView\Formatters
         * @param Array $data_row    Datu masīva rinda - te lauka vērtība
         * @return FormatAbstract Atgriež vērtības formāta objektu
         */ 
-        public static function build_field($model_row, $data_row) 
+        public static function build_field($model_row, $data_row, $is_formula = false) 
         {            
             $type = $model_row['type'];
             $value = $data_row[$model_row['name']];
@@ -24,7 +24,7 @@ namespace App\Libraries\DataView\Formatters
                 }
                 else
                 {                    
-                    return new $class($value);
+                    return new $class($value, $is_formula);
                 }
             }
             else 

@@ -23,6 +23,12 @@ namespace App\Libraries\DataView
         public $is_rows = false;
         
         /**
+         * Array with Excel column letters and formaters for date and date/time columns
+         * @var array 
+         */
+        public $formaters = [];
+        
+        /**
          * Inicializē Excel eksporta klases objektu.
          * 
          * @param int $view_id Skata identifikatrs (no tabulas dx_views lauks id)
@@ -111,18 +117,22 @@ namespace App\Libraries\DataView
             $view = $this->view->view_obj;
 
             $htm = "";
-
+                        
             foreach ($rows as $row) {
                 $cell_htm = "";
+                $col = 0;
                 for ($i = 0; $i < count($view->model); $i++) {
                     if ($this->isFieldIncludable($view->model[$i])) {
-                        $cell_obj = Formatters\FormatFactory::build_field($this->resetFieldType($view->model[$i], $row), $row);
+                        $col ++;
+                        $cell_obj = Formatters\FormatFactory::build_field($this->resetFieldType($view->model[$i], $row), $row, true);
 
                         $cell_htm .= view('excel.data_col', [
                             'align' => $cell_obj->align, 
                             'cell_value' => $cell_obj->value,
                             'is_val_html' => $cell_obj->is_html
                         ])->render();
+                        
+                        $this->setDateTimeCols($view->model[$i], $col);
                     }
                 }
 
@@ -130,6 +140,37 @@ namespace App\Libraries\DataView
             }
 
             return $htm;
+        }
+        
+        /**
+         * Sets Excel columns formaters for date and datetime columns - stores formats in array
+         * @param array $model_row Field properties
+         * @param integer $col Column number
+         */
+        private function setDateTimeCols($model_row, $col) {
+            if ($model_row['type'] == 'date') {
+                $this->formaters[$this->getNameFromNumber($col)] = Config::get('dx.date_format');
+            }
+            
+            if ($model_row['type'] == 'datetime') {
+                $this->formaters[$this->getNameFromNumber($col)] = Config::get('dx.date_format') . ' hh:mm';
+            }
+        }
+        
+        /**
+         * Gets Excel column letter according to column number
+         * @param integer $num Excel column number starting from 1
+         * @return string Excel column letter (or several letters if more columns)
+         */
+        private function getNameFromNumber($num) {
+            $numeric = ($num - 1) % 26;
+            $letter = chr(65 + $numeric);
+            $num2 = intval(($num - 1) / 26);
+            if ($num2 > 0) {
+                return $this->getNameFromNumber($num2) . $letter;
+            } else {
+                return $letter;
+            }
         }
 
         /**

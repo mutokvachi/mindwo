@@ -16,8 +16,7 @@ class FilePublicAccess
      * @return mixed
      */
     public function handle($request, Closure $next)
-    {       
-        Log::info("MIDLE: " . $request->url() . " method: " . $request->method());
+    {               
         return $next($request);
     }
 }

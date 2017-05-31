@@ -210,7 +210,8 @@ namespace App\Libraries
          * @return string WHERE part for supervisions
          */
         public static function getSQLSuperviseRights($list_id, $table_name)
-        {            
+        {
+            
             $supervise = Rights::getSuperviseRows();
             
             if (count($supervise) == 0) {
@@ -245,7 +246,7 @@ namespace App\Libraries
                 $source_where = " AND " . $table_name . ".supervise_id in (" . $in_ids . ") ";
             }
             
-            return $source_where;
+            return trim($source_where);
         }
         
         /**

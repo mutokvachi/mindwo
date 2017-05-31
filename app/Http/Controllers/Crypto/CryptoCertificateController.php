@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Crypto;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Crypto;
+use DB;
 
 /**
  * Controlls certificate generation
@@ -38,7 +39,7 @@ class CryptoCertificateController extends Controller
      * Gets user's certificate and master keys
      * @param int $user_id User's ID
      * @param int $master_key_group_id Id of master key group
-     * @return json Response conatinig keys or error message 
+     * @return json Response containig keys or error message 
      */
     public function getUserCertificate($user_id, $master_key_group_id)
     {
@@ -88,7 +89,7 @@ class CryptoCertificateController extends Controller
             }
         }
 
-        return response()->json(['success' => 1, 'user_id' => $user_id, 'public_key' => base64_encode($cert->public_key), 'private_key' => base64_encode($cert->private_key), 'master_keys' => $masterKeys]);
+        return response()->json(['success' => 1, 'user_id' => $user_id, 'salt' => $cert->salt, 'public_key' => base64_encode($cert->public_key), 'private_key' => base64_encode($cert->private_key), 'master_keys' => $masterKeys]);
     }
 
     /**
@@ -113,6 +114,7 @@ class CryptoCertificateController extends Controller
         $this->validate($request, [
             'private_key' => 'required',
             'public_key' => 'required',
+            'salt' => 'required',
         ]);
 
         $user = \App\User::find(\Auth::user()->id);
@@ -126,6 +128,7 @@ class CryptoCertificateController extends Controller
 
         $private_key = file_get_contents($request->file('private_key'));
         $public_key = file_get_contents($request->file('public_key'));
+        $salt = $request->input('salt');
 
         $cert = $user->cryptoCertificate;
 
@@ -137,6 +140,7 @@ class CryptoCertificateController extends Controller
 
         $cert->private_key = $private_key;
         $cert->public_key = $public_key;
+        $cert->salt = $salt;
         $cert->modified_user_id = $user->id;
         $cert->modified_time = new \DateTime();
 

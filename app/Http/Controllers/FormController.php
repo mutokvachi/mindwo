@@ -320,16 +320,15 @@ class FormController extends Controller
      * @return Response Saved data info in JSON format
      * @throws Exceptions\DXCustomException
      */
-    public function saveFile(Request $request) {
+    public function saveFile(Request $request) {        
         
-        Log::info("SAVING FILE: " . json_encode($request->all()));
         /*
         $this->validate($request, [
             'download_guid' => 'required|exists:dx_downloads,guid',
         ]);
         */
         $guid = $request->input('download_guid');
-        Log::info("GUID: '" . $guid."'");
+        
         $down = DB::table('dx_downloads')->where('guid', '=', $guid)->first();
         if (!$down) {
             throw new Exceptions\DXCustomException(sprintf(trans('errors.file_record_not_found'), $guid));
@@ -346,15 +345,14 @@ class FormController extends Controller
             'item_id' => $down->item_id,
             'multi_list_id' => 0 // ToDo: implement multi list check
         ));
-        Log::info("SAVING FILE OGOO");
+        
         $rez = $this->saveForm($request);
-        Log::info(json_encode($rez));
+        
         return $rez;
     }
     
     public function saveFileGet(Request $request) {
-        Log::info("GET GETGFET");
-        
+                
         return response()->json([
             'success' => 1
         ]);
@@ -430,11 +428,11 @@ class FormController extends Controller
 
         validateRelations($tbl->list_id, $item_id);
         
-        DB::transaction(function () use ($form_id, $item_id, $tbl)
+        $table_row = FormSave::getFormTable($form_id);
+        $fields = FormSave::getFormsFields(-1, $form_id);
+            
+        DB::transaction(function () use ($table_row, $fields, $item_id)
         {
-            $table_row = FormSave::getFormTable($form_id);
-            $fields = FormSave::getFormsFields(-1, $form_id);
-
             \App\Libraries\Helper::deleteItem($table_row, $fields, $item_id);
         });        
 

@@ -371,9 +371,8 @@ namespace App\Libraries\Timeoff\Algorithms
                 
                 $calc_date = Carbon::createFromFormat('Y-m-d', $missing_calc ? $missing_calc->left_from : date('Y-m-d'));
                 $leave_date = Carbon::createFromFormat('Y-m-d', $missing_leave ? $missing_leave->calc_date : date('Y-m-d'));
-                $update_date = Carbon::createFromFormat('Y-m-d', $updated_leave ? $updated_leave->calc_date : date('Y-m-d'));
+                $update_date = Carbon::createFromFormat('Y-m-d', $updated_leave ? $updated_leave->calc_date : date('Y-m-d'));                
                 
-                \Log::info("Calc: " . $calc_date . " Leave: " . $leave_date . " Update: " . $update_date);
                 // compare dates - we return smaller
                 if ($calc_date->gt($leave_date)) {
                     $dat1 = $leave_date;
