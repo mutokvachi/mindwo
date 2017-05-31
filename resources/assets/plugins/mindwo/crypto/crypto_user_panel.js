@@ -75,6 +75,7 @@
 
             modal.on('shown.bs.modal', function () {
                 modal.find('#dx-crypto-modal-gen-input-password').focus();
+                hide_page_splash(1);
             });
 
             modal.modal('show');

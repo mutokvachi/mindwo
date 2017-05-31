@@ -22368,6 +22368,7 @@ $.extend(window.DxCryptoClass.prototype, {
 
         modal.on('shown.bs.modal', function () {
             $('#dx-crypto-modal-input-password', modal).focus();
+            hide_page_splash(1);
         });
 
         modal.modal('show');
@@ -23260,6 +23261,8 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             modal.find('.dx-crypto-modal-regen-succ').hide();
             modal.find('.dx-crypto-modal-regen-btn-cancel').show();
             modal.find('.dx-crypto-modal-regen-btn-close').hide();
+            
+            hide_page_splash(1);
         });
 
         modal.find('.dx-crypto-modal-regen-btn-cancel').click(window.DxCryptoRegen.cancelProcess);
@@ -23744,6 +23747,8 @@ $(document).ajaxComplete(function () {
             event.stopPropagation();
             event.stopImmediatePropagation();
 
+            show_page_splash(1);
+
             window.DxCrypto.decryptFields($(this));
         },
         setAccessError: function () {
@@ -23932,6 +23937,7 @@ $(document).ajaxComplete(function () {
 
             modal.on('shown.bs.modal', function () {
                 modal.find('#dx-crypto-modal-gen-input-password').focus();
+                hide_page_splash(1);
             });
 
             modal.modal('show');
