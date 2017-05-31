@@ -532,6 +532,7 @@ $.extend(window.DxCryptoClass.prototype, {
 
         modal.on('shown.bs.modal', function () {
             $('#dx-crypto-modal-input-password', modal).focus();
+            hide_page_splash(1);
         });
 
         modal.modal('show');

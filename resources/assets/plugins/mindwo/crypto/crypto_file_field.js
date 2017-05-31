@@ -49,19 +49,39 @@
                 this.linkInit();
             }
         },
+        /**
+         * Intializes input field
+         * @returns {undefined}
+         */
         inputInit: function () {
 
         },
+        /**
+         * Intializes link field
+         * @returns {undefined}
+         */
         linkInit: function () {
+            // Overrides element click event
             this.domObject.click(this.onLinkClick);
         },
+        /**
+         * Calls decryption function
+         * @param {object} event Link click event
+         * @returns {undefined}
+         */
         onLinkClick: function (event) {
             event.preventDefault();
             event.stopPropagation();
             event.stopImmediatePropagation();
 
+            show_page_splash(1);
+
             window.DxCrypto.decryptFields($(this));
         },
+        /**
+         * Sets access denied error for dom object
+         * @returns {undefined}
+         */
         setAccessError: function () {
             if (this.domObject.is('input')) {
                 var parent = this.domObject.parent().parent();
@@ -77,7 +97,8 @@
         },
         /**
          * Gets value of current element. It can be input or other container (e.g. div, span)
-         * @returns {string}
+         * @param {function} callback Callback function which will be called after value is retrieved
+         * @returns {undefined}
          */
         getValue: function (callback) {
             if (this.domObject.is('input')) {
@@ -86,6 +107,11 @@
                 this.getLinkValue(callback);
             }
         },
+        /**
+         * Retrieve file which is input by user
+         * @param {function} callback Callback function which will be called after file is retrieved
+         * @returns {undefined}
+         */
         getFileValue: function (callback) {
             if (this.domObject[0].files.length === 0) {
                 return new ArrayBuffer(0);
@@ -104,6 +130,11 @@
 
             fr.readAsArrayBuffer(this.domObject[0].files[0]);
         },
+        /**
+         * Retrieves encrypted file which will be decrypted
+         * @param {function} callback Callback function which will be called after file is retrieved
+         * @returns {undefined}
+         */
         getLinkValue: function (callback) {
             var xhr = new XMLHttpRequest();
 
@@ -139,11 +170,22 @@
                 return this.setLinkValue(value, fileType);
             }
         },
+        /**
+         * Sets encrypted file value which will be sent to server
+         * @param {string} value Contains file blob
+         * @returns {undefined}
+         */
         setFileValue: function (value) {
             var valueBlob = new Blob([new Uint8Array(value)], { type: "application/octet-stream" });
 
             this.domObject.data('crypto-value', valueBlob);
         },
+        /**
+         * Sets link value blob and clicks on link
+         * @param {string} value Contains file blob
+         * @param {string} fileType File type
+         * @returns {undefined}
+         */
         setLinkValue: function (value, fileType) {
             var blob = new Blob([value], { type: fileType });
             var newUrl = URL.createObjectURL(blob);

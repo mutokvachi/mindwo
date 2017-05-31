@@ -462,6 +462,8 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             modal.find('.dx-crypto-modal-regen-succ').hide();
             modal.find('.dx-crypto-modal-regen-btn-cancel').show();
             modal.find('.dx-crypto-modal-regen-btn-close').hide();
+            
+            hide_page_splash(1);
         });
 
         modal.find('.dx-crypto-modal-regen-btn-cancel').click(window.DxCryptoRegen.cancelProcess);
