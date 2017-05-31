@@ -4036,7 +4036,9 @@ function hide_page_splash(is_unlock)
  */
 function show_form_splash(is_lock)
 {
-    if (is_splash_lock == 1) {
+    show_page_splash(is_lock);
+
+    /* if (is_splash_lock == 1) {
         return;
     }
 
@@ -4051,7 +4053,7 @@ function show_form_splash(is_lock)
             message: DX_CORE.trans_please_wait,
             cenrerY: true
         });
-    }
+    }*/
 }
 
 /**
@@ -4061,7 +4063,9 @@ function show_form_splash(is_lock)
  */
 function hide_form_splash(is_unlock)
 {
-    if (is_splash_lock == 1 && is_unlock != 1) {
+    hide_page_splash(is_unlock);
+
+    /* if (is_splash_lock == 1 && is_unlock != 1) {
         return;
     }
 
@@ -4071,7 +4075,7 @@ function hide_form_splash(is_unlock)
 
     if (App) {
         App.unblockUI('.modal-content');
-    }
+    }*/
 }
 
 /*
