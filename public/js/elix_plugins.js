@@ -3974,7 +3974,7 @@ var is_splash_lock = 0;
 function show_page_splash(is_lock)
 {
     // If modal is opened then redirect to form splash function
-    var modals = $('.modal.in');
+   /* var modals = $('.modal.in');
     if (modals.length > 0) {
         for (var i = 0; i < modals.length; i++) {
             if ($(modals[i]).is(':visible')) {
@@ -3982,7 +3982,7 @@ function show_page_splash(is_lock)
                 return;
             }
         }
-    }
+    }*/
 
     if (is_splash_lock == 1) {
         return;
@@ -3993,7 +3993,7 @@ function show_page_splash(is_lock)
     }
 
     if (App) {
-        App.blockUI({message: DX_CORE.trans_please_wait, boxed: true});
+        App.blockUI({message: DX_CORE.trans_please_wait, boxed: true, zIndex: 100000, target: 'body'});
     }
 }
 
@@ -4006,7 +4006,7 @@ function show_page_splash(is_lock)
 function hide_page_splash(is_unlock)
 {
     // If modal is opened then redirect to form splash function    
-    var modals = $('.modal.in');
+   /* var modals = $('.modal.in');
     if (modals.length > 0) {
         for (var i = 0; i < modals.length; i++) {
             if ($(modals[i]).is(':visible')) {
@@ -4014,7 +4014,7 @@ function hide_page_splash(is_unlock)
                 return;
             }
         }
-    }
+    }*/
 
     if (is_splash_lock == 1 && is_unlock != 1) {
         return;
@@ -4025,7 +4025,7 @@ function hide_page_splash(is_unlock)
     }
 
     if (App) {
-        App.unblockUI();
+        App.unblockUI('body');
     }
 }
 
