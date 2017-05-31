@@ -481,7 +481,7 @@ function show_page_splash(is_lock)
     }
 
     if (App) {
-        App.blockUI({message: DX_CORE.trans_please_wait, boxed: true, zIndex: 100000, target: 'body'});
+        App.blockUI({message: DX_CORE.trans_please_wait, boxed: true, zIndex: 15000000, target: 'body'});
     }
 }
 
