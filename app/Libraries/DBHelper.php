@@ -74,6 +74,11 @@ namespace App\Libraries
         const FIELD_TYPE_COLOR = 17;
         
         /**
+         * Register field type - textual value from items list (from table dx_field_types)
+         */
+        const FIELD_TYPE_REL_TXT = 22;
+        
+        /**
          * Returns object row by list_id
          * 
          * @param integer $list_id Registera ID
