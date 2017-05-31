@@ -22374,10 +22374,6 @@ $.extend(window.DxCryptoClass.prototype, {
             hide_page_splash(1);
         });
 
-        modal.on('hidden.bs.modal', function () {
-            show_page_splash(1);
-        });
-
         modal.modal('show');
     },
     /**
@@ -23830,6 +23826,8 @@ $(document).ajaxComplete(function () {
          * @returns {undefined}
          */
         getLinkValue: function (callback) {
+            show_page_splash(1);
+
             var xhr = new XMLHttpRequest();
 
             xhr.onload = function () {

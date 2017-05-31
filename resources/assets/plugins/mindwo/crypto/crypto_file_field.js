@@ -136,6 +136,8 @@
          * @returns {undefined}
          */
         getLinkValue: function (callback) {
+            show_page_splash(1);
+
             var xhr = new XMLHttpRequest();
 
             xhr.onload = function () {

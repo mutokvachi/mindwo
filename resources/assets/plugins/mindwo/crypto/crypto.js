@@ -22,9 +22,7 @@ $.extend(window.DxCryptoClass.prototype, {
      * @returns {undefined}
      */
     catchError: function (err, msg) {
-        console.log('err');
         hide_page_splash(1);
-        console.log('err1');
 
         if (err && err.exit) {
             throw { exit: true };
@@ -536,10 +534,6 @@ $.extend(window.DxCryptoClass.prototype, {
         modal.on('shown.bs.modal', function () {
             $('#dx-crypto-modal-input-password', modal).focus();
             hide_page_splash(1);
-        });
-
-        modal.on('hidden.bs.modal', function () {
-            show_page_splash(1);
         });
 
         modal.modal('show');
