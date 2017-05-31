@@ -21858,9 +21858,7 @@ $.extend(window.DxCryptoClass.prototype, {
      * @returns {undefined}
      */
     catchError: function (err, msg) {
-        console.log('err');
         hide_page_splash(1);
-        console.log('err1');
 
         if (err && err.exit) {
             throw { exit: true };
