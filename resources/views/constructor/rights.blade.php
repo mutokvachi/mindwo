@@ -3,27 +3,27 @@
 @section('constructor_content')
   <div class="col-md-12">
     <div class='table-scrollable'>
-      <table class="table table-bordered table-hover">
+      <table class="table table-bordered table-hover dx-constructor-roles-table">
         <tbody>
-          <tr>
-            <td width='30%'><a href="javascript:;"><i class="fa fa-key"></i> System administrators</a></td>
-            <td><label class="badge badge-default">Can edit</label>&nbsp;<label class="badge badge-default">Can add
-                new</label>&nbsp;<label class="badge badge-default">Can delete</label></td>
-          </tr>
-          <tr>
-            <td width='30%'><a href="javascript:;"><i class="fa fa-key"></i> IT department</a></td>
-            <td><label class="badge badge-default">Can edit</label>&nbsp;<label class="badge badge-default">Can add
-                new</label>&nbsp;<label class="badge badge-default">Can delete</label></td>
-          </tr>
-          <tr>
-            <td width='30%'><a href="javascript:;"><i class="fa fa-key"></i> Some example role name</a></td>
-            <td><label class="badge badge-default">Can edit</label>&nbsp;<label class="badge badge-default">Can add
-                new</label></td>
-          </tr>
-          <tr>
-            <td width='30%'><a href="javascript:;"><i class="fa fa-key"></i> Example role for view only</a></td>
-            <td>&nbsp;</td>
-          </tr>
+          @foreach($roles as $role)
+            <tr>
+              <td width="30%">
+                <i class="fa fa-key"></i>
+                <a href="javascript:;" class="dx-constructor-edit-role" data-role_id="{{ $role->pivot->id }}">{{ $role->title }}</a>
+              </td>
+              <td>
+                @if($role->pivot->is_new_rights)
+                  <label class="badge badge-default">{{ trans('constructor.is_new_rights') }}</label>
+                @endif
+                @if($role->pivot->is_edit_rights)
+                  <label class="badge badge-default">{{ trans('constructor.is_edit_rights') }}</label>
+                @endif
+                @if($role->pivot->is_delete_rights)
+                  <label class="badge badge-default">{{ trans('constructor.is_delete_rights') }}</label>
+                @endif
+              </td>
+            </tr>
+          @endforeach
         </tbody>
       </table>
     </div>

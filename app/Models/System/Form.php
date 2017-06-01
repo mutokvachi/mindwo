@@ -9,7 +9,12 @@ class Form extends Model
 	const UPDATED_AT = 'modified_time';
 	const CREATED_AT = 'created_time';
 	protected $table = 'dx_forms';
-	protected $fillable = ['title', 'form_type_id', 'created_user_id', 'modified_user_id'];
+	protected $fillable = [
+		'title',
+		'form_type_id',
+		'created_user_id',
+		'modified_user_id'
+	];
 	
 	public function fields()
 	{

@@ -51,6 +51,9 @@
 		this.handleFieldOperation(this.options.view_container);
 		
 		var frm_el = this.root.closest(".dx-popup-modal");
+		
+		this.frm_el = frm_el;
+		
 		this.setFldEventHandlers(frm_el, frm_el, this.options.view_container);
 		this.handleSearchField();
 		this.handleIsMyCheck(this.root);
@@ -595,27 +598,13 @@ $(document).ready(function()
 		this.root = $(root);
 		this.options = opts;
 		this.fieldsContainer = $('.dx-fields-container .columns');
+
+		this.dialog = $('#fields_popup');
+		this.dialogId = this.dialog.find('[name="field_id"]');
+		this.dialogField = this.dialog.find('[name="title_form"]');
+		this.dialogHidden = this.dialog.find('[name="is_hidden"]');
 		
-		// fields list at left side
-		this.fieldsContainer.sortable({
-			connectWith: '.columns',
-			handle: '.dd-handle',
-			placeholder: 'placeholder',
-			forcePlaceholderSize: true,
-			receive: function(event, ui)
-			{
-				$(ui.item).attr('class', 'col-md-12');
-			}
-		});
-		
-		// form rows
-		this.root.sortable({
-			axis: 'y',
-			handle: '.row-handle',
-			containment: 'parent'
-		});
-		
-		// form row columns
+		// configuration of Sortable plugin for use inside of form rows
 		this.sortableOpts = {
 			connectWith: '.columns',
 			handle: '.dd-handle',
@@ -642,6 +631,26 @@ $(document).ready(function()
 			}
 		};
 		
+		// fields list at left side
+		this.fieldsContainer.sortable({
+			connectWith: '.columns',
+			handle: '.dd-handle',
+			placeholder: 'placeholder',
+			forcePlaceholderSize: true,
+			receive: function(event, ui)
+			{
+				$(ui.item).attr('class', 'col-md-12');
+			}
+		});
+		
+		// form rows
+		this.root.sortable({
+			axis: 'y',
+			handle: '.row-handle',
+			containment: 'parent'
+		});
+		
+		// form row columns
 		this.root.find('.columns').sortable(this.sortableOpts);
 		
 		this.root.on('click', '.dx-cms-field-remove', function()
@@ -650,6 +659,70 @@ $(document).ready(function()
 			$(this).tooltipster('hide');
 			self.removeField($(this).closest('.dd-item').parent());
 			self.updateRow(row);
+		});
+		
+		this.root.on('click', '.dx-cms-field-edit', function()
+		{
+			var item = $(this).closest('.dd-item');
+			var fieldId = item.data('id');
+			var field = item.find('.dx-fld-title').text();
+			var hidden = item.data('hidden');
+			
+			self.dialogId.val(fieldId);
+			self.dialogField.val(field);
+			
+			if((hidden && !self.dialogHidden.prop('checked')) || (!hidden && self.dialogHidden.prop('checked')))
+			{
+				self.dialogHidden.click();
+			}
+			
+			self.dialog.modal('show');
+		});
+		
+		this.dialog.on('click', '.dx-view-btn-save', function()
+		{
+			var item = $('.dd-item[data-id="' + self.dialogId.val() + '"]');
+			
+			show_page_splash(1);
+			
+			var request = {
+				_method: 'put',
+				field_id: self.dialogId.val(),
+				title_form: self.dialogField.val(),
+				is_hidden: self.dialogHidden.prop('checked') ? '1' : '0'
+			};
+			
+			$.ajax({
+				type: 'post',
+				url: '/constructor/register/' + self.options.list_id + '/field_update',
+				dataType: 'json',
+				data: request,
+				success: function(data)
+				{
+					item.find('.dx-fld-title').text(self.dialogField.val());
+					
+					if(self.dialogHidden.prop('checked'))
+					{
+						item.data('hidden', '1')
+						item.addClass('dx-field-hidden');
+					}
+					else
+					{
+						item.data('hidden', '0')
+						item.removeClass('dx-field-hidden');
+					}
+					
+					hide_page_splash(1);
+				},
+				error: function(jqXHR, textStatus, errorThrown)
+				{
+					console.log(textStatus);
+					console.log(jqXHR);
+					hide_page_splash(1);
+				}
+			});
+			
+			self.dialog.modal('hide');
 		});
 		
 		// handle row deletion
@@ -682,6 +755,7 @@ $(document).ready(function()
 				theme: 'tooltipster-light',
 				animation: 'grow'
 			});
+			
 			row.find('.columns').sortable(this.sortableOpts);
 		},
 		removeField: function(field)
@@ -702,6 +776,7 @@ $(document).ready(function()
 		updateGrid: function()
 		{
 			var self = this;
+			
 			this.root.find('.row.columns').each(function()
 			{
 				self.updateRow($(this));
@@ -713,7 +788,14 @@ $(document).ready(function()
 			{
 				return $(this).css('position') !== 'absolute';
 			});
+			
 			var count = items.length;
+			
+			if(!count)
+			{
+				return;
+			}
+			
 			var col = Math.floor(12 / count);
 			
 			items.each(function()
@@ -856,22 +938,53 @@ $(document).ready(function()
 				}
 			});
 			
+			this.viewEditor = $(".dx-view-edit-form").data('ViewEditor');
+			
 			$('.dx-new-field').click(function()
 			{
-				var field_closed = function(frm)
-				{
-					// update here fields list
-					// add in form in new row as last item too
-					
-					// get meta data from frm with jquery find
-					
-					// all cms forms have field item_id if it is 0 then item is not saved
-					alert(frm.html());
-				};
-				
-				// if list_id = 0 then save list first with ajax then continue
 				new_list_item(7, 17, self.options.list_id, "", "", {
-					after_close: field_closed
+					after_close: function(frm)
+					{
+						var item_id = $(frm).find('input[name="item_id"]').val();
+						var item_name = $(frm).find('input[name="title_list"]').val();
+						
+						if(!item_id)
+						{
+							return;
+						}
+						
+						var item = $(
+							'<li class="dd-item" data-id="" data-list-id="" data-is-hidden="0" data-operation-id="0" data-criteria="" data-field-type="varchar" data-rel-list-id="" data-rel-field-id="" data-aggregation-id="0">' +
+							'<div class="dd-handle dd3-handle"> </div>' +
+							'<div class="dd3-content">' +
+							'<div class="row">' +
+							'<div class="col-md-10">' +
+							'<b class="dx-fld-title"></b>' +
+							'<i class="fa fa-filter dx-icon-filter"></i>' +
+							'<i class="fa fa-eye-slash dx-icon-hidden"></i>' +
+							'</div>' +
+							'<div class="col-md-2">' +
+							'<a href="javascript:;" title="' + Lang.get('grid.btn_remove_fld') + '" class="pull-right dx-cms-field-remove"><i class="fa fa-trash-o"></i></a>' +
+							'<a href="javascript:;" title="' + Lang.get('grid.btn_add_fld') + '" class="pull-right dx-cms-field-add"><i class="fa fa-plus-square-o"></i></a>' +
+							'</div>' +
+							'</div>' +
+							'</div>' +
+							'</li>'
+						);
+						
+						item.attr('data-id', item_id);
+						item.attr('data-list-id', self.options.list_id);
+						item.find('.dx-fld-title').text(item_name);
+						
+						item.appendTo('.dd.dx-available .dd-list');
+						
+						item.find('[title]').tooltipster({
+							theme: 'tooltipster-light',
+							animation: 'grow'
+						});
+						
+						self.viewEditor.setFldEventHandlers(self.viewEditor.frm_el, item, self.viewEditor.options.view_container);
+					}
 				});
 			});
 		},
@@ -880,12 +993,12 @@ $(document).ready(function()
 		{
 			var self = this;
 			
-			this.root.find('.constructor-grid').ConstructorGrid();
+			this.root.find('.constructor-grid').ConstructorGrid({
+				list_id: this.options.list_id
+			});
 			
 			$('.dx-preview-btn').click(function()
 			{
-				// if list_id = 0 then try to save with AJAX (must be register title provided)
-				// for new registers user object_id = 140
 				self.submit_fields(function()
 				{
 					new_list_item(self.options.list_id, 0, 0, "", "");
@@ -896,13 +1009,71 @@ $(document).ready(function()
 		init_rights: function()
 		{
 			var self = this;
+			var rights = ['is_new_rights', 'is_edit_rights', 'is_delete_rights'];
+			var tbody = $('.dx-constructor-roles-table tbody');
 			
-			this.root.find('.dx-constructor-add-role').click(function()
+			this.root.on('click', '.dx-constructor-add-role', function()
 			{
 				new_list_item(23, 105, self.options.list_id, "", "", {
 					after_close: function(frm)
 					{
-					
+						var role_id = $(frm).find('input[name="item_id"]').val();
+						
+						if(!role_id)
+						{
+							return;
+						}
+						
+						var role_name = $(frm).find('input[dx_fld_name="role_id"]').val();
+						
+						var tr = $(
+							'<tr>' +
+							'<td width="30%">' +
+							'<i class="fa fa-key"></i> ' +
+							'<a href="javascript:;" class="dx-constructor-edit-role" data-role_id="' + role_id + '">' + role_name + '</a>' +
+							'</td>' +
+							'<td></td>' +
+							'</tr>'
+						);
+						
+						var td = tr.children('td').last();
+						
+						for(var i = 0; i < rights.length; i++)
+						{
+							var right = rights[i];
+							var input = $(frm).find('input[name="' + right + '"]');
+							if(input.length && input.prop('checked'))
+							{
+								td.append('<label class="badge badge-default">' + Lang.get('constructor.' + right) + '</label> ');
+							}
+						}
+						
+						tr.appendTo(tbody);
+					}
+				});
+			});
+			
+			this.root.on('click', '.dx-constructor-edit-role', function()
+			{
+				var a = $(this);
+				var td = $(this).closest('td').next();
+				var role_id = $(this).data('role_id');
+				
+				view_list_item('form', role_id, 23, 105, self.options.list_id, "", "", {
+					after_close: function(frm)
+					{
+						a.text($(frm).find('input[dx_fld_name="role_id"]').val());
+						
+						td.empty();
+						for(var i = 0; i < rights.length; i++)
+						{
+							var right = rights[i];
+							var input = $(frm).find('input[name="' + right + '"]');
+							if(input.length && input.prop('checked'))
+							{
+								td.append('<label class="badge badge-default">' + Lang.get('constructor.' + right) + '</label> ');
+							}
+						}
 					}
 				});
 			});

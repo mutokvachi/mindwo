@@ -209,7 +209,11 @@ class RegisterController extends Controller
 			}
 		}
 		
-		$listFields = $this->getList()->fields()->whereNotIn('id', $listFieldsIds)->get();
+		$listFields = $this
+			->getList()
+			->fields()
+			->whereNotIn('id', $listFieldsIds)
+			->get();
 		
 		$result = view('constructor.fields', [
 			'step' => 'fields',
@@ -277,11 +281,34 @@ class RegisterController extends Controller
 		return response($result);
 	}
 	
+	public function updateField($id, Request $request)
+	{
+		$fieldId = $request->input('field_id');
+		$titleForm = $request->input('title_form');
+		$isHidden = $request->input('is_hidden');
+		
+		$formField = $this->getList()->form->fields()->where('field_id', $fieldId)->first();
+		$formField->is_hidden = $isHidden;
+		$formField->save();
+		
+		$listField = $this->getList()->fields()->where('id', $formField->field_id)->first();
+		$listField->title_form = $titleForm;
+		$listField->save();
+		
+		$result = [
+			'success' => 1
+		];
+		
+		return response($result);
+	}
+	
 	public function editRights($id)
 	{
+		$roles = $this->getList()->roles()->get();
+		
 		$result = view('constructor.rights', [
 			'step' => 'rights',
-			'rolesHTML' => $this->getRolesHtml()
+			'roles' => $roles
 		])->render();
 		
 		return $result;
@@ -302,14 +329,6 @@ class RegisterController extends Controller
 	
 	public function updateMenu($id)
 	{
-	}
-	
-	public function getRolesHtml()
-	{
-		$block_grid = Blocks\BlockFactory::build_block("OBJ=VIEW|VIEW_ID=25");
-		$block_grid->rel_field_id = 105;
-		$block_grid->rel_field_value = $this->id;
-		return $block_grid->getHTML();
 	}
 	
 	protected function getList()

@@ -31,27 +31,13 @@
 		this.root = $(root);
 		this.options = opts;
 		this.fieldsContainer = $('.dx-fields-container .columns');
+
+		this.dialog = $('#fields_popup');
+		this.dialogId = this.dialog.find('[name="field_id"]');
+		this.dialogField = this.dialog.find('[name="title_form"]');
+		this.dialogHidden = this.dialog.find('[name="is_hidden"]');
 		
-		// fields list at left side
-		this.fieldsContainer.sortable({
-			connectWith: '.columns',
-			handle: '.dd-handle',
-			placeholder: 'placeholder',
-			forcePlaceholderSize: true,
-			receive: function(event, ui)
-			{
-				$(ui.item).attr('class', 'col-md-12');
-			}
-		});
-		
-		// form rows
-		this.root.sortable({
-			axis: 'y',
-			handle: '.row-handle',
-			containment: 'parent'
-		});
-		
-		// form row columns
+		// configuration of Sortable plugin for use inside of form rows
 		this.sortableOpts = {
 			connectWith: '.columns',
 			handle: '.dd-handle',
@@ -78,6 +64,26 @@
 			}
 		};
 		
+		// fields list at left side
+		this.fieldsContainer.sortable({
+			connectWith: '.columns',
+			handle: '.dd-handle',
+			placeholder: 'placeholder',
+			forcePlaceholderSize: true,
+			receive: function(event, ui)
+			{
+				$(ui.item).attr('class', 'col-md-12');
+			}
+		});
+		
+		// form rows
+		this.root.sortable({
+			axis: 'y',
+			handle: '.row-handle',
+			containment: 'parent'
+		});
+		
+		// form row columns
 		this.root.find('.columns').sortable(this.sortableOpts);
 		
 		this.root.on('click', '.dx-cms-field-remove', function()
@@ -86,6 +92,70 @@
 			$(this).tooltipster('hide');
 			self.removeField($(this).closest('.dd-item').parent());
 			self.updateRow(row);
+		});
+		
+		this.root.on('click', '.dx-cms-field-edit', function()
+		{
+			var item = $(this).closest('.dd-item');
+			var fieldId = item.data('id');
+			var field = item.find('.dx-fld-title').text();
+			var hidden = item.data('hidden');
+			
+			self.dialogId.val(fieldId);
+			self.dialogField.val(field);
+			
+			if((hidden && !self.dialogHidden.prop('checked')) || (!hidden && self.dialogHidden.prop('checked')))
+			{
+				self.dialogHidden.click();
+			}
+			
+			self.dialog.modal('show');
+		});
+		
+		this.dialog.on('click', '.dx-view-btn-save', function()
+		{
+			var item = $('.dd-item[data-id="' + self.dialogId.val() + '"]');
+			
+			show_page_splash(1);
+			
+			var request = {
+				_method: 'put',
+				field_id: self.dialogId.val(),
+				title_form: self.dialogField.val(),
+				is_hidden: self.dialogHidden.prop('checked') ? '1' : '0'
+			};
+			
+			$.ajax({
+				type: 'post',
+				url: '/constructor/register/' + self.options.list_id + '/field_update',
+				dataType: 'json',
+				data: request,
+				success: function(data)
+				{
+					item.find('.dx-fld-title').text(self.dialogField.val());
+					
+					if(self.dialogHidden.prop('checked'))
+					{
+						item.data('hidden', '1')
+						item.addClass('dx-field-hidden');
+					}
+					else
+					{
+						item.data('hidden', '0')
+						item.removeClass('dx-field-hidden');
+					}
+					
+					hide_page_splash(1);
+				},
+				error: function(jqXHR, textStatus, errorThrown)
+				{
+					console.log(textStatus);
+					console.log(jqXHR);
+					hide_page_splash(1);
+				}
+			});
+			
+			self.dialog.modal('hide');
 		});
 		
 		// handle row deletion
@@ -118,6 +188,7 @@
 				theme: 'tooltipster-light',
 				animation: 'grow'
 			});
+			
 			row.find('.columns').sortable(this.sortableOpts);
 		},
 		removeField: function(field)
@@ -138,6 +209,7 @@
 		updateGrid: function()
 		{
 			var self = this;
+			
 			this.root.find('.row.columns').each(function()
 			{
 				self.updateRow($(this));
@@ -149,7 +221,14 @@
 			{
 				return $(this).css('position') !== 'absolute';
 			});
+			
 			var count = items.length;
+			
+			if(!count)
+			{
+				return;
+			}
+			
 			var col = Math.floor(12 / count);
 			
 			items.each(function()

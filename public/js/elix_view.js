@@ -23460,6 +23460,9 @@ $(document).ajaxComplete(function () {
 		this.handleFieldOperation(this.options.view_container);
 		
 		var frm_el = this.root.closest(".dx-popup-modal");
+		
+		this.frm_el = frm_el;
+		
 		this.setFldEventHandlers(frm_el, frm_el, this.options.view_container);
 		this.handleSearchField();
 		this.handleIsMyCheck(this.root);

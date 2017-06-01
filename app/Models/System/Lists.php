@@ -14,10 +14,14 @@ class Lists extends Model
 	 * Changes default column name for column created_at
 	 */
 	const CREATED_AT = 'created_time';
-	
 	protected $table = 'dx_lists';
-	
-	protected $fillable = ['list_title', 'item_title', 'object_id', 'created_user_id', 'modified_user_id'];
+	protected $fillable = [
+		'list_title',
+		'item_title',
+		'object_id',
+		'created_user_id',
+		'modified_user_id'
+	];
 	
 	public function group()
 	{
@@ -41,6 +45,8 @@ class Lists extends Model
 	
 	public function roles()
 	{
-		return $this->hasMany('App\Models\System\ListRole', 'list_id', 'id');
+		return $this
+			->belongsToMany('App\Models\System\Role', 'dx_roles_lists', 'list_id', 'role_id')
+			->withPivot('id', 'is_new_rights', 'is_edit_rights', 'is_delete_rights');
 	}
 }

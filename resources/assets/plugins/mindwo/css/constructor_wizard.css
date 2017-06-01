@@ -38,7 +38,7 @@
 	border: 1px dashed #ccc;
 }
 
-.dx-fields-container .dx-cms-field-remove {
+.dx-fields-container a {
 	display: none;
 }
 
@@ -101,4 +101,8 @@
 	display: inline-block;
 	width: 28px;
 	height: 28px;
+}
+
+.constructor-grid .dx-field-hidden .dx-fld-title {
+	color: #ccc !important;
 }
