@@ -206,7 +206,7 @@
 				new_list_item(23, 105, self.options.list_id, "", "", {
 					after_close: function(frm)
 					{
-						var role_id = $(frm).find('input[name="item_id"]').val();
+						var role_id = $(frm).find('input[name="id"]').val();
 						
 						if(!role_id)
 						{
@@ -355,7 +355,9 @@
 				data: request,
 				success: function(data)
 				{
-					hide_page_splash(1);
+					$('.constructor-grid .dd-item.not-in-form').removeClass('not-in-form');
+					$('.dx-fields-container .dd-item').addClass('not-in-form');
+					
 					if(typeof onSuccess === 'function')
 					{
 						onSuccess();
@@ -364,6 +366,7 @@
 					{
 						window.location = self.getNextUrl();
 					}
+					hide_page_splash(1);
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{

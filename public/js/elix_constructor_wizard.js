@@ -597,6 +597,9 @@ $(document).ready(function()
 		var self = this;
 		this.root = $(root);
 		this.options = opts;
+		
+		this.wizard = $('.dx-constructor-wizard').data('ConstructorWizard');
+		
 		this.fieldsContainer = $('.dx-fields-container .columns');
 
 		this.dialog = $('#fields_popup');
@@ -664,65 +667,23 @@ $(document).ready(function()
 		this.root.on('click', '.dx-cms-field-edit', function()
 		{
 			var item = $(this).closest('.dd-item');
-			var fieldId = item.data('id');
-			var field = item.find('.dx-fld-title').text();
-			var hidden = item.data('hidden');
 			
-			self.dialogId.val(fieldId);
-			self.dialogField.val(field);
-			
-			if((hidden && !self.dialogHidden.prop('checked')) || (!hidden && self.dialogHidden.prop('checked')))
+			if(item.hasClass('not-in-form'))
 			{
-				self.dialogHidden.click();
+				self.wizard.submit_fields(function()
+				{
+					self.showProperties(item);
+				});
 			}
-			
-			self.dialog.modal('show');
+			else
+			{
+				self.showProperties(item);
+			}
 		});
 		
 		this.dialog.on('click', '.dx-view-btn-save', function()
 		{
-			var item = $('.dd-item[data-id="' + self.dialogId.val() + '"]');
-			
-			show_page_splash(1);
-			
-			var request = {
-				_method: 'put',
-				field_id: self.dialogId.val(),
-				title_form: self.dialogField.val(),
-				is_hidden: self.dialogHidden.prop('checked') ? '1' : '0'
-			};
-			
-			$.ajax({
-				type: 'post',
-				url: '/constructor/register/' + self.options.list_id + '/field_update',
-				dataType: 'json',
-				data: request,
-				success: function(data)
-				{
-					item.find('.dx-fld-title').text(self.dialogField.val());
-					
-					if(self.dialogHidden.prop('checked'))
-					{
-						item.data('hidden', '1')
-						item.addClass('dx-field-hidden');
-					}
-					else
-					{
-						item.data('hidden', '0')
-						item.removeClass('dx-field-hidden');
-					}
-					
-					hide_page_splash(1);
-				},
-				error: function(jqXHR, textStatus, errorThrown)
-				{
-					console.log(textStatus);
-					console.log(jqXHR);
-					hide_page_splash(1);
-				}
-			});
-			
-			self.dialog.modal('hide');
+			self.saveProperties();
 		});
 		
 		// handle row deletion
@@ -772,6 +733,69 @@ $(document).ready(function()
 			});
 			
 			row.remove();
+		},
+		showProperties: function(item)
+		{
+			var fieldId = item.data('id');
+			var field = item.find('.dx-fld-title').text();
+			var hidden = item.data('hidden');
+			
+			this.dialogId.val(fieldId);
+			this.dialogField.val(field);
+			
+			if((hidden && !this.dialogHidden.prop('checked')) || (!hidden && this.dialogHidden.prop('checked')))
+			{
+				this.dialogHidden.click();
+			}
+			
+			this.dialog.modal('show');
+		},
+		saveProperties()
+		{
+			var self = this;
+			
+			var item = $('.dd-item[data-id="' + self.dialogId.val() + '"]');
+			
+			//show_page_splash(1);
+			
+			var request = {
+				_method: 'put',
+				field_id: self.dialogId.val(),
+				title_form: self.dialogField.val(),
+				is_hidden: self.dialogHidden.prop('checked') ? '1' : '0'
+			};
+			
+			$.ajax({
+				type: 'post',
+				url: '/constructor/register/' + self.options.list_id + '/field_update',
+				dataType: 'json',
+				data: request,
+				success: function(data)
+				{
+					item.find('.dx-fld-title').text(self.dialogField.val());
+					
+					if(self.dialogHidden.prop('checked'))
+					{
+						item.data('hidden', '1');
+						item.addClass('dx-field-hidden');
+					}
+					else
+					{
+						item.data('hidden', '0');
+						item.removeClass('dx-field-hidden');
+					}
+					
+					//hide_page_splash(1);
+				},
+				error: function(jqXHR, textStatus, errorThrown)
+				{
+					console.log(textStatus);
+					console.log(jqXHR);
+					hide_page_splash(1);
+				}
+			});
+			
+			self.dialog.modal('hide');
 		},
 		updateGrid: function()
 		{
@@ -1017,7 +1041,7 @@ $(document).ready(function()
 				new_list_item(23, 105, self.options.list_id, "", "", {
 					after_close: function(frm)
 					{
-						var role_id = $(frm).find('input[name="item_id"]').val();
+						var role_id = $(frm).find('input[name="id"]').val();
 						
 						if(!role_id)
 						{
@@ -1166,7 +1190,9 @@ $(document).ready(function()
 				data: request,
 				success: function(data)
 				{
-					hide_page_splash(1);
+					$('.constructor-grid .dd-item.not-in-form').removeClass('not-in-form');
+					$('.dx-fields-container .dd-item').addClass('not-in-form');
+					
 					if(typeof onSuccess === 'function')
 					{
 						onSuccess();
@@ -1175,6 +1201,7 @@ $(document).ready(function()
 					{
 						window.location = self.getNextUrl();
 					}
+					hide_page_splash(1);
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{

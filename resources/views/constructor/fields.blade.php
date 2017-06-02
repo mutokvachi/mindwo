@@ -8,7 +8,7 @@
         <div class="row dd-list columns">
           @foreach($listFields as $field)
             <div class="col-md-12">
-              <div class="dd-item" data-id="{{ $field->id }}" data-hidden="0">
+              <div class="dd-item not-in-form" data-id="{{ $field->id }}" data-hidden="0">
                 <div class="dd-handle dd3-handle"></div>
                 <div class="dd3-content">
                   <span class="controls">
