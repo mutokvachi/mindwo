@@ -9,8 +9,9 @@
      @endif
      >
     <input readonly type="text" class="form-control dx-tree-txt-visible" name = '{{ $item_field }}_tree_txt' value='{{ $item_full_path }}'>
+    <input type=hidden class="dx-tree-txt-hidden" name = '{{ $item_field }}'  value = '{{ $item_value }}' />
     @if (!$is_disabled)
-        <input type=hidden class="dx-tree-txt-hidden" name = '{{ $item_field }}'  value = '{{ $item_value }}' />
+        
         <span class="input-group-btn">
             <button {{ ($is_disabled) ? 'disabled' : '' }} class="btn btn-white dx-tree-btn-del" type="button" style='margin-right: 2px;'><i class='fa fa-trash-o'></i></button>
         </span>

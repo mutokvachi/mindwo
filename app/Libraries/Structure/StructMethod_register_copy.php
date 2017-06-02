@@ -19,10 +19,11 @@ namespace App\Libraries\Structure
           *
          */
 
-        private $obj_id = 0;
-        private $list_id = 0;
-        private $register_title = "";
-
+        public $obj_id = 0;
+        public $list_id = 0;
+        public $register_title = "";
+        public $new_list_id = 0;
+        
         /**
          * Inicializē klases parametrus
          * 
@@ -73,17 +74,17 @@ namespace App\Libraries\Structure
                 
                 $obj_row = DB::table('dx_objects')->where('id', '=', $this->obj_id)->first();
 
-                $new_list_id = DB::table('dx_lists')->insertGetId(
+                $this->new_list_id = DB::table('dx_lists')->insertGetId(
                         array('list_title' => $this->register_title, 'object_id' => $this->obj_id, 'group_id' => $old_list_row->group_id)
                 );
 
-                $fields = $this->getListFields($new_list_id);
+                $fields = $this->getListFields($this->new_list_id);
 
-                $this->copyViews($fields, $new_list_id);
+                $this->copyViews($fields, $this->new_list_id);
                 
-                $this->copyForms($fields, $new_list_id);
+                $this->copyForms($fields, $this->new_list_id);
                 
-                $this->copyWorkflows($fields, $new_list_id);
+                $this->copyWorkflows($fields, $this->new_list_id);
             });
         }
 

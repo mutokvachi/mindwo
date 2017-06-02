@@ -551,7 +551,8 @@ namespace App\Libraries
                     lf.is_manual_reg_nr,
                     lf.reg_role_id,
                     lf.list_id,
-                    lf.is_image_file
+                    lf.is_image_file,
+                    lf.items
             FROM
                     dx_forms_fields ff
                     inner join dx_lists_fields lf on ff.field_id = lf.id

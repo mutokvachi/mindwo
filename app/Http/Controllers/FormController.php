@@ -851,7 +851,8 @@ class FormController extends Controller
                 lf.is_right_check,
                 lf.list_id,
                 lf.is_crypted,
-                l.masterkey_group_id
+                l.masterkey_group_id,
+                lf.items
 	FROM
 		dx_forms_fields ff
 		inner join dx_lists_fields lf on ff.field_id = lf.id
