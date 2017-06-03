@@ -4,6 +4,14 @@
      dx_date_format="{{ $date_format }}"
      dx_frm_uniq_id="{{ $frm_uniq_id }}"
      dx_grid_htm_id="{{ $grid_htm_id }}"
+     data-is-any-delegate="{{ (isset($task_row) && $task_row) ? $task_row->is_any_delegate : 0 }}"
+     data-subordinates ='[
+     @foreach($employees as $key => $item)
+        @if ($key > 0)
+            ,
+        @endif
+        {"id":{{ $item->id }},"text":"{{ $item->display_name }}", "key":"{{$key}}"}
+    @endforeach]'
      >
     <div class='modal-dialog modal-lg'>
             <div class='modal-content'>
@@ -23,19 +31,14 @@
                             <div class="tab-content">
                                 <div class="tab-pane dx-tab-new-task active" id="tab_1_1_1">
                                     <div class='row' style='padding: 20px;'>
-                                        <form class="form-horizontal" method='POST' data-toggle="validator">        
+                                        <form class="form-horizontal" method='POST' data-toggle="validator"> 
                                             <div>
-                                                <div class='form-group has-feedback dx-form-field-line'>
+                                                <div class='form-group dx-form-field-line'>
                                                     <label class='col-lg-4 control-label'>{{ trans('task_delegate.lbl_employee') }} <span style="color: red"> *</span></label>
                                                     <div class='col-lg-8'>
-                                                        <select class='form-control' name = 'employee_id' required data-foo="bar">
-                                                            <option value="0" selected></option>
-                                                            @foreach($employees as $item)
-                                                                <option value='{{ $item->id }}'>{{ $item->display_name }}</option>
-                                                            @endforeach
-                                                    </select>
-                                                    <span class="glyphicon form-control-feedback" aria-hidden="true" style="margin-right: 10px;"></span>     
-                                                        <div class="help-block with-errors"></div>
+                                                        <div class="input-group" style="width: 100%;">                                        
+                                                            <input type='text' name = 'deleg_empl_txt' value = '' class='form-control' required />
+                                                        </div>
                                                     </div>    
                                                 </div>
                                             </div>
@@ -55,7 +58,7 @@
                                                     <div class='col-lg-8'>
                                                         <div class='input-group dx-cms-date-field' style="width: 200px;">
                                                             <span class='input-group-btn'>
-                                                                <button type='button' class='btn btn-white'><i class='fa fa-calendar'></i></button>
+                                                                <button type='button' class='btn btn-white' style="border: 1px solid #c2cad8!important; margin-right: -2px!important;"><i class='fa fa-calendar'></i></button>
                                                             </span>
                                                             <input class='form-control' type=text name = 'due_date' value = '{{ (isset($task_row) && $task_row) ? short_date($task_row->due_date) : '' }}' required />
                                                         </div>

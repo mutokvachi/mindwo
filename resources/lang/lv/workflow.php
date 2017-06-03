@@ -110,4 +110,8 @@ return [
     'lbl_deny' => 'NORAIDĪJA',
     
     'err_cant_get_unit_leader' => "Darbiniekam %s nav iespējams noteikt struktūrvienības vadītāju!",
+    
+    'cant_delegate_to_myself' => 'Uzdevumu nav pieļaujams deleģēt sev. Lūdzu, norādiet citu darbinieku.',
+    
+    'alowed_delegate_only_subordinated' => 'Uzdevumu pieļaujams deleģēt tikai savā tiešajā pakļautībā esošajiem darbiniekiem!',
 ];

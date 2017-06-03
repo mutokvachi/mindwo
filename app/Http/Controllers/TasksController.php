@@ -404,13 +404,25 @@ class TasksController extends Controller
             throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_date_format'), Config::get('dx.date_format')));
         }
         
+        $employee_id = $request->input('employee_id');
+        
+        if ($employee_id == Auth::user()->id) {
+            throw new Exceptions\DXCustomException(trans('workflow.cant_delegate_to_myself'));
+        }
+        
         $task_row = $this->getTaskRow($request->input('task_id'),  Auth::user()->id);
                 
         if (strtotime($task_row->due_date) < strtotime($due_date)) {
             throw new Exceptions\DXCustomException(sprintf(trans('task_form.err_date_delegate'), short_date($task_row->due_date)));
         }
         
-        $employee_id = $request->input('employee_id');
+        if (!$task_row->is_any_delegate) {
+            // validate if employee is direct subordinate
+            $user = \App\User::find($employee_id);
+            if ($user->manager_id != Auth::user()->id) {
+                throw new Exceptions\DXCustomException(trans('workflow.alowed_delegate_only_subordinated'));
+            }
+        }
         
         // pārbauda prombūtni
         $subst_empl = \App\Libraries\Workflows\Helper::getSubstitEmpl($employee_id, "");
@@ -663,7 +675,8 @@ class TasksController extends Controller
             tt.title as task_type_title,
             t.due_date,
             u_del.display_name as task_creator_name,
-            t.substit_info
+            t.substit_info,
+            wd.is_any_delegate
         ";
 
         $task_row = DB::table('dx_tasks as t')
@@ -673,6 +686,8 @@ class TasksController extends Controller
                     ->join('dx_lists as l', 't.list_id', '=', 'l.id')
                     ->join('dx_users as u', 't.task_employee_id', '=', 'u.id')
                     ->leftJoin('dx_users as u_del', 't.assigned_empl_id', '=', 'u_del.id')
+                    ->leftJoin('dx_workflows_info as wi', 't.wf_info_id', '=', 'wi.id')
+                    ->leftJoin('dx_workflows_def as wd', 'wi.workflow_def_id', '=', 'wd.id')
                     ->where('t.id','=', $item_id)->first();
 
         if (!$task_row->task_closed_time && $task_row->employee_id == Auth::user()->id)
@@ -1155,10 +1170,13 @@ class TasksController extends Controller
      */
     private function getTaskRow($task_id, $employee_id) {
         // check if task belongs to user and can be updated
-        $task_row = DB::table("dx_tasks")
-                    ->where('id', '=', $task_id)
-                    ->whereNull('task_closed_time')
-                    ->where('task_employee_id', '=', $employee_id)
+        $task_row = DB::table("dx_tasks as t")
+                    ->select('t.*', 'wd.is_any_delegate')
+                    ->leftJoin('dx_workflows_info as wi', 't.wf_info_id', '=', 'wi.id')
+                    ->leftJoin('dx_workflows_def as wd', 'wi.workflow_def_id', '=', 'wd.id')
+                    ->where('t.id', '=', $task_id)
+                    ->whereNull('t.task_closed_time')
+                    ->where('t.task_employee_id', '=', $employee_id)
                     ->first();
 
         if (!$task_row)

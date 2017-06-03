@@ -37,6 +37,5 @@
         </div>
     </div>
 </div>
-@if ($self->is_subordinates)
+
 @include('workflow.task_form_delegate')
-@endif
