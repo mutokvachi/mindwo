@@ -9117,12 +9117,19 @@ var PageMain = function()
      * @returns {undefined}
      */
     var initSpecialTooltips = function() {
-        
+        $('[title]').filter(function(i){
+            return $(this).attr('title') != "";
+        }).tooltipster({
+            theme: 'tooltipster-light',
+            animation: 'grow'
+        });
+   
+        /*
         $('[title]').tooltipster({
             theme: 'tooltipster-light',
             animation: 'grow'
         });
-        
+        */
     }
     
     /**

@@ -17465,14 +17465,16 @@ var TaskLogic = function()
      * @returns {FormData} Saglabāšanas datu objekts vai null, ja nav norādītas obligātās vērtības
      */
     var getDelegateSavingData = function(frm_deleg) {
-        var employee_id = frm_deleg.find("select[name=employee_id]").val();
         
-        if (employee_id == 0) {
+        var data = frm_deleg.find("input[name=deleg_empl_txt]").select2('data');
+            
+        if (!data || data.id == 0) {
             notify_err(Lang.get('task_form.notify_err_provide_employee'));
-            frm_deleg.find("select[name=employee_id]").focus();            
             return null;
         }
-        
+            
+        var employee_id = data.id;
+                
         var task_txt = frm_deleg.find("textarea[name=task_txt]").val();
         
         if (task_txt.length == 0) {
@@ -17836,13 +17838,73 @@ var TaskLogic = function()
     };
     
     /**
+     * Iestata darbinieku (kuriem tiks deleģēts uzdevums) meklēšanas lauku
+     * 
+     * @param {object} frm_deleg Delegēšanas formas objekts
+     * @returns {undefined}
+     */
+    var initEmployeeLookup = function(frm_deleg) {
+        
+        if (parseInt(frm_deleg.attr("data-is-any-delegate"))) {            
+        
+            frm_deleg.find("input[name=deleg_empl_txt]").select2({
+                placeholder: Lang.get('workflow.wf_init_add_form_employee_search_placeholder'),
+                minimumInputLength: 3,
+                ajax: {
+                    type: 'POST',
+                    url: DX_CORE.site_url  + 'workflow_find_approver',
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+                    quietMillis: 250,
+                    cache: true,
+                    data: function (term, page) {
+                        return {
+                            q: term
+                        };
+                    },
+                    results: function (data, page) {                 
+                        // parse the results into the format expected by Select2.
+                        // since we are using custom formatting functions we do not need to alter the remote JSON data
+
+                        if (data.success == 1)
+                        {
+                            return { results: data.data};
+                        }
+                        else
+                        {
+                            if (data.error)
+                            {
+                                    notify_err(data.error);
+                            }
+                            else
+                            {
+                                    notify_err(frm_appr.attr('dx_system_error'));
+                            }
+                        }
+                    }
+                }
+            });  
+        }
+        else {
+            var data = jQuery.parseJSON( frm_deleg.attr("data-subordinates") ); //[{ id: 0, text: 'enhancement' }, { id: 1, text: 'bug' }, { id: 2, text: 'duplicate' }, { id: 3, text: 'invalid' }, { id: 4, text: 'wontfix' }];
+
+            frm_deleg.find("input[name=deleg_empl_txt]").select2({
+                placeholder: Lang.get('workflow.wf_init_add_form_employee_search_placeholder'),
+                minimumInputLength: 0,
+                data: data
+            });
+        }
+    };
+    
+    /**
      * Inicializē uzdevuma deleģēšanas formu
      * 
      * @param {object} frm_deleg Delegēšanas formas objekts
      * @returns {undefined}
      */
     var initFormDelegate = function(frm_deleg) {
-        
+        initEmployeeLookup(frm_deleg);
         handleDelegFormBtnDelegClick(frm_deleg);
         initDelegFormValidator(frm_deleg);
         initDueDateField(frm_deleg);
@@ -17896,6 +17958,9 @@ var TaskLogic = function()
         },
         showNewDelegteTab: function(frm_deleg) {
             showNewDelegteTab(frm_deleg);
+        },
+        initEmployeeLookup: function(frm_deleg) {
+            initEmployeeLookup(frm_deleg);
         }
     };
 }();

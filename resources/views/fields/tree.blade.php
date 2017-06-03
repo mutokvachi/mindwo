@@ -13,10 +13,10 @@
     @if (!$is_disabled)
         
         <span class="input-group-btn">
-            <button {{ ($is_disabled) ? 'disabled' : '' }} class="btn btn-white dx-tree-btn-del" type="button" style='margin-right: 2px;'><i class='fa fa-trash-o'></i></button>
+            <button {{ ($is_disabled) ? 'disabled' : '' }} class="btn btn-white dx-tree-btn-del" type="button" style='border: 1px solid #c2cad8!important; margin-left: -1px!important; margin-right: -1px!important;'><i class='fa fa-trash-o'></i></button>
         </span>
         <span class="input-group-btn">
-          <button {{ ($is_disabled) ? 'disabled' : '' }} class="btn btn-white dx-tree-btn-add" type="button"><i class='fa fa-plus'></i></button>
+          <button {{ ($is_disabled) ? 'disabled' : '' }} class="btn btn-white dx-tree-btn-add" type="button" style="border: 1px solid #c2cad8!important; margin-right: -1px!important;"><i class='fa fa-plus'></i></button>
         </span>
     @endif
 </div>
