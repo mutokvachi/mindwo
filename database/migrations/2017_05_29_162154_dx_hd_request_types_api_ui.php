@@ -13,6 +13,10 @@ class DxHdRequestTypesApiUi extends Migration
      */
     public function up()
     {
+        if (!$this->isHelpDeskUI()) {
+            return;
+        }
+        
         DB::transaction(function () {
             $table_name = "dx_hd_request_types";
             $list_name = "Pieteikumu veidi - biroja atbalsts API";

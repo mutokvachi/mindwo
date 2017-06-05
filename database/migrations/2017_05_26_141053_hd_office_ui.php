@@ -13,14 +13,16 @@ class HdOfficeUi extends Migration
      */
     public function up()
     {
-        DB::transaction(function () {
+        $klasif_menu = DB::table('dx_menu')->where('title', '=', 'Klasifikatori')->first();
+            
+        if (!$klasif_menu) {
+            return;
+        }
+            
+        DB::transaction(function () use ($klasif_menu) {
             DB::table('dx_menu')->where('title', '=', 'Atbalsts')->update(['title' => 'IT atbalsts']);
-            
-            $klasif_menu = DB::table('dx_menu')->where('title', '=', 'Klasifikatori')->first();
-            
-            if ($klasif_menu) {
-                $parent_id = DB::table('dx_menu')->insertGetId(['parent_id' => $klasif_menu->id, 'title'=>'Biroja atbalsts', 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $klasif_menu->id)->max('order_index') + 10)]);
-            }
+                        
+            $parent_id = DB::table('dx_menu')->insertGetId(['parent_id' => $klasif_menu->id, 'title'=>'Biroja atbalsts', 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $klasif_menu->id)->max('order_index') + 10)]);
             
             $arr = $this->getTables();
             foreach($arr as $tbl) {
