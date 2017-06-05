@@ -18,6 +18,26 @@ Horizontal menu UI
 @-o-viewport      { width: device-width; }
 @viewport         { width: device-width; }
 
+html {
+    height: 100%;
+}
+
+body {
+    overflow: hidden;
+}
+
+body.dx-page-full-height {
+    height: 100%;
+}
+
+.dx-wrap {
+    height: 100%;
+}
+
+.dx-page-container {
+    height: ~"calc(100% - 111px)";
+}
+
 /* Move down content because we have a fixed navbar that is 100px tall */
 body {
   padding-top: 50px;
@@ -307,5 +327,18 @@ button.navbar-toggle span.icon-bar {
 @-moz-document url-prefix() {
     i.dx-filter-on-mark {
         margin-top: -17px;
+    }
+}
+
+#dx-menu-wrap {
+    background-color: @bgDefault;
+}
+
+@media (min-width: 768px) {
+    #dx-menu-wrap {
+        height: 50px;
+    }
+    #navbar {
+        height: 50px !important;
     }
 }

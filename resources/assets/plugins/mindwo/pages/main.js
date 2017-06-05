@@ -572,7 +572,7 @@ var PageMain = function()
      * 
      * @returns {undefined}
      */
-    var setActiveMenu = function() {      
+    var setActiveMenu = function() {
         $(".page-sidebar-menu .nav-item").removeClass("active").removeClass("open");
         $(".page-sidebar-menu .nav-item span.selected").remove();
 

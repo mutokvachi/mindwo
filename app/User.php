@@ -337,6 +337,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 		return $this->hasMany('\App\Models\Crypto\Masterkey', 'user_id');
 	}
 	
+	public function ui_theme()
+	{
+		return $this->hasOne('\App\Models\UI\Theme', 'id', 'ui_theme_id');
+	}
+	
 	/**
 	 * Get an URL of user's avatar
 	 *

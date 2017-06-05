@@ -1,0 +1,25 @@
+<?php
+
+return [
+	'add_field' => 'Add field',
+	'add_role' => 'Add role',
+	'add_row' => 'Add row',
+	'adv_settings' => 'Advanced settings',
+	'back' => 'Back',
+	'edit_field' => 'Edit field properties',
+	'enter_item_name' => 'Please enter item name.',
+	'enter_name' => 'Please enter register name.',
+	'form_fields' => 'Form fields',
+	'is_delete_rights' => 'Can delete',
+	'is_edit_rights' => 'Can edit',
+	'is_new_rights' => 'Can create',
+	'item_name' => 'Item name',
+	'next' => 'Save & next',
+	'preview_form' => 'Preview form',
+	'register' => 'Register',
+	'register_fields' => 'Register fields',
+	'register_name' => 'Register name',
+	'remove' => 'Remove',
+	'remove_row' => 'Remove row',
+	'save' => 'Save',
+];
