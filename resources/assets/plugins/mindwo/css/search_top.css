@@ -4,7 +4,7 @@
     box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
 }
 
-.page-boxed #top_search{
+.page-sidebar-fixed #top_search{
     width: 340px;
 }
 
@@ -32,7 +32,7 @@
     height: 50px;
 }
 
-.page-boxed #top_search
+.page-sidebar-fixed #top_search
 {
     margin-right: 0px;
 }
@@ -80,7 +80,7 @@
 
 @media (max-width: 991px)
 {
-    .page-boxed #top_search {
+    .page-sidebar-fixed #top_search {
         width: 100%;
     }
     
@@ -125,10 +125,10 @@
     padding-top: 15px;
 }
 
-.page-boxed .top-menu ul.nav.navbar-nav {
+.page-sidebar-fixed .top-menu ul.nav.navbar-nav {
     margin-right: 0 !important;
 }
 
-.page-boxed .page-top {
+.page-sidebar-fixed .page-top {
     padding-right: 20px;
 }
