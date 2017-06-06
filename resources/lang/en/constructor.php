@@ -9,6 +9,7 @@ return [
 	'edit_field' => 'Edit field properties',
 	'enter_item_name' => 'Please enter item name.',
 	'enter_name' => 'Please enter register name.',
+	'error_transaction' => 'Cannot complete operation. Database transaction failed.',
 	'form_fields' => 'Form fields',
 	'is_delete_rights' => 'Can delete',
 	'is_edit_rights' => 'Can edit',
