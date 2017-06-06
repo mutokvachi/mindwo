@@ -47,4 +47,17 @@ return [
     
     'history_not_found' => 'Sistēmā nav uzkrāta informācija par šī ieraksta izmaiņu vēsturi.',
     
+
+    'chat' => [
+        'db' => [
+            'list' => 'Reģistrs',
+            'chat' => 'Sarakste',
+            'message' => 'Ziņojums',
+            'file_name' => 'Datnes nosaukums',
+            'user' => 'Lietotājs',
+        ],
+        'type_hint' => 'Rakstiet ziņojumu šeit...',
+        'note_missing' => "Piezīme neeksistē!",
+        'modified' => "Laboja",
+    ]
 ];

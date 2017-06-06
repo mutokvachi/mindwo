@@ -45,4 +45,17 @@ return [
     'btn_changes' => 'See changes',
     
     'history_not_found' => 'This item does not have any changes history record.',
+
+    'chat' => [
+        'db' => [
+            'list' => 'Register',
+            'chat' => 'Chat',
+            'message' => 'Message',
+            'file_name' => 'File name',
+            'user' => 'User',
+        ],
+        'type_hint' => 'Type a message here...',
+        'note_missing' => "Note doesn't exist!",
+        'modified' => "Modified",
+    ]
 ];
