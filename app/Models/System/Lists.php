@@ -49,4 +49,9 @@ class Lists extends Model
 			->belongsToMany('App\Models\System\Role', 'dx_roles_lists', 'list_id', 'role_id')
 			->withPivot('id', 'is_new_rights', 'is_edit_rights', 'is_delete_rights');
 	}
+	
+	public function roles_lists()
+	{
+		return $this->hasMany('App\Models\System\ListRole', 'list_id', 'id');
+	}
 }

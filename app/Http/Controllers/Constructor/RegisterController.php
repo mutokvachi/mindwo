@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Constructor;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\GridController;
 use App\Models\System\Form;
+use App\Models\System\ListField;
 use App\Models\System\ListRole;
 use App\Models\System\Lists;
 use App\Models\System\View;
@@ -82,6 +83,15 @@ class RegisterController extends Controller
 		
 		$list->save();
 		
+		$field = new ListField([
+			'db_name' => 'id',
+			'type_id' => 6,
+			'title_list' => 'ID',
+			'title_form' => 'ID',
+		]);
+		
+		$list->fields()->save($field);
+		
 		$view = new View([
 			'title' => $listName,
 			'view_type_id' => 1,
@@ -112,7 +122,7 @@ class RegisterController extends Controller
 			'modified_user_id' => $userId
 		]);
 		
-		$list->roles()->save($role);
+		$list->roles_lists()->save($role);
 		
 		$result = [
 			'success' => 1,

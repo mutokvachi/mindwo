@@ -9,4 +9,10 @@ class ListField extends Model
 	const UPDATED_AT = 'modified_time';
 	const CREATED_AT = 'created_time';
 	protected $table = 'dx_lists_fields';
+	protected $fillable = [
+		'db_name',
+		'type_id',
+		'title_list',
+		'title_form',
+	];
 }
