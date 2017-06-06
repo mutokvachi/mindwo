@@ -22,6 +22,7 @@ class DxChatsCreate extends Migration
                 $table->increments('id');
 
                 $table->integer('list_id')->comment = trans('form.chats.db.list');
+                $table->integer('item_id')->unsigned()->comment = trans('form.chats.db.item');
 
                 $table->index('list_id');
                 $table->foreign('list_id')->references('id')->on('dx_lists')->onDelete('cascade');

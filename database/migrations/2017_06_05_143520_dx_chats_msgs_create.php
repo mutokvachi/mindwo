@@ -25,7 +25,7 @@ class DxChatsMsgsCreate extends Migration
                 $table->string('file_name', 500)->nullable()->comment = trans('form.chats.db.file_name');
                 $table->string('file_guid', 100)->nullable();
 
-                $table->integer('chat_id')->unsigned()->comment = trans('form.chats.db.chat');
+                $table->integer('chat_id')->unsigned()->comment = trans('form.chats.chat');
 
                 $table->index('chat_id');
                 $table->foreign('chat_id')->references('id')->on('dx_chats')->onDelete('cascade');

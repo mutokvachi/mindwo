@@ -51,11 +51,12 @@ return [
     'chat' => [
         'db' => [
             'list' => 'Reģistrs',
-            'chat' => 'Sarakste',
+            'item' => 'Ieraksts',            
             'message' => 'Ziņojums',
             'file_name' => 'Datnes nosaukums',
             'user' => 'Lietotājs',
         ],
+        'chat' => 'Sarakste',
         'type_hint' => 'Rakstiet ziņojumu šeit...',
         'note_missing' => "Piezīme neeksistē!",
         'modified' => "Laboja",

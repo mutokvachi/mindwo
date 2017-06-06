@@ -49,11 +49,12 @@ return [
     'chat' => [
         'db' => [
             'list' => 'Register',
-            'chat' => 'Chat',
+            'item' => 'Item',
             'message' => 'Message',
             'file_name' => 'File name',
             'user' => 'User',
         ],
+        'chat' => 'Chat',
         'type_hint' => 'Type a message here...',
         'note_missing' => "Note doesn't exist!",
         'modified' => "Modified",

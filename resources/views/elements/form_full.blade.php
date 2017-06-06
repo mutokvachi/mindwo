@@ -43,6 +43,7 @@
 
                             </button>
                         @endif
+                        @include('forms.chat.button', ['item_id' => $item_id, 'list_id' => $list_id, 'form_title' => $form_title])
                     </div>                    
                     <!--<button  type='button' class='btn btn-white pull-right' id='btn_print_{{ $frm_uniq_id }}'><i class="fa fa-print"></i> Drukāt</button>-->
                 </div>

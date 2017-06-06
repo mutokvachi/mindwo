@@ -265,6 +265,7 @@
       @include('main.modal_dialog')
       @include('main.modal_dialog_crypto_psw')
       @include('main.modal_dialog_crypto_regen_progress')
+      @include('forms.chat.window')
     <script>
       dx_is_slider = {{ ((isset($is_slidable_menu) && $is_slidable_menu)) ? "1" : "0" }};
     </script>
