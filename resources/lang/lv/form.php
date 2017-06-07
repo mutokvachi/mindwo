@@ -60,5 +60,6 @@ return [
         'type_hint' => 'Rakstiet ziņojumu šeit...',
         'note_missing' => "Piezīme neeksistē!",
         'modified' => "Laboja",
+        'e_msg_not_saved' => 'Kļūda saglabājot ziņojumu. Lūdzu, mēģiniet nosūtīt ziņojumu vēlreiz!',
     ]
 ];

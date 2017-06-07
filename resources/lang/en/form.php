@@ -58,5 +58,6 @@ return [
         'type_hint' => 'Type a message here...',
         'note_missing' => "Note doesn't exist!",
         'modified' => "Modified",
+        'e_msg_not_saved' => 'Error while saving message. Please try to send message again!',
     ]
 ];

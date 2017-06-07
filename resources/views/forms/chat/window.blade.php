@@ -24,11 +24,11 @@
             <div class="chat-form dx-form-chat-form" style=''>
                 <div class="input-cont">
                     <input class='dx-form-chat-input-id' type='hidden'>
-                    <input class="form-control dx-form-chat-input-text" type="text" placeholder="{{ trans('form.chat.type_hint') }}"> </div>
-                <div class="btn-cont dx-form-chat-btn-send">
-                    <span class="arrow"> </span>
+                    <textarea rows="2" class="form-control dx-form-chat-input-text" type="text" placeholder="{{ trans('form.chat.type_hint') }}" style="max-height: 20vh;"></textarea>
+                </div>
+                <div class="btn-cont dx-form-chat-btn-send" style="left: 5px;">
                     <a href="javascript:void(0);" class="btn blue icn-only">
-                        <i class="fa fa-check icon-white"></i>
+                        <i class="fa fa-send icon-white"></i>
                     </a>
                 </div>
             </div>

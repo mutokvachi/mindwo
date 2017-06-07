@@ -181,6 +181,11 @@ Route::group(['prefix' => 'crypto', 'namespace' => 'Crypto'], function() {
         Route::get('/get_user_public_keys/{master_key_group_id}', array('middleware' => 'auth', 'uses' => 'CryptoMasterKeyRegenerationController@getUserPublicKeys'));  
 });
 
+Route::group(['prefix' => 'chat'], function() {
+        Route::post('/message/save', array('middleware' => 'auth_ajax', 'uses' => 'ChatController@saveMessage'));
+        Route::get('/messages/{list_id}/{item_id}/{is_init}', array('middleware' => 'auth_ajax', 'uses' => 'ChatController@getMessages'));   
+});
+
 // Lietotāji - autorizācija, atslēgšanās
 Route::post('/login', 'UserController@loginUser');
 Route::get('/login', array('as' => 'login', 'uses' => 'UserController@showIndex'));

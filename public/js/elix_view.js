@@ -24192,18 +24192,29 @@ $(document).ajaxComplete(function () {
                 self.closeChatPanel(self);
             });
 
+            self.chatObject.find('.dx-form-chat-btn-send').click(function(){
+                self.onMessageEnter(self);
+            });
+            self.chatObject.find('.dx-form-chat-input-text').keyup(function (e) {
+                if (e.keyCode == 13 && e.keyCode != 16) {
+                    self.onMessageEnter(self);
+                }
+            });
+
             // Clears old data from chat
             self.clearChat();
 
             // Loads chat data
-            // self.loadChat();
+            self.getChatData(1);
         },
         /**
          * Opens chat panel
          * @param {DxFormChat} self Current form chat instance
          */
         openChatPanel: function (self) {
-            if(self.stateIsVisible){
+            self.chatObject.find('.dx-form-chat-input-text').focus();
+
+            if (self.stateIsVisible) {
                 return;
             }
 
@@ -24224,6 +24235,7 @@ $(document).ajaxComplete(function () {
          * @param {DxFormChat} self Current form chat instance
          */
         closeChatPanel: function (self) {
+            self.stateIsVisible = false;
             self.chatObject.slideUp();
         },
         /**
@@ -24233,29 +24245,63 @@ $(document).ajaxComplete(function () {
             this.chatObject.find('.dx-form-chat-content').empty();
         },
         /**
+         * Event handler when message has been entered and must be saved
+         * @param {DxFormChat} self Current form chat instance
+         * @returns {undefined}
+         */
+        onMessageEnter: function (self) {
+            var data = {
+                list_id: self.listId,
+                item_id: self.itemId,
+                message: self.chatObject.find('.dx-form-chat-input-text').html()
+            };
+
+            $.ajax({
+                url: DX_CORE.site_url + 'chat/message/save',
+                data: data,
+                type: "post",
+                success: function(){
+
+                },
+                error: function(){
+                    notify_err(LongRange.get('forms.chat.e_msg_not_saved'));
+                }
+            });
+        },
+        /**
          * Loads chat's data
          */
-        loadChat: function () {
+        getChatData: function (isInit) {
             var self = this;
 
             $.ajax({
-                url: DX_CORE.site_url + 'chat/' + self.listId + '/' + self.itemId + '/' + 1,
+                url: DX_CORE.site_url + 'chat/messages/' + self.listId + '/' + self.itemId + '/' + isInit,
                 type: "get",
                 success: function (res) {
-                    if (res && res.success && res.success == 1) {
-
-                    } else {
-                        if (res.msg) {
-                            self.catchError(res, res.msg);
-                        } else {
-                            self.catchError(res, Lang.get('crypto.e_get_user_cert'));
-                        }
-                    }
+                    self.onDataRecevied(self, res)
                 },
                 error: function (err) {
-                    self.catchError(err, Lang.get('crypto.e_get_user_cert'));
+                    // self.catchError(err, Lang.get('crypto.e_get_user_cert'));
                 }
             });
+        },
+        onDataRecevied: function (self, res) {
+            if (res && res.success && res.success == 1) {
+
+                // Calls again after 1000 ms
+                /*
+                if(self.stateIsVisible){
+                setTimeout(1000, function () {
+                    self.getChatData(0);
+                });
+                }*/
+            } else {
+                if (res.msg) {
+                    //  self.catchError(res, res.msg);
+                } else {
+                    // self.catchError(res, Lang.get('crypto.e_get_user_cert'));
+                }
+            }
         }
     });
 })(jQuery);
