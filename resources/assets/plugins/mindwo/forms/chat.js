@@ -29,6 +29,11 @@
         this.chatObject;
 
         /**
+         * Chat's content (messages) DOM object
+         */
+        this.chatContentObject;
+
+        /**
          * List ID
          */
         this.listId = 0;
@@ -74,6 +79,8 @@
             // Retrieve global chat window
             self.chatObject = $('.dx-form-chat-panel');
 
+            self.chatContentObject = self.chatObject.find('.dx-form-chat-content');
+
             // Opens chat window
             self.domObject.click(function () {
                 self.openChatPanel(self);
@@ -92,17 +99,15 @@
             self.chatObject.find('.dx-form-chat-btn-send').click(function(){
                 self.onMessageEnter(self);
             });
-            self.chatObject.find('.dx-form-chat-input-text').keyup(function (e) {
-                if (e.keyCode == 13 && e.keyCode != 16) {
+            self.chatObject.find('.dx-form-chat-input-text').keydown(function (e) {
+                if (e.keyCode == 13 && !e.shiftKey) {
+                    e.preventDefault();
                     self.onMessageEnter(self);
                 }
             });
 
             // Clears old data from chat
             self.clearChat();
-
-            // Loads chat data
-            self.getChatData(1);
         },
         /**
          * Opens chat panel
@@ -114,6 +119,9 @@
             if (self.stateIsVisible) {
                 return;
             }
+
+            // Loads chat data
+            self.getChatData(1);
 
             self.chatObject.slideUp(400, function () {
                 self.stateIsVisible = true;
@@ -147,11 +155,15 @@
          * @returns {undefined}
          */
         onMessageEnter: function (self) {
+            var textArea = self.chatObject.find('.dx-form-chat-input-text');
+
             var data = {
                 list_id: self.listId,
                 item_id: self.itemId,
-                message: self.chatObject.find('.dx-form-chat-input-text').html()
+                message: textArea.val()
             };
+
+            textArea.val('');
 
             $.ajax({
                 url: DX_CORE.site_url + 'chat/message/save',
@@ -161,7 +173,7 @@
 
                 },
                 error: function(){
-                    notify_err(Lang.get('forms.chat.e_msg_not_saved'));
+                    notify_err(Lang.get('form.chat.e_msg_not_saved'));
                 }
             });
         },
@@ -184,14 +196,14 @@
         },
         onDataRecevied: function (self, res) {
             if (res && res.success && res.success == 1) {
+                self.chatContentObject.append(res.view);
 
-                // Calls again after 1000 ms
-                /*
+                // Calls again after 1000 ms                
                 if(self.stateIsVisible){
-                setTimeout(1000, function () {
-                    self.getChatData(0);
-                });
-                }*/
+                    setTimeout(function () {
+                        self.getChatData(0);
+                    }, 1000);
+                }
             } else {
                 if (res.msg) {
                     //  self.catchError(res, res.msg);

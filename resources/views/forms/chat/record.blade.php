@@ -12,6 +12,6 @@
             <span class="datetime"> {{ $msg->modified_time->format(config('dx.txt_datetime_format')) }}</span>)
         </span>
         @endif        
-        <span class="body dx-form-chat-msg-body">{{ $msg->text }}</span>
+        <span class="body dx-form-chat-msg-body">{{ $msg->message }}</span>
     </div>
 </li>
