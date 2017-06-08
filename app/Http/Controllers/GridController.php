@@ -516,9 +516,8 @@ class GridController extends Controller
             ]);
             
             $is_id = false;
-            $idx = 0;
+            $idx = 0;            
             
-            \Log::info("Fields to be saved: " . json_encode($json_data));
             // asign fields to view
             foreach($json_data as $item){
                 $idx++;
@@ -541,7 +540,7 @@ class GridController extends Controller
             
             // add id as hidden field if it was not included in view visible fields
             if (!$is_id) {
-                \Log::info("add again ID field");
+                
                 DB::table('dx_views_fields')->insert([                        
                         'list_id' => $list_id,
                         'view_id' => $new_view_id,
@@ -576,10 +575,7 @@ class GridController extends Controller
             ->whereNotIn('field_id', $arr["arr_all"])
             ->where('field_id', '!=', $arr["id_field_id"]) // ID field is must have
             ->delete();
-
-            \Log::info("FFF : " . json_encode($arr["arr_upd"]));
-            $aa = DB::table('dx_views_fields')->where('view_id', '=', $view_id)->get();
-            \Log::info("Existing: " . json_encode($aa));
+           
             // update existing fields vals
             foreach($arr["arr_upd"] as $upd) {
                 DB::table('dx_views_fields')
@@ -588,7 +584,6 @@ class GridController extends Controller
                     ->update($upd["vals"]);
             }            
             
-            \Log::info("Update vv: " . json_encode($arr["arr_new"]));
             // insert new fields
             foreach($arr["arr_new"] as $new) {
                 DB::table('dx_views_fields')->insert($new["vals"]);
