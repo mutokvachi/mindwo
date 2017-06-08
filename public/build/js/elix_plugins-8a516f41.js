@@ -10325,6 +10325,20 @@ $(document).ready(function() {
       return !$el.val() || $el.val().length >= minlength
     }
   }
+  
+  Validator.prototype.update = function () {
+    var self = this
+
+    this.$inputs = this.$element.find(Validator.INPUT_SELECTOR)
+      .add(this.$element.find('[data-validate="true"]'))
+      .not(this.$element.find('[data-validate="false"]')
+        .each(function () { self.clearErrors($(this)) })
+      )
+
+    this.toggleSubmit()
+
+    return this
+  }
 
   Validator.prototype.validateInput = function (e) {
     var $el        = $(e.target)
@@ -10408,6 +10422,9 @@ $(document).ready(function() {
     var method = this.options.html ? 'html' : 'text'
 
     this.defer($el, function () {
+        if (!$el.is(":visible")) {
+            return;
+        }
       var $group = $el.closest('.form-group')
       var $block = $group.find('.help-block.with-errors')
       var $feedback = $group.find('.form-control-feedback')

@@ -18,9 +18,11 @@ class DxTablesFieldsCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');
             
-            $table->string('table_name', 200)->comment = trans('dx_tables_fields.title');
-            $table->string('field_name', 100)->comment = trans('dx_tables_fields.field_name');            
-            $table->integer('field_type_id')->comment = trans('dx_tables_fields.field_type_id');
+            $table->string('table_name', 200)->comment = trans('db_dx_tables_fields.table_name');
+            $table->string('field_name', 100)->comment = trans('db_dx_tables_fields.field_name');            
+            $table->integer('field_type_id')->comment = trans('db_dx_tables_fields.field_type_id');
+            $table->string('rel_table_name', 200)->nullable()->comment = trans('db_dx_tables_fields.rel_table_name');
+            $table->integer('max_length')->default(0)->comment = trans('db_dx_tables_fields.max_length');
             
             $table->index('field_type_id');            
             $table->foreign('field_type_id')->references('id')->on('dx_field_types');

@@ -19,9 +19,32 @@ class FieldsController extends Controller
      */
     public function getDBFields($list_id, $field_type_id)
     {
-        $this->checkRights($list_id);
+        $this->checkRights();
         
-        return response()->json(['success' => 1, 'rows' => json_encode($data)]);
+        $obj = DB::table('dx_objects as o')
+               ->select('o.db_name as table_name')
+               ->join('dx_lists as l', 'o.id', '=', 'l.object_id')
+               ->where('l.id', '=', $list_id)
+               ->first();
+        
+        $used = DB::table('dx_lists_fields')
+                ->select('db_name')
+                ->where('list_id', '=', $list_id)
+                ->get();
+        
+        $arr_used = [];
+        foreach($used as $used_fld) {
+            array_push($arr_used, $used_fld->db_name);
+        }
+        
+        $data = DB::table('dx_tables_fields as tf')
+                ->where('tf.table_name', '=', $obj->table_name)
+                ->where('tf.field_type_id', '=', $field_type_id)
+                ->whereNotIn('tf.field_name', $arr_used)
+                ->orderBy('tf.field_name')
+                ->get();
+        
+        return response()->json(['success' => 1, 'rows' => json_encode($data), 'count' => count($data)]);
     }
 	
     /**
@@ -30,7 +53,9 @@ class FieldsController extends Controller
      * @param type $list_id
      * @throws Exceptions\DXCustomException
      */
-    private function checkRights($list_id) {
+    private function checkRights() {
+        
+        $list_id = \App\Libraries\DBHelper::getListByTable('dx_tables_fields')->id;
         
         $rights = Rights::getRightsOnList($list_id);
 

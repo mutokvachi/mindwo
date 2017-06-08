@@ -32,4 +32,14 @@ return [
 	'step_rights_desc' => 'Assign user roles',
 	'step_menu' => 'Navigation',
 	'step_menu_desc' => 'Setup link in menu',
+    
+        'valid_max_len' => 'Allowed field size is :max_len characters.',
+        'valid_max_err' => 'The maximum permissible value :max_len exceeded',
+        'valid_cant_crypt' => 'The field size in database is too small and therefore encryption is not possible!',
+        'valid_min_len' => 'The field size in database must be at least :ok_len characters.',
+        'valid_crypt_max_len' => 'The maximum permissible value :max_crypt exceeded for crypted field.',
+        'valid_hint_len' => 'The field size in database should be at least :ok_len characters.',
+        'valid_not_possible_crypt' => "Field can't be crypted",
+        'link_fld_custom' => 'Set custom name',
+        'link_fld_choose' => 'Choose from list',
 ];

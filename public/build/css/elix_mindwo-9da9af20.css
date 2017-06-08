@@ -209,7 +209,7 @@ div.checkbox input.i-checks {
 }
 .splash {
   position: absolute;
-  z-index: 20000;
+  z-index: 15000012;
   background: white;
   color: gray;
   top: 0;
