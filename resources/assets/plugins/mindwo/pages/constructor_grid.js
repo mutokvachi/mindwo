@@ -205,6 +205,12 @@
 				data: request,
 				success: function(data)
 				{
+					if(data.success !== 1)
+					{
+						toastr.error(data.message);
+						return;
+					}
+					
 					item.find('.dx-fld-title').text(self.dialogField.val());
 					
 					if(self.dialogHidden.prop('checked'))

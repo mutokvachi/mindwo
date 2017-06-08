@@ -306,7 +306,16 @@
 				success: function(data)
 				{
 					hide_page_splash(1);
-					window.location = self.getNextUrl(data.list_id);
+					
+					if(data.success === 1)
+					{
+						window.location = self.getNextUrl(data.list_id);
+					}
+					
+					else
+					{
+						toastr.error(data.message);
+					}
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{
@@ -355,6 +364,12 @@
 				data: request,
 				success: function(data)
 				{
+					if(data.success !== 1)
+					{
+						toastr.error(data.message);
+						return;
+					}
+					
 					$('.constructor-grid .dd-item.not-in-form').removeClass('not-in-form');
 					$('.dx-fields-container .dd-item').addClass('not-in-form');
 					
