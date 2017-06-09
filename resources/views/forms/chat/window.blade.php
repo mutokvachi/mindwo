@@ -17,7 +17,7 @@
             </div>
         </div>
         <div class="portlet-body" style="height: auto;">
-            <div style='overflow-y:scroll; height: 30vh; margin-bottom: 55px;'>        
+            <div class='dx-form-chat-content-container' style='overflow-y:scroll; height: 30vh; margin-bottom: 55px;'>        
                 <ul class="chats dx-form-chat-content">
                 </ul>
             </div>

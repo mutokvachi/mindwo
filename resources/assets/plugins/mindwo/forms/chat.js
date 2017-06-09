@@ -34,6 +34,11 @@
         this.chatContentObject;
 
         /**
+         * Last time when messages pulled from server
+         */
+        this.lastUpdateTime = 0;
+
+        /**
          * List ID
          */
         this.listId = 0;
@@ -52,6 +57,11 @@
          * State of chat window if it is visible
          */
         this.stateIsVisible = false;
+
+        /**
+         * State if update is running - post operation is in process
+         */
+        this.stateIsUpdateRunning = false;
 
         // Initializes class
         this.init();
@@ -83,7 +93,7 @@
 
             // Opens chat window
             self.domObject.click(function () {
-                self.openChatPanel(self);
+                self.onOpenChatClick(self);
             });
 
             // Handle chat close when modal has been closed
@@ -96,18 +106,45 @@
                 self.closeChatPanel(self);
             });
 
-            self.chatObject.find('.dx-form-chat-btn-send').click(function(){
+            // Message send button click
+            self.chatObject.find('.dx-form-chat-btn-send').click(function () {
                 self.onMessageEnter(self);
             });
+
+            // On input key down if enter clicked without shift then we will send message on relase
             self.chatObject.find('.dx-form-chat-input-text').keydown(function (e) {
+                if (e.keyCode == 13 && !e.shiftKey) {
+                    e.preventDefault();
+                }
+            });
+
+            // On input key op if enter clicked without shift then we send message
+            self.chatObject.find('.dx-form-chat-input-text').keyup(function (e) {
                 if (e.keyCode == 13 && !e.shiftKey) {
                     e.preventDefault();
                     self.onMessageEnter(self);
                 }
             });
 
-            // Clears old data from chat
-            self.clearChat();
+            // Retrieves chat messages and opens chat if messages found
+            self.getChatData();
+        },
+        /**
+         * Opens chat window on button click
+         * @param {DxFormChat} self Current form chat instance
+         */
+        onOpenChatClick: function (self) {
+            // Must save state because after openChatPanel function it changes to true 
+            // We need to call getChatData only after openChatPanel to be sure thate there woun't be multiple running background processes of chat window
+            var stateIsVisible = self.stateIsVisible;
+
+            // Opens chat
+            self.openChatPanel(self);
+
+            if (!stateIsVisible) {
+                // Loads chat data
+                self.getChatData();
+            }
         },
         /**
          * Opens chat panel
@@ -120,12 +157,12 @@
                 return;
             }
 
-            // Loads chat data
-            self.getChatData(1);
+            self.stateIsVisible = true;
+
+            // Clears old data from chat
+            self.clearChat();
 
             self.chatObject.slideUp(400, function () {
-                self.stateIsVisible = true;
-
                 self.chatObject.appendTo(document.body);
 
                 self.chatObject.find('.caption-helper').html(self.formTitle);
@@ -141,6 +178,7 @@
          */
         closeChatPanel: function (self) {
             self.stateIsVisible = false;
+            self.lastUpdateTime = 0;
             self.chatObject.slideUp();
         },
         /**
@@ -148,6 +186,7 @@
          */
         clearChat: function () {
             this.chatObject.find('.dx-form-chat-content').empty();
+            self.lastUpdateTime = 0;
         },
         /**
          * Event handler when message has been entered and must be saved
@@ -163,16 +202,20 @@
                 message: textArea.val()
             };
 
+            if (data.message.length == 0) {
+                return;
+            }
+
             textArea.val('');
 
             $.ajax({
                 url: DX_CORE.site_url + 'chat/message/save',
                 data: data,
                 type: "post",
-                success: function(){
+                success: function () {
 
                 },
-                error: function(){
+                error: function () {
                     notify_err(Lang.get('form.chat.e_msg_not_saved'));
                 }
             });
@@ -180,29 +223,51 @@
         /**
          * Loads chat's data
          */
-        getChatData: function (isInit) {
+        getChatData: function () {
             var self = this;
 
+            if (self.stateIsUpdateRunning) {
+                return;
+            }
+
+            self.stateIsUpdateRunning = true;
+
             $.ajax({
-                url: DX_CORE.site_url + 'chat/messages/' + self.listId + '/' + self.itemId + '/' + isInit,
+                url: DX_CORE.site_url + 'chat/messages/' + self.listId + '/' + self.itemId + '/' + self.lastUpdateTime,
                 type: "get",
                 success: function (res) {
+                    self.stateIsUpdateRunning = false;
+
                     self.onDataRecevied(self, res)
                 },
                 error: function (err) {
+                    self.stateIsUpdateRunning = false;
+
                     // self.catchError(err, Lang.get('crypto.e_get_user_cert'));
                 }
             });
         },
+        /**
+         * Processes retrieved data
+         * @param {DxFormChat} self Current form chat instance
+         * @param {object} res Retrieved data from server
+         */
         onDataRecevied: function (self, res) {
             if (res && res.success && res.success == 1) {
-                self.chatContentObject.append(res.view);
+                if (!self.stateIsVisible && res.view.length > 0) {
+                    self.openChatPanel(self);
+                }
 
-                // Calls again after 1000 ms                
-                if(self.stateIsVisible){
-                    setTimeout(function () {
-                        self.getChatData(0);
-                    }, 1000);
+                if (self.stateIsVisible && self.lastUpdateTime != res.time) {
+
+                    if (res.view.length > 0) {
+                        self.chatContentObject.append(res.view);
+
+                        var container = self.chatObject.find('.dx-form-chat-content-container');
+                        container.scrollTop(container[0].scrollHeight - container[0].clientHeight);
+                    }
+
+                    self.lastUpdateTime = res.time;
                 }
             } else {
                 if (res.msg) {
@@ -211,6 +276,13 @@
                     // self.catchError(res, Lang.get('crypto.e_get_user_cert'));
                 }
             }
+
+            // Calls again after 1000 ms   
+            setTimeout(function () {
+                if (self.stateIsVisible) {
+                    self.getChatData();
+                }
+            }, 1000);
         }
     });
 })(jQuery);
