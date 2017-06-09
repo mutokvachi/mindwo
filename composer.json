@@ -76,7 +76,8 @@
             "php -r \"copy('config/app.example.php', 'config/app.php');\"",            
             "php artisan vendor:publish --tag=setup --force",
             "Illuminate\\Foundation\\ComposerScripts::postUpdate",
-            "php artisan optimize"
+            "php artisan optimize",
+            "composer dump-autoload"
         ],
         "post-root-package-install": [
             "php -r \"copy('.env.example', '.env');\""
