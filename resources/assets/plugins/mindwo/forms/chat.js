@@ -34,9 +34,9 @@
         this.chatContentObject;
 
         /**
-         * Last time when messages pulled from server
+         * Last message's ID pulled from server
          */
-        this.lastUpdateTime = 0;
+        this.lastMessageID = 0;
 
         /**
          * List ID
@@ -127,6 +127,7 @@
             });
 
             // Retrieves chat messages and opens chat if messages found
+            console.log('init');
             self.getChatData();
         },
         /**
@@ -143,6 +144,7 @@
 
             if (!stateIsVisible) {
                 // Loads chat data
+                console.log('openchat');
                 self.getChatData();
             }
         },
@@ -178,7 +180,7 @@
          */
         closeChatPanel: function (self) {
             self.stateIsVisible = false;
-            self.lastUpdateTime = 0;
+            self.lastMessageID = 0;
             self.chatObject.slideUp();
         },
         /**
@@ -186,7 +188,7 @@
          */
         clearChat: function () {
             this.chatObject.find('.dx-form-chat-content').empty();
-            self.lastUpdateTime = 0;
+            self.lastMessageID = 0;
         },
         /**
          * Event handler when message has been entered and must be saved
@@ -224,16 +226,17 @@
          * Loads chat's data
          */
         getChatData: function () {
-            var self = this;
+            var self = this;            
 
             if (self.stateIsUpdateRunning) {
                 return;
             }
+            console.log('call');
 
             self.stateIsUpdateRunning = true;
 
             $.ajax({
-                url: DX_CORE.site_url + 'chat/messages/' + self.listId + '/' + self.itemId + '/' + self.lastUpdateTime,
+                url: DX_CORE.site_url + 'chat/messages/' + self.listId + '/' + self.itemId + '/' + self.lastMessageID,
                 type: "get",
                 success: function (res) {
                     self.stateIsUpdateRunning = false;
@@ -258,16 +261,18 @@
                     self.openChatPanel(self);
                 }
 
-                if (self.stateIsVisible && self.lastUpdateTime != res.time) {
-
+                if (self.stateIsVisible) {
                     if (res.view.length > 0) {
+                        console.log('data got');
                         self.chatContentObject.append(res.view);
 
                         var container = self.chatObject.find('.dx-form-chat-content-container');
                         container.scrollTop(container[0].scrollHeight - container[0].clientHeight);
                     }
 
-                    self.lastUpdateTime = res.time;
+                    if(res.last_message_id != 0){
+                        self.lastMessageID = res.last_message_id;
+                    }
                 }
             } else {
                 if (res.msg) {
@@ -280,6 +285,7 @@
             // Calls again after 1000 ms   
             setTimeout(function () {
                 if (self.stateIsVisible) {
+                    console.log('timeout');
                     self.getChatData();
                 }
             }, 1000);

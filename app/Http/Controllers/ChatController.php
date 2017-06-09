@@ -52,15 +52,13 @@ class ChatController extends Controller
         return response()->json(['success' => 1]);
     }
 
-    public function getMessages($list_id, $item_id, $time)
+    public function getMessages($list_id, $item_id, $last_message_id)         
     {
        /* $this->validate($request, [
             'list_id' => 'required|exists:dx_lists,id',
             'item_id' => 'required',
             'is_init' => 'required|boolean',
         ]);*/
-        
-        $new_time = (new \DateTime(date('Y-m-d H:i:s')))->getTimestamp();
 
         $chat = \App\Models\Chat\Chat::where('list_id', $list_id)
             ->where('item_id', $item_id)
@@ -70,17 +68,15 @@ class ChatController extends Controller
             return response()->json(['success' => 0]);
         }
 
-        if ($time == 0) {
+        if ($last_message_id == 0) {
             $msgs = $chat->messages;
         } else {
-            $old_time = (new \DateTime())->setTimestamp($time);
-
             $msgs = \App\Models\Chat\Message::where('chat_id', $chat->id)
-                        ->where('created_time', '>=', $old_time)
+                        ->where('id', '>', $last_message_id)
                         ->get();
         }
 
-         $view = '';
+         $view = '';         
 
         foreach ($msgs as $msg) {
             $view .= view('forms.chat.record', [
@@ -88,6 +84,12 @@ class ChatController extends Controller
                 ])->render();
         }
 
-        return response()->json(['success' => 1, 'view' => $view, 'time' => $new_time]);
+        if($msgs->count() > 0){
+            $last_message_id = $msg->id;
+        } else{
+            $last_message_id = 0;
+        }
+
+        return response()->json(['success' => 1, 'view' => $view, 'last_message_id' => $last_message_id]);
     }
 }
