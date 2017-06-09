@@ -66,7 +66,7 @@ namespace App\Libraries\Structure
          */
         public function doMethod()
         {
-            $path = dx_root_path() . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'img';
+            $path = base_path() . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'img';
             
             $files = File::allFiles($path);
             foreach ($files as $file)
