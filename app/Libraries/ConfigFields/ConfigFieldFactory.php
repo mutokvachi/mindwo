@@ -56,7 +56,7 @@ namespace App\Libraries\ConfigFields
          */
         public static function getConfigFromFile($config_name)
         {
-            $configPath = dx_root_path() . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'param_' . $config_name . '.txt';
+            $configPath = base_path() . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'param_' . $config_name . '.txt';
                        
             if (File::isFile($configPath)) {
                 
