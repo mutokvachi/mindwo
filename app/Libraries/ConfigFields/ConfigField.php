@@ -38,7 +38,7 @@ namespace App\Libraries\ConfigFields
          */
         public function saveInFile($val)
         {
-            $configPath = dx_root_path() . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'param_' . $this->config_row->config_name . '.txt';
+            $configPath = base_path() . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'param_' . $this->config_row->config_name . '.txt';
             File::put($configPath, $val);
         }
 

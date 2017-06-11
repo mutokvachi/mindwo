@@ -100,7 +100,7 @@ class CustomPHPController extends Controller
      */
     private function validateScript() {
         
-        $scriptPath = dx_root_path() . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . 'script_' . Uuid::generate(4) . '.php';
+        $scriptPath = base_path() . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . 'script_' . Uuid::generate(4) . '.php';
         
         File::put($scriptPath, "<?php ");
         File::append($scriptPath, $this->script_row->php_code);

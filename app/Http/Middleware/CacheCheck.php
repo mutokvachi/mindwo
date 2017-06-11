@@ -26,7 +26,7 @@ class CacheCheck
 
     public function handle($request, Closure $next)
     {
-        $cache_path = dx_root_path() . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'current_db.txt';
+        $cache_path = base_path() . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'current_db.txt';
         
         $cache_db = "";
         if (File::exists($cache_path)) {
@@ -61,7 +61,7 @@ class CacheCheck
      * @param string $folder Kataloga nosaukums (bez pilnā ceļa, jāatrodas storage\app\cache katalogā
      */
     private function emptyFolder($folder) {
-        $path = dx_root_path() . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . $folder;
+        $path = base_path() . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . $folder;
         
         $files = File::allFiles($path);
         foreach ($files as $file)

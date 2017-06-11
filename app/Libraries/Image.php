@@ -44,7 +44,7 @@ class Image
             }
         }
         
-        $this->file_not_found_path = dx_root_path() . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'img_resize' . DIRECTORY_SEPARATOR . 'img_not_found.jpg';
+        $this->file_not_found_path = base_path() . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'img_resize' . DIRECTORY_SEPARATOR . 'img_not_found.jpg';
     }
 
     /**

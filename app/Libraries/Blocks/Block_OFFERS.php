@@ -13,6 +13,8 @@ use App\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
+use Config;
+use App\Exceptions;
 
 /**
  * Class Block_OFFERS
@@ -74,6 +76,10 @@ class Block_OFFERS extends Block
 			return $this->user;
 		}
 		
+                if (Request::ajax() && array_search(Auth::user()->id, Config::get('dx.empl_ignore_ids')) !== false) {
+                    throw new Exceptions\DXCustomException(trans('widgets.offers.err_public_user'));
+                }
+                
 		$this->user = User::find(Auth::user()->id);
 		
 		return $this->user;
