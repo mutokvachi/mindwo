@@ -52,9 +52,9 @@
               <i class="fa fa-arrow-left"></i> {{ trans('constructor.back') }}
             </button>
           @endif
-          <button id="submit_step" type="button" class="btn btn-primary dx-wizard-btn pull-right">
-            @if($step == 'menu')
-              {{ trans('constructor.save') }}
+          <button id="submit_step" type="button" class="btn {{ ($step == 'rights') ? 'btn-white' : 'btn-primary'}} dx-wizard-btn pull-right">
+            @if($step == 'rights')
+              {{ trans('constructor.view_list') }} <i class="fa fa-list"></i>
             @else
               {{ trans('constructor.next') }} <i class="fa fa-arrow-right"></i>
             @endif

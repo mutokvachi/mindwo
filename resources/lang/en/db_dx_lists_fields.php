@@ -17,4 +17,5 @@ return [
     'items' => 'Available values',
     'hint_items' => 'Provide available textual values seperated by semicolon. Values will be available in dropdown field',
     'js_db_name' => 'Set db field name according to selected field type',
+    'action_validation' => 'Validates list field before saving',
 ];

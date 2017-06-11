@@ -1,6 +1,7 @@
 @extends('constructor.common')
 
 @section('constructor_content')
+<div style="width: 75%; margin: 0 auto;">
   <div class="col-md-12">
     <div class='table-scrollable'>
       <table class="table table-bordered table-hover dx-constructor-roles-table">
@@ -33,4 +34,5 @@
       </a>
     </div>
   </div>
+</div>
 @endsection

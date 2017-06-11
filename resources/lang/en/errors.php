@@ -136,7 +136,7 @@ return [
     
     'no_rights_on_meetings' => "Meeting does not exist or You do not have rights to access meeting!",
 
-	'no_rights_on_constructor' => "Register does not exist or You do not have rights to access constructor!",
+    'no_rights_on_constructor' => "Register does not exist or You do not have rights to access constructor!",
 	
     'phone_format_err' => "Phone number can contain only numbers!",
     
@@ -151,4 +151,6 @@ return [
     'crypto_regeneration_in_process' => 'Crypted data is in re-crypting process started by :user_name. New entry adding in system is locked.',
     
     'view_must_have_id_field' => 'The ID field is not included in the view as column. Please, include ID field - it can be set as hidden as well.',
+    
+    'wrong_action_object' => "System configuration error! It is provided wrong activity to the form, because activity is not intended for database table assigned to this form's register.",
 ];

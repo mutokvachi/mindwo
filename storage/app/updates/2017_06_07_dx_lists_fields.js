@@ -155,7 +155,7 @@ if (sel)
                 var max_crypt = Math.floor((max_len - 32 )/4);
                 var ok_len = enter_len*4 + 32;
 
-                if (max_crypt < 0) {                        
+                if (max_crypt < 1) {                        
                     notify_err(Lang.get('constructor.valid_cant_crypt'));
                     notify_err(Lang.get('constructor.valid_min_len', {ok_len: ok_len}));
                     setValidationError(fld_line, Lang.get('constructor.valid_not_possible_crypt'));

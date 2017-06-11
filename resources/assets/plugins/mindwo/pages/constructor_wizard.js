@@ -20,7 +20,7 @@
 		list_id: 0,
 		view_id: 1,
 		step: 'names',
-		steps: ['names', 'columns', 'fields', 'rights', 'menu'],
+		steps: ['names', 'columns', 'fields', 'rights'],
 		url: '/constructor/register',
 		last_url: '/skats_'
 	};
@@ -273,6 +273,7 @@
 			var self = this;
 			var listName = this.root.find('#list_name');
 			var itemName = this.root.find('#item_name');
+                        var menuParentID = this.root.find('input[name=parent_id]');
 			
 			if(listName.length && !listName.val())
 			{
@@ -290,7 +291,8 @@
 			
 			var request = {
 				list_name: listName.val(),
-				item_name: itemName.val()
+				item_name: itemName.val(),
+                                menu_parent_id: menuParentID.val()
 			};
 			
 			if(this.options.list_id)
@@ -393,11 +395,6 @@
 		},
 		
 		submit_rights: function()
-		{
-			window.location = this.getNextUrl();
-		},
-		
-		submit_menu: function()
 		{
 			window.location = this.getNextUrl();
 		}
