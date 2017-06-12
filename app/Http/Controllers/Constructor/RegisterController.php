@@ -71,9 +71,11 @@ class RegisterController extends Controller
     {
         $listName = $request->input('list_name');
         $itemName = $request->input('item_name');
+        $menuParentID = $request->input('menu_parent_id', 0);
+        
         $userId = Auth::user()->id;
 
-        DB::transaction(function () use ($listName, $itemName, $userId)
+        DB::transaction(function () use ($listName, $itemName, $userId, $menuParentID)
         {
             $list = new Lists([
                 'list_title' => $listName,
@@ -86,6 +88,8 @@ class RegisterController extends Controller
             $list->save();
             $this->id = $list->id;
 
+            $this->saveMenuField($menuParentID, $list->id, $listName);
+            
             $field = new ListField([
                 'db_name' => 'id',
                 'type_id' => 6,
@@ -193,35 +197,8 @@ class RegisterController extends Controller
             $list->item_title = $itemName;
             $list->save();
 
-            $curent_menu = DB::table('dx_menu')->where('list_id', '=', $list->id)->first();
-
-            if ($curent_menu && $curent_menu->parent_id != $menuParentID) {
-                if ($menuParentID) {
-                    DB::table('dx_menu')
-                            ->where('id', '=', $curent_menu->id)
-                            ->update([
-                                'parent_id' => $menuParentID
-                    ]);
-                }
-                else {
-                    DB::table('dx_menu')
-                            ->where('id', '=', $curent_menu->id)
-                            ->delete();
-                }
-            }
-            else {
-                if ($menuParentID) {
-                    DB::table('dx_menu')->insert([
-                        'parent_id' => $menuParentID,
-                        'title' => $listName,
-                        'list_id' => $list->id,
-                        'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $menuParentID)->max('order_index')+10),
-                        'group_id' => 1,
-                        'position_id' => 1
-                    ]);
-                }
-            }
-
+            $this->saveMenuField($menuParentID, $list->id, $listName);
+            
             DB::commit();
 
             $result = [
@@ -239,6 +216,44 @@ class RegisterController extends Controller
         }
 
         return response($result);
+    }
+    
+    /**
+     * Creates or updates register menu item
+     * 
+     * @param integer $menuParentID Parent menu item ID. If 0 then no menu
+     * @param integer $list_id Register ID for which menu item is updated/created
+     * @param string $listName Register title
+     */
+    private function saveMenuField($menuParentID, $list_id, $listName) {
+        $curent_menu = DB::table('dx_menu')->where('list_id', '=', $list_id)->first();
+
+        if ($curent_menu && $curent_menu->parent_id != $menuParentID) {
+            if ($menuParentID) {
+                DB::table('dx_menu')
+                        ->where('id', '=', $curent_menu->id)
+                        ->update([
+                            'parent_id' => $menuParentID
+                ]);
+            }
+            else {
+                DB::table('dx_menu')
+                        ->where('id', '=', $curent_menu->id)
+                        ->delete();
+            }
+        }
+        else {
+            if ($menuParentID) {
+                DB::table('dx_menu')->insert([
+                    'parent_id' => $menuParentID,
+                    'title' => $listName,
+                    'list_id' => $list_id,
+                    'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $menuParentID)->max('order_index')+10),
+                    'group_id' => 1,
+                    'position_id' => 1
+                ]);
+            }
+        }
     }
 
     public function editColumns($id)
