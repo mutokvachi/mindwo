@@ -1,1 +1,1 @@
-{"version":3,"sources":["crypto.css"],"names":[],"mappings":"AAAA","file":"elix_view_less.css","sourcesContent":[]}
+{"version":3,"sources":["crypto.css","chat.less","chat.css"],"names":[],"mappings":"AAAA;ACCA;EACI,mBAAA;ECAH;ADGD;EACI,cAAA;EACA,aAAA;EACA,8BAAA;ECDH","file":"elix_view_less.css","sourcesContent":[null,"\r\n.dx-form-chat-avatar{\r\n    object-fit: cover;\r\n}\r\n\r\n.dx-form-chat-avatar-sm{\r\n    height: 20px;\r\n    width: 20px;\r\n    border-radius: 50%!important;\r\n}",null]}

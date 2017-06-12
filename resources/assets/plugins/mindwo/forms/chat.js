@@ -111,6 +111,11 @@
                 self.onMessageEnter(self);
             });
 
+            // Opens modal which shows chat's users 
+            self.chatObject.find('.dx-form-chat-btn-users').click(function(){
+                self.openChatUsersModal(self);
+            });
+
             // On input key down if enter clicked without shift then we will send message on relase
             self.chatObject.find('.dx-form-chat-input-text').keydown(function (e) {
                 if (e.keyCode == 13 && !e.shiftKey) {
@@ -162,7 +167,7 @@
             self.stateIsVisible = true;
 
             // Clears old data from chat
-            self.clearChat();
+            self.clearChat();            
 
             self.chatObject.slideUp(400, function () {
                 self.chatObject.appendTo(document.body);
@@ -173,6 +178,52 @@
 
                 self.chatObject.slideDown();
             });
+        },
+        /**
+         * Gets chat users
+         */
+        getChatUsers: function () {
+            var self = this;
+
+            $.ajax({
+                url: DX_CORE.site_url + 'chat/users/' + self.listId + '/' + self.itemId,
+                type: "get",
+                success: function (res) {
+                    self.loadChatUsers(self, res);
+                },
+                error: function () {
+                    self.loadChatUsers(self, null);
+                }
+            });
+        },
+        /**
+         * Loads chat users in tooltip
+         * @param {DxFormChat} self Current form chat instance
+         * @param {object} res Result of data request
+         */
+        loadChatUsers: function (self, res) {
+            var modal = $('.dx-form-chat-modal');
+
+            modal.find('.modal-title').html(Lang.get('form.chat.chat') + ' - ' +Lang.get('form.chat.users'));
+
+            if (res && res.success && res.success == 1) {
+                modal.find('.modal-body').html(res.view);
+            } else {
+                modal.find('.modal-body').html(Lang.get('form.chat.e_no_users'));
+            }
+
+            modal.modal('show');
+
+            hide_page_splash(1);
+        },
+        /**
+         * Opens modal window with chat's users
+         * @param {DxFormChat} self Current form chat instance
+         */
+        openChatUsersModal: function (self) {
+            show_page_splash(1);
+
+            self.getChatUsers();            
         },
         /**
          * Hides chat panel
@@ -226,7 +277,7 @@
          * Loads chat's data
          */
         getChatData: function () {
-            var self = this;            
+            var self = this;
 
             if (self.stateIsUpdateRunning) {
                 return;
@@ -270,7 +321,7 @@
                         container.scrollTop(container[0].scrollHeight - container[0].clientHeight);
                     }
 
-                    if(res.last_message_id != 0){
+                    if (res.last_message_id != 0) {
                         self.lastMessageID = res.last_message_id;
                     }
                 }

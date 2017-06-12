@@ -41,7 +41,7 @@ class Chat extends Model
      */
     public function users()
     {
-        return $this->hasManyThrough('\App\Models\Chat\User', '\App\User', 'chat_id', 'user_id', 'id');
+        return $this->hasManyThrough('\App\User', '\App\Models\Chat\User', 'chat_id', 'id', 'user_id');
     }
 
     /**

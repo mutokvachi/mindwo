@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 
+/**
+ * Controlls form's chat window
+ */
 class ChatController extends Controller
 {
     /**
@@ -29,30 +32,125 @@ class ChatController extends Controller
             ->where('item_id', $item_id)
             ->first();
 
+        $user_id = \Auth::user()->id;
+
         if (!$chat) {
             $chat = new \App\Models\Chat\Chat();
             $chat->list_id = $list_id;
             $chat->item_id = $item_id;
-            $chat->created_user_id = \Auth::user()->id;
+            $chat->created_user_id = $user_id;
             $chat->created_time = new \DateTime();
-            $chat->modified_user_id = \Auth::user()->id;
+            $chat->modified_user_id = $user_id;
             $chat->modified_time = new \DateTime();
             $chat->save();
         }
 
         $msg = new \App\Models\Chat\Message();
         $msg->message = $message;
-        $msg->created_user_id = \Auth::user()->id;
+        $msg->created_user_id = $user_id;
         $msg->created_time = new \DateTime();
-        $msg->modified_user_id = \Auth::user()->id;
+        $msg->modified_user_id = $user_id;
         $msg->modified_time = new \DateTime();
         $msg->chat_id = $chat->id;
         $msg->save();
 
+        $this->addUserToChatByChatID($chat->id, $user_id);
+
         return response()->json(['success' => 1]);
     }
 
-    public function getMessages($list_id, $item_id, $last_message_id)         
+    /**
+     * Saves user to chat if he is not yet saved to it
+     *
+     * @param Request $request Request's data
+     * @return JSON Response
+     */
+    public function addUserToChat(Request $request)
+    {
+        $this->validate($request, [
+            'list_id' => 'required|exists:dx_lists,id',
+            'item_id' => 'required',
+            'user_id' => 'required|exists:dx_users,id',
+         ]);
+
+        $list_id = $request->input('list_id');
+        $item_id =$request->input('item_id');
+        $user_id = $request->input('user_id');
+
+        $chat = \App\Models\Chat\Chat::where('list_id', $list_id)
+            ->where('item_id', $item_id)
+            ->first();
+
+        if ($chat) {
+            $this->addUserToChatByChatID($chat->id, $user_id);
+
+            return response()->json(['success' => 1]);
+        } else {
+            return response()->json(['success' => 0]);
+        }
+    }
+
+    /**
+     * Saves user to chat if he is not yet saved to it
+     *
+     * @param int $chat_id Chat's ID
+     * @param int $user_id User's ID which will be added to chat
+     * @return void
+     */
+    private function addUserToChatByChatID($chat_id, $user_id)
+    {
+        $chat_user = \App\Models\Chat\User::where('chat_id', $chat_id)
+            ->where('user_id', $user_id)
+            ->first();
+
+        if (!$chat_user) {
+            $chat_user = new \App\Models\Chat\User();
+            $chat_user->chat_id = $chat_id;
+            $chat_user->user_id = $user_id;
+
+            // Modified and created user can differ from user which is being added
+            $chat_user->created_user_id = \Auth::user()->id;
+            $chat_user->created_time = new \DateTime();
+            $chat_user->modified_user_id = \Auth::user()->id;
+            $chat_user->modified_time = new \DateTime();
+
+            $chat_user->save();
+        }
+    }
+
+    /**
+     * Retrieves users who are added to chat
+     *
+     * @param int $list_id List's ID
+     * @param int $item_id Item's ID
+     * @return JSON Response
+     */
+    public function getChatUsers($list_id, $item_id)
+    {
+        $chat = \App\Models\Chat\Chat::where('list_id', $list_id)
+            ->where('item_id', $item_id)
+            ->first();
+
+        if ($chat) {
+            $view = view('forms.chat.users', [
+                    'users' => $chat->users
+                ])->render();
+
+            return response()->json(['success' => 1, 'view' => $view]);
+        } else {
+            return response()->json(['success' => 0]);
+        }
+    }
+
+    /**
+     * Retrieves messages from server
+     *
+     * @param int $list_id List's ID
+     * @param int $item_id Item's ID
+     * @param int $last_message_id Latest message ID which was retrieved from server. If it is 0, then retrieve all messages
+     * @return JSON Response containing messages
+     */
+    public function getMessages($list_id, $item_id, $last_message_id)
     {
        /* $this->validate($request, [
             'list_id' => 'required|exists:dx_lists,id',
@@ -76,7 +174,7 @@ class ChatController extends Controller
                         ->get();
         }
 
-         $view = '';         
+         $view = '';
 
         foreach ($msgs as $msg) {
             $view .= view('forms.chat.record', [
@@ -84,12 +182,12 @@ class ChatController extends Controller
                 ])->render();
         }
 
-        if($msgs->count() > 0){
+        if ($msgs->count() > 0) {
             $last_message_id = $msg->id;
-        } else{
+        } else {
             $last_message_id = 0;
         }
 
-        return response()->json(['success' => 1, 'view' => $view, 'last_message_id' => $last_message_id]);
+        return response()->json(['success' => 1, 'view' => $view, 'last_message_id' => $last_message_id, 'chat_id' => $chat->id]);
     }
 }

@@ -33,7 +33,8 @@ gulp.task('mix_all', function() {
 
         // Prepare less styles for elix_view.css
         mix.less([
-            '/pages/crypto/crypto.less'
+            '/pages/crypto/crypto.less',
+            '/forms/chat.less'
         ], 'public/css/elix_view_less.css');
 
         // Core styles for main page - plugins

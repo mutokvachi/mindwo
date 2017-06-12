@@ -183,7 +183,9 @@ Route::group(['prefix' => 'crypto', 'namespace' => 'Crypto'], function() {
 
 Route::group(['prefix' => 'chat'], function() {
         Route::post('/message/save', array('middleware' => 'auth_ajax', 'uses' => 'ChatController@saveMessage'));
-        Route::get('/messages/{list_id}/{item_id}/{time}', array('middleware' => 'auth_ajax', 'uses' => 'ChatController@getMessages'));   
+        Route::post('/invite', array('middleware' => 'auth_ajax', 'uses' => 'ChatController@addUserToChat'));
+        Route::get('/users/{list_id}/{item_id}', array('middleware' => 'auth_ajax', 'uses' => 'ChatController@getChatUsers'));   
+        Route::get('/messages/{list_id}/{item_id}/{last_message_id}', array('middleware' => 'auth_ajax', 'uses' => 'ChatController@getMessages'));   
 });
 
 // Lietotāji - autorizācija, atslēgšanās

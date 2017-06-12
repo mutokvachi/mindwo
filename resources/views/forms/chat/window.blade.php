@@ -12,12 +12,12 @@
                 <span class="caption-helper"></span>
             </div>
             <div class="actions">
-                <a href="javascript:;" class="btn btn-circle"><i class="fa fa-users"></i> Users </a>
-                <a href="javascript:;" class="btn btn-circle"><i class="fa fa-plus"></i> Add user </a>
+                <a href="javascript:;" class="btn btn-circle dx-form-chat-btn-users"><i class="fa fa-users"></i> {{ trans('form.chat.users') }} </a>
+                <a href="javascript:;" class="btn btn-circle dx-form-chat-btn-add-user"><i class="fa fa-plus"></i> {{ trans('form.chat.btn_add_user') }} </a>
             </div>
         </div>
         <div class="portlet-body" style="height: auto;">
-            <div class='dx-form-chat-content-container' style='overflow-y:scroll; height: 30vh; margin-bottom: 55px;'>        
+            <div class='dx-form-chat-content-container' style='overflow-y:scroll; height: 40vh; margin-bottom: 55px;'>
                 <ul class="chats dx-form-chat-content">
                 </ul>
             </div>
@@ -34,6 +34,22 @@
             </div>
         </div>
     </div>
+</div>
+<div class="modal dx-form-chat-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn dark btn-outline" data-dismiss="modal">{{ trans('form.btn_close') }}</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
 </div>
 <!--<div class="dx-form-chat-panel"style="position: fixed; bottom: 0; right: 0; width: 100%;">   
     <div class='col-lg-offset-9 col-md-offset-7 col-lg-3 col-md-5' style='background-color: white; padding-bottom: 10px; padding-top:10px;'>   

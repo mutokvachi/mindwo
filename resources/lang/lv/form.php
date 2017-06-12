@@ -56,10 +56,13 @@ return [
             'file_name' => 'Datnes nosaukums',
             'user' => 'Lietotājs',
         ],
+        'users' => 'Lietotāji',
+        'btn_add_user' => 'Pievienot lietotāju',
         'chat' => 'Sarakste',
         'type_hint' => 'Rakstiet ziņojumu šeit...',
         'note_missing' => "Piezīme neeksistē!",
         'modified' => "Laboja",
         'e_msg_not_saved' => 'Kļūda saglabājot ziņojumu. Lūdzu, mēģiniet nosūtīt ziņojumu vēlreiz!',
+        'e_no_users' => 'Šajā sarakstē nav neviena lietotāja'
     ]
 ];
