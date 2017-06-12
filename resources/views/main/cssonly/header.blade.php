@@ -92,7 +92,7 @@
                 </li>
                 -->
             <li class="dropdown hidden-xs">
-              <a href="{{Request::root()}}/logout" title="{{ trans("frame.logout") }}" class="top-link">
+              <a href="{{Request::root()}}/logout" title="{{ trans("frame.logout") }}" class="top-link" style="padding-top: 20px;">
                 <i class="fa fa-sign-out"></i>
               </a>
             </li>

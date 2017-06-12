@@ -29,14 +29,16 @@ class RegisterController extends Controller
     protected $view_id = 1;
     protected $list = null;
     protected $view = null;
-
+    protected $steps = ['names', 'columns', 'fields', 'rights'];
+    
     public function __construct()
     {
         $this->id = Route::current()->getParameter('id', 0);
 
         view()->share([
             'list_id' => $this->id,
-            'list' => $this->getList()
+            'list' => $this->getList(),
+            'steps' => $this->steps
         ]);
 
         if ($this->getView()) {
