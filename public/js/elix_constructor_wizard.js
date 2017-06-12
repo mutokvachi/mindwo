@@ -1238,11 +1238,6 @@ $(document).ready(function()
 		submit_rights: function()
 		{
 			window.location = this.getNextUrl();
-		},
-		
-		submit_menu: function()
-		{
-			window.location = this.getNextUrl();
 		}
 	});
 })(jQuery);

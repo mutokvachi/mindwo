@@ -227,19 +227,23 @@ class RegisterController extends Controller
      */
     private function saveMenuField($menuParentID, $list_id, $listName) {
         $curent_menu = DB::table('dx_menu')->where('list_id', '=', $list_id)->first();
-
-        if ($curent_menu && $curent_menu->parent_id != $menuParentID) {
-            if ($menuParentID) {
-                DB::table('dx_menu')
-                        ->where('id', '=', $curent_menu->id)
-                        ->update([
-                            'parent_id' => $menuParentID
-                ]);
-            }
-            else {
-                DB::table('dx_menu')
-                        ->where('id', '=', $curent_menu->id)
-                        ->delete();
+                
+        if ($curent_menu) {
+            if ($curent_menu->parent_id != intval($menuParentID) || $curent_menu->title != $listName) {
+                if ($menuParentID) {
+                    DB::table('dx_menu')
+                            ->where('id', '=', $curent_menu->id)
+                            ->update([
+                                'parent_id' => $menuParentID,
+                                'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $menuParentID)->max('order_index')+10),
+                                'title' => $listName,
+                    ]);
+                }
+                else {
+                    DB::table('dx_menu')
+                            ->where('id', '=', $curent_menu->id)
+                            ->delete();
+                }
             }
         }
         else {

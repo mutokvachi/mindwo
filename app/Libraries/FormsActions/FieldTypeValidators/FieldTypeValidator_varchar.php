@@ -31,7 +31,7 @@ namespace App\Libraries\FormsActions\FieldTypeValidators
             $length = $this->request->input('max_lenght', 0);
             
             if ($length == 0) {
-                throw new Exceptions\DXCustomException(trans('constructor.valid_hint_len', ['max_len' => 1]));
+                throw new Exceptions\DXCustomException(trans('constructor.valid_hint_len', ['ok_len' => 1]));
             }
         }
         
