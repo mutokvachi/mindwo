@@ -63,6 +63,8 @@ Route::post('/ajax/employees', array('as' => 'get_employees', 'middleware' => 'a
 
 Route::get('/emp_docs_test', array('as' => 'search', 'middleware' => 'auth', 'uses' => 'Employee\EmployeePersonalDocController@testView'));
 
+Route::get('/web/viewer.html', array('as' => 'pdf_viewer', 'middleware' => 'auth', 'uses' => 'FileController@viewPdf'));
+
 // Grids
 Route::post('/grid', array('as' => 'grid', 'middleware' => 'auth_ajax', 'uses' => 'GridController@getGrid'));
 Route::post('/delete_grid_items', array('as' => 'grid', 'middleware' => 'auth_ajax', 'uses' => 'GridController@deleteItems'));
