@@ -6,6 +6,14 @@
 	top: -32px;
 }
 
+.mt-element-step .link {
+	cursor: pointer;
+}
+
+.mt-element-step .link:hover .mt-step-number {
+	background-color: #eee !important;
+}
+
 .dx-view-edit-form .dd-item {
 	margin: 4px 0 !important;
 }

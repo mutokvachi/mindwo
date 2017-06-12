@@ -28,6 +28,7 @@ class RegisterController extends Controller
 	protected $view_id = 1;
 	protected $list = null;
 	protected $view = null;
+	protected $steps = ['names', 'columns', 'fields', 'rights', 'menu'];
 	
 	public function __construct()
 	{
@@ -35,7 +36,8 @@ class RegisterController extends Controller
 		
 		view()->share([
 			'list_id' => $this->id,
-			'list' => $this->getList()
+			'list' => $this->getList(),
+			'steps' => $this->steps
 		]);
 		
 		if($this->getView())
@@ -73,74 +75,74 @@ class RegisterController extends Controller
 		$itemName = $request->input('item_name');
 		$userId = Auth::user()->id;
 		
-		DB::transaction(function () use ($listName, $itemName, $userId) {
-                    $list = new Lists([
-                            'list_title' => $listName,
-                            'item_title' => $itemName,
-                            'object_id' => 140,
-                            'created_user_id' => $userId,
-                            'modified_user_id' => $userId,
-                    ]);
-
-                    $list->save();
-                    $this->id = $list->id;
-
-                    $field = new ListField([
-                            'db_name' => 'id',
-                            'type_id' => 6,
-                            'title_list' => 'ID',
-                            'title_form' => 'ID',
-                    ]);
-
-                    $list->fields()->save($field);
-
-                    $view = new View([
-                            'title' => $listName,
-                            'view_type_id' => 1,
-                            'is_default' => 1,
-                            'created_user_id' => $userId,
-                            'modified_user_id' => $userId,
-                    ]);
-
-                    $list->views()->save($view);
-
-                    $form = new Form([
-                            'title' => $itemName,
-                            'form_type_id' => 1,
-                            'created_user_id' => $userId,
-                            'modified_user_id' => $userId,
-                    ]);
-
-                    $list->form()->save($form);
-
-                    $role = new ListRole([
-                            'role_id' => config('dx.constructor.access_role_id', 1),
-                            'is_edit_rights' => 1,
-                            'is_delete_rights' => 1,
-                            'is_new_rights' => 1,
-                            'is_import_rights' => 1,
-                            'is_view_rights' => 1,
-                            'created_user_id' => $userId,
-                            'modified_user_id' => $userId
-                    ]);
-
-                    $list->roles_lists()->save($role);
-                    
-                    $view_fields = new ViewField([
-                        'list_id' => $list->id,
-                        'field_id' => $field->id,
-                        'order_index' => 10,
-                        'is_hidden' => 1
-                    ]);
-
-                    $view->fields()->save($view_fields);
-                    
-		});	
-                
-                $result = [
-                        'success' => 1,
-                        'list_id' => $this->id
-                ];                
+		DB::transaction(function () use ($listName, $itemName, $userId)
+		{
+			$list = new Lists([
+				'list_title' => $listName,
+				'item_title' => $itemName,
+				'object_id' => 140,
+				'created_user_id' => $userId,
+				'modified_user_id' => $userId,
+			]);
+			
+			$list->save();
+			$this->id = $list->id;
+			
+			$field = new ListField([
+				'db_name' => 'id',
+				'type_id' => 6,
+				'title_list' => 'ID',
+				'title_form' => 'ID',
+			]);
+			
+			$list->fields()->save($field);
+			
+			$view = new View([
+				'title' => $listName,
+				'view_type_id' => 1,
+				'is_default' => 1,
+				'created_user_id' => $userId,
+				'modified_user_id' => $userId,
+			]);
+			
+			$list->views()->save($view);
+			
+			$form = new Form([
+				'title' => $itemName,
+				'form_type_id' => 1,
+				'created_user_id' => $userId,
+				'modified_user_id' => $userId,
+			]);
+			
+			$list->form()->save($form);
+			
+			$role = new ListRole([
+				'role_id' => config('dx.constructor.access_role_id', 1),
+				'is_edit_rights' => 1,
+				'is_delete_rights' => 1,
+				'is_new_rights' => 1,
+				'is_import_rights' => 1,
+				'is_view_rights' => 1,
+				'created_user_id' => $userId,
+				'modified_user_id' => $userId
+			]);
+			
+			$list->roles_lists()->save($role);
+			
+			$view_fields = new ViewField([
+				'list_id' => $list->id,
+				'field_id' => $field->id,
+				'order_index' => 10,
+				'is_hidden' => 1
+			]);
+			
+			$view->fields()->save($view_fields);
+		});
+		
+		$result = [
+			'success' => 1,
+			'list_id' => $this->id
+		];
 		
 		return response($result);
 	}
@@ -158,33 +160,19 @@ class RegisterController extends Controller
 	{
 		$listName = $request->input('list_name');
 		$itemName = $request->input('item_name');
+		$list = $this->getList();
 		
-		DB::beginTransaction();
-		
-		try
+		DB::transaction(function () use ($listName, $itemName, $list)
 		{
-			$list = $this->getList();
 			$list->list_title = $listName;
 			$list->item_title = $itemName;
 			$list->save();
-			
-			DB::commit();
-			
-			$result = [
-				'success' => 1,
-				'list_id' => $list->id
-			];
-		}
+		});
 		
-		catch(\Exception $exception)
-		{
-			DB::rollBack();
-			
-			$result = [
-				'success' => 0,
-				'message' => trans('constructor.error_transaction')
-			];
-		}
+		$result = [
+			'success' => 1,
+			'list_id' => $list->id
+		];
 		
 		return response($result);
 	}
@@ -283,11 +271,8 @@ class RegisterController extends Controller
 		
 		$form = $this->getList()->form;
 		
-		DB::beginTransaction();
-		
-		try
+		DB::transaction(function () use ($form, $items, $userId)
 		{
-			
 			foreach($form->fields as $field)
 			{
 				if(isset($items[$field->field_id]))
@@ -318,23 +303,11 @@ class RegisterController extends Controller
 					'modified_user_id' => $userId,
 				]);
 			}
-			
-			DB::commit();
-			
-			$result = [
-				'success' => 1
-			];
-		}
+		});
 		
-		catch(\Exception $exception)
-		{
-			DB::rollBack();
-			
-			$result = [
-				'success' => 0,
-				'message' => trans('constructor.error_transaction')
-			];
-		}
+		$result = [
+			'success' => 1
+		];
 		
 		return response($result);
 	}
@@ -345,9 +318,7 @@ class RegisterController extends Controller
 		$titleForm = $request->input('title_form');
 		$isHidden = $request->input('is_hidden');
 		
-		DB::beginTransaction();
-		
-		try
+		DB::transaction(function () use ($fieldId, $titleForm, $isHidden)
 		{
 			$formField = $this->getList()->form->fields()->where('field_id', $fieldId)->first();
 			$formField->is_hidden = $isHidden;
@@ -357,22 +328,11 @@ class RegisterController extends Controller
 			$listField->title_form = $titleForm;
 			$listField->save();
 			
-			DB::commit();
-			
-			$result = [
-				'success' => 1
-			];
-		}
+		});
 		
-		catch(\Exception $exception)
-		{
-			DB::rollBack();
-			
-			$result = [
-				'success' => 0,
-				'message' => trans('constructor.error_transaction')
-			];
-		}
+		$result = [
+			'success' => 1
+		];
 		
 		return response($result);
 	}

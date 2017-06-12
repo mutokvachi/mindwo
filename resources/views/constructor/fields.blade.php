@@ -57,6 +57,18 @@
           </div>
         </div>
       @endfor
+      @if(count($grid) < 4)
+        @for($i = 0; $i < 4 - count($grid); $i++)
+            <div class="row-container">
+              <div class="row-box row-handle"><i class="fa fa-arrows-v"></i></div>
+              <div class="row-box row-button">
+                <a href="javascript:;" class="dx-constructor-row-remove" title="{{ trans('constructor.remove_row') }}"><i class="fa fa-times"></i></a>
+              </div>
+              <div class="row columns dd-list">
+              </div>
+            </div>
+        @endfor
+      @endif
     </div>
     <div class="row">
       <div class="col-md-12" style="text-align: center; padding: 15px 0;">

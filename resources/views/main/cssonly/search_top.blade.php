@@ -16,10 +16,15 @@
     <input type="hidden" name="position" value="" />
     <input type="hidden" name="is_from_link" value="1" />
     
+    @if($icons = ['Documents' => 'fa-file-text', 'Employees' => 'fa-users', 'News' => 'fa-newspaper-o'])
+    @endif
+    
     <div id="top_search" class="input-group">
       <div class="input-group-btn">
         <button id="search_dropd" type="button" class="btn btn-default dropdown-toggle green-soft" data-toggle="dropdown" data-hover="dropdown" aria-haspopup="true" aria-expanded="false">
-          <span><i class="fa fa-file-text"></i></span> <b id="search_title" class="sr-only" style="display: none">{{ config('dx.default_search') }}</b> <span class="caret"></span>
+          <span><i class="fa {{ $icons[config('dx.default_search', 'Documents')] }}"></i></span>
+          <b id="search_title" class="sr-only" style="display: none">{{ config('dx.default_search', 'Documents') }}</b>
+          <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
           <li class="searchTypeItem"><a href="#"><i class="fa fa-file-text"></i> <span data-placeholder="{{ trans("search_top.search_documents") }}">{{ trans("search_top.documents") }}</span></a></li>
