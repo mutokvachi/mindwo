@@ -60,8 +60,9 @@ class RegisterController extends Controller
     public function create()
     {
         $result = view('constructor.names', [
-            'step' => 'names'
-                ])->render();
+            'step' => 'names',
+            'register_menu_field_htm' => $this->getMenuHtm()
+        ])->render();
 
         return $result;
     }

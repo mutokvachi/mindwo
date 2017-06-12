@@ -511,9 +511,11 @@ namespace App\Libraries
          * 
          * @param integer $form_id Form ID
          * @param integer $field_id Field ID, not required, if provided then 1 field will be returned
+         * @param integer $is_multi_field Indicates which fields to retrieve (-1: all, 0 - non-multi fields, 1 - multi fields)
+         * @param string  $ignore_fields Ignorable fields names in apostrofes seperated by coma, for example: 'field1', 'field2'
          * @return Array
          */
-        public static function getFormFields($form_id, $field_id = 0) {
+        public static function getFormFields($form_id, $field_id = 0, $is_multi_field = -1, $ignore_fields = '') {
             $sql = "
             SELECT
                     lf.id as field_id,
@@ -552,7 +554,14 @@ namespace App\Libraries
                     lf.list_id,
                     lf.is_crypted,
                     l.masterkey_group_id,
-                    lf.items
+                    lf.items,
+                    o.is_history_logic,
+                    lf.is_public_file,
+                    lf.numerator_id,
+                    ff.is_readonly,
+                    lf.is_clean_html,
+                    lf.is_text_extract,
+                    lf.is_fields_synchro
             FROM
                     dx_forms_fields ff
                     inner join dx_lists_fields lf on ff.field_id = lf.id
@@ -573,6 +582,14 @@ namespace App\Libraries
             if ($field_id) {
                 $arr_where['field_id'] = $field_id;
                 $sql .= " AND ff.field_id = :field_id";
+            }
+            
+            if ($is_multi_field != -1) {
+                $sql .= " AND lf.is_multiple_files = " . $is_multi_field;
+            }
+            
+            if ($ignore_fields) {
+                $sql .= " AND lf.db_name not in (" . $ignore_fields . ")";
             }
             
             $sql .= "
