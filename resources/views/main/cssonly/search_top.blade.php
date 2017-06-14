@@ -16,14 +16,15 @@
     <input type="hidden" name="position" value="" />
     <input type="hidden" name="is_from_link" value="1" />
     
-    @if($icons = ['Documents' => 'fa-file-text', 'Employees' => 'fa-users', 'News' => 'fa-newspaper-o'])
+    @if($icons = [trans("search_top.documents") => 'fa-file-text', trans("search_top.employees") => 'fa-users', trans("search_top.news") => 'fa-newspaper-o'])
+    <?php \Log::info(json_encode($icons)) ?>
     @endif
     
     <div id="top_search" class="input-group">
       <div class="input-group-btn">
         <button id="search_dropd" type="button" class="btn btn-default dropdown-toggle green-soft" data-toggle="dropdown" data-hover="dropdown" aria-haspopup="true" aria-expanded="false">
-          <span><i class="fa {{ $icons[config('dx.default_search', 'Documents')] }}"></i></span>
-          <b id="search_title" class="sr-only" style="display: none">{{ config('dx.default_search', 'Documents') }}</b>
+          <span><i class="fa {{ $icons[config('dx.default_search', trans("search_top.documents"))] }}"></i></span>
+          <b id="search_title" class="sr-only" style="display: none">{{ config('dx.default_search', trans("search_top.documents")) }}</b>
           <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
@@ -32,7 +33,9 @@
           <li class="searchTypeItem"><a href="#"><i class="fa fa-newspaper-o"></i> <span data-placeholder="{{ trans("search_top.search_news") }}">{{ trans("search_top.news") }}</span></a></li>
         </ul>
       </div>
-      <input type="text" class="form-control" placeholder="{{ trans("search_top.search_".strtolower(config('dx.default_search'))) }}" id="search_criteria" name="criteria" autofocus>
+      <input type="text" class="form-control" placeholder="@if (config('dx.default_search') == trans("search_top.documents")){{ trans("search_top.search_documents") }}
+             @elseif (config('dx.default_search') == trans("search_top.employees")){{ trans("search_top.search_employees") }}
+             @else (config('dx.default_search') == trans("search_top.news")){{ trans("search_top.search_news") }}@endif" id="search_criteria" name="criteria" autofocus>
       <div class="input-group-btn">
         <button class="btn btn-default blue-soft" type="submit" id="search_btn" style='border-color: #93a1bb;'><i class="fa fa-search"></i></button>
       </div>
