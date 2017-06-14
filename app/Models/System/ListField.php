@@ -14,5 +14,10 @@ class ListField extends Model
 		'type_id',
 		'title_list',
 		'title_form',
+                'rel_list_id',
+                'rel_display_field_id',
+                'default_value',
+                'operation_id',
+                'criteria'
 	];
 }

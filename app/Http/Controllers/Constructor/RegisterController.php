@@ -77,12 +77,15 @@ class RegisterController extends Controller
         
         $userId = Auth::user()->id;
 
-        DB::transaction(function () use ($listName, $itemName, $userId, $menuParentID)
+        $rel_list_id = \App\Libraries\DBHelper::getListByTable('dx_lists')->id;
+        $rel_fld_id = DB::table('dx_lists_fields')->where('list_id', '=', $rel_list_id)->where('db_name', '=', 'list_title')->first()->id;
+        
+        DB::transaction(function () use ($listName, $itemName, $userId, $menuParentID, $rel_list_id, $rel_fld_id)
         {
             $list = new Lists([
                 'list_title' => $listName,
                 'item_title' => $itemName,
-                'object_id' => 140,
+                'object_id' => \App\Libraries\DBHelper::OBJ_DX_DOC,
                 'created_user_id' => $userId,
                 'modified_user_id' => $userId,
             ]);
@@ -94,12 +97,27 @@ class RegisterController extends Controller
             
             $field = new ListField([
                 'db_name' => 'id',
-                'type_id' => 6,
+                'type_id' => \App\Libraries\DBHelper::FIELD_TYPE_ID,
                 'title_list' => 'ID',
                 'title_form' => 'ID',
             ]);
 
             $list->fields()->save($field);
+            
+            // Lists based on dx_doc table must have field list_id with default value and criteria so documents are seperated by registers
+            $field_lst = new ListField([
+                'db_name' => 'list_id',
+                'type_id' => \App\Libraries\DBHelper::FIELD_TYPE_RELATED,
+                'title_list' => trans('db_dx_lists_fields.fld_list'),
+                'title_form' => trans('db_dx_lists_fields.fld_list'),
+                'rel_list_id' => $rel_list_id,
+                'rel_display_field_id' => $rel_fld_id,
+                'default_value' => $list->id,
+                'operation_id' => \App\Libraries\DBHelper::FIELD_OPERATION_EQUAL,
+                'criteria' => $list->id,
+            ]);
+
+            $list->fields()->save($field_lst);
 
             $view = new View([
                 'title' => $listName,
@@ -287,6 +305,11 @@ class RegisterController extends Controller
                 ->form
                 ->fields()
                 ->leftJoin('dx_lists_fields', 'dx_forms_fields.field_id', '=', 'dx_lists_fields.id')
+                ->where(function($query) {
+                            if ($this->list->object_id == \App\Libraries\DBHelper::OBJ_DX_DOC) {
+                                $query->where('dx_lists_fields.db_name', '!=', 'list_id');
+                            }
+                })
                 ->orderBy('order_index')
                 ->get();
 
@@ -320,6 +343,11 @@ class RegisterController extends Controller
                 ->getList()
                 ->fields()
                 ->whereNotIn('id', $listFieldsIds)
+                ->where(function($query) {
+                            if ($this->list->object_id == \App\Libraries\DBHelper::OBJ_DX_DOC) {
+                                $query->where('db_name', '!=', 'list_id');
+                            }
+                })
                 ->get();
 
         $result = view('constructor.fields', [
@@ -348,6 +376,13 @@ class RegisterController extends Controller
 
         $form = $this->getList()->form;
 
+        // For dx_docs in form must be included invisible field list_id
+        $list_field_id = 0;
+        
+        if ($this->list->object_id == \App\Libraries\DBHelper::OBJ_DX_DOC) {
+            $list_field_id = DB::table('dx_lists_fields')->where('list_id', '=', $this->list->id)->where('db_name', '=', 'list_id')->first()->id;
+        }
+        
         DB::beginTransaction();
 
         try {
@@ -362,8 +397,10 @@ class RegisterController extends Controller
 
                     unset($items[$field->field_id]);
                 }
-                else {
-                    $field->delete();
+                else {                    
+                    if ($field->field_id != $list_field_id) {
+                        $field->delete();
+                    }
                 }
             }
 

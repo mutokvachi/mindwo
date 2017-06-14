@@ -283,10 +283,17 @@ class GridController extends Controller
         return self::getViewEditFormHTMLByViewId($view_id);
     }
     
+    /**
+     * Gets HTML with view columns re-ordering interface
+     * 
+     * @param integer $view_id View ID
+     * @return string UI HTML
+     */
     public static function getViewEditFormHTMLByViewId($view_id)
 	{
 		$view = getViewRowByID($view_id, $view_id);
-		
+		$list = DB::table('dx_lists')->where('id', '=', $view->list_id)->first();
+                
 		$aggr_view_fields = DB::table('dx_views_fields as vf')
 			->join('dx_lists_fields as lf', 'vf.field_id', '=', 'lf.id')
 			->leftJoin('dx_field_operations as fo', 'vf.operation_id', '=', 'fo.id')
@@ -308,7 +315,12 @@ class GridController extends Controller
 					->where('vf.view_id', '=', $view->id)
 					->whereRaw('vf.field_id = lf.id');
 			})
-			->whereNotNull('vf.aggregation_id');
+			->whereNotNull('vf.aggregation_id')
+                        ->where(function($query) use ($list) {
+                            if ($list->object_id == \App\Libraries\DBHelper::OBJ_DX_DOC) {
+                                $query->where('lf.db_name', '!=', 'list_id');
+                            }
+                        });
 		
 		$list_fields = DB::table('dx_lists_fields as lf')
 			->leftJoin('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
@@ -328,6 +340,11 @@ class GridController extends Controller
 					->where('vf.view_id', '=', $view->id)
 					->whereRaw('vf.field_id = lf.id');
 			})
+                        ->where(function($query) use ($list) {
+                            if ($list->object_id == \App\Libraries\DBHelper::OBJ_DX_DOC) {
+                                $query->where('lf.db_name', '!=', 'list_id');
+                            }
+                        })
 			->union($aggr_view_fields)
 			->orderBy('title')
 			->distinct()
@@ -351,6 +368,11 @@ class GridController extends Controller
 				'vf.aggregation_id'
 			)
 			->where('vf.view_id', '=', $view->id)
+                        ->where(function($query) use ($list) {
+                            if ($list->object_id == \App\Libraries\DBHelper::OBJ_DX_DOC) {
+                                $query->where('lf.db_name', '!=', 'list_id');
+                            }
+                        })
 			->orderBy('vf.order_index')
 			->get();
 		

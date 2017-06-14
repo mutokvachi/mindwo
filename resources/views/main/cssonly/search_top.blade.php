@@ -16,8 +16,7 @@
     <input type="hidden" name="position" value="" />
     <input type="hidden" name="is_from_link" value="1" />
     
-    @if($icons = [trans("search_top.documents") => 'fa-file-text', trans("search_top.employees") => 'fa-users', trans("search_top.news") => 'fa-newspaper-o'])
-    <?php \Log::info(json_encode($icons)) ?>
+    @if($icons = [trans("search_top.documents") => 'fa-file-text', trans("search_top.employees") => 'fa-users', trans("search_top.news") => 'fa-newspaper-o'])    
     @endif
     
     <div id="top_search" class="input-group">

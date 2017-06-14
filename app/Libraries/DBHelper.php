@@ -17,6 +17,10 @@ namespace App\Libraries
      */
     class DBHelper
     {
+        /**
+         * Table object ID - for table dx_docs (rwcord ID from tables dx_objects)
+         */
+        const OBJ_DX_DOC = 140;
 
         /**
          * Reģistra lauka tips - teksts (no tabulas dx_field_types)
@@ -42,6 +46,11 @@ namespace App\Libraries
          * Reģistra lauka tips - skaitlis (no tabulas dx_field_types)
          */
         const FIELD_TYPE_INT = 5;
+        
+        /**
+         * Reģistra lauka tips - ID (no tabulas dx_field_types)
+         */
+        const FIELD_TYPE_ID= 6;
 
         /**
          * Reģistra lauka tips - jā/nē (no tabulas dx_field_types)
@@ -77,6 +86,11 @@ namespace App\Libraries
          * Register field type - textual value from items list (from table dx_field_types)
          */
         const FIELD_TYPE_REL_TXT = 22;
+        
+        /**
+         * Field operation ID - value from table dx_field_operations
+         */
+        const FIELD_OPERATION_EQUAL = 1;
         
         /**
          * Returns object row by list_id
