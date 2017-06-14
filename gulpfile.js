@@ -15,7 +15,7 @@ var elixir = require('laravel-elixir');
 var babel = require('laravel-elixir-babel');
 
 gulp.task('langjs', function () {
-    // cd command is needed to navigate to path where gulp was executed because on some environments there is problem with incorrect starting path 
+    // cd command is needed to navigate to path where gulp was executed because on some environments there is problem with incorrect starting path
     exec('cd "' + process.cwd() + '" & php artisan lang:js public/js/lang.js',
             function (err, stdout, stderr) {
                 console.log(stdout);
@@ -61,8 +61,9 @@ gulp.task('mix_all', function() {
             'mindwo/css/ie9_fix.css',
             'mindwo/css/search_top.css',
             'mindwo/css/splash.css',
+			'mindwo/css/menu.css',
             'mindwo/css/theme_fix.css'
-        ], 'public/css/elix_mindwo.css', 'resources/assets/plugins');        
+        ], 'public/css/elix_mindwo.css', 'resources/assets/plugins');
 
         // Styles for view page
         mix.styles([
@@ -82,7 +83,7 @@ gulp.task('mix_all', function() {
                     //'../less/pages/visual_workflow.less'
         ], 'public/css/elix_view.css', 'resources/assets/plugins');
 
-        // horizontal menu UI styles                
+        // horizontal menu UI styles
         mix.less([
             'horizontal_ui.less',
             'bootstrap_menu.less',
@@ -90,11 +91,15 @@ gulp.task('mix_all', function() {
             'empl_profile.less'
         ], 'public/css/elix_mindwo_horizontal.css');
 
-        // Metronic theme UI styles                
+        // Metronic theme UI styles
         mix.less([
             'metronic_ui.less',
         ], 'public/css/elix_metronic.css');
 
+        mix.less([
+            'colors/bamboo.less'
+        ], 'public/css/elix_colors_bamboo.css');
+        
         // Styles for articles search page
         mix.styles([
             'cubeportfolio/css/cubeportfolio.css',
@@ -147,6 +152,7 @@ gulp.task('mix_all', function() {
             'mindwo/pages/search_top.js',
             'validator/validator.js',
             'mindwo/pages/re_login.js',
+            'mindwo/pages/theme_select.js',
             'bootstrap-tabdrop/js/bootstrap-tabdrop.js'
         ],
                 'public/js/elix_plugins.js', 'resources/assets/plugins');
@@ -191,6 +197,7 @@ gulp.task('mix_all', function() {
             'mindwo/crypto/crypto_field.js',
             'mindwo/crypto/crypto_file_field.js',
             'mindwo/crypto/crypto_user_panel.js',
+            'mindwo/blocks/view_editor.js',
                     //'mindwo/visual_ui/workflow.js',
                     //'mxgraph/src/js/mxClient.js',
         ], 'public/js/elix_view.js', 'resources/assets/plugins');
@@ -241,7 +248,7 @@ gulp.task('mix_all', function() {
             'flot/jquery.flot.axislabels.js'
         ], 'public/js/elix_profile.js', 'resources/assets/plugins');
 
-        // LESS Styles for employee profile                
+        // LESS Styles for employee profile
         mix.less([
             'pages/employee/personal_docs.less',
             'pages/employee/notes.less',
@@ -332,7 +339,19 @@ gulp.task('mix_all', function() {
             'public/metronic/global/plugins/bootstrap-wysihtml5/bootstrap-wysihtml5.js',
             'resources/assets/plugins/mindwo/pages/mail.js'
         ], 'public/js/elix_mail.js', './');
-
+	
+		// Styles for constructor wizard interface
+		mix.styles([
+			'resources/assets/plugins/mindwo/css/constructor_wizard.css'
+		], 'public/css/elix_constructor_wizard.css', './');
+		
+		// Scripts for constructor wizard interface
+		mix.scripts([
+			'resources/assets/plugins/mindwo/blocks/view_editor.js',
+			'resources/assets/plugins/mindwo/pages/constructor_grid.js',
+		    'resources/assets/plugins/mindwo/pages/constructor_wizard.js'
+        ], 'public/js/elix_constructor_wizard.js', './');
+		
         // Minify all scripts
         mix.version([
             'js/elix_userlinks.js',
@@ -358,7 +377,10 @@ gulp.task('mix_all', function() {
             'css/elix_block_report.css',
             'js/elix_mail.js',
             'css/elix_mail.css',
-            'js/elix_birth.js'
+            'js/elix_birth.js',
+            'css/elix_colors_bamboo.css',
+            'js/elix_constructor_wizard.js',
+			'css/elix_constructor_wizard.css'
         ]);
     });
 });

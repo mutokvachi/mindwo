@@ -36,6 +36,7 @@
 			toggleSiblingsResp: true,
 			pan: true,
 			exportButton: true,
+			exportFileextension: 'png',
 			// customize node creation process
 			createNode: function(node, data)
 			{
@@ -50,7 +51,6 @@
 				// add up arrow button to top node
 				if(data.top && (typeof data.parentUrl !== 'undefined'))
 				{
-					console.log(data.name + ' has parent, ' + data.parentUrl);
 					$('<i class="edge verticalEdge topEdge fa"></i>')
 						.appendTo(node)
 						.click(function(e)
@@ -74,6 +74,57 @@
 		$("#dx-org-zoom-out").click(function()
 		{
 			orgchart.orgchart('zoom', 0.8);
+		});
+		$('#dx-org-expand-all').click(function()
+		{
+			$('.node', orgchart).each(function()
+			{
+				var $this = $(this);
+				var isVertical = $this.closest('ul', orgchart).length > 0;
+				if(isVertical)
+				{
+					var ul = $this.next('ul');
+					if(ul.length && ul.is(':hidden'))
+					{
+						$('.toggleBtn', this).click();
+					}
+				}
+				else
+				{
+					var siblings = $this.closest('tr', orgchart).siblings('.nodes, .verticalNodes');
+					if(siblings.length && (siblings.hasClass('hidden') || siblings.is(':hidden')))
+					{
+						$('.edge.bottomEdge', this).click();
+					}
+				}
+			});
+		});
+		$('#dx-org-collapse-all').click(function()
+		{
+			var nodes = $('.node:not(.slide,.slide-up)', orgchart);
+			$(nodes.get().reverse()).each(function()
+			{
+				var $this = $(this);
+				var isVertical = $this.closest('ul', orgchart).length > 0;
+				if(isVertical)
+				{
+					var ul = $this.next('ul');
+					if(ul.length && ul.is(':visible'))
+					{
+						$('.toggleBtn', this).click();
+						nodes.not($this);
+					}
+				}
+			});
+			nodes.each(function()
+			{
+				var $this = $(this);
+				var siblings = $this.closest('tr', orgchart).siblings('.nodes, .verticalNodes');
+				if(siblings.length && (!siblings.hasClass('hidden') || siblings.is(':visible')))
+				{
+					$('.edge.bottomEdge', this).click();
+				}
+			});
 		});
 		$("#dx-org-export").click(function()
 		{

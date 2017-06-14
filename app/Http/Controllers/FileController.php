@@ -15,6 +15,11 @@ use Log;
  */
 class FileController extends Controller
 {    
+    
+    public function viewPdf() {        
+        return view('pages.view_pdf');
+    }
+    
     /**
      * Lejuplādē datni
      * 

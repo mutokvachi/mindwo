@@ -452,7 +452,7 @@
 
 .orgchart~.mask .spinner {
   position: absolute;
-  top: calc(50% - 54px);
+  top: calc(200px - 54px);
   left: calc(50% - 54px);
   color: rgba(255,255,255,0.8);
   font-size: 108px;

@@ -360,7 +360,7 @@ namespace App\Libraries
             {
                     $result = [
                             'button' => trans('empl_profile.avail_left'),
-                            'class' => 'grey',
+                            'class' => 'grey dx-status-left',
                             'title' => sprintf(trans('empl_profile.hint_left'), short_date($termination_date))
                     ];
             }
@@ -368,7 +368,7 @@ namespace App\Libraries
             {
                     $result = [
                             'button' => trans('empl_profile.avail_active'),
-                            'class' => 'green-jungle',
+                            'class' => 'green-jungle dx-status-active',
                             'title' => trans('empl_profile.hint_active')
                     ];
             }
@@ -376,7 +376,7 @@ namespace App\Libraries
             {
                     $result = [
                             'button' => trans('empl_profile.avail_potential'),
-                            'class' => 'yellow-lemon',
+                            'class' => 'yellow-lemon dx-status-potential',
                             'title' => trans('empl_profile.hint_potential')
                     ];
             }

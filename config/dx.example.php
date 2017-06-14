@@ -250,7 +250,17 @@ return [
     |   2) Meu on the top side - horizontal - set true
     */
     'is_horizontal_menu' => true,
-    
+
+    /*
+    |--------------------------------------------------------------------------
+    | Use as much as possible CSS instead of JS for responsive positioning
+    |--------------------------------------------------------------------------
+    |
+    | This feature brings increased performance of the UI on resize events.
+    | It also enables 'tabdrop' behavior for main menu.
+     */
+    'is_cssonly_ui' => true,
+
     /*
     |--------------------------------------------------------------------------
     | UI setting for logo (not in login page but at the top left corner)
@@ -345,6 +355,10 @@ return [
             // Path for storing thumbnails, relative to public directory
             'thumbnail_path' => 'formated_img/mail_thumbn',
     ],
+	
+	'constructor' => [
+		'access_role_id' => 1,
+	],
     
     /*
     |--------------------------------------------------------------------------

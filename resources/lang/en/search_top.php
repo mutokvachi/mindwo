@@ -12,6 +12,10 @@ return [
     'news' => 'News',
     'documents' => 'Documents',
     
+    'search_employees' => 'Search employees',
+    'search_news' => 'Search news',
+    'search_documents' => 'Search documents',
+    
     'search_placeholder' => 'Search',
     'search_hint' => 'Please, enter at least 3 characters to perform dynamic search.',
     'wrong_type' => 'Wrong search object',

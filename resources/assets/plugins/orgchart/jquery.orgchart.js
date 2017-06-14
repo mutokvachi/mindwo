@@ -151,13 +151,16 @@
 			{
 				$mask.removeClass('hidden');
 			}
+			
 			var sourceChart = $chartContainer
 				.addClass('canvasContainer')
 				// remove '> table' to cature only visible part of chart
 				.find('.orgchart:visible > table')
 				.get(0);
+			
 			var flag = opts.direction === 'l2r' || opts.direction === 'r2l';
 			html2canvas(sourceChart, {
+				'imageTimeout': 1000,
 				'width': flag ? sourceChart.clientHeight : sourceChart.clientWidth,
 				'height': flag ? sourceChart.clientWidth : sourceChart.clientHeight,
 				'background': '#fff',
@@ -197,18 +200,31 @@
 						}
 						else
 						{
-							$chartContainer.find('.oc-download-btn').attr('href', canvas.toDataURL())[0].click();
+							var mimeType = 'image/';
+							
+							if(opts.exportFileextension.toLowerCase() === 'jpg')
+							{
+								mimeType += 'jpeg';
+							}
+							
+							else
+							{
+								mimeType += opts.exportFileextension.toLowerCase();
+							}
+							
+							var dataUrl = canvas.toDataURL(mimeType);
+							
+							$chartContainer.find('.oc-download-btn').attr('href', dataUrl)[0].click();
 						}
 					}
 				}
-			})
-				.then(function()
-				{
-					$chartContainer.removeClass('canvasContainer');
-				}, function()
-				{
-					$chartContainer.removeClass('canvasContainer');
-				});
+			}).then(function()
+			{
+				$chartContainer.removeClass('canvasContainer');
+			}, function()
+			{
+				$chartContainer.removeClass('canvasContainer');
+			});
 		};
 		
 		// append the export button
@@ -223,7 +239,7 @@
 			if(opts.exportFileextension.toLowerCase() !== 'pdf')
 			{
 				var downloadBtn = '<a class="oc-download-btn' + (opts.chartClass !== '' ? ' ' + opts.chartClass : '') + '"'
-					+ ' download="' + opts.exportFilename + '.png"></a>';
+					+ ' download="' + opts.exportFilename + '.' + opts.exportFileextension.toLowerCase() + '"></a>';
 				$exportBtn.after(downloadBtn);
 			}
 		}

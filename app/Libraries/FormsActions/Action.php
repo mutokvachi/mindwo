@@ -8,7 +8,15 @@ namespace App\Libraries\FormsActions
      * Custom form's action
      */
     abstract class Action
-    {         
+    {
+        /**
+         * Database table names for which register action is intended
+         * If array is empty - action in intended for any database table
+         * 
+         * @var Array 
+         */
+        public $db_table_name = [];
+        
         /**
          * POST request object 
          * @var \Illuminate\Http\Request 
@@ -38,6 +46,11 @@ namespace App\Libraries\FormsActions
          * Action logic
          */
         abstract protected function performAction();
+        
+        /**
+         * Sets db_table_name parameter
+         */
+        abstract protected function setTableName();
 
         /**
          * Constructor for custom workflow activity
@@ -53,7 +66,34 @@ namespace App\Libraries\FormsActions
             $this->form_id = $request->input("edit_form_id"); // we do not validate here, because it should be validated in controller        
             $this->list_id = DB::table('dx_forms')->where('id', '=', $this->form_id)->first()->list_id;
             
+            $this->setTableName();
+            $this->validateTableName();
+            
             return $this->performAction();
+        }
+        
+        /**
+         * Validates if action is executed on correct db object/table
+         * Actions can be configured in CMS for any register - so we need to ensure that it was done right
+         * 
+         * @throws Exceptions\DXCustomException
+         */
+        private function validateTableName() {
+            
+            if (!count($this->db_table_name)) {
+                return;
+            }
+            
+            $obj = \App\Libraries\DBHelper::getListObject($this->list_id);
+            
+            foreach($this->db_table_name as $tbl) {
+                if ($tbl == $obj->db_name) {
+                    return;
+                }
+            }
+            
+            throw new Exceptions\DXCustomException(trans('errors.wrong_action_object'));
+            
         }
     }
 

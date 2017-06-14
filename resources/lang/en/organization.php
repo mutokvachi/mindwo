@@ -10,6 +10,8 @@ return [
 	'btn_filter' => 'Filter',
 	'btn_zoom_in' => 'Zoom in',
 	'btn_zoom_out' => 'Zoom out',
+	'btn_expand_all' => 'Expand all',
+	'btn_collapse_all' => 'Collapse all',
 	
 	'chart_title' => 'Org chart',
 	'company' => 'Company',

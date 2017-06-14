@@ -158,6 +158,13 @@
                                     }
                                     return true;
                                 },
+                                cbotext: function($el) {
+                                    if (!($el.val().length > 0) && $el.attr('required'))
+                                    {
+                                        return false;
+                                    }
+                                    return true;
+                                },
                                 auto: function($el)
                                 {
                                     alert($el.val());
@@ -166,7 +173,8 @@
                             },
                             errors: {
                                 foo: '{{ trans("form.err_value_not_set") }}',
-                                auto: '{{ trans("form.err_value_not_set") }}'
+                                auto: '{{ trans("form.err_value_not_set") }}',
+                                cbotext: '{{ trans("form.err_value_not_set") }}'
                             },
                             feedback: {
                                 success: 'glyphicon-ok',

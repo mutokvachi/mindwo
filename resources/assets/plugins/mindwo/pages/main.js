@@ -327,6 +327,7 @@ var PageMain = function()
      * 
      * @returns {undefined}
      */
+    /*
     var initUserTasksPopup = function() {
 
         if (user_tasks_count > 0 && current_route != "view" && current_route != "home" && current_route != "meeting") {
@@ -340,6 +341,7 @@ var PageMain = function()
             }, 3000);
         }
     }; 
+    */
     
     /**
      * Uzstāda palīdzības popup formās uz datu laukiem, kuriem norādīti paskaidrojumi
@@ -572,7 +574,7 @@ var PageMain = function()
      * 
      * @returns {undefined}
      */
-    var setActiveMenu = function() {      
+    var setActiveMenu = function() {
         $(".page-sidebar-menu .nav-item").removeClass("active").removeClass("open");
         $(".page-sidebar-menu .nav-item span.selected").remove();
 
@@ -746,7 +748,7 @@ var PageMain = function()
             reLoginModal.find("input[name='password']").val("");
         });
         
-        initUserTasksPopup();     
+        //initUserTasksPopup(); // Temporary remove tasks notifications - should be implemented posibility to setup which pages must use this notify
         
         initPortletsShowHide();
         handlePortletsHideShow();
