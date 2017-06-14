@@ -355,10 +355,6 @@ return [
             // Path for storing thumbnails, relative to public directory
             'thumbnail_path' => 'formated_img/mail_thumbn',
     ],
-	
-	'constructor' => [
-		'access_role_id' => 1,
-	],
     
     /*
     |--------------------------------------------------------------------------
@@ -403,4 +399,14 @@ return [
     |--------------------------------------------------------------------------
     */
     'is_timeoff_calculation' => env('APP_CALCULATE_TIMEOFF', false),
+    
+    /*
+    |--------------------------------------------------------------------------
+    | UI constructor settings
+    |--------------------------------------------------------------------------
+    */
+    'constructor' => [
+        // Role which have rights to use constructor
+        'access_role_id' => 1,
+    ],
 ];
