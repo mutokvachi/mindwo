@@ -90,7 +90,8 @@ var PageMain = function()
      * @returns {undefined}
      */
     var resizePage = function() {
-        for (i = 0; i < resize_functions_arr.length; i++) {            
+        for (i = 0; i < resize_functions_arr.length; i++) {
+            console.log("Page resize callback function: " + resize_functions_arr[i].name);
             resize_functions_arr[i]();
         }
     };

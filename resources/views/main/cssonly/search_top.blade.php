@@ -43,7 +43,7 @@
   </form>
   
   <!-- Darbinieku meklēšanas rezultātu izslīdošais bloks -->
-  <div class="page-quick-sidebar-wrapper dx-employees-quick" data-close-on-body-click="false">
+  <div class="page-quick-sidebar-wrapper dx-employees-quick" data-close-on-body-click="false" style="z-index: 10500;">
     <div class="page-quick-sidebar">
       <div style="padding:10px;">
         <div id="quick-search-status" class="pull-left">{{ trans("search_top.search_hint") }}</div>

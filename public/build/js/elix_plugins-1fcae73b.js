@@ -8845,7 +8845,8 @@ var PageMain = function()
      * @returns {undefined}
      */
     var resizePage = function() {
-        for (i = 0; i < resize_functions_arr.length; i++) {            
+        for (i = 0; i < resize_functions_arr.length; i++) {
+            console.log("Page resize callback function: " + resize_functions_arr[i].name);
             resize_functions_arr[i]();
         }
     };
@@ -10230,17 +10231,18 @@ var SearchTop = function()
         current_type = search_obj.attr('trans_default');
 
         if((typeof dx_is_cssonly === 'undefined') || !dx_is_cssonly)
-		{
-			placeSearchBox();
-		}
+        {
+            placeSearchBox();
+            PageMain.addResizeCallback(placeSearchBox);
+        }
         
         // Pievienojam izslīdošā darbinieku rezultātu bloka pārzīmēšanas izsaukumu uz lapas/loga izmēra izmaiņām
         PageMain.addResizeCallback(initSidebarStyle);
         
-		if((typeof dx_is_cssonly === 'undefined') || !dx_is_cssonly)
-		{
-			PageMain.addResizeCallback(placeSearchBox);
-		}
+        if (typeof HMenuUI !== "undefined" && typeof HMenuUI.positionateDIVs === "function") { 
+            HMenuUI.positionateDIVs();
+        }
+        
     };
 
     return {

@@ -322,7 +322,10 @@ var HMenuUI = function()
 		init: function()
 		{
 			initUI();
-		}
+		},
+                positionateDIVs: function() {
+                        positionDIVs();
+                }
 	};
 }();
 
