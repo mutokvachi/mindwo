@@ -14,4 +14,9 @@ return [
     'js_lookup' => 'Reloads lookup list fields depending on selected register',
     'is_crypted' => 'Is field data crypted',
     'hint_is_crypted' => 'If provided then field value will be crypted with special password and will be readable only for users who provide that password.',
+    'items' => 'Available values',
+    'hint_items' => 'Provide available textual values seperated by semicolon. Values will be available in dropdown field',
+    'js_db_name' => 'Set db field name according to selected field type',
+    'action_validation' => 'Validates list field before saving',
+    'fld_list' => 'Register',
 ];

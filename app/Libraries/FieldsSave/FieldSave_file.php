@@ -194,7 +194,7 @@ namespace App\Libraries\FieldsSave
             $file_name = $file->getClientOriginalName();
 
             // we store files on server with GUID names so they can be unique
-            $target_file = Uuid::generate(4) . "." . File::extension($file_name);
+            $target_file = Uuid::generate(4) . ($this->fld->is_crypted ? '_crypted' : '') . "." . File::extension($file_name);
 
             $file->move($this->file_folder, $target_file);
 
@@ -213,7 +213,7 @@ namespace App\Libraries\FieldsSave
             $val[$file_guid_name] = $target_file;
             $val[$this->fld->db_name] = $file_name;
 
-            if ($this->fld->is_text_extract) {
+            if ($this->fld->is_text_extract && !$this->fld->is_crypted) {
                 $file_text = FileTextExtractor\FileTextExtractorFactory::build_extractor($this->file_folder . $target_file)->readText();
                 $file_extract_name = str_replace("_name", "_dx_text", $this->fld->db_name);
                 $val[$file_extract_name] = $file_text;

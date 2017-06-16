@@ -814,65 +814,7 @@ class FormController extends Controller
      */
     protected function getFormFields($params)
     {
-        $sql = "
-	SELECT
-		lf.id as field_id,
-		ff.is_hidden,
-		lf.db_name,
-		ft.sys_name as type_sys_name,
-		lf.title_form,
-		lf.max_lenght,
-		lf.is_required,
-		ff.is_readonly,
-		o.db_name as table_name,
-		lf.rel_list_id,
-		lf_rel.db_name as rel_field_name,
-		lf_rel.id as rel_field_id,
-		o_rel.db_name as rel_table_name,
-                lf_par.db_name as rel_parent_field_name,
-                lf_par.id as rel_parent_field_id,
-		o_rel.is_multi_registers,
-		lf_bind.id as binded_field_id,
-		lf_bind.db_name as binded_field_name,
-		lf_bindr.id as binded_rel_field_id,
-		lf_bindr.db_name as binded_rel_field_name,
-		lf.default_value,
-		ft.height_px,
-		ifnull(lf.rel_view_id,0) as rel_view_id,
-		ifnull(lf.rel_display_formula_field,'') as rel_display_formula_field,
-		lf.is_image_file,
-                lf.is_multiple_files,
-                lf.hint,
-                lf.is_manual_reg_nr,
-                lf.reg_role_id,
-                ff.tab_id,
-                ff.group_label,
-                rt.code as row_type_code,
-                lf.is_right_check,
-                lf.list_id,
-                lf.is_crypted,
-                l.masterkey_group_id
-	FROM
-		dx_forms_fields ff
-		inner join dx_lists_fields lf on ff.field_id = lf.id
-		inner join dx_field_types ft on lf.type_id = ft.id
-		inner join dx_forms f on ff.form_id = f.id
-		inner join dx_lists l on f.list_id = l.id
-		inner join dx_objects o on l.object_id = o.id
-		left join dx_lists l_rel on lf.rel_list_id = l_rel.id
-		left join dx_objects o_rel on l_rel.object_id = o_rel.id
-		left join dx_lists_fields lf_rel on lf.rel_display_field_id = lf_rel.id
-                left join dx_lists_fields lf_par on lf.rel_parent_field_id = lf_par.id
-		left join dx_lists_fields lf_bind on lf.binded_field_id = lf_bind.id
-		left join dx_lists_fields lf_bindr on lf.binded_rel_field_id = lf_bindr.id
-                left join dx_rows_types rt on ff.row_type_id = rt.id
-	WHERE
-		ff.form_id = :form_id
-	ORDER BY
-		ff.order_index
-	";
-
-        $fields = DB::select($sql, array('form_id' => $params->form_id));
+        $fields = \App\Libraries\DBHelper::getFormFields($params->form_id);
 
         if (count($fields) == 0) {
             throw new Exceptions\DXCustomException("Forma ar ID " . $params->form_id . " nav atrasta!");

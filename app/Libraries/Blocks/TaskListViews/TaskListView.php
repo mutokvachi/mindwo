@@ -52,13 +52,16 @@ namespace App\Libraries\Blocks\TaskListViews
                                   't.task_created_time',
                                   't.task_employee_id',
                                   DB::raw('exists(select id from dx_tasks as ht where ht.list_id = t.list_id and ht.item_id = t.item_id and ht.id != t.id) as is_history'),
-                                  't.wf_info_id'
+                                  't.wf_info_id',
+                                  'wd.is_any_delegate'
                           )
                           ->leftJoin('dx_lists as l', 't.list_id', '=', 'l.id')
                           ->leftJoin('dx_tasks_types as tt', 't.task_type_id', '=', 'tt.id')
                           ->leftJoin('dx_tasks_statuses as ts', 't.task_status_id', '=', 'ts.id')
                           ->leftJoin('dx_users as u', 't.item_empl_id', '=', 'u.id')
-                          ->leftJoin('dx_users as te', 't.task_employee_id', '=', 'te.id');
+                          ->leftJoin('dx_users as te', 't.task_employee_id', '=', 'te.id')
+                          ->leftJoin('dx_workflows_info as wi', 't.wf_info_id', '=', 'wi.id')
+                          ->leftJoin('dx_workflows_def as wd', 'wi.workflow_def_id', '=', 'wd.id');
         }
         
         /**

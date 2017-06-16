@@ -526,57 +526,7 @@ namespace App\Libraries
          */
         public static function getFormsFields($is_multi_field = -1, $form_id)
         {
-            $sql = "
-            SELECT
-                    lf.id as field_id,
-                    ff.is_hidden,
-                    lf.db_name,
-                    ft.sys_name as type_sys_name,
-                    lf.title_form,
-                    lf.max_lenght,
-                    lf.is_required,
-                    ff.is_readonly,
-                    o.db_name as table_name,
-                    lf.rel_list_id,
-                    lf_rel.db_name as rel_field_name,
-                    o_rel.db_name as rel_table_name,
-                    o.is_history_logic,
-                    lf.is_public_file,
-                    lf.numerator_id,
-                    lf.default_value,
-                    ff.is_readonly,
-                    lf.is_clean_html,
-                    lf.is_text_extract,
-                    lf.is_fields_synchro,
-                    lf.is_manual_reg_nr,
-                    lf.reg_role_id,
-                    lf.list_id,
-                    lf.is_image_file
-            FROM
-                    dx_forms_fields ff
-                    inner join dx_lists_fields lf on ff.field_id = lf.id
-                    inner join dx_field_types ft on lf.type_id = ft.id
-                    inner join dx_forms f on ff.form_id = f.id
-                    inner join dx_lists l on f.list_id = l.id
-                    inner join dx_objects o on l.object_id = o.id
-                    left join dx_lists l_rel on lf.rel_list_id = l_rel.id
-                    left join dx_objects o_rel on l_rel.object_id = o_rel.id
-                    left join dx_lists_fields lf_rel on lf.rel_display_field_id = lf_rel.id
-            WHERE
-                    ff.form_id = :form_id
-                    AND lf.db_name not in('id', 'created_user_id', 'modified_user_id', 'created_time', 'modified_time')
-            ";
-
-            if ($is_multi_field != -1) {
-                $sql .= " AND lf.is_multiple_files = " . $is_multi_field;
-            }
-
-            $sql .= " 
-            ORDER BY
-                    ff.order_index
-            ";
-
-            $fields = DB::select($sql, array('form_id' => $form_id));
+            $fields = DBHelper::getFormFields($form_id, 0, $is_multi_field, "'id', 'created_user_id', 'modified_user_id', 'created_time', 'modified_time'");
 
             if (count($fields) == 0 && $is_multi_field == -1) {
                 throw new Exceptions\DXCustomException("Formai ar ID " . $form_id . " nav definēts neviens datu ievades lauks!");

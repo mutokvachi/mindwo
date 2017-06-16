@@ -149,4 +149,6 @@ return [
     'crypto_regeneration_in_process' => 'Jaunu ierakstu pievienošana nav iespējama, jo lietotājs :user_name pašlaik veic konfidenciālo datu pāršifrēšanu.',
     
     'view_must_have_id_field' => 'Skatā nav iekļauts ID lauks! Lūdzu, iekļaujiet skatā ID lauku - tas var būt arī kā neredzamais lauks.',
+    
+    'wrong_action_object' => 'Sistēmas konfigurācijas kļūda! Formai norādīta nekorekta izpildāmā aktivitāte, jo tā neatbilst reģistra datu objektam.',
 ];

@@ -17,6 +17,10 @@ namespace App\Libraries
      */
     class DBHelper
     {
+        /**
+         * Table object ID - for table dx_docs (rwcord ID from tables dx_objects)
+         */
+        const OBJ_DX_DOC = 140;
 
         /**
          * Reģistra lauka tips - teksts (no tabulas dx_field_types)
@@ -42,6 +46,11 @@ namespace App\Libraries
          * Reģistra lauka tips - skaitlis (no tabulas dx_field_types)
          */
         const FIELD_TYPE_INT = 5;
+        
+        /**
+         * Reģistra lauka tips - ID (no tabulas dx_field_types)
+         */
+        const FIELD_TYPE_ID= 6;
 
         /**
          * Reģistra lauka tips - jā/nē (no tabulas dx_field_types)
@@ -72,6 +81,16 @@ namespace App\Libraries
          * Register field type - color picker (from table dx_field_types)
          */
         const FIELD_TYPE_COLOR = 17;
+        
+        /**
+         * Register field type - textual value from items list (from table dx_field_types)
+         */
+        const FIELD_TYPE_REL_TXT = 22;
+        
+        /**
+         * Field operation ID - value from table dx_field_operations
+         */
+        const FIELD_OPERATION_EQUAL = 1;
         
         /**
          * Returns object row by list_id
@@ -499,7 +518,107 @@ namespace App\Libraries
                     ->where('item_id', '=', $item_id)
                     ->where('user_id', '=', Auth::user()->id)
                     ->delete();
-        }        
+        }      
+        
+        /**
+         * Returns array with form fields
+         * 
+         * @param integer $form_id Form ID
+         * @param integer $field_id Field ID, not required, if provided then 1 field will be returned
+         * @param integer $is_multi_field Indicates which fields to retrieve (-1: all, 0 - non-multi fields, 1 - multi fields)
+         * @param string  $ignore_fields Ignorable fields names in apostrofes seperated by coma, for example: 'field1', 'field2'
+         * @return Array
+         */
+        public static function getFormFields($form_id, $field_id = 0, $is_multi_field = -1, $ignore_fields = '') {
+            $sql = "
+            SELECT
+                    lf.id as field_id,
+                    ff.is_hidden,
+                    lf.db_name,
+                    ft.sys_name as type_sys_name,
+                    lf.title_form,
+                    lf.max_lenght,
+                    lf.is_required,
+                    ff.is_readonly,
+                    o.db_name as table_name,
+                    lf.rel_list_id,
+                    lf_rel.db_name as rel_field_name,
+                    lf_rel.id as rel_field_id,
+                    o_rel.db_name as rel_table_name,
+                    lf_par.db_name as rel_parent_field_name,
+                    lf_par.id as rel_parent_field_id,
+                    o_rel.is_multi_registers,
+                    lf_bind.id as binded_field_id,
+                    lf_bind.db_name as binded_field_name,
+                    lf_bindr.id as binded_rel_field_id,
+                    lf_bindr.db_name as binded_rel_field_name,
+                    lf.default_value,
+                    ft.height_px,
+                    ifnull(lf.rel_view_id,0) as rel_view_id,
+                    ifnull(lf.rel_display_formula_field,'') as rel_display_formula_field,
+                    lf.is_image_file,
+                    lf.is_multiple_files,
+                    lf.hint,
+                    lf.is_manual_reg_nr,
+                    lf.reg_role_id,
+                    ff.tab_id,
+                    ff.group_label,
+                    rt.code as row_type_code,
+                    lf.is_right_check,
+                    lf.list_id,
+                    lf.is_crypted,
+                    l.masterkey_group_id,
+                    lf.items,
+                    o.is_history_logic,
+                    lf.is_public_file,
+                    lf.numerator_id,
+                    ff.is_readonly,
+                    lf.is_clean_html,
+                    lf.is_text_extract,
+                    lf.is_fields_synchro
+            FROM
+                    dx_forms_fields ff
+                    inner join dx_lists_fields lf on ff.field_id = lf.id
+                    inner join dx_field_types ft on lf.type_id = ft.id
+                    inner join dx_forms f on ff.form_id = f.id
+                    inner join dx_lists l on f.list_id = l.id
+                    inner join dx_objects o on l.object_id = o.id
+                    left join dx_lists l_rel on lf.rel_list_id = l_rel.id
+                    left join dx_objects o_rel on l_rel.object_id = o_rel.id
+                    left join dx_lists_fields lf_rel on lf.rel_display_field_id = lf_rel.id
+                    left join dx_lists_fields lf_par on lf.rel_parent_field_id = lf_par.id
+                    left join dx_lists_fields lf_bind on lf.binded_field_id = lf_bind.id
+                    left join dx_lists_fields lf_bindr on lf.binded_rel_field_id = lf_bindr.id
+                    left join dx_rows_types rt on ff.row_type_id = rt.id
+            WHERE
+                    ff.form_id = :form_id";
+            
+            if ($field_id) {
+                $arr_where['field_id'] = $field_id;
+                $sql .= " AND ff.field_id = :field_id";
+            }
+            
+            if ($is_multi_field != -1) {
+                $sql .= " AND lf.is_multiple_files = " . $is_multi_field;
+            }
+            
+            if ($ignore_fields) {
+                $sql .= " AND lf.db_name not in (" . $ignore_fields . ")";
+            }
+            
+            $sql .= "
+                ORDER BY
+                        ff.order_index
+            ";
+
+            $arr_where = array('form_id' => $form_id);
+            
+            if ($field_id) {
+                $arr_where['field_id'] = $field_id;
+            }
+            
+            return DB::select($sql, $arr_where);
+        }
         
     }
 

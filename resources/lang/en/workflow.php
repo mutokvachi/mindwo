@@ -111,4 +111,8 @@ return [
     'lbl_deny' => 'DENIED',
     
     'err_cant_get_unit_leader' => "There is not possible to get unit leader for the employee '%s'!",
+    
+    'cant_delegate_to_myself' => "Task can't be delegated to yourself! Please, provide another employee.",
+    
+    'alowed_delegate_only_subordinated' => 'Task can be delegated only to direct subordinates!',
 ];

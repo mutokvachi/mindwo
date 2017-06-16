@@ -12,6 +12,10 @@ return [
     'news' => 'Ziņas',
     'documents' => 'Dokumenti',
     
+    'search_employees' => 'Meklēt darbiniekus',
+    'search_news' => 'Meklēt ziņas',
+    'search_documents' => 'Meklēt dokumentus',
+    
     'search_placeholder' => 'Meklēt',
     'search_hint' => 'Lūdzu, ievadiet vismaz vienu burtu, un tiks veikta dinamiskā darbinieku meklēšana.',
     'wrong_type' => 'Nekorekts meklēšanas objekts',

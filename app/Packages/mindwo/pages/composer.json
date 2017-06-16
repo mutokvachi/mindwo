@@ -1,0 +1,18 @@
+{
+    "name": "mindwo/pages",
+    "description": "Package serves Mindwo CMS web pages, blocks and provides error handling",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mindwo",
+            "email": "info@mindwo.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "webpatser/laravel-uuid": "*",
+        "intervention/image": "^2.3",
+        "imagine/imagine": "dev-master"
+    }
+}

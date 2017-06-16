@@ -115,7 +115,7 @@
                                                 <button type="button" class="btn btn-white dx-cms-task-btn-yes"><font color=green><i class="fa fa-check"></i></font> {{ trans('task_form.btn_read') }}</button>
                                             @else
                                                 <button type="button" class="btn btn-white dx-cms-task-btn-yes"><font color=green><i class="fa fa-check"></i></font> {{ trans('task_form.btn_done') }}</button> &nbsp;
-                                                @if (count($employees) > 0)
+                                                @if (count($employees) > 0 || $task_row->is_any_delegate)
                                                 <button type="button" class="btn btn-white dx-cms-task-btn-delegate"><font color=black><i class="fa fa-code-fork"></i></font> {{ trans('task_form.btn_delegate') }}</button> &nbsp;
                                                 @endif
                                                 <button type="button" class="btn btn-white dx-cms-task-btn-no"><font color=red><i class="fa fa-times-circle"></i></font> {{ trans('task_form.btn_reject') }}</button>
@@ -129,6 +129,6 @@
         </div>
 </div>
 
-@if ($is_disabled == 0 && count($employees) > 0)
+@if ($is_disabled == 0 && (count($employees) > 0 || $task_row->is_any_delegate))
     @include('workflow.task_form_delegate')
 @endif

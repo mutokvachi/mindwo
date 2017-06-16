@@ -1,0 +1,189 @@
+@bg_color1: #82af16;
+@bg_color1_darker: #6f9a00;
+
+@bg_color2: #ececec;
+@bg_color2_darker: #adadad;
+
+@bg_color3: #444;
+@bg_color3_lighter: #777;
+@bg_color3_darker: #3a3a3a;
+
+@bg_color_disabled: #DCDCDC;
+@bg_color_readonly: #DCDCDC;
+
+@bg_color_input: #fafafa;
+@bg_color_input_focus: #ffffff;
+@border_color_input: @bg_color2_darker;
+@border_color_input_focus: @bg_color1_darker;
+@border_radius_input: 2px;
+
+@border_radius_button: 2px;
+@border_color_button: #bababa;
+
+@text_color1: #282934;
+@text_color2: #b8b8b8;
+@link_color1: #016eb1;
+
+@bg_color_table_header: #ECECEC;
+
+#dx-menu-wrap, .navbar-default {
+	background-color: @bg_color3_darker !important;
+}
+
+#dx-menu-wrap {
+	&.dx-top-menu {
+		border-bottom: 4px solid @bg_color1 !important;
+	}
+
+	#navbar {
+	}
+}
+
+@media screen and (min-width: 768px) {
+	#navbar {
+		min-height: 46px !important;
+		height: 46px !important;
+		> .nav > li {
+			> a {
+				padding-top: 13px;
+				padding-bottom: 13px;
+			}
+
+			&.active > a:after {
+				position: absolute;
+				bottom: 0;
+				left: 50%;
+				margin-left: -6px;
+				display: inline-block;
+				content: ' ';
+				width: 0;
+				height: 0;
+				border-left: 6px solid transparent;
+				border-right: 6px solid transparent;
+				border-bottom: 6px solid @bg_color1;
+			}
+		}
+	}
+}
+
+.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus
+{
+	background-color: @bg_color3;
+}
+
+button.navbar-toggle {
+	background-color: @bg_color1 !important;
+	border: 1px solid @bg_color1_darker !important;
+	border-radius: @border_radius_button !important;
+}
+
+#dx-top-search-form {
+	input {
+		color: @text_color2 !important;
+		background-color: @bg_color3 !important;
+		border: 1px solid @bg_color3_lighter !important;
+	}
+
+	.btn {
+		background-color: @bg_color1 !important;
+		border: 1px solid @bg_color3_lighter !important;
+	}
+}
+
+.navbar-nav {
+	li.active {
+		a {
+			background-color: transparent !important;
+		}
+	}
+}
+
+.tabbable-line > .nav-tabs > li.active {
+	border-color: @bg_color1;
+}
+
+.tabbable-line > .nav-tabs > li.open, .tabbable-line > .nav-tabs > li:hover {
+	border-color: @bg_color1_darker;
+}
+
+.form-control {
+	background-color: @bg_color_input;
+	border-color: @border_color_input;
+	border-radius: @border_radius_input !important;
+	&:focus {
+		background-color: @bg_color_input_focus;
+		border-color: @border_color_input_focus;
+	}
+}
+
+.btn {
+	&.btn-primary {
+		background-color: @bg_color1 !important;
+		border: 1px solid @bg_color1_darker !important;
+	}
+	&.btn-block {
+		background-color: @bg_color1 !important;
+		border: 1px solid @bg_color1_darker !important;
+	}
+	&.btn-white, &.btn-default, &.btn-outline {
+		background-color: white !important;
+		border: 1px solid @border_color_button !important;
+	}
+	border-radius: @border_radius_button !important;
+}
+
+.actions .btn.btn-circle {
+	color: white;
+	background-color: @bg_color1 !important;
+	border: 1px solid @bg_color1_darker !important;
+}
+
+.close-quick-sidebar {
+	background-color: @bg_color1 !important;
+	border: 1px solid @bg_color1_darker !important;
+}
+
+.btn.blue-soft {
+	background-color: @bg_color1 !important;
+	border: 1px solid @bg_color1_darker !important;
+}
+
+.btn.green-jungle {
+	background-color: #26C281;
+}
+
+.mt-actions .btn.btn-outline.green {
+	color: @link_color1 !important;
+}
+
+.mt-actions .mt-action .mt-action-body .mt-action-row .mt-action-info .mt-action-icon > i {
+	color: @bg_color1;
+}
+
+.form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+	background-color: @bg_color_disabled;
+}
+
+.dx-form-header {
+	background-color: @bg_color3_darker !important;
+}
+
+.bootstrap-switch {
+	border-color: @border_color_input;
+}
+
+.bootstrap-switch .bootstrap-switch-handle-off.bootstrap-switch-primary, .bootstrap-switch .bootstrap-switch-handle-on.bootstrap-switch-primary {
+	background-color: @bg_color1 !important;
+}
+
+.dx-grid-table thead th div, .dx-grid-table thead td div {
+	background-color: @bg_color_table_header;
+}
+
+.dx-grid-table thead tr > * {
+	background-color: @bg_color_table_header;
+}
+
+a {
+	color: @link_color1;
+}

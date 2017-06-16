@@ -1,12 +1,22 @@
 <?php
 
 namespace App\Libraries\FormsActions
-{    
+{
+
     /**
-     * Starts workflow after items first save
+     * Starts workflow after items first save - intended for any db object/list
      */
     class Action_START_WORKFLOW extends Action
     {
+
+        /**
+         * Sets db_table_name parameter
+         */
+        public function setTableName()
+        {
+            // action if for any table
+        }
+
         /**
          * Performs action
          */

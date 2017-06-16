@@ -57,7 +57,8 @@ class GridController extends Controller
                 'page_title' => $block_grid->grid_title,
                 'page_html' => $block_grid->getHTML(),
                 'page_js' => $js_inc . $block_grid->getJS(),
-                'page_css' => $block_grid->getCSS()
+                'page_css' => $block_grid->getCSS(),
+				'page_is_full_height' => true
             ]);
         }catch (Exceptions\DXViewAccessException $e){
             $url = $request->root() . $request->getPathInfo() . ($request->getQueryString() ? ('?' . $request->getQueryString()) : '');
@@ -270,6 +271,125 @@ class GridController extends Controller
     }
     
     /**
+     * Gets HTML with view columns re-ordering interface
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return string
+     */
+    public static function getViewEditFormHTML(Request $request) {
+                
+        $view_id = $request->input('view_id');
+        
+        return self::getViewEditFormHTMLByViewId($view_id);
+    }
+    
+    /**
+     * Gets HTML with view columns re-ordering interface
+     * 
+     * @param integer $view_id View ID
+     * @return string UI HTML
+     */
+    public static function getViewEditFormHTMLByViewId($view_id)
+	{
+		$view = getViewRowByID($view_id, $view_id);
+		$list = DB::table('dx_lists')->where('id', '=', $view->list_id)->first();
+                
+		$aggr_view_fields = DB::table('dx_views_fields as vf')
+			->join('dx_lists_fields as lf', 'vf.field_id', '=', 'lf.id')
+			->leftJoin('dx_field_operations as fo', 'vf.operation_id', '=', 'fo.id')
+			->leftJoin('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
+			->leftJoin('dx_views as v', 'vf.view_id', '=', 'v.id')
+			->select(
+				'lf.id',
+				'lf.list_id',
+				'lf.title_list as title',
+				'ft.sys_name as field_type',
+				'lf.rel_list_id',
+				'lf.rel_display_field_id',
+				'vf.aggregation_id'
+			)
+			->where('v.list_id', '=', $view->list_id)
+			->whereNotExists(function($query) use ($view) {
+				$query->select(DB::raw(1))
+					->from('dx_views_fields as vf')
+					->where('vf.view_id', '=', $view->id)
+					->whereRaw('vf.field_id = lf.id');
+			})
+			->whereNotNull('vf.aggregation_id')
+                        ->where(function($query) use ($list) {
+                            if ($list->object_id == \App\Libraries\DBHelper::OBJ_DX_DOC) {
+                                $query->where('lf.db_name', '!=', 'list_id');
+                            }
+                        });
+		
+		$list_fields = DB::table('dx_lists_fields as lf')
+			->leftJoin('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
+			->select(
+				'lf.id',
+				'lf.list_id',
+				'title_list as title',
+				'ft.sys_name as field_type',
+				'lf.rel_list_id',
+				'lf.rel_display_field_id',
+				DB::raw('null as aggregation_id')
+			)
+			->where('lf.list_id', '=', $view->list_id)
+			->whereNotExists(function($query) use ($view) {
+				$query->select(DB::raw(1))
+					->from('dx_views_fields as vf')
+					->where('vf.view_id', '=', $view->id)
+					->whereRaw('vf.field_id = lf.id');
+			})
+                        ->where(function($query) use ($list) {
+                            if ($list->object_id == \App\Libraries\DBHelper::OBJ_DX_DOC) {
+                                $query->where('lf.db_name', '!=', 'list_id');
+                            }
+                        })
+			->union($aggr_view_fields)
+			->orderBy('title')
+			->distinct()
+			->get();
+		
+		$view_fields = DB::table('dx_views_fields as vf')
+			->join('dx_lists_fields as lf', 'vf.field_id', '=', 'lf.id')
+			->leftJoin('dx_field_operations as fo', 'vf.operation_id', '=', 'fo.id')
+			->leftJoin('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
+			->select(
+				'lf.id',
+				'lf.list_id',
+				'lf.title_list as title',
+				'vf.operation_id',
+				'fo.title as operation_title',
+				'vf.criteria',
+				'vf.is_hidden',
+				'ft.sys_name as field_type',
+				'lf.rel_list_id',
+				'lf.rel_display_field_id',
+				'vf.aggregation_id'
+			)
+			->where('vf.view_id', '=', $view->id)
+                        ->where(function($query) use ($list) {
+                            if ($list->object_id == \App\Libraries\DBHelper::OBJ_DX_DOC) {
+                                $query->where('lf.db_name', '!=', 'list_id');
+                            }
+                        })
+			->orderBy('vf.order_index')
+			->get();
+		
+		$htm = view('blocks.view.view_edit_form', [
+			'list_fields' => $list_fields,
+			'view_fields' => $view_fields,
+			'view_title' => $view->title,
+			'view_id' => $view->id,
+			'list_id' => $view->list_id,
+			'is_default' => $view->is_default,
+			'is_my_view' => ($view->me_user_id == Auth::user()->id),
+		])->render();
+		
+		return $htm;
+	}
+    
+    /**
      * Gets JSON with view columns re-ordering interface (HTML)
      * 
      * @param \Illuminate\Http\Request $request
@@ -280,86 +400,7 @@ class GridController extends Controller
             'view_id' => 'required'
         ]);
         
-        $view_id = $request->input('view_id');
-        
-        $view = getViewRowByID($view_id, $view_id);          
-        
-        $aggr_view_fields = DB::table('dx_views_fields as vf')
-                    ->join('dx_lists_fields as lf', 'vf.field_id', '=', 'lf.id')
-                    ->leftJoin('dx_field_operations as fo', 'vf.operation_id', '=', 'fo.id')
-                    ->leftJoin('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
-                    ->leftJoin('dx_views as v', 'vf.view_id', '=', 'v.id')
-                    ->select(
-                            'lf.id',
-                            'lf.list_id',
-                            'lf.title_list as title',
-                            'ft.sys_name as field_type',
-                            'lf.rel_list_id',
-                            'lf.rel_display_field_id',
-                            'vf.aggregation_id'
-                    )
-                    ->where('v.list_id', '=', $view->list_id)
-                    ->whereNotExists(function($query) use ($view) {
-                            $query->select(DB::raw(1))
-                                  ->from('dx_views_fields as vf')
-                                  ->where('vf.view_id', '=', $view->id)
-                                  ->whereRaw('vf.field_id = lf.id');
-                    }) 
-                    ->whereNotNull('vf.aggregation_id');
-        
-        $list_fields = DB::table('dx_lists_fields as lf')
-                        ->leftJoin('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
-                        ->select(
-                                'lf.id',
-                                'lf.list_id',
-                                'title_list as title',
-                                'ft.sys_name as field_type',
-                                'lf.rel_list_id',
-                                'lf.rel_display_field_id',
-                                DB::raw('null as aggregation_id')
-                        )
-                        ->where('lf.list_id', '=', $view->list_id)
-                        ->whereNotExists(function($query) use ($view) {
-                            $query->select(DB::raw(1))
-                                  ->from('dx_views_fields as vf')
-                                  ->where('vf.view_id', '=', $view->id)
-                                  ->whereRaw('vf.field_id = lf.id');
-                        }) 
-                        ->union($aggr_view_fields)                       
-                        ->orderBy('title')
-                        ->distinct()
-                        ->get();        
-        
-        $view_fields = DB::table('dx_views_fields as vf')
-                    ->join('dx_lists_fields as lf', 'vf.field_id', '=', 'lf.id')
-                    ->leftJoin('dx_field_operations as fo', 'vf.operation_id', '=', 'fo.id')
-                    ->leftJoin('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
-                    ->select(
-                            'lf.id',
-                            'lf.list_id',
-                            'lf.title_list as title',
-                            'vf.operation_id',
-                            'fo.title as operation_title',
-                            'vf.criteria',
-                            'vf.is_hidden',
-                            'ft.sys_name as field_type',
-                            'lf.rel_list_id',
-                            'lf.rel_display_field_id',
-                            'vf.aggregation_id'
-                    )
-                    ->where('vf.view_id', '=', $view->id)                    
-                    ->orderBy('vf.order_index')
-                    ->get();        
-        
-        $htm = view('blocks.view.view_edit_form', [
-                'list_fields' => $list_fields,
-                'view_fields' => $view_fields,
-                'view_title' => $view->title,
-                'view_id' => $view->id,
-                'list_id' => $view->list_id,
-                'is_default' => $view->is_default,
-                'is_my_view' => ($view->me_user_id == Auth::user()->id),                
-        ])->render();
+        $htm = self::getViewEditFormHTML($request);
         
         return response()->json(['success' => 1, 'html' => $htm]);
     }
@@ -497,7 +538,7 @@ class GridController extends Controller
             ]);
             
             $is_id = false;
-            $idx = 0;
+            $idx = 0;            
             
             // asign fields to view
             foreach($json_data as $item){
@@ -521,6 +562,7 @@ class GridController extends Controller
             
             // add id as hidden field if it was not included in view visible fields
             if (!$is_id) {
+                
                 DB::table('dx_views_fields')->insert([                        
                         'list_id' => $list_id,
                         'view_id' => $new_view_id,
@@ -555,7 +597,7 @@ class GridController extends Controller
             ->whereNotIn('field_id', $arr["arr_all"])
             ->where('field_id', '!=', $arr["id_field_id"]) // ID field is must have
             ->delete();
-
+           
             // update existing fields vals
             foreach($arr["arr_upd"] as $upd) {
                 DB::table('dx_views_fields')

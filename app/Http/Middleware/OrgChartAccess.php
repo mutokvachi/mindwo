@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Config;
  * Class OrgChartAccess
  *
  * A middleware that restricts access to org chart interface to users which have access role specified in config
- * dx.email.access_role_id.
+ * dx.orgchart.access_role_id.
  *
  * @package App\Http\Middleware
  */

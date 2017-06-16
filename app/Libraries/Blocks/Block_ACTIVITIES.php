@@ -59,7 +59,7 @@ class Block_ACTIVITIES extends Block
 	{
 		$result = view('blocks.widget_activities', [
 			'self' => $this,
-			'groups' => App\Models\ListGroup::orderBy('order_index')->get(),
+			'groups' => App\Models\System\ListGroup::orderBy('order_index')->get(),
 			'events' => $this->getEvents()
 		])->render();
 		
