@@ -478,7 +478,8 @@ var PageMain = function()
     var handleSplashRemoval = function() {
         $(window).bind("load", function() {
             $('.splash').css('display', 'none');
-            $('body').css('overflow', 'auto');
+            //$('body').css('overflow', 'auto');
+			$('body').css('overflow', 'visible');
         });
     };
     

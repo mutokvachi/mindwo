@@ -1596,7 +1596,7 @@ a.header-filter:hover {
 
 .dx-grid-table thead th div, .dx-grid-table thead td div {
 	position: relative;
-	z-index: 10000;
+	z-index: 9990;
 	top: -1px;
 	white-space: nowrap;
 	background-color: #e7ecf1;
@@ -1621,7 +1621,7 @@ a.header-filter:hover {
     margin-right: -15px;
 }
 
-// Dropdown field buttons
+/* Dropdown field buttons */
 .dx-rel-id-view-btn {
     border: 1px solid #c2cad8!important;
     margin-left: -2px!important;
