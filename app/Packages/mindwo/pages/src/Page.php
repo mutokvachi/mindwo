@@ -84,6 +84,11 @@ class Page
         foreach($inc_arr as $inc)
         {
             $inc = $inc . "?v=" . File::lastModified(public_path() . "/" . $inc);
+            
+            if (substr($inc, 0, 1) === '/') {
+                $inc = substr($inc, 1);
+            }
+            
             if (!in_array($inc,$this->script_arr))
             {
 

@@ -163,8 +163,10 @@ namespace mindwo\pages
                         'target' => '',
                         'title' => $row->title,
                         'selected' => $selected,
-                        'level' => $level
-                            ])->render();
+                        'level' => $level,
+                        'list_id' => $row->list_id,
+                        'view_id' => $row->view_id
+                    ])->render();
                 }
 
                 if ($is_active_set == 1) {
@@ -203,6 +205,7 @@ namespace mindwo\pages
                             ,fa_icon
                             ,ifnull(v.url, v.id) as view_url
                             ,color
+                            ,v.id as view_id
                     FROM
                             dx_menu m
                             left join dx_views v on m.list_id = v.list_id AND v.is_default = 1
