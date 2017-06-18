@@ -38,7 +38,7 @@ class RegisterController extends Controller
         view()->share([
             'list_id' => $this->id,
             'list' => $this->getList(),
-            'steps' => $this->steps
+            'steps' => $this->steps            
         ]);
 
         if ($this->getView()) {
@@ -53,6 +53,18 @@ class RegisterController extends Controller
             ]);
         }
     }
+    
+    /**
+     * Returns register item title
+     * 
+     * @param integer $list_id Register ID
+     * @return string
+     */
+    private function getItemTitle($list_id) {
+        $frm = DB::table('dx_forms')->where('list_id', '=', $list_id)->first();
+        
+        return ($frm) ? $frm->title : '';
+    }
 
     public function index()
     {
@@ -63,7 +75,8 @@ class RegisterController extends Controller
     {
         $result = view('constructor.names', [
             'step' => 'names',
-            'register_menu_field_htm' => $this->getMenuHtm()
+            'register_menu_field_htm' => $this->getMenuHtm(),
+            'item_title' => ''
         ])->render();
 
         return $result;
@@ -173,8 +186,9 @@ class RegisterController extends Controller
     {
         $result = view('constructor.names', [
             'step' => 'names',
-            'register_menu_field_htm' => $this->getMenuHtm()
-                ])->render();
+            'register_menu_field_htm' => $this->getMenuHtm(),
+            'item_title' => $this->getItemTitle($this->id)
+        ])->render();
 
         return $result;
     }
@@ -218,6 +232,8 @@ class RegisterController extends Controller
             $list->save();
 
             $this->saveMenuField($menuParentID, $list->id, $listName);
+            
+            DB::table('dx_forms')->where('list_id', '=', $this->id)->update(['title' => $itemName]);
             
             DB::commit();
 
