@@ -46,6 +46,8 @@
 			handle: '.dd-handle',
 			placeholder: 'placeholder',
 			forcePlaceholderSize: true,
+			forceHelperSize: true,
+			cursorAt: { left: 30, top: 15 },
 			over: function(event, ui)
 			{
 				self.updateGrid();
