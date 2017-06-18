@@ -8760,6 +8760,7 @@ if (App.isAngularJsApp() === false) {
  */
 var PageMain = function()
 {
+    var is_grid_resize_callback_added = 0;
 
     /**
      * Lapas objekts
@@ -9022,6 +9023,7 @@ var PageMain = function()
         DX_CORE.progress_gif_url = DX_CORE.site_url + "assets/global/progress/loading.gif";
         DX_CORE.valid_elements = page_elem.attr("dx_valid_html_elements");
         DX_CORE.valid_styles = page_elem.attr("dx_valid_html_styles");
+        
         DX_CORE.max_upload_size = page_elem.attr("dx_max_file_size").replace("M", "");
         DX_CORE.post_max_size = page_elem.attr("dx_post_max_size").replace("M", "");
         
@@ -9526,7 +9528,7 @@ var PageMain = function()
             setActiveMenu();
         }                
             
-        if (dx_is_slider == 1) {
+        if (typeof dx_is_slider !== "undefined" && dx_is_slider === 1) {
             reset_margin();        
             addResizeCallback(reset_margin);
         }
@@ -9557,22 +9559,56 @@ var PageMain = function()
             return true;
         };
         
-        if ($("body").hasClass("dx-horizontal-menu-ui")) {
-            // horizontal menu ui
-            $(".dx-main-menu a").not(".dx-main-menu a.dropdown-toggle").click(function(e) {                
+        window.onpopstate = function(e){
+            if(e.state && e.state.list_id && e.state.view_id){
+                load_grid("td_data", e.state.list_id, e.state.view_id);
+            }
+            
+            if (e.state && e.state.page_url) {
                 if (!showSplash()) {
                     e.preventDefault();
                     return false;
                 }
+                
+                window.location.href = e.state.page_url;
+            }
+        };
+
+        var menu_click = function(link, e) {
+            
+            var list_id = link.attr("data-list-id");
+            var view_id = link.attr("data-view-id");
+            
+            if (list_id && view_id && typeof load_grid !== "undefined") {
+                e.preventDefault();
+                link.closest("li[data-level=0]").removeClass("open").find("a[aria-expanded=true]").attr("aria-expanded", "false");
+                window.history.pushState({"list_id": list_id, "view_id": view_id}, "", "/skats_" + view_id);
+                
+                if(is_grid_resize_callback_added == 0) {
+                    PageMain.addResizeCallback(BlockViews.initHeight);
+                    is_grid_resize_callback_added = 1;
+                }
+                load_grid("td_data", list_id, view_id);
+                
+                return false;
+            }
+            
+            if (!showSplash()) {
+                e.preventDefault();
+                return false;
+            }
+        };
+        
+        if ($("body").hasClass("dx-horizontal-menu-ui")) {
+            // horizontal menu ui
+            $(".dx-main-menu a").not(".dx-main-menu a.dropdown-toggle").click(function(e) {                
+                return menu_click($(this), e);
             });
         }
         else {
             // vertical menu ui
             $("ul.page-sidebar-menu a").not("ul.page-sidebar-menu a.nav-toggle").click(function(e) {
-                if (!showSplash()) {
-                    e.preventDefault();
-                    return false;
-                }
+                return menu_click($(this), e);
             });
         }
     };
@@ -9683,6 +9719,8 @@ $(document).ready(function() {
     PageMain.initPageLoaded();
     PageMain.initHelpPopups();
     $(this).scrollTop(0,0);
+    
+    window.history.pushState({"page_url": window.location.href}, "", window.location.href);
 });
 
 $(document).ajaxComplete(function(event, xhr, settings) {      

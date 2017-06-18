@@ -793,6 +793,7 @@ var BlockViews = function () {
      * @returns {undefined}
      */
     var initHeight = function () {
+        console.log("View height re-calculation");
         try {
             var grid_el = $("#td_data .dx-grid-outer-div");
             var grid_top = grid_el.offset().top;

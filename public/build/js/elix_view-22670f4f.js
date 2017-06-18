@@ -15810,6 +15810,11 @@ function post_grid_ajax(formData, grid_data_htm_id, form_htm_id, is_scroll)
                 { 
                     $("#" + grid_data_htm_id).html(myData['html']);
                                         
+                    if (!form_htm_id) {
+                        $("body").addClass("dx-grid-in-page");
+                        document.title = myData['title'];
+                    }
+            
                     if (is_scroll == 1)
                     {
                         var d = $("#" + form_htm_id).find(".modal-body");
@@ -16706,6 +16711,7 @@ var BlockViews = function () {
      * @returns {undefined}
      */
     var initHeight = function () {
+        console.log("View height re-calculation");
         try {
             var grid_el = $("#td_data .dx-grid-outer-div");
             var grid_top = grid_el.offset().top;

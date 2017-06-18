@@ -340,17 +340,22 @@ gulp.task('mix_all', function() {
             'resources/assets/plugins/mindwo/pages/mail.js'
         ], 'public/js/elix_mail.js', './');
 	
-		// Styles for constructor wizard interface
-		mix.styles([
-			'resources/assets/plugins/mindwo/css/constructor_wizard.css'
-		], 'public/css/elix_constructor_wizard.css', './');
-		
-		// Scripts for constructor wizard interface
-		mix.scripts([
-			'resources/assets/plugins/mindwo/blocks/view_editor.js',
-			'resources/assets/plugins/mindwo/pages/constructor_grid.js',
-		    'resources/assets/plugins/mindwo/pages/constructor_wizard.js'
+        // Styles for constructor wizard interface
+        mix.styles([
+            'resources/assets/plugins/mindwo/css/constructor_wizard.css'
+        ], 'public/css/elix_constructor_wizard.css', './');
+
+        // Scripts for constructor wizard interface
+        mix.scripts([
+            'resources/assets/plugins/mindwo/blocks/view_editor.js',
+            'resources/assets/plugins/mindwo/pages/constructor_grid.js',
+            'resources/assets/plugins/mindwo/pages/constructor_wizard.js'
         ], 'public/js/elix_constructor_wizard.js', './');
+        
+        // Scripts for login page
+        mix.scripts([
+            'mindwo/pages/cache_scripts.js'
+        ], 'public/js/elix_login.js', 'resources/assets/plugins');
 		
         // Minify all scripts
         mix.version([
@@ -380,7 +385,8 @@ gulp.task('mix_all', function() {
             'js/elix_birth.js',
             'css/elix_colors_bamboo.css',
             'js/elix_constructor_wizard.js',
-			'css/elix_constructor_wizard.css'
+            'css/elix_constructor_wizard.css',
+            'js/elix_login.js'
         ]);
     });
 });

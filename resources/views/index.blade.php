@@ -14,7 +14,7 @@
 
     </head>
 
-    <body>
+    <body class='dx-main-page' @include('main.body_attributes')>
         @if ($error)
         <div class="container" style='margin-top: 40px;'>        
             <div class="alert alert-danger">
@@ -63,7 +63,20 @@
             <p class="m-t"> <small>{{ trans("index.version") }}</small></p>
             
         </div>
-
+        <div class="dx-cache-container" style="display: none;">
+            <p class="dx-source">{{Request::root()}}/{{ getIncludeVersion('plugins/tinymce/tinymce.min.js') }}</p>
+            <p class="dx-source">{{ elixir('js/elix_plugins.js') }}</p>            
+            <p class="dx-source">{{ asset(getIncludeVersion('js/lang.js')) }}</p>
+            {{-- <p class="dx-source">{{ elixir('js/elix_view.js') }}</p> --}}
+            <p class="dx-source">{{ getIncludeVersion(elixir('js/elix_view.js')) }}</p>
+            <p class="dx-source">{{ elixir('css/elix_plugins.css') }}</p>
+            <p class="dx-source">{{ asset('metronic/global/css/components-md.min.css') }}</p>
+            <p class="dx-source">{{ asset('metronic/global/css/plugins-md.min.css') }}</p>
+            <p class="dx-source">{{ asset('metronic/layouts/layout2/css/layout.css') }}</p>
+            <p class="dx-source">{{ asset('metronic/layouts/layout2/css/themes/blue.min.css') }}</p>
+            <p class="dx-source">{{ asset('metronic/layouts/layout2/css/custom.min.css') }}</p>
+            <p class="dx-source">{{ elixir('css/elix_view.css') }}</p>
+        </div>
         @include('elements.progress')
 
         <!-- Mainly scripts -->
@@ -72,7 +85,8 @@
 
         <!-- Validator -->
         <script src="{{Request::root()}}/plugins/validator/validator.js"></script>
-
+        <script src="{{ elixir('js/elix_login.js') }}"></script>
+        
         <script>
         $(document).ready(function() {
             $("#user_name").focus();
