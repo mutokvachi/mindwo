@@ -60,6 +60,39 @@ class ChatController extends Controller
     }
 
     /**
+     * Removes user from chat
+     *
+     * @param Request $request Request's data
+     * @return JSON Response
+     */
+    public function removeUserFromChat(Request $request)
+    {
+        $this->validate($request, [
+            'list_id' => 'required|exists:dx_lists,id',
+            'item_id' => 'required',
+            'user_id' => 'required|exists:dx_users,id',
+         ]);
+
+        $list_id = $request->input('list_id');
+        $item_id =$request->input('item_id');
+        $user_id = $request->input('user_id');
+
+        $chat = \App\Models\Chat\Chat::where('list_id', $list_id)
+            ->where('item_id', $item_id)
+            ->first();
+
+        if ($chat) {
+            \App\Models\Chat\User::where('chat_id', $chat->id)
+                ->where('user_id', $user_id)
+                ->delete();
+
+            return response()->json(['success' => 1]);
+        } else {
+            return response()->json(['success' => 0]);
+        }
+    }
+
+    /**
      * Saves user to chat if he is not yet saved to it
      *
      * @param Request $request Request's data
@@ -82,9 +115,13 @@ class ChatController extends Controller
             ->first();
 
         if ($chat) {
-            $this->addUserToChatByChatID($chat->id, $user_id);
+            $res =  $this->addUserToChatByChatID($chat->id, $user_id);
 
-            return response()->json(['success' => 1]);
+            if($res){
+                return response()->json(['success' => 1]);
+            }else{
+                return response()->json(['success' => 0, 'msg' => trans('form.chat.e_user_exist')]);
+            }
         } else {
             return response()->json(['success' => 0]);
         }
@@ -95,7 +132,7 @@ class ChatController extends Controller
      *
      * @param int $chat_id Chat's ID
      * @param int $user_id User's ID which will be added to chat
-     * @return void
+     * @return boolean True if user added, false means it has been already added before
      */
     private function addUserToChatByChatID($chat_id, $user_id)
     {
@@ -115,6 +152,10 @@ class ChatController extends Controller
             $chat_user->modified_time = new \DateTime();
 
             $chat_user->save();
+
+            return true;
+        } else{
+            return false;
         }
     }
 

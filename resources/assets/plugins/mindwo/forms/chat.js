@@ -102,21 +102,31 @@
             });
 
             // Handles chat close button
+            self.chatObject.find('.dx-form-chat-btn-close').off('click');
             self.chatObject.find('.dx-form-chat-btn-close').click(function () {
                 self.closeChatPanel(self);
             });
 
             // Message send button click
+            self.chatObject.find('.dx-form-chat-btn-send').off('click');
             self.chatObject.find('.dx-form-chat-btn-send').click(function () {
                 self.onMessageEnter(self);
             });
 
             // Opens modal which shows chat's users 
-            self.chatObject.find('.dx-form-chat-btn-users').click(function(){
+            self.chatObject.find('.dx-form-chat-btn-users').off('click');
+            self.chatObject.find('.dx-form-chat-btn-users').click(function () {
                 self.openChatUsersModal(self);
             });
 
+            // Opens modal which allows to add user to chat
+            self.chatObject.find('.dx-form-chat-btn-add-user').off('click');
+            self.chatObject.find('.dx-form-chat-btn-add-user').click(function () {
+                self.openAddChatUsersModal(self);
+            });
+
             // On input key down if enter clicked without shift then we will send message on relase
+            self.chatObject.find('.dx-form-chat-input-text').off('keydown');
             self.chatObject.find('.dx-form-chat-input-text').keydown(function (e) {
                 if (e.keyCode == 13 && !e.shiftKey) {
                     e.preventDefault();
@@ -124,6 +134,7 @@
             });
 
             // On input key op if enter clicked without shift then we send message
+            self.chatObject.find('.dx-form-chat-input-text').off('keyup');
             self.chatObject.find('.dx-form-chat-input-text').keyup(function (e) {
                 if (e.keyCode == 13 && !e.shiftKey) {
                     e.preventDefault();
@@ -132,7 +143,6 @@
             });
 
             // Retrieves chat messages and opens chat if messages found
-            console.log('init');
             self.getChatData();
         },
         /**
@@ -149,7 +159,6 @@
 
             if (!stateIsVisible) {
                 // Loads chat data
-                console.log('openchat');
                 self.getChatData();
             }
         },
@@ -167,7 +176,7 @@
             self.stateIsVisible = true;
 
             // Clears old data from chat
-            self.clearChat();            
+            self.clearChat();
 
             self.chatObject.slideUp(400, function () {
                 self.chatObject.appendTo(document.body);
@@ -204,10 +213,18 @@
         loadChatUsers: function (self, res) {
             var modal = $('.dx-form-chat-modal');
 
-            modal.find('.modal-title').html(Lang.get('form.chat.chat') + ' - ' +Lang.get('form.chat.users'));
+            modal.appendTo(document.body);
+
+            modal.find('.modal-title').html(Lang.get('form.chat.chat') + ' - ' + Lang.get('form.chat.users'));
 
             if (res && res.success && res.success == 1) {
                 modal.find('.modal-body').html(res.view);
+
+                modal.find('.dx-form-chat-btn-del-user').off('click');
+                modal.find('.dx-form-chat-btn-del-user').click(function () {
+                    var btn = this;
+                    self.onDeleteUserConfirm(self, btn);
+                });
             } else {
                 modal.find('.modal-body').html(Lang.get('form.chat.e_no_users'));
             }
@@ -217,13 +234,128 @@
             hide_page_splash(1);
         },
         /**
+         * Ask to confirm user removal from chat
+         * @param {DxFormChat} self Current form chat instance
+         * @param {DOM} btn Clicked button dom object
+         */
+        onDeleteUserConfirm: function (self, btn) {
+            var title = Lang.get('form.chat.title_confirm_del_user');
+            var body = Lang.get('form.chat.description_confirm_del_user');
+
+            PageMain.showConfirm(function () {
+                self.onDeleteUser(self, btn);
+            }, null, title, body);
+        },
+        /**
+         * Removes user from chat
+         * @param {DxFormChat} self Current form chat instance
+         * @param {DOM} btn Clicked button dom object
+         */
+        onDeleteUser: function (self, btn) {
+            show_page_splash(1);
+
+            var data = {
+                list_id: self.listId,
+                item_id: self.itemId,
+                user_id: $(btn).data('user-id')
+            };
+
+            $.ajax({
+                url: DX_CORE.site_url + 'chat/user/remove',
+                data: data,
+                type: "post",
+                success: function () {
+                    btn.closest('.dx-form-chat-user-list-row').remove();
+
+                    hide_page_splash(1);
+
+                    notify_info(Lang.get('form.chat.i_user_removed'));
+                },
+                error: function () {
+                    hide_page_splash(1);
+
+                    notify_err(Lang.get('form.chat.e_user_not_removed'));
+                }
+            });
+        },
+        /**
+         * Opens modal for adding user to chat
+         * @param {DxFormChat} self Current form chat instance
+         */
+        openAddChatUsersModal: function (self) {
+            show_page_splash(1);
+
+            var modal = $('.dx-form-chat-user-add-modal');
+
+            modal.appendTo(document.body);
+
+            modal.find('.modal-title').html(Lang.get('form.chat.chat') + ' - ' + Lang.get('form.chat.btn_add_user'));
+
+            modal.find('.dx-form-chat-btn-save-user').click(function () {
+                self.onClickSaveUserToChat(self, modal);
+            });
+
+            modal.find('.dx-form-chat-input-save-user').val('');
+            modal.find('.dx-form-chat-input-save-user-title').val('');
+
+            // Initializes autocomplete select box
+            AutocompleateField.initSelect(modal.find('.dx-form-chat-user-field'));
+
+            modal.modal('show');
+
+            hide_page_splash(1);
+        },
+        /**
+         * Adds user to chat
+         * @param {DxFormChat} self Current form chat instance
+         * @param {DOM} modal Current modal window instance
+         */
+        onClickSaveUserToChat: function (self, modal) {
+            show_page_splash(1);
+
+            var user_id = modal.find('.dx-form-chat-input-save-user').val();
+
+            if (!user_id || user_id < 0) {
+                notify_err(Lang.get('form.chat.e_user_not_specified'));
+            }
+
+            var data = {
+                list_id: self.listId,
+                item_id: self.itemId,
+                user_id: user_id
+            };
+
+            $.ajax({
+                url: DX_CORE.site_url + 'chat/user/add',
+                data: data,
+                type: "post",
+                success: function (res) {
+                    hide_page_splash(1);
+
+                    if (res && res.success && res.success == 1) {
+                        notify_info(Lang.get('form.chat.i_user_added'));
+                        modal.modal('hide');
+                    } else if (res && res.msg) {
+                        notify_err(res.msg);
+                    } else {
+                        notify_err(Lang.get('form.chat.e_user_not_added'));
+                    }
+                },
+                error: function () {
+                    hide_page_splash(1);
+
+                    notify_err(Lang.get('form.chat.e_user_not_added'));
+                }
+            });
+        },
+        /**
          * Opens modal window with chat's users
          * @param {DxFormChat} self Current form chat instance
          */
         openChatUsersModal: function (self) {
             show_page_splash(1);
 
-            self.getChatUsers();            
+            self.getChatUsers();
         },
         /**
          * Hides chat panel
@@ -282,7 +414,6 @@
             if (self.stateIsUpdateRunning) {
                 return;
             }
-            console.log('call');
 
             self.stateIsUpdateRunning = true;
 
@@ -314,7 +445,6 @@
 
                 if (self.stateIsVisible) {
                     if (res.view.length > 0) {
-                        console.log('data got');
                         self.chatContentObject.append(res.view);
 
                         var container = self.chatObject.find('.dx-form-chat-content-container');
@@ -336,7 +466,6 @@
             // Calls again after 1000 ms   
             setTimeout(function () {
                 if (self.stateIsVisible) {
-                    console.log('timeout');
                     self.getChatData();
                 }
             }, 1000);

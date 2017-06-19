@@ -41,7 +41,7 @@ class Chat extends Model
      */
     public function users()
     {
-        return $this->hasManyThrough('\App\User', '\App\Models\Chat\User', 'chat_id', 'id', 'user_id');
+        return $this->belongsToMany('\App\User', 'dx_chats_users', 'chat_id', 'user_id');
     }
 
     /**

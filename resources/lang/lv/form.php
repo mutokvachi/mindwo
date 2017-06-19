@@ -58,11 +58,20 @@ return [
         ],
         'users' => 'Lietotāji',
         'btn_add_user' => 'Pievienot lietotāju',
+        'btn_del_user' => 'Noņemt',
+        'title_confirm_del_user' => 'Noņem sarakstes lietotāju',
+        'description_confirm_del_user' => 'Vai Jūs tiešām vēlaties noņemt lietotāju no sarakstes?',
+        'e_user_not_removed' => 'Radās kļūda noņemot lietotāju no sarakstes',
+        'i_user_removed' => 'Lietotājs noņemts no sarakstes',
+        'e_user_not_specified' => 'Nav norādīts lietotājs',
+        'e_user_not_added' => 'Rādās kļūda pievienojot lietotāju pie sarakstes',
+        'i_user_added' => 'Lietotājs pievienots pie sarakstes',
+        'e_user_exist' => 'Lietotājs jau ir pievienots sarakstei',
         'chat' => 'Sarakste',
         'type_hint' => 'Rakstiet ziņojumu šeit...',
         'note_missing' => "Piezīme neeksistē!",
         'modified' => "Laboja",
         'e_msg_not_saved' => 'Kļūda saglabājot ziņojumu. Lūdzu, mēģiniet nosūtīt ziņojumu vēlreiz!',
-        'e_no_users' => 'Šajā sarakstē nav neviena lietotāja'
+        'e_no_users' => 'Šajā sarakstē nav neviena lietotāja',        
     ]
 ];
