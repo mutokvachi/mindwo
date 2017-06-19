@@ -16153,8 +16153,8 @@ var BlockViews = function () {
      * @returns {undefined}
      */
     var handleBtnPrepareReport = function(grid_id, tab_id, el_block) {
-        el_block.find('.dx-report-filter-btn').click(function() {
-            event.preventDefault();
+        el_block.find('.dx-report-filter-btn').click(function(e) { 
+            e.preventDefault();
             reloadBlockGrid(grid_id, tab_id);
         });  
     };
