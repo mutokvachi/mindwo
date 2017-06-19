@@ -283,6 +283,7 @@ Route::group(['middleware' => ['auth', 'constructor_access'], 'prefix' => 'const
 	Route::get('/register/{id}/rights', ['as' => 'register_edit_rights', 'uses' => 'RegisterController@editRights']);
 	Route::put('/register/{id}/rights', ['as' => 'register_update_rights', 'uses' => 'RegisterController@updateRights']);
 	Route::get('/db_fields/{list_id}/{field_type_id}', ['as' => 'register_get_db_fields', 'uses' => 'FieldsController@getDBFields']);
+        Route::get('/menu', ['as' => 'menu_builder', 'uses' => 'MenuController@getMenuBuilderPage']);
 });
 
 // Lapas

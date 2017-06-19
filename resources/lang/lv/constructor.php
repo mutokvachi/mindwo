@@ -50,4 +50,10 @@ return [
         'valid_rel_txt_item' => "Izvēlnes vērtības ':item' garums :len pārsniedz maksimāli pieļaujamo :max!", 
         'valid_rel_txt_item_none' => 'Norādīta tukša izvēlnes vērtība!',
         'valid_numerator_err' => 'Nav norādīts numerators!',
+    
+        'menu' => [
+            'title' => 'Navigācijas konfigurācija',
+            'save_btn' => 'Saglabāt',
+            'new_btn' => 'Jauna izvēlne',
+        ],
 ];

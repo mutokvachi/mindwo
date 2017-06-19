@@ -252,8 +252,10 @@ gulp.task('mix_all', function() {
         mix.less([
             'pages/employee/personal_docs.less',
             'pages/employee/notes.less',
-            'pages/employee/timeoff.less'
+            'pages/employee/timeoff.less',
+            'pages/sticky_footer.less'
         ], 'public/css/elix_employee_profile.css');
+        
 
         // script for birthdays searching widget
         //$this->addJSInclude('metronic/global/plugins/moment.min.js');
@@ -356,6 +358,16 @@ gulp.task('mix_all', function() {
         mix.scripts([
             'mindwo/pages/cache_scripts.js'
         ], 'public/js/elix_login.js', 'resources/assets/plugins');
+        
+        // Scripts for menu builder page
+        mix.scripts([
+           'mindwo/pages/menu_builder.js'
+        ], 'public/js/elix_menu_builder.js', 'resources/assets/plugins');
+        
+        // LESS Styles for menu builder file
+        mix.less([
+           'pages/sticky_footer.less'
+        ], 'public/css/elix_menu_builder.css');
 		
         // Minify all scripts
         mix.version([
@@ -386,7 +398,9 @@ gulp.task('mix_all', function() {
             'css/elix_colors_bamboo.css',
             'js/elix_constructor_wizard.js',
             'css/elix_constructor_wizard.css',
-            'js/elix_login.js'
+            'js/elix_login.js',
+            'js/elix_menu_builder.js',
+            'css/elix_menu_builder.css'
         ]);
     });
 });

@@ -51,4 +51,10 @@ return [
         'valid_rel_txt_item' => "The choose dropdown value ':item' lenght :len is larger than allowed :max characters!", 
         'valid_rel_txt_item_none' => 'Provided an empty choose dropdown value!',
         'valid_numerator_err' => 'Numerator is not provided!',
+    
+        'menu' => [
+            'title' => 'Menu configuration',
+            'save_btn' => 'Save menu',
+            'new_btn' => 'New menu item',
+        ],
 ];
