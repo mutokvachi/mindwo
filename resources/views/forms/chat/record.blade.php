@@ -12,6 +12,16 @@
             <span class="datetime" style='font-size: x-small;'> {{ $msg->modified_time->format(config('dx.txt_datetime_format')) }}</span>)
         </span>
         @endif      
-        <span class="body dx-form-chat-msg-body">{{ $msg->message }}</span>
+        <span class="body dx-form-chat-msg-body">
+            @if($msg->message)
+                {{ $msg->message }}
+            @else
+                <i>{{ $msg->file_name }}</i><br/>
+                <a class="btn btn-circle btn-info btn-xs" 
+                    href="{{ Request::root() . '/chat/file/' . $msg->chat_id . '/' . $msg->id }}">
+                    <i class="fa fa-paperclip"></i> {{ trans('form.chat.btn_download') }}
+                </a>                             
+            @endif
+        </span>
     </div>
 </li>

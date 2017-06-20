@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
+use DB;
 
 /**
  * Controlls form's chat window
@@ -21,12 +22,12 @@ class ChatController extends Controller
         $this->validate($request, [
             'list_id' => 'required|exists:dx_lists,id',
             'item_id' => 'required',
-            'message' => 'required|string',
+            'message' => 'required_without:file|string',
+            'file' => 'required_without:message',
         ]);
 
         $list_id = $request->input('list_id');
         $item_id =$request->input('item_id');
-        $message = $request->input('message');
 
         $chat = \App\Models\Chat\Chat::where('list_id', $list_id)
             ->where('item_id', $item_id)
@@ -45,18 +46,91 @@ class ChatController extends Controller
             $chat->save();
         }
 
+        $message = $request->input('message');
+
+        if($message){
+            $this->saveTextMessage($message,  $user_id, $chat->id);
+        }else{            
+            $this->saveFileMessage($request->file('file'),  $user_id, $chat->id);
+        }
+
+        $this->addUserToChatByChatID($chat->id, $user_id);
+
+        return response()->json(['success' => 1]);
+    }
+
+    /**
+     * Saves text message
+     *
+     * @param string $message Message text
+     * @param integer $user_id User's ID
+     * @param integer $chat_id Chats's ID
+     * @return void
+     */
+    private function saveTextMessage($message,  $user_id, $chat_id){
         $msg = new \App\Models\Chat\Message();
         $msg->message = $message;
         $msg->created_user_id = $user_id;
         $msg->created_time = new \DateTime();
         $msg->modified_user_id = $user_id;
         $msg->modified_time = new \DateTime();
-        $msg->chat_id = $chat->id;
+        $msg->chat_id = $chat_id;
         $msg->save();
+    }
 
-        $this->addUserToChatByChatID($chat->id, $user_id);
+    /**
+     * Saves file
+     *
+     * @param File $files File which will be saved
+     * @param integer $user_id User's ID
+     * @param integer $chat_id Chats's ID
+     * @return void
+     */
+    private function saveFileMessage($files, $user_id, $chat_id){
+        $document_path = storage_path(config('assets.private_file_path'));
 
-        return response()->json(['success' => 1]);
+        foreach($files as $file){
+            // Gets random name for file
+            $file_path = tempnam($document_path, 'cht');
+            
+            // Extract file name from full path
+            $file_guid = pathinfo($file_path, PATHINFO_FILENAME) . '.' . pathinfo($file_path, PATHINFO_EXTENSION);
+
+            // Gets files real name provided by user
+            $file_name = $file->getClientOriginalName();
+
+            // Moves uploaded file from temp directory to storage
+            $file->move($document_path, $file_guid);
+            $msg = new \App\Models\Chat\Message();
+            $msg->file_guid = $file_guid;
+            $msg->file_name = $file_name;
+            $msg->created_user_id = $user_id;
+            $msg->created_time = new \DateTime();
+            $msg->modified_user_id = $user_id;
+            $msg->modified_time = new \DateTime();
+            $msg->chat_id = $chat_id;
+            $msg->save();
+        }
+    }
+
+    public function getFile($chat_id, $message_id){
+        $chat = \App\Models\Chat\Chat::find($chat_id);
+
+        $msg =  \App\Models\Chat\Message::find($message_id);
+
+        if (!$chat || !$msg || $msg->chat_id !=  $chat->id) {
+            throw new Exceptions\DXCustomException(trans('errors.access_denied_title'));
+        }
+
+        $fileCntrl = new FileController();
+
+        $list_msgs = \App\Libraries\DBHelper::getListByTable('dx_chats_msgs');        
+        if (!$list_msgs) {
+            throw new Exceptions\DXCustomException(trans('errors.access_denied_title'));
+        }        
+        $list_msgs_id = $list_msgs->id;        
+
+        return $fileCntrl->getFileByOtherRights($chat->list_id, $chat->item_id, $message_id, $list_msgs_id, 'file_name');
     }
 
     /**

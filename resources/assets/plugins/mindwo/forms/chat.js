@@ -113,6 +113,18 @@
                 self.onMessageEnter(self);
             });
 
+            // Auto-upload file when it is specified
+            self.chatObject.find('.dx-form-chat-file-input').off('change');
+            self.chatObject.find('.dx-form-chat-file-input').change(function () {
+                self.onFileSelected(self);
+            });
+
+            // Send attachments
+            self.chatObject.find('.dx-form-chat-btn-file').off('click');
+            self.chatObject.find('.dx-form-chat-btn-file').click(function () {
+                self.onClickAddFile(self);
+            });
+
             // Opens modal which shows chat's users 
             self.chatObject.find('.dx-form-chat-btn-users').off('click');
             self.chatObject.find('.dx-form-chat-btn-users').click(function () {
@@ -144,6 +156,66 @@
 
             // Retrieves chat messages and opens chat if messages found
             self.getChatData();
+        },
+        onClickAddFile: function (self) {
+            self.chatObject.find('.dx-form-chat-file-input').click();
+        },
+        onFileSelected: function (self) {
+            var formData = new FormData();
+
+            var fileInput = self.chatObject.find('.dx-form-chat-file-input')[0];
+
+            if (fileInput.files.length <= 0) {
+                return;
+            }
+
+            // Attach files
+            for (var i = 0; i < fileInput.files.length; i++) {
+                formData.append('file[]', fileInput.files[i]);
+            }
+
+            formData.append('list_id', self.listId);
+            formData.append('item_id', self.itemId);
+
+            self.chatContentObject.append('<li class="dx-form-chat-progress">Progress</li>');
+
+            $.ajax({
+                url: DX_CORE.site_url + 'chat/message/save',
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (res) {
+                    self.chatContentObject.find('.dx-form-chat-progress').remove()
+                },
+                xhr: function () {
+                    self.uploadProgress(self);
+                },
+                error: function (res) {
+                    self.chatContentObject.find('.dx-form-chat-progress').remove();
+                    notify_err(Lang.get('form.chat.e_file_not_saved'));
+                }
+            });
+
+            self.chatObject.find('.dx-form-chat-file-input').val('');
+        },
+        /**
+         * Shows upload progress
+         * @param {DxFormChat} self Current form chat instance
+         */
+        uploadProgress: function (self) {
+            var xhr = new window.XMLHttpRequest();
+            xhr.upload.addEventListener("progress", function (evt) {
+                if (evt.lengthComputable) {
+                    var percentComplete = evt.loaded / evt.total;
+
+                    self.chatContentObject.find('.dx-form-chat-progress').html(percentComplete + '%');
+
+                    //Do something with upload progress here
+                }
+            }, false);
+
+            return xhr;
         },
         /**
          * Opens chat window on button click
@@ -370,8 +442,8 @@
          * Clears chat content
          */
         clearChat: function () {
-            this.chatObject.find('.dx-form-chat-content').empty();
-            self.lastMessageID = 0;
+            this.chatContentObject.empty();
+            this.lastMessageID = 0;
         },
         /**
          * Event handler when message has been entered and must be saved

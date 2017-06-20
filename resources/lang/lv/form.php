@@ -45,8 +45,7 @@ return [
     'history_form_title' => 'Ieraksta izmaiņu vēsture',
     'btn_changes' => 'Izmaiņas',
     
-    'history_not_found' => 'Sistēmā nav uzkrāta informācija par šī ieraksta izmaiņu vēsturi.',
-    
+    'history_not_found' => 'Sistēmā nav uzkrāta informācija par šī ieraksta izmaiņu vēsturi.',    
 
     'chat' => [
         'db' => [
@@ -55,10 +54,14 @@ return [
             'message' => 'Ziņojums',
             'file_name' => 'Datnes nosaukums',
             'user' => 'Lietotājs',
+            'chat_msgs' => 'Sarakstes ziņas'
         ],
         'users' => 'Lietotāji',
         'btn_add_user' => 'Pievienot lietotāju',
         'btn_del_user' => 'Noņemt',
+        'btn_send_msg' => 'Nosūtīt ziņu',
+        'btn_send_file' => 'Nosūtīt datni',
+        'btn_download' => 'Lejupielādēt',
         'title_confirm_del_user' => 'Noņem sarakstes lietotāju',
         'description_confirm_del_user' => 'Vai Jūs tiešām vēlaties noņemt lietotāju no sarakstes?',
         'e_user_not_removed' => 'Radās kļūda noņemot lietotāju no sarakstes',
@@ -72,6 +75,7 @@ return [
         'note_missing' => "Piezīme neeksistē!",
         'modified' => "Laboja",
         'e_msg_not_saved' => 'Kļūda saglabājot ziņojumu. Lūdzu, mēģiniet nosūtīt ziņojumu vēlreiz!',
+        'e_file_not_saved' => 'Kļūda nosūtot datni. Lūdzu, mēģiniet nosūtīt datni vēlreiz!',
         'e_no_users' => 'Šajā sarakstē nav neviena lietotāja',        
     ]
 ];

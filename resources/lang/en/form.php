@@ -16,6 +16,7 @@ return [
     'btn_edit' => 'Edit',
     'btn_delete' => 'Delete',
     'btn_copy' => 'Copy',
+    'btn_save_as' => 'Save as',
     'btn_pdf' => 'To PDF',
     'btn_start_workflow' => 'Start workflow',
     'btn_info' => 'Inform',
@@ -53,10 +54,14 @@ return [
             'message' => 'Message',
             'file_name' => 'File name',
             'user' => 'User',
+            'chat_msgs' => 'Chat messages'
         ],
         'users' => 'Users',
         'btn_add_user' => 'Add users',
         'btn_del_user' => 'Remove',
+        'btn_send_msg' => 'Send message',
+        'btn_send_file' => 'Send attachment',
+        'btn_download' => 'Download',
         'title_confirm_del_user' => 'Remove user from chat',
         'description_confirm_del_user' => 'Do you really want to remove user from chat?',
         'e_user_not_removed' => 'Error while removing user from chat',
@@ -70,6 +75,7 @@ return [
         'note_missing' => "Note doesn't exist!",
         'modified' => "Modified",
         'e_msg_not_saved' => 'Error while saving message. Please try to send message again!',
+        'e_file_not_saved' => 'Error while saving attachment. Please try to send attachment again!',
         'e_no_users' => 'No users in this chat',        
     ]
 ];
