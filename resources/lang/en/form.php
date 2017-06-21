@@ -76,6 +76,8 @@ return [
         'modified' => "Modified",
         'e_msg_not_saved' => 'Error while saving message. Please try to send message again!',
         'e_file_not_saved' => 'Error while saving attachment. Please try to send attachment again!',
-        'e_no_users' => 'No users in this chat',        
+        'e_file_to_large' => 'Error while saving attachment. File is too large.',
+        'e_no_users' => 'No users in this chat',  
+        'i_upload_progress' => 'Uploading attachments...',      
     ]
 ];

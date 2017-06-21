@@ -63,6 +63,11 @@
          */
         this.stateIsUpdateRunning = false;
 
+        /**
+         * Contains XHR request for file upload
+         */
+        this.fileUploadXhr = false;
+
         // Initializes class
         this.init();
     };
@@ -120,6 +125,7 @@
             });
 
             // Send attachments
+            self.chatObject.find('.dx-form-chat-btn-file').removeClass('disabled');
             self.chatObject.find('.dx-form-chat-btn-file').off('click');
             self.chatObject.find('.dx-form-chat-btn-file').click(function () {
                 self.onClickAddFile(self);
@@ -154,12 +160,51 @@
                 }
             });
 
+            /**
+             * Cancels file upload
+             */
+            self.chatObject.find('.dx-form-chat-btn-file-cancel').off('click');
+            self.chatObject.find('.dx-form-chat-btn-file-cancel').click(function () {
+                self.cancelFileUpload(self);
+            });
+
             // Retrieves chat messages and opens chat if messages found
             self.getChatData();
         },
-        onClickAddFile: function (self) {
-            self.chatObject.find('.dx-form-chat-file-input').click();
+        /**
+         * Cancels file upload request
+         * @param {DxFormChat} self Current form chat instance
+         */
+        cancelFileUpload: function (self) {
+            self.fileUploadXhr.abort();
+            self.hideFileProgressBar(self);
         },
+        /**
+         * Hides progress bar after canceling, failing or successfully uploading file
+         * @param {DxFormChat} self Current form chat instance
+         */
+        hideFileProgressBar: function (self) {
+            self.fileUploadXhr = false;
+            self.chatObject.find('.dx-form-chat-btn-file').removeClass('disabled');
+            self.chatObject.find('.dx-form-chat-progress').hide();
+        },
+        /**
+         * Clicks on file browser input
+         * @param {DxFormChat} self Current form chat instance
+         */
+        onClickAddFile: function (self) {
+            if (self.fileUploadXhr) {
+                return;
+            }
+
+            self.chatObject.find('.dx-form-chat-btn-file').addClass('disabled');
+            self.chatObject.find('.dx-form-chat-file-input').click();
+
+        },
+        /**
+         * Send selected files 
+         * @param {DxFormChat} self Current form chat instance
+         */
         onFileSelected: function (self) {
             var formData = new FormData();
 
@@ -177,23 +222,35 @@
             formData.append('list_id', self.listId);
             formData.append('item_id', self.itemId);
 
-            self.chatContentObject.append('<li class="dx-form-chat-progress">Progress</li>');
+            self.updateProgress(self, 0, 100);
+            self.chatObject.find('.dx-form-chat-progress').show();
+            self.scrollDownChat(self);
 
-            $.ajax({
+            self.fileUploadXhr = $.ajax({
                 url: DX_CORE.site_url + 'chat/message/save',
                 type: "POST",
                 data: formData,
                 processData: false,
                 contentType: false,
-                success: function (res) {
-                    self.chatContentObject.find('.dx-form-chat-progress').remove()
-                },
                 xhr: function () {
-                    self.uploadProgress(self);
+                    return self.uploadProgress(self);
+                },
+                success: function (res) {
+                    self.hideFileProgressBar(self);
                 },
                 error: function (res) {
-                    self.chatContentObject.find('.dx-form-chat-progress').remove();
-                    notify_err(Lang.get('form.chat.e_file_not_saved'));
+                    if (!self.fileUploadXhr) {
+                        self.hideFileProgressBar(self);
+                        return;
+                    } else {
+                        self.hideFileProgressBar(self);
+
+                        if (res.responseText.indexOf('POST Content-Length of') > -1 || res.responseText.indexOf('exceeds your upload_max_filesize') > -1) {
+                            notify_err(Lang.get('form.chat.e_file_to_large'));
+                        } else {
+                            notify_err(Lang.get('form.chat.e_file_not_saved'));
+                        }
+                    }
                 }
             });
 
@@ -207,15 +264,28 @@
             var xhr = new window.XMLHttpRequest();
             xhr.upload.addEventListener("progress", function (evt) {
                 if (evt.lengthComputable) {
-                    var percentComplete = evt.loaded / evt.total;
-
-                    self.chatContentObject.find('.dx-form-chat-progress').html(percentComplete + '%');
-
-                    //Do something with upload progress here
+                    self.updateProgress(self, evt.loaded, evt.total);
                 }
             }, false);
 
             return xhr;
+        },
+        /**
+         * Updates progress bar for uploading files
+         * @param {DxFormChat} self Current form chat instance
+         * @param {integer} current Current count of sent bytes
+         * @param {integer} total Total count of bytes
+         */
+        updateProgress: function (self, current, total) {
+            var percentComplete = Math.round(current / total * 100);
+
+            var bar = self.chatObject.find('.dx-form-chat-progress-bar');
+            bar.attr('aria-valuenow', current);
+            bar.attr('aria-valuemax', total);
+            bar.width(percentComplete + '%');
+
+            var label = self.chatObject.find('.dx-form-chat-progress-label');
+            label.html(Lang.get('form.chat.i_upload_progress') + ' ' + percentComplete + '%');
         },
         /**
          * Opens chat window on button click
@@ -519,8 +589,7 @@
                     if (res.view.length > 0) {
                         self.chatContentObject.append(res.view);
 
-                        var container = self.chatObject.find('.dx-form-chat-content-container');
-                        container.scrollTop(container[0].scrollHeight - container[0].clientHeight);
+                        self.scrollDownChat(self);
                     }
 
                     if (res.last_message_id != 0) {
@@ -541,7 +610,16 @@
                     self.getChatData();
                 }
             }, 1000);
+        },
+        /**
+         * Scroll down chat window
+         * @param {DxFormChat} self Current form chat instance
+         */
+        scrollDownChat: function (self) {
+            var container = self.chatObject.find('.dx-form-chat-content-container');
+            container.scrollTop(container[0].scrollHeight - container[0].clientHeight);
         }
+
     });
 })(jQuery);
 

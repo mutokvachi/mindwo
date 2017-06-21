@@ -76,6 +76,8 @@ return [
         'modified' => "Laboja",
         'e_msg_not_saved' => 'Kļūda saglabājot ziņojumu. Lūdzu, mēģiniet nosūtīt ziņojumu vēlreiz!',
         'e_file_not_saved' => 'Kļūda nosūtot datni. Lūdzu, mēģiniet nosūtīt datni vēlreiz!',
-        'e_no_users' => 'Šajā sarakstē nav neviena lietotāja',        
+        'e_file_to_large' => 'Kļūda nosūtot datni. Datne ir pārāk liela.', 
+        'e_no_users' => 'Šajā sarakstē nav neviena lietotāja', 
+        'i_upload_progress' => 'Augšupielāde pielikumus...',       
     ]
 ];

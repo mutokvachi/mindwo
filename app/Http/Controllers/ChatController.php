@@ -113,6 +113,13 @@ class ChatController extends Controller
         }
     }
 
+    /**
+     * Gets file from server. Check access by chats list
+     *
+     * @param integer $chat_id
+     * @param integer $message_id
+     * @return File Attachment file
+     */
     public function getFile($chat_id, $message_id){
         $chat = \App\Models\Chat\Chat::find($chat_id);
 
@@ -267,12 +274,6 @@ class ChatController extends Controller
      */
     public function getMessages($list_id, $item_id, $last_message_id)
     {
-       /* $this->validate($request, [
-            'list_id' => 'required|exists:dx_lists,id',
-            'item_id' => 'required',
-            'is_init' => 'required|boolean',
-        ]);*/
-
         $chat = \App\Models\Chat\Chat::where('list_id', $list_id)
             ->where('item_id', $item_id)
             ->first();

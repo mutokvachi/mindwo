@@ -681,7 +681,7 @@ var PageMain = function()
         var json = xhr.responseJSON;
         
         // Validation errors handling
-        if ( xhr.status === 422 ) 
+        if ( xhr.status === 422  && typeof json != "undefined") 
         {            
             var errorsHtml= '<ul>';
             $.each( json, function( key, value ) {

@@ -64,7 +64,6 @@
     <div class="portlet light" style='margin-bottom: 0;'>
         <div class="portlet-title">
             <div class="actions">
-                <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="" title=""> </a>
                 <a href="javascript:;" class="btn btn-circle btn-icon-only btn-default dx-form-chat-btn-close"><i class="fa fa-close"></i></a>
             </div>
             <div class="caption">
@@ -81,6 +80,18 @@
             <div class='dx-form-chat-content-container' style='overflow-y:scroll; height: 40vh;'>
                 <ul class="chats dx-form-chat-content">
                 </ul>
+                <div class="dx-form-chat-progress"  style="display:none">
+                    <p>
+                        <label class="dx-form-chat-progress-label"></label>                        
+                    </p>
+                    <div class="progress progress-striped active" style="padding-left:5px; padding-right:5px;">
+                        <div class="progress-bar progress-bar-success dx-form-chat-progress-bar" 
+                             role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                            <span class="sr-only"> </span>
+                        </div>                        
+                    </div>   
+                    <button type="button" class="btn btn-xs btn-white dx-form-chat-btn-file-cancel" data-dismiss="modal"> <i class="fa fa-remove"></i> {{ trans('form.btn_cancel') }}</button> 
+                </div>
             </div>
             <div class="chat-form dx-form-chat-form" style=''>
                 <div style="float:right; width: 38px; padding-left: 3px;">
