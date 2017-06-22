@@ -68,6 +68,11 @@
          */
         this.fileUploadXhr = false;
 
+        /**
+         * Time how often chat messages are pulled from server
+         */
+        this.chatRefreshRate = 1000;
+
         // Initializes class
         this.init();
     };
@@ -90,6 +95,7 @@
             self.listId = self.domObject.data('dx-list-id');
             self.itemId = self.domObject.data('dx-item-id');
             self.formTitle = self.domObject.data('dx-form-title');
+            self.chatRefreshRate = self.domObject.data('dx-chat-refresh-time') * 1000;
 
             // Retrieve global chat window
             self.chatObject = $('.dx-form-chat-panel');
@@ -433,6 +439,7 @@
 
             modal.find('.modal-title').html(Lang.get('form.chat.chat') + ' - ' + Lang.get('form.chat.btn_add_user'));
 
+            modal.find('.dx-form-chat-btn-save-user').off('click');
             modal.find('.dx-form-chat-btn-save-user').click(function () {
                 self.onClickSaveUserToChat(self, modal);
             });
@@ -442,6 +449,8 @@
 
             // Initializes autocomplete select box
             AutocompleateField.initSelect(modal.find('.dx-form-chat-user-field'));
+
+            modal.find('.dx-form-chat-user-field').focus();
 
             modal.modal('show');
 
@@ -609,7 +618,7 @@
                 if (self.stateIsVisible) {
                     self.getChatData();
                 }
-            }, 1000);
+            }, self.chatRefreshRate);
         },
         /**
          * Scroll down chat window

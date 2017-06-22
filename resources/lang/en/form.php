@@ -79,5 +79,6 @@ return [
         'e_file_to_large' => 'Error while saving attachment. File is too large.',
         'e_no_users' => 'No users in this chat',  
         'i_upload_progress' => 'Uploading attachments...',      
+        'task_chat_description' => 'You have been added in discussion about document.'    
     ]
 ];

@@ -76,6 +76,10 @@ class DxChatMsgsUi extends Migration
 
             \App\Libraries\DBHelper::deleteRegister('dx_chats');
             DB::table('dx_objects')->where('db_name', '=', 'dx_chats')->delete();
+
+            Schema::table('dx_chats', function (Blueprint $table) {
+                $table->dropColumn(['name']);
+            });
         });
     }
 }

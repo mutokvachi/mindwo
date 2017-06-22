@@ -78,6 +78,7 @@ return [
         'e_file_not_saved' => 'Kļūda nosūtot datni. Lūdzu, mēģiniet nosūtīt datni vēlreiz!',
         'e_file_to_large' => 'Kļūda nosūtot datni. Datne ir pārāk liela.', 
         'e_no_users' => 'Šajā sarakstē nav neviena lietotāja', 
-        'i_upload_progress' => 'Augšupielāde pielikumus...',       
+        'i_upload_progress' => 'Augšupielāde pielikumus...',   
+        'task_chat_description' => 'Jūs esat pievienots diskusijai par dokumentu.'    
     ]
 ];

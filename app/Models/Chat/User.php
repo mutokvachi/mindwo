@@ -25,6 +25,15 @@ class User extends Model
         'created_time',
         'modified_time'
     ];
+
+    /**
+     * Chat model
+     * @return \App\Models\Chat\Chat
+     */
+    public function chat()
+    {
+        return $this->belongsTo('\App\Models\Chat\Chat', 'chat_id');
+    }
     
     /**
      * Chat's participant

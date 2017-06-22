@@ -164,7 +164,7 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <ul class="nav navbar-nav navbar-right dx-top-right-menu">
+            <ul class="nav navbar-nav navbar-right dx-top-right-menu">              
             @if (Auth::check() && Auth::user()->id != Config::get('dx.public_user_id',0))
               
               <!-- BEGIN USER LOGIN DROPDOWN -->
@@ -195,6 +195,7 @@
                 </li>
                 <!-- END USER LOGIN DROPDOWN -->
               
+              @include('static_blocks.chat_notif')
               
               @if ($user_tasks_count > 0)
                 <!-- BEGIN TODO DROPDOWN -->

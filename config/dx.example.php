@@ -389,4 +389,11 @@ return [
     |--------------------------------------------------------------------------
     */
     'is_timeoff_calculation' => env('APP_CALCULATE_TIMEOFF', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Refresh rate in seconds. Chat messages will be pulled from server after specified time
+    |-------------------------------------------------------------------------- 
+     */
+    'chat_refresh_rate' => env('CHAT_REFRESH_RATE', 1),
 ];

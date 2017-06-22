@@ -36,6 +36,16 @@ class Chat extends Model
     }
 
     /**
+     * Chat's list
+     *
+     * @return \App\Models\Lists
+     */
+    public function list()
+    {
+        return $this->belongsTo('\App\Models\Lists', 'list_id');
+    }
+
+    /**
      * Chat's participant
      * @return App\User
      */

@@ -48,15 +48,32 @@ class ChatController extends Controller
 
         $message = $request->input('message');
 
-        if($message){
-            $this->saveTextMessage($message,  $user_id, $chat->id);
-        }else{            
-            $this->saveFileMessage($request->file('file'),  $user_id, $chat->id);
+        if ($message) {
+            $this->saveTextMessage($message, $user_id, $chat->id);
+        } else {
+            $this->saveFileMessage($request->file('file'), $user_id, $chat->id);
         }
 
         $this->addUserToChatByChatID($chat->id, $user_id);
 
+        $this->setNotSeen($chat->id, $user_id);
+
         return response()->json(['success' => 1]);
+    }
+
+    /**
+     * Sets parameter for each user that he has not seen message
+     *
+     * @param integer $chat_id Chat's ID
+     * @param integer $current_user_id Current user's ID which will be excluded
+     * @return void
+     */
+    private function setNotSeen($chat_id, $current_user_id)
+    {
+        \App\Models\Chat\User::where('chat_id', $chat_id)
+          ->where('has_seen', 1)
+          ->where('user_id', '<>', $current_user_id)
+          ->update(['has_seen' => 0]);
     }
 
     /**
@@ -67,7 +84,8 @@ class ChatController extends Controller
      * @param integer $chat_id Chats's ID
      * @return void
      */
-    private function saveTextMessage($message,  $user_id, $chat_id){
+    private function saveTextMessage($message, $user_id, $chat_id)
+    {
         $msg = new \App\Models\Chat\Message();
         $msg->message = $message;
         $msg->created_user_id = $user_id;
@@ -86,10 +104,11 @@ class ChatController extends Controller
      * @param integer $chat_id Chats's ID
      * @return void
      */
-    private function saveFileMessage($files, $user_id, $chat_id){
+    private function saveFileMessage($files, $user_id, $chat_id)
+    {
         $document_path = storage_path(config('assets.private_file_path'));
 
-        foreach($files as $file){
+        foreach ($files as $file) {
             // Gets random name for file
             $file_path = tempnam($document_path, 'cht');
             
@@ -120,7 +139,8 @@ class ChatController extends Controller
      * @param integer $message_id
      * @return File Attachment file
      */
-    public function getFile($chat_id, $message_id){
+    public function getFile($chat_id, $message_id)
+    {
         $chat = \App\Models\Chat\Chat::find($chat_id);
 
         $msg =  \App\Models\Chat\Message::find($message_id);
@@ -131,11 +151,11 @@ class ChatController extends Controller
 
         $fileCntrl = new FileController();
 
-        $list_msgs = \App\Libraries\DBHelper::getListByTable('dx_chats_msgs');        
+        $list_msgs = \App\Libraries\DBHelper::getListByTable('dx_chats_msgs');
         if (!$list_msgs) {
             throw new Exceptions\DXCustomException(trans('errors.access_denied_title'));
-        }        
-        $list_msgs_id = $list_msgs->id;        
+        }
+        $list_msgs_id = $list_msgs->id;
 
         return $fileCntrl->getFileByOtherRights($chat->list_id, $chat->item_id, $message_id, $list_msgs_id, 'file_name');
     }
@@ -195,17 +215,83 @@ class ChatController extends Controller
             ->where('item_id', $item_id)
             ->first();
 
+        if (!$chat) {
+            $chat = new \App\Models\Chat\Chat();
+            $chat->list_id = $list_id;
+            $chat->item_id = $item_id;
+            $chat->created_user_id = $user_id;
+            $chat->created_time = new \DateTime();
+            $chat->modified_user_id = $user_id;
+            $chat->modified_time = new \DateTime();
+            $chat->save();
+        }
+
         if ($chat) {
             $res =  $this->addUserToChatByChatID($chat->id, $user_id);
 
-            if($res){
+            if ($res) {
                 return response()->json(['success' => 1]);
-            }else{
+            } else {
                 return response()->json(['success' => 0, 'msg' => trans('form.chat.e_user_exist')]);
             }
         } else {
             return response()->json(['success' => 0]);
         }
+    }
+
+    /**
+     * Check if user has rights
+     *
+     * @param int $list_id List's ID
+     * @param int $item_id Item's ID
+     * @param int $user_id User's ID
+     * @return boolean Result if user has access
+     */
+    private function hasRights($list_id, $item_id, $user_id)
+    {
+        $list_rights = \App\Libraries\Rights::getRightsOnList($list_id, $user_id);
+
+        if ($list_rights != null) {
+                return true; // Rights on register
+        }
+ 
+        if (\App\Libraries\Workflows\Helper::isRelatedTask($list_id, $item_id, $user_id)) {
+                return true; // Rights on some task
+        }
+ 
+        return false; // No rights
+    }
+
+    /**
+     * Creates task for user so he would have access to chat
+     *
+     * @param int $list_id List's ID
+     * @param int $item_id Item's ID
+     * @param int $user_id User's ID which will gain access
+     * @return void
+     */
+    private function createTask($list_id, $item_id, $user_id)
+    {
+        $task_info = DB::table('dx_tasks_types')->where('code', '=', 'INFO')->first();
+
+        if (!$task_info) {
+            return;
+        }
+
+        DB::table('dx_tasks')->insert(
+            ['list_id' => $list_id,
+            'item_id' => $item_id,
+            'item_reg_nr' => $item_id,
+            'task_type_id' => $task_info->id,
+            'task_created_time' =>  new \DateTime(),
+            'task_details' => trans('form.chat.task_chat_description'),
+            'task_status_id' => 1,
+            'task_employee_id' => $user_id,
+            'created_user_id' => \Auth::user()->id,
+            'created_time' => new \DateTime(),
+            'modified_user_id' => \Auth::user()->id,
+            'modified_time' => new \DateTime()]
+        );
     }
 
     /**
@@ -222,6 +308,16 @@ class ChatController extends Controller
             ->first();
 
         if (!$chat_user) {
+            $chat = \App\Models\Chat\Chat::find($chat_id);
+
+            // Check if user has rights
+            $hasRights = $this->hasRights($chat->list_id, $chat->item_id, $user_id);
+
+            // If user don't have rights then create task on item for him
+            if (!$hasRights) {
+                $this->createTask($chat->list_id, $chat->item_id, $user_id);
+            }
+
             $chat_user = new \App\Models\Chat\User();
             $chat_user->chat_id = $chat_id;
             $chat_user->user_id = $user_id;
@@ -235,7 +331,7 @@ class ChatController extends Controller
             $chat_user->save();
 
             return true;
-        } else{
+        } else {
             return false;
         }
     }
@@ -304,6 +400,25 @@ class ChatController extends Controller
             $last_message_id = 0;
         }
 
+        $this->setSeen($chat->id);
+
         return response()->json(['success' => 1, 'view' => $view, 'last_message_id' => $last_message_id, 'chat_id' => $chat->id]);
+    }
+
+    /**
+     * Sets parameter for current user that he has seen message
+     *
+     * @param integer $chat_id Chat's ID
+     * @return void
+     */
+    private function setSeen($chat_id)
+    {
+        \App\Models\Chat\User::where('chat_id', $chat_id)
+          ->where(function ($query) {
+                $query->where('has_seen', '<>', 1)
+                      ->orWhereNull('has_seen');
+          })
+          ->where('user_id', \Auth::user()->id)
+          ->update(['has_seen' => 1]);
     }
 }

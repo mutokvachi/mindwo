@@ -22,12 +22,22 @@
                 <h4 class="modal-title"></h4>
             </div>
             <div class="modal-body">
+                <?php
+
+                $dx_empl_list_id = Config::get('dx.employee_list_id', '');
+
+                $dx_empl_name_field_id = DB::table('dx_lists_fields')->where('list_id', $dx_empl_list_id)
+                    ->where('db_name', Config::get('dx.empl_fields.empl_name', ''))
+                    ->first()
+                    ->id;
+
+                ?>
                 
                 <div class="input-group dx-form-chat-user-field" style="width: 100%;"
                         data-is-init = "0"
                         data-field-id="-1" 
-                        data-rel-list-id = "259"
-                        data-rel-field-id = "1633"
+                        data-rel-list-id = "{{ $dx_empl_list_id }}"
+                        data-rel-field-id = "{{ $dx_empl_name_field_id }}"
                         data-item-field = "user_id"
                         data-trans-search = "{{ trans("fields.search_record") }}"
                         data-rel-view_id = "0"
