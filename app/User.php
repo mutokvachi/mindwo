@@ -182,6 +182,15 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	{
 		return $this->hasMany('\App\Models\Employee\Note', 'user_id');
 	}
+
+	/**
+	 * List of users's chats
+	 * @return App\Models\Chat\User
+	 */
+	public function chatUsers()
+	{
+		return $this->hasMany('\App\Models\Chat\User', 'user_id');
+	}
         
         /**
 	 * List of users's time off calculations

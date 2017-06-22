@@ -1,4 +1,4 @@
-/*
+﻿/*
  |--------------------------------------------------------------------------
  | Elixir Asset Management
  |--------------------------------------------------------------------------
@@ -33,7 +33,8 @@ gulp.task('mix_all', function() {
 
         // Prepare less styles for elix_view.css
         mix.less([
-            '/pages/crypto/crypto.less'
+            '/pages/crypto/crypto.less',
+            '/forms/chat.less'
         ], 'public/css/elix_view_less.css');
 
         // Core styles for main page - plugins
@@ -198,6 +199,7 @@ gulp.task('mix_all', function() {
             'mindwo/crypto/crypto_file_field.js',
             'mindwo/crypto/crypto_user_panel.js',
             'mindwo/blocks/view_editor.js',
+            'mindwo/forms/chat.js',
                     //'mindwo/visual_ui/workflow.js',
                     //'mxgraph/src/js/mxClient.js',
         ], 'public/js/elix_view.js', 'resources/assets/plugins');

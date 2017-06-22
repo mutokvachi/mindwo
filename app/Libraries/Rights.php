@@ -88,8 +88,19 @@ namespace App\Libraries
             return ($task_row) ? true : false;
         }
 
-        public static function getRightsOnList($list_id)
+        /**
+         * Checks rights on list
+         *
+         * @param int $list_id List's ID
+         * @param int $user_id User's ID. If not set then use authroized user's ID
+         * @return void
+         */
+        public static function getRightsOnList($list_id, $user_id = null)
         {
+            if($user_id == null || $user_id <= 0){
+                $user_id = Auth::user()->id;
+            }
+
             $rez = null;
 
             $sql = "
@@ -116,7 +127,7 @@ namespace App\Libraries
             limit 0, 1
             ";
 
-            $rights = DB::select($sql, array('user_id' => Auth::user()->id, 'list_id' => $list_id));
+            $rights = DB::select($sql, array('user_id' => $user_id, 'list_id' => $list_id));
 
             if (count($rights) > 0) {
                 $rez = $rights[0];

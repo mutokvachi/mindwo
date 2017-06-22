@@ -238,13 +238,18 @@ namespace App\Libraries\Workflows
         * 
         * @param integer $list_id Reģista ID
         * @param integer $item_id Ieraksta ID
+        * @param int $user_id User's ID. If not set then use authroized user's ID
         * @return boolean True - ja ir kāds uzdevums, False - ja nav neviens uzdevums
         */
-       public static function isRelatedTask($list_id, $item_id) {
+       public static function isRelatedTask($list_id, $item_id, $user_id = null) {
+            if($user_id == null || $user_id <= 0){
+                $user_id = Auth::user()->id;
+            }
+
            $task = DB::table('dx_tasks')
                    ->where('list_id', '=', $list_id)
                    ->where('item_id', '=', $item_id)
-                   ->where('task_employee_id', '=', Auth::user()->id)
+                   ->where('task_employee_id', '=', $user_id)
                    ->first();
 
            return ($task != null);

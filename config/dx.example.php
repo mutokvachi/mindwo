@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 //Rename this file to dx.php for production or development environment
 return [
     
@@ -409,4 +409,11 @@ return [
         // Role which have rights to use constructor
         'access_role_id' => 1,
     ],
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Refresh rate in seconds. Chat messages will be pulled from server after specified time
+    |-------------------------------------------------------------------------- 
+    */
+    'chat_refresh_rate' => env('CHAT_REFRESH_RATE', 1),
 ];

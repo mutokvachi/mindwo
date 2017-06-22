@@ -25,3 +25,4 @@
     </button>
 @endif
 <a href="{{Request::root()}}/web/viewer.html?file={{Request::root()}}/get_form_pdf_{{ $item_id }}_{{ $list_id }}.pdf" target="_blank" style="color: #333!important; text-decoration: none!important;"><button class='btn btn-white'><i class="fa fa-file-pdf-o"></i> {{ trans('form.btn_pdf') }}</button></a>
+@include('forms.chat.button', ['item_id' => $item_id, 'list_id' => $list_id, 'form_title' => $form_title])

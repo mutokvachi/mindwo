@@ -129,7 +129,6 @@
                 <div class="page-top">
                     <div class="top-menu pull-left">
                         <ul class="nav navbar-nav pull-right">
-
                             <li class="dropdown" style="color: #b4bcc8; font-size: 13px; margin: 17px 0 0 15px;">
                                 {!! $special_days !!}
                             </li>
@@ -160,6 +159,7 @@
                             </li>
                             <!-- END USER LOGIN DROPDOWN -->
 
+                            @include('static_blocks.chat_notif')
 
                             @if ($user_tasks_count > 0)
                             <!-- BEGIN TODO DROPDOWN -->
@@ -298,6 +298,8 @@
         @include('elements.popup_info')
         @include('main.modal_dialog')
         @include('main.modal_dialog_crypto_psw')
+        @include('main.modal_dialog_crypto_regen_progress')
+        @include('forms.chat.window')
         <script>
             dx_is_slider = {{ ((isset($is_slidable_menu) && $is_slidable_menu)) ? "1" : "0" }};
         </script>

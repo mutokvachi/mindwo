@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
   <head>
     @include('main.head_meta')
@@ -36,7 +36,7 @@
               <span class="icon-bar"></span>
               <span class="icon-bar"></span>
             </button>
-            <ul class="nav navbar-nav navbar-right dx-top-right-menu">
+            <ul class="nav navbar-nav navbar-right dx-top-right-menu">              
             @if(Auth::check() && Auth::user()->id != config('dx.public_user_id', 0))
               
               <!-- BEGIN USER LOGIN DROPDOWN -->
@@ -67,6 +67,7 @@
                 </li>
                 <!-- END USER LOGIN DROPDOWN -->
               
+              @include('static_blocks.chat_notif')
               
               @if ($user_tasks_count > 0)
                 <!-- BEGIN TODO DROPDOWN -->
@@ -123,6 +124,7 @@
     @include('main.modal_dialog_crypto_psw')
     @include('main.modal_dialog_crypto_regen_progress')
     @include('main.body_scripts')
+      @include('forms.chat.window')
     <script>
 		$(document).ready(function()
 		{

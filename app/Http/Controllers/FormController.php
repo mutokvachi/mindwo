@@ -711,11 +711,11 @@ class FormController extends Controller
                 ->where('id', '=', $field_id)
                 ->first();
         
-        if (!$table_item || !$field_item || !$main_field_item) {
+        if (!$table_item || !$field_item || (!$main_field_item && $field_id != -1)) {
             throw new Exceptions\DXCustomException("Sistēmas konfigurācijas kļūda! Uzmeklēšanas laukam nav atrodams reģistrs ar ID " . $list_id . " vai saistītais lauks ar ID " . $txt_field_id . ".");
         }
         
-        $field_item->is_right_check = $main_field_item->is_right_check; // jo tiesības uzstāda galvenā reģistra laukam bet SQLs tiek veidots no saistītā reģistra
+        $field_item->is_right_check = $main_field_item ? $main_field_item->is_right_check : false; // jo tiesības uzstāda galvenā reģistra laukam bet SQLs tiek veidots no saistītā reģistra
 
         $rows = DB::select($this->getAutocompleateSQL($table_item, $field_item, $list_id), array($field_item->rel_field_name => "%" . $term . "%"));
 
