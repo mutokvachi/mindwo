@@ -796,12 +796,11 @@ var PageMain = function()
     var handleMenuSplash = function() {
         
         var showSplash = function() {
-            if ($(".dx-stick-footer").is(":visible")) {
-                alert("Data form is in editing mode. Please, save data or cancel editing.")
+            var stick = $(".dx-stick-footer");
+            if (stick.is(":visible") && stick.hasClass("dx-page-in-edit-mode")) {                
+                PageMain.showConfirm(null, null, Lang.get('errors.attention'), Lang.get('errors.form_in_editing'), Lang.get('errors.btn_ok'), null, null, true);
                 return false;
-            }
-            $('.splash').css('display', 'block');
-            $('body').css('overflow', 'hidden');
+            }            
             return true;
         };
         
@@ -821,6 +820,10 @@ var PageMain = function()
         };
 
         var menu_click = function(link, e) {
+            if (!showSplash()) {
+                e.preventDefault();
+                return false;
+            }
             
             var list_id = link.attr("data-list-id");
             var view_id = link.attr("data-view-id");
@@ -839,10 +842,9 @@ var PageMain = function()
                 return false;
             }
             
-            if (!showSplash()) {
-                e.preventDefault();
-                return false;
-            }
+            $('.splash').css('display', 'block');
+            $('body').css('overflow', 'hidden');
+           
         };
         
         if ($("body").hasClass("dx-horizontal-menu-ui")) {
@@ -870,7 +872,7 @@ var PageMain = function()
      * @param {function} declineCallback Callback function executed after declined
      * @returns {undefined}
      */
-    var showConfirm = function(callback, callbackParameters, title, bodyText, acceptText, declineText, declineCallback){
+    var showConfirm = function(callback, callbackParameters, title, bodyText, acceptText, declineText, declineCallback, is_accept_only){
         if(!title){
             title = Lang.get('form.modal_confirm_title');
         }
@@ -900,20 +902,37 @@ var PageMain = function()
         if(declineCallback != undefined){
             decline_btn.click(declineCallback);
         }
-         
+        
+        if (is_accept_only) {
+            decline_btn.hide();
+        }
+        
         var accept_btn  = modal.find('#mindwo-modal-accept');
         accept_btn.html(acceptText);
        
         accept_btn.off('click');
-       
-        accept_btn.click(function(){
-            var res =  callback(callbackParameters);
-            
-            if(res || typeof(res) == 'undefined'){
-                modal.modal('hide');
-            }
-        });
         
+        if (callback != undefined && callback != null) {
+            accept_btn.click(function(){
+                var res =  callback(callbackParameters);
+
+                if(res || typeof(res) == 'undefined'){
+                    modal.modal('hide');
+                }
+            });
+        }
+        else {
+            accept_btn.click(function(){
+                modal.modal('hide');
+            });
+        }
+        
+        // hide opened menu item if any
+        var navMainOpen = $("#navbar li.open");
+        navMainOpen.find("a[aria-expanded=true]").attr("aria-expanded", false);
+        navMainOpen.removeClass("open");
+     
+        // shoe modal popup
         modal.modal('show');        
     };
 
@@ -952,8 +971,8 @@ var PageMain = function()
         getAjaxErrTxt: function(xhr) {
             return getAjaxErrorText(xhr);
         },
-        showConfirm:function(callback, callbackParameters, title, bodyText, acceptText, declineText, declineCallback){
-            showConfirm(callback, callbackParameters, title, bodyText, acceptText, declineText, declineCallback);
+        showConfirm:function(callback, callbackParameters, title, bodyText, acceptText, declineText, declineCallback, is_accept_only){
+            showConfirm(callback, callbackParameters, title, bodyText, acceptText, declineText, declineCallback, is_accept_only);
         }
     };
 }();

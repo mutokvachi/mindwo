@@ -1,9 +1,9 @@
 {
   "js/elix_userlinks.js": "js/elix_userlinks-3796d0d6.js",
-  "js/elix_plugins.js": "js/elix_plugins-4594ea3f.js",
-  "js/elix_view.js": "js/elix_view-22670f4f.js",
+  "js/elix_plugins.js": "js/elix_plugins-27fd3449.js",
+  "js/elix_view.js": "js/elix_view-2588209e.js",
   "js/elix_employees.js": "js/elix_employees-922c9b11.js",
-  "js/elix_profile.js": "js/elix_profile-d8fe79e1.js",
+  "js/elix_profile.js": "js/elix_profile-1f8e314b.js",
   "css/elix_plugins.css": "css/elix_plugins-b039670a.css",
   "css/elix_mindwo.css": "css/elix_mindwo-9da9af20.css",
   "css/elix_view.css": "css/elix_view-c177df00.css",
@@ -27,6 +27,6 @@
   "js/elix_constructor_wizard.js": "js/elix_constructor_wizard-5e132681.js",
   "css/elix_constructor_wizard.css": "css/elix_constructor_wizard-b7bc91ec.css",
   "js/elix_login.js": "js/elix_login-48058fee.js",
-  "js/elix_menu_builder.js": "js/elix_menu_builder-a5c59410.js",
+  "js/elix_menu_builder.js": "js/elix_menu_builder-d9c78856.js",
   "css/elix_menu_builder.css": "css/elix_menu_builder-844e7bbd.css"
 }

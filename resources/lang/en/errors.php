@@ -153,4 +153,10 @@ return [
     'view_must_have_id_field' => 'The ID field is not included in the view as column. Please, include ID field - it can be set as hidden as well.',
     
     'wrong_action_object' => "System configuration error! It is provided wrong activity to the form, because activity is not intended for database table assigned to this form's register.",
+    
+    'form_in_editing' => "Data form is in editing mode. Please, save data or cancel editing.",
+    
+    'btn_ok' => 'OK',
+    'attention' => 'Attention!',
+    
 ];

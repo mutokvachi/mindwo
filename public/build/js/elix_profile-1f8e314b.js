@@ -419,7 +419,7 @@
 					
 					hide_page_splash(1);
 					
-					$('.dx-stick-footer').show();
+					$('.dx-stick-footer').addClass('dx-page-in-edit-mode').show();
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{
@@ -494,14 +494,14 @@
 							window.DxEmpPersDocs.onClickSaveDocs(function()
 							{
 								hide_page_splash(1);
-								$('.dx-stick-footer').hide();
+								$('.dx-stick-footer').removeClass('dx-page-in-edit-mode').hide();
 								window.location = data.redirect;
 							});
 						}
 						else
 						{
 							hide_page_splash(1);
-							$('.dx-stick-footer').hide();
+							$('.dx-stick-footer').removeClass('dx-page-in-edit-mode').hide();
 							window.location = data.redirect;
 						}
 						
@@ -534,7 +534,7 @@
 							}
 							
 							hide_page_splash(1);
-							$('.dx-stick-footer').hide();
+							$('.dx-stick-footer').removeClass('dx-page-in-edit-mode').hide();
 							
 						});
 					}
@@ -564,7 +564,7 @@
 						}
 						
 						hide_page_splash(1);
-						$('.dx-stick-footer').hide();
+						$('.dx-stick-footer').removeClass('dx-page-in-edit-mode').hide();
 					}
 				},
 				error: function(jqXHR, textStatus, errorThrown)
@@ -612,7 +612,7 @@
 						self.fields.filter('[data-name="' + name + '"]').html(self.originalFields[name]);
 					}
 					
-					$('.dx-stick-footer').hide();
+					$('.dx-stick-footer').removeClass('dx-page-in-edit-mode').hide();
 					
 					if(self.root.data('has_users_documents_access') == 1)
 					{

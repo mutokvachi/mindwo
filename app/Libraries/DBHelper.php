@@ -620,6 +620,66 @@ namespace App\Libraries
             return DB::select($sql, $arr_where);
         }
         
+        /**
+         * Updates form field properties for given list by field name
+         * 
+         * @param integer $list_id Register ID
+         * @param string $field_name Field name in db
+         * @param array $arr_prop Properties array to be updated (fields from table dx_forms_fields
+         */
+        public static function updateFormField($list_id, $field_name, $arr_prop) {
+            $fld_id = DB::table('dx_lists_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('db_name', '=', $field_name)
+                    ->first()
+                    ->id;
+            
+            DB::table('dx_forms_fields')
+                    ->where('field_id', '=', $fld_id)
+                    ->update($arr_prop);
+
+        }
+        
+        /**
+         * Place field after provided field - change order_index
+         * 
+         * @param integer $list_id Register ID
+         * @param string $field_name Field name to be reordered
+         * @param string $field_after_name Field name after which field must be placed
+         */
+        public static function reorderFormField($list_id, $field_name, $field_after_name) {
+            $form_fields = DB::table('dx_forms_fields')
+                            ->where('list_id', '=', $list_id)
+                            ->orderBy('order_index')
+                            ->get();
+            
+            foreach($form_fields as $key => $fld) {
+                DB::table('dx_forms_fields')
+                    ->where('id', '=', $fld->id)
+                    ->update(['order_index' => $key*10]);
+            }
+            
+            $fld_id = DB::table('dx_lists_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('db_name', '=', $field_name)
+                    ->first()
+                    ->id;
+            
+            $fld_after_id = DB::table('dx_lists_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('db_name', '=', $field_after_name)
+                    ->first()
+                    ->id;
+            
+            $after_order = DB::table('dx_forms_fields')
+                            ->where('field_id', '=', $fld_after_id)
+                            ->first()->order_index + 5;
+            
+            DB::table('dx_forms_fields')
+                    ->where('field_id', '=', $fld_id)
+                    ->update(['order_index' => $after_order]);
+        }
+        
     }
 
 }

@@ -54,7 +54,17 @@ return [
     
         'menu' => [
             'title' => 'Menu configuration',
-            'save_btn' => 'Save menu',
+            'save_btn' => 'Save configuration',
             'new_btn' => 'New menu item',
+            'undo_btn' => 'Undo changes',
+            'lbl_site' => 'Site',
+            'msg_saved' => 'Configuration data saved!',
+            'err_parent' => 'Wrong parent/child assignment! Please fix all issues marked with red border.',
+            'err_no_changes' => 'No changes made - nothing to save!',
+            'err_json_support' => 'Your internet browser does not support JSON objects!',
+            'confirm_title' => 'Confirmation',
+            'confirm_msg' => 'Realy cancel menu configuration changes?',
+            'confirm_yes' => 'Yes',
+            'confirm_no' => 'No',
         ],
 ];

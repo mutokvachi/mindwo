@@ -13971,6 +13971,12 @@ var e=a(c[d]);if(e.hasClass("select2-result-selectable")&&!e.hasClass("select2-d
 {
     var hasTouch = 'ontouchstart' in window;
 
+    if (navigator.appVersion.indexOf("Win")!=-1){
+        var hasTouch = false;
+    } else {
+        var hasTouch = 'ontouchstart' in window;
+    }
+
     /**
      * Detect CSS pointer-events property
      * events are normally disabled on the dragging element to avoid conflicts
@@ -14011,7 +14017,7 @@ var e=a(c[d]);if(e.hasClass("select2-result-selectable")&&!e.hasClass("select2-d
             expandBtnHTML   : '<button data-action="expand" type="button">Expand</button>',
             collapseBtnHTML : '<button data-action="collapse" type="button">Collapse</button>',
             group           : 0,
-            maxDepth        : 1,
+            maxDepth        : 5,
             threshold       : 20,
 
             //method for call when an item has been successfully dropped
@@ -14031,7 +14037,7 @@ var e=a(c[d]);if(e.hasClass("select2-result-selectable")&&!e.hasClass("select2-d
     Plugin.prototype = {
 
         init: function()
-        {            
+        {
             var list = this;
 
             list.reset();
@@ -19412,6 +19418,67 @@ $(document).ajaxComplete(function() {
 
 $(document).ready(function() {
     $(".dx-phone-field").PhoneField();
+});
+(function($)
+{
+	/**
+	 * ColorField - a jQuery plugin that inits color field functionality (HTML5 picker)
+	 *
+	 * @param root
+	 * @returns {*}
+	 * @constructor
+	 */
+	$.fn.ColorField = function(opts)
+	{
+		var options = $.extend({}, $.fn.ColorField.defaults, opts);
+		return this.each(function()
+		{
+			new $.ColorField(this, options);
+		});
+	};
+	
+	$.fn.ColorField.defaults = {};
+	
+	/**
+	 * ColorField constructor
+	 *
+	 * @param root
+	 * @constructor
+	 */
+	$.ColorField = function(root, opts)
+	{
+		$.data(root, 'ColorField', this);
+		var self = this;
+		this.options = opts;
+		this.root = $(root);
+		                
+		if(this.root.hasClass("is-init"))
+		{
+                    return; // field is allready initialized
+		}
+		
+		this.root.find(".dx-color-del-btn").click(function() {                    
+                    self.root.find("input[type=hidden]").val('');
+                    self.root.find("input[type=color]").val('#fafafa');
+                });
+                
+                this.root.find("input[type=color]").change(function() {
+                    self.root.find("input[type=hidden]").val($(this).val());
+                });
+		
+		this.root.addClass("is-init");
+	};
+	
+})(jQuery);
+
+$(document).ajaxComplete(function()
+{
+	$(".dx-color-field-container").ColorField();
+});
+
+$(document).ready(function()
+{
+	$(".dx-color-field-container").ColorField();
 });
 /*
  * This combined file was created by the DataTables downloader builder:
