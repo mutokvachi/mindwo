@@ -7,6 +7,8 @@ var PageMain = function()
 {
     var is_grid_resize_callback_added = 0;
 
+    var last_view_loaded_id = 0;
+    
     /**
      * Lapas objekts
      * 
@@ -806,7 +808,9 @@ var PageMain = function()
         
         window.onpopstate = function(e){
             if(e.state && e.state.list_id && e.state.view_id){
+                last_view_loaded_id = e.state.view_id;
                 load_grid("td_data", e.state.list_id, e.state.view_id);
+                return;
             }
             
             if (e.state && e.state.page_url) {
@@ -816,6 +820,11 @@ var PageMain = function()
                 }
                 
                 window.location.href = e.state.page_url;
+            }
+            
+            if (last_view_loaded_id) {
+                show_page_splash(1);
+                window.location.reload();
             }
         };
 
@@ -837,6 +846,7 @@ var PageMain = function()
                     PageMain.addResizeCallback(BlockViews.initHeight);
                     is_grid_resize_callback_added = 1;
                 }
+                last_view_loaded_id = view_id;
                 load_grid("td_data", list_id, view_id);
                 
                 return false;
@@ -983,9 +993,7 @@ PageMain.init();
 $(document).ready(function() {
     PageMain.initPageLoaded();
     PageMain.initHelpPopups();
-    $(this).scrollTop(0,0);
-    
-    window.history.pushState({"page_url": window.location.href}, "", window.location.href);
+    $(this).scrollTop(0,0);    
 });
 
 $(document).ajaxComplete(function(event, xhr, settings) {      
@@ -994,3 +1002,6 @@ $(document).ajaxComplete(function(event, xhr, settings) {
     PageMain.initHelpPopups();
     PageMain.initFilesIcons();
 });
+
+// To solve FireFox history back issue: https://stackoverflow.com/questions/158319/is-there-a-cross-browser-onload-event-when-clicking-the-back-button
+window.onunload = function(){};
