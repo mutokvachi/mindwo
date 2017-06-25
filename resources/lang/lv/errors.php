@@ -151,4 +151,9 @@ return [
     'view_must_have_id_field' => 'Skatā nav iekļauts ID lauks! Lūdzu, iekļaujiet skatā ID lauku - tas var būt arī kā neredzamais lauks.',
     
     'wrong_action_object' => 'Sistēmas konfigurācijas kļūda! Formai norādīta nekorekta izpildāmā aktivitāte, jo tā neatbilst reģistra datu objektam.',
+    
+    'form_in_editing' => "Tiek veikta datu labošana. Lūdzu, saglabājiet vai atceliet veiktās izmaiņas.",
+    
+    'btn_ok' => 'Labi',
+    'attention' => 'Uzmanību!',
 ];

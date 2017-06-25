@@ -50,4 +50,20 @@ return [
         'valid_rel_txt_item' => "Izvēlnes vērtības ':item' garums :len pārsniedz maksimāli pieļaujamo :max!", 
         'valid_rel_txt_item_none' => 'Norādīta tukša izvēlnes vērtība!',
         'valid_numerator_err' => 'Nav norādīts numerators!',
+    
+        'menu' => [
+            'title' => 'Navigācijas konfigurācija',
+            'save_btn' => 'Saglabāt',
+            'new_btn' => 'Jauna izvēlne',
+            'undo_btn' => 'Atcelt izmaiņas',
+            'lbl_site' => 'Portāls',
+            'msg_saved' => 'Navigācijas konfigurācija veiksmīgi saglabāta!',
+            'err_parent' => 'Nekorekta sasaiste starp navigācijas elementiem! Pakārtot elementu pieļaujams tikai zem tāda elementa, kuram nav piesaistīts ne reģistrs, ne norādīta saite uz portāla lapu.',
+            'err_no_changes' => 'Nav datu izmaiņu, ko saglabāt!',
+            'err_json_support' => 'Interneta pārlūks neatbalsta JSON objektu apstrādi!',
+            'confirm_title' => 'Atcelšanas apstiprinājums',
+            'confirm_msg' => 'Vai tiešām atcelt navigācijas konfigurācijas izmaiņas un tās nesaglabāt?',
+            'confirm_yes' => 'Jā',
+            'confirm_no' => 'Nē',
+        ],
 ];

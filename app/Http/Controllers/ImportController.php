@@ -443,31 +443,7 @@ class ImportController extends Controller
      */
     private function getListFields()
     {
-        $this->list_fields = DB::table('dx_lists_fields as lf')
-                ->select(
-                        'lf.list_id',
-                        'lf.db_name', 
-                        'ft.sys_name as type_sys_name', 
-                        'lf.max_lenght', 
-                        'lf.is_required', 
-                        'lf.default_value', 
-                        'lf.title_form', 
-                        'lf.title_list',
-                        'lf.rel_list_id',
-                        'lf_rel.db_name as rel_field_name',
-                        'o_rel.db_name as rel_table_name',
-                        'o_rel.is_history_logic as rel_table_is_history_logic',
-                        'lf.is_public_file',
-                        'lf.id as field_id'
-                        )
-                ->leftJoin('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
-                ->leftJoin('dx_lists_fields as lf_rel', 'lf.rel_display_field_id', '=', 'lf_rel.id')
-                ->leftJoin('dx_lists as l_rel', 'lf.rel_list_id', '=', 'l_rel.id')
-                ->leftJoin('dx_objects as o_rel', 'l_rel.object_id', '=', 'o_rel.id')
-                ->where('lf.list_id', '=', $this->list_id)
-                ->whereIn('lf.type_id', $this->supported_fields)
-                ->whereNull('lf.formula')
-                ->get();
+        $this->list_fields = DBHistory::getListFields($this->list_id, $this->supported_fields);
 
         $this->addFormatedTitles();
     }
