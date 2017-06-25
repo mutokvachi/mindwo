@@ -238,5 +238,22 @@
             });
             
             this.root.find(".dx-sites-cbo").change(loadSiteMenu);
+            
+            // adjust menu for vertical menu UI
+            if (!$("body").hasClass("dx-horizontal-menu-ui")) {
+                
+                var adjust_menu = function() {
+                    $(".page-sidebar-menu").css("padding-bottom", '80px');
+                };
+                PageMain.addResizeCallback(adjust_menu);
+                
+                adjust_menu();
+                
+                $(".dx-menu-builder-stick-title").css("font-size", "14px");
+                
+                var dv = $(".dx-menu-sites").find("div.col-sm-10");
+                dv.css("margin-right", "-35px");
+                dv.css("padding-left", "30px");
+            }
 	};
 })(jQuery);

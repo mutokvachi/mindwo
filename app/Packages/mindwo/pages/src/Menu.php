@@ -267,7 +267,7 @@ namespace mindwo\pages
             $sql .= " ORDER BY
                             m.order_index
                     ";
-            \Log::info("MEDNU : " . $sql);
+            
             return DB::select($sql);
         }
 

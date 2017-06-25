@@ -13,7 +13,7 @@
 @if (!$is_disabled) 
     
     <span class="input-group-btn">            
-        <button class='btn btn-white dx-color-del-btn' type='button'><i class='fa fa-trash-o'></i></button>             
+        <button class='btn btn-white dx-color-del-btn' type='button' style="border: 1px solid #c2cad8!important;"><i class='fa fa-trash-o'></i></button>             
     </span>
     
 </div>

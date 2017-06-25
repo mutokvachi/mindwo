@@ -1,4 +1,4 @@
-<div class='form-group pull-right'>
+<div class='form-group pull-right dx-menu-sites'>
     <label class='col-sm-2 control-label' style='margin-top: 8px;'>{{ trans('constructor.menu.lbl_site') }}:</label>
     <div class='col-sm-10' style='padding-right: 0; margin-right: -15px;'>
         <div class='input-group' style="width: 200px;">
