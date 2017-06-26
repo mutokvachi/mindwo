@@ -91,5 +91,9 @@
   width: auto;
   overflow: hidden;
 }
+.dx-form-chat-panel .portlet .portlet-body .dx-form-chat-form-inputs .dx-form-chat-input-text {
+  max-height: 20vh;
+  height: 68px;
+}
 
 /*# sourceMappingURL=elix_view_less.css.map */

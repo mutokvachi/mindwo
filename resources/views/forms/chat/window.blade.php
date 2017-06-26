@@ -1,3 +1,4 @@
+@if(config('dx.is_chat_enabled', false))
 <div class="modal dx-form-chat-modal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -113,9 +114,10 @@
                 </div>
                 <div class="dx-form-chat-form-inputs">
                     <input class='dx-form-chat-input-id' type='hidden'>
-                    <textarea rows="2" class="form-control dx-form-chat-input-text" type="text" placeholder="{{ trans('form.chat.type_hint') }}" style="max-height: 20vh; height: 68px;"></textarea>
+                    <textarea rows="2" class="form-control dx-form-chat-input-text" type="text" placeholder="{{ trans('form.chat.type_hint') }}"></textarea>
                 </div>                
             </div>
         </div>
     </div>
 </div>
+@endif

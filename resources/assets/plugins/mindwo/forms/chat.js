@@ -89,6 +89,10 @@
         init: function () {
             var self = this;
 
+            if(self.domObject.data('dx_is_init') == 1){
+                return;
+            }
+
             self.domObject.data('dx_is_init', 1);
 
             // Saves parameters
