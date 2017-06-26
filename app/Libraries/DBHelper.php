@@ -73,6 +73,11 @@ namespace App\Libraries
         const FIELD_TYPE_FILE = 12;
         
         /**
+         * Register field type - registration number (from table dx_field_types)
+         */
+        const FIELD_TYPE_REG_NR = 13;
+        
+        /**
          * Register field type - multilevel (from table dx_field_types)
          */
         const FIELD_TYPE_MULTILEVEL = 14;
@@ -80,8 +85,8 @@ namespace App\Libraries
         /**
          * Register field type - color picker (from table dx_field_types)
          */
-        const FIELD_TYPE_COLOR = 17;
-        
+        const FIELD_TYPE_COLOR = 17;        
+               
         /**
          * Register field type - textual value from items list (from table dx_field_types)
          */
