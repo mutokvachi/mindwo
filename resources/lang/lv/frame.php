@@ -14,6 +14,7 @@ return [
     'page_fullscreen' => 'Lapa pa visu ekrānu',
     'page_boxed' => 'Rādīt lapu rāmī',
     'password_change' => 'Paroles maiņa',
+    'change_design' => "Iestatīt dizainu",
     'logout' => 'Iziet',
     
     // Other TOP menu
