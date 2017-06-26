@@ -33,3 +33,66 @@
   overflow-y : scroll;
   height: 40vh;  
 }
+
+.dx-form-chat-user-add-modal{
+    .dx-form-chat-user-field{
+        width: 100%;
+    }
+
+    .dx-form-chat-input-save-user-title{
+        width: 100%;
+    }
+}
+
+.dx-form-chat-panel{
+    position: fixed; 
+    bottom: 0; 
+    right: 0; 
+    display:none; 
+    background-color: white; 
+    padding: 0; 
+    border: solid 1px gray;
+
+    .portlet{
+        margin-bottom: 0;
+
+        .portlet-body{
+            height: auto;
+
+            .dx-form-chat-content-container{
+                overflow-y:scroll; 
+                height: 40vh;
+            }
+
+            .dx-form-chat-progress{
+                display:none;
+
+                .progress{
+                    padding-left:5px; 
+                    padding-right:5px;
+                }
+            }
+
+            .dx-form-chat-form-btns{
+                float:right; 
+                width: 38px; 
+                padding-left: 3px;
+
+                .dx-form-chat-file-input{
+                    display:none
+                }
+            }
+
+            .dx-form-chat-form-inputs{
+                width: auto; 
+                overflow: hidden;
+
+                .dx-form-chat-input-text{
+                    max-height: 20vh; 
+                    height: 68px;
+                }
+            }
+        }
+    }
+
+}
