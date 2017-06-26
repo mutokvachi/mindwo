@@ -73,6 +73,7 @@
             </li>
             <!-- END USER LOGIN DROPDOWN -->
         
+          @include('static_blocks.chat_notif')
         
           @if ($user_tasks_count > 0)
             <!-- BEGIN TODO DROPDOWN -->
