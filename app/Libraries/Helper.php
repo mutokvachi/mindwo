@@ -267,7 +267,7 @@ namespace App\Libraries
          */
         public static function getInfoTasks($list_id, $item_id, $table_name) {
             $info_tasks = null;        
-            if ($item_id != 0 && $table_name == "dx_doc") {
+            if ($item_id != 0) {
 
                 $creator_id = DB::table($table_name)->select('created_user_id')->where('id','=',$item_id)->first()->created_user_id;
 

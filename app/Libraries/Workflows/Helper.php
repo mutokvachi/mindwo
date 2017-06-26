@@ -32,27 +32,84 @@ namespace App\Libraries\Workflows
             
             $arr_vals = [];
             
+            $arr_vals = Helper::setAboutRepresent($doc_agreg, $arr_vals, $table_name, $list_id, $item_id);
+            $arr_vals = Helper::setRegNrRepresent($doc_agreg, $arr_vals, $table_name, $list_id, $item_id);                        
+            $arr_vals = Helper::setEmplRepresent($arr_vals, $table_name, $list_id, $item_id);
+            
+            return $arr_vals;
+        }
+        
+        /**
+         * Set value for description representation field
+         * 
+         * @param array $doc_agreg Data from dx_doc_agreg table - we try to use those data first (optimistic approach)
+         * @param array $arr_vals Representation array
+         * @param string $table_name Table name where value can be found
+         * @param integer $list_id Register ID
+         * @param integer $item_id Item ID
+         * @return array Representation array
+         * @throws \App\Libraries\Workflows\Exception
+         */
+        private static function setAboutRepresent($doc_agreg, $arr_vals, $table_name, $list_id, $item_id) {
             if ($doc_agreg) {                
                 if ($doc_agreg->description) {
                     $arr_vals[\App\Http\Controllers\TasksController::REPRESENT_ABOUT] = $doc_agreg->description;
                 }
-                else {
+            }
+            
+            try {
+                if (!isset($arr_vals[\App\Http\Controllers\TasksController::REPRESENT_ABOUT])) {
                     $arr_vals[\App\Http\Controllers\TasksController::REPRESENT_ABOUT] = Helper::getMetaValByField($table_name, $list_id, \App\Http\Controllers\TasksController::REPRESENT_ABOUT, $item_id);
                 }
-
+            }
+            catch (\Exception $e) {
+                if ($e instanceof Exceptions\DXNoRepresentField) {
+                    $arr_vals = Helper::setRepresentAny($table_name, $list_id, $item_id, $arr_vals, \App\Http\Controllers\TasksController::REPRESENT_ABOUT, function($query) {
+                                   $query->where('lf.type_id', '=', \App\Libraries\DBHelper::FIELD_TYPE_TEXT)
+                                         ->orWhere('lf.type_id', '=', \App\Libraries\DBHelper::FIELD_TYPE_LONG_TEXT);
+                               });                    
+                }
+                else {
+                    throw $e;
+                }
+            } 
+            
+            return $arr_vals;
+        }
+        
+        /**
+         * Set value for registration number representation field
+         * 
+         * @param array $doc_agreg Data from dx_doc_agreg table - we try to use those data first (optimistic approach)
+         * @param array $arr_vals Representation array
+         * @param string $table_name Table name where value can be found
+         * @param integer $list_id Register ID
+         * @param integer $item_id Item ID
+         * @return array Representation array
+         * @throws \App\Libraries\Workflows\Exception
+         */
+        private static function setRegNrRepresent($doc_agreg, $arr_vals, $table_name, $list_id, $item_id) {
+            if ($doc_agreg) {                
                 if ($doc_agreg->reg_nr) {
                     $arr_vals[\App\Http\Controllers\TasksController::REPRESENT_REG_NR] = $doc_agreg->reg_nr;
                 }
-                else {
+            }
+            
+            try {
+                if (!isset($arr_vals[\App\Http\Controllers\TasksController::REPRESENT_REG_NR])) {
                     $arr_vals[\App\Http\Controllers\TasksController::REPRESENT_REG_NR] = Helper::getMetaValByField($table_name, $list_id, \App\Http\Controllers\TasksController::REPRESENT_REG_NR, $item_id);
                 }
             }
-            else {
-                $arr_vals[\App\Http\Controllers\TasksController::REPRESENT_ABOUT] = Helper::getMetaValByField($table_name, $list_id, \App\Http\Controllers\TasksController::REPRESENT_ABOUT, $item_id);
-                $arr_vals[\App\Http\Controllers\TasksController::REPRESENT_REG_NR] = Helper::getMetaValByField($table_name, $list_id, \App\Http\Controllers\TasksController::REPRESENT_REG_NR, $item_id);   
-            }
-            
-            $arr_vals = Helper::setEmplRepresent($arr_vals, $table_name, $list_id, $item_id);
+            catch (\Exception $e) {
+                if ($e instanceof Exceptions\DXNoRepresentField) {
+                    $arr_vals = Helper::setRepresentAny($table_name, $list_id, $item_id, $arr_vals, \App\Http\Controllers\TasksController::REPRESENT_REG_NR, function($query) {
+                                   $query->where('lf.type_id', '=', \App\Libraries\DBHelper::FIELD_TYPE_REG_NR);
+                               });
+                }
+                else {
+                    throw $e;
+                }
+            } 
             
             return $arr_vals;
         }
@@ -79,6 +136,37 @@ namespace App\Libraries\Workflows
                     throw $e;
                 }
             } 
+            
+            return $arr_vals;
+        }
+        
+        /**
+         * Try to get any textual value for representing given field
+         * 
+         * @param string $table_name Table name where value can be found
+         * @param integer $list_id Register ID
+         * @param integer $item_id Item ID
+         * @param Array $arr_vals Representation array
+         * @param integer $val_index Current field representation index in array
+         * @param object $fn Function to query field types
+         * @return string Field representing text. If not found - then field ID
+         */
+        private static function setRepresentAny($table_name, $list_id, $item_id, $arr_vals, $val_index, $fn) {
+            $txt_fld = DB::table('dx_lists_fields as lf')
+                        ->select('lf.id')
+                        ->leftJoin('dx_forms_fields as ff', 'lf.id', '=', 'ff.field_id')
+                        ->where($fn)
+                        ->where('lf.list_id', '=', $list_id)
+                        ->orderBy('ff.order_index')
+                        ->first();
+
+            if ($txt_fld) {
+                $arr_vals[$val_index] = Helper::getFieldTextValue($table_name, $txt_fld->id, $item_id);
+            }
+
+            if (!isset($arr_vals[$val_index]) || !$arr_vals[$val_index]) {
+                 $arr_vals[$val_index] = "ID " . $item_id;
+            }
             
             return $arr_vals;
         }
@@ -278,7 +366,19 @@ namespace App\Libraries\Workflows
                 throw new Exceptions\DXNoRepresentField();
             }
 
-            $fld_val_row = DB::table("dx_lists_fields")->where("id", "=", $fld_row->field_id)->first();
+            return Helper::getFieldTextValue($table_name, $fld_row->field_id, $item_id);            
+        }
+        
+        /**
+         * Returns field textual value
+         * 
+         * @param string $table_name Table name
+         * @param integer $field_id Field ID from dx_lists_fields
+         * @param integer $item_id Item ID
+         * @return string Field textual value
+         */
+        private static function getFieldTextValue($table_name, $field_id, $item_id) {
+            $fld_val_row = DB::table("dx_lists_fields")->where("id", "=", $field_id)->first();
 
             $val_row = DB::table($table_name)->select(DB::raw($fld_val_row->db_name . " as val"))->where('id', '=', $item_id)->first();
 

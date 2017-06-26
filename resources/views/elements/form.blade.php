@@ -208,7 +208,7 @@
     @include('workflow.wf_init_add_approver')    
 @endif
 
-@if ($form_is_edit_mode == 0 && $is_info_tasks_rights)
+@if ($form_is_edit_mode == 0)
     @include('workflow.wf_info_task')
 @endif
 
