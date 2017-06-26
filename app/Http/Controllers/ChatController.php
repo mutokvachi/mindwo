@@ -157,7 +157,7 @@ class ChatController extends Controller
         }
         $list_msgs_id = $list_msgs->id;
 
-        return $fileCntrl->getFileByOtherRights($chat->list_id, $chat->item_id, $message_id, $list_msgs_id, 'file_name');
+        return $fileCntrl->getFileByOtherRights($chat->item_id, $chat->list_id, $message_id, $list_msgs_id, 'file_name');
     }
 
     /**
