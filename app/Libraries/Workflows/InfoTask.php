@@ -181,7 +181,7 @@ namespace App\Libraries\Workflows
                     ->where('list_id', '=', $this->list_id)
                     ->where('item_id', '=', $this->item_id)
                     ->where('task_employee_id', '=', $employee_id)
-                    ->where('task_type_id', '=', self::TASK_TYPE_INFO)
+                    ->where('task_type_id', '=', TasksController::TASK_TYPE_INFO)
                     ->first();
 
             if ($task) {
