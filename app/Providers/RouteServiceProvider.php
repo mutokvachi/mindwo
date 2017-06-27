@@ -61,7 +61,7 @@ class RouteServiceProvider extends ServiceProvider
         $router->group([
             'namespace' => '', 'middleware' => 'web',
         ], function ($router) {
-            require base_path('vendor/mindwo/pages/src/routes.php');
+            require base_path('app/Packages/mindwo/pages/src/routes.php');
         });
     }
 }

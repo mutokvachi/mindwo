@@ -45,6 +45,40 @@ return [
     'history_form_title' => 'Ieraksta izmaiņu vēsture',
     'btn_changes' => 'Izmaiņas',
     
-    'history_not_found' => 'Sistēmā nav uzkrāta informācija par šī ieraksta izmaiņu vēsturi.',
-    
+    'history_not_found' => 'Sistēmā nav uzkrāta informācija par šī ieraksta izmaiņu vēsturi.',    
+
+    'chat' => [
+        'db' => [
+            'list' => 'Reģistrs',
+            'item' => 'Ieraksts',            
+            'message' => 'Ziņojums',
+            'file_name' => 'Datnes nosaukums',
+            'user' => 'Lietotājs',
+            'chat_msgs' => 'Sarakstes ziņas'
+        ],
+        'users' => 'Lietotāji',
+        'btn_add_user' => 'Pievienot lietotāju',
+        'btn_del_user' => 'Noņemt',
+        'btn_send_msg' => 'Nosūtīt ziņu',
+        'btn_send_file' => 'Nosūtīt datni',
+        'btn_download' => 'Lejupielādēt',
+        'title_confirm_del_user' => 'Noņem sarakstes lietotāju',
+        'description_confirm_del_user' => 'Vai Jūs tiešām vēlaties noņemt lietotāju no sarakstes?',
+        'e_user_not_removed' => 'Radās kļūda noņemot lietotāju no sarakstes',
+        'i_user_removed' => 'Lietotājs noņemts no sarakstes',
+        'e_user_not_specified' => 'Nav norādīts lietotājs',
+        'e_user_not_added' => 'Rādās kļūda pievienojot lietotāju pie sarakstes',
+        'i_user_added' => 'Lietotājs pievienots pie sarakstes',
+        'e_user_exist' => 'Lietotājs jau ir pievienots sarakstei',
+        'chat' => 'Sarakste',
+        'type_hint' => 'Rakstiet ziņojumu šeit...',
+        'note_missing' => "Piezīme neeksistē!",
+        'modified' => "Laboja",
+        'e_msg_not_saved' => 'Kļūda saglabājot ziņojumu. Lūdzu, mēģiniet nosūtīt ziņojumu vēlreiz!',
+        'e_file_not_saved' => 'Kļūda nosūtot datni. Lūdzu, mēģiniet nosūtīt datni vēlreiz!',
+        'e_file_to_large' => 'Kļūda nosūtot datni. Datne ir pārāk liela.', 
+        'e_no_users' => 'Šajā sarakstē nav neviena lietotāja', 
+        'i_upload_progress' => 'Augšupielāde pielikumus...',   
+        'task_chat_description' => 'Jūs esat pievienots diskusijai par dokumentu.'    
+    ]
 ];

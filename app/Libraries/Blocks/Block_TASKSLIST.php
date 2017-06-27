@@ -197,20 +197,29 @@ class Block_TASKSLIST extends Block
                                             
                                             $('.tasks-widget .dx-btn-deleg').click(function() {
                                                 var frm_deleg = $("#form_delegate_widget");
+                                                frm_deleg.attr('data-is-any-delegate', $(this).closest('.mt-action').data('is-any-delegate'));
+        
                                                 if (frm_deleg.attr('dx_is_init') == "0") {
                                                     TaskLogic.initFormDelegate(frm_deleg);                                                    
                                                 }
-                                                
+                                                TaskLogic.showNewDelegteTab(frm_deleg);
                                                 TaskLogic.setDelegateCallback(afterDelegated);
+                                                TaskLogic.initEmployeeLookup(frm_deleg);
         
                                                 frm_deleg.attr('dx_task_id', $(this).closest('.mt-action').data('task-id'));
-                                                frm_deleg.find("textarea[name=task_txt]").html($(this).data('details'));
+        
+                                                var task_details = $(this).data('details') ? $(this).data('details') : $(this).data('task-type');
+                                                frm_deleg.find("textarea[name=task_txt]").html(task_details);
+                                                
                                                 frm_deleg.find("input[name=due_date]").val($(this).closest('.mt-action').find('.mt-action-time.dx-task-due').html());
                                                 
+                                                var tab_tasks = frm_deleg.find('.dx-tab-tasks');
+                                                TaskLogic.fillDelegatedTasks(frm_deleg, tab_tasks);
+                                                        
                                                 frm_deleg.modal('show');
 
                                                 setTimeout(function() {
-                                                    frm_deleg.find("select[name=employee_id]").focus();
+                                                    frm_deleg.find("input[name=deleg_empl_txt]").select2("open");                                                    
                                                 }, 1000);
                                             });
         
@@ -302,7 +311,7 @@ END;
     {
         // set current user
         $this->user = App\User::find(Auth::user()->id);
-        $this->subordinates = $this->user->subordinates()->orderBy('display_name')->get();
+        $this->subordinates = $this->user->subordinates()->whereRaw("ifnull(termination_date, '2099-01-01') > NOW()")->orderBy('display_name')->get();
         
         $this->is_subordinates = (count($this->subordinates) > 0);
 

@@ -11,7 +11,9 @@ namespace App\Libraries\DataView
     {        
         public function __construct($list_id, $view_id, $is_hidden_in_model)
         {
-            $this->session_guid = 'grid_' . Uuid::generate(4); // ģenerējam HTML objekta unikālo id, tiks izmantots arī lai SQL saglabātu sesijā
+            $grid_id = Request::input('grid_id', '');
+            
+            $this->session_guid = ($grid_id) ? $grid_id : 'grid_' . Uuid::generate(4); // ģenerējam HTML objekta unikālo id, tiks izmantots arī lai SQL saglabātu sesijā
             
             $this->view_obj = new \App\Libraries\View($list_id, $view_id, Auth::user()->id); // izveidojam skata objektu
                     
@@ -27,9 +29,9 @@ namespace App\Libraries\DataView
                 throw new Exceptions\DXCustomException($this->view_obj->err); // ToDo: jākoriģē skata objekta loģika lai throw kļūdas, tad šo rindiņu varēs izņemt
             }
                     
-            // Saglabājam sesijā, lai uzlabotu ātrdarbību
+            // Saglabājam sesijā, lai uzlabotu ātrdarbību            
             Request::session()->put($this->session_guid . "_view", serialize($this->view_obj));
-            Request::session()->put($this->session_guid . "_sql", $this->view_sql);           
+            Request::session()->put($this->session_guid . "_sql", $this->view_sql);
         }
     }
 }

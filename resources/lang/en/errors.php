@@ -58,7 +58,7 @@ return [
     
     'excel_row' => 'Some rows were not imported because of duplicate values. The skipped Excel row numbers: ',
     
-    'no_rights_to_insert_imp' => "You have no rights to insert a new entry in the register '%s'!", 
+    'no_rights_to_insert_imp' => "You have no rights to insert or import a new entry in the register '%s'!", 
     
     'excel_dependent' => 'Some rows were not imported because of dependency issue! The skipped Excel row numbers: ',
     
@@ -110,7 +110,7 @@ return [
     
     'employee_name_exception' => "Employee name '%s' can't be splited as first name and last name",
     
-    'unsuported_action_code' => "Unsuported form's action code '%s'!",
+    'unsuported_action_code' => "Unsupported form's action code '%s'!",
     
     'wrong_date_format' => "Data can't be saved! Wrong date format for the field '%s'. Date must be in format %s!",
     
@@ -128,4 +128,37 @@ return [
     
     'field_not_found' => "View does not contain field named '%s'!",
     'field_not_found_id' => "View does not contain field with ID %s!",
+    
+    'item_locked' => "Item is locked and can't be edited! Item was locked at %s by user %s. Please, wait while %s finish editing.",
+
+    'unable_to_rotate_image' => "System error! Unable to rotate image!",
+    'unable_to_copy_file' => "System error! Unable to copy file!",
+    
+    'no_rights_on_reports' => "Report does not exist or You do not have rights to access reports!",
+    
+    'no_rights_on_meetings' => "Meeting does not exist or You do not have rights to access meeting!",
+
+    'no_rights_on_constructor' => "Register does not exist or You do not have rights to access constructor!",
+	
+    'phone_format_err' => "Phone number can contain only numbers!",
+    
+    'lookup_sql_error' => "SQL error for the lookup field '%s'!",
+    
+    'no_view_config_rights' => "You don't have rights to configure views for this register!",
+    
+    'form_validation_err' => "Data can't be saved, because there is at least one validation error!",
+    
+    'no_id_field_in_import_excel' => 'There is no ID column in Excel field which is required to identify records. Please include ID column in Excel file.',
+    
+    'crypto_regeneration_in_process' => 'Crypted data is in re-crypting process started by :user_name. New entry adding in system is locked.',
+    
+    'view_must_have_id_field' => 'The ID field is not included in the view as column. Please, include ID field - it can be set as hidden as well.',
+    
+    'wrong_action_object' => "System configuration error! It is provided wrong activity to the form, because activity is not intended for database table assigned to this form's register.",
+    
+    'form_in_editing' => "Data form is in editing mode. Please, save data or cancel editing.",
+    
+    'btn_ok' => 'OK',
+    'attention' => 'Attention!',
+    
 ];

@@ -8,13 +8,14 @@ use Illuminate\Support\Facades\Config;
 use App\Libraries\FormField;
 use App\Libraries\FormSave;
 use App\Libraries\Rights;
+use Log;
 
 use App\Http\Requests;
 
 /**
  * Class InlineFormController
  *
- * Inline form - an AJAX form embedded into a page. This controller provides server-side support ot this kind of forms.
+ * Inline form - an AJAX form embedded into a page. This controller provides server-side support of this kind of forms.
  *
  * @package App\Http\Controllers
  */
@@ -91,7 +92,10 @@ class InlineFormController extends FormController
 		$list_id = $request->input('list_id');
 		$tabList = $request->input('tab_list', []);
 		$fieldList = $request->input('field_list', []);
-		
+                $this->setFormsRightsMode($list_id, $id);
+                
+                \App\Libraries\DBHelper::lockItem($list_id, $id);
+                
 		$form = new \App\Libraries\Forms\Form($list_id, $id);
 		$form->disabled = false;
 		$form->tabList = $tabList;

@@ -11,6 +11,11 @@
         <div class="row">
             <div class="hidden-xs col-sm-2 col-md-2 employee-pic-box">
                 <img src="{{Request::root()}}/{{ \App\Libraries\Helper::getEmployeeAvatarBig($item->picture_guid) }}" class="img-responsive">
+                
+                    <div style="text-align: center; margin-top: 10px; max-width: 120px;">
+                        @include('profile.status_info', ['avail' => \App\Libraries\Helper::getEmployeeStatus($item->valid_from, $item->termination_date)])
+                    </div>
+                
             </div>
 
             <div class="col-xs-12 col-sm-10 col-md-6">

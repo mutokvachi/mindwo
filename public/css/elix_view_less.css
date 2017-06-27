@@ -1,0 +1,99 @@
+
+.dx-form-chat-avatar {
+  object-fit: cover;
+}
+.dx-form-chat-avatar-sm {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%!important;
+}
+.dx-form-chat-user-list-row {
+  padding: 5px;
+  border-bottom: 1px solid lightgray;
+}
+.dx-chat-loader {
+  border: 5px solid #f3f3f3;
+  /* Light grey */
+  border-top: 5px solid #3498db;
+  /* Blue */
+  border-bottom: 5px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  -webkit-animation: dx-spin 2s linear infinite;
+  animation: dx-spin 2s linear infinite;
+}
+@-webkit-keyframes dx-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes dx-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+.dx-form-chat-panel .popover-content {
+  overflow-y: scroll;
+  height: 40vh;
+}
+.dx-form-chat-user-add-modal .dx-form-chat-user-field {
+  width: 100%;
+}
+.dx-form-chat-user-add-modal .dx-form-chat-input-save-user-title {
+  width: 100%;
+}
+.dx-form-chat-panel {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  display: none;
+  background-color: white;
+  padding: 0;
+  border: solid 1px gray;
+}
+.dx-form-chat-panel .portlet {
+  margin-bottom: 0;
+}
+.dx-form-chat-panel .portlet .portlet-body {
+  height: auto;
+}
+.dx-form-chat-panel .portlet .portlet-body .dx-form-chat-content-container {
+  overflow-y: scroll;
+  height: 40vh;
+}
+.dx-form-chat-panel .portlet .portlet-body .dx-form-chat-progress {
+  display: none;
+}
+.dx-form-chat-panel .portlet .portlet-body .dx-form-chat-progress .progress {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+.dx-form-chat-panel .portlet .portlet-body .dx-form-chat-form-btns {
+  float: right;
+  width: 38px;
+  padding-left: 3px;
+}
+.dx-form-chat-panel .portlet .portlet-body .dx-form-chat-form-btns .dx-form-chat-file-input {
+  display: none;
+}
+.dx-form-chat-panel .portlet .portlet-body .dx-form-chat-form-inputs {
+  width: auto;
+  overflow: hidden;
+}
+.dx-form-chat-panel .portlet .portlet-body .dx-form-chat-form-inputs .dx-form-chat-input-text {
+  max-height: 20vh;
+  height: 68px;
+}
+
+/*# sourceMappingURL=elix_view_less.css.map */

@@ -56,7 +56,7 @@ return [
     
     'excel_row' => 'Dažas Excel rindas netika importētas, jo dublējās reģistra ieraksti. Dublējošo un neimportēto Excel rindu numuri: ',
     
-    'no_rights_to_insert_imp' => "Jums nav jauna ieraksta veidošanas tiesības reģistrā '%s'!", 
+    'no_rights_to_insert_imp' => "Jums nav jauna ieraksta veidošanas vai importēšanas tiesības reģistrā '%s'!", 
     
     'excel_dependent' => 'Dažas Excel rindas netika importētas, jo nevar uzstādīt atbilstības savstarpēji atkarīgiem ierakstiem. Neimportēto Excel rindu numuri: ',
     
@@ -128,4 +128,34 @@ return [
     
     'field_not_found' => "Skatam nav definēts lauks ar nosaukumu '%s'!",
     'field_not_found_id' => "Skatam nav definēts lauks ar ID %s!",
+    
+    'item_locked' => 'Ieraksts ir bloķēts un rediģēšana nav iespējama! Ierakstu %s sāka rediģēt lietotājs %s. Jums ir jāuzgaida, kamēr %s pabeigs ieraksta rediģēšanu.',
+
+    'unable_to_rotate_image' => "Sistēmas kļūda! Nav iepsējams rotēt datni!",
+    'unable_to_copy_file' => "Sistēmas kļūda! Nav iepsējams kopēt datni!",
+    
+    'no_rights_on_reports' => "Atskaite nav atrodama vai arī Jums nav tiesību piekļūt atskaitei!",
+    
+    'no_rights_on_meetings' => "Sapulce nav atrodama vai arī Jums nav tiesību piekļūt sapulcei!",
+    
+    'phone_format_err' => "Tālruņa numurs var sastāvēt tikai no cipariem!",
+    
+    'lookup_sql_error' => "Uzmeklēšanas izvēlnes laukam '%s' nav iespējams izveidot korektu datu atlases pieprasījumu.",
+    
+    'no_view_config_rights' => 'Jums nav tiesību konfigurēt šī reģistra skatus!',
+    
+    'form_validation_err' => "Datus nav iespējams saglabāt, jo nav norādītas obligāto lauku vērtības!",
+    
+    'no_id_field_in_import_excel' => 'Importējamajā Excel datnē nav ietverta ID kolonna. Bez ID informācijas nav iespējams identificēt ierakstus un visi ieraksti tiktu importēti kā jauni. Lūdzu, ietveriet Excel datnē ID kolonnu.',
+    
+    'crypto_regeneration_in_process' => 'Jaunu ierakstu pievienošana nav iespējama, jo lietotājs :user_name pašlaik veic konfidenciālo datu pāršifrēšanu.',
+    
+    'view_must_have_id_field' => 'Skatā nav iekļauts ID lauks! Lūdzu, iekļaujiet skatā ID lauku - tas var būt arī kā neredzamais lauks.',
+    
+    'wrong_action_object' => 'Sistēmas konfigurācijas kļūda! Formai norādīta nekorekta izpildāmā aktivitāte, jo tā neatbilst reģistra datu objektam.',
+    
+    'form_in_editing' => "Tiek veikta datu labošana. Lūdzu, saglabājiet vai atceliet veiktās izmaiņas.",
+    
+    'btn_ok' => 'Labi',
+    'attention' => 'Uzmanību!',
 ];

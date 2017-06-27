@@ -26,7 +26,9 @@ return [
     'menu_mark_all' => 'Iezīmēt visus',
     'menu_delete_marked' => 'Dzēst iezīmētos',
     
-    'menu_admin_settings' => 'Iestatījumi',
+    'menu_admin_settings' => 'Reģistra iestatījumi',
+    'menu_form_settings' => 'Formas iestatījumi',
+    'menu_view_settings' => 'Skata iestatījumi',
     
     'paginator_page' => 'Lapa',
     'paginator_from' => 'no',
@@ -88,4 +90,15 @@ return [
     'lbl_criteria_title' => 'Filtrēšanas vērtība',
     'error_filter_must_be_set' =>"Nav uzstādīta filtrēšanas vērtība!",
     
+    'sort_asc' => 'Kārtot augoši',
+    'sort_desc' => 'Kārtot dilstoši',
+    'sort_off' => 'Nav kārtošana',
+    
+    'report_interval' => 'Laika intervāls',
+    'btn_prepare_report' => 'Sagatavot atskaiti',
+    
+    'lbl_total' => 'Kopā',
+    
+    'excel_description' => 'Datu eksports no sistēmas %s',
+    'excel_sheet' => 'Dati',
 ];

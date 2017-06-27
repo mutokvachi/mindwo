@@ -14,12 +14,14 @@ return [
     'page_fullscreen'=> 'Page in full screen',
     'page_boxed' => 'Boxed page',
     'password_change' => "Change the password",
+    'change_design' => "Change design",
     'logout' => 'Logout',
     
     // Other TOP menu
     'tasks' => 'Tasks',
     'user_manual' => 'User guide',
     'open' => 'Open',
+    'more' => 'More',
     
     // JavaScript messages for the files: dx_core.js, dx_forms_core.js
     'data_processing' => 'Processing data... Please, wait...',

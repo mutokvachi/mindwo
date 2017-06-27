@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /*
 |--------------------------------------------------------------------------
@@ -115,4 +115,9 @@ return [
     'delete_confirm_text' => "Do You want to delete this workflow's element?",
     'lbl_deny' => 'DENIED',
     'open_designer' => 'Open visual designer',
+    'err_cant_get_unit_leader' => "There is not possible to get unit leader for the employee '%s'!",
+    
+    'cant_delegate_to_myself' => "Task can't be delegated to yourself! Please, provide another employee.",
+    
+    'alowed_delegate_only_subordinated' => 'Task can be delegated only to direct subordinates!',
 ];

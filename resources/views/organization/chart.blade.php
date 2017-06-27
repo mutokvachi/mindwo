@@ -14,6 +14,12 @@
         <a class="btn btn-circle btn-icon-only btn-default" href="javascript:;" id="dx-org-zoom-out" title="{{ trans('organization.btn_zoom_out') }}">
           <i class="fa fa-search-minus"></i>
         </a>
+        <a class="btn btn-circle btn-icon-only btn-default" href="javascript:;" id="dx-org-expand-all" title="{{ trans('organization.btn_expand_all') }}">
+          <i class="fa fa-expand"></i>
+        </a>
+        <a class="btn btn-circle btn-icon-only btn-default" href="javascript:;" id="dx-org-collapse-all" title="{{ trans('organization.btn_collapse_all') }}">
+          <i class="fa fa-compress"></i>
+        </a>
         <a class="btn btn-circle btn-icon-only btn-default" href="javascript:;" id="dx-org-export" title="{{ trans('organization.btn_export') }}">
           <i class="fa fa-download"></i>
         </a>

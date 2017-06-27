@@ -8,8 +8,9 @@ use Illuminate\Http\Response;
 use DB;
 use Webpatser\Uuid\Uuid;
 use Config;
-use Log;
+use App\User;
 use App\Libraries\Rights;
+use Auth;
 
 /**
  *
@@ -341,7 +342,9 @@ class EmployeeController extends Controller
                                 case when DATE(now()) between em.left_from and em.left_to then em.left_to else null end as left_to_date,
                                 subst.' . Config::get('dx.empl_fields.empl_name') . ' as subst_empl_name,
                                 in_departments.title as department,
-                                em.id
+                                em.id,
+                                em.termination_date,
+                                em.join_date as valid_from
                                 '))
                 ->leftJoin('in_sources', 'em.source_id', '=', 'in_sources.id')
                 ->leftJoin('in_departments', 'em.department_id', '=', 'in_departments.id')
@@ -372,7 +375,13 @@ class EmployeeController extends Controller
         $this->whereSubstitute($employees);
         $this->whereTeam($employees);
         
-        $employees->whereNull('em.' . Config::get('dx.empl_fields.empl_end_date')); // Tikai aktuālos darbiniekus
+        $roleId = Config::get('dx.left_employees_access_role_id');
+        $user = User::find(Auth::user()->id);
+	$hasRole = (boolean) $user->roles->where('id', $roleId)->count();
+		
+	if(!$hasRole) {
+            $employees->whereNull('em.' . Config::get('dx.empl_fields.empl_end_date')); // Tikai aktuālos darbiniekus
+        }
     }
 
     /**

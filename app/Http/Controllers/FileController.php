@@ -15,6 +15,11 @@ use Log;
  */
 class FileController extends Controller
 {    
+    
+    public function viewPdf() {        
+        return view('pages.view_pdf');
+    }
+    
     /**
      * Lejuplādē datni
      * 
@@ -75,6 +80,33 @@ class FileController extends Controller
         } catch (\Exception $ex) {
             return response(json_encode(['success' => 0, 'error' => $ex->getMessage()]));
         }
+    }
+
+    /**
+     * Download file by checking rights on other list 
+     * DO NOT ALLOW TO RUN THIS THROUGH ROUTES! - use it only from other classes where user can not set himself list and item id fro checking rights 
+     * 
+     * @param integer $rights_item_id   Item ID for rights check
+     * @param integer $rights_list_id   List ID for rights check
+     * @param integer $item_id          Item ID
+     * @param integer $list_id          List ID
+     * @param string $field_name        File field name
+     * @return Response File
+     * @throws Exceptions\DXCustomException
+     */
+    public function getFileByOtherRights($rights_item_id, $rights_list_id, $item_id, $list_id, $field_name)
+    {
+        Rights::checkFileRights($rights_item_id, $rights_list_id);
+        
+        $file_field_id = DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', $field_name)->first()->id;
+
+        $file = $this->getFileData($item_id, $list_id, $file_field_id);
+
+        if (!$file) {
+            throw new Exceptions\DXCustomException(sprintf(trans('errors.file_record_not_found'),$item_id));
+        }
+        
+        return $this->performFileDownload($file);
     }
 
     /**

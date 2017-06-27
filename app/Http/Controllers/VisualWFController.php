@@ -571,7 +571,7 @@ class VisualWFController extends Controller
         
         $list_id = $workflow->list_id;
 
-        $list = \App\Models\Lists::find($list_id);
+        $list = \App\Models\System\Lists::find($list_id);
         if ($list) {
             $list_title = $list->list_title;
             $wf_register_id = $list->id;

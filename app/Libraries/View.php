@@ -87,7 +87,8 @@ namespace App\Libraries {
 		$sql = "
 			SELECT 
 				rl.list_id,
-				lf.db_name as user_field_name 
+				lf.db_name as user_field_name,
+                                rl.is_subord
 			FROM 
 				dx_users_roles ur 
 				inner join dx_roles_lists rl on ur.role_id = rl.role_id
@@ -111,17 +112,27 @@ namespace App\Libraries {
                                 // So, we dont check other field values and no where criteria will be based on user id
                                 break;
                         }
-
+                        
                         if (strlen($this->sql_user_rights) > 0)
                         {
-                                $this->sql_user_rights = $this->sql_user_rights . ",";
+                                $this->sql_user_rights .= " AND ";
                         }
-                        $this->sql_user_rights = $this->sql_user_rights . $this->list_obj_db_name . "." . $row->user_field_name;
+                        
+                        $user_ids = $this->user_id;
+                        if ($row->is_subord) {
+                            $subord = new View\Helpers\Subordinates();
+                            $sub_ids = $subord->getAllSubordinates($this->user_id);
+                            if (strlen($sub_ids) > 0) {
+                                $user_ids .= ", " . $sub_ids;
+                            }
+                        }
+                        $this->sql_user_rights .= $this->list_obj_db_name . "." . $row->user_field_name . " in (" . $user_ids . ") ";
+                        
                 }
-
+                
                 if (strlen($this->sql_user_rights) > 0)
                 {
-                        $this->sql_user_rights = " AND " . $this->user_id . " in (" . $this->sql_user_rights . ")";
+                        $this->sql_user_rights = " AND " . $this->sql_user_rights;
                 }
 
                 if ($this->is_rights_on_list == 0)
@@ -286,6 +297,54 @@ namespace App\Libraries {
 		
 	}
 
+        /**
+         * Return the current view's fields properties array
+         * 
+         * @return Array Fields properties
+         */
+        private function getFieldsArray() {
+            return DB::table('dx_views_fields as vf')
+                   ->select(
+                         'lf.id',
+                         'lf.db_name',
+                         DB::raw('ifnull(vf.alias_name,lf.title_list) as title_list'),
+                         'vf.width',
+                         'vf.align',
+                         'ft.is_date',
+                         'ft.is_integer',
+                         'ft.is_decimal',
+                         'o.db_name as rel_table_db_name',
+                         'rf.db_name as rel_field_db_name',
+                         'vf.is_item_link',
+                         'ft.sys_name',
+                         'lf.formula',
+                         'lf.list_id',
+                         'fo.sys_name as operation',
+                         'vf.criteria',
+                         'vf.is_hidden',
+                         'st.sys_name as order_by',
+                         'vf.is_sum',
+                         'at.sys_name as aggregation',
+                         'lf.rel_list_id',
+                         'lo.db_name as list_table_name',
+                         'lf.is_crypted',
+                         'l.masterkey_group_id'
+                   )
+                   ->join('dx_lists_fields as lf', 'vf.field_id', '=', 'lf.id')
+                   ->join('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
+                   ->join('dx_lists as l', 'lf.list_id', '=', 'l.id')
+                   ->join('dx_objects as lo', 'l.object_id', '=', 'lo.id') 
+                   ->leftJoin('dx_lists_fields as rf', 'lf.rel_display_field_id', '=', 'rf.id')
+                   ->leftJoin('dx_lists as rl', 'rl.id', '=', 'lf.rel_list_id')
+                   ->leftJoin('dx_objects as o', 'rl.object_id', '=', 'o.id')
+                   ->leftJoin('dx_field_operations as fo', 'vf.operation_id', '=', 'fo.id')
+                   ->leftJoin('dx_sort_types as st', 'vf.sort_type_id', '=', 'st.id')
+                   ->leftJoin('dx_aggregation_types as at', 'vf.aggregation_id', '=', 'at.id') 
+                   ->where('vf.view_id', '=', $this->view_id)
+                   ->orderBy('vf.order_index')
+                   ->get();
+        }
+        
 	public function get_view_sql()
 	{
 		$this->setViewData();
@@ -298,46 +357,7 @@ namespace App\Libraries {
                 $view_row = DB::table('dx_views')->where('id','=',$this->view_id)->first();
                 
 		// Prepare fields set
-		$sql = "
-			SELECT
-				lf.id,
-				lf.db_name,
-				ifnull(vf.alias_name,lf.title_list) as title_list,
-				vf.width,
-				vf.align,
-				ft.is_date,
-				ft.is_integer,
-				ft.is_decimal,
-				o.db_name as rel_table_db_name,
-				rf.db_name as rel_field_db_name,
-				vf.is_item_link,
-				ft.sys_name,
-				lf.formula,
-				lf.list_id,
-				fo.sys_name as operation,
-				vf.criteria,
-				vf.is_hidden,
-				st.sys_name as order_by,
-				vf.is_sum,
-				at.sys_name as aggregation,
-                                lf.rel_list_id
-			FROM
-				dx_views_fields vf
-				inner join dx_lists_fields lf on vf.field_id = lf.id
-				inner join dx_field_types ft on lf.type_id = ft.id
-				left join dx_lists_fields rf on lf.rel_display_field_id = rf.id
-				left join dx_lists rl on rl.id = lf.rel_list_id
-				left join dx_objects o on rl.object_id = o.id
-				left join dx_field_operations fo on vf.operation_id = fo.id
-				left join dx_sort_types st on vf.sort_type_id = st.id
-				left join dx_aggregation_types at on vf.aggregation_id = at.id
-			WHERE
-				vf.view_id = :view_id
-			ORDER BY
-				vf.order_index
-			";
-		
-                $fields = DB::select($sql, array('view_id' => $this->view_id));
+                $fields = $this->getFieldsArray();
 		
 		$sql_fields = "";
 		$fld_name="";
@@ -365,7 +385,8 @@ namespace App\Libraries {
 				"search" => false,
 				"sortable" => false,
 				"formatter" => "js:myEditBtn",
-				"fixed" => true
+				"fixed" => true,
+                                "is_crypted" => 0
 				);
 		array_push($this->model, $arr_fld_opt);
 		
@@ -377,6 +398,7 @@ namespace App\Libraries {
 			}
 			
 			$original_field = ""; // Will be used for filtering and order by logic, this name can be different (can be formula) from field alias name for grid column			                     
+                        $original_table = "";
                         
 			if ($row->list_id != $this->list_id)
 			{
@@ -390,7 +412,7 @@ namespace App\Libraries {
 					
 					if (strlen($this->err) > 0)
 					{
-						return"";
+						return "";
 					}
 					
 					$sql_fields =  $sql_fields . $alias_tb . "." . $row->db_name . " as " . $alias_tb . "_" . $row->db_name;
@@ -398,7 +420,8 @@ namespace App\Libraries {
 					$fld_name = $alias_tb . "_" . $row->db_name;
 							
 					$original_field = $alias_tb . "_" . $row->db_name;
-					
+					$original_table = $alias_tb;
+                                        
 					//Rights on items
 					$rights_cnt++;
 					$sql_rights_join = $sql_rights_join . " 
@@ -479,7 +502,8 @@ namespace App\Libraries {
 					$fld_name = $alias_tb . "_" . $row->db_name . "_" . $aggreg;
 							
 					$original_field = $alias_tb . "_" . $row->db_name . "_" . $aggreg;
-					
+					$original_table = $alias_tb;
+                                        
 					$arr_aggreg[$row->list_id] = $alias_tb;
 					
 								
@@ -488,34 +512,26 @@ namespace App\Libraries {
 			else if (strlen($row->rel_table_db_name) > 0)
 			{
 				$rel_cnt++;
-				
-				$fld_name = $row->rel_table_db_name . "_" . $rel_cnt . "_" . $row->rel_field_db_name;
-				
-				$sql_fields =  $sql_fields . $row->rel_table_db_name . "_" . $rel_cnt . "." . $row->rel_field_db_name . " as " . $fld_name;
-				
-                                if ($row->list_id == Config::get('dx.employee_list_id', 0)) {
-                                    // ignore supervision rules for related employees in employees list
-                                    // because we need to see related manager
-                                    $superv_sql = "";
-                                    $join_type = " LEFT JOIN ";
-                                }
-                                else {
-                                    $superv_sql = Rights::getSQLSuperviseRights($row->rel_list_id, $row->rel_table_db_name . "_" . $rel_cnt);                                
-                                    $join_type = (strlen($superv_sql) > 0) ? " JOIN " : " LEFT JOIN ";
-                                }
+                                $fld_source = new View\Sources\SourceRel($row, $this->list_obj_db_name);
+                                $fld_source->rel_cnt = $rel_cnt;
+				$fld_source->prepareSource();
                                 
-				$sql_join = $sql_join . $join_type . $row->rel_table_db_name . " " . $row->rel_table_db_name . "_" . $rel_cnt . " ON " . $row->rel_table_db_name . "_" . $rel_cnt . ".id = " . $this->list_obj_db_name . "." . $row->db_name . $superv_sql;
-				
-				$original_field = $fld_name; 			
+                                $sql_join .= $fld_source->sql_join;
+                                $sql_fields .= $fld_source->alias_field_select;
+                                $fld_name = $fld_source->alias_field_name;
+                                $original_field = $fld_name;
+                                $original_table = $fld_source->source_table;
 			}
 			else
 			{
+                                $original_table = $this->list_obj_db_name;
+                                
 				if ($row->db_name == "id")
 				{
 					$fld_name = "id";
 					$sql_fields =  $sql_fields . $this->list_obj_db_name . "." . $row->db_name . " as id";
 					
-					$original_field = "id";
+					$original_field = "id";                                        
 				}
 				else
 				{
@@ -528,26 +544,8 @@ namespace App\Libraries {
                                             $fld_name = $row->db_name;
                                         }
                                         
-                                        $formula = "";
-					
-					if (strlen($row->formula) > 0)
-					{
-						$formula = $row->formula;
-						
-						preg_match_all('/\[(.*?)\]/', $formula, $out_arr);
-						
-						//str_replace(","'",str_replace("->,"'",implode(",", $out_arr[0])))
-						$qMarks = str_repeat('?,', count($out_arr[1]) - 1) . '?';
-						$sql_f = "SELECT db_name, title_list from dx_lists_fields WHERE list_id = " . $this->list_id . " AND title_list in (" . $qMarks  . ")";
-						
-                                                $rows_formulas = DB::select($sql_f, $out_arr[1]);
-                                                
-						foreach($rows_formulas as $row_f)
-						{
-                                                    $formula = str_replace("[" . $row_f->title_list . "]", $this->list_obj_db_name . "." . $row_f->db_name, $formula);
-						}
-	
-					}
+                                        $formula_obj = new View\Helpers\Formula($row);
+                                        $formula = $formula_obj->getFieldFormula();
 					
 					$fld = "";
 					if (strlen($formula) > 0)
@@ -584,29 +582,8 @@ namespace App\Libraries {
 				}
 				
 				// Set filtering logic
-				if (strlen($row->operation) > 0)
-				{
-					if ($row->operation == " LIKE") {
-                                            $sql_filter = $sql_filter . " AND " . $original_field . $row->operation . " '%" . $row->criteria . "%' ";
-                                        }
-                                        elseif ($row->operation == " IS NULL" || $row->operation == " IS NOT NULL")
-					{
-						$sql_filter = $sql_filter . " AND " . $original_field . $row->operation;
-					}
-					else
-					{
-						$crit = $row->criteria;
-						if ($crit == "[ME]")
-						{
-							$crit = $this->user_id;
-						}
-                                                
-                                                if ($row->sys_name == "bool") {
-                                                    $crit = ($row->criteria == "'" . trans('fields.yes') . "'") ? 1 : 0;
-                                                }
-						$sql_filter = $sql_filter . " AND " . $original_field . $row->operation . $crit;
-					}
-				}
+                                $operation = View\Operations\OperationFactory::build_operation($original_field, $row);
+                                $sql_filter .= $operation->getWhereSQL();                                
 								
 				if ($row->id == $this->rel_field_id)
 				{
@@ -628,7 +605,11 @@ namespace App\Libraries {
 								"search" => true,
 								"sortable" => true,
 								"type" => $row->sys_name,
-                                                                "is_hidden" => $row->is_hidden
+                                                                "is_hidden" => $row->is_hidden,
+                                                                "original_table" => $original_table,
+                                                                "original_field" => $row->db_name,
+                                                                "is_crypted" => $row->is_crypted,
+                                                                "masterkey_group_id" => $row->masterkey_group_id
 								);
 						
 						// Grand total logic
@@ -716,7 +697,8 @@ namespace App\Libraries {
                 // Here we join sqls for related lists
 		$sql_join = $sql_join . " " . $sql_rights_join;
 		$spec_access = $sql_rights_where;		
-		                                
+		
+                $report_filter = new View\Helpers\ReportFiltering();
                 $grid_sql = "";
                 if ($view_row->view_type_id != 9 || strlen($this->sql_user_rights) > 0)
                 {                    
@@ -731,12 +713,12 @@ namespace App\Libraries {
                         $source_rights = Rights::getSQLSourceRights($this->list_id, $this->list_obj_db_name);
                     }
                     
-                    $grid_sql = "SELECT * FROM (SELECT " . $sql_fields . " FROM " . $this->list_obj_db_name . $sql_join . " WHERE 1=1 " . $this->getListLevelFilter() . $sql_multi . $sql_tab_where . $superv_sql . $source_rights . $this->sql_user_rights . $spec_access . ") tb WHERE 1=1 " . $sql_filter;
-                    
+                    $grid_sql = "SELECT * FROM (SELECT " . $sql_fields . " FROM " . $this->list_obj_db_name . $sql_join . " WHERE 1=1 " . $this->getListLevelFilter() . $report_filter->getWhereSQL() . $sql_multi . $sql_tab_where . $superv_sql . $source_rights . $this->sql_user_rights . $spec_access . ") tb WHERE 1=1 " . $sql_filter;
+                   
                 }
                 else
                 {
-                    $grid_sql = $view_row->custom_sql;
+                    $grid_sql = $view_row->custom_sql . $report_filter->getWhereSQL();
                     
                     $grid_sql = str_replace("[ME]", $this->user_id, $grid_sql);
                     $grid_sql = str_replace("[ITEM_ID]", $this->rel_field_value, $grid_sql);
@@ -746,7 +728,7 @@ namespace App\Libraries {
                 //DB::statement('CREATE OR REPLACE VIEW v_data_' . $this->view_id . ' as ' . $grid_sql);
 
                 //$sql = "SELECT * FROM v_data_" . $this->view_id . " WHERE 1=1 "; 
-                
+                //\Log::info("GRID SQL: " . $grid_sql);
                 return $grid_sql;
                 
 	}

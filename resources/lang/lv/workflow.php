@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /*
 |--------------------------------------------------------------------------
@@ -114,4 +114,9 @@ return [
     'delete_confirm_text' => 'Vai vēlaties dzēst šo darbplūsmas elementu?',
     'lbl_deny' => 'NORAIDĪJA',
     'open_designer' => 'Atvērt grafisko redaktoru',
+    'err_cant_get_unit_leader' => "Darbiniekam %s nav iespējams noteikt struktūrvienības vadītāju!",
+    
+    'cant_delegate_to_myself' => 'Uzdevumu nav pieļaujams deleģēt sev. Lūdzu, norādiet citu darbinieku.',
+    
+    'alowed_delegate_only_subordinated' => 'Uzdevumu pieļaujams deleģēt tikai savā tiešajā pakļautībā esošajiem darbiniekiem!',
 ];

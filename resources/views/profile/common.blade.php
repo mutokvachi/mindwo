@@ -168,12 +168,25 @@
     {
       $(window).on('beforeunload', function()
       {
-        if($(".dx-stick-footer").is(":visible"))
-        {
-          hide_page_splash(1);
-          hide_form_splash(1);
-          return 'Your changes have not been saved.';
-        }
+            if($(".dx-stick-footer").is(":visible"))
+            {
+                return 'Your changes have not been saved.';
+            }
+      });
+      
+      $( window ).unload(function() {
+            if($(".dx-stick-footer").is(":visible")) {            
+                var url = DX_CORE.site_url + 'form/unlock_item/' + $('.dx-employee-profile').data('list_id') + '/' + $('.dx-employee-profile').data('item_id');                           
+                
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    async:false, //IMPORTANT, the call will be synchronous
+                    data: {}
+                }).done(function(data) {                
+                    console.log('Unlocked');
+                });               
+            }
       });
       
       show_page_splash(1);
@@ -301,7 +314,7 @@
         </div>
         <div class="col-lg-10 col-md-9 col-sm-9 col-xs-12">
           <div class="actions pull-right">
-            @if($is_edit_rights && $mode != 'create')
+            @if($is_edit_rights && $mode != 'create')              
               <a href="javascript:;" class="btn btn-circle btn-default dx-edit-profile">
                 <i class="fa fa-pencil"></i> {{ trans('form.btn_edit') }} </a>
               <a href="javascript:;" class="btn btn-circle btn-default dx-delete-profile">
@@ -372,7 +385,8 @@
         </div>
         <div class='col-lg-10 col-md-9 col-sm-12 col-xs-12 dx-right'>
           <a href="javascript:;" class="btn btn-primary dx-save-profile">
-            <i class="fa fa-floppy-o"></i> {{ trans('form.btn_save') }} </a>
+            <i class="fa fa-floppy-o"></i> {{ trans('form.btn_save') }}
+          </a>
           <a href="javascript:;" class="btn btn-default dx-cancel-profile">
             <i class="fa fa-times"></i> {{ trans('form.btn_cancel') }} </a>
         </div>

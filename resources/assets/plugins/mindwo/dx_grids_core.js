@@ -40,6 +40,22 @@ function reload_grid_by_id(grid_id)
     formData.append("sorting_field", $("#" + grid_id).data("sorting_field"));
     formData.append("sorting_direction", $("#" + grid_id).data("sorting_direction"));
     
+    var view_container = $("#" + grid_id).closest(".dx-block-container-view");
+    
+    var report_date_from = view_container.find("input[name=dx_filter_date_from]");
+    if (report_date_from.length > 0) {
+        formData.append("dx_filter_date_from", report_date_from.val());
+    }
+    
+    var report_date_to = view_container.find("input[name=dx_filter_date_to]");
+    if (report_date_to.length > 0) {
+        formData.append("dx_filter_date_to", report_date_to.val());
+    }
+    
+    if (report_date_from.length > 0 || report_date_to.length > 0) {
+        formData.append("dx_filter_field_id", view_container.data("filter-field-id"));
+    }
+    
     post_grid_ajax(formData, grid_data_htm_id, "", 0);    
 }
 
@@ -93,6 +109,11 @@ function post_grid_ajax(formData, grid_data_htm_id, form_htm_id, is_scroll)
                 { 
                     $("#" + grid_data_htm_id).html(myData['html']);
                                         
+                    if (!form_htm_id) {
+                        $("body").addClass("dx-grid-in-page");
+                        document.title = myData['title'];
+                    }
+            
                     if (is_scroll == 1)
                     {
                         var d = $("#" + form_htm_id).find(".modal-body");
@@ -104,10 +125,12 @@ function post_grid_ajax(formData, grid_data_htm_id, form_htm_id, is_scroll)
                         PageMain.resizePage();                     
                     }, 100);
                     
+                    // Commented out because it prevents main navigation from working properly on mobiles
+                    /*
                     setTimeout(function(){ 
                         $('.dropdown-toggle').dropdown();                        
                     }, 1000);
-                    
+                    */
                 } 
                 else
                 {

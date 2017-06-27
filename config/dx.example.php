@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 //Rename this file to dx.php for production or development environment
 return [
     
@@ -147,7 +147,7 @@ return [
     'empl_fields' => array(
             'empl_name' => 'display_name',
             'empl_position' => 'position_title',
-            'empl_end_date' => 'valid_to'
+            'empl_end_date' => 'termination_date'
         ),
     
     /*
@@ -250,7 +250,17 @@ return [
     |   2) Meu on the top side - horizontal - set true
     */
     'is_horizontal_menu' => true,
-    
+
+    /*
+    |--------------------------------------------------------------------------
+    | Use as much as possible CSS instead of JS for responsive positioning
+    |--------------------------------------------------------------------------
+    |
+    | This feature brings increased performance of the UI on resize events.
+    | It also enables 'tabdrop' behavior for main menu.
+     */
+    'is_cssonly_ui' => true,
+
     /*
     |--------------------------------------------------------------------------
     | UI setting for logo (not in login page but at the top left corner)
@@ -326,7 +336,8 @@ return [
     */
     'orgchart' => [
         'default_levels' => 2,
-        'default_root_employee_id' => 212
+        'default_root_employee_id' => 212,
+        'access_role_id' => 1,
     ],
 
     /*
@@ -341,6 +352,8 @@ return [
             'items_per_page' => 20,
             // Delay between sending emails
             'send_delay' => 0,
+            // Path for storing thumbnails, relative to public directory
+            'thumbnail_path' => 'formated_img/mail_thumbn',
     ],
     
     /*
@@ -352,4 +365,62 @@ return [
     |--------------------------------------------------------------------------
     */
     'autocompleate_max_count' => 20,
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Is backuping enabled
+    |
+    | Backup policy is defined in config file laravel-backup.php
+    | It's made one ZIP archive with db dump and all resources files
+    |--------------------------------------------------------------------------
+    */
+    'is_backuping_enabled' => env('APP_BACKUPS_ON', false),
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Indicates which role will see left employees in search results
+    |--------------------------------------------------------------------------
+    */
+    'left_employees_access_role_id' => 1,
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Use as much as possible CSS instead of JS for responsive positioning
+    |--------------------------------------------------------------------------
+    |
+    | This feature brings increased performance of the UI on resize events.
+    | It also enables 'tabdrop' behavior for main menu.
+    */
+    'is_cssonly_ui' => false,
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Indicates if timeoff must be calculated daily by CRON JOB
+    |--------------------------------------------------------------------------
+    */
+    'is_timeoff_calculation' => env('APP_CALCULATE_TIMEOFF', false),
+    
+    /*
+    |--------------------------------------------------------------------------
+    | UI constructor settings
+    |--------------------------------------------------------------------------
+    */
+    'constructor' => [
+        // Role which have rights to use constructor
+        'access_role_id' => 1,
+    ],
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Refresh rate in seconds. Chat messages will be pulled from server after specified time
+    |-------------------------------------------------------------------------- 
+    */
+    'chat_refresh_rate' => env('CHAT_REFRESH_RATE', 1),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Parameter if chat enabled
+    |-------------------------------------------------------------------------- 
+    */
+    'is_chat_enabled' => false,
 ];

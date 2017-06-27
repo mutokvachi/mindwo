@@ -1,9 +1,7 @@
 <?php
 
 namespace App\Libraries\FileTextExtractor
-{
-    use App\Exceptions;
-    
+{    
     /**
      * Teksta izgūšana no PDF datnes
      */
@@ -17,10 +15,9 @@ namespace App\Libraries\FileTextExtractor
         public function readText()
         {
             $reader = new \Asika\Pdf2text;
-            $reader->setFilename($this->filename);
-            $reader->decodePDF();
-
-            $text = $reader->output();
+            
+            $text = $reader->decode($this->filename);
+            
             $text = str_replace("\r\n", "", $text); // windows
             $text = str_replace("\n", "", $text); // Linux
             $text = str_replace("\r", "", $text); // Linux, just in case

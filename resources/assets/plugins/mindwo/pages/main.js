@@ -3,9 +3,12 @@
  * 
  * @type _L4.Anonym$0|Function
  */
-var PageMain = function ()
+var PageMain = function()
 {
+    var is_grid_resize_callback_added = 0;
 
+    var last_view_loaded_id = 0;
+    
     /**
      * Lapas objekts
      * 
@@ -36,7 +39,7 @@ var PageMain = function ()
      * @type Array
      */
     var resize_functions_arr = [];
-
+    
     var tab_win = null;
 
     /**
@@ -44,14 +47,14 @@ var PageMain = function ()
      * @type object
      */
     var reLoginModal = null;
-
+    
     /**
      * Papildina datņu lejuplādes saites ar ikonām
      * 
      * @returns {undefined}
      */
-    var setFilesLinksIcons = function () {
-
+    var setFilesLinksIcons = function() {
+        
         setFilesLinksFa('jpg', 'fa fa-file-image-o');
         setFilesLinksFa('png', 'fa fa-file-image-o');
         setFilesLinksFa('gif', 'fa fa-file-image-o');
@@ -65,9 +68,9 @@ var PageMain = function ()
         setFilesLinksFa('xlsx', 'fa fa-file-excel-o');
         setFilesLinksFa('mp4', 'fa fa-file-video-o');
         setFilesLinksFa('mp3', 'fa fa-file-audio-o');
-
+        
     };
-
+    
     /**
      * Papildina datņu lejuplādes saites ar ikonām atbilstoši datnes paplašinājumam
      * 
@@ -75,41 +78,42 @@ var PageMain = function ()
      * @param {string} icon_class   Ikonas klases nosaukums
      * @returns {undefined}
      */
-    var setFilesLinksFa = function (file_ext, icon_class) {
-        $("a[href$='." + file_ext + "']").not(".dx-no-link-pic").each(function () {
+    var setFilesLinksFa = function(file_ext, icon_class) {        
+        $("a[href$='." + file_ext + "']").not(".dx-no-link-pic").each(function() {
             if ($(this).find('i').length == 0)
             {
-                $(this).html("<i class='" + icon_class + "'></i> " + $(this).html());
+                $(this).html("<i class='" + icon_class + "'></i> " +  $(this).html());  
             }
         });
     };
-
+    
     /**
      * Izpilda visas funkcijas no masīva, ja lapai mainās izmērs
      * 
      * @returns {undefined}
      */
-    var resizePage = function () {
+    var resizePage = function() {
         for (i = 0; i < resize_functions_arr.length; i++) {
+            console.log("Page resize callback function: " + resize_functions_arr[i].name);
             resize_functions_arr[i]();
         }
     };
-
+    
     /**
      * Pārzīmē lapas izskatu ņemot vērā cookie uzstādīto vērtību
      * 
      * @returns {undefined}
      */
-    var resizePageFromCookie = function () {
+    var resizePageFromCookie = function() {
         redrawPageLayout($.cookie("layout"));
     };
-
+    
     /**
      * Pārzīmē lapas elementus uz lapas izskatu "Pa visu ekrānu"
      * 
      * @returns {undefined}
      */
-    var resetLayoutToWide = function () {
+    var resetLayoutToWide = function() {
         $("body").removeClass("page-boxed");
 
         $('.page-header > .page-header-inner').removeClass("container");
@@ -133,7 +137,7 @@ var PageMain = function ()
      * 
      * @returns {undefined}
      */
-    var resetLayoutToBoxed = function () {
+    var resetLayoutToBoxed = function() {
         $("body").addClass("page-boxed");
 
         // set header
@@ -143,15 +147,15 @@ var PageMain = function ()
         // set content
         $('.page-container').appendTo('body > .container');
 
-        $('.page-footer').html('<div class="container">' + $('.page-footer').html() + '</div>');
+        $('.page-footer').html('<div class="container">' + $('.page-footer').html() + '</div>');        
     };
-
+    
     /**
      * Maina lapas izskatu - fiksēts rāmis lapas vidū, sānos joslas
      * 
      * @returns {undefined}
      */
-    var makePageBoxed = function () {
+    var makePageBoxed = function() {
 
         if ($("body").hasClass("page-boxed"))
         {
@@ -172,7 +176,7 @@ var PageMain = function ()
      * 
      * @returns {undefined}
      */
-    var makePageWide = function () {
+    var makePageWide = function() {
         resetLayoutToWide();
 
         $("#btnScreen").attr("dx_attr", "wide");
@@ -181,14 +185,14 @@ var PageMain = function ()
 
         $.cookie("layout", "wide");
     };
-
+    
     /**
      * Pārzīmē lapu uz norādīto izskata variantu
      * 
      * @param {string} to_layout Izskata variants, wide - pa visu lapu, boxed - rāmis
      * @returns {undefined}
      */
-    var redrawPageLayout = function (to_layout) {
+    var redrawPageLayout = function(to_layout) {
 
         if (to_layout == "wide")
         {
@@ -198,16 +202,16 @@ var PageMain = function ()
         {
             makePageBoxed();
         }
-
-        if ($.isFunction($.fn.App)) {
+        
+        if ( $.isFunction($.fn.App) ) {
             App.runResizeHandlers();
         }
-
-        if ($.isFunction($.fn.Layout)) {
+        
+        if ( $.isFunction($.fn.Layout) ) {
             Layout.fixContentHeight(); // fix content height            
             Layout.initFixedSidebar(); // reinitialize fixed sidebar
         }
-
+        
         resizePage();
     };
 
@@ -217,7 +221,7 @@ var PageMain = function ()
      * 
      * @returns {undefined}
      */
-    var initUserAgentAttr = function () {
+    var initUserAgentAttr = function() {
         var doc = document.documentElement;
         doc.setAttribute('data-useragent', navigator.userAgent);
     };
@@ -228,7 +232,7 @@ var PageMain = function ()
      * 
      * @returns {undefined}
      */
-    var initAjaxCSRF = function () {
+    var initAjaxCSRF = function() {
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -242,15 +246,15 @@ var PageMain = function ()
      * 
      * @returns {undefined}
      */
-    var initFormHeight = function () {
-
-        $.fn.modal.defaults.maxHeight = function () {
+    var initFormHeight = function() {
+        
+        $.fn.modal.defaults.maxHeight = function() {
             var menu_h = $(window).height(); //$(".page-sidebar-menu").height();
             menu_h = menu_h - 246;
-
+            
             return menu_h;// * DX_CORE.form_height_ratio;
         };
-
+        
     };
 
     /**
@@ -258,17 +262,18 @@ var PageMain = function ()
      * 
      * @returns {undefined}
      */
-    var initCoreParams = function () {
+    var initCoreParams = function() {
         DX_CORE.site_url = page_elem.attr("dx_root_url");
         App.setAssetsPath(DX_CORE.site_url + "assets/");
-
+        
         DX_CORE.site_public_url = page_elem.attr("dx_public_root_url");
         DX_CORE.progress_gif_url = DX_CORE.site_url + "assets/global/progress/loading.gif";
         DX_CORE.valid_elements = page_elem.attr("dx_valid_html_elements");
         DX_CORE.valid_styles = page_elem.attr("dx_valid_html_styles");
+        
         DX_CORE.max_upload_size = page_elem.attr("dx_max_file_size").replace("M", "");
-        DX_CORE.post_max_size = page_elem.attr("dx_post_max_size");
-
+        DX_CORE.post_max_size = page_elem.attr("dx_post_max_size").replace("M", "");
+        
         DX_CORE.trans_data_processing = page_elem.attr("trans_data_processing");
         DX_CORE.trans_please_wait = page_elem.attr("trans_please_wait");
         DX_CORE.trans_sys_error = page_elem.attr("trans_sys_error");
@@ -287,13 +292,13 @@ var PageMain = function ()
         DX_CORE.trans_page_fullscreen = page_elem.attr("trans_page_fullscreen");
         DX_CORE.trans_page_boxed = page_elem.attr("trans_page_boxed");
         DX_CORE.trans_passw_form_title = page_elem.attr("trans_passw_form_title");
-
+        
         //tree
         DX_CORE.trans_tree_close = page_elem.attr("trans_tree_close");
         DX_CORE.trans_tree_chosen = page_elem.attr("trans_tree_chosen");
         DX_CORE.trans_tree_cancel = page_elem.attr("trans_tree_cancel");
         DX_CORE.trans_tree_choose = page_elem.attr("trans_tree_choose");
-
+        
         user_tasks_count = page_elem.attr("dx_user_tasks_count");
         current_route = page_elem.attr("dx_current_route");
     };
@@ -303,7 +308,7 @@ var PageMain = function ()
      * 
      * @returns {undefined}
      */
-    var initNotifications = function () {
+    var initNotifications = function() {
         toastr.options = {
             "closeButton": true,
             "debug": false,
@@ -327,11 +332,12 @@ var PageMain = function ()
      * 
      * @returns {undefined}
      */
-    var initUserTasksPopup = function () {
+    /*
+    var initUserTasksPopup = function() {
 
-        if (user_tasks_count > 0 && current_route != "view" && current_route != "home") {
-
-            setTimeout(function () {
+        if (user_tasks_count > 0 && current_route != "view" && current_route != "home" && current_route != "meeting") {
+            
+            setTimeout(function() {
                 $.gritter.add({
                     title: Lang.get('task_form.lbl_notify_start') + ' <font color="#F1C40F">' + user_tasks_count + '</font> ' + ((user_tasks_count > 1) ? Lang.get('task_form.lbl_tasks_n') : Lang.get('task_form.lbl_tasks_1')),
                     text: Lang.get('task_form.lbl_goto_start') + ' <a href="' + DX_CORE.site_url + 'skats_aktualie_uzdevumi" class="text-warning">' + Lang.get('task_form.lbl_goto_link_title') + '</a> ' + Lang.get('task_form.lbl_goto_end') + ' ' + ((user_tasks_count > 1) ? Lang.get('task_form.lbl_tasks_n') : Lang.get('task_form.lbl_tasks_1')) + '.',
@@ -339,20 +345,22 @@ var PageMain = function ()
                 });
             }, 3000);
         }
-    };
-
+    }; 
+    */
+    
     /**
      * Uzstāda palīdzības popup formās uz datu laukiem, kuriem norādīti paskaidrojumi
      * 
      * @returns {undefined}
      */
-    var initHelpPopups = function () {
-
+    var initHelpPopups = function() {
+        
         $('.dx-form-help-popup').tooltipster({
             theme: 'tooltipster-light',
             animation: 'grow',
             maxWidth: 300
         });
+        
     };
 
     /**
@@ -360,23 +368,32 @@ var PageMain = function ()
      * 
      * @returns {undefined}
      */
-    var initSpecialTooltips = function () {
+    var initSpecialTooltips = function() {
+        $('[title]').filter(function(i){
+            return $(this).attr('title') != "";
+        }).tooltipster({
+            theme: 'tooltipster-light',
+            animation: 'grow'
+        });
+   
+        /*
         $('[title]').tooltipster({
             theme: 'tooltipster-light',
             animation: 'grow'
         });
+        */
     }
-
+    
     /**
      * Pārzīmē lapu uz lapas ielādi, ņemot vērā cookie uzstādīto lapas izskata veidu
      * Ja kreisā puses izvēlne ir sakļaut, tad jānogaida 500 milisekundes, lai lapa pabeidz korekti uzzīmēties
      * 
      * @returns {undefined}
      */
-    var initPageSize = function () {
+    var initPageSize = function(){
         if ($.cookie("sidebar_closed") == "1")
         {
-            setTimeout(function () {
+            setTimeout(function() {
                 resizePageFromCookie();
             }, 500);
         }
@@ -385,15 +402,15 @@ var PageMain = function ()
             resizePageFromCookie();
         }
     };
-
+    
     /**
      * Nodrošina portletu izvēršanas/sakļaušanas funkcionalitāti uz attiecīgās ikonas nospiešanu
      * Saglabā cookie portleta stāvokli
      * 
      * @returns {undefined}
      */
-    var handlePortletsHideShow = function () {
-        $('div.tools a').click(function () {
+    var handlePortletsHideShow = function(){
+        $('div.tools a').click(function(){
             var portlet = $(this).parent().parent().parent();
             var portlet_id = portlet.attr('dx_block_id');
 
@@ -409,14 +426,14 @@ var PageMain = function ()
             }
         });
     };
-
+    
     /**
      * Ielādējot lapu, uzstāda portletu sākotnējo stāvokli (izvēsts vai sakļauts) atkarība no cookie saglabātā iepriekšējā stāvokļa
      * 
      * @returns {undefined}
      */
-    var initPortletsShowHide = function () {
-        $('div.tools a').each(function () {
+    var initPortletsShowHide = function() {
+        $('div.tools a').each(function() {
 
             var portlet = $(this).parent().parent().parent();
 
@@ -424,27 +441,27 @@ var PageMain = function ()
 
             if (portlet_id)
             {
-                if ($.cookie(portlet_id) == "hide")
+                if ($.cookie(portlet_id)=="hide")
                 {
                     portlet.find('.portlet-body').hide();
                     $(this).addClass('expand').removeClass('collapse');
                     portlet.addClass('dx-portlet-collapsed');
                 }
             }
-        });
+        });  
     };
-
+   
     /**
      * Pievieno bootstrap modālajiem popup pārvietošanas funkcionalitāti
      * 
      * @returns {undefined}
      */
-    var makeModalsDraggable = function () {
+    var makeModalsDraggable = function() {
         /*
-         $(".modal").draggable({
-         handle: ".modal-header"
-         });
-         */
+        $(".modal").draggable({
+            handle: ".modal-header"
+        });
+        */
     };
 
     /**
@@ -452,31 +469,32 @@ var PageMain = function ()
      * 
      * @returns {undefined}
      */
-    var solveIE9Placeholders = function () {
-        $('input, textarea').each(function () {
+    var solveIE9Placeholders = function() {
+        $('input, textarea').each(function() {
             $(this).placeholder();
         });
     };
-
+    
     /**
      * Noņem progresa logu visai lapai, kad lapa ir ielādēta
      * 
      * @returns {undefined}
      */
-    var handleSplashRemoval = function () {
-        $(window).bind("load", function () {
+    var handleSplashRemoval = function() {
+        $(window).bind("load", function() {
             $('.splash').css('display', 'none');
-            $('body').css('overflow', 'auto');
+            //$('body').css('overflow', 'auto');
+			$('body').css('overflow', 'visible');
         });
     };
-
+    
     /**
      * Nodrošina lapas pārzīmēšanu, ja nospiež kreisās puses izvēlnes sakļaušanas/izvēršanas pogu
      * 
      * @returns {undefined}
      */
-    var handleBtnScreen = function () {
-        $("#btnScreen").click(function (e) {
+    var handleBtnScreen = function(){
+        $("#btnScreen").click(function(e) {
 
             var to_layout = "boxed";
             if ($(this).attr("dx_attr") != "wide")
@@ -484,159 +502,168 @@ var PageMain = function ()
                 to_layout = "wide";
             }
             redrawPageLayout(to_layout);
-        });
+        });  
     };
-
+    
     /**
      * Nodrošina lapas pārzīmēšanu, ja tiek mainīts pārlūka loga izmērs
      * 
      * @returns {undefined}
      */
-    var handleWindowResize = function () {
-        $(window).resize(function () {
-            setTimeout(function () {
+    var handleWindowResize = function() {
+        $(window).resize(function() {
+            setTimeout(function() {
                 resizePageFromCookie();
             }, 500);
-        });
+        });  
     };
-
+    
     /**
      * Handles window resize events for horizontal menu UI
      * 
      * @returns {undefined}
      */
-    var handleWindowResizeHorUI = function () {
-        $(window).resize(function () {
-            setTimeout(function () {
+    var handleWindowResizeHorUI = function() {
+        $(window).resize(function() {
+            setTimeout(function() {
                 resizePage();
             }, 500);
-        });
+        });  
     };
-
+    
     /**
      * Uzstāda ziņu saitēm, lai tās atver jaunā pārlūka TAB un foksuē TABu.
      * Funkcionalitāte tiek uzstādīta arī mākoņa saitēm.
      * 
      * @returns {undefined}
      */
-    var handleTargetedLinkClick = function () {
-        $("a[target=_dx_portal], .jqcloud a").each(function () {
-
+    var handleTargetedLinkClick = function() {
+        $("a[target=_dx_portal], .jqcloud a").each(function() {            
+            
             if ($(this).attr('is_target_set') == 1) {
                 return;
             }
-
-            $(this).click(function (e) {
+            
+            $(this).click(function(e) {
                 e.preventDefault();
 
                 if (isTabInstance()) {
                     tab_win.close();
                 }
 
-                tab_win = window.open($(this).attr("href"), "_dx_portal");
+                tab_win = window.open($(this).attr("href"),"_dx_portal");            
             });
-
+            
             $(this).attr('is_target_set', 1);
-        });
+        });        
     };
-
+    
     /**
      * Pārbauda, vai TABs jau ir bijis atvērts
      * 
      * @returns {Boolean}
      */
-    var isTabInstance = function () {
+    var isTabInstance = function() {
         if (tab_win == null) {
             return false;
         }
-
+        
         if (tab_win.closed) {
-            return false;
+            return false;            
         }
-
+        
         return true;
     };
-
+    
     /**
      * Izceļ aktivizēto izvēlni (jo cache glabājas sākotnējais izcēlums - to noņemam)
      * 
      * @returns {undefined}
      */
-    var setActiveMenu = function () {
+    var setActiveMenu = function() {
         $(".page-sidebar-menu .nav-item").removeClass("active").removeClass("open");
         $(".page-sidebar-menu .nav-item span.selected").remove();
 
         var active_item = $('.page-sidebar-menu .nav-item a[href="' + window.location.href + '"]');
-
+        
         if (active_item.length == 0) {
             return; // nav ielādēta lapa no menu
         }
-
+        
         active_item.parent().addClass("active").addClass("open");
-
+        
         if (active_item.attr("data-level") == 0) {
-            active_item.append('<span class="selected"></span>');
+          active_item.append('<span class="selected"></span>');
         }
         else {
             setActiveParentMenu(parseInt(active_item.attr("data-level")), active_item.parent());
         }
-
+        
     };
-
+    
     /**
      * Rekursīvi aktivizē menu elementa vecākos elementus līdz pašam pirmajam līmenim
      * @param {integer} level Līmenis
      * @param {object} elem Menu elements
      * @returns {undefined}
      */
-    var setActiveParentMenu = function (level, elem) {
-
+    var setActiveParentMenu = function(level, elem) {
+        
         if (level == 0) {
             elem.find("a").first().append('<span class="selected"></span>');
             return;
         }
         else {
             elem.parent().parent().addClass("active").addClass("open"); // te mēs analizējam <li> elementus
-            setActiveParentMenu(level - 1, elem.parent().parent());
-        }
+            setActiveParentMenu(level-1, elem.parent().parent());
+        }  
     };
-
+    
     /**
      * Fix slider/menu issue (metronic theme hack)
      * 
      * @returns {undefined}
      */
-    var reset_margin = function () {
+    var reset_margin = function() {
         $('#td_data').css('margin-left', 0);
         //$('#td_data').css('background', 'rgba(224,234,255,0.95)');
         var page_width = $('.page-bar').width();
         var min_h = $('#slide-page-holder').height();
         var page_header_h = $('.page-header').height();
+        var screenH = $( window ).height();
+        var dataH;
 
-        $('#slides-container div.row').each(function () {
+        $('#slides-container div.row').each(function() {
             var h = $(this).height();
             if (h > min_h) {
                 min_h = h;
             }
         });
 
+        dataH = screenH > (min_h + page_header_h) ? screenH : (min_h + page_header_h);
+
         // -20 because of .page-bar padding
         $('#slide-page-holder').width(page_width - 20);
-        $('#td_data').css('min-height', min_h + page_header_h);
+        $('#td_data').css('min-height', dataH);
+        
+        // Fix logo - remove toggler icons
+        $('div.page-logo').css('width', '150px');
+        $('div.page-logo .sidebar-toggler').css('display', 'none');
+        $('div.page-header-inner .menu-toggler').css('display', 'none');
     };
-
+    
     /**
      * Handles AJAX response status - display errors if needed
      * @param {object} xhr AJAX response object
      * @returns {undefined}
      */
-    var showAjaxError = function (xhr) {
-
+    var showAjaxError = function(xhr) {
+        
         // 401 (session ended) is handled in the file resources/assets/plugins/mindwo/pages/re_login.js
         if (xhr.status == 200) {
             return;
         }
-
+        
         // session ended - relogin required
         if (xhr.status == 401) {
             hide_page_splash(1);
@@ -644,64 +671,64 @@ var PageMain = function ()
             reLoginModal.modal("show");
             return;
         }
-
+        
         toastr.error(getAjaxErrorText(xhr));
-
+        
         hide_page_splash(1);
         hide_form_splash(1);
     };
-
+    
     /**
      * Gets error message from AJAX error response
      * 
      * @param {type} xhr
      * @returns {string} Error message
      */
-    var getAjaxErrorText = function (xhr) {
+    var getAjaxErrorText = function(xhr) {
         var err_txt = "";
         var json = xhr.responseJSON;
-
+        
         // Validation errors handling
-        if (xhr.status === 422)
-        {
-            var errorsHtml = '<ul>';
-            $.each(json, function (key, value) {
-                errorsHtml += '<li>' + value[0] + '</li>';
+        if ( xhr.status === 422  && typeof json != "undefined") 
+        {            
+            var errorsHtml= '<ul>';
+            $.each( json, function( key, value ) {
+                errorsHtml += '<li>' + value[0] + '</li>'; 
             });
             errorsHtml += '</ul>';
             err_txt = errorsHtml;
         }
         else {
-
+            
             if (typeof json == "undefined") {
                 try {
                     json = JSON.parse(xhr.responseText);
                 }
-                catch (e) {
-                }
+                catch (e) {}
             }
-
-            if (typeof json != "undefined" && typeof json.success != "undefined" && json.success == 0 && typeof json.error != "undefined")
+            
+            if ( typeof json != "undefined" && typeof json.success != "undefined" && json.success == 0 && typeof json.error != "undefined" )
             {
-                err_txt = json.error;
+                err_txt = json.error;                
             }
         }
-
+        
         if (!err_txt) {
             // unknown error
+            console.log('Unknown AJAX error. XHR info: status = ' + xhr.status  + '; txt = ' + xhr.responseText);
             err_txt = DX_CORE.trans_general_error;
         }
-
+        
         return err_txt;
     };
-
+    
     /**
      * Inicializē galvenās lapas JavaScript funkcionalitāti.
      * Izpildās, kamēr vēl nav visa lapa līdz galam ielādēta.
      * 
      * @returns {undefined}
      */
-    var initPage = function () {
+    var initPage = function() {
 
         page_elem = $("body.dx-main-page");
 
@@ -719,38 +746,38 @@ var PageMain = function ()
      * 
      * @returns {undefined}
      */
-    var initPageLoaded = function () {
-
+    var initPageLoaded = function() {
+        
         reLoginModal = reLogin.auth_popup;
         reLoginModal.on('shown.bs.modal', function () {
             reLoginModal.find("input[name='user_name']").val("").focus();
             reLoginModal.find("input[name='password']").val("");
         });
-
-        initUserTasksPopup();
-
+        
+        //initUserTasksPopup(); // Temporary remove tasks notifications - should be implemented posibility to setup which pages must use this notify
+        
         initPortletsShowHide();
         handlePortletsHideShow();
-
-        handleTargetedLinkClick();
-
-        setFilesLinksIcons();
-
-        handleMainMenuSplash();
         
-        if ($("body").hasClass("dx-horizontal-menu-ui")) {
+        handleTargetedLinkClick();
+        
+        setFilesLinksIcons();
+        
+        handleMenuSplash();
+        
+        if ($("body").hasClass("dx-horizontal-menu-ui")) {            
             handleWindowResizeHorUI();
             resizePage();
         }
         else {
-            handleBtnScreen();
+            handleBtnScreen();      
             handleWindowResize();
             initPageSize();
             setActiveMenu();
-        }
-
-        if (dx_is_slider == 1) {
-            reset_margin();
+        }                
+            
+        if (typeof dx_is_slider !== "undefined" && dx_is_slider === 1) {
+            reset_margin();        
             addResizeCallback(reset_margin);
         }
     };
@@ -761,27 +788,85 @@ var PageMain = function ()
      * @param {function} callback   Izsaucamā funkciaj
      * @returns {undefined}
      */
-    var addResizeCallback = function (callback) {
+    var addResizeCallback = function(callback) {
         resize_functions_arr.push(callback);
     };
-
+    
     /**
-     * Show splash screen on main menu link click
+     * Show splash screen on menu link click
      */
-    var handleMainMenuSplash = function() {
+    var handleMenuSplash = function() {
+        
+        var showSplash = function() {
+            var stick = $(".dx-stick-footer");
+            if (stick.is(":visible") && stick.hasClass("dx-page-in-edit-mode")) {                
+                PageMain.showConfirm(null, null, Lang.get('errors.attention'), Lang.get('errors.form_in_editing'), Lang.get('errors.btn_ok'), null, null, true);
+                return false;
+            }            
+            return true;
+        };
+        
+        window.onpopstate = function(e){
+            if(e.state && e.state.list_id && e.state.view_id){
+                last_view_loaded_id = e.state.view_id;
+                load_grid("td_data", e.state.list_id, e.state.view_id);
+                return;
+            }
+            
+            if (e.state && e.state.page_url) {
+                if (!showSplash()) {
+                    e.preventDefault();
+                    return false;
+                }
+                
+                window.location.href = e.state.page_url;
+            }
+            
+            if (last_view_loaded_id) {
+                show_page_splash(1);
+                window.location.reload();
+            }
+        };
+
+        var menu_click = function(link, e) {
+            if (!showSplash()) {
+                e.preventDefault();
+                return false;
+            }
+            
+            var list_id = link.attr("data-list-id");
+            var view_id = link.attr("data-view-id");
+            
+            if (list_id && view_id && typeof load_grid !== "undefined") {
+                e.preventDefault();
+                link.closest("li[data-level=0]").removeClass("open").find("a[aria-expanded=true]").attr("aria-expanded", "false");
+                window.history.pushState({"list_id": list_id, "view_id": view_id}, "", "/skats_" + view_id);
+                
+                if(is_grid_resize_callback_added == 0) {
+                    PageMain.addResizeCallback(BlockViews.initHeight);
+                    is_grid_resize_callback_added = 1;
+                }
+                last_view_loaded_id = view_id;
+                load_grid("td_data", list_id, view_id);
+                
+                return false;
+            }
+            
+            $('.splash').css('display', 'block');
+            $('body').css('overflow', 'hidden');
+           
+        };
         
         if ($("body").hasClass("dx-horizontal-menu-ui")) {
             // horizontal menu ui
-            $(".dx-main-menu a").not(".dx-main-menu a.dropdown-toggle").click(function() {
-                $('.splash').css('display', 'block');
-                $('body').css('overflow', 'hidden');
+            $(".dx-main-menu a").not(".dx-main-menu a.dropdown-toggle").click(function(e) {                
+                return menu_click($(this), e);
             });
         }
         else {
             // vertical menu ui
-            $("ul.page-sidebar-menu a").not("ul.page-sidebar-menu a.nav-toggle").click(function() {
-                $('.splash').css('display', 'block');
-                $('body').css('overflow', 'hidden');
+            $("ul.page-sidebar-menu a").not("ul.page-sidebar-menu a.nav-toggle").click(function(e) {
+                return menu_click($(this), e);
             });
         }
     };
@@ -794,85 +879,110 @@ var PageMain = function ()
      * @param {string} bodyText Modal body text
      * @param {string} acceptText Modal accept button text
      * @param {string} declineText Modal decline button text
+     * @param {function} declineCallback Callback function executed after declined
      * @returns {undefined}
      */
-    var showConfirm = function (callback, callbackParameters, title, bodyText, acceptText, declineText) {
-        if (!title) {
+    var showConfirm = function(callback, callbackParameters, title, bodyText, acceptText, declineText, declineCallback, is_accept_only){
+        if(!title){
             title = Lang.get('form.modal_confirm_title');
         }
-
-        if (!bodyText) {
+        
+        if(!bodyText){
             bodyText = Lang.get('form.modal_confirm_body');
         }
-
-        if (!acceptText) {
+        
+        if(!acceptText){
             acceptText = Lang.get('form.btn_accept');
         }
-
-        if (!declineText) {
+        
+        if(!declineText){
             declineText = Lang.get('form.btn_cancel');
         }
-
-
+        
+        
         var modal = $('#mindwo-modal');
-
+        
         modal.find('#mindwo-modal-label').html(title);
         modal.find('#mindwo-modal-body').html(bodyText);
-        modal.find('#mindwo-modal-decline').html(declineText);
-
-        var accept_btn = modal.find('#mindwo-modal-accept')
+        
+        var decline_btn = modal.find('#mindwo-modal-decline');
+        decline_btn.html(declineText);
+        decline_btn.off('click');   
+        
+        if(declineCallback != undefined){
+            decline_btn.click(declineCallback);
+        }
+        
+        if (is_accept_only) {
+            decline_btn.hide();
+        }
+        
+        var accept_btn  = modal.find('#mindwo-modal-accept');
         accept_btn.html(acceptText);
+       
+        accept_btn.off('click');
+        
+        if (callback != undefined && callback != null) {
+            accept_btn.click(function(){
+                var res =  callback(callbackParameters);
 
-        accept_btn.click(function () {
-            accept_btn.off('click');
-
-            callback(callbackParameters);
-        });
-
-        modal.on('hidden.bs.modal', function (e) {
-            accept_btn.unbind("click");
-        });
-
-        modal.modal('show');
+                if(res || typeof(res) == 'undefined'){
+                    modal.modal('hide');
+                }
+            });
+        }
+        else {
+            accept_btn.click(function(){
+                modal.modal('hide');
+            });
+        }
+        
+        // hide opened menu item if any
+        var navMainOpen = $("#navbar li.open");
+        navMainOpen.find("a[aria-expanded=true]").attr("aria-expanded", false);
+        navMainOpen.removeClass("open");
+     
+        // shoe modal popup
+        modal.modal('show');        
     };
 
     return {
-        init: function () {
+        init: function() {
             initPage();
         },
-        initPageLoaded: function () {
+        initPageLoaded: function() {
             initPageLoaded();
         },
-        addResizeCallback: function (callback) {
+        addResizeCallback: function(callback) {
             addResizeCallback(callback);
         },
-        modalsDraggable: function () {
+        modalsDraggable: function() {
             makeModalsDraggable();
         },
-        initHelpPopups: function () {
+        initHelpPopups: function() {
             initHelpPopups();
             initSpecialTooltips();
         },
-        initFilesIcons: function () {
+        initFilesIcons: function() {
             setFilesLinksIcons();
         },
-        initTargetLinks: function () {
+        initTargetLinks: function() {
             handleTargetedLinkClick();
         },
-        initAjaxCSRF: function () {
+        initAjaxCSRF: function() {
             initAjaxCSRF();
         },
-        resizePage: function () {
+        resizePage: function() {
             resizePage();
         },
-        errorHandler: function (xhr) {
+        errorHandler: function(xhr) {
             showAjaxError(xhr);
         },
-        getAjaxErrTxt: function (xhr) {
+        getAjaxErrTxt: function(xhr) {
             return getAjaxErrorText(xhr);
         },
-        showConfirm: function (callback, callbackParameters, title, bodyText, acceptText, declineText) {
-            showConfirm(callback, callbackParameters, title, bodyText, acceptText, declineText);
+        showConfirm:function(callback, callbackParameters, title, bodyText, acceptText, declineText, declineCallback, is_accept_only){
+            showConfirm(callback, callbackParameters, title, bodyText, acceptText, declineText, declineCallback, is_accept_only);
         }
     };
 }();
@@ -880,15 +990,18 @@ var PageMain = function ()
 
 PageMain.init();
 
-$(document).ready(function () {
+$(document).ready(function() {
     PageMain.initPageLoaded();
     PageMain.initHelpPopups();
-    $(this).scrollTop(0, 0);
+    $(this).scrollTop(0,0);    
 });
 
-$(document).ajaxComplete(function (event, xhr, settings) {
+$(document).ajaxComplete(function(event, xhr, settings) {      
     PageMain.errorHandler(xhr);
     PageMain.modalsDraggable();
     PageMain.initHelpPopups();
     PageMain.initFilesIcons();
 });
+
+// To solve FireFox history back issue: https://stackoverflow.com/questions/158319/is-there-a-cross-browser-onload-event-when-clicking-the-back-button
+window.onunload = function(){};

@@ -20,6 +20,12 @@ return [
 	'offers' => [
 		'title' => 'Offers',
 		'subscribe' => 'Subscribe',
-		'unsubscribe' => 'Unsubscribe'
-	]
+		'unsubscribe' => 'Unsubscribe',
+                'err_public_user' => 'User must be authorized. It might be used BACK button in the browser. Please, re-login in system.',
+	],
+        'timeoff' => [
+                'title' => 'My time off available',
+                'btn_request' => 'Request time off',
+                'link_history' => 'History',
+        ]
 ];

@@ -29,13 +29,14 @@
 			orgchartData.displayLevels = 999;
 		
 		var orgchartConfig = {
-			chartContainer: '#dx-orgchart-container',
 			data: orgchartData.source,
 			nodeContent: 'title',
 			verticalDepth: 3,
 			depth: orgchartData.displayLevels,
 			toggleSiblingsResp: true,
 			pan: true,
+			exportButton: true,
+			exportFileextension: 'png',
 			// customize node creation process
 			createNode: function(node, data)
 			{
@@ -48,41 +49,86 @@
 					content.append('<div class="subordinates" title="' + Lang.get('organization.hint_subord') + '">' + data.subordinates + '</div>');
 				
 				// add up arrow button to top node
-				if(data.hasParent)
-					$(node).append('<i class="edge verticalEdge topEdge fa"></i>');
+				if(data.top && (typeof data.parentUrl !== 'undefined'))
+				{
+					$('<i class="edge verticalEdge topEdge fa"></i>')
+						.appendTo(node)
+						.click(function(e)
+						{
+							e.preventDefault();
+							e.stopPropagation();
+							location.href = data.parentUrl;
+						});
+				}
 				
 				$('.title', node).wrapInner('<a href="' + data.href + '"></a>');
 			}
 		};
 		
-		// init orgchart plugin
-		var orgchart = new OrgChart(orgchartConfig);
+		var orgchart = $('#dx-orgchart-container').orgchart(orgchartConfig);
 		
-		// save original handler of click event of up arrow button
-		orgchart._clickTopEdgeOld = orgchart._clickTopEdge;
-		// override event handler of up arrow button
-		orgchart._clickTopEdge = function(event)
-		{
-			var node = $(event.target).parents('.node').first();
-			var data = node.data('source');
-			
-			if(data.top)
-				location.href = data.parentUrl;
-			
-			else
-				this._clickTopEdgeOld(event);
-		};
 		$("#dx-org-zoom-in").click(function()
 		{
-			orgchart._setChartScale(orgchart.chart, 1.2);
+			orgchart.orgchart('zoom', 1.2);
 		});
 		$("#dx-org-zoom-out").click(function()
 		{
-			orgchart._setChartScale(orgchart.chart, 0.8);
+			orgchart.orgchart('zoom', 0.8);
+		});
+		$('#dx-org-expand-all').click(function()
+		{
+			$('.node', orgchart).each(function()
+			{
+				var $this = $(this);
+				var isVertical = $this.closest('ul', orgchart).length > 0;
+				if(isVertical)
+				{
+					var ul = $this.next('ul');
+					if(ul.length && ul.is(':hidden'))
+					{
+						$('.toggleBtn', this).click();
+					}
+				}
+				else
+				{
+					var siblings = $this.closest('tr', orgchart).siblings('.nodes, .verticalNodes');
+					if(siblings.length && (siblings.hasClass('hidden') || siblings.is(':hidden')))
+					{
+						$('.edge.bottomEdge', this).click();
+					}
+				}
+			});
+		});
+		$('#dx-org-collapse-all').click(function()
+		{
+			var nodes = $('.node:not(.slide,.slide-up)', orgchart);
+			$(nodes.get().reverse()).each(function()
+			{
+				var $this = $(this);
+				var isVertical = $this.closest('ul', orgchart).length > 0;
+				if(isVertical)
+				{
+					var ul = $this.next('ul');
+					if(ul.length && ul.is(':visible'))
+					{
+						$('.toggleBtn', this).click();
+						nodes.not($this);
+					}
+				}
+			});
+			nodes.each(function()
+			{
+				var $this = $(this);
+				var siblings = $this.closest('tr', orgchart).siblings('.nodes, .verticalNodes');
+				if(siblings.length && (!siblings.hasClass('hidden') || siblings.is(':visible')))
+				{
+					$('.edge.bottomEdge', this).click();
+				}
+			});
 		});
 		$("#dx-org-export").click(function()
 		{
-			orgchart._clickExportButton();
+			$('.oc-export-btn', orgchart).click();
 		});
 	});
 })(jQuery);

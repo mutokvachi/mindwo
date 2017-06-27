@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class OrgChartController
@@ -104,9 +105,25 @@ class OrgChartController extends Controller
 	 */
 	public function getEmployees()
 	{
-		$users = App\User::whereNotIn('id', config('dx.empl_ignore_ids', [1]))
-			->orderBy('display_name')
-			->get();
+		$users =
+			// raw expression is needed because of Eloquent is putting an ID from joined table into the model
+			App\User::select(DB::raw('*, dx_users.id AS id'))
+				->leftJoin('dx_users_positions AS p', 'dx_users.position_id', '=', 'p.id')
+                                ->leftJoin('dx_users_jobtypes as jt', 'dx_users.job_type_id', '=', 'jt.id')
+				// here we place employees without position to the end of the list
+				->orderBy(DB::raw('dx_users.position_id IS NOT NULL'), 'DESC')
+				// sorting by index
+				->orderBy('p.order_index')
+				// then by display name
+				->orderBy('dx_users.display_name')
+				// skip system users
+				->whereNotIn('dx_users.id', config('dx.empl_ignore_ids', [1]))
+                                ->whereNull('dx_users.termination_date')
+                                ->where(function($query) {
+                                    $query->whereNull('dx_users.job_type_id')
+                                          ->orWhere('jt.is_hide_orgchart', '=', 0);
+                                })
+				->get();
 		
 		$employees = [];
 		
@@ -183,7 +200,7 @@ class OrgChartController extends Controller
 	}
 	
 	/**
-	 * Recursively traverse index of managers and subordinates and build muilti-dimensional array describing
+	 * Recursively traverse index of managers and subordinates and build multi-dimensional array describing
 	 * organizational hierarchy.
 	 *
 	 * Example of hierarchy:
@@ -262,26 +279,41 @@ class OrgChartController extends Controller
 	{
 		$top = $node ? false : true;
 		
-		// first pass - top element
+		// first pass - determine top element
 		if(!$node)
 		{
-			if(isset($this->treeIndex[$this->rootId]))
+			// employee id isn't specified - draw whole tree from the root
+			if($this->rootId == 0)
 			{
 				// there is only one top-level employee in hierarchy (without manager)
-				if(($this->rootId == 0) && (count($this->treeIndex[0]) == 1))
+				if(count($this->treeIndex[0]) == 1)
 				{
 					$node = $this->treeIndex[0];
 				}
-				// more than one employees without manager
+				
+				// more than one employees without manager - need to generate fake 'company' root element
 				else
 				{
-					$node = [$this->rootId => $this->treeIndex[$this->rootId]];
+					$node = [0 => $this->treeIndex[0]];
 				}
 			}
 			
-			else
+			// employee with requested id doesn't exist - emit 404
+			elseif(!isset($this->employees[$this->rootId]))
+			{
+				abort(404);
+			}
+			
+			// employee doesn't have any subordinates
+			elseif(!isset($this->treeIndex[$this->rootId]))
 			{
 				$node = [$this->rootId => []];
+			}
+			
+			// employee exists - draw corresponding subtree
+			else
+			{
+				$node = [$this->rootId => $this->treeIndex[$this->rootId]];
 			}
 		}
 		
@@ -289,12 +321,13 @@ class OrgChartController extends Controller
 		
 		foreach($node as $id => $subnode)
 		{
-			$hasParent = ($id == $this->index[0][0]) ? '0' : '1';
-			$hasChildren = empty($subnode) ? '0' : '1';
-			$hasSiblings = count($node) > 1 ? '1' : '0';
-			
+			// id is not null - the root element is person
 			if($id)
 			{
+				$hasSiblings = count($node) > 1 ? '1' : '0';
+				$hasChildren = empty($subnode) ? '0' : '1';
+				$hasParent = ($id == $this->index[0][0]) ? '0' : '1';
+				
 				$employee = $this->employees[$id];
 				
 				$tmp = [
@@ -306,10 +339,24 @@ class OrgChartController extends Controller
 					'href' => route('profile', $employee->id),
 					'relationship' => $hasParent . $hasSiblings . $hasChildren,
 					'hasParent' => $hasParent == '1',
-					'top' => $top
+					'top' => $top,
 				];
+				
+				// add url of a parent node
+				if($top)
+				{
+					if($parent = $this->parentsIndex[$id])
+					{
+						$tmp['parentUrl'] = route('organization_chart', $parent);
+					}
+					else
+					{
+						$tmp['parentUrl'] = route('organization_chart');
+					}
+				}
 			}
-			// if there are more than one top managers, generate a fake "Company" top-level element
+			
+			// id is null - there are more than one top managers, generate a fake "Company" top-level element
 			else
 			{
 				$tmp = [
@@ -321,18 +368,20 @@ class OrgChartController extends Controller
 					'href' => route('organization_departments'),
 					'relationship' => '001',
 					'hasParent' => false,
-					'top' => true
+					'top' => true,
 				];
 			}
 			
-			if($top && $id)
-			{
-				$tmp['parentUrl'] = route('organization_chart', $this->parentsIndex[$id]);
-			}
-			
+			// recurse deeper to the next level of hierarchy
 			if(!empty($subnode))
 			{
 				$tmp['children'] = $this->getOrgchartDatasource($subnode);
+			}
+			// even if employee doesn't have any subordinates, we must provide an empty array of children,
+			// for OrgChart plugin to work correctly
+			else
+			{
+				$tmp['children'] = [];
 			}
 			
 			$result[] = $tmp;

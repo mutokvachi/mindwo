@@ -63,6 +63,8 @@ Route::post('/ajax/employees', array('as' => 'get_employees', 'middleware' => 'a
 
 Route::get('/emp_docs_test', array('as' => 'search', 'middleware' => 'auth', 'uses' => 'Employee\EmployeePersonalDocController@testView'));
 
+Route::get('/web/viewer.html', array('as' => 'pdf_viewer', 'middleware' => 'auth', 'uses' => 'FileController@viewPdf'));
+
 // Grids
 Route::post('/grid', array('as' => 'grid', 'middleware' => 'auth_ajax', 'uses' => 'GridController@getGrid'));
 Route::post('/delete_grid_items', array('as' => 'grid', 'middleware' => 'auth_ajax', 'uses' => 'GridController@deleteItems'));
@@ -71,6 +73,9 @@ Route::post('/excel', array('as' => 'excel', 'middleware' => 'auth_ajax', 'uses'
 Route::post('/import_excel', array('as' => 'import_data', 'middleware' => 'auth_ajax', 'uses' => 'ImportController@importData'));
 
 // SVS formas
+Route::get('/form/unlock_item/{list_id}/{item_id}', array('as' => 'form_unlock',  'middleware' => 'auth_ajax', 'uses'=>'FormController@unlockItem'));
+Route::get('/form/lock_item/{list_id}/{item_id}', array('as' => 'form_lock',  'middleware' => 'auth_ajax', 'uses'=>'FormController@lockItem'));
+
 Route::post('/form', array('as' => 'form',  'middleware' => 'auth_ajax', 'uses'=>'FormController@getForm'));
 Route::post('/refresh_form', array('as' => 'refresh_form',  'middleware' => 'auth_ajax', 'uses'=>'FormController@refreshFormFields'));
 Route::post('/fill_autocompleate', array('as' => 'fill_autocompleate',  'middleware' => 'auth_ajax', 'uses'=>'FormController@getAutocompleateData'));
@@ -95,7 +100,40 @@ Route::group(['middleware' => 'auth_api', 'prefix' => 'api'], function() {
     Route::group(['prefix' => 'view', 'namespace' => 'Api'], function () {
         Route::get('{view_id}/data/all', 'ViewController@getAllData');
         Route::get('{view_id}/data/filtered/{field}/{criteria}', 'ViewController@getFilteredData');
+        Route::get('{view_id}/data/raw/{field}/{criteria}', 'ViewController@getFilteredRawData');
+        Route::get('{view_id}/data/raw_all', 'ViewController@getRawData');
+        Route::post('raw_filtered_ordered', 'ViewController@getFilteredOrderedRawData');
     });
+});
+
+Route::group(['middleware' => 'auth_api', 'prefix' => 'api'], function() {    
+    Route::group(['prefix' => 'view', 'namespace' => 'Api'], function () {
+        Route::get('{view_id}/data/all', 'ViewController@getAllData');
+        Route::get('{view_id}/data/filtered/{field}/{criteria}', 'ViewController@getFilteredData');
+        Route::get('{view_id}/data/raw/{field}/{criteria}', 'ViewController@getFilteredRawData');
+        Route::get('{view_id}/data/raw_all', 'ViewController@getRawData');
+        Route::post('raw_filtered_ordered', 'ViewController@getFilteredOrderedRawData');
+    });
+    Route::group(['prefix' => 'core', 'namespace' => 'Api'], function () {
+        Route::get('data/lookup_fields/{list_id}', 'CoreController@getLookupFields');
+    });
+});
+
+Route::group(['middleware' => 'auth', 'prefix' => 'reports', 'namespace' => 'Reports'], function() { 
+    Route::get('/', 'ReportsController@getDefault');
+    Route::get('/group/{group_id}', 'ReportsController@getByGroup');
+});
+
+Route::group(['middleware' => 'auth', 'prefix' => 'meetings', 'namespace' => 'Meetings'], function() { 
+    Route::get('/test', 'TestView@test');
+    Route::get('/{meeting_type_id}', 'MeetingsController@getDefault');
+    Route::get('/{meeting_type_id}/{meeting_id}', array('as' => 'meeting', 'uses' => 'MeetingsController@getById'));
+    Route::get('/{meeting_type_id}/{meeting_id}/start', 'MeetingsController@startMeeting');
+    Route::get('/{meeting_type_id}/{meeting_id}/end', 'MeetingsController@endMeeting');
+    Route::get('/{meeting_type_id}/{meeting_id}/next', 'MeetingsController@nextAgenda');
+    Route::post('/agenda', 'MeetingsController@getAgenda');
+    Route::post('/get_agendas_list', 'MeetingsController@getAgendasList');
+    
 });
 
 // Startē procesu forsēti
@@ -122,6 +160,8 @@ Route::post('/save_delegate', array('as' => 'save_delegate', 'middleware' => 'au
 Route::post('/workflow_custom_approve', array('as' => 'workflow_custom_approve', 'middleware' => 'auth_ajax', 'uses' => 'TasksController@getCustomApprove'));
 Route::post('/workflow_find_approver', array('as' => 'workflow_find_approver', 'middleware' => 'auth_ajax', 'uses' => 'TasksController@getAutocompleateApprovers'));
 Route::post('/send_info_task', array('as' => 'send_info_task', 'middleware' => 'auth_ajax', 'uses' => 'TasksController@sendInfoTask'));
+Route::post('/tasks/get_delegated', array('as' => 'workflow_get_delegated_tasks', 'middleware' => 'auth_ajax', 'uses' => 'TasksController@getDelegatedTasksList'));
+Route::post('/tasks/cancel_delegated', array('as' => 'workflow_cancel_delegated_tasks', 'middleware' => 'auth_ajax', 'uses' => 'TasksController@cancelDelegatedTask'));
 
 Route::group(['prefix' => 'workflow'], function() {
     Route::group(['prefix' => 'visual'], function () {
@@ -134,6 +174,26 @@ Route::group(['prefix' => 'workflow'], function() {
     });
 });
 
+Route::group(['prefix' => 'crypto', 'namespace' => 'Crypto'], function() {
+        Route::get('/user_panel', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@getUserPanelView'));   
+        Route::get('/get_user_cert/{user_id?}/{master_key_group_id?}', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@getUserCertificate'));    
+        Route::get('/check_existing_keys/{master_key_group_id?}', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@hasExistingKeys'));    
+        Route::post('/save_cert', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@saveUserCertificate'));
+        Route::get('/pending_data/{regenProcessId}/{master_key_group_id}/{getMasterKey}/{masterKey?}', array('middleware' => 'auth', 'uses' => 'CryptoMasterKeyRegenerationController@prepareRecrypt'));
+        Route::get('/check_regen/{master_key_group_id}', array('middleware' => 'auth', 'uses' => 'CryptoMasterKeyRegenerationController@checkExistingRegenProcesses'));
+        Route::post('/save_regen_cache', array('middleware' => 'auth', 'uses' => 'CryptoMasterKeyRegenerationController@saveRegenCache'));
+        Route::post('/apply_regen_cache', array('middleware' => 'auth', 'uses' => 'CryptoMasterKeyRegenerationController@applyRegenCache'));
+        Route::get('/get_user_public_keys/{master_key_group_id}', array('middleware' => 'auth', 'uses' => 'CryptoMasterKeyRegenerationController@getUserPublicKeys'));  
+});
+
+Route::group(['prefix' => 'chat'], function() {
+        Route::post('/message/save', array('middleware' => 'auth_ajax', 'uses' => 'ChatController@saveMessage'));
+        Route::post('/user/add', array('middleware' => 'auth_ajax', 'uses' => 'ChatController@addUserToChat'));
+        Route::post('/user/remove', array('middleware' => 'auth_ajax', 'uses' => 'ChatController@removeUserFromChat'));
+        Route::get('/users/{list_id}/{item_id}', array('middleware' => 'auth_ajax', 'uses' => 'ChatController@getChatUsers'));   
+        Route::get('/messages/{list_id}/{item_id}/{last_message_id}', array('middleware' => 'auth_ajax', 'uses' => 'ChatController@getMessages'));
+        Route::get('/file/{chat_id}/{message_id}', array('middleware' => 'auth_ajax', 'uses' => 'ChatController@getFile'));   
+});
 
 // Lietotāji - autorizācija, atslēgšanās
 Route::post('/login', 'UserController@loginUser');
@@ -196,26 +256,45 @@ Route::group(['middleware' => 'auth_ajax', 'prefix' => 'inlineform'], function()
     Route::delete('{id}', 'InlineFormController@destroy');
 });
 
-Route::group(['middleware' => 'auth', 'prefix' => 'organization'], function() {
+Route::group(['middleware' => ['auth', 'orgchart_access'], 'prefix' => 'organization'], function() {
     Route::get('chart/{id?}', ['as' => 'organization_chart', 'uses' => 'OrgChartController@show']);
     Route::get('departments', ['as' => 'organization_departments', 'uses' => 'DepartmentsChartController@show']);
 });
 
 Route::group(['middleware' => ['auth', 'mail_access'], 'prefix' => 'mail'], function() {
-    Route::get('', ['as' => 'mail_index', 'uses' => 'MailController@index']);
-    Route::get('sent', ['as' => 'mail_sent', 'uses' => 'MailController@index']);
-    Route::get('draft', ['as' => 'mail_draft', 'uses' => 'MailController@index']);
-    Route::get('scheduled', ['as' => 'mail_scheduled', 'uses' => 'MailController@index']);
-    Route::get('compose', ['as' => 'mail_compose', 'uses' => 'MailController@create']);
-    Route::post('store', ['as' => 'mail_store', 'middleware' => 'auth_ajax', 'uses' => 'MailController@store']);
-    Route::get('upload', ['as' => 'mail_upload', 'middleware' => 'auth_ajax', 'uses' => 'MailController@upload']);
-    Route::post('upload', ['as' => 'mail_upload', 'middleware' => 'auth_ajax', 'uses' => 'MailController@upload']);
-    Route::get('to_autocomplete', ['as' => 'mail_to_autocomplete', 'middleware' => 'auth_ajax', 'uses' => 'MailController@ajaxToAutocomplete']);
-    Route::delete('mass_delete', ['as' => 'mail_mass_delete', 'middleware' => 'auth_ajax', 'uses' => 'MailController@massDelete']);
-    Route::post('{id}/update', ['as' => 'mail_update', 'middleware' => 'auth_ajax', 'uses' => 'MailController@update']);
-    Route::get('{id}/edit', ['as' => 'mail_edit', 'uses' => 'MailController@edit']);
-    Route::get('{id}', ['as' => 'mail_show', 'uses' => 'MailController@show']);
-    Route::delete('{id}', ['as' => 'mail_delete', 'middleware' => 'auth_ajax', 'uses' => 'MailController@destroy']);
+	Route::get('', ['as' => 'mail_index', 'uses' => 'MailController@index']);
+	Route::get('sent', ['as' => 'mail_sent', 'uses' => 'MailController@index']);
+	Route::get('draft', ['as' => 'mail_draft', 'uses' => 'MailController@index']);
+	Route::get('scheduled', ['as' => 'mail_scheduled', 'uses' => 'MailController@index']);
+	Route::get('compose', ['as' => 'mail_compose', 'uses' => 'MailController@create']);
+	Route::post('store', ['as' => 'mail_store', 'middleware' => 'auth_ajax', 'uses' => 'MailController@store']);
+	Route::get('to_autocomplete', ['as' => 'mail_to_autocomplete', 'middleware' => 'auth_ajax', 'uses' => 'MailController@ajaxToAutocomplete']);
+	Route::delete('mass_delete', ['as' => 'mail_mass_delete', 'middleware' => 'auth_ajax', 'uses' => 'MailController@massDelete']);
+	Route::delete('attachment/{id}', ['as' => 'mail_delete_attachment', 'middleware' => 'auth_ajax', 'uses' => 'MailController@deleteAttachment']);
+	Route::post('{id}/update', ['as' => 'mail_update', 'middleware' => 'auth_ajax', 'uses' => 'MailController@update']);
+	Route::get('{id}/edit', ['as' => 'mail_edit', 'uses' => 'MailController@edit']);
+	Route::get('{id}', ['as' => 'mail_show', 'uses' => 'MailController@show']);
+	Route::delete('{id}', ['as' => 'mail_delete', 'middleware' => 'auth_ajax', 'uses' => 'MailController@destroy']);
+});
+
+Route::post('theme/select/{id}', ['middleware' => 'auth_ajax', 'uses' => 'ThemeController@select']);
+
+Route::group(['middleware' => ['auth', 'constructor_access'], 'prefix' => 'constructor', 'namespace' => 'Constructor'], function() {
+	Route::get('/register', ['as' => 'register_index', 'uses' => 'RegisterController@index']);
+	Route::get('/register/create', ['as' => 'register_create', 'uses' => 'RegisterController@create']);
+	Route::post('/register', ['as' => 'register_store', 'uses' => 'RegisterController@store']);
+	Route::get('/register/{id}', ['as' => 'register_edit', 'uses' => 'RegisterController@edit']);
+	Route::put('/register/{id}', ['as' => 'register_update', 'uses' => 'RegisterController@update']);
+	Route::get('/register/{id}/columns', ['as' => 'register_edit_columns', 'uses' => 'RegisterController@editColumns']);
+	Route::put('/register/{id}/columns', ['as' => 'register_update_columns', 'uses' => 'RegisterController@updateColumns']);
+	Route::get('/register/{id}/fields', ['as' => 'register_edit_fields', 'uses' => 'RegisterController@editFields']);
+	Route::put('/register/{id}/fields', ['as' => 'register_update_fields', 'uses' => 'RegisterController@updateFields']);
+	Route::put('/register/{id}/field_update', ['as' => 'register_update_field', 'uses' => 'RegisterController@updateField']);
+	Route::get('/register/{id}/rights', ['as' => 'register_edit_rights', 'uses' => 'RegisterController@editRights']);
+	Route::put('/register/{id}/rights', ['as' => 'register_update_rights', 'uses' => 'RegisterController@updateRights']);
+	Route::get('/db_fields/{list_id}/{field_type_id}', ['as' => 'register_get_db_fields', 'uses' => 'FieldsController@getDBFields']);
+        Route::get('/menu/{site_id}', ['as' => 'menu_builder', 'uses' => 'MenuController@getMenuBuilderPage']);
+        Route::put('/menu/{site_id}', ['as' => 'menu_builder_update', 'uses' => 'MenuController@updateMenu']);
 });
 
 // Lapas

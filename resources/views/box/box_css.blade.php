@@ -1,6 +1,7 @@
 <style>
-    #slide-page-holder {
+    .slide-page-holder {
         position: absolute;
+        margin-right: 20px;
     }
 
     #slides-container .row {
@@ -20,6 +21,7 @@
         overflow: hidden;
         position: relative;
         height: 100px;
+        cursor: pointer;
     }
 
     #slides-container .row .folder .folder-content:hover {
@@ -78,5 +80,77 @@
     .page-bar .page-toolbar .btn-fit-height {
         border-radius: 0px;
         box-shadow: none;
+    }
+
+    @media (max-width: 991px)
+    {
+        .slide-page-holder {
+            margin-left:6px;
+            margin-right:6px;
+        }
+
+        .page-bar {
+            margin:0px;
+            margin-bottom:20px;
+            padding-left:5px;
+        }
+
+        #slides-container .col-sm-4 {
+            padding-left:20px;
+            padding-right:20px;
+        }
+    }
+
+    @media (max-width: 600px)
+    {
+        #slides-container .col-sm-4 {
+            padding-left:14px;
+            padding-right:14px;
+        }
+        
+        .page-bar .tooltips {
+            padding-left: 6px;
+            padding-right: 2px;
+        }
+        .page-bar .tooltips span {
+            display: none;
+        }
+        
+        #slides-container .row .folder .folder-content .folder-icon > i {
+            font-size:36px;
+            line-height:36px;
+            margin-top:25px;
+        }
+
+        #slides-container .row .folder .folder-content .folder-object { left:55px; }
+        .folder-object h4 {
+            font-size:16px;
+        }
+    }
+    
+    @media (max-width: 480px)
+    {
+        .page-bar .page-breadcrumb > li > a, .page-bar .page-breadcrumb > li > span { font-size: 11px}
+        
+        #slides-container .row .folder .folder-content { height:60px; }
+        #slides-container .row .folder .folder-content .folder-icon { left:4px; }
+        #slides-container .row .folder .folder-content .folder-icon > i {
+            font-size:20px;
+            line-height:20px;
+            margin-top:15px;
+        }
+
+        #slides-container .row .folder .folder-content .folder-object { 
+            left:30px;
+            top: 10px;
+        }
+        .folder-object h4 {
+            font-size:12px;
+        }
+        
+        #slides-container .col-sm-4 {
+            padding-left:12px;
+            padding-right:12px;
+        }
     }
 </style>

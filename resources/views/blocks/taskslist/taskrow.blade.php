@@ -1,4 +1,4 @@
-<div class="mt-action animated bounceInUp" data-task-id="{{ $task->id }}" data-task-list-id = "{{ $self->task_list_id }}">
+<div class="mt-action animated bounceInUp" data-task-id="{{ $task->id }}" data-task-list-id = "{{ $self->task_list_id }}" data-is-any-delegate="{{ $task->is_any_delegate }}">
     <div class="mt-action-img">
         @if ($task->item_empl_id)
         <a href="{{ url('employee/profile/' . $task->item_empl_id)}}"><img src="{{Request::root()}}/{{ \App\Libraries\Helper::getEmployeeAvatarBig($task->picture_guid) }}" title="{{ $task->item_employee }}" style="width: 50px; height: 50px; border-radius: 50%!important;"></a>
@@ -60,8 +60,8 @@
                     @else
                     <div class="btn-group btn-group-circle pull-right">
                         <button type="button" class="btn btn-outline green btn-sm dx-btn-yes" title='{{ ($task->task_type_id == 2) ? trans('task_widget.hint_do') : trans('task_widget.hint_approve') }}'><i class='fa fa-check'></i></button>
-                        @if ($self->is_subordinates)
-                            <button type="button" class="btn btn-outline grey-gallery btn-sm dx-btn-deleg" title='{{ trans('task_widget.hint_delegate') }}' data-details="{{ $task->task_details }}"><i class='fa fa-code-fork'></i></button>                                                                                            
+                        @if ($self->is_subordinates || $task->is_any_delegate)
+                            <button type="button" class="btn btn-outline grey-gallery btn-sm dx-btn-deleg" title='{{ trans('task_widget.hint_delegate') }}' data-details="{{ $task->task_details }}" data-task-type="{{ $task->task_type }}"><i class='fa fa-code-fork'></i></button>                                                                                            
                         @endif
                         <button type="button" class="btn btn-outline red btn-sm dx-btn-no" title='{{ trans('task_widget.hint_reject') }}'><i class='fa fa-times'></i></button>
                     </div>

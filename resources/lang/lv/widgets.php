@@ -20,6 +20,12 @@ return [
 	'offers' => [
 		'title' => 'Piedāvājumi',
 		'subscribe' => 'Pieteikties',
-		'unsubscribe' => 'Atcelt'
-	]
+		'unsubscribe' => 'Atcelt',
+                'err_public_user' => 'Pieteikumu var saglabāt tikai autorizēti lietotāji. Iespējams, izmantojāt BACK pogu interneta pārlūkā. Dodaties uz portāla sākuma lapu un veicat atkārtotu autorizāciju.',
+	],
+        'timeoff' => [
+                'title' => 'Manu prombūtņu limiti',
+                'btn_request' => 'Jauna prombūtne',
+                'link_history' => 'Vēsture',
+        ]
 ];

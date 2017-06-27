@@ -6,6 +6,12 @@
 {
     var hasTouch = 'ontouchstart' in window;
 
+    if (navigator.appVersion.indexOf("Win")!=-1){
+        var hasTouch = false;
+    } else {
+        var hasTouch = 'ontouchstart' in window;
+    }
+
     /**
      * Detect CSS pointer-events property
      * events are normally disabled on the dragging element to avoid conflicts
@@ -46,7 +52,7 @@
             expandBtnHTML   : '<button data-action="expand" type="button">Expand</button>',
             collapseBtnHTML : '<button data-action="collapse" type="button">Collapse</button>',
             group           : 0,
-            maxDepth        : 1,
+            maxDepth        : 5,
             threshold       : 20,
 
             //method for call when an item has been successfully dropped
@@ -66,7 +72,7 @@
     Plugin.prototype = {
 
         init: function()
-        {            
+        {
             var list = this;
 
             list.reset();

@@ -36,8 +36,8 @@ var DX_CORE = {
     trans_tree_chosen: "Izvēlētā vērtība:",
     trans_tree_cancel: "Atcelt",
     trans_tree_choose: "Izvēlēties"
-    
-    
+
+
 };
 
 function getProgressInfo() {
@@ -73,9 +73,9 @@ function unregister_form(form_htm_id) {
 
 function get_previous_form_by_list(current_form_htm_id, previous_item_id) {
     var index = DX_CORE.forms_ids.indexOf(current_form_htm_id);
-    
+
     if (index > -1) {
-        for (var i = index; i >= 0; i--) {           
+        for (var i = index; i >= 0; i--) {
             if (DX_CORE.items_ids[i] == previous_item_id) {
                 return DX_CORE.forms_ids[i];
             }
@@ -94,16 +94,16 @@ function get_last_form_id()
     {
         return "";
     }
-    
-    return DX_CORE.forms_ids[DX_CORE.forms_ids.length-1];
+
+    return DX_CORE.forms_ids[DX_CORE.forms_ids.length - 1];
 }
 
 function is_executing(guid) {
-    
+
     if (guid.length == 0) {
         return false;
     }
-    
+
     var index = DX_CORE.exec_guids.indexOf(guid);
 
     if (index > -1) {
@@ -125,19 +125,19 @@ function is_executing(guid) {
     return false;
 }
 
-function add_form_callbacks(form_guid, arr_callbacks) {    
+function add_form_callbacks(form_guid, arr_callbacks) {
     if (form_guid.length == 0) {
         return;
     }
-    
+
     var index = DX_CORE.forms_guids.indexOf(form_guid);
-    
+
     if (index == -1) {
         DX_CORE.forms_guids.push(form_guid);
         DX_CORE.forms_callbacks.push(arr_callbacks);
         return;
     }
-    
+
     DX_CORE.forms_callbacks[index] = arr_callbacks;
 }
 
@@ -145,13 +145,13 @@ function get_form_callbacks(form_guid) {
     if (form_guid.length == 0) {
         return;
     }
-    
+
     var index = DX_CORE.forms_guids.indexOf(form_guid);
-    
+
     if (index == -1) {
         return;
     }
-    
+
     return DX_CORE.forms_callbacks[index];
 }
 
@@ -165,7 +165,7 @@ function stop_executing(guid) {
     if (guid.length == 0) {
         return;
     }
-    
+
     var index = DX_CORE.exec_guids.indexOf(guid);
 
     if (index > -1) {
@@ -184,7 +184,7 @@ function stop_executing_forced(guid) {
     if (guid.length == 0) {
         return;
     }
-    
+
     var index = DX_CORE.exec_guids.indexOf(guid);
 
     if (index > -1) {
@@ -209,7 +209,7 @@ function stop_executing_forced(guid) {
  * @param string txt    Progresa ziņojuma teksts
  * @returns {undefined}
  */
-function show_dx_progres(txt) 
+function show_dx_progres(txt)
 {
     show_page_splash();
 }
@@ -219,7 +219,7 @@ function show_dx_progres(txt)
  * 
  * @returns void
  */
-function hide_dx_progres() 
+function hide_dx_progres()
 {
     hide_page_splash();
 }
@@ -240,7 +240,7 @@ function authorize_user(login, password) {
         url: open_url,
         async: false,
         dataType: "html",
-        success: function(data) {
+        success: function (data) {
             rez = data;
         }
     });
@@ -268,7 +268,7 @@ function load_view_in_grid(list_id, view_id) {
         data: {
             gridheigh: td_height
         },
-        success: function(data) {
+        success: function (data) {
             if (data == '[ERR_SESSION_ENDED]') {
                 $("#grid_title").html("");
                 notify_err(DX_CORE.trans_session_end);
@@ -277,7 +277,7 @@ function load_view_in_grid(list_id, view_id) {
                 $("#grid_title").html(menu_title);
             }
         },
-        error: function() {
+        error: function () {
             $("#grid_title").html("");
         }
     });
@@ -304,11 +304,11 @@ function get_popup_item_by_id(item_id, item_url, item_title) {
     $('#popup_window').modal('show');
 
     var formData = "item_id=" + item_id;
-    
-    var request = new FormAjaxRequestIE9 (item_url, "", "", formData);            
-    request.progress_info = "";                       
 
-    request.callback = function(data) {
+    var request = new FormAjaxRequestIE9(item_url, "", "", formData);
+    request.progress_info = "";
+
+    request.callback = function (data) {
 
         try
         {
@@ -319,8 +319,7 @@ function get_popup_item_by_id(item_id, item_url, item_title) {
                 $('#popup_window').modal('hide');
                 notify_err(myData['error']);
             }
-        } 
-        catch (err) 
+        } catch (err)
         {
             $('#popup_window').modal('hide');
             notify_err(escapeHtml(err));
@@ -339,11 +338,11 @@ function get_popup_item_by_id_ie9(item_id, item_url, item_title, callback_fn) {
     $('#popup_window').modal('show');
 
     var formData = "item_id=" + item_id;
-    
-    var request = new FormAjaxRequestIE9 (item_url, "", "", formData);            
-    request.progress_info = "";                       
 
-    request.callback = function(data) {
+    var request = new FormAjaxRequestIE9(item_url, "", "", formData);
+    request.progress_info = "";
+
+    request.callback = function (data) {
 
         try
         {
@@ -355,8 +354,7 @@ function get_popup_item_by_id_ie9(item_id, item_url, item_title, callback_fn) {
                 $('#popup_window').modal('hide');
                 notify_err(myData['error']);
             }
-        } 
-        catch (err) 
+        } catch (err)
         {
             $('#popup_window').modal('hide');
             notify_err(escapeHtml(err));
@@ -369,20 +367,20 @@ function get_popup_item_by_id_ie9(item_id, item_url, item_title, callback_fn) {
 }
 
 function download_file(item_id, list_id, file_field_id) {
-    
+
     show_form_splash();
     show_page_splash();
     var open_url = DX_CORE.site_url + "download_filejs_" + item_id + "_" + list_id + "_" + file_field_id;
 
     $.fileDownload(open_url, {
-        successCallback: function(url) {
+        successCallback: function (url) {
             hide_form_splash();
             hide_page_splash();
-            notify_info(DX_CORE.trans_file_downloaded);            
+            notify_info(DX_CORE.trans_file_downloaded);
         },
-        failCallback: function(html, url) {
+        failCallback: function (html, url) {
             hide_form_splash();
-            hide_page_splash();            
+            hide_page_splash();
             try {
                 var myData = JSON.parse(html);
                 if (myData['success'] == 0) {
@@ -405,25 +403,25 @@ function escapeHtml(string) {
         "/": '&#x2F;'
     };
 
-    return String(string).replace(/[&<>"'\/]/g, function(s) {
+    return String(string).replace(/[&<>"'\/]/g, function (s) {
         return entityMap[s];
     });
 }
 
-function download_excel(view_id, rel_field_id, rel_field_value) {    
+function download_excel(view_id, rel_field_id, rel_field_value, grid_id) {
     show_page_splash();
     var open_url = DX_CORE.site_url + "excel"; // _" + view_id + "_" + rel_field_id + "_" + rel_field_value;
-   
-    var formData = "view_id=" + view_id + "&rel_field_id=" + rel_field_id + "&rel_field_value=" + rel_field_value + "&_token=" + $('meta[name="csrf-token"]').attr('content');
-    
+
+    var formData = "view_id=" + view_id + "&rel_field_id=" + rel_field_id + "&rel_field_value=" + rel_field_value + "&_token=" + $('meta[name="csrf-token"]').attr('content') + "&grid_id=" + grid_id;
+
     $.fileDownload(open_url, {
         httpMethod: 'POST',
         data: formData,
-        successCallback: function(url) {
+        successCallback: function (url) {
             hide_page_splash();
             notify_info(DX_CORE.trans_excel_downloaded);
         },
-        failCallback: function(html, url) {
+        failCallback: function (html, url) {
             hide_page_splash();
             try {
                 var myData = JSON.parse(html);
@@ -463,16 +461,27 @@ var is_splash_lock = 0;
  */
 function show_page_splash(is_lock)
 {
+    // If modal is opened then redirect to form splash function
+   /* var modals = $('.modal.in');
+    if (modals.length > 0) {
+        for (var i = 0; i < modals.length; i++) {
+            if ($(modals[i]).is(':visible')) {
+                show_form_splash(is_lock);
+                return;
+            }
+        }
+    }*/
+
     if (is_splash_lock == 1) {
         return;
     }
-    
+
     if (is_lock == 1) {
         is_splash_lock = 1;
-    }    
-    
-    if ( App ) {
-        App.blockUI({message: DX_CORE.trans_please_wait, boxed: true});
+    }
+
+    if (App) {
+        App.blockUI({message: DX_CORE.trans_please_wait, boxed: true, zIndex: 15000000, target: 'body'});
     }
 }
 
@@ -484,16 +493,27 @@ function show_page_splash(is_lock)
  */
 function hide_page_splash(is_unlock)
 {
+    // If modal is opened then redirect to form splash function    
+   /* var modals = $('.modal.in');
+    if (modals.length > 0) {
+        for (var i = 0; i < modals.length; i++) {
+            if ($(modals[i]).is(':visible')) {
+                hide_form_splash(is_unlock);
+                return;
+            }
+        }
+    }*/
+
     if (is_splash_lock == 1 && is_unlock != 1) {
         return;
     }
-    
+
     if (is_unlock == 1) {
         is_splash_lock = 0;
     }
-    
-    if ( App ) {
-        App.unblockUI();
+
+    if (App) {
+        App.unblockUI('body');
     }
 }
 
@@ -503,23 +523,25 @@ function hide_page_splash(is_unlock)
  * @return   void
  */
 function show_form_splash(is_lock)
-{
-    if (is_splash_lock == 1) {
+{    
+    show_page_splash(is_lock);
+
+    /* if (is_splash_lock == 1) {
         return;
     }
-    
+
     if (is_lock == 1) {
         is_splash_lock = 1;
     }
-        
-    if ( App ) {
+
+    if (App) {
         App.blockUI({
             target: '.modal-content',
             boxed: true,
             message: DX_CORE.trans_please_wait,
             cenrerY: true
         });
-    }
+    }*/
 }
 
 /**
@@ -529,17 +551,19 @@ function show_form_splash(is_lock)
  */
 function hide_form_splash(is_unlock)
 {
-    if (is_splash_lock == 1 && is_unlock != 1) {
+    hide_page_splash(is_unlock);
+
+    /* if (is_splash_lock == 1 && is_unlock != 1) {
         return;
     }
-    
+
     if (is_unlock == 1) {
         is_splash_lock = 0;
     }
-        
-    if ( App ) {
+
+    if (App) {
         App.unblockUI('.modal-content');
-    }
+    }*/
 }
 
 /*
@@ -550,19 +574,19 @@ function hide_form_splash(is_unlock)
  * @param   grid_htm_id     string    Reģistra tabulārā skata HTML objekta identifikators - nepieciešams lai atjauninātu saraksta datus
  * @param   formData        Array     Masīvs ar formas POST datiem
  * @return  void
- */ 
-function FormAjaxRequest (url, form_htm_id, grid_htm_id, formData) {
+ */
+function FormAjaxRequest(url, form_htm_id, grid_htm_id, formData) {
     this.url = url;
     this.form_htm_id = form_htm_id;
     this.grid_htm_id = grid_htm_id;
     this.formData = formData;
-    
+
     this.progress_info = DX_CORE.trans_data_processing;
     this.callback = null;
     this.err_callback = null;
-    
-    this.doRequest = function() {
-        
+
+    this.doRequest = function () {
+
         if (this.form_htm_id)
         {
             if (is_executing(this.form_htm_id))
@@ -572,22 +596,22 @@ function FormAjaxRequest (url, form_htm_id, grid_htm_id, formData) {
 
             start_executing(this.form_htm_id);
         }
-        
+
         // vēlreiz jādefinē, lai šie mainīgie ir pieejami ajax funkcijās, jo tajās "this" ir jau cits objekts
         var callback = this.callback;
         var form_htm_id = this.form_htm_id;
         var progress_info = this.progress_info;
         var err_callback = this.err_callback;
-        
-        $.ajax({ 
+
+        $.ajax({
             type: 'POST',
-            url: DX_CORE.site_url  + this.url,
+            url: DX_CORE.site_url + this.url,
             data: this.formData,
             processData: false,
             contentType: false,
             dataType: "json",
-            async:true,
-            success : function(data) {                 
+            async: true,
+            success: function (data) {
                 try
                 {
                     if (data["success"] === 1)
@@ -595,20 +619,18 @@ function FormAjaxRequest (url, form_htm_id, grid_htm_id, formData) {
                         callback.call(this, data);
                         hide_page_splash();
                         hide_form_splash();
-                    }
-                    else
+                    } else
                     {
                         notify_err(data["error"]);
                         hide_page_splash(1);
                         hide_form_splash(1);
-                
+
                         if (err_callback)
                         {
                             err_callback.call(this, data["error"]);
                         }
-                    }                    
-                }
-                catch (err)
+                    }
+                } catch (err)
                 {
                     notify_err(escapeHtml(err));
                     hide_page_splash(1);
@@ -618,20 +640,20 @@ function FormAjaxRequest (url, form_htm_id, grid_htm_id, formData) {
                         err_callback.call(this, escapeHtml(err));
                     }
                 }
-                
+
                 if (form_htm_id)
                 {
                     stop_executing(form_htm_id);
-                }               
-                
+                }
+
             },
             beforeSend: function () {
-                if (progress_info){
+                if (progress_info) {
                     show_page_splash();
                     show_form_splash();
                 }
             },
-            error: function(jqXHR, textStatus, errorThrown)
+            error: function (jqXHR, textStatus, errorThrown)
             {
                 var err_txt = PageMain.getAjaxErrTxt(jqXHR);
                 if (err_callback)
@@ -658,19 +680,19 @@ function FormAjaxRequest (url, form_htm_id, grid_htm_id, formData) {
  * @param   grid_htm_id     string    Reģistra tabulārā skata HTML objekta identifikators - nepieciešams lai atjauninātu saraksta datus
  * @param   formData        string    Ar & atdalīti parametri un to vērtības teksta veidā
  * @return  void
- */ 
-function FormAjaxRequestIE9 (url, form_htm_id, grid_htm_id, formData) {
+ */
+function FormAjaxRequestIE9(url, form_htm_id, grid_htm_id, formData) {
     this.url = url;
     this.form_htm_id = form_htm_id;
     this.grid_htm_id = grid_htm_id;
     this.formData = formData;
-    
+
     this.progress_info = DX_CORE.trans_data_processing;
     this.callback = null;
     this.err_callback = null;
-    
-    this.doRequest = function() {
-        
+
+    this.doRequest = function () {
+
         if (this.form_htm_id)
         {
             if (is_executing(this.form_htm_id))
@@ -680,35 +702,33 @@ function FormAjaxRequestIE9 (url, form_htm_id, grid_htm_id, formData) {
 
             start_executing(this.form_htm_id);
         }
-        
+
         // vēlreiz jādefinē, lai šie mainīgie ir pieejami ajax funkcijās, jo tajās "this" ir jau cits objekts
         var callback = this.callback;
         var form_htm_id = this.form_htm_id;
         var progress_info = this.progress_info;
         var err_callback = this.err_callback;
-        
-        $.ajax({ 
+
+        $.ajax({
             type: 'POST',
-            url: DX_CORE.site_url  + this.url,
+            url: DX_CORE.site_url + this.url,
             data: this.formData,
-            async:true,
-            success : function(data) {                 
+            async: true,
+            success: function (data) {
                 try
                 {
                     if (data["success"] === 1)
                     {
                         callback.call(this, data);
-                    }
-                    else
+                    } else
                     {
                         notify_err(data["error"]);
                         if (err_callback)
                         {
                             err_callback.call(this, data["error"]);
                         }
-                    }                    
-                }
-                catch (err)
+                    }
+                } catch (err)
                 {
                     notify_err(escapeHtml(err));
                     if (err_callback)
@@ -716,25 +736,25 @@ function FormAjaxRequestIE9 (url, form_htm_id, grid_htm_id, formData) {
                         err_callback.call(this, escapeHtml(err));
                     }
                 }
-                
+
                 if (form_htm_id)
                 {
                     stop_executing(form_htm_id);
                 }
             },
             beforeSend: function () {
-                if (progress_info != ""){                    
+                if (progress_info != "") {
                     show_dx_progres(progress_info);
                     show_form_splash();
                 }
             },
             complete: function () {
-                if (progress_info != "") {                    
+                if (progress_info != "") {
                     hide_dx_progres();
                     hide_form_splash();
                 }
             },
-            error: function(jqXHR, textStatus, errorThrown)
+            error: function (jqXHR, textStatus, errorThrown)
             {
                 var err_txt = PageMain.getAjaxErrTxt(jqXHR);
                 if (err_callback)
@@ -756,10 +776,11 @@ function FormAjaxRequestIE9 (url, form_htm_id, grid_htm_id, formData) {
  * 
  * @returns {string}
  */
-function getBaseUrl(){
-    
+function getBaseUrl() {
+
     return DX_CORE.site_url;
-};
+}
+;
 
 /**
  * Atgriež elementa vērtību. Ja elements nav atrasts, tad noklusēto vērtību
@@ -769,7 +790,7 @@ function getBaseUrl(){
  * @param {mixed} default_val  Noklusētā vērtība
  * @returns {mixed}
  */
-function getElementVal (parent_elem, selector, default_val) {
+function getElementVal(parent_elem, selector, default_val) {
     var elem = parent_elem.find(selector);
 
     if (!elem.length)
@@ -778,17 +799,18 @@ function getElementVal (parent_elem, selector, default_val) {
     }
 
     return elem.val();
-};
+}
+;
 
 var debug_first_log = 0;
 function debug_log(txt) {
     var d = new Date();
     var n = d.getTime();
-    
+
     if (debug_first_log == 0) {
         debug_first_log = n;
     }
-    
+
     var tm = n - debug_first_log;
     console.log("Miliseconds: " + tm + ": " + txt);
 }

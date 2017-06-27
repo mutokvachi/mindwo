@@ -12,34 +12,54 @@ return [
     'hint_view_profile' => 'Skatīt profilu',
     
     // fields tabs (must be equal with tab titles defined in CMS form - in database table dx_tabs)    
-    'tab_general' => 'General',
-    'tab_pdetails' => 'Personal details',
-    'tab_wdetails' => 'Work details',
-    'tab_wplace' => 'Workplace',
-    'tab_cdetails' => 'Contact details',
-    'tab_addr' => 'Addresses',
+    'tab_general' => 'Pamatinformācija',
+    'tab_pdetails' => 'Par personu',
+    'tab_wdetails' => 'Darba attiecības',
+    'tab_wplace' => 'Darbavieta',
+    'tab_cdetails' => 'Kontaktinformācija',
+    'tab_addr' => 'Adreses',
     
-    'tab_salary' => 'Salary',
-    'tab_shares' => 'Shares',
-    'tab_polygraph' => 'Polygraph',
+    'tab_salary' => 'Algas',
+    'tab_shares' => 'Akcijas',
+    'tab_polygraph' => 'Pārbaudes',
     
-    'qualif_menu' => 'Qualification',
-    'confidential_menu' => 'Confidential',
+    'qualif_menu' => 'Kvalifikācija',
+    'confidential_menu' => 'Konfidenciāli',
     
     // Subgrid tabs for qualification (must be equal with tab titles defined in CMS form - in database table dx_tabs)
-    'tab_lang' => 'Languages',
-    'tab_links' => 'Links',
-    'tab_educ' => 'Education',
-    'tab_cert' => 'Certificates',
-    'tab_cv' => 'CVs & other', 
+    'tab_lang' => 'Valodas',
+    'tab_links' => 'Saites',
+    'tab_educ' => 'Izglītība',
+    'tab_cert' => 'Sertifikāti',
+    'tab_cv' => 'CV u.c.', 
     
-    'assets_menu' => 'Assets',
+    'tab_documents' => 'Dokumenti',
+    'tab_timeoff' => 'Prombūtnes',
+    'tab_notes' => 'Piezīmes',
+    'tab_info' => 'Info',
+    
+    'assets_menu' => 'Pamatlīdzekļi',
     
     // Subgrid tabs for assets (must be equal with tab titles defined in CMS form - in database table dx_tabs)
-    'tab_cards' => 'Corporate cards',
-    'tab_devices' => 'Devices',
+    'tab_cards' => 'Bankas kartes',
+    'tab_devices' => 'Iekārtas',
     
     'direct_reporters' => 'Tiešajā pakļautībā',
+    
+    'lbl_about' => 'Vispārīgi',
+    'lbl_edit' => 'Rediģēt',
+    'lbl_save' => 'Saglabāt',
+    'lbl_cancel' => 'Atcelt',
+    
+    'avail_left' => 'Nestrādā',
+    'avail_active' => 'Aktīvs',
+    'avail_potential' => 'Potenciāls',
+    
+    'hint_left' => 'Darbinieks no %s vairs nestrādā uzņēmumā',
+    'hint_active' => 'Darbinieks strādā uzņēmumā',
+    'hint_potential' => 'Darbinieks tiek pieņemts darbā',
+    
+    'lbl_direct_superv' => 'Tiešais vadītājs',
     
     'personal_docs' => [
         'new_doc' => 'Jauns dokuments',

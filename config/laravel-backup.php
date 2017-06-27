@@ -19,7 +19,11 @@ return [
                  * specify individual files as well.
                  */
                 'include' => [
-                    base_path("public/resources"),
+                    storage_path("app/files"),
+                    public_path("img"),
+                    public_path("formated_img"),
+                    public_path("formated_img_galery"),
+                    public_path("resources")
                 ],
 
                 /*
@@ -27,10 +31,7 @@ return [
                  * You can specify individual files as well.
                  */
                 'exclude' => [
-                    base_path('vendor'),
-                    base_path('node_modules'),
-                    storage_path(),
-                                        
+                    storage_path("app/files/.gitignore")
                 ],
 
                 /*
@@ -44,7 +45,7 @@ return [
              * Currently only MySQL- and PostgreSQL-databases are supported.
              */
             'databases' => [
-                'mysql',
+                'mysql_admin',
             ],
         ],
 
@@ -54,7 +55,7 @@ return [
              * The disk names on which the backups will be stored.
              */
             'disks' => [
-                'local',
+                'backups',
             ],
         ],
     ],
@@ -76,7 +77,7 @@ return [
             /*
              * The amount of days that all daily backups must be kept.
              */
-            'keepDailyBackupsForDays' => 16,
+            'keepDailyBackupsForDays' => 10,
 
             /*
              * The amount of weeks of which one weekly backup must be kept.
@@ -97,7 +98,7 @@ return [
              * After cleaning up the backups remove the oldest backup until
              * this amount of megabytes has been reached.
              */
-            'deleteOldestBackupsWhenUsingMoreMegabytesThan' => 5000
+            'deleteOldestBackupsWhenUsingMoreMegabytesThan' => env('APP_BACKUP_LIMIT', 50000) // default 50 GB
         ]
     ],
 
@@ -110,7 +111,7 @@ return [
     'monitorBackups' => [
         [
             'name' => env('APP_URL'),
-            'disks' => ['local'],
+            'disks' => ['backups'],
             'newestBackupsShouldNotBeOlderThanDays' => 1,
             'storageUsedMayNotBeHigherThanMegabytes' => 5000,
         ],
@@ -151,8 +152,8 @@ return [
          * Here you can specify how emails should be sent.
          */
         'mail' => [
-            'from' => 'your@email.com',
-            'to'   => 'your@email.com',
+            'from' => env('MAIL_USERNAME', 'janis.supe@gmail.com'),
+            'to'   => env('APP_BACKUP_FAIL_EMAIL', 'janis.supe@gmail.com'),
         ],
 
         /*

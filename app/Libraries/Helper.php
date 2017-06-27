@@ -122,13 +122,14 @@ namespace App\Libraries
          * Validates if user have rights to insert new items in the register
          * 
          * @param integer $list_id Register id
+         * @param boolean $check_for_import Is it needed to check importing rights
          * @throws Exceptions\DXCustomException
          */
-        public static function checkSaveRights($list_id)
+        public static function checkSaveRights($list_id, $check_for_import = 0)
         {
             $right = Rights::getRightsOnList($list_id);
 
-            if ($right == null || $right->is_new_rights == 0) {
+            if ($right == null || $right->is_new_rights == 0 || ($check_for_import && $right->is_import_rights == 0)) {
                 $list_name = DB::table('dx_lists')->where('id', '=', $list_id)->first()->list_title;
                 throw new Exceptions\DXCustomException(sprintf(trans('errors.no_rights_to_insert_imp'), $list_name));
             }
@@ -266,7 +267,7 @@ namespace App\Libraries
          */
         public static function getInfoTasks($list_id, $item_id, $table_name) {
             $info_tasks = null;        
-            if ($item_id != 0 && $table_name == "dx_doc") {
+            if ($item_id != 0) {
 
                 $creator_id = DB::table($table_name)->select('created_user_id')->where('id','=',$item_id)->first()->created_user_id;
 
@@ -342,6 +343,45 @@ namespace App\Libraries
             
             return json_decode(json_encode($rows), true);            
             
+        }
+        
+        /**
+         * Return employee status information (active, left, potential)
+         * 
+         * @param DateTime $valid_from_date Valid from
+         * @param DateTime $termination_date
+         * @return Array Array with status information: 'button' - button label, 'class' - button class name, 'title' - hover hint text
+         */
+        public static function getEmployeeStatus($valid_from_date, $termination_date) {
+            $now = Carbon::now(Config::get('dx.time_zone'));
+            $valid_from = ($valid_from_date) ? Carbon::createFromFormat('Y-m-d', $valid_from_date) : Carbon::createFromFormat('Y-m-d', '1900-01-01');
+
+            if($termination_date)
+            {
+                    $result = [
+                            'button' => trans('empl_profile.avail_left'),
+                            'class' => 'grey dx-status-left',
+                            'title' => sprintf(trans('empl_profile.hint_left'), short_date($termination_date))
+                    ];
+            }
+            elseif($now->gte($valid_from) && !$termination_date)
+            {
+                    $result = [
+                            'button' => trans('empl_profile.avail_active'),
+                            'class' => 'green-jungle dx-status-active',
+                            'title' => trans('empl_profile.hint_active')
+                    ];
+            }
+            else
+            {
+                    $result = [
+                            'button' => trans('empl_profile.avail_potential'),
+                            'class' => 'yellow-lemon dx-status-potential',
+                            'title' => trans('empl_profile.hint_potential')
+                    ];
+            }
+
+            return $result;
         }
     }
 

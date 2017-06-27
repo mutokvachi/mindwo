@@ -6,17 +6,18 @@ namespace App\Libraries\DataView {
     use Config;
     use Request;
     use App\Exceptions;
+    use PDO;
+    use Log;
     
+    /**
+    *
+    * Tabulāra saraksta klase
+    *
+    *
+    * Objekts nodrošina datu attēlošanu tabulāra saraksta veidā ar filtrēšanas/kārtošanas iespējām pēc kolonnām
+    *
+    */
     class DataViewGrid extends DataView {
-        
-        /**
-        *
-        * Tabulāra saraksta klase
-        *
-        *
-        * Objekts nodrošina datu attēlošanu tabulāra saraksta veidā ar filtrēšanas/kārtošanas iespējām pēc kolonnām
-        *
-        */
         
         public $form_url = "";
         
@@ -25,6 +26,12 @@ namespace App\Libraries\DataView {
          * @var integer
          */
         public $form_type_id = 0;
+        
+        /**
+         * CMS form's ID (from table dx_forms)
+         * @var integer 
+         */
+        public $form_id = 0;
         
         /**
          * Existing employee profile page URL (for view or edit)
@@ -49,6 +56,18 @@ namespace App\Libraries\DataView {
         public $grid_is_paginator = 0; 
         public $filter_data = "";
         
+        /**
+         * SQL part for SUM fields 
+         * @var type 
+         */
+        public $sql_sum_fld = "";
+        
+        /**
+         * HTML elements helper class (to avoid Blade views render performance issue)
+         * 
+         * @var App\Libraries\DataView\Helper
+         */
+        private $helper = null;
         
         /**
         * Inicializē tabulāra saraksta klases objektu.
@@ -60,6 +79,7 @@ namespace App\Libraries\DataView {
         */        
         public function __construct($view_id, $filter_data, $session_guid)
         {
+            $this->helper = new Helper();
             $this->initObjects($view_id, $filter_data, $session_guid, 0);
             
             $this->setGridFormURL();
@@ -78,11 +98,16 @@ namespace App\Libraries\DataView {
         */
         public function getViewHtml() 
         {  
+            $data_htm = $this->getDataRows();
+            $head_htm = $this->getHeadingsRow(); // šo vienmēr pēc getDataRows() jāizsauc, lai tiktu uzstādīta sorting_direction vērtība
+            $sum_htm = $this->getSumRow(); // šo vienmēr pēc getDataRows() jāizsauc, lai tiktu uzstādīta sorting_direction vērtība
+            
             return  view('grid.table', [
                          'grid_id' => $this->grid_id,                         
-                         'table_body' => $this->getDataRows(),
-                         'table_head' => $this->getHeadingsRow(), // šo vienmēr pēc getDataRows() jāizsauc, lai tiktu uzstādīta sorting_direction vērtība
-                         'data_attr' => $this->getHTMLDataAttributes() // šo vienmēr pēc getDataRows() jāizsauc, lai tiktu uzstādīta sorting_direction vērtība
+                         'table_body' => $data_htm . $sum_htm,
+                         'table_head' => $head_htm, 
+                         'data_attr' => $this->getHTMLDataAttributes(),
+                         'filter_data' => $this->filter_data
                     ])->render();
         }
         
@@ -135,7 +160,8 @@ namespace App\Libraries\DataView {
                         'next_page' => $next_page,
                         'total_count' => $this->grid_total_rows,
                         'start_row' => $start_row,
-                        'end_row' => $end_row
+                        'end_row' => $end_row,
+                        'view_row' => $this->view_row
                     ])->render();
         }
         
@@ -247,13 +273,22 @@ namespace App\Libraries\DataView {
             
             foreach($rows as $key => $row)
             {   
-                $dropup = "";
-                if ($key > 1)
-                {
-                    $dropup = "dropup";
-                }
+                if (!$this->view_row->is_report) {
+                    $dropup = "";
+                    if ($key > 1)
+                    {
+                        $dropup = "dropup";
+                    }
+
+                    if (!isset($row['id'])) {
+                        throw new Exceptions\DXCustomException(trans('errors.view_must_have_id_field'));
+                    }
                     
-                $cell_htm = view('grid.btns_col', ['dropup' => $dropup, 'item_id' => $row['id'], 'form_type_id' => $this->form_type_id])->render();
+                    $cell_htm = $this->helper->getBtnsCol(['dropup' => $dropup, 'item_id' => $row['id'], 'form_type_id' => $this->form_type_id]);
+                }
+                else {
+                    $cell_htm = "";
+                }
                 
                 for ($i=0; $i<count($view->model);$i++)
                 {
@@ -263,16 +298,19 @@ namespace App\Libraries\DataView {
                         
                         $cell_obj = $this->formatLinkValue($cell_obj, $view->model[$i], $row);
 
-                        $cell_htm .= view('grid.data_col', [
+                        $cell_htm .= $this->helper->getCell([
                             'align' => $cell_obj->align, 
                             'cell_value' => $cell_obj->value,
-                            'is_val_html' => $cell_obj->is_html
-                        ])->render();
+                            'is_val_html' => $cell_obj->is_html,
+                            'is_crypted' => $view->model[$i]['is_crypted'],
+                            'masterkey_group_id' => $view->model[$i]['masterkey_group_id'],
+                            'is_file' => ($view->model[$i]["type"] == "file")
+                        ]);
                     }
                 }
 
-                $htm .= view('grid.data_row', ['htm' => $cell_htm])->render();
-            }
+                $htm .= $this->helper->getRow(['htm' => $cell_htm]);
+            }           
             
             return $htm;
         }
@@ -290,14 +328,15 @@ namespace App\Libraries\DataView {
             
             $col_nr = 0;
             
-            $htm_head .=    view('grid.heading_col', [
+            if (!$this->view_row->is_report) {
+                $htm_head .=    view('grid.heading_col', [
                                          'width' => '100',
                                          'fld_title' => trans('grid.lbl_actions'),
                                          'fld_name' => '',
                                          'sort_dir' => ''
                                     ])->render();
-                    
-            $htm_flt .=     view('grid.filter_lbl_col')->render();
+                $htm_flt .=     view('grid.filter_lbl_col')->render();
+            }
                     
             for ($i=0; $i<count($view->model);$i++)
             {
@@ -318,6 +357,16 @@ namespace App\Libraries\DataView {
                                          'col_nr' => $col_nr,
                                          'filtr_val' => $this->getFilteringValue($view->model[$i]["name"])
                                     ])->render();
+                                        
+                    if (isset($view->summaryrows[$view->model[$i]["name"]]))
+                    {
+                            if (strlen($this->sql_sum_fld) > 0)
+                            {
+                                    $this->sql_sum_fld .= ", ";
+                            }
+
+                            $this->sql_sum_fld .= "SUM(" . $view->model[$i]["name"] . ") as " . $view->model[$i]["name"];
+                    }
                 }
             }
             
@@ -397,6 +446,7 @@ namespace App\Libraries\DataView {
                 }
                 
                 $this->form_type_id = $first_form->form_type_id;
+                $this->form_id = $first_form->id;
             }
         }
         
@@ -437,25 +487,89 @@ namespace App\Libraries\DataView {
         */ 
         private function formatLinkValue($cell_obj, $model_row, $data_row)
         {
-            $view_name = "";
+            if ($cell_obj->is_link || $model_row['is_crypted']) {
+                return $cell_obj;
+            }
+            
+            $method_name = "";
             if ($model_row['is_link'] && $model_row['type'] != 'file' && strlen($this->form_url) > 0)
             {
-                $view_name = "cell_link";
-            }
+                $method_name = "getLinkCell";            }
             
             if ($this->form_type_id == 3 && strlen($this->profile_url) > 0) {
-                $view_name = "cell_link_profile";
+                $method_name = "getLinkProfileCell";
             }
             
-            if ($view_name) {
-                $cell_obj->value =  view('grid.' . $view_name, [                                         
+            if ($method_name) {
+                $cell_obj->value =  $this->helper->$method_name([                                         
                                          'item_id' => $data_row["id"],                                         
                                          'cell_value' => $cell_obj->value
-                                    ])->render();
+                                    ]);
                 $cell_obj->is_html = true;
             }
             
             return $cell_obj;
+        }
+        
+        /**
+         * Prepares HTML with totals in case there are some SUM rows
+         * @return string
+         */
+        private function getSumRow() {
+            if (strlen($this->sql_sum_fld) == 0 || $this->grid_total_rows == 0) {                
+                return ""; // nothing to SUM
+            }                    
+            
+            // add summary row
+            $sql_sum = "SELECT " . $this->sql_sum_fld . " FROM (" . $this->sum_sql . ") tb";
+            
+            DB::setFetchMode(PDO::FETCH_ASSOC);
+            $sum_rows = DB::select($sql_sum, $this->filter_obj->arr_filt);
+            DB::setFetchMode(PDO::FETCH_CLASS);
+            
+            if (count($sum_rows) == 0) {
+                return "";
+            }
+                            
+            
+            $row_s = $sum_rows[0];
+            $view = $this->view->view_obj;
+            
+            $tr_htm = "<tr style='background-color: #F7FACF'>";
+            $colspan = $this->view_row->is_report ? 0 : 1;
+            $is_total = 0;
+            
+            for ($i=0; $i<count($view->model);$i++)
+            {
+                if (strlen($view->model[$i]["label"]) > 0 && strlen($view->model[$i]["name"]) > 0)
+                {
+                    if (isset($row_s[$view->model[$i]["name"]]))
+                    {
+                        if ($colspan > 0 && $is_total == 0)
+                        {
+                                $tr_htm = $tr_htm . "<td colspan=" . $colspan . " align=right><b>" . trans('grid.lbl_total') . ":</b></td>";	
+                        }
+                        $tr_htm = $tr_htm . "<td align=right><b>" . $row_s[$view->model[$i]["name"]] . "</b></td>";
+                        $is_total = 1;
+                    }
+                    else
+                    {
+                        if ($is_total == 0)
+                        {
+                                $colspan++;
+                        }
+                        else
+                        {
+                                $tr_htm = $tr_htm . "<td>&nbsp;</td>";
+                        }
+                    }
+                }
+            }
+            
+            $tr_htm = $tr_htm . "</tr>";
+            return $tr_htm;   
+                            
+                    
         }
     }
 }

@@ -2,3 +2,5 @@ database.php
 assets.php
 app.php
 dx.php
+filesystems.php
+laravel-backup.php

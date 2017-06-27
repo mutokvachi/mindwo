@@ -129,7 +129,6 @@
                 <div class="page-top">
                     <div class="top-menu pull-left">
                         <ul class="nav navbar-nav pull-right">
-
                             <li class="dropdown" style="color: #b4bcc8; font-size: 13px; margin: 17px 0 0 15px;">
                                 {!! $special_days !!}
                             </li>
@@ -160,6 +159,7 @@
                             </li>
                             <!-- END USER LOGIN DROPDOWN -->
 
+                            @include('static_blocks.chat_notif')
 
                             @if ($user_tasks_count > 0)
                             <!-- BEGIN TODO DROPDOWN -->
@@ -228,7 +228,7 @@
                         <!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
                         <!-- DOC: Set data-keep-expand="true" to keep the submenues expanded -->
                         <!-- DOC: Set data-auto-speed="200" to adjust the sub menu slide up/down speed -->
-                        <ul class="page-sidebar-menu  page-header-fixed page-sidebar-menu-compact" data-keep-expanded="true" data-auto-scroll="false" data-slide-speed="200" style="padding-top: 20px">
+                        <ul class="page-sidebar-menu  page-header-fixed page-sidebar-menu-compact" data-keep-expanded="true" data-auto-scroll="false" data-slide-speed="200">
                             <!-- DOC: To remove the sidebar toggler from the sidebar you just need to completely remove the below "sidebar-toggler-wrapper" LI element -->
                             <li class="sidebar-toggler-wrapper hide">
                                 <!-- BEGIN SIDEBAR TOGGLER BUTTON -->
@@ -297,6 +297,9 @@
 
         @include('elements.popup_info')
         @include('main.modal_dialog')
+        @include('main.modal_dialog_crypto_psw')
+        @include('main.modal_dialog_crypto_regen_progress')
+        @include('forms.chat.window')
         <script>
             dx_is_slider = {{ ((isset($is_slidable_menu) && $is_slidable_menu)) ? "1" : "0" }};
         </script>

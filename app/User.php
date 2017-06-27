@@ -67,8 +67,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
          * Array with leave info (if employee is in vacation or sick or his country have holiday)
          * @var array
          */
-        private $leave_info = []; 
-	
+        private $leave_info = [];
+        
         /**
          * Get time after joining in textual format
          * @return string Returns for examle 1 year 2 months and 3 days
@@ -182,6 +182,15 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	{
 		return $this->hasMany('\App\Models\Employee\Note', 'user_id');
 	}
+
+	/**
+	 * List of users's chats
+	 * @return App\Models\Chat\User
+	 */
+	public function chatUsers()
+	{
+		return $this->hasMany('\App\Models\Chat\User', 'user_id');
+	}
         
         /**
 	 * List of users's time off calculations
@@ -281,6 +290,16 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	}
 	
 	/**
+	 * Relation to position
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function position()
+	{
+		return $this->hasOne('App\Models\Position', 'id', 'position_id');
+	}
+	
+	/**
 	 * Relation to team members
 	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -299,7 +318,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	{
 		return $this->hasMany('App\User', 'manager_id', 'id');
 	}
-	
+        	
 	/**
 	 * Relation to offers for which user is subscribed.
 	 */
@@ -307,6 +326,29 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	{
 		return $this->belongsToMany('App\Models\Offer', 'dx_users_offers', 'user_id', 'offer_id')
 			->withPivot('quantity');
+	}
+        
+        /**
+	 * User's certificate
+	 * @return App\Models\Crypto\Certificate
+	 */
+	public function cryptoCertificate()
+	{
+		return $this->hasOne('\App\Models\Crypto\Certificate', 'user_id');
+	}
+        
+        /**
+         * User's master key
+         * @return App\Models\Crypto\Msterkey
+         */
+        public function cryptoMasterKey()
+	{
+		return $this->hasMany('\App\Models\Crypto\Masterkey', 'user_id');
+	}
+	
+	public function ui_theme()
+	{
+		return $this->hasOne('\App\Models\UI\Theme', 'id', 'ui_theme_id');
 	}
 	
 	/**
@@ -321,32 +363,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	
 	public function getAvailability()
 	{
-		if($this->termination_date)
-		{
-			$result = [
-				'button' => 'Left',
-				'class' => 'grey',
-				'title' => 'Employee has left'
-			];
-		}
-		elseif($this->join_date && !$this->termination_date)
-		{
-			$result = [
-				'button' => 'Active',
-				'class' => 'green-jungle',
-				'title' => 'Employee is at work'
-			];
-		}
-		else
-		{
-			$result = [
-				'button' => 'Potential',
-				'class' => 'yellow-lemon',
-				'title' => 'The person is in process of hiring'
-			];
-		}
-		
-		return $result;
+            return Libraries\Helper::getEmployeeStatus($this->join_date, $this->termination_date);                
 	}
 	
 	/**

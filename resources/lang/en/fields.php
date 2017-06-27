@@ -21,6 +21,8 @@ return [
     'btn_change' => 'Change',
     'btn_remove' => 'Remove',
     'btn_set_change' => 'Set/choose picture',
+    'btn_rotate_left' => 'Rotate left',
+    'btn_rotate_right' => 'Rotate right',
     'err_choose_val' => 'Please, choose employee to view profile!',
     
     // Tree
@@ -34,6 +36,7 @@ return [
     'add_value' => 'Add new item',
     'edit_value' => 'Edit selected item. Attention: changes will be applied to all records where this item is used!',
     'must_choose' => 'Please choose wich dropdown item to edit!',
+    'view_value' => 'View item',
     
     // File
     'file_browser_title' => 'Files browser',
@@ -47,4 +50,9 @@ return [
     
     'btn_file_edit' => 'Edit',
     'btn_file_view' => 'View', 
+    
+    'hint_skype' => 'Open Skype',
+    'hint_whatsapp' => 'Open WhatsApp',
+    
+    'add_new_phone' => '[ADD NEW]',
 ];

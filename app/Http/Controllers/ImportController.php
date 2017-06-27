@@ -29,7 +29,7 @@ class ImportController extends Controller
      * Supported field types. ID's from table dx_field_types
      * @var type 
      */
-    private $supported_fields = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18];
+    private $supported_fields = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20];
 
     /**
      * Register ID
@@ -127,6 +127,13 @@ class ImportController extends Controller
     private $errors = "";
     
     /**
+     * Array with list fields criteria values. There can be fields for which it is set WHERE criteria in list definition level
+     * Those fields values must be set
+     * @var Array 
+     */
+    private $criteria_arr = [];
+    
+    /**
      * Imports uploaded file data into database
      * 
      * @param \Illuminate\Http\Request $request
@@ -141,7 +148,7 @@ class ImportController extends Controller
         $this->list_id = $request->input('list_id');
 
         //check rights on the list
-        \App\Libraries\Helper::checkSaveRights($this->list_id);
+        \App\Libraries\Helper::checkSaveRights($this->list_id, 1);
         
         //validate file
         if (!$request->hasFile(self::FILE_FIELD_NAME)) {
@@ -161,6 +168,8 @@ class ImportController extends Controller
         //Sets current time for audit info
         $this->time_now = date('Y-n-d H:i:s');                
                
+        $this->setCriteriaArray();
+        
         //Import data from CSV file
         $this->importCSVData($this->file_import->tmp_dir . DIRECTORY_SEPARATOR . $this->file_import->csv_file);
 
@@ -285,8 +294,13 @@ class ImportController extends Controller
      * Save parsed row in database
      */
     private function saveData() {
-        $this->addHistory();
-
+        
+        if (!isset($this->save_arr["id"])) {
+            throw new Exceptions\DXCustomException(trans('errors.no_id_field_in_import_excel'));
+        }
+        
+        $this->updateSaveArray();
+        
         DB::transaction(function ()
         {
             try {
@@ -307,11 +321,13 @@ class ImportController extends Controller
                         $history->makeUpdateHistory();
                         
                         if ($history->is_update_change) {
+                            $this->addHistory();
                             DB::table($this->list_object->db_name)->where('id', '=', $id)->update($this->save_arr);
                             $this->update_count++;
                         }
                     }
                     else {
+                        $this->addHistory();
                         // insert with provided ID
                         DB::table($this->list_object->db_name)->insert($this->save_arr);
                         $history = new DBHistory($this->list_object, null, null, $id);
@@ -320,6 +336,7 @@ class ImportController extends Controller
                     }
                 }
                 else {
+                    $this->addHistory();
                     // insert without ID field
                     $id = DB::table($this->list_object->db_name)->insertGetId($this->save_arr);
                     $history = new DBHistory($this->list_object, null, null, $id);
@@ -351,6 +368,43 @@ class ImportController extends Controller
     {
         unset($this->save_arr); // break references
         $this->save_arr = array(); // re-initialize to empty array
+    }
+    
+    /**
+     * Initialise array with pre-defined values which must be in case if list have set special criteria for some field
+     * This is used for example for dx_doc based registers where n registers are based on 1 table and there is field list_id
+     */
+    private function setCriteriaArray() {
+        $this->criteria_arr = []; // reset array
+
+        // get default values from list fields definitions
+        $fields = DB::table('dx_lists_fields')
+                ->select('db_name', 'criteria')
+                ->where('list_id', '=', $this->list_id)
+                ->whereNotNull('criteria')
+                ->get();
+        
+        foreach($fields as $fld) {
+            $this->criteria_arr[$fld->db_name] = $fld->criteria;
+        }
+    }
+    
+    /**
+     * Add values to save array if needed because of pre-defined list field criteria
+     */
+    private function updateSaveArray() {
+        foreach($this->criteria_arr as $key_crit => $crit) {
+            $is_found = false;
+            foreach($this->save_arr as $key_val => $val) {
+                if ($key_crit == $key_val) {
+                    $is_found = true;
+                }
+            }
+            
+            if (!$is_found) {
+                $this->save_arr[$key_crit] = $crit;
+            }
+        }
     }
 
     /**
@@ -389,30 +443,7 @@ class ImportController extends Controller
      */
     private function getListFields()
     {
-        $this->list_fields = DB::table('dx_lists_fields as lf')
-                ->select(
-                        'lf.list_id',
-                        'lf.db_name', 
-                        'ft.sys_name as type_sys_name', 
-                        'lf.max_lenght', 
-                        'lf.is_required', 
-                        'lf.default_value', 
-                        'lf.title_form', 
-                        'lf.title_list',
-                        'lf.rel_list_id',
-                        'lf_rel.db_name as rel_field_name',
-                        'o_rel.db_name as rel_table_name',
-                        'o_rel.is_history_logic as rel_table_is_history_logic',
-                        'lf.is_public_file',
-                        'lf.id as field_id'
-                        )
-                ->leftJoin('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
-                ->leftJoin('dx_lists_fields as lf_rel', 'lf.rel_display_field_id', '=', 'lf_rel.id')
-                ->leftJoin('dx_lists as l_rel', 'lf.rel_list_id', '=', 'l_rel.id')
-                ->leftJoin('dx_objects as o_rel', 'l_rel.object_id', '=', 'o_rel.id')
-                ->where('lf.list_id', '=', $this->list_id)
-                ->whereIn('lf.type_id', $this->supported_fields)
-                ->get();
+        $this->list_fields = DBHistory::getListFields($this->list_id, $this->supported_fields);
 
         $this->addFormatedTitles();
     }
@@ -482,6 +513,9 @@ class ImportController extends Controller
         $val = mb_strtolower($title);
         $val = $this->toASCII($val);
         $val = trim($val);
+        $val = str_replace("/", " ", $val);
+        $val = str_replace("  ", " ", $val);
+        $val = str_replace("  ", " ", $val);
         $val = str_replace(" ", "_", $val);
 
         return $val;

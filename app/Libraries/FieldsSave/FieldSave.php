@@ -4,6 +4,7 @@ namespace App\Libraries\FieldsSave {
     use \App\Exceptions;
     use App\Libraries\Rights;
     use DB;
+    use Input;
     
     abstract class FieldSave
     {        
@@ -131,10 +132,20 @@ namespace App\Libraries\FieldsSave {
          */
         private function checkRequired()
         {
-            if ($this->fld->is_required == 1 && !$this->is_val_set && $this->request->has($this->fld->db_name))
+            if ($this->fld->is_required == 1 && !$this->is_val_set && $this->isInput($this->fld->db_name))
             {                
                 throw new Exceptions\DXCustomException(sprintf(trans('errors.required_field'), $this->fld->title_form));                
             }
+        }
+        
+        /**
+         * Checks if field is included in POST
+         * @param string $fld_name Field name
+         * 
+         * @return boolean TRUE - field is included in POST, FALSE - field is not included in POST
+         */
+        private function isInput($fld_name) {            
+            return isset(Input::all()[$fld_name]);
         }
     }
 }

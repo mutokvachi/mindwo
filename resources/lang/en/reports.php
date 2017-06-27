@@ -29,4 +29,12 @@ return [
         'all' => 'All',
         'date_interval' => 'Date interval'
     ], 
+    
+    'page' => [
+        'title' => 'Reports',
+        'report_name' => 'Name',
+        'last_viewed'=> 'Last viewed by You',
+        'lbl_categories' => 'Categories',
+        'never_viewed' => 'Not viewed yet',
+    ],
 ];

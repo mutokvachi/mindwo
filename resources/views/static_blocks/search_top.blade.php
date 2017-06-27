@@ -20,10 +20,12 @@
     <div class="input-group" id="top_search">
         
         <div class="input-group-btn">
-            <button id="search_dropd" type="button" class="btn btn-default dropdown-toggle green-soft" data-toggle="dropdown" data-hover="dropdown" aria-haspopup="true" aria-expanded="false"><b id="search_title">{{ Config::get('dx.default_search') }}</b> <span class="caret"></span></button>
+          <button id="search_dropd" type="button" class="btn btn-default dropdown-toggle green-soft" data-toggle="dropdown" data-hover="dropdown" aria-haspopup="true" aria-expanded="false">
+            <b id="search_title">{{ config('dx.default_search') }}</b> <span class="caret"></span>
+          </button>
           <ul class="dropdown-menu">
             <li class="searchTypeItem"><a href="#">{{ trans("search_top.documents") }}</a></li>
-            <li class="searchTypeItem"><a href="#">{{ trans("search_top.employees") }}</a></li>            
+            <li class="searchTypeItem"><a href="#">{{ trans("search_top.employees") }}</a></li>
             <li class="searchTypeItem"><a href="#">{{ trans("search_top.news") }}</a></li>
           </ul>
         </div>

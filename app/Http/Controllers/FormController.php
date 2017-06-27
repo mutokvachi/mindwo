@@ -95,10 +95,38 @@ class FormController extends Controller
     public $list_right = null;
     
     /**
+     * Unlocks item so other users can edit it
+     * 
+     * @param integer $list_id Register ID
+     * @param integer $item_id Item ID
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function unlockItem($list_id, $item_id) {
+        \App\Libraries\DBHelper::unlockItem($list_id, $item_id);
+        return response()->json(['success' => 1]);
+    }
+    
+     /**
+     * Locks item so other users can't edit it
+     * 
+     * @param integer $list_id Register ID
+     * @param integer $item_id Item ID
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function lockItem($list_id, $item_id) {
+        
+        $this->setFormsRightsMode($list_id, $item_id);
+        
+        \App\Libraries\DBHelper::lockItem($list_id, $item_id);
+        
+        return response()->json(['success' => 1]);
+    }
+    
+    /**
      * Izgūst formas HTML ar AJAX pieprasījumu
      * 
      * @param \Illuminate\Http\Request $request POST pieprasījuma objekts
-     * @return Response Atgriež formas HTML JSON izteiksmē
+     * @return \Illuminate\Http\JsonResponse Atgriež formas HTML JSON izteiksmē
      */
     public function getForm(Request $request)
     {
@@ -124,6 +152,11 @@ class FormController extends Controller
         $tab_id = Uuid::generate(4);
         
         $this->is_editable_wf = Rights::getIsEditRightsOnItem($list_id, $item_id); // Pārbauda vai nav darplūsmā un nav pabeigts
+        
+        // check if not locked by other user
+        if ($this->form_is_edit_mode && $item_id > 0) {
+            \App\Libraries\DBHelper::lockItem($list_id, $item_id);
+        }
         
         $fields_htm = $this->getFormFieldsHTML($frm_uniq_id, $list_id, $item_id, $parent_item_id, $parent_field_id, $params);
 
@@ -287,16 +320,15 @@ class FormController extends Controller
      * @return Response Saved data info in JSON format
      * @throws Exceptions\DXCustomException
      */
-    public function saveFile(Request $request) {
+    public function saveFile(Request $request) {        
         
-        Log::info("SAVING FILE: " . json_encode($request->all()));
         /*
         $this->validate($request, [
             'download_guid' => 'required|exists:dx_downloads,guid',
         ]);
         */
         $guid = $request->input('download_guid');
-        Log::info("GUID: '" . $guid."'");
+        
         $down = DB::table('dx_downloads')->where('guid', '=', $guid)->first();
         if (!$down) {
             throw new Exceptions\DXCustomException(sprintf(trans('errors.file_record_not_found'), $guid));
@@ -313,15 +345,14 @@ class FormController extends Controller
             'item_id' => $down->item_id,
             'multi_list_id' => 0 // ToDo: implement multi list check
         ));
-        Log::info("SAVING FILE OGOO");
+        
         $rez = $this->saveForm($request);
-        Log::info(json_encode($rez));
+        
         return $rez;
     }
     
     public function saveFileGet(Request $request) {
-        Log::info("GET GETGFET");
-        
+                
         return response()->json([
             'success' => 1
         ]);
@@ -397,11 +428,11 @@ class FormController extends Controller
 
         validateRelations($tbl->list_id, $item_id);
         
-        DB::transaction(function () use ($form_id, $item_id, $tbl)
+        $table_row = FormSave::getFormTable($form_id);
+        $fields = FormSave::getFormsFields(-1, $form_id);
+            
+        DB::transaction(function () use ($table_row, $fields, $item_id)
         {
-            $table_row = FormSave::getFormTable($form_id);
-            $fields = FormSave::getFormsFields(-1, $form_id);
-
             \App\Libraries\Helper::deleteItem($table_row, $fields, $item_id);
         });        
 
@@ -680,11 +711,11 @@ class FormController extends Controller
                 ->where('id', '=', $field_id)
                 ->first();
         
-        if (!$table_item || !$field_item || !$main_field_item) {
+        if (!$table_item || !$field_item || (!$main_field_item && $field_id != -1)) {
             throw new Exceptions\DXCustomException("Sistēmas konfigurācijas kļūda! Uzmeklēšanas laukam nav atrodams reģistrs ar ID " . $list_id . " vai saistītais lauks ar ID " . $txt_field_id . ".");
         }
         
-        $field_item->is_right_check = $main_field_item->is_right_check; // jo tiesības uzstāda galvenā reģistra laukam bet SQLs tiek veidots no saistītā reģistra
+        $field_item->is_right_check = $main_field_item ? $main_field_item->is_right_check : false; // jo tiesības uzstāda galvenā reģistra laukam bet SQLs tiek veidots no saistītā reģistra
 
         $rows = DB::select($this->getAutocompleateSQL($table_item, $field_item, $list_id), array($field_item->rel_field_name => "%" . $term . "%"));
 
@@ -783,62 +814,7 @@ class FormController extends Controller
      */
     protected function getFormFields($params)
     {
-        $sql = "
-	SELECT
-		lf.id as field_id,
-		ff.is_hidden,
-		lf.db_name,
-		ft.sys_name as type_sys_name,
-		lf.title_form,
-		lf.max_lenght,
-		lf.is_required,
-		ff.is_readonly,
-		o.db_name as table_name,
-		lf.rel_list_id,
-		lf_rel.db_name as rel_field_name,
-		lf_rel.id as rel_field_id,
-		o_rel.db_name as rel_table_name,
-                lf_par.db_name as rel_parent_field_name,
-                lf_par.id as rel_parent_field_id,
-		o_rel.is_multi_registers,
-		lf_bind.id as binded_field_id,
-		lf_bind.db_name as binded_field_name,
-		lf_bindr.id as binded_rel_field_id,
-		lf_bindr.db_name as binded_rel_field_name,
-		lf.default_value,
-		ft.height_px,
-		ifnull(lf.rel_view_id,0) as rel_view_id,
-		ifnull(lf.rel_display_formula_field,'') as rel_display_formula_field,
-		lf.is_image_file,
-                lf.is_multiple_files,
-                lf.hint,
-                lf.is_manual_reg_nr,
-                lf.reg_role_id,
-                ff.tab_id,
-                ff.group_label,
-                rt.code as row_type_code,
-                lf.is_right_check
-	FROM
-		dx_forms_fields ff
-		inner join dx_lists_fields lf on ff.field_id = lf.id
-		inner join dx_field_types ft on lf.type_id = ft.id
-		inner join dx_forms f on ff.form_id = f.id
-		inner join dx_lists l on f.list_id = l.id
-		inner join dx_objects o on l.object_id = o.id
-		left join dx_lists l_rel on lf.rel_list_id = l_rel.id
-		left join dx_objects o_rel on l_rel.object_id = o_rel.id
-		left join dx_lists_fields lf_rel on lf.rel_display_field_id = lf_rel.id
-                left join dx_lists_fields lf_par on lf.rel_parent_field_id = lf_par.id
-		left join dx_lists_fields lf_bind on lf.binded_field_id = lf_bind.id
-		left join dx_lists_fields lf_bindr on lf.binded_rel_field_id = lf_bindr.id
-                left join dx_rows_types rt on ff.row_type_id = rt.id
-	WHERE
-		ff.form_id = :form_id
-	ORDER BY
-		ff.order_index
-	";
-
-        $fields = DB::select($sql, array('form_id' => $params->form_id));
+        $fields = \App\Libraries\DBHelper::getFormFields($params->form_id);
 
         if (count($fields) == 0) {
             throw new Exceptions\DXCustomException("Forma ar ID " . $params->form_id . " nav atrasta!");

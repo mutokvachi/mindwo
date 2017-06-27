@@ -9,6 +9,7 @@ use App\Libraries\FormSave;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use App\Exceptions;
+use Log;
 
 /**
  * Class FreeFormController
@@ -90,7 +91,7 @@ class FreeFormController extends FormController
 		$this->is_editable_wf = true; // we wont check workflow status here
 		$row_data = $this->getFormItemDataRow($list_id, $item_id, $params);
 		$fields = $this->getFormFields($params);
-		
+		                
 		$fieldset = [];
 		
 		foreach($request->input('fields') as $f)

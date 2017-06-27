@@ -29,6 +29,6 @@ class Event extends Model
 	
 	public function lists()
 	{
-		return $this->hasOne('App\Models\Lists', 'id', 'list_id');
+		return $this->hasOne('App\Models\System\Lists', 'id', 'list_id');
 	}
 }

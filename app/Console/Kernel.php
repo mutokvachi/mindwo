@@ -22,6 +22,8 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\CalculateTimeoff::class,
         \App\Console\Commands\AuditViewCounts::class,
         \App\Console\Commands\UpdateLeftStatus::class,
+        \App\Console\Commands\ServerLogImport::class,
+        \App\Console\Commands\CalculateTimeoffAll::class,
     ];
 
     /**
@@ -34,13 +36,18 @@ class Kernel extends ConsoleKernel
 
         // Executes employee left info udpate (vacations, holidays, sick etc)
         $schedule->command('mindwo:update_left')
-                //->weekdays()
                 ->dailyAt(7)
                 ->timezone(Config::get('dx.time_zone'));
         
+        // Calculates employees vacations
+        if (Config::get('dx.is_timeoff_calculation', false)) {            
+            $schedule->command('mindwo:timeoff_all 1')
+                ->dailyAt('7:15')
+                ->timezone(Config::get('dx.time_zone'));
+        }
+        
         // Executes monitoring views at 8:00 AM every day
         $schedule->command('mindwo:audit_view')
-                //->weekdays()
                 ->dailyAt(8)
                 ->timezone(Config::get('dx.time_zone'));
         
@@ -55,5 +62,20 @@ class Kernel extends ConsoleKernel
 			dispatch($job);
 		})->everyFiveMinutes();
 
+        if (Config::get('dx.is_backuping_enabled', false)) {
+            // Makes db and files backup at midnight
+            $schedule->command('backup:run')
+                     ->daily();
+
+            // Clean disk space if too many backups 1 hour after midnight
+            $schedule->command('backup:clean')
+                     ->dailyAt('1:00');
+        }
+        
+        // Imports data from server access log (Linux only)
+        if (Config::get('server_log.is_server_audit_on', false)) {
+            $schedule->command('mindwo:save-log')->everyFiveMinutes();
+        }       
+        
     }
 }

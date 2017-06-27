@@ -67,10 +67,10 @@
             <div class='modal-footer' style='border-top: 1px solid #c1c1c1;'>
                 <a href='javascript:;' class='dx-cms-history-link pull-left' style='margin-top: 5px; {{ $item_id == 0 ? "display: none" : ""}}' title='{{ trans('form.hint_history') }}'><i class='fa fa-history'></i> {{ trans('form.link_history') }}&nbsp;</a><span class="badge badge-default pull-left dx-history-badge" style="display: {{ ($history_count) ? 'block' : 'none'}};">{{ $history_count }}</span>
                 @if ($is_disabled == 0)
-                    <button  type='button' class='btn btn-primary' id='btn_save_{{ $frm_uniq_id }}'>{{ trans('form.btn_save') }}</button>
+                    <button  type='button' class='btn btn-primary dx-btn-save-form' id='btn_save_{{ $frm_uniq_id }}'>{{ trans('form.btn_save') }}</button>
                 @endif
 
-                <button type='button' class='btn btn-white' data-dismiss='modal'>{!! ($form_is_edit_mode == 0) ? "<i class='fa fa-sign-out'></i>" . trans('form.btn_close') : "<i class='fa fa-undo'></i> " . trans('form.btn_cancel') !!}</button>
+                <button type='button' class='btn btn-white dx-btn-cancel-form' data-dismiss='modal'>{!! ($form_is_edit_mode == 0) ? "<i class='fa fa-sign-out'></i>" . trans('form.btn_close') : "<i class='fa fa-undo'></i> " . trans('form.btn_cancel') !!}</button>
             </div>
             <script type='text/javascript'>
                 register_form('list_item_view_form_{{ $frm_uniq_id }}', {{ $item_id }});
@@ -112,8 +112,26 @@
 
                     @if ($form_is_edit_mode == 1)
 
-                        $('#btn_save_{{ $frm_uniq_id }}').click(function( event ) {
-                            event.stopPropagation();
+                        $('#btn_save_{{ $frm_uniq_id }}').click(function dx_btn_save_click( event ) {
+                            event.stopPropagation();                            
+                                                        
+                            $('#item_edit_form_{{ $frm_uniq_id }}').validator('validate');
+                            
+                            if ($('#item_edit_form_{{ $frm_uniq_id }}').find(".with-errors ul").length > 0) {
+                                notify_err(Lang.get('errors.form_validation_err'));
+                                return false;
+                            }
+                            
+                            // Calls encryption function which encryptes data and on callback it executes again save function
+                            if(!event.encryptionFinished || event.encryptionFinished == false){
+                                var cryptoFields = $('input.dx-crypto-field,textarea.dx-crypto-field,input.dx-crypto-field-file', $(this).closest('.modal-content'));
+                                
+                                window.DxCrypto.encryptFields(cryptoFields, event, function(event){
+                                    dx_btn_save_click(event);
+                                });
+                                
+                                return;
+                            }
                             
                             var arr_callbacks = get_form_callbacks('{{ $frm_uniq_id }}');
                             if (typeof arr_callbacks != 'undefined') {
@@ -123,10 +141,11 @@
                                     }
                                 }
                             }
-                            
-                            $('#item_edit_form_{{ $frm_uniq_id }}').validator('validate');
 
                             save_list_item('item_edit_form_{{ $frm_uniq_id }}', '{{ $grid_htm_id }}',{{ $list_id }}, {{ $parent_field_id }}, {{ $parent_item_id }}, '{{ $parent_form_htm_id }}', arr_callbacks);//replace
+                            
+                           /* var cryptoFields = $('.dx-crypto-field', $(this).closest('.modal-content'));
+                            window.DxCrypto.decryptFields(cryptoFields);  */                      
                         });
 
                         $('#item_edit_form_{{ $frm_uniq_id }}').validator({
@@ -134,6 +153,13 @@
                                 foo: function($el) 
                                 { 
                                     if (!($el.val()>0) && $el.attr('required'))
+                                    {
+                                        return false;
+                                    }
+                                    return true;
+                                },
+                                cbotext: function($el) {
+                                    if (!($el.val().length > 0) && $el.attr('required'))
                                     {
                                         return false;
                                     }
@@ -147,7 +173,8 @@
                             },
                             errors: {
                                 foo: '{{ trans("form.err_value_not_set") }}',
-                                auto: '{{ trans("form.err_value_not_set") }}'
+                                auto: '{{ trans("form.err_value_not_set") }}',
+                                cbotext: '{{ trans("form.err_value_not_set") }}'
                             },
                             feedback: {
                                 success: 'glyphicon-ok',
@@ -181,7 +208,7 @@
     @include('workflow.wf_init_add_approver')    
 @endif
 
-@if ($form_is_edit_mode == 0 && $is_info_tasks_rights)
+@if ($form_is_edit_mode == 0)
     @include('workflow.wf_info_task')
 @endif
 

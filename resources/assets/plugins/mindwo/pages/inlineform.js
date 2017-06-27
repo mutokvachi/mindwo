@@ -208,10 +208,10 @@
 					{
 						window.DxEmpPersDocs.toggleDisable(false);
 					}
-                                        
+					
 					hide_page_splash(1);
 					
-					$('.dx-stick-footer').show();
+					$('.dx-stick-footer').addClass('dx-page-in-edit-mode').show();
 				},
 				error: function(jqXHR, textStatus, errorThrown)
 				{
@@ -225,9 +225,25 @@
 		/**
 		 * Submit input field values to the server
 		 */
-		save: function()
+		save: function(event)
 		{
 			var self = this;
+                        
+                        // Calls encryption function which encryptes data and on callback it executes again save function
+                        if(!event || !event.encryptionFinished || event.encryptionFinished == false){
+                            var cryptoFields = $('input.dx-crypto-field,textarea.dx-crypto-field,input.dx-crypto-field-file', this.root);
+
+                            if(!event || event == undefined){
+                                event = {};
+                            }
+
+                            window.DxCrypto.encryptFields(cryptoFields, event, function(event){
+                                self.save(event);
+                            });
+
+                            return;
+                        }
+                        
 			var formData = process_data_fields(this.root.attr('id'));
 			formData.append('item_id', this.root.data('item_id'));
 			formData.append('list_id', this.root.data('list_id'));
@@ -268,16 +284,16 @@
 							
 							// Custom tab
 							window.DxEmpPersDocs.onClickSaveDocs(function()
-							{								
+							{
 								hide_page_splash(1);
-								$('.dx-stick-footer').hide();
+								$('.dx-stick-footer').removeClass('dx-page-in-edit-mode').hide();
 								window.location = data.redirect;
 							});
 						}
 						else
-						{                                                    
+						{
 							hide_page_splash(1);
-							$('.dx-stick-footer').hide();
+							$('.dx-stick-footer').removeClass('dx-page-in-edit-mode').hide();
 							window.location = data.redirect;
 						}
 						
@@ -310,7 +326,7 @@
 							}
 							
 							hide_page_splash(1);
-							$('.dx-stick-footer').hide();
+							$('.dx-stick-footer').removeClass('dx-page-in-edit-mode').hide();
 							
 						});
 					}
@@ -340,7 +356,7 @@
 						}
 						
 						hide_page_splash(1);
-						$('.dx-stick-footer').hide();
+						$('.dx-stick-footer').removeClass('dx-page-in-edit-mode').hide();
 					}
 				},
 				error: function(jqXHR, textStatus, errorThrown)
@@ -349,6 +365,9 @@
 					console.log(errorThrown);
 				}
 			});
+                        
+                        /*var cryptoFields = $('.dx-crypto-field', this.root);
+                        window.DxCrypto.decryptFields(cryptoFields); */       
 		},
 		
 		/**
@@ -362,25 +381,38 @@
 				window.location = this.options.empl_search_page_url;
 				return;
 			}
+			var self = this;
 			
-			this.editButton.show();
+			show_page_splash(1);
 			
-			for(var k in this.originalTabs)
-			{
-				this.tabs.filter('[data-tab-title="' + k + '"]').html(this.originalTabs[k]);
-			}
-			
-			for(var name in this.originalFields)
-			{
-				this.fields.filter('[data-name="' + name + '"]').html(this.originalFields[name]);
-			}
-			
-			$('.dx-stick-footer').hide();
-			
-			if(this.root.data('has_users_documents_access') == 1)
-			{
-				window.DxEmpPersDocs.cancelEditMode();
-			}
+			$.ajax({
+				type: 'GET',
+				url: DX_CORE.site_url + 'form/unlock_item/' + $('.dx-employee-profile').data('list_id') + '/' + $('.dx-employee-profile').data('item_id'),
+				dataType: 'json',
+				success: function(data)
+				{
+					// item unlocked
+					self.editButton.show();
+					
+					for(var k in self.originalTabs)
+					{
+						self.tabs.filter('[data-tab-title="' + k + '"]').html(self.originalTabs[k]);
+					}
+					
+					for(var name in self.originalFields)
+					{
+						self.fields.filter('[data-name="' + name + '"]').html(self.originalFields[name]);
+					}
+					
+					$('.dx-stick-footer').removeClass('dx-page-in-edit-mode').hide();
+					
+					if(self.root.data('has_users_documents_access') == 1)
+					{
+						window.DxEmpPersDocs.cancelEditMode();
+					}
+					hide_page_splash(1);
+				}
+			});
 		},
 		
 		/**

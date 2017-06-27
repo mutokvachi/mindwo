@@ -21,6 +21,8 @@ return [
     'btn_change' => 'Mainīt',
     'btn_remove' => 'Noņemt',
     'btn_set_change' => 'Uzstādīt/izvēlēties attēlu',
+    'btn_rotate_left' => 'Pagriezt pa kreisi',
+    'btn_rotate_right' => 'Pagriezt pa labi',
     'err_choose_val' => 'Lai skatītu darbinieka profilu, vispirms jānorāda darbinieks!',
     
     // Tree
@@ -34,6 +36,7 @@ return [
     'add_value' => 'Pievienot jaunu vērtību',
     'edit_value' => 'Labot izvēlēto vērtību. Uzmanību: izmaiņas attieksies arī uz citiem ierakstiem, kuros izmantota attiecīgā vērtība!',
     'must_choose' => 'Lūdzu, norādiet, kura izkrītošās izvēlnes vērtība tiks labota!',
+    'view_value' => 'Skatīt ierakstu',
     
     // File
     'file_browser_title' => 'Datņu pārvaldība',
@@ -47,4 +50,9 @@ return [
     
     'btn_file_edit' => 'Rediģēt',
     'btn_file_view' => 'Skatīt', 
+    
+    'hint_skype' => 'Atvērt Skype',
+    'hint_whatsapp' => 'Atvērt WhatsApp',
+    
+    'add_new_phone' => '[JAUNS]',
 ];

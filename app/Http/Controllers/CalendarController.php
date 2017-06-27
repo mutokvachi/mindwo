@@ -74,11 +74,11 @@ class CalendarController extends Controller
                 ->whereRaw('((e.event_time_to IS NULL AND e.event_time_from <= ?) OR (e.event_time_to IS NOT NULL AND e.event_time_to <= ?))', [$toDate, $toDate])
                 ->where(function ($query) use ($source_id) {
                     if (!$source_id || $source_id == 0) {
-                        \Log::info('null');
+                        
                         $query->whereNull('e.source_id');
                         $query->orWhere('e.source_id', 0);
                     } else {
-                        \Log::info('not null');
+                       
                         $query->where('e.source_id', $source_id);
                     }
                 })
