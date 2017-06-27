@@ -272,26 +272,11 @@ class ChatController extends Controller
      */
     private function createTask($list_id, $item_id, $user_id)
     {
-        $task_info = DB::table('dx_tasks_types')->where('code', '=', 'INFO')->first();
+        $info_task = new \App\Libraries\Workflows\InfoTask($list_id, $item_id);
 
-        if (!$task_info) {
-            return;
-        }
+        $user = \App\User::find($user_id);
 
-        DB::table('dx_tasks')->insert(
-            ['list_id' => $list_id,
-            'item_id' => $item_id,
-            'item_reg_nr' => $item_id,
-            'task_type_id' => $task_info->id,
-            'task_created_time' =>  new \DateTime(),
-            'task_details' => trans('form.chat.task_chat_description'),
-            'task_status_id' => 1,
-            'task_employee_id' => $user_id,
-            'created_user_id' => \Auth::user()->id,
-            'created_time' => new \DateTime(),
-            'modified_user_id' => \Auth::user()->id,
-            'modified_time' => new \DateTime()]
-        );
+        $info_task->makeTask($user_id, $user->email, trans('form.chat.task_chat_description'));
     }
 
     /**
@@ -313,6 +298,8 @@ class ChatController extends Controller
             // Check if user has rights
             $hasRights = $this->hasRights($chat->list_id, $chat->item_id, $user_id);
 
+            DB::beginTransaction();
+
             // If user don't have rights then create task on item for him
             if (!$hasRights) {
                 $this->createTask($chat->list_id, $chat->item_id, $user_id);
@@ -329,6 +316,8 @@ class ChatController extends Controller
             $chat_user->modified_time = new \DateTime();
 
             $chat_user->save();
+
+            DB::commit();
 
             return true;
         } else {
