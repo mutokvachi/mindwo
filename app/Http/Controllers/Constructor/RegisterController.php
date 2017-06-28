@@ -150,7 +150,17 @@ class RegisterController extends Controller
             ]);
 
             $list->form()->save($form);
-
+                 
+            $form->fields()->create([
+                'list_id' => $this->id,
+                'field_id' => $field_lst->id,
+                'order_index' => 0,
+                'row_type_id' => 1,
+                'created_user_id' => $userId,
+                'modified_user_id' => $userId,
+                'is_hidden' => 1
+            ]);
+            
             $role = new ListRole([
                 'role_id' => config('dx.constructor.access_role_id', 1),
                 'is_edit_rights' => 1,
