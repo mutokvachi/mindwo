@@ -16,6 +16,7 @@ class FormField extends Model
 		'order_index',
 		'row_type_id',
 		'created_user_id',
-		'modified_user_id'
+		'modified_user_id',
+                'is_hidden'
 	];
 }
