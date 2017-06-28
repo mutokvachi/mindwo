@@ -1,5 +1,5 @@
 <div class='modal dx-cms-workflow-form' aria-hidden='true' id='list_item_view_form_{{ $frm_uniq_id }}' role='dialog' data-backdrop='static' 
-     data-dx_is_init=0   
+     data-dx_is_init="0"   
      data-frm-uniq-id = "{{ $frm_uniq_id }}"
      data-grid-htm-id = "{{ $grid_htm_id }}"
      data-date-format="{{ config('dx.txt_date_format') }}" 
@@ -7,7 +7,7 @@
      data-xml_data = '{{ $xml_data }}' 
      data-wf_id = '{{ $item_id }}' 
      data-wf_register_id = '{{ $wf_register_id }}' 
-     data-wf_task_types = '{{ App\Models\Workflow\TaskType::select('id', 'code')->get()->toJson() }}' 
+     data-wf_task_types = "{{ App\Models\Workflow\TaskType::select('id', 'code')->get()->toJson() }}"
      data-wf_steps_list_id="{{ App\Libraries\DBHelper::getListByTable('dx_workflows')->id }}"
      data-max_step_nr="{{ $max_step_nr }}"
      style="display: block; margin-top: -440px;">

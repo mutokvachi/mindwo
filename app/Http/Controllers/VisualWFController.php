@@ -140,6 +140,9 @@ class VisualWFController extends Controller
 
         $first_step_id = ($first_step ? $first_step->id : 0);
 
+        
+        \Log::info('First step id: ' . $first_step_id);
+
         $workflow_steps_ids = [];
         foreach ($workflow_steps as $step) {
             if ($step->id != $first_step_id) {
@@ -374,7 +377,7 @@ class VisualWFController extends Controller
 
         $xlm_data = $request->input('xml_data');
 
-        $workflow->list_id = $request->input('list_id');
+       /* $workflow->list_id = $request->input('list_id');
         $workflow->title = $request->input('title');
         $workflow->description = $request->input('description');
         $workflow->is_custom_approve = $request->input('is_custom_approve');
@@ -388,7 +391,7 @@ class VisualWFController extends Controller
         $valid_from = $request->input('valid_from');
         if ($valid_from && strlen(trim($valid_from)) > 0) {
             $workflow->valid_from = date_create_from_format($date_format, $request->input('valid_from'));
-        }
+        }*/
 
         if ($xlm_data && strlen(trim($xlm_data)) > 0) {
             $workflow->visual_xml = $xlm_data;
