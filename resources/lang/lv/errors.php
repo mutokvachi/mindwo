@@ -114,6 +114,8 @@ return [
     
     'wrong_date_format' => "Nevar saglabāt datus! Nekorekts datuma formāts laukam '%s'! Datumam jābūt formātā %s!",
     
+    'unknown_error' => "Radās nezināma kļūda. Lūdzu pārlāde lapu un mēģini vēlreiz!",
+    
     'workflow' => [
         'not_saved' => 'Darbplūsma netika saglabta',
         'step_not_connected' => 'Darbplūsma satur soļus, kas nav sasaistīti ar darbplūsmu',

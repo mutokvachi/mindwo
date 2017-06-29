@@ -65,6 +65,11 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
         this.locale = 'en';
 
+        /**
+         * Max step number. Required so new steps number would be incrementead by 10
+         */
+        this.max_step_nr = 0;
+
         // Initializes class
         this.init();
     }
@@ -81,12 +86,12 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 height: 30
             },
             rounded: {
-                style: 'shape=rounded;html=1;whiteSpace=wrap;fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;',
+                style: 'shape=rounded;editable=0;html=1;whiteSpace=wrap;fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;',
                 width: 100,
                 height: 60
             },
             rhombus: {
-                style: 'shape=rhombus;html=1;whiteSpace=wrap;fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;',
+                style: 'shape=rhombus;editable=0;html=1;whiteSpace=wrap;fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;',
                 width: 100,
                 height: 100
             }
@@ -96,31 +101,35 @@ mxBasePath = '/js/plugins/mxgraph/src';
             this.images = [];
             var graph = state.view.graph;
 
-            var isEditable = state.cell.style.indexOf('shape=ellipse') == -1;
+            var isEdge = !graph.getModel().isVertex(state.cell);
 
-            if (isEditable) {
-                // Edit Icon
-                var img = mxUtils.createImage(mxBasePath + '/images/gear.png');
-                img.setAttribute('title', 'Edit');
-                img.style.position = 'absolute';
-                img.style.cursor = 'pointer';
-                img.style.width = '16px';
-                img.style.height = '16px';
-                img.style.left = (state.x + state.width + 4) + 'px';
-                img.style.top = (state.y + (state.height / 2) - 20) + 'px';
+            if (!isEdge) {
+                var isEditable = state.cell.style.indexOf('shape=ellipse') == -1;
 
-                mxEvent.addGestureListeners(img,
-                        mxUtils.bind(this, function (evt)
-                        {
-                            self.editWorkflowStep(self, state.cell.workflow_step_id, state.cell);
+                if (isEditable) {
+                    // Edit Icon
+                    var img = mxUtils.createImage(mxBasePath + '/images/gear.png');
+                    img.setAttribute('title', 'Edit');
+                    img.style.position = 'absolute';
+                    img.style.cursor = 'pointer';
+                    img.style.width = '16px';
+                    img.style.height = '16px';
+                    img.style.left = (state.x + state.width + 4) + 'px';
+                    img.style.top = (state.y + (state.height / 2) - 20) + 'px';
 
-                            mxEvent.consume(evt);
-                            this.destroy();
-                        })
-                        );
+                    mxEvent.addGestureListeners(img,
+                            mxUtils.bind(this, function (evt)
+                            {
+                                self.editWorkflowStep(self, state.cell.workflow_step_id, state.cell);
 
-                state.view.graph.container.appendChild(img);
-                this.images.push(img);
+                                mxEvent.consume(evt);
+                                this.destroy();
+                            })
+                            );
+
+                    state.view.graph.container.appendChild(img);
+                    this.images.push(img);
+                }
             }
 
             // Delete Icon
@@ -130,11 +139,15 @@ mxBasePath = '/js/plugins/mxgraph/src';
             img.style.cursor = 'pointer';
             img.style.width = '16px';
             img.style.height = '16px';
-            img.style.left = (state.x + state.width + 4) + 'px';
 
             if (isEditable) {
+                img.style.left = (state.x + state.width + 4) + 'px';
                 img.style.top = (state.y + (state.height / 2) + 4) + 'px';
+            } else if (isEdge) {
+                img.style.left = (state.x + state.width / 2 - 8) + 'px';
+                img.style.top = (state.y + (state.height / 2) - 8) + 'px';
             } else {
+                img.style.left = (state.x + state.width + 4) + 'px';
                 img.style.top = (state.y + (state.height / 2) - 8) + 'px';
             }
 
@@ -149,9 +162,13 @@ mxBasePath = '/js/plugins/mxgraph/src';
             mxEvent.addListener(img, 'click',
                     mxUtils.bind(this, function (evt)
                     {
-                        graph.removeCells([state.cell]);
-                        mxEvent.consume(evt);
-                        this.destroy();
+                        mxEvent.removeAllListeners(img);
+
+                        PageMain.showConfirm(function (data) {
+                            data.graph.removeCells([data.cell]);
+                            mxEvent.consume(data.evt);
+                            data.self.destroy();
+                        }, {graph: graph, cell: state.cell, evt: evt, self: this}, Lang.get('workflow.delete_confirm_title'), Lang.get('workflow.delete_confirm_text'));
                     })
                     );
 
@@ -165,6 +182,9 @@ mxBasePath = '/js/plugins/mxgraph/src';
                     for (var i = 0; i < this.images.length; i++)
                     {
                         var img = this.images[i];
+
+                        mxEvent.removeAllListeners(img);
+
                         img.parentNode.removeChild(img);
                     }
                 }
@@ -175,6 +195,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
         editWorkflowStep: function (self, stepId, vertex) {
             if (typeof stepId === 'undefined' || stepId < 0) {
                 stepId = 0;
+                self.max_step_nr += 10;
             }
 
             open_form('form', stepId, self.wfStepsListId, 0, 0, '', 1, '', {
@@ -201,43 +222,38 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
             self.domObject.data('dx_is_init', '1');
 
+            var footer = self.domObject.closest('.modal-content').find('.modal-footer');
+            footer.prepend('<button type="button" class="btn btn-primary dx-cms-workflow-form-btn-save">&nbsp;' + Lang.get('workflow.save') + '</button>');
+
+            self.domObject.closest('.modal').on('hidden.bs.modal', function () {
+                $(this).unbind("hidden.bs.modal");
+                $('.dx-cms-workflow-form-btn-save', $(this)).remove();
+            });
+
             // Sets parameters
             self.workflowId = self.domObject.data('wf_id');
             self.wfRegisterListId = self.domObject.data('wf_register_id');
             self.wfStepsListId = self.domObject.data('wf_steps_list_id');
             self.dateFormat = self.domObject.data('date-format');
             self.locale = self.domObject.data('locale');
+            self.max_step_nr = self.domObject.data('max_step_nr');
 
             self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_from');
             self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_to');
 
-            $('.dx-cms-workflow-form-btn-save', self.domObject).click(function () {
+            $('.dx-cms-workflow-form-btn-save', footer).click(function () {
                 self.save({self: self, initGraph: false});
             });
 
-            $('.dx-cms-workflow-form-tab-steps-btn', self.domObject).click(function () {
-                return self.onStepsTabClick(self);
-            });
+            self.initGraph(self);
 
-            if (self.domObject) {
-                self.handleModalScrollbar(self.domObject);
-                self.handleModalHide(self.domObject);
-                self.domObject.modal('show');
-            }
+            /*if (self.domObject) {
+             self.handleModalScrollbar(self.domObject);
+             self.handleModalHide(self.domObject);
+             self.domObject.modal('show');
+             }*/
 
             hide_form_splash(1);
-        },
-        onStepsTabClick: function (self) {
-            if (!self.isGraphInit) {
-                if (self.workflowId > 0) {
-                    self.initGraph(self);
-                } else {
-                    //callback, callbackParameters, title, bodyText, acceptText, declineText
-                    PageMain.showConfirm(self.save, {self: self, initGraph: true}, Lang.get('workflow.must_save_title'), Lang.get('workflow.must_save_text'));
-
-                    return false;
-                }
-            }
         },
         initDatePickers: function (self, picker_name) {
             var picker = $(picker_name, self.domObject);
@@ -254,6 +270,39 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 $(picker_name, self.domObject).datetimepicker('show');
             });
         },
+        /**
+         * Sets step's positions automatically by generating them from database
+         * @returns {undefined}
+         */
+        setXmlAutomatically: function (self) {
+            PageMain.showConfirm(function () {
+                show_form_splash(1);
+
+                $.ajax({
+                    url: DX_CORE.site_url + 'workflow/visual/xml/' + self.workflowId,
+                    type: "get",
+                    dataType: "json",
+                    context: self,
+                    success: function (data) {
+                        if (data && data.success == 1) {
+                            self.setXML(self, data.html);
+                            notify_info(Lang.get('workflow.success_arrange'));
+                        } else {
+                            notify_err(Lang.get('errors.unknown_error'));
+                        }
+
+                        hide_form_splash(1);
+                    },
+                    error: function () {
+                        notify_err(Lang.get('errors.unknown_error'));
+                    }
+                });
+            }, {self: self}, Lang.get('workflow.arrange'), Lang.get('workflow.arrange_text'));
+        },
+        /**
+         * Initializes graph
+         * @returns {undefined}
+         */
         initGraph: function () {
             show_form_splash(1);
 
@@ -267,13 +316,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 self.wfTaskTypes[wfTaskTypesObj[i].id] = wfTaskTypesObj[i].code;
             }
 
-            $('#set_xml').click(function () {
-                var xm = document.getElementById('txt_xml');
-                self.setXML(self, xm.value);
-            });
-            $('#get_xml').click(function () {
-                var xm = document.getElementById('txt_xml');
-                xm.value = self.getXML(self);
+            $('.dx-cms-workflow-form-btn-arrange', self.domObject).click(function () {
+                self.setXmlAutomatically(self);
             });
 
             var container = self.domObject.find('.dx-wf-graph')[0];
@@ -352,6 +396,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 defaultEdgeStyle[mxConstants.STYLE_FONTCOLOR] = 'black';
                 defaultEdgeStyle[mxConstants.STYLE_LABEL_POSITION] = 'right';
                 defaultEdgeStyle[mxConstants.STYLE_ALIGN] = 'left';
+                defaultEdgeStyle[mxConstants.STYLE_EDITABLE] = '0';
+
 
                 // Defines the tolerance before removing the icons
                 var iconTolerance = 20;
@@ -397,9 +443,9 @@ mxBasePath = '/js/plugins/mxgraph/src';
                                         me.getState() == null))
                                 {
                                     var tol = iconTolerance;
-                                    var scroll_y = $('.dx-cms-workflow-form-body', self.domObject)[0].scrollTop;
-                                    var scroll_x = $('.dx-cms-workflow-form-body', self.domObject)[0].scrollLeft;
-                                    
+                                    var scroll_y = self.domObject.closest('.modal-body')[0].scrollTop;
+                                    var scroll_x = self.domObject.closest('.modal-body')[0].scrollLeft;
+
                                     var tmp = new mxRectangle(me.getGraphX() - tol - scroll_x,
                                             me.getGraphY() - tol - scroll_y, 2 * tol, 2 * tol);
 
@@ -412,7 +458,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
                                 var tmp = self.graph.view.getState(me.getCell());
 
                                 // Ignores everything but vertices
-                                if (self.graph.isMouseDown || (tmp != null && !self.graph.getModel().isVertex(tmp.cell)))
+                                // || (tmp != null && !self.graph.getModel().isVertex(tmp.cell))
+                                if (self.graph.isMouseDown)
                                 {
                                     tmp = null;
                                 }
@@ -436,11 +483,13 @@ mxBasePath = '/js/plugins/mxgraph/src';
                             },
                             dragEnter: function (evt, state)
                             {
-                                var outEdgesCount = self.countOutgoingEdges(state.cell, false);
+                                if (self.graph.getModel().isVertex(state.cell)) {
+                                    var outEdgesCount = self.countOutgoingEdges(state.cell, false);
 
-                                // Allow new edges if limit has not yet been reached
-                                if (outEdgesCount < state.cell.arrow_count) {
-                                    self.graph.setConnectable(true);
+                                    // Allow new edges if limit has not yet been reached
+                                    if (outEdgesCount < state.cell.arrow_count) {
+                                        self.graph.setConnectable(true);
+                                    }
                                 }
 
                                 if (this.currentIconSet == null)
@@ -450,7 +499,10 @@ mxBasePath = '/js/plugins/mxgraph/src';
                             },
                             dragLeave: function (evt, state)
                             {
-                                self.graph.setConnectable(false);
+                                if (self.graph.getModel().isVertex(state.cell)) {
+                                    self.graph.setConnectable(false);
+                                }
+
                                 if (this.currentIconSet != null)
                                 {
                                     this.currentIconSet.destroy();
@@ -506,23 +558,27 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
                 self.loadData();
             }
-            
+
             hide_form_splash(1);
         },
-        onBeforeFormShow: function (form, self) {
+        onBeforeFormShow: function (form, self, stepId) {
             form.find('div[dx_fld_name_form=id]').hide();
-            form.find('div[dx_fld_name_form=step_nr]').hide();
-            form.find('div[dx_fld_name_form=yes_step_nr]').hide();
-            form.find('div[dx_fld_name_form=no_step_nr]').hide();
+           // form.find('div[dx_fld_name_form=step_nr]').hide();
+           // form.find('div[dx_fld_name_form=yes_step_nr]').hide();
+          //  form.find('div[dx_fld_name_form=no_step_nr]').hide();
             form.find('div[dx_fld_name_form=workflow_def_id]').hide();
             form.find('div[dx_fld_name_form=list_id]').hide();
 
+            form.find('input[name=step_nr]').val(self.max_step_nr);
+            
             form.find('select[dx_fld_name=workflow_def_id]').val(self.workflowId);
+            form.find('select[dx_fld_name=workflow_def_id]').change();
             form.find('select[dx_fld_name=list_id]').val(self.wfRegisterListId);
-
-            form.find('select[dx_fld_name=task_type_id]').on('change', function (e, o) {
+            form.find('select[dx_fld_name=list_id]').change();
+            
+          /*  form.find('select[dx_fld_name=task_type_id]').on('change', function (e, o) {
                 form.find('div[dx_fld_name_form=no_step_nr]').hide();
-            });
+            });*/
         },
         onAfterFormClose: function (form, self, vertex) {
             var stepId = form.find('input[name=id]').val();
@@ -577,7 +633,20 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
             //   var model = self.graph.getModel();
 
+            var edges = vertex.edges;
+            var edgesCount = (edges == null ? 0 : edges.length);
 
+            for (var i = 0; i < edgesCount; i++) {
+                var edge = edges[i];
+
+                if (edge.source && edge.source.id == vertex.id) {
+                    if (hasArrowLabels == 0) {
+                        edge.value = '';
+                    } else {
+                        edge.value = edge.is_yes ? Lang.get('workflow.yes') : Lang.get('workflow.no');
+                    }
+                }
+            }
 
             self.graph.refresh();
         },
@@ -811,6 +880,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 var dec = new mxCodec(doc);
                 var model = dec.decode(doc.documentElement);
 
+                self.graph.removeCells(self.graph.getChildVertices(self.graph.getDefaultParent()))
+
                 if (typeof model.getRoot != 'undefined') {
                     self.graph.getModel().mergeChildren(model.getRoot().getChildAt(0), parent);
                 }
@@ -833,3 +904,28 @@ $(document).ajaxComplete(function () {
     // Initializes all found worklfow containers
     $('.dx-cms-workflow-form[data-dx_is_init=0]').DxWorkflow();
 });
+
+/*
+ var btns_div = form_object.find(".dx_form_btns_left");
+ 
+ var make_button = function () {
+ 
+ if ($("#dx-btn-wf-designer" + form_object.attr('id')).length != 0) {
+ return; // poga jau ir pievienota
+ }
+ 
+ btns_div.append("<button id='dx-btn-wf-designer" + form_object.attr('id') + "' type='button' class='btn btn-white dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'><i class='fa fa-eye'></i> " + Lang.get('open_designer') + " </button>");
+ 
+ $("#dx-btn-wf-designer" + form_object.attr('id')).click(function () {
+ var item_id = form_object.find("input[name=id]").val();
+ var item_url = '/workflow/visual/form';
+ var item_title = Lang.get('workflow.form_title');
+ 
+ get_popup_item_by_id(item_id, item_url, item_title);
+ });
+ };
+ 
+ if (btns_div)
+ {
+ make_button();
+ }*/
