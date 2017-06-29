@@ -9,7 +9,7 @@
                 return;
             }
 
-            new $.DxFormChat($(this));
+            this.chat = new $.DxFormChat($(this));
         });
     };
 
@@ -324,6 +324,11 @@
             if (self.stateIsVisible) {
                 return;
             }
+
+            // Close all other chat instances also stops updates
+            $('.dx-form-chat-btn-open').not(self.domObject).each(function(){
+                this.chat.closeChatPanel(this.chat);
+            });
 
             self.stateIsVisible = true;
 
