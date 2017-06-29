@@ -2,9 +2,11 @@
 
 @section('main_custom_css')
   <link href="{{ elixir('css/elix_mail.css') }}" rel="stylesheet"/>
+  @include('pages.view_css_includes')
 @endsection
 
-@section('main_custom_javascripts')  
+@section('main_custom_javascripts')
+    @include('pages.view_js_includes')
 @endsection
 
 @section('main_content')
