@@ -22754,6 +22754,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
         editWorkflowStep: function (self, stepId, vertex) {
             if (typeof stepId === 'undefined' || stepId < 0) {
                 stepId = 0;
+                self.max_step_nr += 10;
             }
 
             open_form('form', stepId, self.wfStepsListId, 0, 0, '', 1, '', {
@@ -23121,25 +23122,22 @@ mxBasePath = '/js/plugins/mxgraph/src';
         },
         onBeforeFormShow: function (form, self, stepId) {
             form.find('div[dx_fld_name_form=id]').hide();
-            form.find('div[dx_fld_name_form=step_nr]').hide();
-            form.find('div[dx_fld_name_form=yes_step_nr]').hide();
-            form.find('div[dx_fld_name_form=no_step_nr]').hide();
+           // form.find('div[dx_fld_name_form=step_nr]').hide();
+           // form.find('div[dx_fld_name_form=yes_step_nr]').hide();
+          //  form.find('div[dx_fld_name_form=no_step_nr]').hide();
             form.find('div[dx_fld_name_form=workflow_def_id]').hide();
             form.find('div[dx_fld_name_form=list_id]').hide();
 
-            if (stepId <= 0) {
-                self.max_step_nr += 10;
-
-                form.find('input[name=step_nr]').val(self.max_step_nr);
-            }
+            form.find('input[name=step_nr]').val(self.max_step_nr);
+            
             form.find('select[dx_fld_name=workflow_def_id]').val(self.workflowId);
             form.find('select[dx_fld_name=workflow_def_id]').change();
             form.find('select[dx_fld_name=list_id]').val(self.wfRegisterListId);
             form.find('select[dx_fld_name=list_id]').change();
             
-            form.find('select[dx_fld_name=task_type_id]').on('change', function (e, o) {
+          /*  form.find('select[dx_fld_name=task_type_id]').on('change', function (e, o) {
                 form.find('div[dx_fld_name_form=no_step_nr]').hide();
-            });
+            });*/
         },
         onAfterFormClose: function (form, self, vertex) {
             var stepId = form.find('input[name=id]').val();
