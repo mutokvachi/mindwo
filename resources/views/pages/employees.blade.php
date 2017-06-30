@@ -2,10 +2,7 @@
 
 @section('main_custom_css')        
     @include('elements.employee_css', ['is_advanced_filter' => 1])
-    
-    @if ($profile_url != "/")
-        @include('pages.view_css_includes')
-    @endif
+    @include('pages.view_css_includes')
 @stop
 
 @section('main_content')
@@ -70,10 +67,7 @@
 @stop
 
 @section('main_custom_javascripts') 
-    
-    @if ($profile_url != "/")
-        @include('pages.view_js_includes')
-    @endif
+    @include('pages.view_js_includes')
     
     <script src = "{{ elixir('js/elix_employees.js') }}" type='text/javascript'></script>
 @stop

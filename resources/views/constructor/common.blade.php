@@ -7,17 +7,17 @@
 
 @section('main_custom_javascripts')
   @include('pages.view_js_includes')
-	<script src="{{ elixir('js/elix_constructor_wizard.js') }}" type='text/javascript'></script>
-  <script>
-	  $(document).ready(function()
-	  {
-		  $('.dx-constructor-wizard').ConstructorWizard({
-			  list_id: {{ $list_id }},
-			  view_id: {{ $view_id }},
-			  step: '{{ $step }}'
-		  });
-	  });
-  </script>
+    <script src="{{ elixir('js/elix_constructor_wizard.js') }}" type='text/javascript'></script>
+    <script>
+            $(document).ready(function()
+            {
+                    $('.dx-constructor-wizard').ConstructorWizard({
+                            list_id: {{ $list_id }},
+                            view_id: {{ $view_id }},
+                            step: '{{ $step }}'
+                    });
+            });
+    </script>
 @endsection
 
 @section('main_content')

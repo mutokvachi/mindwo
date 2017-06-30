@@ -67,8 +67,7 @@
   </style>
 @endsection
 
-@section('main_custom_javascripts')
-  <script src='{{Request::root()}}/{{ getIncludeVersion('plugins/tinymce/tinymce.min.js') }}' type='text/javascript'></script>
+@section('main_custom_javascripts')  
   <script src="{{ elixir('js/elix_view.js') }}" type='text/javascript'></script>
   <script src="{{ elixir('js/elix_profile.js') }}" type='text/javascript'></script>
   <script>

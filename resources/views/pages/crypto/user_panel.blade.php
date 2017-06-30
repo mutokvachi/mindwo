@@ -1,10 +1,8 @@
 @extends('frame')
 
 @section('main_custom_css')        
-@include('elements.employee_css', ['is_advanced_filter' => 1])
-
-
-@include('pages.view_css_includes')
+    @include('elements.employee_css', ['is_advanced_filter' => 1])
+    @include('pages.view_css_includes')
 @stop
 
 @section('main_content')
@@ -31,8 +29,6 @@
 </div>
 @stop
 
-@section('main_custom_javascripts') 
-
-@include('pages.view_js_includes')
-
+@section('main_custom_javascripts')
+    @include('pages.view_js_includes')
 @stop
