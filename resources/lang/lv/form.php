@@ -62,6 +62,8 @@ return [
         'btn_send_msg' => 'Nosūtīt ziņu',
         'btn_send_file' => 'Nosūtīt datni',
         'btn_download' => 'Lejupielādēt',
+        'btn_try_again' => 'Mēģināt vēlreiz',
+        'e_data_not_retrieved' => 'Radās servera kļūda saņemot datus.',
         'title_confirm_del_user' => 'Noņem sarakstes lietotāju',
         'description_confirm_del_user' => 'Vai Jūs tiešām vēlaties noņemt lietotāju no sarakstes?',
         'e_user_not_removed' => 'Radās kļūda noņemot lietotāju no sarakstes',
@@ -79,6 +81,6 @@ return [
         'e_file_to_large' => 'Kļūda nosūtot datni. Datne ir pārāk liela.', 
         'e_no_users' => 'Šajā sarakstē nav neviena lietotāja', 
         'i_upload_progress' => 'Augšupielāde pielikumus...',   
-        'task_chat_description' => 'Jūs esat pievienots diskusijai par dokumentu.'    
+        'task_chat_description' => 'Jūs esat pievienots diskusijai par dokumentu.',
     ]
 ];

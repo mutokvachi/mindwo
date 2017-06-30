@@ -86,6 +86,12 @@
             </div>
         </div>
         <div class="portlet-body">
+            <div class="dx-form-chat-content-err" >
+                <div class="note note-danger">
+                    <p> {{ trans('form.chat.e_data_not_retrieved') }} </p>
+                </div>
+                <button type="button" class="btn btn-md btn-primary dx-form-chat-btn-refresh"> <i class="fa fa-refresh"></i> {{ trans('form.chat.btn_try_again') }}</button>
+            </div>            
             <div class='dx-form-chat-content-container'>
                 <ul class="chats dx-form-chat-content">
                 </ul>
@@ -116,7 +122,7 @@
                     <input class='dx-form-chat-input-id' type='hidden'>
                     <textarea rows="2" class="form-control dx-form-chat-input-text" type="text" placeholder="{{ trans('form.chat.type_hint') }}"></textarea>
                 </div>                
-            </div>
+            </div>            
         </div>
     </div>
 </div>

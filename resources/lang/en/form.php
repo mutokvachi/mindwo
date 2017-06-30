@@ -62,6 +62,8 @@ return [
         'btn_send_msg' => 'Send message',
         'btn_send_file' => 'Send attachment',
         'btn_download' => 'Download',
+        'btn_try_again' => 'Try again',
+        'e_data_not_retrieved' => 'Server error while retrieving data.',
         'title_confirm_del_user' => 'Remove user from chat',
         'description_confirm_del_user' => 'Do you really want to remove user from chat?',
         'e_user_not_removed' => 'Error while removing user from chat',
