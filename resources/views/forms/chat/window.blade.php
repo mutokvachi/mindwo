@@ -86,7 +86,7 @@
             </div>
         </div>
         <div class="portlet-body">
-            <div class="dx-form-chat-content-err" >
+            <div class="dx-form-chat-content-err" style="display:none">
                 <div class="note note-danger">
                     <p> {{ trans('form.chat.e_data_not_retrieved') }} </p>
                 </div>
