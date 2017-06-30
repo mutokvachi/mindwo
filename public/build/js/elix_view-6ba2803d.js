@@ -27089,7 +27089,7 @@ $(document).ready(function()
                 return;
             }
 
-            new $.DxFormChat($(this));
+            this.chat = new $.DxFormChat($(this));
         });
     };
 
@@ -27169,7 +27169,7 @@ $(document).ready(function()
         init: function () {
             var self = this;
 
-            if(self.domObject.data('dx_is_init') == 1){
+            if (self.domObject.data('dx_is_init') == 1) {
                 return;
             }
 
@@ -27256,6 +27256,12 @@ $(document).ready(function()
             self.chatObject.find('.dx-form-chat-btn-file-cancel').off('click');
             self.chatObject.find('.dx-form-chat-btn-file-cancel').click(function () {
                 self.cancelFileUpload(self);
+            });
+
+            // Reconnect
+            self.chatObject.find('.dx-form-chat-btn-refresh').off('click');
+            self.chatObject.find('.dx-form-chat-btn-refresh').click(function () {
+                self.onClickRefresh(self);
             });
 
             // Retrieves chat messages and opens chat if messages found
@@ -27405,6 +27411,11 @@ $(document).ready(function()
                 return;
             }
 
+            // Close all other chat instances also stops updates
+            $('.dx-form-chat-btn-open').not(self.domObject).each(function () {
+                this.chat.closeChatPanel(this.chat);
+            });
+
             self.stateIsVisible = true;
 
             // Clears old data from chat
@@ -27415,7 +27426,7 @@ $(document).ready(function()
 
                 self.chatObject.find('.caption-helper').html(self.formTitle);
 
-                self.chatObject.css("zIndex",self.domObject.closest('.modal-scrollable').css("zIndex"));
+                self.chatObject.css("zIndex", self.domObject.closest('.modal-scrollable').css("zIndex"));
 
                 self.chatObject.slideDown();
             });
@@ -27497,7 +27508,7 @@ $(document).ready(function()
                 data: data,
                 type: "post",
                 success: function () {
-                    btn.closest('.dx-form-chat-user-list-row').remove();
+                    $(btn).closest('.dx-form-chat-user-list-row').remove();
 
                     hide_page_splash(1);
 
@@ -27652,20 +27663,38 @@ $(document).ready(function()
 
             self.stateIsUpdateRunning = true;
 
-            $.ajax({
-                url: DX_CORE.site_url + 'chat/messages/' + self.listId + '/' + self.itemId + '/' + self.lastMessageID,
-                type: "get",
-                success: function (res) {
-                    self.stateIsUpdateRunning = false;
+            try {
+                $.ajax({
+                    url: DX_CORE.site_url + 'chat/messages/' + self.listId + '/' + self.itemId + '/' + self.lastMessageID,
+                    type: "get",
+                    success: function (res) {
+                        self.stateIsUpdateRunning = false;
 
-                    self.onDataRecevied(self, res)
-                },
-                error: function (err) {
-                    self.stateIsUpdateRunning = false;
+                        self.onDataRecevied(self, res)
+                    },
+                    error: function (err) {
+                        self.stateIsUpdateRunning = false;
 
-                    // self.catchError(err, Lang.get('crypto.e_get_user_cert'));
-                }
-            });
+                        self.chatObject.find('.dx-form-chat-content-container').hide();
+                        self.chatObject.find('.dx-form-chat-form').hide();
+                        self.chatObject.find('.dx-form-chat-content-err').show();
+                    }
+                });
+            }
+            catch (e) {
+
+            }
+        },
+        /**
+         * Click event when refresh button has been clicked after chat window got error
+         * @param {DxFormChat} self Current form chat instance
+         */
+        onClickRefresh:function(self){
+            self.getChatData();
+
+            self.chatObject.find('.dx-form-chat-content-err').hide();
+            self.chatObject.find('.dx-form-chat-content-container').show();
+            self.chatObject.find('.dx-form-chat-form').show();            
         },
         /**
          * Processes retrieved data
@@ -27697,6 +27726,13 @@ $(document).ready(function()
                 }
             }
 
+            self.refreshData(self);
+        },
+        /**
+         * Refreshes data after timeout
+         * @param {DxFormChat} self Current form chat instance
+         */
+        refreshData:function(self){
             // Calls again after 1000 ms   
             setTimeout(function () {
                 if (self.stateIsVisible) {
