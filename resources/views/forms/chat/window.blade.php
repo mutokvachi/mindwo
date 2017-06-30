@@ -73,11 +73,11 @@
     <div class="portlet light">
         <div class="portlet-title">
             <div class="actions">
-                &nbsp<a href="javascript:;" class="btn btn-circle btn-icon-only btn-default dx-form-chat-btn-close"><i class="fa fa-close"></i></a>
+                &nbsp;<a href="javascript:;" class="btn btn-circle btn-icon-only btn-default dx-form-chat-btn-close"><i class="fa fa-close"></i></a>
             </div>
             <div class="caption">
                 <i class="fa fa-comments-o"></i>
-                <span class="caption-subject bold uppercase">{{ trans('form.chat.chat') }}</span></br>
+                <span class="caption-subject bold uppercase">{{ trans('form.chat.chat') }}</span><br/>
                 <span class="caption-helper"></span>
             </div>
             <div class="actions">
@@ -112,7 +112,7 @@
                 <div class="dx-form-chat-form-btns">
                     <a href="javascript:void(0);" class="btn blue btn-icon-only dx-form-chat-btn-send" title="{{ trans('form.chat.btn_send_msg') }}">
                         <i class="fa fa-send icon-white"></i>
-                    </a></br>
+                    </a><br/>
                     <input type="file" class="dx-form-chat-file-input" multiple>
                     <a href="javascript:void(0);" class="btn btn-default btn-icon-only dx-form-chat-btn-file" title="{{ trans('form.chat.btn_send_file') }}">
                         <i class="fa fa-paperclip"></i>

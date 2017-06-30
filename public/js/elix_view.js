@@ -27508,7 +27508,7 @@ $(document).ready(function()
                 data: data,
                 type: "post",
                 success: function () {
-                    btn.closest('.dx-form-chat-user-list-row').remove();
+                    $(btn).closest('.dx-form-chat-user-list-row').remove();
 
                     hide_page_splash(1);
 

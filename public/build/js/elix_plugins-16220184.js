@@ -9110,7 +9110,7 @@ var PageMain = function()
      */
     var initHelpPopups = function() {
         
-        $('.dx-form-help-popup').tooltipster({
+        $('.dx-form-help-popup:not(.tooltipstered)').tooltipster({
             theme: 'tooltipster-light',
             animation: 'grow',
             maxWidth: 300
@@ -9124,7 +9124,7 @@ var PageMain = function()
      * @returns {undefined}
      */
     var initSpecialTooltips = function() {
-        $('[title]').filter(function(i){
+        $('[title]:not(.tooltipstered)').filter(function(i){
             return $(this).attr('title') != "";
         }).tooltipster({
             theme: 'tooltipster-light',
