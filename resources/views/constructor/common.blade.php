@@ -6,7 +6,7 @@
 @endsection
 
 @section('main_custom_javascripts')
-  @include('pages.view_js_includes')
+    @include('pages.view_js_includes')
     <script src="{{ elixir('js/elix_constructor_wizard.js') }}" type='text/javascript'></script>
     <script>
             $(document).ready(function()
