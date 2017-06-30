@@ -1580,7 +1580,7 @@ a.header-filter:hover {
 	margin: 0 !important;
 }
 
-.dx-grid-table thead {
+.dx-horizontal-menu-ui .dx-grid-table thead {
 	position: relative;
 	z-index: 10000;
 }
