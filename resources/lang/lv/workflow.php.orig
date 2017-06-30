@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /*
 |--------------------------------------------------------------------------
@@ -81,43 +81,46 @@ return [
     
     'wf_init_aproovers_hint' => 'Ja nepieciešams, pirms darbplūsmas uzsākšanas variet koriģēt saskaņotāju secību, noņemt saskaņotāju vai pievienot vēl citus saskaņotājus.',
     
-    'err_no_direct_manager' => "The workflow can not be started because the employee '%s' do not have dirrect manager!",
+    'err_no_direct_manager' => "Nav iespējams izveidot uzdevumu, jo darbiniekam '%s' nav norādīts tiešais vadītājs!",
     
-    'err_unsuported_activity' => 'Unsupported custom workflow activity code %s!',
+    'err_unsuported_activity' => 'Neatbalstīts darbplūsmas pielāgotās aktivitātes kods %s!',
     
-    'fld_activity' => 'Activity',
+    'fld_activity' => 'Aktivitāte',
+    'performer_system' => 'Sistēma',
+    'performer_empl' => 'Darbinieks',
+    'err_no_substitute' => "Prombūtnē esošam darbiniekam '%s' nav norādīts aizvietotājs!",
     
-    'performer_system' => 'System',
-    'performer_empl' => 'Employee',
-    'err_no_substitute' => "Employee '%s' is absent and the substitute person is not provided!",
-
-    'yes' => 'Yes',
-    'no' => 'No',
-    'success' => 'Workflow saved',
-    'wf_details' => "Workflow details",
-    'wf_steps' => "Workflow steps",
-    'success_arrange' => 'Workflow successfully arranged!',
+    'yes' => 'Jā',
+    'no' => 'Nē',
+    'success' => 'Darbplūsma saglabāta',
+    'wf_details' => "Darbplūsmas detaļas",
+    'wf_steps' => "Darbplūsmas soļi",
+    'success_arrange' => 'Darbplūsma sekmīgi sakārtota!',
     
-    'save' => 'Save',
-    'arrange' => 'Arrange automatically',
-    'arrange_text' => "Do You want to arrange workflow's steps automatically?",
-    'arrangee_tooltip' => "Arranging workflow's steps automatically will delete all visual positionioning changes made by user",
-    'form_title' => 'Workflow',
-    'list' => 'Register',
-    'title' => 'Name',
-    'description' => 'Description',
-    'is_custom_approve' => 'Is custom approve',
-    'valid_from' => 'Valid from',
-    'valid_to' => 'Valid to',
-     'must_save_title' => 'Save workflow',
-    'must_save_text' => "Workflow must be saved before editting wokrflow's steps. Do You want to save workflow?",
-    'delete_confirm_title' => 'Delete element',
-    'delete_confirm_text' => "Do You want to delete this workflow's element?",
-    'lbl_deny' => 'DENIED',
-    'open_designer' => 'Open visual designer',
-    'err_cant_get_unit_leader' => "There is not possible to get unit leader for the employee '%s'!",
+    'save' => 'Saglabāt',
+    'arrange' => 'Sakārtot automātiski',
+    'arrange_text' => 'Vai vēlaties sakārtot darbplūsmas soļus automātiski?',
+    'arrangee_tooltip' => 'Pārkārtojot darbplūsmas soļus automātiski, lietotāja veiktās izkārtojuma izmaiņas tiks dzēstas',
+    'form_title' => 'Darbplūsma',
+    'list' => 'Reģistrs',
+    'title' => 'Nosaukums',
+    'description' => 'Apraksts',
+    'is_custom_approve' => 'Ir manuālie saskaņotāji',
+    'valid_from' => 'Spēkā no',
+    'valid_to' => 'Spēkā līdz',
+    'must_save_title' => 'Darbplūsmas saglabāšana',
+    'must_save_text' => 'Darbplūsmu nepieciešams saglabāt pirms tās soļu rediģēšanas. Vai saglabāt darbplūsmu?',
+    'delete_confirm_title' => 'Elementa dzēšana',
+    'delete_confirm_text' => 'Vai vēlaties dzēst šo darbplūsmas elementu?',
+    'lbl_deny' => 'NORAIDĪJA',
+<<<<<<< HEAD
+    'open_designer' => 'Atvērt grafisko redaktoru',
+=======
     
-    'cant_delegate_to_myself' => "Task can't be delegated to yourself! Please, provide another employee.",
+    'err_cant_get_unit_leader' => "Darbiniekam %s nav iespējams noteikt struktūrvienības vadītāju!",
     
-    'alowed_delegate_only_subordinated' => 'Task can be delegated only to direct subordinates!',
+    'cant_delegate_to_myself' => 'Uzdevumu nav pieļaujams deleģēt sev. Lūdzu, norādiet citu darbinieku.',
+    
+    'alowed_delegate_only_subordinated' => 'Uzdevumu pieļaujams deleģēt tikai savā tiešajā pakļautībā esošajiem darbiniekiem!',
+>>>>>>> develop
 ];

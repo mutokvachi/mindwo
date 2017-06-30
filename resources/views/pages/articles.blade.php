@@ -39,6 +39,10 @@
     @endif
      
     @include('blocks.feed_articles_css')
+    
+    @if (Auth::check() && Auth::user()->id != Config::get('dx.public_user_id'))
+        @include('pages.view_css_includes')
+    @endif
 @stop
 
 @section('main_content')
@@ -105,4 +109,7 @@
 
 @section('main_custom_javascripts')   
     <script src = "{{ elixir('js/elix_articles.js') }}" type='text/javascript'></script>
+    @if (Auth::check() && Auth::user()->id != Config::get('dx.public_user_id'))
+        @include('pages.view_js_includes')
+    @endif
 @stop

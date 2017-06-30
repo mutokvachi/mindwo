@@ -37,8 +37,10 @@
 		  route: '{{ route('organization_departments') }}'
 	  };
   </script>
+  @include('pages.view_js_includes')
 @endsection
 
 @section('main_custom_css')
   <link href="{{ elixir('css/elix_orgdepartments.css') }}" rel="stylesheet"/>
+  @include('pages.view_css_includes')
 @endsection

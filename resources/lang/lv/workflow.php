@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /*
 |--------------------------------------------------------------------------
@@ -95,8 +95,12 @@ return [
     'success' => 'Darbplūsma saglabāta',
     'wf_details' => "Darbplūsmas detaļas",
     'wf_steps' => "Darbplūsmas soļi",
+    'success_arrange' => 'Darbplūsma sekmīgi sakārtota!',
     
     'save' => 'Saglabāt',
+    'arrange' => 'Sakārtot automātiski',
+    'arrange_text' => 'Vai vēlaties sakārtot darbplūsmas soļus automātiski?',
+    'arrangee_tooltip' => 'Pārkārtojot darbplūsmas soļus automātiski, lietotāja veiktās izkārtojuma izmaiņas tiks dzēstas',
     'form_title' => 'Darbplūsma',
     'list' => 'Reģistrs',
     'title' => 'Nosaukums',
@@ -106,9 +110,10 @@ return [
     'valid_to' => 'Spēkā līdz',
     'must_save_title' => 'Darbplūsmas saglabāšana',
     'must_save_text' => 'Darbplūsmu nepieciešams saglabāt pirms tās soļu rediģēšanas. Vai saglabāt darbplūsmu?',
-    
+    'delete_confirm_title' => 'Elementa dzēšana',
+    'delete_confirm_text' => 'Vai vēlaties dzēst šo darbplūsmas elementu?',
     'lbl_deny' => 'NORAIDĪJA',
-    
+    'open_designer' => 'Atvērt grafisko redaktoru',
     'err_cant_get_unit_leader' => "Darbiniekam %s nav iespējams noteikt struktūrvienības vadītāju!",
     
     'cant_delegate_to_myself' => 'Uzdevumu nav pieļaujams deleģēt sev. Lūdzu, norādiet citu darbinieku.',

@@ -73,11 +73,11 @@
     <div class="portlet light">
         <div class="portlet-title">
             <div class="actions">
-                &nbsp<a href="javascript:;" class="btn btn-circle btn-icon-only btn-default dx-form-chat-btn-close"><i class="fa fa-close"></i></a>
+                &nbsp;<a href="javascript:;" class="btn btn-circle btn-icon-only btn-default dx-form-chat-btn-close"><i class="fa fa-close"></i></a>
             </div>
             <div class="caption">
                 <i class="fa fa-comments-o"></i>
-                <span class="caption-subject bold uppercase">{{ trans('form.chat.chat') }}</span></br>
+                <span class="caption-subject bold uppercase">{{ trans('form.chat.chat') }}</span><br/>
                 <span class="caption-helper"></span>
             </div>
             <div class="actions">
@@ -86,6 +86,12 @@
             </div>
         </div>
         <div class="portlet-body">
+            <div class="dx-form-chat-content-err" style="display:none">
+                <div class="note note-danger">
+                    <p> {{ trans('form.chat.e_data_not_retrieved') }} </p>
+                </div>
+                <button type="button" class="btn btn-md btn-primary dx-form-chat-btn-refresh"> <i class="fa fa-refresh"></i> {{ trans('form.chat.btn_try_again') }}</button>
+            </div>            
             <div class='dx-form-chat-content-container'>
                 <ul class="chats dx-form-chat-content">
                 </ul>
@@ -106,7 +112,7 @@
                 <div class="dx-form-chat-form-btns">
                     <a href="javascript:void(0);" class="btn blue btn-icon-only dx-form-chat-btn-send" title="{{ trans('form.chat.btn_send_msg') }}">
                         <i class="fa fa-send icon-white"></i>
-                    </a></br>
+                    </a><br/>
                     <input type="file" class="dx-form-chat-file-input" multiple>
                     <a href="javascript:void(0);" class="btn btn-default btn-icon-only dx-form-chat-btn-file" title="{{ trans('form.chat.btn_send_file') }}">
                         <i class="fa fa-paperclip"></i>
@@ -116,7 +122,7 @@
                     <input class='dx-form-chat-input-id' type='hidden'>
                     <textarea rows="2" class="form-control dx-form-chat-input-text" type="text" placeholder="{{ trans('form.chat.type_hint') }}"></textarea>
                 </div>                
-            </div>
+            </div>            
         </div>
     </div>
 </div>

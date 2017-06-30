@@ -114,6 +114,8 @@ return [
     
     'wrong_date_format' => "Data can't be saved! Wrong date format for the field '%s'. Date must be in format %s!",
     
+    'unknown_error' => "Something went wrong. Please reload page and try again!",
+    
     'workflow' => [
         'not_saved' => 'Workflow is not saved',
         'step_not_connected' => 'Workflow contains steps which are not connected to workflow',
