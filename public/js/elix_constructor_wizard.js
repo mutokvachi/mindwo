@@ -752,7 +752,7 @@ $(document).ready(function()
 			
 			this.dialog.modal('show');
 		},
-		saveProperties()
+		saveProperties: function()
 		{
 			var self = this;
 			

@@ -11,7 +11,7 @@
     ?>
     @if($chatUsers && count($chatUsers) > 0)
     <li class="dropdown dx-chat-notif-dropdown">
-        <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" title="New messages">
+        <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
             <i class="fa fa-comments-o"></i> 
             <div class="badge badge-warning dx-chat-notif-count" >{{ count($chatUsers) }}</div>
         </a>    

@@ -144,15 +144,15 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-default">
                                     <li>
-                                        <a href="javascript:;" title="{{ trans("frame.page_size") }}" id='btnScreen'>
+                                        <a href="javascript:;" id='btnScreen'>
                                             <i class="fa fa-arrows-alt"></i> {{ trans("frame.page_fullscreen") }} </a>
                                     </li>
                                     <li>
-                                        <a href="javascript:;" title="{{ trans("frame.password_change") }}" class="dx-user-change-passw-link">
+                                        <a href="javascript:;" class="dx-user-change-passw-link">
                                             <i class="fa fa-key"></i> {{ trans("frame.password_change") }} </a>
                                     </li>
                                     <li>
-                                        <a href="{{Request::root()}}/logout" title="{{ trans("frame.logout") }}">
+                                        <a href="{{Request::root()}}/logout">
                                             <i class="fa fa-sign-out"></i> {{ trans("frame.logout") }} </a>
                                     </li>
                                 </ul>
