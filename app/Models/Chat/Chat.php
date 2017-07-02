@@ -40,7 +40,7 @@ class Chat extends Model
      *
      * @return \App\Models\Lists
      */
-    public function list()
+    public function register()
     {
         return $this->belongsTo('\App\Models\System\Lists', 'list_id');
     }
