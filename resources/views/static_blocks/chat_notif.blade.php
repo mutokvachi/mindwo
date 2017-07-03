@@ -32,7 +32,7 @@
                         
                         open_form('form', {{ $chat->item_id }}, {{ $chat->list_id }}, 0, 0, '', 0, '');                     
                     })(this)">
-                    <i class="fa fa-comment-o" style="font-size:medium"></i> {{ $chat->register->list_title }} <span style="font-style:italic;">(#{{ $chat->id }})</span> 
+                    <i class="fa fa-comment-o" style="font-size:medium"></i> {{ $chat->register->list_title }} <span style="font-style:italic;">(#{{ $chat->item_id }})</span> 
                 </a>
             </li>
             @endforeach
