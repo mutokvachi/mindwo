@@ -1,16 +1,16 @@
 <div style="margin: 20px;">
-    <p>Tiks ģenerēta programmatūras projektējuma apraksta datne PDF formātā.</p>
+    <p>{{ trans('ppa.form.intro') }}</p>
 </div>
 <div id="{{ $form_guid }}">
     <form class="form-horizontal" id='item_edit_form_{{ $form_guid }}' method='POST'>
         
         <div class="col-lg-12 text-center" id="div_btn_line">
-            <button class="btn btn-primary" type="button" id='{{ $form_guid }}_gener' title="Ģenrēt PPA" style="margin-left: -5px;">Ģenerēt PPA</button>
+            <button class="btn btn-primary" type="button" id='{{ $form_guid }}_gener' style="margin-left: -5px;">{{ trans('ppa.form.btn_generate') }}</button>
         </div>        
     </form>    
 </div>
 <div class="col-lg-12 text-center" style="display: none;" id="file_gen_progress">
-    <img src="assets/global/img/input-spinner.gif" alt="Notiek ģenerēšana" /> Tiek ģenerēta PPA datne... Lūdzu, uzgaidiet... Process var notikt vairākas minūtes.
+    <img src="assets/global/img/input-spinner.gif" alt="{{ trans('ppa.form.progress') }}" /> {{ trans('ppa.form.progress_info') }}
 </div>
 <script>
                         
@@ -28,8 +28,8 @@
         request.progress_info = "";
         
         request.callback = function(data) {
-            notify_info("PPA datne veiksmīgi noģenerēta!");
-            $("#file_gen_progress").html("<b>PPA datne veiksmīgi noģenerēta!</b><br><br><a href='/assets/global/doc/ppa.pdf' target='_blank'>Lejuplādēt PPA</a>")
+            notify_info(Lang.get('ppa.form.done'));
+            $("#file_gen_progress").html("<b>" + Lang.get('ppa.form.done') + "</b><br><br><a href='/assets/global/doc/ppa.pdf' target='_blank'>" + Lang.get('ppa.form.link_download') + "</a>")
         };
 
         form_el.hide();
