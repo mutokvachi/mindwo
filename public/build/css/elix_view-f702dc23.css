@@ -1999,6 +1999,10 @@ table.dataTable tbody>tr.selected,table.dataTable tbody>tr>.selected{background-
   overflow-y: scroll;
   height: 40vh;
 }
+.dx-form-chat-panel .portlet .portlet-body .dx-form-chat-msg-body {
+  overflow: hidden;
+  word-wrap: break-word;
+}
 .dx-form-chat-panel .portlet .portlet-body .dx-form-chat-progress {
   display: none;
 }
