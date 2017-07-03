@@ -29,7 +29,7 @@ class RegisterController extends Controller
     protected $view_id = 1;
     protected $list = null;
     protected $view = null;
-    protected $steps = ['names', 'columns', 'fields', 'rights'];
+    protected $steps = ['names', 'columns', 'fields', 'rights', 'workflows'];
     
     public function __construct()
     {
@@ -507,6 +507,35 @@ class RegisterController extends Controller
     }
 
     public function updateRights($id)
+    {
+        
+    }
+
+    /**
+     * Opens workflow edit view
+     *
+     * @param [integer] $id Lists's ID
+     * @return string HTML view
+     */
+    public function editWorkflows($id)
+    {
+        $workflow = $this->getList()->workflows()->first();
+
+        $result = view('constructor.workflows', [
+            'step' => 'workflows',
+            'workflow' => $workflow
+                ])->render();
+
+        return $result;
+    }
+
+    /**
+     * Updates workflows data
+     *
+     * @param [integer] $id List's ID
+     * @return void
+     */
+    public function updateWorkflows($id)
     {
         
     }

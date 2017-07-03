@@ -1,7 +1,5 @@
-<div class='modal dx-cms-workflow-form' aria-hidden='true' id='list_item_view_form_{{ $frm_uniq_id }}' role='dialog' data-backdrop='static' 
-     data-dx_is_init="0"   
-     data-frm-uniq-id = "{{ $frm_uniq_id }}"
-     data-grid-htm-id = "{{ $grid_htm_id }}"
+<div class='dx-cms-workflow-form'
+     data-dx_is_init="0"
      data-date-format="{{ config('dx.txt_date_format') }}" 
      data-locale='{{ Lang::locale() }}'
      data-xml_data = '{{ $xml_data }}' 

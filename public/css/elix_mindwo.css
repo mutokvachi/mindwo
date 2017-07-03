@@ -208,7 +208,7 @@ div.checkbox input.i-checks {
     padding-right: 20px;
 }
 .splash {
-  position: absolute;
+  position: fixed;
   z-index: 15000012;
   background: white;
   color: gray;

@@ -562,8 +562,6 @@ class VisualWFController extends Controller
             'item_id' => 'required|integer|exists:dx_workflows_def,id'
         ]);
 
-        //\Log::info(json_endoce(Request::all()));
-
         $workflow_id = $request->input('item_id', 0);        
 
         if ($workflow_id > 0) {
