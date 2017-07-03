@@ -50,8 +50,8 @@ class ChatController extends Controller
 
         if ($message) {
             $this->saveTextMessage($message, $user_id, $chat->id);
-        } else {
-            $this->saveFileMessage($request->file('file'), $user_id, $chat->id);
+        } else if ($file = $request->file('file')){            
+            $this->saveFileMessage($file, $user_id, $chat->id);
         }
 
         $this->addUserToChatByChatID($chat->id, $user_id);

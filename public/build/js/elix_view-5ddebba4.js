@@ -27644,7 +27644,7 @@ $(document).ready(function()
                 data: data,
                 type: "post",
                 success: function () {
-
+                    self.getChatData();
                 },
                 error: function () {
                     notify_err(Lang.get('form.chat.e_msg_not_saved'));
