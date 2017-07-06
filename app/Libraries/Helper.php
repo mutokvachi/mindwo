@@ -11,7 +11,7 @@ namespace App\Libraries
     use Auth;
     use Carbon\Carbon;
     use Log;
-    
+    use Illuminate\Support\Facades\Schema;
     /**
      * Palīgfunkciju klase
      */
@@ -267,7 +267,7 @@ namespace App\Libraries
          */
         public static function getInfoTasks($list_id, $item_id, $table_name) {
             $info_tasks = null;        
-            if ($item_id != 0) {
+            if ($item_id != 0 && Schema::hasColumn('table_name', 'created_user_id')) {
 
                 $creator_id = DB::table($table_name)->select('created_user_id')->where('id','=',$item_id)->first()->created_user_id;
 
