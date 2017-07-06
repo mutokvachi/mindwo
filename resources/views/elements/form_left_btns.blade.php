@@ -10,7 +10,7 @@
     <button  type='button' class='btn btn-white dx-form-btn-word' title='{{ trans('form.word_hint') }}'><i class="fa fa-file-word-o"></i> {{ trans('form.word_generate_btn') }}</button>
 @endif
 
-@if (($workflow_btn == 1 || $workflow_btn == 3) && $form_is_edit_mode == 0 && $is_editable_wf == 1 && $is_edit_rights)    
+@if (&& Config::get('dx.is_tasks_logic', true) && ($workflow_btn == 1 || $workflow_btn == 3) && $form_is_edit_mode == 0 && $is_editable_wf == 1 && $is_edit_rights)    
     <button  type='button' class='btn btn-white dx-init-wf-btn'><font color="green"><i class="fa fa-play"></i></font> {{ trans('form.btn_start_workflow') }}</button>
 @endif
 @if ($form_is_edit_mode == 0 && Config::get('dx.is_tasks_logic', true))
