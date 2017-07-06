@@ -82,5 +82,7 @@ return [
         'e_no_users' => 'Šajā sarakstē nav neviena lietotāja', 
         'i_upload_progress' => 'Augšupielāde pielikumus...',   
         'task_chat_description' => 'Jūs esat pievienots diskusijai par dokumentu.',
+        
+        'hint_settings' => 'Atvērt formas iestatījumus',
     ]
 ];
