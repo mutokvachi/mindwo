@@ -763,7 +763,7 @@ var FormLogic = function()
      * @param {object} section Form object
      * @returns {undefined}
      */
-    var handleItemHistoryClick = function(section) {
+    var handleSettingLinkClick = function(section) {
         var frm = $("#list_item_view_form_" + section.attr("dx_form_id"));
         
         frm.find(".dx-cms-settings-link").click(function () {
