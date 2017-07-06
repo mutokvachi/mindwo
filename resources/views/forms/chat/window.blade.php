@@ -1,4 +1,4 @@
-@if(config('dx.is_chat_enabled', false))
+@if(config('dx.is_chat_enabled', false) && (Auth::check() && Auth::user()->id != Config::get('dx.public_user_id')))
 <div class="modal dx-form-chat-modal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

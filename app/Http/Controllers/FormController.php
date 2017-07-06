@@ -676,6 +676,7 @@ class FormController extends Controller
             
             if ($status == 3) { // item in status rejected
                 $this->reject_task = Workflows\Helper::getWFRejectedInfo($list_id, $item_id);
+                \Log::info("Rejected task: " . json_encode($this->reject_task));
             }
             
             return $status;
