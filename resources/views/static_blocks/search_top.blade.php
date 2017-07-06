@@ -26,7 +26,9 @@
           <ul class="dropdown-menu">
             <li class="searchTypeItem"><a href="#">{{ trans("search_top.documents") }}</a></li>
             <li class="searchTypeItem"><a href="#">{{ trans("search_top.employees") }}</a></li>
+            @if (Config::get('dx.is_news_logic', true))
             <li class="searchTypeItem"><a href="#">{{ trans("search_top.news") }}</a></li>
+            @endif
           </ul>
         </div>
         
