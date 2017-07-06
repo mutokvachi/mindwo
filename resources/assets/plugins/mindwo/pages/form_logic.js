@@ -758,6 +758,20 @@ var FormLogic = function()
     };
     
     /**
+     * Sets event handlers on forms setings link
+     * 
+     * @param {object} section Form object
+     * @returns {undefined}
+     */
+    var handleItemHistoryClick = function(section) {
+        var frm = $("#list_item_view_form_" + section.attr("dx_form_id"));
+        
+        frm.find(".dx-cms-settings-link").click(function () {
+            view_list_item("form", 4, 10, 0, 0, "", "");
+        });
+    };
+    
+    /**
      * Init lock/unclock logic on cancelation events
      * 
      * @param {object}  section CMS forms fields section HTML element
@@ -873,6 +887,7 @@ var FormLogic = function()
             handleCancelWorkflowMenuClick($(this));
             handleItemHistoryClick($(this));
             
+            handleSettingLinkClick($(this));
             adjustDataTabs($(this));
             setFocusFirstField($(this));
             
