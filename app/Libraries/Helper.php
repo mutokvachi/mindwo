@@ -12,6 +12,7 @@ namespace App\Libraries
     use Carbon\Carbon;
     use Log;
     use Illuminate\Support\Facades\Schema;
+    
     /**
      * Palīgfunkciju klase
      */
