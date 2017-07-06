@@ -64,6 +64,11 @@
         this.stateIsUpdateRunning = false;
 
         /**
+         * Time out timer which retrieves newest messages
+         */
+        this.timeoutTimer = false;
+
+        /**
          * Contains XHR request for file upload
          */
         this.fileUploadXhr = false;
@@ -116,6 +121,16 @@
                 self.closeChatPanel(self);
             });
 
+            self.bindEvents(self);
+
+            // Retrieves chat messages and opens chat if messages found
+            self.getChatData();
+        },
+        /**
+         * Binds chat objects events
+         * @param {DxFormChat} self Current form chat instance
+         */
+        bindEvents: function(self){
             // Handles chat close button
             self.chatObject.find('.dx-form-chat-btn-close').off('click');
             self.chatObject.find('.dx-form-chat-btn-close').click(function () {
@@ -183,9 +198,6 @@
             self.chatObject.find('.dx-form-chat-btn-refresh').click(function () {
                 self.onClickRefresh(self);
             });
-
-            // Retrieves chat messages and opens chat if messages found
-            self.getChatData();
         },
         /**
          * Cancels file upload request
@@ -335,6 +347,9 @@
             $('.dx-form-chat-btn-open').not(self.domObject).each(function () {
                 this.chat.closeChatPanel(this.chat);
             });
+
+            // Binds all events (on reinitialization needs to bind again because all chat buttons use same chat window)
+            self.bindEvents(self);
 
             self.stateIsVisible = true;
 
@@ -528,6 +543,8 @@
          * @param {DxFormChat} self Current form chat instance
          */
         closeChatPanel: function (self) {
+            clearTimeout(self.timeoutTimer);            
+            self.timeoutTimer = false;
             self.stateIsVisible = false;
             self.lastMessageID = 0;
             self.chatObject.slideUp();
@@ -576,20 +593,33 @@
          */
         getChatData: function () {
             var self = this;
+            
+            var currentdate = new Date(); 
+var datetime = "Last Sync: " + currentdate.getDate() + "/"
+                + (currentdate.getMonth()+1)  + "/" 
+                + currentdate.getFullYear() + " @ "  
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+                console.log('in: ' + currentdate);
 
             if (self.stateIsUpdateRunning) {
+                console.log('quit: ' + currentdate);
                 return;
             }
 
             self.stateIsUpdateRunning = true;
+
+            if(self.timeoutTimer != false){
+                clearTimeout(self.timeoutTimer);
+                self.timeoutTimer= false;
+            }
 
             try {
                 $.ajax({
                     url: DX_CORE.site_url + 'chat/messages/' + self.listId + '/' + self.itemId + '/' + self.lastMessageID,
                     type: "get",
                     success: function (res) {
-                        self.stateIsUpdateRunning = false;
-
                         self.onDataRecevied(self, res)
                     },
                     error: function (err) {
@@ -646,6 +676,8 @@
                 }
             }
 
+            self.stateIsUpdateRunning = false;
+
             self.refreshData(self);
         },
         /**
@@ -653,12 +685,17 @@
          * @param {DxFormChat} self Current form chat instance
          */
         refreshData:function(self){
+            if(self.timeoutTimer){
+                clearTimeout(self.timeoutTimer);            
+                self.timeoutTimer = false;
+            } 
+
             // Calls again after 1000 ms   
-            setTimeout(function () {
+            self.timeoutTimer = setTimeout(function () {
                 if (self.stateIsVisible) {
                     self.getChatData();
                 }
-            }, self.chatRefreshRate);
+            }, self.chatRefreshRate);            
         },
         /**
          * Scroll down chat window
