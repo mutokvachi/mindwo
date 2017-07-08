@@ -106,11 +106,11 @@
             <div class="page-header-inner container">
 
                 <div class="page-logo">
-                    <a href="/" style="text-decoration: none;">
-                         @if (!trans('index.logo_txt'))
+                    <a href="/" style="text-decoration: none;" title="{{ trans('index.logo_txt') }}">
+                        @if (Config::get('dx.app.logo_txt', '') === '')
                             <img src="{{Request::root()}}/{{ Config::get('dx.logo_small', 'assets/global/logo/logo-default.png') }}" alt="LOGO" class="logo-default" style="margin-top: 8px;"/>
                         @else
-                            <div style="font-size: 28px; color: white; text-transform: uppercase; padding-top: 14px;">{{ trans('index.logo_txt') }}</div>
+                            <div style="font-size: 28px; color: white; text-transform: uppercase; padding-top: 14px;">{{ Config::get('dx.app.logo_txt') }}</div>
                         @endif
                     </a>
                     <div class="menu-toggler sidebar-toggler" dx_attr=""></div>

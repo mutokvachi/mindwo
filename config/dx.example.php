@@ -437,4 +437,15 @@ return [
     |-------------------------------------------------------------------------- 
     */
     'is_news_logic' => true,
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Application namings and textual logo-replacers settings
+    |-------------------------------------------------------------------------- 
+    */
+    'app' => [
+        'name' => env('APP_NAME', 'MINDWO'),
+        'logo_txt' => env('APP_LOGO_TXT', ''),
+        'logo_big_txt' => env('APP_LOGO_BIG_TXT', ''),
+    ]
 ];

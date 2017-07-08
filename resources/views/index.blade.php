@@ -6,7 +6,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <title>{{ trans('index.site_title') }}</title>
+        <title>{{ trans('index.site_title', ['app' => Config::get('dx.app.name', 'MINDWO')]) }}</title>
 
         <link rel="shortcut icon" href="{{Request::root()}}/favicon.ico">
 
@@ -37,13 +37,14 @@
 
         <div class="text-center" style="max-width: 300px; width: 300px; margin: 0 auto; margin-top: 100px;">       
             <div>
-                @if (!trans('index.logo_txt'))
+                
+                @if (Config::get('dx.app.logo_big_txt', '') === '')
                     <img src="{{ Config::get('dx.logo_big') }}" alt="LOGO" />
                 @else
                     <span style="font-size: 48px; color: #2e6da4; text-transform: uppercase;">{{ trans('index.logo_txt') }}</span>
                 @endif
             </div>
-            <h3>{{ trans("index.hello_title") }}</h3>
+            <h3>{{ trans("index.hello_title", ['app' => Config::get('dx.app.name', 'MINDWO')]) }}</h3>
             <p>{{ trans("index.about_title") }}</p>
             
             <form name="frmLogin" id="frmLogin" method="post" action="{{Request::root()}}/login">
