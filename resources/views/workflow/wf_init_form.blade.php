@@ -6,7 +6,6 @@
     <div class='modal-dialog modal-lg'>
             <div class='modal-content'>
                     @include('elements.form_header',['form_title' => trans('workflow.wf_init_form_title'), 'badge' => ''])
-                   				
                     <div class='modal-body' style="overflow-y: auto; max-height: 500px; padding-left: 40px;">
                         <h2>{{ trans('workflow.wf_init_approvers_title') }}</h2>
                         <p>{{ trans('workflow.wf_init_aproovers_hint') }}</p>
