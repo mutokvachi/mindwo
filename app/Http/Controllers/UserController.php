@@ -90,7 +90,10 @@ class UserController extends Controller
             $this->updateAttempts(Auth::user()->id, 0);
 
             DB::table('in_portal_log')->insert([['log_time' => date('Y-n-d H:i'), 'url' => 'login', 'user_id' => Auth::user()->id]]);
-
+                        
+            // add default roles if not added jet
+            $this->addDefaultRoles();
+            
             $dx_redirect = $request->session()->pull('dx_redirect', '');
 
             if (strlen($dx_redirect) > 0) {
@@ -214,6 +217,32 @@ class UserController extends Controller
     {
         $htm = view('main.password_form')->render();
         return response()->json(['success' => 1, 'html' => $htm]);
+    }
+    
+    /**
+     * Updates user roles - add automaticaly default roles to user
+     */
+    private function addDefaultRoles() {
+       
+	$def_roles = DB::table('dx_roles as r')
+                     ->select('r.id')
+                     ->whereNotExists(function ($query) {
+                        $query->select(DB::raw(1))
+                              ->from('dx_users_roles as ur')
+                              ->where('ur.user_id', '=', Auth::user()->id)
+                              ->whereRaw('ur.role_id = r.id');
+                     })
+                     ->where('r.is_default', '=', 1)
+                     ->get();
+        
+	DB::transaction(function () use ($def_roles) {	
+            foreach($def_roles as $role) {
+                DB::table('dx_users_roles')->insert([
+                    'user_id' => Auth::user()->id,
+                    'role_id' => $role->id
+                ]);
+            }
+        });        
     }
 
     /**
