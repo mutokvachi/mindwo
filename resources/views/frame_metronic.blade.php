@@ -16,7 +16,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}" />
 
         <!-- BEGIN PLUGINS STYLES -->
-        <link href="{{Request::root()}}/metronic/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+        <link href="{{Request::root()}}/{{ getIncludeVersion('metronic/global/plugins/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" type="text/css" />
         <link href="{{Request::root()}}/metronic/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />    
         <link href="{{ elixir('css/elix_plugins.css') }}" rel="stylesheet" type="text/css" />
         <!-- BEGIN PLUGINS STYLES -->
