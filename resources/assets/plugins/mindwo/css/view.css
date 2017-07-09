@@ -263,3 +263,10 @@ a.header-filter:hover {
 	background-color: #f7ca18 !important;
 	border: 0 none !important;
 }
+
+.dx-overflow-cell {
+    max-width: 500px;
+    overflow: hidden; 
+    white-space: nowrap; 
+    text-overflow: ellipsis;
+}

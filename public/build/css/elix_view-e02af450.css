@@ -1647,6 +1647,12 @@ a.header-filter:hover {
 	border: 0 none !important;
 }
 
+.dx-overflow-cell {
+    max-width: 500px;
+    overflow: hidden; 
+    white-space: nowrap; 
+    text-overflow: ellipsis;
+}
 table.dataTable {
     clear: both;
     margin-top: 6px !important;
