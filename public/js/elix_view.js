@@ -27304,8 +27304,7 @@ $(document).ready(function()
             if (self.fileUploadXhr) {
                 return;
             }
-
-            self.chatObject.find('.dx-form-chat-btn-file').addClass('disabled');
+            
             self.chatObject.find('.dx-form-chat-file-input').click();
 
         },
@@ -27321,6 +27320,8 @@ $(document).ready(function()
             if (fileInput.files.length <= 0) {
                 return;
             }
+
+            self.chatObject.find('.dx-form-chat-btn-file').addClass('disabled');
 
             // Attach files
             for (var i = 0; i < fileInput.files.length; i++) {
@@ -27431,8 +27432,8 @@ $(document).ready(function()
             // Binds all events (on reinitialization needs to bind again because all chat buttons use same chat window)
             self.bindEvents(self);
 
+            // Clear user count it will be refreshed after data is retrieved
             self.chatObject.find('.dx-chat-user-count').html('');
-            self.refreshUserCount();
 
             self.stateIsVisible = true;
 

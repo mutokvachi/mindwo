@@ -224,8 +224,7 @@
             if (self.fileUploadXhr) {
                 return;
             }
-
-            self.chatObject.find('.dx-form-chat-btn-file').addClass('disabled');
+            
             self.chatObject.find('.dx-form-chat-file-input').click();
 
         },
@@ -241,6 +240,8 @@
             if (fileInput.files.length <= 0) {
                 return;
             }
+
+            self.chatObject.find('.dx-form-chat-btn-file').addClass('disabled');
 
             // Attach files
             for (var i = 0; i < fileInput.files.length; i++) {
