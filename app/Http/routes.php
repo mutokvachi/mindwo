@@ -193,6 +193,7 @@ Route::group(['prefix' => 'chat'], function() {
         Route::get('/users/{list_id}/{item_id}', array('middleware' => 'auth_ajax', 'uses' => 'ChatController@getChatUsers'));   
         Route::get('/messages/{list_id}/{item_id}/{last_message_id}', array('middleware' => 'auth_ajax', 'uses' => 'ChatController@getMessages'));
         Route::get('/file/{chat_id}/{message_id}', array('middleware' => 'auth_ajax', 'uses' => 'ChatController@getFile'));   
+        Route::get('/count/{list_id}/{item_id}', array('middleware' => 'auth_ajax', 'uses' => 'ChatController@getUserCount')); 
 });
 
 // Lietotāji - autorizācija, atslēgšanās

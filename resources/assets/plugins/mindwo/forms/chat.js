@@ -124,13 +124,13 @@
             self.bindEvents(self);
 
             // Retrieves chat messages and opens chat if messages found
-            self.getChatData();
+            self.getChatData(false);
         },
         /**
          * Binds chat objects events
          * @param {DxFormChat} self Current form chat instance
          */
-        bindEvents: function(self){
+        bindEvents: function (self) {
             // Handles chat close button
             self.chatObject.find('.dx-form-chat-btn-close').off('click');
             self.chatObject.find('.dx-form-chat-btn-close').click(function () {
@@ -329,7 +329,7 @@
 
             if (!stateIsVisible) {
                 // Loads chat data
-                self.getChatData();
+                self.getChatData(true);
             }
         },
         /**
@@ -350,6 +350,9 @@
 
             // Binds all events (on reinitialization needs to bind again because all chat buttons use same chat window)
             self.bindEvents(self);
+
+            // Clear user count it will be refreshed after data is retrieved
+            self.chatObject.find('.dx-chat-user-count').html('');
 
             self.stateIsVisible = true;
 
@@ -443,6 +446,8 @@
                 data: data,
                 type: "post",
                 success: function () {
+                    self.refreshUserCount();
+
                     $(btn).closest('.dx-form-chat-user-list-row').remove();
 
                     hide_page_splash(1);
@@ -514,6 +519,7 @@
                     hide_page_splash(1);
 
                     if (res && res.success && res.success == 1) {
+                        self.refreshUserCount();
                         notify_info(Lang.get('form.chat.i_user_added'));
                         modal.modal('hide');
                     } else if (res && res.msg) {
@@ -543,7 +549,7 @@
          * @param {DxFormChat} self Current form chat instance
          */
         closeChatPanel: function (self) {
-            clearTimeout(self.timeoutTimer);            
+            clearTimeout(self.timeoutTimer);
             self.timeoutTimer = false;
             self.stateIsVisible = false;
             self.lastMessageID = 0;
@@ -581,7 +587,7 @@
                 data: data,
                 type: "post",
                 success: function () {
-                    self.getChatData();
+                    self.getChatData(false);
                 },
                 error: function () {
                     notify_err(Lang.get('form.chat.e_msg_not_saved'));
@@ -590,29 +596,20 @@
         },
         /**
          * Loads chat's data
+         * @param {boolean} isManualOpen True if user clicked on open chat button which trigered this function
          */
-        getChatData: function () {
+        getChatData: function (isManualOpen) {
             var self = this;
-            
-            var currentdate = new Date(); 
-var datetime = "Last Sync: " + currentdate.getDate() + "/"
-                + (currentdate.getMonth()+1)  + "/" 
-                + currentdate.getFullYear() + " @ "  
-                + currentdate.getHours() + ":"  
-                + currentdate.getMinutes() + ":" 
-                + currentdate.getSeconds();
-                console.log('in: ' + currentdate);
 
             if (self.stateIsUpdateRunning) {
-                console.log('quit: ' + currentdate);
                 return;
             }
 
             self.stateIsUpdateRunning = true;
 
-            if(self.timeoutTimer != false){
+            if (self.timeoutTimer != false) {
                 clearTimeout(self.timeoutTimer);
-                self.timeoutTimer= false;
+                self.timeoutTimer = false;
             }
 
             try {
@@ -620,7 +617,7 @@ var datetime = "Last Sync: " + currentdate.getDate() + "/"
                     url: DX_CORE.site_url + 'chat/messages/' + self.listId + '/' + self.itemId + '/' + self.lastMessageID,
                     type: "get",
                     success: function (res) {
-                        self.onDataRecevied(self, res)
+                        self.onDataRecevied(self, res, isManualOpen)
                     },
                     error: function (err) {
                         self.stateIsUpdateRunning = false;
@@ -639,20 +636,25 @@ var datetime = "Last Sync: " + currentdate.getDate() + "/"
          * Click event when refresh button has been clicked after chat window got error
          * @param {DxFormChat} self Current form chat instance
          */
-        onClickRefresh:function(self){
-            self.getChatData();
+        onClickRefresh: function (self) {
+            self.getChatData(true);
 
             self.chatObject.find('.dx-form-chat-content-err').hide();
             self.chatObject.find('.dx-form-chat-content-container').show();
-            self.chatObject.find('.dx-form-chat-form').show();            
+            self.chatObject.find('.dx-form-chat-form').show();
         },
         /**
          * Processes retrieved data
          * @param {DxFormChat} self Current form chat instance
          * @param {object} res Retrieved data from server
+         * @param {boolean} isManualOpen True if user clicked on open chat button which trigered this function
          */
-        onDataRecevied: function (self, res) {
+        onDataRecevied: function (self, res, isManualOpen) {
             if (res && res.success && res.success == 1) {
+                if (res.user_count) {
+                    self.chatObject.find('.dx-chat-user-count').html(res.user_count);
+                }
+
                 if (!self.stateIsVisible && res.view.length > 0) {
                     self.openChatPanel(self);
                 }
@@ -672,7 +674,9 @@ var datetime = "Last Sync: " + currentdate.getDate() + "/"
                 if (res.msg) {
                     //  self.catchError(res, res.msg);
                 } else {
-                    // self.catchError(res, Lang.get('crypto.e_get_user_cert'));
+                    if (isManualOpen) {
+                        self.openAddChatUsersModal(self);
+                    }
                 }
             }
 
@@ -680,22 +684,41 @@ var datetime = "Last Sync: " + currentdate.getDate() + "/"
 
             self.refreshData(self);
         },
+        refreshUserCount: function () {
+            var self = this;
+
+            $.ajax({
+                url: DX_CORE.site_url + 'chat/count/' + self.listId + '/' + self.itemId,
+                type: "get",
+                success: function (res) {
+                    if (res && res.success == 1 && res.count) {
+                        self.chatObject.find('.dx-chat-user-count').html(res.count);
+                    } else {
+                        self.chatObject.find('.dx-chat-user-count').html(0);
+                    }
+
+                },
+                error: function (err) {
+                    self.chatObject.find('.dx-chat-user-count').html(0);
+                }
+            });
+        },
         /**
          * Refreshes data after timeout
          * @param {DxFormChat} self Current form chat instance
          */
-        refreshData:function(self){
-            if(self.timeoutTimer){
-                clearTimeout(self.timeoutTimer);            
+        refreshData: function (self) {
+            if (self.timeoutTimer) {
+                clearTimeout(self.timeoutTimer);
                 self.timeoutTimer = false;
-            } 
+            }
 
             // Calls again after 1000 ms   
             self.timeoutTimer = setTimeout(function () {
                 if (self.stateIsVisible) {
-                    self.getChatData();
+                    self.getChatData(false);
                 }
-            }, self.chatRefreshRate);            
+            }, self.chatRefreshRate);
         },
         /**
          * Scroll down chat window
