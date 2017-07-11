@@ -101,6 +101,14 @@ gulp.task('mix_all', function() {
             'colors/bamboo.less'
         ], 'public/css/elix_colors_bamboo.css');
         
+        mix.less([
+            'colors/darkred.less'
+        ], 'public/css/elix_colors_darkred.css');
+        
+        mix.less([
+            'colors/grayred.less'
+        ], 'public/css/elix_colors_grayred.css');
+        
         // Styles for articles search page
         mix.styles([
             'cubeportfolio/css/cubeportfolio.css',
@@ -399,6 +407,8 @@ gulp.task('mix_all', function() {
             'css/elix_mail.css',
             'js/elix_birth.js',
             'css/elix_colors_bamboo.css',
+            'css/elix_colors_darkred.css',
+            'css/elix_colors_grayred.css',
             'js/elix_constructor_wizard.js',
             'css/elix_constructor_wizard.css',
             'js/elix_login.js',
