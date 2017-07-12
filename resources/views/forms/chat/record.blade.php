@@ -4,7 +4,11 @@
          src="{{Request::root()}}/{{ $msg->createdUser->picture_guid ? 'img/' . $msg->createdUser->picture_guid : 'assets/global/avatars/default_avatar_small.jpg' }}">
     <div class="message">
         <span class="arrow"> </span>
-        <a href="{{Request::root() . config('dx.employee_profile_page_url') . $msg->createdUser->id }}" class="name">{{ $msg->createdUser->display_name }}</a> 
+        @if(config('dx.employee_profile_page_url'))
+            <a href="{{Request::root() . config('dx.employee_profile_page_url') . $msg->createdUser->id }}" class="name">{{ $msg->createdUser->display_name }}</a> 
+        @else
+            <a href='javascript:view_list_item("form", {{ $msg->createdUser->id }}, {{ config("dx.employee_list_id") }}, 0, 0, "", "");' class="name">{{ $msg->createdUser->display_name }}</a> 
+        @endif
         <span class="datetime" style='font-size: x-small;'> {{ $msg->created_time->format(config('dx.txt_datetime_format')) }} </span>
         @if($msg->created_time != $msg->modified_time)
         <span class="dx-form-chat-msg-modified" style='font-size: x-small;'>

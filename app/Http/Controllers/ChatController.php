@@ -391,7 +391,32 @@ class ChatController extends Controller
 
         $this->setSeen($chat->id);
 
-        return response()->json(['success' => 1, 'view' => $view, 'last_message_id' => $last_message_id, 'chat_id' => $chat->id]);
+        $count =  \App\Models\Chat\User::where('chat_id', $chat->id)
+          ->count();
+
+        return response()->json(['success' => 1, 'view' => $view, 'last_message_id' => $last_message_id, 'chat_id' => $chat->id, 'user_count' => $count]);
+    }
+
+    /**
+     * Returns user count in chat
+     *
+     * @param int $list_id List's ID
+     * @param int $item_id Item's ID
+     * @return JSON contains count of users in chat
+     */
+    public function getUserCount($list_id, $item_id){
+        $chat = \App\Models\Chat\Chat::where('list_id', $list_id)
+            ->where('item_id', $item_id)
+            ->first();
+
+        if (!$chat) {
+            return response()->json(['success' => 0]);
+        }
+
+        $count =  \App\Models\Chat\User::where('chat_id', $chat->id)
+          ->count();
+
+        return response()->json(['success' => 1, 'count' => $count]);
     }
 
     /**
