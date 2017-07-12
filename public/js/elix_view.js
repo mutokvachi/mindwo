@@ -27198,10 +27198,10 @@ $(document).ready(function()
 
             // Handle chat close when modal has been closed
             self.domObject.on("remove", function () {
-                self.closeChatPanel(self);
-            });
-
-            self.bindEvents(self);
+                if (self.stateIsVisible) {
+                    self.closeChatPanel(self);
+                }
+            });            
 
             // Retrieves chat messages and opens chat if messages found
             self.getChatData(false);
@@ -27304,7 +27304,7 @@ $(document).ready(function()
             if (self.fileUploadXhr) {
                 return;
             }
-            
+
             self.chatObject.find('.dx-form-chat-file-input').click();
 
         },
@@ -27401,8 +27401,8 @@ $(document).ready(function()
          * @param {DxFormChat} self Current form chat instance
          */
         onOpenChatClick: function (self) {
-            // Must save state because after openChatPanel function it changes to true 
-            // We need to call getChatData only after openChatPanel to be sure thate there woun't be multiple running background processes of chat window
+            // Must save state because after open ChatPanel function it changes to true 
+            // We need to call getChatData only after open ChatPanel to be sure thate there woudn't be multiple running background processes of chat window
             var stateIsVisible = self.stateIsVisible;
 
             // Opens chat
@@ -27425,9 +27425,7 @@ $(document).ready(function()
             }
 
             // Close all other chat instances also stops updates
-            $('.dx-form-chat-btn-open').not(self.domObject).each(function () {
-                this.chat.closeChatPanel(this.chat);
-            });
+            self.closeOtherChats(self);
 
             // Binds all events (on reinitialization needs to bind again because all chat buttons use same chat window)
             self.bindEvents(self);
@@ -27765,6 +27763,18 @@ $(document).ready(function()
 
             self.refreshData(self);
         },
+        /**
+         * Close all other chat instances also stops updates
+         * @param {DxFormChat} self Current form chat instance
+         */
+        closeOtherChats: function(self){
+            $('.dx-form-chat-btn-open').not(self.domObject).each(function () {
+                this.chat.closeChatPanel(this.chat);
+            });
+        },
+        /**
+         * Refresh count of users in chat
+         */
         refreshUserCount: function () {
             var self = this;
 
