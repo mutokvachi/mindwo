@@ -10,8 +10,8 @@
             <div class="btn-group dropup">
                 <button type="button" class="btn btn-white dropdown-toggle btn-xs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{ trans('grid.lbl_marked') }} <span class="dx-marked-count-lbl">0</span> <i class="fa fa-caret-down"></i></button>
                 <ul class="dropdown-menu dropdown-menu-right">
-                    <li><a href='#' class='dx-grid-cmd-markall'><i class='fa fa-check'></i> {{ trans('grid.menu_mark_all') }}</a></li>
-                    <li><a href='#' class='dx-grid-cmd-delall'><i class='fa fa-cut'></i> {{ trans('grid.menu_delete_marked') }}</a></li>
+                    <li><a href='javascript:;' class='dx-grid-cmd-markall'><i class='fa fa-check'></i> {{ trans('grid.menu_mark_all') }}</a></li>
+                    <li><a href='javascript:;' class='dx-grid-cmd-delall'><i class='fa fa-cut'></i> {{ trans('grid.menu_delete_marked') }}</a></li>
                 </ul>
             </div>
         @endif

@@ -24,10 +24,10 @@
             <b id="search_title">{{ config('dx.default_search') }}</b> <span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
-            <li class="searchTypeItem"><a href="#">{{ trans("search_top.documents") }}</a></li>
-            <li class="searchTypeItem"><a href="#">{{ trans("search_top.employees") }}</a></li>
+            <li class="searchTypeItem"><a href="javascript:;">{{ trans("search_top.documents") }}</a></li>
+            <li class="searchTypeItem"><a href="javascript:;">{{ trans("search_top.employees") }}</a></li>
             @if (Config::get('dx.is_news_logic', true))
-            <li class="searchTypeItem"><a href="#">{{ trans("search_top.news") }}</a></li>
+            <li class="searchTypeItem"><a href="javascript:;">{{ trans("search_top.news") }}</a></li>
             @endif
           </ul>
         </div>

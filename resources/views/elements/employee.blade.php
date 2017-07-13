@@ -32,8 +32,8 @@
                                 <a href="mailto: {{ $item->email }}?subject={{ trans('employee.happy_birthday') }}" title='{{ trans('employee.today_birthday') }}' style='color: #E87E04;'><i class="fa fa-gift"></i></a>
                             @endif
                         </h4>
-                        <a href="#" class='dx_position_link' title="{{ trans('employee.show_same_job') }}" dx_attr="{{ $item->position }}" dx_source_id="{{ $item->source_id }}">{{ $item->position }}</a><br>
-                        <a href="#" class="small dx_department_link" title="{{ trans('employee.show_same_department') }}" dx_dep_id="{{ $item->department_id }}" dx_attr="{{ $item->department }}" dx_source_id="{{ $item->source_id }}">{{ $item->department }}</a><br><br>
+                        <a href="javascript:;" class='dx_position_link' title="{{ trans('employee.show_same_job') }}" dx_attr="{{ $item->position }}" dx_source_id="{{ $item->source_id }}">{{ $item->position }}</a><br>
+                        <a href="javascript:;" class="small dx_department_link" title="{{ trans('employee.show_same_department') }}" dx_dep_id="{{ $item->department_id }}" dx_attr="{{ $item->department }}" dx_source_id="{{ $item->source_id }}">{{ $item->department }}</a><br><br>
                         <div class="text-left">
                             <a href="mailto:{{ $item->email }}">{{ $item->email }}</a><br>
                             {!! phoneClick2Call($item->phone, $click2call_url, $fixed_phone_part) !!}
@@ -54,7 +54,7 @@
                     @endif
                     
                     @if ($item->office_cabinet) 
-                    | {{ trans('employee.lbl_cabinet') }} <a href="#" class='dx_cabinet_link' title='{{ trans('employee.show_same_cabinet') }}' dx_attr="{{ $item->office_cabinet }}" dx_office_address="{{ $item->office_address }}">{{ $item->office_cabinet }}</a>
+                    | {{ trans('employee.lbl_cabinet') }} <a href="javascript:;" class='dx_cabinet_link' title='{{ trans('employee.show_same_cabinet') }}' dx_attr="{{ $item->office_cabinet }}" dx_office_address="{{ $item->office_address }}">{{ $item->office_cabinet }}</a>
                     @endif
                     
                     @if ($item->manager_id)
@@ -63,7 +63,7 @@
                         @endif
                         <strong>{{ trans('employee.lbl_supervisor') }}</strong>
                         <br />
-                        <a href="#" class="dx_manager_link" dx_manager_id="{{ $item->manager_id }}" title="{{ trans('employee.show_supervisor') }}">{{ $item->manager_name }}</a>
+                        <a href="javascript:;" class="dx_manager_link" dx_manager_id="{{ $item->manager_id }}" title="{{ trans('employee.show_supervisor') }}">{{ $item->manager_name }}</a>
                         <br /><br />
                     @endif
 
@@ -75,7 +75,7 @@
 
                             @if ($item->subst_empl_name)
                                 <br />
-                                <small>{{ trans('employee.lbl_substititutes') }} <a href="#" class="dx_substit_link" dx_subst_empl_id="{{ $item->substit_empl_id }}" title="{{ trans('employee.show_substitute') }}">{{ $item->subst_empl_name }}</a></small>
+                                <small>{{ trans('employee.lbl_substititutes') }} <a href="javascript:;" class="dx_substit_link" dx_subst_empl_id="{{ $item->substit_empl_id }}" title="{{ trans('employee.show_substitute') }}">{{ $item->subst_empl_name }}</a></small>
                             @endif
 
                         </div>
