@@ -81,7 +81,10 @@
                 <span class="caption-helper"></span>
             </div>
             <div class="actions">
-                <a href="javascript:;" class="btn btn-circle dx-form-chat-btn-users" ><i class="fa fa-users"></i> {{ trans('form.chat.users') }} </a>
+                <a href="javascript:;" class="btn btn-circle dx-form-chat-btn-users" >
+                    <i class="fa fa-users"></i> {{ trans('form.chat.users') }}
+                    <span class="badge badge-success dx-chat-user-count">0</span>                    
+                </a>
                 <a href="javascript:;" class="btn btn-circle dx-form-chat-btn-add-user"><i class="fa fa-plus"></i> {{ trans('form.chat.btn_add_user') }} </a>
             </div>
         </div>
