@@ -98,6 +98,77 @@ namespace App\Libraries
         const FIELD_OPERATION_EQUAL = 1;
         
         /**
+         * Creates UI with list, default view, ID field and form
+         * @param array $arr_params Array with keys: table_name, list_title, item_title
+         * 
+         * @return integer Created list ID
+         */
+        public static function createUI($arr_params) {
+            $obj = DB::table('dx_objects')
+                   ->where('db_name', '=', $arr_params['table_name'])
+                   ->first();
+            
+            if (!$obj) {
+                
+                $is_history = Schema::hasColumn($arr_params['table_name'], 'created_user_id');
+                
+                $obj_id = DB::table('dx_objects')->insertGetId([
+                    'db_name' => $arr_params['table_name'],
+                    'title' => $arr_params['list_title'],
+                    'is_history_logic' => $is_history
+                ]);
+            }
+            else {
+                $obj_id = $obj->id;
+            }
+            
+            $list_id = DB::table('dx_lists')->insertGetId([
+                'object_id' => $obj_id,
+                'list_title' => $arr_params['list_title']
+            ]);
+            
+            $id_fld_id = DB::table('dx_lists_fields')->insertGetId([
+                'list_id' => $list_id,
+                'db_name' => 'id',
+                'type_id' => self::FIELD_TYPE_ID,
+                'title_list' => 'ID',
+                'title_form' => 'ID'
+            ]);
+            
+            $view_id = DB::table('dx_views')->insertGetId([
+                'list_id' => $list_id,
+                'title' => $arr_params['list_title'],
+                'is_default' => 1
+            ]);
+            
+            DB::table('dx_views_fields')->insert([
+                'list_id' => $list_id,
+                'view_id' => $view_id,
+                'field_id' => $id_fld_id,
+                'order_index' => 10,
+                'is_hidden' => 1
+            ]);
+            
+            DB::table('dx_forms')->insert([
+                'list_id' => $list_id,
+                'title' => $arr_params['item_title'],
+                'form_type_id' => 1
+            ]);
+            
+            if (isset($arr_params['parent_menu_id']) && $arr_params['parent_menu_id'] > 0) {
+                
+                $order_index = DB::table('dx_menu')->where('parent_id', '=', $arr_params['parent_menu_id'])->max('order_index') + 10;
+               
+                DB::table('dx_menu')->insertgetId(['parent_id' => $arr_params['parent_menu_id'], 'title'=>$arr_params['list_title'], 'list_id' => $list_id, 'order_index' => $order_index, 'group_id' => 1, 'position_id' => 1]);
+            }
+            
+            // add admin role
+            DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1, 'is_import_rights' => 1, 'is_view_rights' => 1]); // Sys admins
+            
+            return $list_id;
+        }
+        
+        /**
          * Returns object row by list_id
          * 
          * @param integer $list_id Registera ID
