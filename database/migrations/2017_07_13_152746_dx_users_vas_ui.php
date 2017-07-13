@@ -2,21 +2,18 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use App\Libraries\Structure\EduMigration;
 use App\Libraries\Structure;
 
-class DxUsersVasUi extends Migration
+class DxUsersVasUi extends EduMigration
 {
     /**
      * Run the migrations.
      *
      * @return void
      */
-    public function up()
-    {
-        if (!$this->isEdu()) {
-            return;
-        }
-        
+    public function edu_up()
+    {        
         DB::transaction(function () {
             
             // create parent menu
@@ -98,11 +95,8 @@ class DxUsersVasUi extends Migration
      *
      * @return void
      */
-    public function down()
+    public function edu_down()
     {
-        if (!$this->isEdu()) {
-            return;
-        }
         
         DB::transaction(function () {
             $list_id = DB::table('dx_lists')->where('list_title', '=', 'VAS koordinatori')->first()->id;
@@ -126,11 +120,7 @@ class DxUsersVasUi extends Migration
                     ->delete();
         });
     }
-    
-    private function isEdu() {
-        return Config::get('dx.is_edu_modules', false);
-    }
-    
+        
     private function createUserList($arr_vals) {
         $list_id = App\Libraries\DBHelper::createUI([
             'table_name' => 'dx_users',
