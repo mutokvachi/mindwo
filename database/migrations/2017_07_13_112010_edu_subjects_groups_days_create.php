@@ -20,12 +20,12 @@ class EduSubjectsGroupsDaysCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');            
             
-            $table->integer('group_id')->unsigned()->comment = trans($this->table_name.'.group_id');
-            $table->date('lesson_date')->comment = trans($this->table_name.'.lesson_date');
-            $table->time('time_from')->comment = trans($this->table_name.'.time_from');
-            $table->time('time_to')->comment = trans($this->table_name.'.time_to');
-            $table->string('room_nr', 6)->nullable()->comment = trans($this->table_name.'.room_nr');
-            $table->text('notes')->nullable()->comment = trans($this->table_name.'.notes');
+            $table->integer('group_id')->unsigned()->comment = trans('db_' . $this->table_name.'.group_id');
+            $table->date('lesson_date')->comment = trans('db_' . $this->table_name.'.lesson_date');
+            $table->time('time_from')->comment = trans('db_' . $this->table_name.'.time_from');
+            $table->time('time_to')->comment = trans('db_' . $this->table_name.'.time_to');
+            $table->string('room_nr', 6)->nullable()->comment = trans('db_' . $this->table_name.'.room_nr');
+            $table->text('notes')->nullable()->comment = trans('db_' . $this->table_name.'.notes');
             
             $table->index('group_id');            
             $table->foreign('group_id')->references('id')->on('edu_subjects_groups');

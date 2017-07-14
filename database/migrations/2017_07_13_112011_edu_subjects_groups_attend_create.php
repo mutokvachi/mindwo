@@ -20,8 +20,8 @@ class EduSubjectsGroupsAttendCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');            
             
-            $table->integer('group_day_id')->unsigned()->comment = trans($this->table_name.'.group_day_id');
-            $table->integer('student_id')->comment = trans($this->table_name.'.student_id');
+            $table->integer('group_day_id')->unsigned()->comment = trans('db_' . $this->table_name.'.group_day_id');
+            $table->integer('student_id')->comment = trans('db_' . $this->table_name.'.student_id');
                         
             $table->index('group_day_id');            
             $table->foreign('group_day_id')->references('id')->on('edu_subjects_groups_days');

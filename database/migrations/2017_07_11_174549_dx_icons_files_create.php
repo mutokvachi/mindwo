@@ -20,9 +20,9 @@ class DxIconsFilesCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');            
             
-            $table->string('title', 500)->comment = trans($this->table_name.'.title');
-            $table->string('file_name', 500)->nullable()->comment = trans($this->table_name.'.file_name');
-            $table->string('file_guid', 50)->nullable()->comment = trans($this->table_name.'.file_guid');
+            $table->string('title', 250)->comment = trans('db_' . $this->table_name.'.title');
+            $table->string('file_name', 500)->nullable()->comment = trans('db_' . $this->table_name.'.file_name');
+            $table->string('file_guid', 50)->nullable()->comment = trans('db_' . $this->table_name.'.file_guid');
             
             $table->integer('created_user_id')->nullable();
             $table->datetime('created_time')->nullable();

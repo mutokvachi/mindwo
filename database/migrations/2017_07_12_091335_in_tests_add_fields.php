@@ -15,13 +15,13 @@ class InTestsAddFields extends Migration
     public function up()
     {
         Schema::table($this->table_name, function (Blueprint $table) {
-            $table->integer('test_type_id')->unsigned()->nullable()->comment = trans($this->table_name.'.test_type_id');
-            $table->datetime('available_till')->nullable()->comment = trans($this->table_name.'.available_till');
-            $table->integer('fill_minutes_limit')->nullable()->default(0)->comment = trans($this->table_name.'.fill_minutes_limit');
-            $table->integer('perform_count_limit')->nullable()->default(0)->comment = trans($this->table_name.'.perform_count_limit');
-            $table->boolean('is_template')->nullable()->default(false)->comment = trans($this->table_name.'.is_template');
-            $table->boolean('is_avail_public')->nullable()->default(false)->comment = trans($this->table_name.'.is_avail_public');
-            $table->text('finish_msg')->nullable()->comment = trans($this->table_name.'.finish_msg');
+            $table->integer('test_type_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.test_type_id');
+            $table->datetime('available_till')->nullable()->comment = trans('db_' . $this->table_name.'.available_till');
+            $table->integer('fill_minutes_limit')->nullable()->default(0)->comment = trans('db_' . $this->table_name.'.fill_minutes_limit');
+            $table->integer('perform_count_limit')->nullable()->default(0)->comment = trans('db_' . $this->table_name.'.perform_count_limit');
+            $table->boolean('is_template')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_template');
+            $table->boolean('is_avail_public')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_avail_public');
+            $table->text('finish_msg')->nullable()->comment = trans('db_' . $this->table_name.'.finish_msg');
             
             $table->index('test_type_id');            
             $table->foreign('test_type_id')->references('id')->on('in_tests_types');

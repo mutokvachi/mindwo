@@ -17,8 +17,8 @@ class EduOrgsTypesUi extends EduMigration
         
         DB::transaction(function () {
             $table_name = "edu_orgs_types";
-            $list_name = 'Organizāciju tipi';
-            $item_name = 'Organizācijas tips';
+            $list_name = trans('db_edu_orgs_types.list_name');
+            $item_name = trans('db_edu_orgs_types.item_name');
 
              // create register
             $obj_id = DB::table('dx_objects')->insertGetId(['db_name' => $table_name, 'title' => $list_name , 'is_history_logic' => 1]);
@@ -37,26 +37,15 @@ class EduOrgsTypesUi extends EduMigration
             // user rights
             DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1, 'is_import_rights' => 1, 'is_view_rights' => 1]); // Sys admins
             
-            $parent_menu = DB::table('dx_menu')->where('title', '=', 'Klasifikatori')->first();
+            $parent_menu = DB::table('dx_menu')->where('title', '=', trans('db_dx_menu.lbl_classifiers'))->first();
+            $arr_params = [
+                'menu_list_id' => $list_id, 
+                'list_title' => $list_name,
+                'menu_parent_id' => $parent_menu->id
+            ];
+            App\Libraries\DBHelper::makeMenu($arr_params);
             
-            if ($parent_menu) {
-                DB::table('dx_menu')->insertGetId(['parent_id' => $parent_menu->id, 'title'=>$list_name, 'list_id'=>$list_id, 'order_index' => (DB::table('dx_menu')->where('parent_id', '=', $parent_menu->id)->max('order_index')+10), 'group_id'=>1, 'position_id' => 1]);
-            }
-            
-            DB::table('edu_orgs_types')->insert([
-                'title' => 'Apmācību pakalpojumi',
-                'code' => 'EDU'
-            ]);
-            
-            DB::table('edu_orgs_types')->insert([
-                'title' => 'Uzkopšanas pakalpojumi',
-                'code' => 'CLEAN'
-            ]);
-            
-            DB::table('edu_orgs_types')->insert([
-                'title' => 'Ēdināšanas pakalpojumi',
-                'code' => 'FEED'
-            ]);
+            DB::table('edu_orgs_types')->insert(trans('db_edu_orgs_types.values'));
             
         });
     }

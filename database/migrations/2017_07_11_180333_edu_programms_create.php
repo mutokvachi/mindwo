@@ -20,17 +20,17 @@ class EduProgrammsCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');
             
-            $table->string('title', 500)->comment = trans($this->table_name.'.title');
-            $table->string('sub_title', 500)->comment = trans($this->table_name.'.sub_title');
-            $table->integer('parent_id')->unsigned()->nullable()->comment = trans($this->table_name.'.parent_id');
-            $table->integer('avail_id')->unsigned()->nullable()->comment = trans($this->table_name.'.avail_id');  
-            $table->integer('icon_id')->unsigned()->nullable()->comment = trans($this->table_name.'.icon_id');  
-            $table->text('description')->nullable()->comment = trans($this->table_name.'.description');
-            $table->integer('needs_survey_id')->unsigned()->nullable()->comment = trans($this->table_name.'.needs_survey_id');
-            $table->integer('qualify_test_id')->unsigned()->nullable()->comment = trans($this->table_name.'.qualify_test_id');
-            $table->integer('cert_numerator_id')->nullable()->comment = trans($this->table_name.'.cert_numerator_id');
+            $table->string('title', 250)->comment = trans('db_' . $this->table_name.'.title');
+            $table->string('sub_title', 250)->comment = trans('db_' . $this->table_name.'.sub_title');
+            $table->integer('parent_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.parent_id');
+            $table->integer('avail_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.avail_id');
+            $table->integer('icon_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.icon_id');
+            $table->text('description')->nullable()->comment = trans('db_' . $this->table_name.'.description');
+            $table->integer('needs_survey_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.needs_survey_id');
+            $table->integer('qualify_test_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.qualify_test_id');
+            $table->integer('cert_numerator_id')->nullable()->comment = trans('db_' . $this->table_name.'.cert_numerator_id');
             
-            $table->integer('is_published')->nullable()->default(false)->comment = trans($this->table_name.'.is_published');
+            $table->integer('is_published')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_published');
             
             $table->index('icon_id');            
             $table->foreign('icon_id')->references('id')->on('dx_icons_files');

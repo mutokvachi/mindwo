@@ -15,8 +15,8 @@ class DxUsersAddSignatureFile extends Migration
     public function up()
     {
         Schema::table($this->table_name, function (Blueprint $table) {
-            $table->string('sign_file_name', 500)->nullable()->comment = trans($this->table_name.'.sign_file_name');
-            $table->string('sign_file_guid', 50)->nullable()->comment = trans($this->table_name.'.sign_file_guid');
+            $table->string('sign_file_name', 500)->nullable()->comment = trans('db_' . $this->table_name.'.sign_file_name');
+            $table->string('sign_file_guid', 50)->nullable()->comment = trans('db_' . $this->table_name.'.sign_file_guid');
         });
     }
 

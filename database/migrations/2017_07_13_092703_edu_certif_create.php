@@ -20,13 +20,13 @@ class EduCertifCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');            
             
-            $table->integer('user_id')->nullable()->comment = trans($this->table_name.'.user_id');
-            $table->integer('programm_id')->unsigned()->nullable()->comment = trans($this->table_name.'.programm_id');
-            $table->integer('subject_id')->unsigned()->nullable()->comment = trans($this->table_name.'.subject_id');
-            $table->string('reg_nr', 50)->comment = trans($this->table_name.'.reg_nr');
-            $table->date('reg_date')->comment = trans($this->table_name.'.reg_date');
-            $table->string('file_name', 500)->nullable()->comment = trans($this->table_name.'.file_name');
-            $table->string('file_guid', 50)->nullable()->comment = trans($this->table_name.'.file_guid');
+            $table->integer('user_id')->nullable()->comment = trans('db_' . $this->table_name.'.user_id');
+            $table->integer('programm_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.programm_id');
+            $table->integer('subject_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.subject_id');
+            $table->string('reg_nr', 50)->comment = trans('db_' . $this->table_name.'.reg_nr');
+            $table->date('reg_date')->comment = trans('db_' . $this->table_name.'.reg_date');
+            $table->string('file_name', 500)->nullable()->comment = trans('db_' . $this->table_name.'.file_name');
+            $table->string('file_guid', 50)->nullable()->comment = trans('db_' . $this->table_name.'.file_guid');
             
             $table->index('user_id');            
             $table->foreign('user_id')->references('id')->on('dx_users');

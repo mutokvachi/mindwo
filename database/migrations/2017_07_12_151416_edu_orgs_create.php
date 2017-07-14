@@ -20,10 +20,10 @@ class EduOrgsCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');            
             
-            $table->string('title', 400)->comment = trans($this->table_name.'.title');
-            $table->integer('org_type_id')->unsigned()->comment = trans($this->table_name.'.org_type_id');
-            $table->string('reg_nr', 20)->comment = trans($this->table_name.'.reg_nr');
-            $table->string('address', 500)->comment = trans($this->table_name.'.address');
+            $table->string('title', 400)->comment = trans('db_' . $this->table_name.'.title');
+            $table->integer('org_type_id')->unsigned()->comment = trans('db_' . $this->table_name.'.org_type_id');
+            $table->string('reg_nr', 20)->comment = trans('db_' . $this->table_name.'.reg_nr');
+            $table->string('address', 300)->comment = trans('db_' . $this->table_name.'.address');
             
             $table->index('org_type_id');            
             $table->foreign('org_type_id')->references('id')->on('edu_orgs_types');

@@ -20,8 +20,9 @@ class EduOrgsBanksCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');            
             
-            $table->integer('org_id')->unsigned()->comment = trans($this->table_name.'.org_id');
-            $table->integer('bank_id')->unsigned()->comment = trans($this->table_name.'.bank_id');
+            $table->integer('org_id')->unsigned()->comment = trans('db_' . $this->table_name.'.org_id');
+            $table->integer('bank_id')->unsigned()->comment = trans('db_' . $this->table_name.'.bank_id');
+            $table->string('account', 50)->comment = trans('db_' . $this->table_name.'.account');
             
             $table->index('org_id');            
             $table->foreign('org_id')->references('id')->on('edu_orgs')->onDelete('cascade');

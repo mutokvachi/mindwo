@@ -17,50 +17,69 @@ class DxUsersVasUi extends EduMigration
         DB::transaction(function () {
             
             // create parent menu
-            $parent_menu_id = DB::table('dx_menu')->insertgetId(['title'=>'Lietotāji', 'order_index' => 15, 'fa_icon' => 'fa fa-users', 'group_id' => 1, 'position_id' => 1]);
+            $arr_params = [
+                'menu_list_id' => null, 
+                'list_title' => trans('db_dx_menu.lbl_edu_users'),
+                'menu_parent_id' => null,
+                'menu_order_index' => 20,
+                'menu_icon' => 'fa fa-users',
+            ];
+            $parent_menu_id = App\Libraries\DBHelper::makeMenu($arr_params);
             
             $this->createUserList([
-                'list_title' => 'VAS koordinatori',
-                'item_title' => 'VAS koordinators',
+                'list_title' => trans('db_dx_users.list_title_edu'),
+                'item_title' => trans('db_dx_users.item_title_edu'),
                 'parent_menu_id' => $parent_menu_id,
                 'person_code_required' => 1,
-                'criteria_role_title' => 'Ir VAS koordinatora loma',
+                'criteria_role_title' => trans('db_dx_users.criteria_role_title_edu'),
                 'criteria_role_field' => 'is_role_coordin_main'
             ]);
             
             $this->createUserList([
-                'list_title' => 'Iestāžu koordinatori',
-                'item_title' => 'Iestādes koordinators',
+                'list_title' => trans('db_dx_users.list_title_org'),
+                'item_title' => trans('db_dx_users.item_title_org'),
                 'parent_menu_id' => $parent_menu_id,
                 'person_code_required' => 1,
-                'criteria_role_title' => 'Ir iestādes koordinatora loma',
+                'criteria_role_title' => trans('db_dx_users.criteria_role_title_org'),
                 'criteria_role_field' => 'is_role_coordin'
             ]);
             
-            $this->createUserList([
-                'list_title' => 'Pasniedzēji',
-                'item_title' => 'Pasniedzējs',
+            $teachers_list_id = $this->createUserList([
+                'list_title' => trans('db_dx_users.list_title_teacher'),
+                'item_title' => trans('db_dx_users.item_title_teacher'),
                 'parent_menu_id' => $parent_menu_id,
                 'person_code_required' => 0,
-                'criteria_role_title' => 'Ir pasniedzēja loma',
+                'criteria_role_title' => trans('db_dx_users.criteria_role_title_teacher'),
                 'criteria_role_field' => 'is_role_teacher'
             ]);
             
+            $fld_id = DB::table('dx_lists_fields')->insertGetId([
+                'list_id' => $teachers_list_id,
+                'db_name' => 'sign_file_name',
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_FILE,
+                'title_list' => trans('db_dx_users.sign_file_name'),
+                'title_form' => trans('db_dx_users.sign_file_name'),
+                'hint' => trans('db_dx_users.sign_file_name_hint'),
+                'is_public_file' => 0,
+                'is_image_file' => 1
+            ]);                                   
+            App\Libraries\DBHelper::addFieldToForm($teachers_list_id, $fld_id);
+            
             $this->createUserList([
-                'list_title' => 'Pakalpojumu sniedzēji',
-                'item_title' => 'Pakalpojuma sniedzējs',
+                'list_title' => trans('db_dx_users.list_title_serv'),
+                'item_title' => trans('db_dx_users.item_title_serv'),
                 'parent_menu_id' => $parent_menu_id,
                 'person_code_required' => 0,
-                'criteria_role_title' => 'Ir pakalpojuma sniedzēja loma',
+                'criteria_role_title' => trans('db_dx_users.criteria_role_title_serv'),
                 'criteria_role_field' => 'is_role_supply'
             ]);
             
             $list_id = $this->createUserList([
-                'list_title' => 'Mācību dalībnieki',
-                'item_title' => 'Mācību dalībnieks',
+                'list_title' => trans('db_dx_users.list_title_student'),
+                'item_title' => trans('db_dx_users.item_title_student'),
                 'parent_menu_id' => $parent_menu_id,
                 'person_code_required' => 1,
-                'criteria_role_title' => 'Ir mācību dalībnieka loma',
+                'criteria_role_title' => trans('db_dx_users.criteria_role_title_student'),
                 'criteria_role_field' => 'is_role_student'
             ]);
             
@@ -68,9 +87,9 @@ class DxUsersVasUi extends EduMigration
                 'list_id' => $list_id,
                 'db_name' => 'is_anonim',
                 'type_id' => App\Libraries\DBHelper::FIELD_TYPE_YES_NO,
-                'title_list' => 'Ir anonīms',
-                'title_form' => 'Ir anonīms',
-                'hint' => 'Anonīmiem lietotājiem jānorāda e-pasts, kas būs jāizmanto autorizējoties kā lietotāja vārds. Veidojot sertifikātus, būs manuāli jānorāda vārds un uzvārds.',              
+                'title_list' => trans('db_dx_users.is_anonim'),
+                'title_form' => trans('db_dx_users.is_anonim'),
+                'hint' => trans('db_dx_users.is_anonim_hint'),              
             ]);                                   
             App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['order_index' => 5]);
             
@@ -78,10 +97,10 @@ class DxUsersVasUi extends EduMigration
                 'list_id' => $list_id,
                 'db_name' => 'login_name',
                 'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
-                'title_list' => 'E-pasts',
-                'title_form' => 'E-pasts',
+                'title_list' => trans('db_dx_users.login_name_email'),
+                'title_form' => trans('db_dx_users.login_name_email'),
                 'max_lenght' => 200,
-                'hint' => 'E-pasts tiks izmantots kā lietotājvārds. Sistēma pēc anonīmā lietotāja izveidošanas, uz norādīto e-pastu nosūtīs uzaicinājumu reģistrēties sistēmā.',              
+                'hint' => trans('db_dx_users.login_name_email_hint'),
             ]);                                   
             App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['order_index' => 8]);
             
@@ -99,23 +118,23 @@ class DxUsersVasUi extends EduMigration
     {
         
         DB::transaction(function () {
-            $list_id = DB::table('dx_lists')->where('list_title', '=', 'VAS koordinatori')->first()->id;
+            $list_id = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_edu'))->first()->id;
             \App\Libraries\DBHelper::deleteRegister($list_id);
             
-            $list_id = DB::table('dx_lists')->where('list_title', '=', 'Iestāžu koordinatori')->first()->id;
+            $list_id = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_org'))->first()->id;
             \App\Libraries\DBHelper::deleteRegister($list_id);
             
-            $list_id = DB::table('dx_lists')->where('list_title', '=', 'Pasniedzēji')->first()->id;
+            $list_id = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_teacher'))->first()->id;
             \App\Libraries\DBHelper::deleteRegister($list_id);
             
-            $list_id = DB::table('dx_lists')->where('list_title', '=', 'Pakalpojumu sniedzēji')->first()->id;
+            $list_id = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_serv'))->first()->id;
             \App\Libraries\DBHelper::deleteRegister($list_id);
             
-            $list_id = DB::table('dx_lists')->where('list_title', '=', 'Mācību dalībnieki')->first()->id;
+            $list_id = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_student'))->first()->id;
             \App\Libraries\DBHelper::deleteRegister($list_id);
             
             DB::table('dx_menu')
-                    ->where('title', '=', 'Lietotāji')
+                    ->where('title', '=', trans('db_dx_menu.lbl_edu_users'))
                     ->whereNull('parent_id')
                     ->delete();
         });
@@ -126,7 +145,7 @@ class DxUsersVasUi extends EduMigration
             'table_name' => 'dx_users',
             'list_title' => $arr_vals['list_title'],
             'item_title' => $arr_vals['item_title'],
-            'parent_menu_id' => $arr_vals['parent_menu_id']
+            'menu_parent_id' => $arr_vals['parent_menu_id']
         ]);
         
         $view = App\Libraries\DBHelper::getDefaultView($list_id);

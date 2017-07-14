@@ -20,8 +20,8 @@ class EduProgrammsActivitiesCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');            
             
-            $table->integer('programm_id')->unsigned()->comment = trans($this->table_name.'.programm_id');
-            $table->integer('activity_id')->unsigned()->comment = trans($this->table_name.'.activity_id');
+            $table->integer('programm_id')->unsigned()->comment = trans('db_' . $this->table_name.'.programm_id');
+            $table->integer('activity_id')->unsigned()->comment = trans('db_' . $this->table_name.'.activity_id');
             
             $table->index('programm_id');            
             $table->foreign('programm_id')->references('id')->on('edu_programms')->onDelete('cascade');

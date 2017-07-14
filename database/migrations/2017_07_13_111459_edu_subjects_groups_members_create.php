@@ -20,8 +20,8 @@ class EduSubjectsGroupsMembersCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');            
             
-            $table->integer('group_id')->unsigned()->comment = trans($this->table_name.'.group_id');
-            $table->integer('student_id')->comment = trans($this->table_name.'.student_id');
+            $table->integer('group_id')->unsigned()->comment = trans('db_' . $this->table_name.'.group_id');
+            $table->integer('student_id')->comment = trans('db_' . $this->table_name.'.student_id');
                         
             $table->index('group_id');            
             $table->foreign('group_id')->references('id')->on('edu_subjects_groups');

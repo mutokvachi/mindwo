@@ -20,8 +20,8 @@ class EduOrgsTypesCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');
             
-            $table->string('title', 500)->comment = trans($this->table_name.'.title');
-            $table->string('code', 20)->comment = trans($this->table_name.'.code');
+            $table->string('title', 250)->comment = trans('db_' . $this->table_name.'.title');
+            $table->string('code', 20)->comment = trans('db_' . $this->table_name.'.code');
             
             $table->integer('created_user_id')->nullable();
             $table->datetime('created_time')->nullable();

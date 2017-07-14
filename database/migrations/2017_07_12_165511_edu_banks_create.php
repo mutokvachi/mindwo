@@ -20,7 +20,7 @@ class EduBanksCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');
             
-            $table->string('title', 300)->comment = trans($this->table_name.'.title');
+            $table->string('title', 300)->comment = trans('db_' . $this->table_name.'.title');
             
             $table->integer('created_user_id')->nullable();
             $table->datetime('created_time')->nullable();

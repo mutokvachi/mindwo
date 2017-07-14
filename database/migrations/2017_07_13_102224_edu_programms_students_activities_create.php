@@ -20,16 +20,12 @@ class EduProgrammsStudentsActivitiesCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');            
             
-            $table->integer('programm_id')->unsigned()->comment = trans($this->table_name.'.programm_id');
-            $table->integer('student_id')->comment = trans($this->table_name.'.student_id');
-            $table->integer('activity_id')->unsigned()->comment = trans($this->table_name.'.activity_id');
-            $table->text('notes')->nullable()->comment = trans($this->table_name.'.notes');
+            $table->integer('programm_student_id')->unsigned()->comment = trans('db_' . $this->table_name.'.programm_student_id');
+            $table->integer('activity_id')->unsigned()->comment = trans('db_' . $this->table_name.'.activity_id');
+            $table->text('notes')->nullable()->comment = trans('db_' . $this->table_name.'.notes');
             
-            $table->index('programm_id');            
-            $table->foreign('programm_id')->references('id')->on('edu_programms');
-            
-            $table->index('student_id');            
-            $table->foreign('student_id')->references('id')->on('dx_users');
+            $table->index('programm_student_id');            
+            $table->foreign('programm_student_id')->references('id')->on('edu_programms_students');
             
             $table->index('activity_id');            
             $table->foreign('activity_id')->references('id')->on('edu_activities');

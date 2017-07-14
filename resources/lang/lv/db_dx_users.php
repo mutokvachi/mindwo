@@ -20,4 +20,35 @@ return [
     'emergency_notes' => 'Ārkārtas situāciju piezīmes',
     
     'is_hide_orgchart' => 'Nerādīt organizācijas struktūrā',
+    
+    // Education modules
+    'criteria_role_title_edu' => 'Ir mācību koordinatora loma',
+    'list_title_edu' => 'Mācību koordinatori',
+    'item_title_edu' => 'Mācību koordinators',
+    
+    'criteria_role_title_org' => 'Ir iestādes koordinatora loma',
+    'list_title_org' => 'Iestāžu koordinatori',
+    'item_title_org' => 'Iestādes koordinators',
+    
+    'criteria_role_title_teacher' => 'Ir pasniedzēja loma',
+    'list_title_teacher' => 'Pasniedzēji',
+    'item_title_teacher' => 'Pasniedzējs',
+    
+    'criteria_role_title_serv' => 'Ir pakalpojuma sniedzēja loma',
+    'list_title_serv' => 'Pakalpojumu sniedzēji',
+    'item_title_serv' => 'Pakalpojuma sniedzējs',
+    
+    'criteria_role_title_student' => 'Ir mācību dalībnieka loma',
+    'list_title_student' => 'Mācību dalībnieki',
+    'item_title_student' => 'Mācību dalībnieks',
+    
+    'is_anonim' => 'Ir anonīms',
+    'is_anonim_hint' => 'Anonīmiem lietotājiem jānorāda e-pasts, kas būs jāizmanto autorizējoties kā lietotāja vārds. Veidojot sertifikātus, būs manuāli jānorāda vārds un uzvārds.',              
+    
+    'login_name_email' => 'E-pasts',
+    'login_name_email_hint' => 'E-pasts tiks izmantots kā lietotājvārds. Sistēma pēc anonīmā lietotāja izveidošanas, uz norādīto e-pastu nosūtīs uzaicinājumu reģistrēties sistēmā.',              
+    
+    'sign_file_name' => 'Paraksta datne',
+    'sign_file_guid' => 'Paraksta datnes GUID',
+    'sign_file_name_hint' => 'Pievienojiet ieskenētu pasniedzēja parakstu. Paraksts tiks attēlots sertifikātos.'
 ];

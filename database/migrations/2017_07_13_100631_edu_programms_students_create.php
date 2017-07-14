@@ -20,13 +20,13 @@ class EduProgrammsStudentsCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');            
             
-            $table->integer('programm_id')->unsigned()->comment = trans($this->table_name.'.programm_id');
-            $table->integer('student_id')->comment = trans($this->table_name.'.student_id');
-            $table->integer('org_id')->unsigned()->nullable()->comment = trans($this->table_name.'.org_id');
-            $table->datetime('applay_time')->comment = trans($this->table_name.'.applay_time');
-            $table->boolean('is_approved')->nullable()->default(false)->comment = trans($this->table_name.'.is_approved');
-            $table->integer('credit_points_earned')->nullable()->default(0)->comment = trans($this->table_name.'.credit_points_earned');
-            $table->datetime('droped_time')->nullable()->comment = trans($this->table_name.'.droped_time');
+            $table->integer('programm_id')->unsigned()->comment = trans('db_' . $this->table_name.'.programm_id');
+            $table->integer('student_id')->comment = trans('db_' . $this->table_name.'.student_id');
+            $table->integer('org_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.org_id');
+            $table->datetime('applay_time')->comment = trans('db_' . $this->table_name.'.applay_time');
+            $table->boolean('is_approved')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_approved');
+            $table->integer('credit_points_earned')->nullable()->default(0)->comment = trans('db_' . $this->table_name.'.credit_points_earned');
+            $table->datetime('droped_time')->nullable()->comment = trans('db_' . $this->table_name.'.droped_time');
                         
             $table->index('programm_id');            
             $table->foreign('programm_id')->references('id')->on('edu_programms');

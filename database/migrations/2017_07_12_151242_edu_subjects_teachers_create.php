@@ -20,9 +20,9 @@ class EduSubjectsTeachersCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');            
             
-            $table->integer('subject_id')->unsigned()->comment = trans($this->table_name.'.subject_id');
-            $table->integer('teacher_id')->comment = trans($this->table_name.'.teacher_id');
-            $table->boolean('is_content_rights')->nullable()->default(false)->comment = trans($this->table_name.'.is_content_rights');
+            $table->integer('subject_id')->unsigned()->comment = trans('db_' . $this->table_name.'.subject_id');
+            $table->integer('teacher_id')->comment = trans('db_' . $this->table_name.'.teacher_id');
+            $table->boolean('is_content_rights')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_content_rights');
             
             $table->index('subject_id');            
             $table->foreign('subject_id')->references('id')->on('edu_subjects');

@@ -155,17 +155,59 @@ namespace App\Libraries
                 'form_type_id' => 1
             ]);
             
-            if (isset($arr_params['parent_menu_id']) && $arr_params['parent_menu_id'] > 0) {
-                
-                $order_index = DB::table('dx_menu')->where('parent_id', '=', $arr_params['parent_menu_id'])->max('order_index') + 10;
-               
-                DB::table('dx_menu')->insertgetId(['parent_id' => $arr_params['parent_menu_id'], 'title'=>$arr_params['list_title'], 'list_id' => $list_id, 'order_index' => $order_index, 'group_id' => 1, 'position_id' => 1]);
-            }
-            
+            $arr_params['menu_list_id'] = $list_id;              
+            DBHelper::makeMenu($arr_params);
+                        
             // add admin role
             DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1, 'is_import_rights' => 1, 'is_view_rights' => 1]); // Sys admins
             
             return $list_id;
+        }
+        
+        /**
+         * Creates new menu item
+         * 
+         * @param array $arr_params Array with keys: menu_parent_id, menu_site_id, list_title, menu_list_id, menu_icon, menu_order_index
+         * @return integer New menu ID
+         */
+        public static function makeMenu($arr_params) {
+            $parent_menu_id = (isset($arr_params['menu_parent_id'])) ? $arr_params['menu_parent_id'] : 0;
+            $site_id = (isset($arr_params['menu_site_id'])) ? $arr_params['menu_site_id'] : 0;
+            $order_index = (isset($arr_params['menu_order_index'])) ? $arr_params['menu_order_index'] : 0;
+            $fa_icon = (isset($arr_params['menu_icon'])) ? $arr_params['menu_icon'] : null;
+            
+            if (!$parent_menu_id) {
+                $parent_menu_id = null;
+            }
+            
+            if (!$site_id) {
+                $site_id = 1; // by default authorized portal part
+            }
+            
+            $site = DB::table("dx_menu_groups")->where("id", '=', $site_id)->first();
+            
+            if (!$order_index) {
+                if ($parent_menu_id) {
+                    $order_index = DB::table('dx_menu')->where('parent_id', '=', $parent_menu_id)->max('order_index') + 10;
+                }
+                else {
+                    $order_index = 10;
+                }
+            }
+            
+            $title_index = $site->title . ": [" . sprintf("%04d", $order_index) . "] " . $arr_params['list_title'];
+            
+            return DB::table('dx_menu')->insertgetId([
+                'parent_id' => $parent_menu_id, 
+                'title' => $arr_params['list_title'], 
+                'list_id' => $arr_params['menu_list_id'], 
+                'order_index' => $order_index, 
+                'title_index' => $title_index,
+                'fa_icon' => $fa_icon,
+                'group_id' => $site_id, 
+                'position_id' => 1 // main menu by default
+            ]);
+            
         }
         
         /**

@@ -20,8 +20,8 @@ class EduSubjectsMaterialsCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');            
             
-            $table->integer('subject_id')->unsigned()->comment = trans($this->table_name.'.subject_id');
-            $table->integer('material_id')->unsigned()->comment = trans($this->table_name.'.material_id');
+            $table->integer('subject_id')->unsigned()->comment = trans('db_' . $this->table_name.'.subject_id');
+            $table->integer('material_id')->unsigned()->comment = trans('db_' . $this->table_name.'.material_id');
             
             $table->index('subject_id');            
             $table->foreign('subject_id')->references('id')->on('edu_subjects')->onDelete('cascade');

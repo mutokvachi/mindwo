@@ -20,14 +20,14 @@ class InTestsPerformersCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');            
             
-            $table->integer('user_id')->comment = trans($this->table_name.'.user_id');
-            $table->integer('programm_id')->unsigned()->comment = trans($this->table_name.'.programm_id');
-            $table->integer('subject_id')->unsigned()->nullable()->comment = trans($this->table_name.'.subject_id');
-            $table->datetime('perform_start')->nullable()->comment = trans($this->table_name.'.perform_start');
-            $table->datetime('perform_end')->nullable()->comment = trans($this->table_name.'.perform_end');
-            $table->integer('total_questions')->nullable()->default(0)->comment = trans($this->table_name.'.total_questions');
-            $table->integer('correct_answers')->nullable()->default(0)->comment = trans($this->table_name.'.correct_answers');
-            $table->boolean('is_ok')->nullable()->default(false)->comment = trans($this->table_name.'.is_ok');
+            $table->integer('user_id')->comment = trans('db_' . $this->table_name.'.user_id');
+            $table->integer('programm_id')->unsigned()->comment = trans('db_' . $this->table_name.'.programm_id');
+            $table->integer('subject_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.subject_id');
+            $table->datetime('perform_start')->nullable()->comment = trans('db_' . $this->table_name.'.perform_start');
+            $table->datetime('perform_end')->nullable()->comment = trans('db_' . $this->table_name.'.perform_end');
+            $table->integer('total_questions')->nullable()->default(0)->comment = trans('db_' . $this->table_name.'.total_questions');
+            $table->integer('correct_answers')->nullable()->default(0)->comment = trans('db_' . $this->table_name.'.correct_answers');
+            $table->boolean('is_ok')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_ok');
             
             $table->index('user_id');            
             $table->foreign('user_id')->references('id')->on('dx_users');
