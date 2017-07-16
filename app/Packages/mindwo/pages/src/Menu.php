@@ -116,7 +116,7 @@ namespace mindwo\pages
             
             $database_name = Config::get('database.connections.' . Config::get('database.default') . '.database') . "_" . getRootForCache();
             
-            return base_path() . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'menu' . DIRECTORY_SEPARATOR . $database_name . "_" . $mob_prefix . 'menu_' . $this->user_id . '.htm';
+            return base_path() . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'menu' . DIRECTORY_SEPARATOR . $database_name . "_" . $mob_prefix . 'align_' . (Config::get('dx.is_horizontal_menu') ? 'horiz' : 'vert') . '_menu_' . $this->user_id . '.htm';
         }
 
         /**

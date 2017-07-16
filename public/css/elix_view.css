@@ -1560,7 +1560,7 @@ a.header-filter:hover {
 
 .dx-grid-container {
 	position: relative;
-	height: calc(100% - 49px - 22px - 20px);
+	/*height: calc(100% - 49px - 22px - 20px);*/
 	background-color: white;
 	margin-bottom: 20px;
 	overflow: hidden;
