@@ -659,13 +659,13 @@ var PageMain = function()
      * @param {string} err AJAX response error text
      * @returns {undefined}
      */
-    var showAjaxError = function(xhr, err) {
-        console.log("AJAX err: " + err);
-        // session ended - relogin required
+    var showAjaxError = function(xhr, err, settings) {
+        console.log("AJAX err: " + err + " URL: " + settings.url);
+        
         if (xhr.status == 401) {
-            hide_page_splash(1);
-            hide_form_splash(1);
-            reLoginModal.modal("show");
+            // session ended - relogin required
+            reLogin.ajax_obj = settings;
+            reLogin.openForm();
             return;
         }
         
@@ -978,8 +978,8 @@ var PageMain = function()
         resizePage: function() {
             resizePage();
         },
-        errorHandler: function(xhr, err) {
-            showAjaxError(xhr, err);
+        errorHandler: function(xhr, err, settings) {
+            showAjaxError(xhr, err, settings);
         },
         getAjaxErrTxt: function(xhr) {
             return getAjaxErrorText(xhr);
@@ -1000,7 +1000,7 @@ $(document).ready(function() {
 });
 
 $(document).ajaxError(function(event, xhr, settings, err) {
-    PageMain.errorHandler(xhr, err);
+    PageMain.errorHandler(xhr, err, settings);
 });
 
 $(document).ajaxComplete(function(event, xhr, settings) {

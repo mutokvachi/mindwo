@@ -14,5 +14,5 @@ return [
     'form_title' => 'Atkārtota autorizācija',
     'user_name' => 'Lietotājvārds:',
     'password' => 'Parole:',
-    'relogin_ok' => 'Autorizācija sekmīga! Lūdzu, atkārtojiet iepriekš (pirms autorizācijas) izpildīto darbību vēlreiz.',
+    'relogin_ok' => 'Atkārtotā autorizācija ir sekmīga!',
 ];
