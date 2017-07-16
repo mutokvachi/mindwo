@@ -4,7 +4,7 @@
     @include('main.head_meta')
     @include('main.head_styles')
   </head>
-  <body
+  <body style="overflow: hidden;" 
     class="dx-main-page dx-horizontal-menu-ui dx-cssonly {{ (isset($page_is_full_height) && $page_is_full_height) ? 'dx-page-full-height' : '' }}"
     @include('main.body_attributes')
   >
