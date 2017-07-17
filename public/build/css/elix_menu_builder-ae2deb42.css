@@ -1,3 +1,4 @@
+/* Stic footer on bottom - on scroll too */
 .dx-stick-footer {
   position: fixed;
   left: 0px;
@@ -6,7 +7,6 @@
   width: 100%;
   z-index: 5000;
   border-top: 1px solid darkgray;
-  padding-left: 40px;
   background-color: #f1f4f7;
 }
 .dx-stick-footer .dx-left {
@@ -19,11 +19,19 @@
   height: 80px;
   background-color: #e4ebef;
   padding-top: 23px;
-  padding-left: 36px;
 }
 .dx-stick-footer .dx-left .dx-empl-title {
-  padding-left: 10px;
   font-weight: bold;
+}
+.dx-stick-footer .dx-left .row,
+.dx-stick-footer .dx-right .row {
+  padding-left: 36px;
+  padding-right: 36px;
+}
+.dx-stick-footer-title {
+  font-size: 16px;
+  padding-top: 32px!important;
+  text-transform: uppercase;
 }
 
 /*# sourceMappingURL=elix_menu_builder.css.map */

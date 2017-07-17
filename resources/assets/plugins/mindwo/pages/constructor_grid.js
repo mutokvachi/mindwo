@@ -129,9 +129,10 @@
 		});
 		
 		// handle row creation
-		this.root.parent().on('click', '.dx-add-row-btn', function()
+		this.root.closest('.dx-constructor-wrap').on('click', '.dx-add-row-btn', function()
 		{
 			self.createRow();
+			window.scrollTo(0, document.body.scrollHeight);
 		});
 	};
 	

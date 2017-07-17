@@ -355,6 +355,7 @@ gulp.task('mix_all', function() {
 	
         // Styles for constructor wizard interface
         mix.styles([
+            'resources/assets/less/pages/sticky_footer.less',
             'resources/assets/plugins/mindwo/css/constructor_wizard.css'
         ], 'public/css/elix_constructor_wizard.css', './');
 

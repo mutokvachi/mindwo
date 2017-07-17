@@ -1,3 +1,46 @@
+/* Stic footer on bottom - on scroll too */
+.dx-stick-footer {
+	position: fixed;
+	left: 0px;
+	bottom: 0px;
+	height: 80px;
+	width: 100%;
+	z-index: 5000;
+	border-top: 1px solid darkgray;
+	background-color: #f1f4f7;
+}
+
+.dx-stick-footer .dx-left {
+	height: 80px;
+	background-color: #f1f4f7;
+	border-right: 1px solid lightgray;
+	padding-top: 10px;
+}
+
+.dx-stick-footer .dx-right {
+	height: 80px;
+	background-color: #e4ebef;
+	padding-top: 23px;
+}
+
+.dx-stick-footer .dx-left .dx-empl-title {
+	font-weight: bold;
+}
+
+.dx-stick-footer .dx-left .row, .dx-stick-footer .dx-right .row {
+	padding-left: 36px;
+	padding-right: 36px;
+}
+
+.dx-stick-footer-title {
+	font-size: 16px;
+	padding-top: 32px!important;
+	text-transform: uppercase;
+}
+
+.dx-constructor-wrap {
+}
+
 .mt-element-step .step-line .mt-step-title::after {
 	top: -32px;
 }

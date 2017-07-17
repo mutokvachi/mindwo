@@ -213,7 +213,7 @@
 					{
 						var role_id = $(frm).find('input[name="id"]').val();
 						
-						if(role_id == 0)
+						if((typeof role_id == 'undefined') || role_id == 0)
 						{
 							return;
 						}

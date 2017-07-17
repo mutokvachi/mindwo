@@ -70,13 +70,6 @@
         @endfor
       @endif
     </div>
-    <div class="row">
-      <div class="col-md-12" style="text-align: center; padding: 15px 0;">
-        <button type="button" class="btn red dx-add-row-btn" style="">
-          <i class="fa fa-plus"></i> {{ trans('constructor.add_row') }}
-        </button>
-      </div>
-    </div>
   </div>
   <div class="modal fade dx-popup-modal" id="fields_popup" aria-hidden="true" role="dialog" data-backdrop="static" style="z-index: 999999;">
     <div class="modal-dialog modal-lg">

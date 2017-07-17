@@ -9415,7 +9415,7 @@ var PageMain = function()
      * @returns {undefined}
      */
     var showAjaxError = function(xhr, err) {
-        
+        console.log("AJAX err: " + err);
         // session ended - relogin required
         if (xhr.status == 401) {
             hide_page_splash(1);
@@ -9423,7 +9423,7 @@ var PageMain = function()
             reLoginModal.modal("show");
             return;
         }
-        console.log("AJAX err: " + err);
+        
         toastr.error(getAjaxErrorText(xhr, err));
         
         hide_page_splash(1);

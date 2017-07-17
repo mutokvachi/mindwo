@@ -696,9 +696,10 @@ $(document).ready(function()
 		});
 		
 		// handle row creation
-		this.root.parent().on('click', '.dx-add-row-btn', function()
+		this.root.closest('.dx-constructor-wrap').on('click', '.dx-add-row-btn', function()
 		{
 			self.createRow();
+			window.scrollTo(0, document.body.scrollHeight);
 		});
 	};
 	
@@ -1050,7 +1051,7 @@ $(document).ready(function()
 					{
 						var role_id = $(frm).find('input[name="id"]').val();
 						
-						if(role_id == 0)
+						if((typeof role_id == 'undefined') || role_id == 0)
 						{
 							return;
 						}
