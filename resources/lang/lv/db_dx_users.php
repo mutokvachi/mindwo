@@ -50,5 +50,9 @@ return [
     
     'sign_file_name' => 'Paraksta datne',
     'sign_file_guid' => 'Paraksta datnes GUID',
-    'sign_file_name_hint' => 'Pievienojiet ieskenētu pasniedzēja parakstu. Paraksts tiks attēlots sertifikātos.'
+    'sign_file_name_hint' => 'Pievienojiet ieskenētu pasniedzēja parakstu. Paraksts tiks attēlots sertifikātos.',
+    
+    'view_related' => 'Skats saistītajiem ierakstiem',
+    'tab_subjects' => 'Mācību pasākumi',
+    'picture_name' => 'Profila attēls',
 ];

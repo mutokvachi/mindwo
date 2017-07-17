@@ -12,4 +12,5 @@ return [
     'lbl_classifiers' => 'Klasifikatori',
     'lbl_edu_users' => 'Lietotāji',
     'lbl_edu_learning' => 'Mācības',
+    'lbl_edu_tests' => 'Anketas un testi',
 ];

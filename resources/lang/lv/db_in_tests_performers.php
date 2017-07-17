@@ -12,6 +12,7 @@ return [
     'user_id' => 'Izpildītājs',
     'programm_id' => 'Programma',
     'subject_id' => 'Mācību pasākums',
+    'test_id' => 'Tests',
     'perform_start' => 'Izpildes sākums',
     'perform_end' => 'Izpildes beigas',
     'total_questions' => 'Jautājumu kopējais skaits',

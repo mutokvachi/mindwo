@@ -138,6 +138,7 @@ namespace App\Libraries
             $view_id = DB::table('dx_views')->insertGetId([
                 'list_id' => $list_id,
                 'title' => $arr_params['list_title'],
+                'view_type_id' => 1,
                 'is_default' => 1
             ]);
             

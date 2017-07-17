@@ -23,6 +23,7 @@ class InTestsPerformersCreate extends Migration
             $table->integer('user_id')->comment = trans('db_' . $this->table_name.'.user_id');
             $table->integer('programm_id')->unsigned()->comment = trans('db_' . $this->table_name.'.programm_id');
             $table->integer('subject_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.subject_id');
+            $table->integer('test_id')->unsigned()->comment = trans('db_' . $this->table_name.'.test_id');
             $table->datetime('perform_start')->nullable()->comment = trans('db_' . $this->table_name.'.perform_start');
             $table->datetime('perform_end')->nullable()->comment = trans('db_' . $this->table_name.'.perform_end');
             $table->integer('total_questions')->nullable()->default(0)->comment = trans('db_' . $this->table_name.'.total_questions');

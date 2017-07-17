@@ -26,7 +26,7 @@ return [
             'code' => 'TEST'
         ],
         [
-            'title' => 'Papildus datu iegūšanas',
+            'title' => 'Papildus datu iegūšana',
             'code' => 'DATA'
         ],
     ],

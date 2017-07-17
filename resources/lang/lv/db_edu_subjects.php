@@ -7,7 +7,7 @@
 */
 return [
     'list_name' => 'Mācību pasākumi',
-    'item_name' => 'Mācību pasākumi',
+    'item_name' => 'Mācību pasākums',
     
     'title' => 'Nosaukums',
     'avail_id' => 'Pieejamība',
@@ -29,4 +29,13 @@ return [
     'is_org_approve_need' => 'Ir iestādes saskaņojums',
     'cert_numerator_id' => 'Sertifikātu numerators',
     'is_published' => 'Ir publicēts',
+    
+    // tabs
+    'tab_main' => 'Pamatdati',
+    'tab_descr' => 'Apraksti',
+    'tab_tests' => 'Anketas',
+    'tab_teachers' => 'Pasniedzēji',
+    
+    // groups
+    'group_costs' => 'Izmaksas',
 ];

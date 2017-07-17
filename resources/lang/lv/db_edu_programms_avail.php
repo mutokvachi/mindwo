@@ -14,23 +14,23 @@ return [
         
     'values' => [
         [
-            'title' => 'Publiski pieejama visiem lietotājiem',
+            'title' => 'Publiska - visiem lietotājiem',
             'code' => 'PUBLIC'
         ],
         [
-            'title' => 'Pieejama autentificētiem lietotājiem',
+            'title' => 'Autentificētiem lietotājiem',
             'code' => 'AUTH_ALL'
         ],
         [
-            'title' => 'Pieejama valsts pārvaldes darbiniekiem',
+            'title' => 'Valsts pārvaldes darbiniekiem',
             'code' => 'AUTH_ORG'
         ],
         [
-            'title' => 'Pieejama pēc zināšanu pārbaudījuma izpildes',
+            'title' => 'Izpildot zināšanu pārbaudījumu',
             'code' => 'AFTER_TEST'
         ],
         [
-            'title' => 'Pieejama pēc sekmīgas zināšanu pārbaudījuma izpildes',
+            'title' => 'Sekmīgs zināšanu pārbaudījums',
             'code' => 'AFTER_TEST_OK'
         ],
     ],
