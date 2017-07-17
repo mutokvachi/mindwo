@@ -22,13 +22,14 @@ class EduMaterialsCreate extends Migration
             
             $table->string('title', 250)->comment = trans('db_' . $this->table_name.'.title');
             $table->text('description')->nullable()->comment = trans('db_' . $this->table_name.'.description');
-            $table->boolean('is_embeded')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_embeded');
+            //$table->boolean('is_embeded')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_embeded');
             $table->string('file_name', 500)->nullable()->comment = trans('db_' . $this->table_name.'.file_name');
             $table->string('file_guid', 50)->nullable()->comment = trans('db_' . $this->table_name.'.file_guid');
-            $table->text('file_text')->nullable()->comment = trans('db_' . $this->table_name.'.file_text');
-            $table->text('embeded')->nullable()->comment = trans('db_' . $this->table_name.'.embeded');
+            $table->text('file_dx_text')->nullable()->comment = trans('db_' . $this->table_name.'.file_dx_text');
+            //$table->text('embeded')->nullable()->comment = trans('db_' . $this->table_name.'.embeded');
+            
+            $table->integer('org_id')->nullable()->unsigned()->comment = trans('db_' . $this->table_name.'.org_id');
             $table->string('author', 200)->nullable()->comment = trans('db_' . $this->table_name.'.author');
-            $table->integer('org_id')->unsigned()->comment = trans('db_' . $this->table_name.'.org_id');
             $table->boolean('is_public_access')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_public_access');
             $table->boolean('is_published')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_published');
             

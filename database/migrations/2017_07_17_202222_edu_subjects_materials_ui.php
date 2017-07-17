@@ -5,9 +5,9 @@ use Illuminate\Database\Migrations\Migration;
 use App\Libraries\Structure\EduMigration;
 use App\Libraries\Structure;
 
-class EduSubjectsTeachersUi extends EduMigration
+class EduSubjectsMaterialsUi extends EduMigration
 {
-    private $table_name = "edu_subjects_teachers";
+    private $table_name = "edu_subjects_materials";
     
     /**
      * Run the migrations.
@@ -39,16 +39,7 @@ class EduSubjectsTeachersUi extends EduMigration
             
             // user rights
             DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1, 'is_import_rights' => 1, 'is_view_rights' => 1]); // Sys admins            
-           
-            // fix teacher related grid ID
-            $teacher_list = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_teacher'))->first();            
-            $teacher_display = DB::table('dx_lists_fields')->where('list_id', '=', $teacher_list->id)->where('db_name', '=', 'display_name')->first();
-            
-            DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'teacher_id')->update([
-                'rel_list_id' => $teacher_list->id,
-                'rel_display_field_id' => $teacher_display->id
-            ]);
-            
+                       
             // Add tab to subjects
             $subj_list = \App\Libraries\DBHelper::getListByTable("edu_subjects");
             $form = DB::table('dx_forms')->where('list_id', '=', $subj_list->id)->first();
@@ -56,23 +47,23 @@ class EduSubjectsTeachersUi extends EduMigration
             
             $tab_main_id = DB::table('dx_forms_tabs')->insertGetId([
                 'form_id' => $form->id,
-                'title' => trans('db_edu_subjects.tab_teachers'),
+                'title' => trans('db_edu_subjects.tab_materials'),
                 'is_custom_data' => 0,
-                'order_index' => 40,
+                'order_index' => 50,
                 'grid_list_id' => $list_id,
                 'grid_list_field_id' => $subj_field->id
             ]);
             
-            // Add tab to teachers
-            $subj_list = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_teacher'))->first();
+            // Add tab to materials
+            $subj_list = DB::table('dx_lists')->where('list_title', '=', trans('db_edu_materials.list_name'))->first();
             $form = DB::table('dx_forms')->where('list_id', '=', $subj_list->id)->first();
-            $subj_field = DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'teacher_id')->first();
+            $subj_field = DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'material_id')->first();
             
             $tab_main_id = DB::table('dx_forms_tabs')->insertGetId([
                 'form_id' => $form->id,
-                'title' => trans('db_dx_users.tab_subjects'),
+                'title' => trans('db_edu_materials.tab_subjects'),
                 'is_custom_data' => 0,
-                'order_index' => 20,
+                'order_index' => 30,
                 'grid_list_id' => $list_id,
                 'grid_list_field_id' => $subj_field->id
             ]);

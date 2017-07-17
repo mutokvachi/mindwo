@@ -53,6 +53,9 @@ return [
     'sign_file_name_hint' => 'Pievienojiet ieskenētu pasniedzēja parakstu. Paraksts tiks attēlots sertifikātos.',
     
     'view_related' => 'Skats saistītajiem ierakstiem',
-    'tab_subjects' => 'Mācību pasākumi',
     'picture_name' => 'Profila attēls',
+    
+    // tabs
+    'tab_subjects' => 'Mācību pasākumi',
+    'tab_pictures' => 'Attēli',
 ];
