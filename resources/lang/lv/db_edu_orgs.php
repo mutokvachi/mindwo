@@ -13,4 +13,7 @@ return [
     'org_type_id' => 'Darbības tips',
     'reg_nr' => 'Reģistrācijas numurs',
     'address' => 'Adrese',
+    
+    // tabs
+    'tab_banks' => 'Banku konti',
 ];

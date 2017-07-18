@@ -10,4 +10,10 @@ return [
     'item_name' => 'Bankas',
     
     'title' => 'Nosaukums',
+    
+    'values' => [
+        ['title' => 'Swedbank'],
+        ['title' => 'Nordea'],
+        ['title' => 'Citadele'],        
+    ]
 ];

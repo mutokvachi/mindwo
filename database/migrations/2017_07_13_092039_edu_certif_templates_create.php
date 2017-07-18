@@ -20,7 +20,7 @@ class EduCertifTemplatesCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');            
             
-            $table->string('title', 300)->nullable()->comment = trans('db_' . $this->table_name.'.title');
+            $table->string('title', 250)->nullable()->comment = trans('db_' . $this->table_name.'.title');
             $table->integer('programm_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.programm_id');
             $table->integer('subject_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.subject_id');
             $table->text('content')->nullable()->comment = trans('db_' . $this->table_name.'.content');

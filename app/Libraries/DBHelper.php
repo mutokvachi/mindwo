@@ -177,6 +177,10 @@ namespace App\Libraries
             $order_index = (isset($arr_params['menu_order_index'])) ? $arr_params['menu_order_index'] : 0;
             $fa_icon = (isset($arr_params['menu_icon'])) ? $arr_params['menu_icon'] : null;
             
+            if ($parent_menu_id == -1) {
+                return; // no menu needed
+            }
+            
             if (!$parent_menu_id) {
                 $parent_menu_id = null;
             }

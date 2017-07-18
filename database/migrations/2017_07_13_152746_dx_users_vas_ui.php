@@ -133,6 +133,18 @@ class DxUsersVasUi extends EduMigration
             ]);                                   
             App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['order_index' => 8]);
             
+            $all_list_id = $this->createUserList([
+                'list_title' => trans('db_dx_users.list_title_all'),
+                'item_title' => trans('db_dx_users.item_title_all'),
+                'parent_menu_id' => -1,
+                'person_code_required' => 0,
+                'criteria_role_title' => null,
+                'criteria_role_field' => null
+            ]);
+            
+            \App\Libraries\DBHelper::removeFieldCMS($all_list_id, 'reg_addr_street');
+            \App\Libraries\DBHelper::removeFieldCMS($all_list_id, 'reg_addr_city');
+            \App\Libraries\DBHelper::removeFieldCMS($all_list_id, 'reg_addr_zip');
             
         });
         
@@ -160,6 +172,9 @@ class DxUsersVasUi extends EduMigration
             \App\Libraries\DBHelper::deleteRegister($list_id);
             
             $list_id = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_student'))->first()->id;
+            \App\Libraries\DBHelper::deleteRegister($list_id);            
+            
+            $list_id = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_all'))->first()->id;
             \App\Libraries\DBHelper::deleteRegister($list_id);
             
             DB::table('dx_menu')
@@ -248,17 +263,19 @@ class DxUsersVasUi extends EduMigration
         ]);                                   
         App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['row_type_id' => 2]); 
 
-        $fld_id = DB::table('dx_lists_fields')->insertGetId([
-            'list_id' => $list_id,
-            'db_name' => $arr_vals['criteria_role_field'],
-            'type_id' => App\Libraries\DBHelper::FIELD_TYPE_YES_NO,
-            'title_list' => $arr_vals['criteria_role_title'],
-            'title_form' => $arr_vals['criteria_role_title'],
-            'default_value' => 1,
-            'criteria' => 1,
-            'operation_id' => 1
-        ]);  
-        App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['is_hidden' => 1]);
+        if ($arr_vals['criteria_role_title']) {
+            $fld_id = DB::table('dx_lists_fields')->insertGetId([
+                'list_id' => $list_id,
+                'db_name' => $arr_vals['criteria_role_field'],
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_YES_NO,
+                'title_list' => $arr_vals['criteria_role_title'],
+                'title_form' => $arr_vals['criteria_role_title'],
+                'default_value' => 1,
+                'criteria' => 1,
+                'operation_id' => 1
+            ]);  
+            App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['is_hidden' => 1]);
+        }
         
         $fld_display_id = DB::table('dx_lists_fields')->insertGetId([
             'list_id' => $list_id,

@@ -42,6 +42,9 @@ return [
     'list_title_student' => 'Mācību dalībnieki',
     'item_title_student' => 'Mācību dalībnieks',
     
+    'list_title_all' => 'Visi lietotāji',
+    'item_title_all' => 'Lietotājs',
+    
     'is_anonim' => 'Ir anonīms',
     'is_anonim_hint' => 'Anonīmiem lietotājiem jānorāda e-pasts, kas būs jāizmanto autorizējoties kā lietotāja vārds. Veidojot sertifikātus, būs manuāli jānorāda vārds un uzvārds.',              
     
@@ -58,4 +61,5 @@ return [
     // tabs
     'tab_subjects' => 'Mācību pasākumi',
     'tab_pictures' => 'Attēli',
+    'tab_orgs' => 'Darba vietas',
 ];

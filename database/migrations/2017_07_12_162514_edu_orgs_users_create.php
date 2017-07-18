@@ -20,13 +20,13 @@ class EduOrgsUsersCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');            
             
-            $table->integer('org_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.org_id');
             $table->integer('user_id')->comment = trans('db_' . $this->table_name.'.user_id');
+            $table->integer('org_id')->unsigned()->comment = trans('db_' . $this->table_name.'.org_id');            
             $table->string('job_title', 250)->nullable()->comment = trans('db_' . $this->table_name.'.job_title');
             $table->string('email', 200)->nullable()->comment = trans('db_' . $this->table_name.'.email');
             $table->string('phone', 20)->nullable()->comment = trans('db_' . $this->table_name.'.phone');
             $table->string('mobile', 20)->nullable()->comment = trans('db_' . $this->table_name.'.mobile');
-            $table->date('terminated')->nullable()->comment = trans('db_' . $this->table_name.'.terminated');
+            $table->date('end_date')->nullable()->comment = trans('db_' . $this->table_name.'.terminated');
             
             $table->index('org_id');            
             $table->foreign('org_id')->references('id')->on('edu_orgs');

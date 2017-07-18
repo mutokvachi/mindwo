@@ -42,6 +42,7 @@ return [
     
     'link_history' => 'Vēsture',
     'hint_history' => 'Skatīt ieraksta izmaiņu vēsturi',
+    'hint_settings' => 'Atvērt formas iestatījumus',
     'history_form_title' => 'Ieraksta izmaiņu vēsture',
     'btn_changes' => 'Izmaiņas',
     
@@ -82,7 +83,5 @@ return [
         'e_no_users' => 'Šajā sarakstē nav neviena lietotāja', 
         'i_upload_progress' => 'Augšupielāde pielikumus...',   
         'task_chat_description' => 'Jūs esat pievienots diskusijai par dokumentu.',
-        
-        'hint_settings' => 'Atvērt formas iestatījumus',
     ]
 ];

@@ -24,4 +24,5 @@ return [
     'tab_main' => 'Pamatdati',
     'tab_descr' => 'Apraksts',
     'tab_tests' => 'Nosacījumi',
+    'tab_activities' => 'Aktivitātes',
 ];
