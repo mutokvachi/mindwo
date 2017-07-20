@@ -62,4 +62,5 @@ return [
     'tab_subjects' => 'Mācību pasākumi',
     'tab_pictures' => 'Attēli',
     'tab_orgs' => 'Darba vietas',
+    'tab_addr' => 'Dzīvesvieta',
 ];

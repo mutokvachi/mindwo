@@ -184,7 +184,7 @@ class DxUsersVasUi extends EduMigration
         });
     }
         
-    private function createUserList($arr_vals) {
+    private function createUserList($arr_vals, $is_addr_tab = 0) {
         $list_id = App\Libraries\DBHelper::createUI([
             'table_name' => 'dx_users',
             'list_title' => $arr_vals['list_title'],
@@ -230,6 +230,16 @@ class DxUsersVasUi extends EduMigration
         App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['row_type_id' => 3]);
         App\Libraries\DBHelper::addFieldToView($list_id, $view->id, $fld_id);
         
+        if ($is_addr_tab) {
+            $form = DB::table('dx_forms')->where('list_id', '=', $list_id)->first();
+            $tab_addr_id = DB::table('dx_forms_tabs')->insertGetId([
+                'form_id' => $form->id,
+                'title' => trans('db_dx_users.tab_addr'),
+                'is_custom_data' => 1,
+                'order_index' => 5
+            ]);
+        }
+        
         $fld_id = DB::table('dx_lists_fields')->insertGetId([
             'list_id' => $list_id,
             'db_name' => 'reg_addr_street',
@@ -238,8 +248,12 @@ class DxUsersVasUi extends EduMigration
             'title_form' => 'Adrese',
             'max_lenght' => 200,
             'is_required' => 0
-        ]);                                   
-        App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['group_label' => 'Deklarētā dzīves vieta']);
+        ]);   
+        $arr_prop = ['group_label' => 'Deklarētā dzīves vieta'];
+        if ($is_addr_tab) {
+            $arr_prop['tab_id'] = $tab_addr_id;
+        }
+        App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, $arr_prop);
 
         $fld_id = DB::table('dx_lists_fields')->insertGetId([
             'list_id' => $list_id,
@@ -249,8 +263,12 @@ class DxUsersVasUi extends EduMigration
             'title_form' => 'Pilsēta',
             'max_lenght' => 100,
             'is_required' => 0
-        ]);                                   
-        App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['row_type_id' => 2]); 
+        ]);    
+        $arr_prop = ['row_type_id' => 2];
+        if ($is_addr_tab) {
+            $arr_prop['tab_id'] = $tab_addr_id;
+        }
+        App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, $arr_prop ); 
 
         $fld_id = DB::table('dx_lists_fields')->insertGetId([
             'list_id' => $list_id,
@@ -260,8 +278,12 @@ class DxUsersVasUi extends EduMigration
             'title_form' => 'Pasta indekss',
             'max_lenght' => 20,
             'is_required' => 0
-        ]);                                   
-        App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['row_type_id' => 2]); 
+        ]);  
+        $arr_prop = ['row_type_id' => 2];
+        if ($is_addr_tab) {
+            $arr_prop['tab_id'] = $tab_addr_id;
+        }
+        App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, $arr_prop); 
 
         if ($arr_vals['criteria_role_title']) {
             $fld_id = DB::table('dx_lists_fields')->insertGetId([
