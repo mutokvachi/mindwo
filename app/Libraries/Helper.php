@@ -267,8 +267,9 @@ namespace App\Libraries
          * @return array Array with info tasks or null of nothing found
          */
         public static function getInfoTasks($list_id, $item_id, $table_name) {
-            $info_tasks = null;        
-            if ($item_id != 0 && Schema::hasColumn('table_name', 'created_user_id')) {
+            $info_tasks = null;
+            
+            if ($item_id != 0 && Schema::hasColumn($table_name, 'created_user_id')) {
 
                 $creator_id = DB::table($table_name)->select('created_user_id')->where('id','=',$item_id)->first()->created_user_id;
 
@@ -282,7 +283,7 @@ namespace App\Libraries
                                 ->orderBy('u.display_name', 't.task_closed_time')
                                 ->distinct()
                                 ->get();
-
+                
                 $arr_uniq = [];
                 foreach($info_tasks as $task) {
                     if (array_search($task->display_name, $arr_uniq)) {
