@@ -9418,7 +9418,13 @@ var PageMain = function()
         console.log("AJAX err: " + err + " URL: " + settings.url);
         
         if (xhr.status == 401) {
-            // session ended - relogin required
+            // session ended
+            if (reLogin.auth_popup.is(":visible")) {
+                // relogin already opened
+                return false;
+            }
+            
+            // relogin required
             reLogin.ajax_obj = settings;
             reLogin.openForm();
             return;
@@ -10695,7 +10701,6 @@ var reLogin = window.reLogin = {
     
     openForm: function() {
         hide_page_splash(1);
-        hide_form_splash(1);
         
         $('#popup_authorization').on('shown.bs.modal', reLogin.focusName);
         
@@ -10711,7 +10716,6 @@ var reLogin = window.reLogin = {
     
     reExecute: function() {
         show_page_splash(1);
-        show_form_splash(1);
         
         $.ajax({
             type: reLogin.ajax_obj.type,
@@ -10721,10 +10725,17 @@ var reLogin = window.reLogin = {
             contentType: reLogin.ajax_obj.contentType,
             dataType: reLogin.ajax_obj.dataType,
             async: reLogin.ajax_obj.async,
-            success: reLogin.ajax_obj.success,
+            success: function(event, xhr, settings){                
+                reLogin.ajax_obj.success(event, xhr, settings);
+            },
             beforeSend: reLogin.ajax_obj.beforeSend,
-            complete: reLogin.ajax_obj.complete,
-            error: reLogin.ajax_obj.error
+            complete: function(event, xhr, settings){
+                hide_page_splash(1);
+                reLogin.ajax_obj.complete(event, xhr, settings);            
+            },
+            error: function(event, xhr, settings, err) {
+                reLogin.ajax_obj.error(event, xhr, settings, err);
+            }
         });
     },
     

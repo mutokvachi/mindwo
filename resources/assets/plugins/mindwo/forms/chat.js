@@ -619,11 +619,13 @@
                         self.onDataRecevied(self, res, isManualOpen)
                     },
                     error: function (err) {
-                        self.stateIsUpdateRunning = false;
+                        if(err.status != 401){
+                            self.stateIsUpdateRunning = false;
 
-                        self.chatObject.find('.dx-form-chat-content-container').hide();
-                        self.chatObject.find('.dx-form-chat-form').hide();
-                        self.chatObject.find('.dx-form-chat-content-err').show();
+                            self.chatObject.find('.dx-form-chat-content-container').hide();
+                            self.chatObject.find('.dx-form-chat-form').hide();
+                            self.chatObject.find('.dx-form-chat-content-err').show();
+                        }
                     }
                 });
             }
