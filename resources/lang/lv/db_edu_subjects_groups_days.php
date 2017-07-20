@@ -9,10 +9,19 @@ return [
     'list_name' => 'Nodarbības',
     'item_name' => 'Nodarbība',
     
+    'title' => 'Nosaukums',
     'group_id' => 'Mācību grupa',
     'lesson_date' => 'Nodarbības datums',
     'time_from' => 'Laiks no',
     'time_to' => 'Laiks līdz',
     'room_nr' => 'Telpas numurs',
     'notes' => 'Piezīmes',
+    
+    // tabs
+    'tab_notes' => 'Piezīmes',
+    'tab_pauses' => 'Kafijas pauzes',
+    
+    // views
+    'view_related' => 'Skats saistītajiem ierakstiem',
+    'tab_attend' => 'Apmeklētāji',
 ];

@@ -24,7 +24,7 @@ class EduSubjectsGroupsDaysPausesCreate extends Migration
             $table->time('time_from')->comment = trans('db_' . $this->table_name.'.time_from');
             $table->time('time_to')->comment = trans('db_' . $this->table_name.'.time_to');
             $table->integer('feed_org_id')->nullable()->unsigned()->comment = trans('db_' . $this->table_name.'.feed_org_id');
-            $table->text('notes')->nullable()->comment = trans('db_' . $this->table_name.'.notes');
+            $table->string('notes', 1000)->nullable()->comment = trans('db_' . $this->table_name.'.notes');
             
             $table->index('group_day_id');            
             $table->foreign('group_day_id')->references('id')->on('edu_subjects_groups_days');

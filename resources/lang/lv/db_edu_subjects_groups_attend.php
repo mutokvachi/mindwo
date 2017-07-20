@@ -10,5 +10,5 @@ return [
     'item_name' => 'Nodarbības apmeklējums',
     
     'group_day_id' => 'Nodarbība',
-    'student_id' => 'Dalībnieks',
+    'student_id' => 'Apmeklētājs',
 ];

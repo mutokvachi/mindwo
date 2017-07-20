@@ -20,4 +20,13 @@ return [
     'canceled_time' => 'Atcelšanas laiks',
     'canceled_reason' => 'Atcelšanas iemesls',
     'approved_time' => 'Apstiprināšanas laiks',
+    'title' => 'Grupas nosaukums',
+    
+    // tabs
+    'tab_main' => 'Pamatdati',
+    'tab_members' => 'Dalībnieki',
+    'tab_days' => 'Nodarbības',
+    
+    // views
+    'view_related' => 'Skats saistītajiem ierakstiem',
 ];

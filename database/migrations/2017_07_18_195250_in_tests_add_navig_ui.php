@@ -25,8 +25,7 @@ class InTestsAddNavigUi extends EduMigration
             $arr_params = [
                 'menu_list_id' => $list->id, 
                 'list_title' => trans('db_dx_menu.lbl_edu_tests'),
-                'menu_parent_id' => $parent_menu->id,
-                'menu_order_index' => 45,
+                'menu_parent_id' => $parent_menu->id
             ];
             App\Libraries\DBHelper::makeMenu($arr_params);
         });

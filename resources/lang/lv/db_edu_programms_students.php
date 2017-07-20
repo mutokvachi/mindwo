@@ -16,4 +16,7 @@ return [
     'is_approved' => 'Ir apstiprināts',
     'credit_points_earned' => 'Sakrātie kredītpunkti',
     'droped_time' => 'Izslēgts',
+    
+    // tabs
+    'tab_activities' => 'Mācību aktivitātes',
 ];

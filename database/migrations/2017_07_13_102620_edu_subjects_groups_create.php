@@ -20,18 +20,19 @@ class EduSubjectsGroupsCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');            
             
+            $table->string('title', 1000)->nullable()->comment = trans('db_' . $this->table_name.'.title');
             $table->integer('subject_id')->unsigned()->comment = trans('db_' . $this->table_name.'.subject_id');
             $table->integer('teacher_id')->comment = trans('db_' . $this->table_name.'.teacher_id');
             $table->integer('seats_limit')->default(0)->comment = trans('db_' . $this->table_name.'.seats_limit');
             $table->datetime('signup_due')->comment = trans('db_' . $this->table_name.'.signup_due');
             $table->boolean('is_published')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_published');
             $table->boolean('is_generated')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_generated');
+            $table->datetime('approved_time')->nullable()->comment = trans('db_' . $this->table_name.'.approved_time');
             $table->boolean('is_inner_group')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_inner_group');
             $table->integer('inner_org_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.inner_org_id');
             $table->datetime('canceled_time')->nullable()->comment = trans('db_' . $this->table_name.'.canceled_time');
-            $table->text('canceled_reason')->nullable()->comment = trans('db_' . $this->table_name.'.canceled_reason');
-            $table->datetime('approved_time')->nullable()->comment = trans('db_' . $this->table_name.'.approved_time');
-            
+            $table->string('canceled_reason', 500)->nullable()->comment = trans('db_' . $this->table_name.'.canceled_reason');
+                        
             $table->index('subject_id');            
             $table->foreign('subject_id')->references('id')->on('edu_subjects');
             
@@ -46,6 +47,18 @@ class EduSubjectsGroupsCreate extends Migration
             $table->integer('modified_user_id')->nullable();
             $table->datetime('modified_time')->nullable(); 
         });
+        
+        DB::unprepared("CREATE TRIGGER tr_edu_subjects_groups_insert BEFORE INSERT ON  edu_subjects_groups FOR EACH ROW 
+            BEGIN
+                DECLARE subj_title varchar(250);
+                DECLARE teacher varchar(200);
+                
+                SET subj_title = (SELECT title FROM edu_subjects WHERE id = new.subject_id);
+                SET teacher = (SELECT display_name FROM dx_users WHERE id = new.teacher_id);
+                
+                SET new.title = CONCAT(subj_title, ' (', teacher, ')');
+            END;
+        ");
     }
 
     /**
