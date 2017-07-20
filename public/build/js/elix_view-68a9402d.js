@@ -27203,7 +27203,7 @@ $(document).ready(function()
                 if (self.stateIsVisible) {
                     self.closeChatPanel(self);
                 }
-            });            
+            });
 
             // Retrieves chat messages and opens chat if messages found
             self.getChatData(false);
@@ -27701,13 +27701,11 @@ $(document).ready(function()
                         self.onDataRecevied(self, res, isManualOpen)
                     },
                     error: function (err) {
-                        if(err.status != 401){
-                            self.stateIsUpdateRunning = false;
+                        self.stateIsUpdateRunning = false;
 
-                            self.chatObject.find('.dx-form-chat-content-container').hide();
-                            self.chatObject.find('.dx-form-chat-form').hide();
-                            self.chatObject.find('.dx-form-chat-content-err').show();
-                        }
+                        self.chatObject.find('.dx-form-chat-content-container').hide();
+                        self.chatObject.find('.dx-form-chat-form').hide();
+                        self.chatObject.find('.dx-form-chat-content-err').show();
                     }
                 });
             }
@@ -27771,7 +27769,7 @@ $(document).ready(function()
          * Close all other chat instances also stops updates
          * @param {DxFormChat} self Current form chat instance
          */
-        closeOtherChats: function(self){
+        closeOtherChats: function (self) {
             $('.dx-form-chat-btn-open').not(self.domObject).each(function () {
                 this.chat.closeChatPanel(this.chat);
             });

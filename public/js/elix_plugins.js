@@ -10731,7 +10731,10 @@ var reLogin = window.reLogin = {
             beforeSend: reLogin.ajax_obj.beforeSend,
             complete: function(event, xhr, settings){
                 hide_page_splash(1);
-                reLogin.ajax_obj.complete(event, xhr, settings);            
+
+                if(typeof reLogin.ajax_obj.complete != 'undefined'){
+                    return reLogin.ajax_obj.complete(event, xhr, settings);    
+                } 
             },
             error: function(event, xhr, settings, err) {
                 reLogin.ajax_obj.error(event, xhr, settings, err);
