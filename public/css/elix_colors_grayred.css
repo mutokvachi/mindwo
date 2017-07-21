@@ -98,6 +98,11 @@ button.navbar-toggle {
   background-color: white !important;
   border: 1px solid #bababa !important;
 }
+.btn.category-btn {
+  color: #666 !important;
+  background-color: #eef4f7 !important;
+  border: none!important;
+}
 .actions .btn.btn-circle {
   color: white;
   background-color: #cb4654 !important;

@@ -33,7 +33,7 @@ class DxUsersVasUi extends EduMigration
                 'person_code_required' => 1,
                 'criteria_role_title' => trans('db_dx_users.criteria_role_title_edu'),
                 'criteria_role_field' => 'is_role_coordin_main'
-            ]);
+            ], 1);
             
             $this->createUserList([
                 'list_title' => trans('db_dx_users.list_title_org'),
@@ -42,7 +42,7 @@ class DxUsersVasUi extends EduMigration
                 'person_code_required' => 1,
                 'criteria_role_title' => trans('db_dx_users.criteria_role_title_org'),
                 'criteria_role_field' => 'is_role_coordin'
-            ]);
+            ],1);
             
             $teachers_list_id = $this->createUserList([
                 'list_title' => trans('db_dx_users.list_title_teacher'),
@@ -198,8 +198,8 @@ class DxUsersVasUi extends EduMigration
             'list_id' => $list_id,
             'db_name' => 'first_name',
             'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
-            'title_list' => 'Vārds',
-            'title_form' => 'Vārds',
+            'title_list' => trans('db_dx_users.first_name'),
+            'title_form' => trans('db_dx_users.first_name'),
             'max_lenght' => 50,
             'is_required' => 1
         ]);                                   
@@ -210,8 +210,8 @@ class DxUsersVasUi extends EduMigration
             'list_id' => $list_id,
             'db_name' => 'last_name',
             'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
-            'title_list' => 'Uzvārds',
-            'title_form' => 'Uzvārds',
+            'title_list' => trans('db_dx_users.last_name'),
+            'title_form' => trans('db_dx_users.last_name'),
             'max_lenght' => 50,
             'is_required' => 1
         ]);                                   
@@ -222,8 +222,8 @@ class DxUsersVasUi extends EduMigration
             'list_id' => $list_id,
             'db_name' => 'person_code',
             'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
-            'title_list' => 'Personas kods',
-            'title_form' => 'Personas kods',
+            'title_list' => trans('db_dx_users.person_code'),
+            'title_form' => trans('db_dx_users.person_code'),
             'max_lenght' => 12,
             'is_required' => $arr_vals['person_code_required']
         ]);                                   
@@ -244,12 +244,12 @@ class DxUsersVasUi extends EduMigration
             'list_id' => $list_id,
             'db_name' => 'reg_addr_street',
             'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
-            'title_list' => 'Adrese',
-            'title_form' => 'Adrese',
+            'title_list' => trans('db_dx_users.reg_addr_street'),
+            'title_form' => trans('db_dx_users.reg_addr_street'),
             'max_lenght' => 200,
             'is_required' => 0
         ]);   
-        $arr_prop = ['group_label' => 'Deklarētā dzīves vieta'];
+        $arr_prop = [];
         if ($is_addr_tab) {
             $arr_prop['tab_id'] = $tab_addr_id;
         }
@@ -259,8 +259,8 @@ class DxUsersVasUi extends EduMigration
             'list_id' => $list_id,
             'db_name' => 'reg_addr_city',
             'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
-            'title_list' => 'Pilsēta',
-            'title_form' => 'Pilsēta',
+            'title_list' => trans('db_dx_users.reg_addr_city'),
+            'title_form' => trans('db_dx_users.reg_addr_city'),
             'max_lenght' => 100,
             'is_required' => 0
         ]);    
@@ -274,8 +274,8 @@ class DxUsersVasUi extends EduMigration
             'list_id' => $list_id,
             'db_name' => 'reg_addr_zip',
             'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
-            'title_list' => 'Pasta indekss',
-            'title_form' => 'Pasta indekss',
+            'title_list' => trans('db_dx_users.reg_addr_zip'),
+            'title_form' => trans('db_dx_users.reg_addr_zip'),
             'max_lenght' => 20,
             'is_required' => 0
         ]);  

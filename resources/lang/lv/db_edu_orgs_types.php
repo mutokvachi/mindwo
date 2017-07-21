@@ -14,7 +14,7 @@ return [
     
     'values' => [
         [
-            'title' => 'Apmācību pakalpojumi',
+            'title' => 'Iestāde',
             'code' => 'EDU'
         ],
         [

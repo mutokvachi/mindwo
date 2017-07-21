@@ -11,7 +11,7 @@
 }
 #dx-menu-wrap,
 .navbar-default {
-  background-color: #3a3a3a !important;
+  background-color: #700f11 !important;
 }
 #dx-menu-wrap.dx-top-menu {
   border-bottom: 4px solid #cb4654 !important;
@@ -98,6 +98,11 @@ button.navbar-toggle {
   background-color: white !important;
   border: 1px solid #bababa !important;
 }
+.btn.category-btn {
+  color: #666 !important;
+  background-color: #eef4f7 !important;
+  border: none!important;
+}
 .actions .btn.btn-circle {
   color: white;
   background-color: #cb4654 !important;
@@ -126,7 +131,7 @@ fieldset[disabled] .form-control {
   background-color: #DCDCDC;
 }
 .dx-form-header {
-  background-color: #3a3a3a !important;
+  background-color: #700f11 !important;
 }
 .bootstrap-switch {
   border-color: #adadad;
@@ -176,4 +181,4 @@ a {
   background-color: #E43A45!important;
 }
 
-/*# sourceMappingURL=elix_colors_grayred.css.map */
+/*# sourceMappingURL=elix_colors_darkred.css.map */

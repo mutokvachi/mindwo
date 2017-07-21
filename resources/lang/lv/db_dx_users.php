@@ -58,6 +58,14 @@ return [
     'view_related' => 'Skats saistītajiem ierakstiem',
     'picture_name' => 'Profila attēls',
     
+    // fields
+    'first_name' => 'Vārds',
+    'last_name' => 'Uzvārds',
+    'person_code' => 'Personas kods',
+    'reg_addr_street' => 'Deklarētā adrese',
+    'reg_addr_city' => 'Pilsēta',
+    'reg_addr_zip' => 'Pasta indekss',
+    
     // tabs
     'tab_subjects' => 'Mācību pasākumi',
     'tab_pictures' => 'Attēli',
