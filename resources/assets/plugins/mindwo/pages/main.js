@@ -663,7 +663,13 @@ var PageMain = function()
         console.log("AJAX err: " + err + " URL: " + settings.url);
         
         if (xhr.status == 401) {
-            // session ended - relogin required
+            // session ended
+            if (reLogin.auth_popup.is(":visible")) {
+                // relogin already opened
+                return false;
+            }
+            
+            // relogin required
             reLogin.ajax_obj = settings;
             reLogin.openForm();
             return;
