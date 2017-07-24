@@ -29,6 +29,8 @@ class EduSeeder extends Seeder
                     ->whereIn('role_id', [self::ROLE_MAIN, self::ROLE_ORG, self::ROLE_TEACH])
                     ->delete();
             
+            DB::table('dx_tasks')->delete();
+            
             DB::table('dx_users')
                     ->where('id', '>', 2)->delete();
             
