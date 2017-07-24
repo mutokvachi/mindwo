@@ -653,26 +653,29 @@ var PageMain = function()
     };
     
     /**
-     * Handles AJAX response status - display errors if needed
+     * Handles AJAX errors response status
+     * 
      * @param {object} xhr AJAX response object
+     * @param {string} err AJAX response error text
      * @returns {undefined}
      */
-    var showAjaxError = function(xhr) {
+    var showAjaxError = function(xhr, err, settings) {
+        console.log("AJAX err: " + err + " URL: " + settings.url);
         
-        // 401 (session ended) is handled in the file resources/assets/plugins/mindwo/pages/re_login.js
-        if (xhr.status == 200) {
-            return;
-        }
-        
-        // session ended - relogin required
         if (xhr.status == 401) {
-            hide_page_splash(1);
-            hide_form_splash(1);
-            reLoginModal.modal("show");
+            // session ended
+            if (reLogin.auth_popup.is(":visible")) {
+                // relogin already opened
+                return false;
+            }
+            
+            // relogin required
+            reLogin.ajax_obj = settings;
+            reLogin.openForm();
             return;
         }
         
-        toastr.error(getAjaxErrorText(xhr));
+        toastr.error(getAjaxErrorText(xhr, err));
         
         hide_page_splash(1);
         hide_form_splash(1);
@@ -681,10 +684,11 @@ var PageMain = function()
     /**
      * Gets error message from AJAX error response
      * 
-     * @param {type} xhr
+     * @param {object} xhr AJAX response object
+     * @param {string} err AJAX response error text
      * @returns {string} Error message
      */
-    var getAjaxErrorText = function(xhr) {
+    var getAjaxErrorText = function(xhr, err) {
         var err_txt = "";
         var json = xhr.responseJSON;
         
@@ -714,9 +718,14 @@ var PageMain = function()
         }
         
         if (!err_txt) {
-            // unknown error
-            console.log('Unknown AJAX error. XHR info: status = ' + xhr.status  + '; txt = ' + xhr.responseText);
-            err_txt = DX_CORE.trans_general_error;
+            if (err) {
+                err_txt = err;
+            }
+            else {
+                // unknown error
+                console.log('Unknown AJAX error. XHR info: status = ' + xhr.status  + '; txt = ' + xhr.responseText);
+                err_txt = DX_CORE.trans_general_error;
+            }
         }
         
         return err_txt;
@@ -975,8 +984,8 @@ var PageMain = function()
         resizePage: function() {
             resizePage();
         },
-        errorHandler: function(xhr) {
-            showAjaxError(xhr);
+        errorHandler: function(xhr, err, settings) {
+            showAjaxError(xhr, err, settings);
         },
         getAjaxErrTxt: function(xhr) {
             return getAjaxErrorText(xhr);
@@ -996,8 +1005,11 @@ $(document).ready(function() {
     $(this).scrollTop(0,0);    
 });
 
-$(document).ajaxComplete(function(event, xhr, settings) {      
-    PageMain.errorHandler(xhr);
+$(document).ajaxError(function(event, xhr, settings, err) {
+    PageMain.errorHandler(xhr, err, settings);
+});
+
+$(document).ajaxComplete(function(event, xhr, settings) {
     PageMain.modalsDraggable();
     PageMain.initHelpPopups();
     PageMain.initFilesIcons();

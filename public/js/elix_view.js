@@ -16722,26 +16722,19 @@ var BlockViews = function () {
             var grid_el = $("#td_data .dx-grid-outer-div");
             var grid_top = grid_el.offset().top;
             var win_h = $(window).height();
+           
+            var adjust_h = 90;
 
-            var scrl = 0;
-
-            if (grid_el.hasScrollBar('horizontal')) {
-                scrl = 8;
-            }
-
-            var adjust_h = 80;
-
-            if ($("body").hasClass("dx-horizontal-menu-ui")) {
-                adjust_h = 70;
-            }
-
-            var max_h = win_h - grid_top - adjust_h + scrl; //bija 100 / 70
+            var max_h = win_h - grid_top - adjust_h; //bija 100 / 70
             grid_el.css('max-height', max_h + 'px');
 
             var page_h = $("#td_data").offset().top;
             var page_min = win_h - page_h;
+            
             $("#td_data").css('min-height', page_min + 'px');
-
+            $("#td_data").css('background-color', 'rgb(255, 255, 255)', 'important');
+            $("#td_data .portlet").css("box-shadow", "none", "important");
+            
             $(".dx-page-container").css('padding-bottom', '0px');
             $("#td_data .dx-paginator-butons").css('margin-right', 'auto');
         }
@@ -16930,43 +16923,37 @@ var BlockViews = function () {
                 $("body").addClass("dx-grid-in-page");
             }
             
-            if((typeof dx_is_cssonly === 'undefined') || !dx_is_cssonly)
-			{
-				PageMain.addResizeCallback(initHeight);
-	
-				initHeight();
-	
-				var $table = $(this).find('table.dx-grid-table');
-	
-				$table.floatThead({
-					scrollContainer: function($table)
-					{
-						return $table.closest('.dx-grid-outer-div');
-					}
-				});
-	
-				PageMain.addResizeCallback(function()
-				{
-					$table.floatThead('reflow');
-				});
-				setTimeout(function() { PageMain.resizePage(); }, 100);
-			}
-			
-			else
-			{
-				var container = $('.dx-grid-inner-container');
-				var thead = $('.dx-grid-table thead');
-				var divs = $('.dx-grid-table thead div');
-				container.scroll(function()
-				{
-					divs
-                    //thead
-                        .css({
-                        //top: container.scrollTop() + 'px'
-						transform: 'translateY(' + container.scrollTop() + 'px)'
-					});
-				});
-			}
+            PageMain.addResizeCallback(initHeight);
+            initHeight();
+                
+            if((typeof dx_is_cssonly === 'undefined') || !dx_is_cssonly){
+
+                var $table = $(this).find('table.dx-grid-table');
+
+                $table.floatThead({
+                        scrollContainer: function($table)
+                        {
+                                return $table.closest('.dx-grid-outer-div');
+                        }
+                });
+
+                PageMain.addResizeCallback(function()
+                {
+                        $table.floatThead('reflow');
+                });
+                setTimeout(function() { PageMain.resizePage(); }, 100);
+            }			
+            else
+            {
+                var container = $('.dx-grid-inner-container');                
+                var divs = $('.dx-grid-table thead div');
+                
+                container.scroll(function(){
+                    divs.css({                      
+                        transform: 'translateY(' + container.scrollTop() + 'px)'
+                    });
+                });
+            }
 			
             $(this).attr('dx_block_init', 1); // uzstādam pazīmi, ka skata bloks ir inicializēts
         });
@@ -18361,6 +18348,20 @@ var FormLogic = function()
     };
     
     /**
+     * Sets event handlers on forms setings link
+     * 
+     * @param {object} section Form object
+     * @returns {undefined}
+     */
+    var handleSettingLinkClick = function(section) {
+        var frm = $("#list_item_view_form_" + section.attr("dx_form_id"));
+        
+        frm.find(".dx-cms-settings-link").click(function () {
+            view_list_item("form", 4, 10, 0, 0, "", "");
+        });
+    };
+    
+    /**
      * Init lock/unclock logic on cancelation events
      * 
      * @param {object}  section CMS forms fields section HTML element
@@ -18476,6 +18477,7 @@ var FormLogic = function()
             handleCancelWorkflowMenuClick($(this));
             handleItemHistoryClick($(this));
             
+            handleSettingLinkClick($(this));
             adjustDataTabs($(this));
             setFocusFirstField($(this));
             
@@ -27144,6 +27146,11 @@ $(document).ready(function()
         this.stateIsUpdateRunning = false;
 
         /**
+         * Time out timer which retrieves newest messages
+         */
+        this.timeoutTimer = false;
+
+        /**
          * Contains XHR request for file upload
          */
         this.fileUploadXhr = false;
@@ -27193,9 +27200,19 @@ $(document).ready(function()
 
             // Handle chat close when modal has been closed
             self.domObject.on("remove", function () {
-                self.closeChatPanel(self);
+                if (self.stateIsVisible) {
+                    self.closeChatPanel(self);
+                }
             });
 
+            // Retrieves chat messages and opens chat if messages found
+            self.getChatData(false);
+        },
+        /**
+         * Binds chat objects events
+         * @param {DxFormChat} self Current form chat instance
+         */
+        bindEvents: function (self) {
             // Handles chat close button
             self.chatObject.find('.dx-form-chat-btn-close').off('click');
             self.chatObject.find('.dx-form-chat-btn-close').click(function () {
@@ -27263,9 +27280,6 @@ $(document).ready(function()
             self.chatObject.find('.dx-form-chat-btn-refresh').click(function () {
                 self.onClickRefresh(self);
             });
-
-            // Retrieves chat messages and opens chat if messages found
-            self.getChatData();
         },
         /**
          * Cancels file upload request
@@ -27293,7 +27307,6 @@ $(document).ready(function()
                 return;
             }
 
-            self.chatObject.find('.dx-form-chat-btn-file').addClass('disabled');
             self.chatObject.find('.dx-form-chat-file-input').click();
 
         },
@@ -27309,6 +27322,8 @@ $(document).ready(function()
             if (fileInput.files.length <= 0) {
                 return;
             }
+
+            self.chatObject.find('.dx-form-chat-btn-file').addClass('disabled');
 
             // Attach files
             for (var i = 0; i < fileInput.files.length; i++) {
@@ -27388,8 +27403,8 @@ $(document).ready(function()
          * @param {DxFormChat} self Current form chat instance
          */
         onOpenChatClick: function (self) {
-            // Must save state because after openChatPanel function it changes to true 
-            // We need to call getChatData only after openChatPanel to be sure thate there woun't be multiple running background processes of chat window
+            // Must save state because after open ChatPanel function it changes to true 
+            // We need to call getChatData only after open ChatPanel to be sure thate there woudn't be multiple running background processes of chat window
             var stateIsVisible = self.stateIsVisible;
 
             // Opens chat
@@ -27397,7 +27412,7 @@ $(document).ready(function()
 
             if (!stateIsVisible) {
                 // Loads chat data
-                self.getChatData();
+                self.getChatData(true);
             }
         },
         /**
@@ -27412,9 +27427,13 @@ $(document).ready(function()
             }
 
             // Close all other chat instances also stops updates
-            $('.dx-form-chat-btn-open').not(self.domObject).each(function () {
-                this.chat.closeChatPanel(this.chat);
-            });
+            self.closeOtherChats(self);
+
+            // Binds all events (on reinitialization needs to bind again because all chat buttons use same chat window)
+            self.bindEvents(self);
+
+            // Clear user count it will be refreshed after data is retrieved
+            self.chatObject.find('.dx-chat-user-count').html('');
 
             self.stateIsVisible = true;
 
@@ -27508,6 +27527,8 @@ $(document).ready(function()
                 data: data,
                 type: "post",
                 success: function () {
+                    self.refreshUserCount();
+
                     $(btn).closest('.dx-form-chat-user-list-row').remove();
 
                     hide_page_splash(1);
@@ -27579,6 +27600,7 @@ $(document).ready(function()
                     hide_page_splash(1);
 
                     if (res && res.success && res.success == 1) {
+                        self.refreshUserCount();
                         notify_info(Lang.get('form.chat.i_user_added'));
                         modal.modal('hide');
                     } else if (res && res.msg) {
@@ -27608,6 +27630,8 @@ $(document).ready(function()
          * @param {DxFormChat} self Current form chat instance
          */
         closeChatPanel: function (self) {
+            clearTimeout(self.timeoutTimer);
+            self.timeoutTimer = false;
             self.stateIsVisible = false;
             self.lastMessageID = 0;
             self.chatObject.slideUp();
@@ -27644,7 +27668,7 @@ $(document).ready(function()
                 data: data,
                 type: "post",
                 success: function () {
-
+                    self.getChatData(false);
                 },
                 error: function () {
                     notify_err(Lang.get('form.chat.e_msg_not_saved'));
@@ -27653,8 +27677,9 @@ $(document).ready(function()
         },
         /**
          * Loads chat's data
+         * @param {boolean} isManualOpen True if user clicked on open chat button which trigered this function
          */
-        getChatData: function () {
+        getChatData: function (isManualOpen) {
             var self = this;
 
             if (self.stateIsUpdateRunning) {
@@ -27663,14 +27688,17 @@ $(document).ready(function()
 
             self.stateIsUpdateRunning = true;
 
+            if (self.timeoutTimer != false) {
+                clearTimeout(self.timeoutTimer);
+                self.timeoutTimer = false;
+            }
+
             try {
                 $.ajax({
                     url: DX_CORE.site_url + 'chat/messages/' + self.listId + '/' + self.itemId + '/' + self.lastMessageID,
                     type: "get",
                     success: function (res) {
-                        self.stateIsUpdateRunning = false;
-
-                        self.onDataRecevied(self, res)
+                        self.onDataRecevied(self, res, isManualOpen)
                     },
                     error: function (err) {
                         self.stateIsUpdateRunning = false;
@@ -27689,20 +27717,25 @@ $(document).ready(function()
          * Click event when refresh button has been clicked after chat window got error
          * @param {DxFormChat} self Current form chat instance
          */
-        onClickRefresh:function(self){
-            self.getChatData();
+        onClickRefresh: function (self) {
+            self.getChatData(true);
 
             self.chatObject.find('.dx-form-chat-content-err').hide();
             self.chatObject.find('.dx-form-chat-content-container').show();
-            self.chatObject.find('.dx-form-chat-form').show();            
+            self.chatObject.find('.dx-form-chat-form').show();
         },
         /**
          * Processes retrieved data
          * @param {DxFormChat} self Current form chat instance
          * @param {object} res Retrieved data from server
+         * @param {boolean} isManualOpen True if user clicked on open chat button which trigered this function
          */
-        onDataRecevied: function (self, res) {
+        onDataRecevied: function (self, res, isManualOpen) {
             if (res && res.success && res.success == 1) {
+                if (res.user_count) {
+                    self.chatObject.find('.dx-chat-user-count').html(res.user_count);
+                }
+
                 if (!self.stateIsVisible && res.view.length > 0) {
                     self.openChatPanel(self);
                 }
@@ -27722,21 +27755,61 @@ $(document).ready(function()
                 if (res.msg) {
                     //  self.catchError(res, res.msg);
                 } else {
-                    // self.catchError(res, Lang.get('crypto.e_get_user_cert'));
+                    if (isManualOpen) {
+                        self.openAddChatUsersModal(self);
+                    }
                 }
             }
 
+            self.stateIsUpdateRunning = false;
+
             self.refreshData(self);
+        },
+        /**
+         * Close all other chat instances also stops updates
+         * @param {DxFormChat} self Current form chat instance
+         */
+        closeOtherChats: function (self) {
+            $('.dx-form-chat-btn-open').not(self.domObject).each(function () {
+                this.chat.closeChatPanel(this.chat);
+            });
+        },
+        /**
+         * Refresh count of users in chat
+         */
+        refreshUserCount: function () {
+            var self = this;
+
+            $.ajax({
+                url: DX_CORE.site_url + 'chat/count/' + self.listId + '/' + self.itemId,
+                type: "get",
+                success: function (res) {
+                    if (res && res.success == 1 && res.count) {
+                        self.chatObject.find('.dx-chat-user-count').html(res.count);
+                    } else {
+                        self.chatObject.find('.dx-chat-user-count').html(0);
+                    }
+
+                },
+                error: function (err) {
+                    self.chatObject.find('.dx-chat-user-count').html(0);
+                }
+            });
         },
         /**
          * Refreshes data after timeout
          * @param {DxFormChat} self Current form chat instance
          */
-        refreshData:function(self){
+        refreshData: function (self) {
+            if (self.timeoutTimer) {
+                clearTimeout(self.timeoutTimer);
+                self.timeoutTimer = false;
+            }
+
             // Calls again after 1000 ms   
-            setTimeout(function () {
+            self.timeoutTimer = setTimeout(function () {
                 if (self.stateIsVisible) {
-                    self.getChatData();
+                    self.getChatData(false);
                 }
             }, self.chatRefreshRate);
         },

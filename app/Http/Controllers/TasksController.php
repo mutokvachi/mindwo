@@ -916,6 +916,12 @@ class TasksController extends Controller
             $is_delete_rights = 1; // because was able to start workflow
             
         }
+        
+        $frm = DB::table('dx_forms')
+               ->select('title')
+               ->where('list_id', '=', $list_id)
+               ->first();
+        
         return  view('elements.form_left_btns', [
                                 'is_edit_rights' => $is_edit_rights,
                                 'is_delete_rights' => $is_delete_rights,
@@ -926,7 +932,8 @@ class TasksController extends Controller
                                 'is_info_tasks_rights' => ($table_name == "dx_doc"),
                                 'is_word_generation_btn' => \App\Libraries\Helper::getWordGenerBtn($list_id),
                                 'info_tasks' => \App\Libraries\Helper::getInfoTasks($list_id, $item_id, $table_name),
-                                'list_id' => $list_id
+                                'list_id' => $list_id,
+                                'form_title' => $frm->title
                 ])->render();
     }
     

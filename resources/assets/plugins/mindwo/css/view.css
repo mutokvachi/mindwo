@@ -177,7 +177,7 @@ a.header-filter:hover {
 
 .dx-grid-container {
 	position: relative;
-	height: calc(100% - 49px - 22px - 20px);
+	/*height: calc(100% - 49px - 22px - 20px);*/
 	background-color: white;
 	margin-bottom: 20px;
 	overflow: hidden;
@@ -197,7 +197,7 @@ a.header-filter:hover {
 	margin: 0 !important;
 }
 
-.dx-grid-table thead {
+.dx-horizontal-menu-ui .dx-grid-table thead {
 	position: relative;
 	z-index: 10000;
 }
@@ -262,4 +262,11 @@ a.header-filter:hover {
 .btn.btn-default.dx-status-potential {
 	background-color: #f7ca18 !important;
 	border: 0 none !important;
+}
+
+.dx-overflow-cell {
+    max-width: 500px;
+    overflow: hidden; 
+    white-space: nowrap; 
+    text-overflow: ellipsis;
 }

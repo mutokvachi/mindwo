@@ -27,7 +27,14 @@ var BlockTopArticles = function()
      */
     var scaleSlider = function() {
         var refSize = jssor_1_slider.$Elmt.parentNode.clientWidth;
-        var cont_width = $('#top-article-slider-container').parent().css('width').replace(/[^-\d\.]/g, '')-1;
+        
+        var slider = $('#top-article-slider-container');
+        
+        if (!slider.length) {
+            return; // no slider in page
+        }
+        
+        var cont_width = slider.parent().css('width').replace(/[^-\d\.]/g, '')-1;
         cont_width = cont_width + 1-29;
         
         if (refSize) {

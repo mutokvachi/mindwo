@@ -473,7 +473,11 @@ namespace App\Libraries\Workflows
                                  ->where('t.list_id', '=', $list_id)
                                  ->where('t.item_id', '=', $item_id)
                                  ->where('t.task_type_id', '!=', \App\Http\Controllers\TasksController::TASK_TYPE_INFO)
-                                 ->where('t.task_status_id', '=', \App\Http\Controllers\TasksController::TASK_STATUS_DENY)
+                                 ->where(function($query) {
+                                     $query->where('t.task_status_id', '=', \App\Http\Controllers\TasksController::TASK_STATUS_DENY)
+                                           ->orWhere('t.task_status_id', '=', \App\Http\Controllers\TasksController::TASK_STATUS_CANCEL);
+                                             
+                                 })
                                  ->orderBy('t.id', 'DESC')
                                  ->first();
             }

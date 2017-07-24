@@ -8,13 +8,13 @@
 
 return [
         
-    'app_name' => env('APP_NAME', 'MEDUS'),
+    'app_name' => 'MEDUS',
     
     'logo_txt' => '',
     
-    'site_title' => env('APP_NAME', 'MINDWO') . ' :: SVS',
+    'site_title' => ':app :: SVS',
     
-    'hello_title' => 'Sveicināti MEDUS SVS vietnē!',
+    'hello_title' => 'Sveicināti :app SVS vietnē!',
     
     'about_title' => 'Vietne pieejama tikai autorizētiem lietotājiem.',
     
@@ -26,7 +26,7 @@ return [
     
     'login' => 'Autorizēties',
     
-    'version' => 'Versija 4.0.38, &copy; 2012 - 2017',
+    'version' => 'Versija 4.0.39, &copy; 2012 - 2017',
     
     'authorization_in_system' => 'Autorizēšanās sistēmā',
     

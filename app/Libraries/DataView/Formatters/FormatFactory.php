@@ -18,7 +18,7 @@ namespace App\Libraries\DataView\Formatters
             $class = "App\\Libraries\\DataView\\Formatters\\Format_" . $type;
             if (class_exists($class)) 
             {
-                if ($type == "file")
+                if ($type == "file" || $type == "text")
                 {
                     return new $class($model_row, $data_row);
                 }

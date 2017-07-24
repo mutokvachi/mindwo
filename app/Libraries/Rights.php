@@ -361,6 +361,26 @@ namespace App\Libraries
                }
            }
         }
+        
+        /**
+         * Nosaka tiesības rediģēt reģistra iestatījumus
+         * 
+         * @return boolean
+         */
+        public static function isSettingRights()
+        {
+            $rights = Rights::getRightsOnList(3); // 3 ir reģistra formas ID
+
+            if ($rights == null) {
+                return false;
+            }
+
+            if ($rights->is_edit_rights) {
+                return true;
+            }
+
+            return false;
+        }
 
     }
 

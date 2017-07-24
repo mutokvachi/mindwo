@@ -11,7 +11,7 @@
     ?>
     @if($chatUsers && count($chatUsers) > 0)
     <li class="dropdown dx-chat-notif-dropdown">
-        <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" title="New messages">
+        <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
             <i class="fa fa-comments-o"></i> 
             <div class="badge badge-warning dx-chat-notif-count" >{{ count($chatUsers) }}</div>
         </a>    
@@ -32,7 +32,7 @@
                         
                         open_form('form', {{ $chat->item_id }}, {{ $chat->list_id }}, 0, 0, '', 0, '');                     
                     })(this)">
-                    <i class="fa fa-comment-o" style="font-size:medium"></i> {{ $chat->list->list_title }} <span style="font-style:italic;">(#{{ $chat->id }})</span> 
+                    <i class="fa fa-comment-o" style="font-size:medium"></i> {{ $chat->register->list_title }} <span style="font-style:italic;">(#{{ $chat->item_id }})</span> 
                 </a>
             </li>
             @endforeach

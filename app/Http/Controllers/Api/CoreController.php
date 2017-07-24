@@ -23,12 +23,7 @@ class CoreController extends Controller
         
         $this->checkRights($list_id);
         
-        $view_row = DB::table('dx_views')
-                ->where('list_id', '=', $list_id)
-                ->where('is_hidden_from_main_grid','=',0)
-                ->orderBy('is_for_lookup', 'DESC')
-                ->orderBy('is_default', 'DESC')
-                ->first();
+        $view_row = getLookupViewRow($list_id);
         
         $fields = DB::table('dx_views_fields as vf')
                   ->select('lf.id', 'lf.title_list')

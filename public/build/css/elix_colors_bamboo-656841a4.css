@@ -1,3 +1,14 @@
+.dx-page-container,
+#td_data {
+  background-color: #dae8cf;
+}
+.dx-form-chat-content .name {
+  color: #016eb1 !important;
+}
+.dx-form-chat-content .btn {
+  background-color: #82af16 !important;
+  border: 1px solid #6f9a00 !important;
+}
 #dx-menu-wrap,
 .navbar-default {
   background-color: #3a3a3a !important;
@@ -73,6 +84,10 @@ button.navbar-toggle {
   background-color: #82af16 !important;
   border: 1px solid #6f9a00 !important;
 }
+.btn.dx-form-chat-btn-send {
+  background-color: #82af16 !important;
+  border: 1px solid #6f9a00 !important;
+}
 .btn.btn-block {
   background-color: #82af16 !important;
   border: 1px solid #6f9a00 !important;
@@ -129,6 +144,36 @@ fieldset[disabled] .form-control {
 }
 a {
   color: #016eb1;
+}
+.btn.btn-outline.green-meadow:hover,
+.btn.btn-outline.green-meadow:active,
+.btn.btn-outline.green-meadow:active:hover,
+.btn.btn-outline.green-meadow:active:focus,
+.btn.btn-outline.green-meadow:focus,
+.btn.btn-outline.green-meadow.active {
+  border-color: #1BBC9B!important;
+  color: #fff;
+  background-color: #1BBC9B!important;
+}
+.btn.btn-outline.blue-hoki:hover,
+.btn.btn-outline.blue-hoki:active,
+.btn.btn-outline.blue-hoki:active:hover,
+.btn.btn-outline.blue-hoki:active:focus,
+.btn.btn-outline.blue-hoki:focus,
+.btn.btn-outline.blue-hoki.active {
+  border-color: #67809F!important;
+  color: #fff;
+  background-color: #67809F!important;
+}
+.btn.btn-outline.red-soft:hover,
+.btn.btn-outline.red-soft:active,
+.btn.btn-outline.red-soft:active:hover,
+.btn.btn-outline.red-soft:active:focus,
+.btn.btn-outline.red-soft:focus,
+.btn.btn-outline.red-soft.active {
+  border-color: #E43A45!important;
+  color: #fff;
+  background-color: #E43A45!important;
 }
 
 /*# sourceMappingURL=elix_colors_bamboo.css.map */

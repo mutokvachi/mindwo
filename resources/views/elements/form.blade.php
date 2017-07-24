@@ -66,6 +66,9 @@
             
             <div class='modal-footer' style='border-top: 1px solid #c1c1c1;'>
                 <a href='javascript:;' class='dx-cms-history-link pull-left' style='margin-top: 5px; {{ $item_id == 0 ? "display: none" : ""}}' title='{{ trans('form.hint_history') }}'><i class='fa fa-history'></i> {{ trans('form.link_history') }}&nbsp;</a><span class="badge badge-default pull-left dx-history-badge" style="display: {{ ($history_count) ? 'block' : 'none'}};">{{ $history_count }}</span>
+                @if ($is_setting_rights && $item_id !=4 && $list_id != 10)
+                    <a href='javascript:;' class='dx-cms-settings-link pull-left' style='margin-top: 5px; margin-left: 15px;' title='{{ trans('form.hint_settings') }}'><i class='fa fa-cog'></i></a>
+                @endif
                 @if ($is_disabled == 0)
                     <button  type='button' class='btn btn-primary dx-btn-save-form' id='btn_save_{{ $frm_uniq_id }}'>{{ trans('form.btn_save') }}</button>
                 @endif

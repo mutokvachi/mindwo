@@ -12,6 +12,6 @@ return [
     'form_title' => 'Authorization',
     'user_name' => 'Username:',
     'password' => 'Password:',
-    'relogin_ok' => 'Authentification succeeded! Please repeat previous (before authorization) action again.',
+    'relogin_ok' => 'Authentification succeeded!',
     
 ];

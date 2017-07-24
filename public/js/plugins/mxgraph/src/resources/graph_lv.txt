@@ -1,0 +1,11 @@
+alreadyConnected=Elementi jau ir savienoti
+containsValidationErrors=Satur validācijas kļūdas
+updatingDocument=Atjaunina dokumentu. Lūdzu, uzgaidiet...
+updatingSelection=Atjaunina sadaļu. Lūdzu, uzgaidiet...
+collapse-expand=Sakļaut/Izvērst
+doubleClickOrientation=Dubultklikšķis, lai mainītu novietojumu
+close=Aizvērt
+error=Kļūda
+done=Pabeigts
+cancel=Atcelt
+ok=Labi

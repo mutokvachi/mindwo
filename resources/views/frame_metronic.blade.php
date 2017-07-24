@@ -16,7 +16,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}" />
 
         <!-- BEGIN PLUGINS STYLES -->
-        <link href="{{Request::root()}}/metronic/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+        <link href="{{Request::root()}}/{{ getIncludeVersion('metronic/global/plugins/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" type="text/css" />
         <link href="{{Request::root()}}/metronic/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />    
         <link href="{{ elixir('css/elix_plugins.css') }}" rel="stylesheet" type="text/css" />
         <!-- BEGIN PLUGINS STYLES -->
@@ -97,13 +97,7 @@
           trans_passw_form_title = "{{ trans('password_form.form_title') }}"
           >
 
-        <!-- Simple splash screen-->    
-        <div class="splash">
-            <div class="color-line"></div>
-            <div class="splash-title">
-                <h1>{{ $portal_name }}</h1><p>{{ trans("frame.data_loading") }}</p><img src="{{Request::root()}}/assets/global/progress/loading-bars.svg" width="64" height="64" />
-            </div>
-        </div>    
+        @include('main.splash')   
 
         <!-- BEGIN HEADER -->
         <div class="page-header navbar navbar-fixed-top">
@@ -112,11 +106,11 @@
             <div class="page-header-inner container">
 
                 <div class="page-logo">
-                    <a href="/" style="text-decoration: none;">
-                         @if (!trans('index.logo_txt'))
+                    <a href="/" style="text-decoration: none;" title="{{ trans('index.logo_txt') }}">
+                        @if (Config::get('dx.app.logo_txt', '') === '')
                             <img src="{{Request::root()}}/{{ Config::get('dx.logo_small', 'assets/global/logo/logo-default.png') }}" alt="LOGO" class="logo-default" style="margin-top: 8px;"/>
                         @else
-                            <div style="font-size: 28px; color: white; text-transform: uppercase; padding-top: 14px;">{{ trans('index.logo_txt') }}</div>
+                            <div style="font-size: 28px; color: white; text-transform: uppercase; padding-top: 14px;">{{ Config::get('dx.app.logo_txt') }}</div>
                         @endif
                     </a>
                     <div class="menu-toggler sidebar-toggler" dx_attr=""></div>
@@ -144,15 +138,15 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-default">
                                     <li>
-                                        <a href="javascript:;" title="{{ trans("frame.page_size") }}" id='btnScreen'>
+                                        <a href="javascript:;" id='btnScreen'>
                                             <i class="fa fa-arrows-alt"></i> {{ trans("frame.page_fullscreen") }} </a>
                                     </li>
                                     <li>
-                                        <a href="javascript:;" title="{{ trans("frame.password_change") }}" class="dx-user-change-passw-link">
+                                        <a href="javascript:;" class="dx-user-change-passw-link">
                                             <i class="fa fa-key"></i> {{ trans("frame.password_change") }} </a>
                                     </li>
                                     <li>
-                                        <a href="{{Request::root()}}/logout" title="{{ trans("frame.logout") }}">
+                                        <a href="{{Request::root()}}/logout">
                                             <i class="fa fa-sign-out"></i> {{ trans("frame.logout") }} </a>
                                     </li>
                                 </ul>

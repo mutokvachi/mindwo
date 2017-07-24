@@ -96,7 +96,7 @@ namespace App\Libraries\Structure
                             'list_id' => $list_id,
                             'view_id' => $view_id,
                             'field_id' => $field_obj->getFieldID(),
-                            'width' => 100,
+                            'width' => 0,
                             'order_index' => $counter*10,
                             'is_item_link' => 1
                         ]);

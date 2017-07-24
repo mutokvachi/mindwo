@@ -37,10 +37,10 @@
         <div class='parent'>
             <div class='child'>
                 <p class='title'>{{ $title }}</p>
-                <p class='title2'>Programmatūras projektējuma apraksts</p>
-                <p>Versija: {{ date('d.m.Y') }}</p>
-                <p>Sagatavoja: {{ $author }}</p>
-                <p><small>Dokuments ģenerēts no MEDUS SVS</small></p>
+                <p class='title2'>{{ trans('ppa.sub_title') }}</p>
+                <p>{{ trans('ppa.lbl_version') }}: {{ date('d.m.Y') }}</p>
+                <p>{{ trans('ppa.lbl_author') }}: {{ $author }}</p>
+                <p><small>{{ trans('ppa.lbl_generated') }}</small></p>
             </div>
         </div>
     </body>

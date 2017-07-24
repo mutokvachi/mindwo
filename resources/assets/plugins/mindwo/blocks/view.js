@@ -798,26 +798,19 @@ var BlockViews = function () {
             var grid_el = $("#td_data .dx-grid-outer-div");
             var grid_top = grid_el.offset().top;
             var win_h = $(window).height();
+           
+            var adjust_h = 90;
 
-            var scrl = 0;
-
-            if (grid_el.hasScrollBar('horizontal')) {
-                scrl = 8;
-            }
-
-            var adjust_h = 80;
-
-            if ($("body").hasClass("dx-horizontal-menu-ui")) {
-                adjust_h = 70;
-            }
-
-            var max_h = win_h - grid_top - adjust_h + scrl; //bija 100 / 70
+            var max_h = win_h - grid_top - adjust_h; //bija 100 / 70
             grid_el.css('max-height', max_h + 'px');
 
             var page_h = $("#td_data").offset().top;
             var page_min = win_h - page_h;
+            
             $("#td_data").css('min-height', page_min + 'px');
-
+            $("#td_data").css('background-color', 'rgb(255, 255, 255)', 'important');
+            $("#td_data .portlet").css("box-shadow", "none", "important");
+            
             $(".dx-page-container").css('padding-bottom', '0px');
             $("#td_data .dx-paginator-butons").css('margin-right', 'auto');
         }
@@ -1006,43 +999,37 @@ var BlockViews = function () {
                 $("body").addClass("dx-grid-in-page");
             }
             
-            if((typeof dx_is_cssonly === 'undefined') || !dx_is_cssonly)
-			{
-				PageMain.addResizeCallback(initHeight);
-	
-				initHeight();
-	
-				var $table = $(this).find('table.dx-grid-table');
-	
-				$table.floatThead({
-					scrollContainer: function($table)
-					{
-						return $table.closest('.dx-grid-outer-div');
-					}
-				});
-	
-				PageMain.addResizeCallback(function()
-				{
-					$table.floatThead('reflow');
-				});
-				setTimeout(function() { PageMain.resizePage(); }, 100);
-			}
-			
-			else
-			{
-				var container = $('.dx-grid-inner-container');
-				var thead = $('.dx-grid-table thead');
-				var divs = $('.dx-grid-table thead div');
-				container.scroll(function()
-				{
-					divs
-                    //thead
-                        .css({
-                        //top: container.scrollTop() + 'px'
-						transform: 'translateY(' + container.scrollTop() + 'px)'
-					});
-				});
-			}
+            PageMain.addResizeCallback(initHeight);
+            initHeight();
+                
+            if((typeof dx_is_cssonly === 'undefined') || !dx_is_cssonly){
+
+                var $table = $(this).find('table.dx-grid-table');
+
+                $table.floatThead({
+                        scrollContainer: function($table)
+                        {
+                                return $table.closest('.dx-grid-outer-div');
+                        }
+                });
+
+                PageMain.addResizeCallback(function()
+                {
+                        $table.floatThead('reflow');
+                });
+                setTimeout(function() { PageMain.resizePage(); }, 100);
+            }			
+            else
+            {
+                var container = $('.dx-grid-inner-container');                
+                var divs = $('.dx-grid-table thead div');
+                
+                container.scroll(function(){
+                    divs.css({                      
+                        transform: 'translateY(' + container.scrollTop() + 'px)'
+                    });
+                });
+            }
 			
             $(this).attr('dx_block_init', 1); // uzstādam pazīmi, ka skata bloks ir inicializēts
         });

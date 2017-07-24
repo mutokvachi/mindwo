@@ -24,6 +24,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\UpdateLeftStatus::class,
         \App\Console\Commands\ServerLogImport::class,
         \App\Console\Commands\CalculateTimeoffAll::class,
+        \App\Console\Commands\UnlockItems::class,
     ];
 
     /**
@@ -75,7 +76,11 @@ class Kernel extends ConsoleKernel
         // Imports data from server access log (Linux only)
         if (Config::get('server_log.is_server_audit_on', false)) {
             $schedule->command('mindwo:save-log')->everyFiveMinutes();
-        }       
+        }   
+        
+        // Unlock items which are locked too long, so other users could edit them
+        $schedule->command('mindwo:unlock')
+                 ->everyTenMinutes();
         
     }
 }

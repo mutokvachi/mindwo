@@ -9408,26 +9408,29 @@ var PageMain = function()
     };
     
     /**
-     * Handles AJAX response status - display errors if needed
+     * Handles AJAX errors response status
+     * 
      * @param {object} xhr AJAX response object
+     * @param {string} err AJAX response error text
      * @returns {undefined}
      */
-    var showAjaxError = function(xhr) {
+    var showAjaxError = function(xhr, err, settings) {
+        console.log("AJAX err: " + err + " URL: " + settings.url);
         
-        // 401 (session ended) is handled in the file resources/assets/plugins/mindwo/pages/re_login.js
-        if (xhr.status == 200) {
-            return;
-        }
-        
-        // session ended - relogin required
         if (xhr.status == 401) {
-            hide_page_splash(1);
-            hide_form_splash(1);
-            reLoginModal.modal("show");
+            // session ended
+            if (reLogin.auth_popup.is(":visible")) {
+                // relogin already opened
+                return false;
+            }
+            
+            // relogin required
+            reLogin.ajax_obj = settings;
+            reLogin.openForm();
             return;
         }
         
-        toastr.error(getAjaxErrorText(xhr));
+        toastr.error(getAjaxErrorText(xhr, err));
         
         hide_page_splash(1);
         hide_form_splash(1);
@@ -9436,10 +9439,11 @@ var PageMain = function()
     /**
      * Gets error message from AJAX error response
      * 
-     * @param {type} xhr
+     * @param {object} xhr AJAX response object
+     * @param {string} err AJAX response error text
      * @returns {string} Error message
      */
-    var getAjaxErrorText = function(xhr) {
+    var getAjaxErrorText = function(xhr, err) {
         var err_txt = "";
         var json = xhr.responseJSON;
         
@@ -9469,9 +9473,14 @@ var PageMain = function()
         }
         
         if (!err_txt) {
-            // unknown error
-            console.log('Unknown AJAX error. XHR info: status = ' + xhr.status  + '; txt = ' + xhr.responseText);
-            err_txt = DX_CORE.trans_general_error;
+            if (err) {
+                err_txt = err;
+            }
+            else {
+                // unknown error
+                console.log('Unknown AJAX error. XHR info: status = ' + xhr.status  + '; txt = ' + xhr.responseText);
+                err_txt = DX_CORE.trans_general_error;
+            }
         }
         
         return err_txt;
@@ -9730,8 +9739,8 @@ var PageMain = function()
         resizePage: function() {
             resizePage();
         },
-        errorHandler: function(xhr) {
-            showAjaxError(xhr);
+        errorHandler: function(xhr, err, settings) {
+            showAjaxError(xhr, err, settings);
         },
         getAjaxErrTxt: function(xhr) {
             return getAjaxErrorText(xhr);
@@ -9751,8 +9760,11 @@ $(document).ready(function() {
     $(this).scrollTop(0,0);    
 });
 
-$(document).ajaxComplete(function(event, xhr, settings) {      
-    PageMain.errorHandler(xhr);
+$(document).ajaxError(function(event, xhr, settings, err) {
+    PageMain.errorHandler(xhr, err, settings);
+});
+
+$(document).ajaxComplete(function(event, xhr, settings) {
     PageMain.modalsDraggable();
     PageMain.initHelpPopups();
     PageMain.initFilesIcons();
@@ -10649,6 +10661,7 @@ $(document).ready(function() {
 }(jQuery);
 
 var reLogin = window.reLogin = {
+    ajax_obj: null,
     auth_popup: $("#popup_authorization"),
     authorize: function () {
         var formData = new FormData();
@@ -10662,19 +10675,71 @@ var reLogin = window.reLogin = {
         var ajax_url = 'relogin';
         var request = new FormAjaxRequest(ajax_url, "", "", formData);
 
+        var clearFields = function() {
+            user_name.val("");
+            pasw.val("");
+        };
+        
         request.callback = function (result) {
             notify_info(Lang.get('relogin_form.relogin_ok'));
             $("#popup_authorization").modal("hide");
+            $('#popup_authorization').off('shown.bs.modal', reLogin.focusName);
             reLogin.updateToken(result.token);
+            
+            clearFields();
+            
+            reLogin.reExecute();
         };
 
         request.err_callback = function () {
-            user_name.val("");
-            pasw.val("");
+            clearFields();
         };
 
         // izpildam AJAX pieprasījumu
         request.doRequest();
+    },
+    
+    openForm: function() {
+        hide_page_splash(1);
+        
+        $('#popup_authorization').on('shown.bs.modal', reLogin.focusName);
+        
+        $('#popup_authorization').modal({
+                keyboard: false,
+                backdrop: 'static'
+        });
+    },
+    
+    focusName: function() {
+        $("#reLoginForm").find("input[name='user_name']").focus();
+    },
+    
+    reExecute: function() {
+        show_page_splash(1);
+        
+        $.ajax({
+            type: reLogin.ajax_obj.type,
+            url: reLogin.ajax_obj.url,
+            data: reLogin.ajax_obj.data,
+            processData: reLogin.ajax_obj.processData,
+            contentType: reLogin.ajax_obj.contentType,
+            dataType: reLogin.ajax_obj.dataType,
+            async: reLogin.ajax_obj.async,
+            success: function(event, xhr, settings){                
+                reLogin.ajax_obj.success(event, xhr, settings);
+            },
+            beforeSend: reLogin.ajax_obj.beforeSend,
+            complete: function(event, xhr, settings){
+                hide_page_splash(1);
+
+                if(typeof reLogin.ajax_obj.complete != 'undefined'){
+                    return reLogin.ajax_obj.complete(event, xhr, settings);    
+                } 
+            },
+            error: function(event, xhr, settings, err) {
+                reLogin.ajax_obj.error(event, xhr, settings, err);
+            }
+        });
     },
     
     updateToken: function(token) {
@@ -10712,31 +10777,7 @@ var reLogin = window.reLogin = {
             return false;
         }
     });
-    /*
-    var reLoginModal = reLogin.auth_popup;
-    reLoginModal.on('shown.bs.modal', function () {
-        reLoginModal.find("input[name='user_name']").val("").focus();
-        reLoginModal.find("input[name='password']").val("");
-    });
-    */
-    // Override $.ajax
-    // Store a reference to the original remove method.
-    /*
-    var originalPostMethod = jQuery.ajax;
     
-    // Define overriding method.
-    jQuery.ajax = function (data) {
-        // Execute the original method.
-        var callMethod = originalPostMethod.apply(this, arguments);
-
-        callMethod.error(function (result) {
-            // Check for 401 (Unautorized) status
-            if (result.status === 401) {
-                reLoginModal.modal("show");
-            }
-        });
-    };
-    */
 })();
 (function($)
 {

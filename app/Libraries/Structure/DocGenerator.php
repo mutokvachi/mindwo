@@ -82,6 +82,7 @@ namespace App\Libraries\Structure
                 $list_role->rows_lists = $this->getRoleLists($list_role->id);
                 $list_role->rows_pages = $this->getRolePages($list_role->id);
                 $list_role->rows_specs = $this->getRoleSpecs($list_role->id);
+                $list_role->rows_wf = $this->getRoleWorkflows($list_role->id);
             }
             
             if ($this->is_html_return) {
@@ -118,7 +119,7 @@ namespace App\Libraries\Structure
         private function getRoleLists($role_id)
         {
             return DB::table('dx_roles_lists as rl')
-                            ->select(DB::raw('rl.list_id, l.list_title, rl.is_new_rights, rl.is_edit_rights, rl.is_delete_rights'))
+                            ->select(DB::raw('rl.list_id, l.list_title, rl.is_new_rights, rl.is_edit_rights, rl.is_delete_rights, rl.is_import_rights, rl.is_view_rights'))
                             ->join('dx_lists as l', 'rl.list_id', '=', 'l.id')
                             ->join('dx_lists_groups as lg', 'l.group_id', '=', 'lg.id')
                             ->where('lg.is_not_in_docs', '=', 0)
@@ -141,6 +142,24 @@ namespace App\Libraries\Structure
                             ->orderBy('cp.title')
                             ->get();
         }
+        
+        /**
+         * Izgūst visas norādītās lomas iesaistes darbplūsmu soļos
+         * Izskata tikai aktīvās darbplūsmas
+         * 
+         * @param integer $role_id Lomas ID
+         * @return Array Masīvs ar darbplūsmu informāciju
+         */
+        private function getRoleWorkflows($role_id) {
+            return DB::table('dx_workflows as wf')
+                            ->select('wf.id', 'wf.step_title', 'wd.title', 'wd.description', 'l.list_title', 'wd.list_id')
+                            ->join('dx_workflows_def as wd', 'wf.workflow_def_id', '=', 'wd.id')
+                            ->join('dx_lists as l', 'wd.list_id', '=', 'l.id')
+                            ->where('wf.role_id', '=', $role_id)
+                            ->whereNull('wd.valid_to')
+                            ->orderBy('wd.title')
+                            ->get();
+        }
 
         /**
          * Izgūst visas norādītās lomas lapas
@@ -151,7 +170,7 @@ namespace App\Libraries\Structure
         private function getRolePages($role_id)
         {
             return DB::table('dx_roles_pages as rp')
-                            ->select(DB::raw('rp.page_id, p.title'))
+                            ->select(DB::raw('rp.page_id, p.title, p.url_title'))
                             ->join('dx_pages as p', 'rp.page_id', '=', 'p.id')
                             ->where('rp.role_id', '=', $role_id)
                             ->orderBy('p.title')

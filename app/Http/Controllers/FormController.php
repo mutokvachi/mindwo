@@ -197,6 +197,7 @@ class FormController extends Controller
             'is_edit_rights' => $this->is_edit_rights,
             'is_delete_rights' => $this->is_delete_rights,
             'is_info_tasks_rights' => ($table_name == "dx_doc"),
+            'is_setting_rights' => Rights::isSettingRights(),
             'workflow_btn' => $this->isWorkflowInit($list_id, $item_id), // Uzstāda pazīmi, vai redzama darbplūsmu poga 
             'is_custom_approve' => ($this->workflow && $this->workflow->is_custom_approve) ? 1 : 0,
             'is_editable_wf' => $this->is_editable_wf,
@@ -676,6 +677,7 @@ class FormController extends Controller
             
             if ($status == 3) { // item in status rejected
                 $this->reject_task = Workflows\Helper::getWFRejectedInfo($list_id, $item_id);
+                \Log::info("Rejected task: " . json_encode($this->reject_task));
             }
             
             return $status;

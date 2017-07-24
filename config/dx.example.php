@@ -423,4 +423,29 @@ return [
     |-------------------------------------------------------------------------- 
     */
     'is_chat_enabled' => false,
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Is tasks logic enabled - will be available informative tasks button
+    |-------------------------------------------------------------------------- 
+    */
+    'is_tasks_logic' => true,
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Is news logic enabled - will be available news search on top right corner
+    |-------------------------------------------------------------------------- 
+    */
+    'is_news_logic' => true,
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Application namings and textual logo-replacers settings
+    |-------------------------------------------------------------------------- 
+    */
+    'app' => [
+        'name' => env('APP_NAME', 'MINDWO'),
+        'logo_txt' => env('APP_LOGO_TXT', ''),
+        'logo_big_txt' => env('APP_LOGO_BIG_TXT', ''),
+    ]
 ];

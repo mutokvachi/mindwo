@@ -27,9 +27,11 @@
           <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
-          <li class="searchTypeItem"><a href="#"><i class="fa fa-file-text"></i> <span data-placeholder="{{ trans("search_top.search_documents") }}">{{ trans("search_top.documents") }}</span></a></li>
-          <li class="searchTypeItem"><a href="#"><i class="fa fa-users"></i> <span data-placeholder="{{ trans("search_top.search_employees") }}">{{ trans("search_top.employees") }}</span></a></li>
-          <li class="searchTypeItem"><a href="#"><i class="fa fa-newspaper-o"></i> <span data-placeholder="{{ trans("search_top.search_news") }}">{{ trans("search_top.news") }}</span></a></li>
+          <li class="searchTypeItem"><a href="javascript:;"><i class="fa fa-file-text"></i> <span data-placeholder="{{ trans("search_top.search_documents") }}">{{ trans("search_top.documents") }}</span></a></li>
+          <li class="searchTypeItem"><a href="javascript:;"><i class="fa fa-users"></i> <span data-placeholder="{{ trans("search_top.search_employees") }}">{{ trans("search_top.employees") }}</span></a></li>
+          @if (Config::get('dx.is_news_logic', true))
+          <li class="searchTypeItem"><a href="javascript:;"><i class="fa fa-newspaper-o"></i> <span data-placeholder="{{ trans("search_top.search_news") }}">{{ trans("search_top.news") }}</span></a></li>
+          @endif
         </ul>
       </div>
       <input type="text" class="form-control" placeholder="@if (config('dx.default_search') == trans("search_top.documents")){{ trans("search_top.search_documents") }}

@@ -406,22 +406,4 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 		
 		return $this->lists;
 	}
-	
-	/**
-	 * The "booting" method of the model.
-	 *
-	 * @return void
-	 */
-	protected static function boot()
-	{
-		parent::boot();
-		
-		// Add default user roles
-		User::created(function ($user)
-		{
-			$roles = \App\Models\System\Role::where('is_default', true)->get();
-			
-			$user->roles()->attach($roles);
-		});
-	}
 }
