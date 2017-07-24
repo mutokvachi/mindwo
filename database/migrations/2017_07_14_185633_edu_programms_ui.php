@@ -46,7 +46,7 @@ class EduProgrammsUi extends EduMigration
                 'list_title' => trans('db_dx_menu.lbl_edu_learning'),
                 'menu_parent_id' => null,
                 'menu_order_index' => 30,
-                'menu_icon' => 'fa fa-graduation-cap',
+                //'menu_icon' => 'fa fa-graduation-cap',
             ];
             $parent_menu_id = App\Libraries\DBHelper::makeMenu($arr_params);
             

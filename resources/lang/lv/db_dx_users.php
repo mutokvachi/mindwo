@@ -45,6 +45,10 @@ return [
     'list_title_all' => 'Visi lietotāji',
     'item_title_all' => 'Lietotājs',
     
+    'list_title_profile' => 'Lietotāju profili',
+    'item_title_profile' => 'Mans lietotāja profils',
+    
+     // fields
     'is_anonim' => 'Ir anonīms',
     'is_anonim_hint' => 'Anonīmiem lietotājiem jānorāda e-pasts, kas būs jāizmanto autorizējoties kā lietotāja vārds. Veidojot sertifikātus, būs manuāli jānorāda vārds un uzvārds.',              
     
@@ -53,22 +57,33 @@ return [
     
     'sign_file_name' => 'Paraksta datne',
     'sign_file_guid' => 'Paraksta datnes GUID',
-    'sign_file_name_hint' => 'Pievienojiet ieskenētu pasniedzēja parakstu. Paraksts tiks attēlots sertifikātos.',
+    'sign_file_name_hint' => 'Pievienojiet ieskenētu pasniedzēja parakstu. Paraksts tiks attēlots sertifikātos.',    
     
-    'view_related' => 'Skats saistītajiem ierakstiem',
     'picture_name' => 'Profila attēls',
     
-    // fields
     'first_name' => 'Vārds',
     'last_name' => 'Uzvārds',
     'person_code' => 'Personas kods',
     'reg_addr_street' => 'Deklarētā adrese',
     'reg_addr_city' => 'Pilsēta',
     'reg_addr_zip' => 'Pasta indekss',
+    'org_title' => 'Organizācija',
+    'job_title' => 'Amats',    
+    'mobile' => 'Mobilais telefons',
+    'iban_nr' => 'IBAN',    
+    'is_receive_notify' => 'Saņemt jaunumus no VAS',
+    'cert_date' => 'Datums',
+    'cert_file' => 'Sertifikāts',
+    
+    // views
+    'view_related' => 'Skats saistītajiem ierakstiem',
     
     // tabs
     'tab_subjects' => 'Mācību pasākumi',
     'tab_pictures' => 'Attēli',
     'tab_orgs' => 'Darba vietas',
     'tab_addr' => 'Dzīvesvieta',
+    'tab_general' => 'Kontakti',
+    'tab_bank' => 'Bankas konts',
+    'tab_certif' => 'Apmeklētie kursi',
 ];

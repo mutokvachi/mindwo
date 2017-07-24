@@ -54,16 +54,83 @@ class EduCertifUi extends EduMigration
             ], false);
             
             // fix students related grid ID
-            $teacher_list = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_student'))->first();            
-            $teacher_display = DB::table('dx_lists_fields')->where('list_id', '=', $teacher_list->id)->where('db_name', '=', 'display_name')->first();
+            $student_list = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_student'))->first();            
+            $student_display = DB::table('dx_lists_fields')->where('list_id', '=', $student_list->id)->where('db_name', '=', 'display_name')->first();
             
             DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'user_id')->update([
-                'rel_list_id' => $teacher_list->id,
-                'rel_display_field_id' => $teacher_display->id
+                'rel_list_id' => $student_list->id,
+                'rel_display_field_id' => $student_display->id
             ]);
             
             App\Libraries\DBHelper::updateFormField($list_id, "reg_nr", ['row_type_id' => 2]);
             App\Libraries\DBHelper::updateFormField($list_id, "reg_date", ['row_type_id' => 2]);
+            
+            // Make default view not visible in sub-grids
+            DB::table('dx_views')->where('list_id', '=', $list_id)->update([
+                'is_hidden_from_tabs' => 1
+            ]);
+            
+            // add tab to user profile  
+            $profile_list = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_profile'))->first();            
+            $form = DB::table('dx_forms')->where('list_id', '=', $profile_list->id)->first();
+            $subj_field = DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'user_id')->first();
+            
+            $tab_main_id = DB::table('dx_forms_tabs')->insertGetId([
+                'form_id' => $form->id,
+                'title' => trans('db_dx_users.tab_certif'),
+                'is_custom_data' => 0,
+                'order_index' => 30,
+                'grid_list_id' => $list_id,
+                'grid_list_field_id' => $subj_field->id
+            ]);
+            
+            // create view for sub-grids
+            $view_id = DB::table('dx_views')->insertGetId([
+                'list_id' => $list_id,
+                'title' => trans('db_dx_users.tab_certif'),
+                'view_type_id' => 1,
+                'is_hidden_from_main_grid' => 1,
+                'is_hidden_from_tabs' => 0,
+            ]);
+
+            
+            DB::table('dx_views_fields')->insert([
+               'list_id' => $list_id,
+               'view_id' => $view_id,
+               'field_id' => DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'id')->first()->id,
+               'is_hidden' => 1,
+            ]);
+            
+            DB::table('dx_views_fields')->insert([
+               'list_id' => $list_id,
+               'view_id' => $view_id,
+               'field_id' => DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'user_id')->first()->id,
+               'is_hidden' => 1,
+            ]);
+
+            DB::table('dx_views_fields')->insert([
+               'list_id' => $list_id,
+               'view_id' => $view_id,
+               'field_id' => DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'reg_date')->first()->id,
+               'alias_name' => trans('db_dx_users.cert_date'),
+               'is_item_link' => 1,
+               'order_index' => 10,
+            ]);
+            
+            DB::table('dx_views_fields')->insert([
+               'list_id' => $list_id,
+               'view_id' => $view_id,
+               'field_id' => DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'subject_id')->first()->id,
+               'order_index' => 20,
+            ]);
+            
+            DB::table('dx_views_fields')->insert([
+               'list_id' => $list_id,
+               'view_id' => $view_id,
+               'field_id' => DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'file_name')->first()->id,
+               'alias_name' => trans('db_dx_users.cert_file'),
+               'order_index' => 30,
+            ]);
             
         });
     }

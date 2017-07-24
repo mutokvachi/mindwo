@@ -354,6 +354,10 @@ namespace App\Libraries
                         ->where('id', '=', $val)
                         ->first();
             
+            if (!$txt_row) {
+                return null;
+            }
+            
             return $txt_row->txt;            
         }
         

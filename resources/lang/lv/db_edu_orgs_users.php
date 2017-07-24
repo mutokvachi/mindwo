@@ -15,5 +15,5 @@ return [
     'email' => 'E-pasts',
     'phone' => 'Tālrunis',
     'mobile' => 'Mobilais tālrunis',
-    'terminated' => 'Nestrādā no',
+    'terminated' => 'Strādā līdz',
 ];

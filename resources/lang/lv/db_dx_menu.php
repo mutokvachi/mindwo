@@ -15,4 +15,5 @@ return [
     'lbl_edu_users' => 'Lietotāji',
     'lbl_edu_learning' => 'Mācības',
     'lbl_edu_tests' => 'Anketas un testi',
+    'lbl_edu_myprofile' => 'Mans profils',
 ];

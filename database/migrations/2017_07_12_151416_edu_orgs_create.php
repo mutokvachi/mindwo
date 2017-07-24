@@ -32,6 +32,9 @@ class EduOrgsCreate extends Migration
             $table->datetime('created_time')->nullable();
             $table->integer('modified_user_id')->nullable();
             $table->datetime('modified_time')->nullable(); 
+            
+            $table->unique(['reg_nr']);
+            $table->unique(['title']);
         });
     }
 

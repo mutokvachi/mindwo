@@ -22,7 +22,6 @@ class DxUsersVasUi extends EduMigration
                 'list_title' => trans('db_dx_menu.lbl_edu_users'),
                 'menu_parent_id' => null,
                 'menu_order_index' => 20,
-                'menu_icon' => 'fa fa-users',
             ];
             $parent_menu_id = App\Libraries\DBHelper::makeMenu($arr_params);
             
@@ -110,7 +109,7 @@ class DxUsersVasUi extends EduMigration
                 'person_code_required' => 1,
                 'criteria_role_title' => trans('db_dx_users.criteria_role_title_student'),
                 'criteria_role_field' => 'is_role_student'
-            ]);
+            ], 1, 4);
             
             $fld_id = DB::table('dx_lists_fields')->insertGetId([
                 'list_id' => $list_id,
@@ -120,7 +119,7 @@ class DxUsersVasUi extends EduMigration
                 'title_form' => trans('db_dx_users.is_anonim'),
                 'hint' => trans('db_dx_users.is_anonim_hint'),              
             ]);                                   
-            App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['order_index' => 5]);
+            App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['order_index' => 5, 'row_type_id' => 4]);
             
             $fld_id = DB::table('dx_lists_fields')->insertGetId([
                 'list_id' => $list_id,
@@ -131,7 +130,102 @@ class DxUsersVasUi extends EduMigration
                 'max_lenght' => 200,
                 'hint' => trans('db_dx_users.login_name_email_hint'),
             ]);                                   
-            App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['order_index' => 8]);
+            App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['order_index' => 32]);
+            
+            $def_view_id = DB::table('dx_views')
+                    ->where('list_id', '=', $list_id)
+                    ->where('title', '=', trans('db_dx_users.list_title_student'))
+                    ->first()
+                    ->id;
+            
+            DB::table('dx_views')
+                    ->where('id', '=', $def_view_id)
+                    ->update([
+                        'view_type_id' => 9,
+                        'custom_sql' => "
+                            SELECT * FROM (
+                                select
+                                        u.id,
+                                        u.person_code,
+                                        u.first_name,
+                                        u.last_name,
+                                        u.display_name,
+                                        u.login_name,
+                                        u.is_anonim,
+                                        u.is_role_student,
+                                        u.reg_addr_street,
+                                        u.reg_addr_city,
+                                        u.reg_addr_zip,
+                                        u.is_role_coordin_main,
+                                        o.title as org_title,
+                                        ou.job_title as job_title,
+                                        ou.email as email,
+                                        ou.phone as phone,
+                                        ou.mobile as mobile
+                                from
+                                        dx_users u
+                                        left join edu_orgs_users ou on u.id = ou.user_id
+                                        left join edu_orgs o on ou.org_id = o.id
+                                where
+                                        u.is_role_student = 1 and
+                                        (
+                                        exists(select id from dx_users_roles ru where ru.role_id in (1, 74) and ru.user_id=[ME])
+                                        or
+                                        ou.org_id in (select org_id from edu_orgs_users where user_id = [ME] and ifnull(end_date, DATE_ADD(now(), INTERVAL 1 DAY)) >=now())
+                                        )
+                                ) tb 
+                            WHERE 1 = 1
+                        " 
+            ]);
+            
+            $fld_id = DB::table('dx_lists_fields')->insertGetId([
+                'list_id' => $list_id,
+                'db_name' => 'org_title',
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
+                'title_list' => trans('db_edu_orgs_users.org_id'),
+                'title_form' => trans('db_edu_orgs_users.org_id'),
+                'formula' => '[' . trans('db_edu_orgs_users.org_id') .']',
+            ]);                                   
+            App\Libraries\DBHelper::addFieldToView ($list_id, $def_view_id, $fld_id); 
+            
+            $fld_id = DB::table('dx_lists_fields')->insertGetId([
+                'list_id' => $list_id,
+                'db_name' => 'job_title',
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
+                'title_list' => trans('db_edu_orgs_users.job_title'),
+                'title_form' => trans('db_edu_orgs_users.job_title'),
+                'formula' => '[' . trans('db_edu_orgs_users.job_title') .']',
+            ]);
+            
+            $fld_id = DB::table('dx_lists_fields')->insertGetId([
+                'list_id' => $list_id,
+                'db_name' => 'email',
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
+                'title_list' => trans('db_edu_orgs_users.email'),
+                'title_form' => trans('db_edu_orgs_users.email'),
+                'formula' => '[' . trans('db_edu_orgs_users.email') .']',
+            ]);                                   
+            App\Libraries\DBHelper::addFieldToView ($list_id, $def_view_id, $fld_id);
+            
+            $fld_id = DB::table('dx_lists_fields')->insertGetId([
+                'list_id' => $list_id,
+                'db_name' => 'phone',
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
+                'title_list' => trans('db_edu_orgs_users.phone'),
+                'title_form' => trans('db_edu_orgs_users.phone'),
+                'formula' => '[' . trans('db_edu_orgs_users.phone') .']',
+            ]);                                   
+            App\Libraries\DBHelper::addFieldToView ($list_id, $def_view_id, $fld_id);
+            
+            $fld_id = DB::table('dx_lists_fields')->insertGetId([
+                'list_id' => $list_id,
+                'db_name' => 'mobile',
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
+                'title_list' => trans('db_edu_orgs_users.mobile'),
+                'title_form' => trans('db_edu_orgs_users.mobile'),
+                'formula' => '[' . trans('db_edu_orgs_users.mobile') .']',
+            ]);                                   
+            App\Libraries\DBHelper::addFieldToView ($list_id, $def_view_id, $fld_id);
             
             $all_list_id = $this->createUserList([
                 'list_title' => trans('db_dx_users.list_title_all'),
@@ -145,6 +239,141 @@ class DxUsersVasUi extends EduMigration
             \App\Libraries\DBHelper::removeFieldCMS($all_list_id, 'reg_addr_street');
             \App\Libraries\DBHelper::removeFieldCMS($all_list_id, 'reg_addr_city');
             \App\Libraries\DBHelper::removeFieldCMS($all_list_id, 'reg_addr_zip');
+            
+            $def_view_id = DB::table('dx_views')
+                    ->where('list_id', '=', $all_list_id)
+                    ->where('title', '=', trans('db_dx_users.list_title_all'))
+                    ->first()
+                    ->id;
+            
+            DB::table('dx_views')
+                    ->where('id', '=', $def_view_id)
+                    ->update([
+                        'view_type_id' => 9,
+                        'custom_sql' => "
+                            SELECT * FROM (
+                                select distinct
+                                        dx_users.id as id,
+                                        dx_users.display_name as dx_users_display_name,
+                                        dx_users.display_name
+                                from
+                                        dx_users
+                                        left join edu_orgs_users ou on u.id = ou.user_id
+                                        left join edu_orgs o on ou.org_id = o.id
+                                where
+                                        (dx_users.is_role_student = 1 or
+                                         dx_users.is_role_teacher = 1 or
+                                         dx_users.is_role_supply = 1 or
+                                         dx_users.is_role_coordin_main = 1 or
+                                         dx_users.is_role_coordin = 1) and
+                                        (
+                                        exists(select id from dx_users_roles ru where ru.role_id in (1, 74) and ru.user_id=[ME])
+                                        or
+                                        ou.org_id in (select org_id from edu_orgs_users where user_id = [ME] and ifnull(end_date, DATE_ADD(now(), INTERVAL 1 DAY)) >=now())
+                                        )
+                                ) tb 
+                            WHERE 1 = 1
+                        " 
+            ]);
+            
+            // For user profile
+            $profile_list_id = $this->createUserList([
+                'list_title' => trans('db_dx_users.list_title_profile'),
+                'item_title' => trans('db_dx_users.item_title_profile'),
+                'parent_menu_id' => -1,
+                'person_code_required' => 1,
+                'criteria_role_title' => null,
+                'criteria_role_field' => null
+            ], 1, 3, true);
+            
+            $form = DB::table('dx_forms')->where('list_id', '=', $profile_list_id)->first();
+            
+            $tab_general_id = DB::table('dx_forms_tabs')->insertGetId([
+                'form_id' => $form->id,
+                'title' => trans('db_dx_users.tab_general'),
+                'is_custom_data' => 1,
+                'order_index' => 2
+            ]);
+            
+            $fld_id = DB::table('dx_lists_fields')->insertGetId([
+                'list_id' => $profile_list_id,
+                'db_name' => 'login_name',
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
+                'title_list' => trans('db_dx_users.login_name_email'),
+                'title_form' => trans('db_dx_users.login_name_email'),
+                'max_lenght' => 200,
+            ]);                                   
+            App\Libraries\DBHelper::addFieldToForm($profile_list_id, $fld_id, ['row_type_id' => 2, 'tab_id' => $tab_general_id]);
+            
+            $fld_id = DB::table('dx_lists_fields')->insertGetId([
+                'list_id' => $profile_list_id,
+                'db_name' => 'mobile',
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_MOBILE,
+                'title_list' => trans('db_dx_users.mobile'),
+                'title_form' => trans('db_dx_users.mobile'),
+                'max_lenght' => 50,
+            ]);                                   
+            App\Libraries\DBHelper::addFieldToForm($profile_list_id, $fld_id, ['row_type_id' => 2, 'tab_id' => $tab_general_id]);
+            
+            $fld_id = DB::table('dx_lists_fields')->insertGetId([
+                'list_id' => $profile_list_id,
+                'db_name' => 'is_receive_notify',
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_YES_NO,
+                'title_list' => trans('db_dx_users.is_receive_notify'),
+                'title_form' => trans('db_dx_users.is_receive_notify'),
+            ]);                                   
+            App\Libraries\DBHelper::addFieldToForm($profile_list_id, $fld_id, ['tab_id' => $tab_general_id]);
+            
+            $tab_bank_id = DB::table('dx_forms_tabs')->insertGetId([
+                'form_id' => $form->id,
+                'title' => trans('db_dx_users.tab_bank'),
+                'is_custom_data' => 1,
+                'order_index' => 6
+            ]);
+            
+            $fld_id = DB::table('dx_lists_fields')->insertGetId([
+                'list_id' => $profile_list_id,
+                'db_name' => 'iban_nr',
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
+                'title_list' => trans('db_dx_users.iban_nr'),
+                'title_form' => trans('db_dx_users.iban_nr'),
+                'max_lenght' => 50,
+            ]);                                   
+            App\Libraries\DBHelper::addFieldToForm($profile_list_id, $fld_id, ['tab_id' => $tab_bank_id]);
+
+            // create my profile menu
+            $arr_params = [
+                'menu_list_id' => null, 
+                'list_title' => trans('db_dx_menu.lbl_edu_myprofile'),
+                'menu_parent_id' => null,
+                'menu_order_index' => 15,
+                'menu_url' => 'edu_profile',
+            ];
+            $profile_menu_id = App\Libraries\DBHelper::makeMenu($arr_params);
+            
+            DB::table('dx_config')->where('config_name', '=', 'SCRIPT_JS')->update([
+                'val_script' => "
+                    $(document).ready(function() {  
+                        var my_list_id = " . $profile_list_id . ";
+                        var menu = $('#navbar').find('a[href$=edu_profile]');
+                                                
+                        if (menu.length) {
+                            var li = menu.parent();
+                            var htm = menu.html();
+                            menu.remove();
+                            var a = $('<a>');
+                            a.attr('href', 'javascript:;');
+                            a.html(htm);
+                            a.addClass('edu_profile');
+                            a.click(function() {
+                                open_form('form', $('body').data('user-id'), my_list_id, 0, 0, '', 0, '');       
+                            });	
+                            
+                            li.append(a);
+                        }
+                    });
+                "
+            ]);
             
         });
         
@@ -177,14 +406,22 @@ class DxUsersVasUi extends EduMigration
             $list_id = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_all'))->first()->id;
             \App\Libraries\DBHelper::deleteRegister($list_id);
             
+            $list_id = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_profile'))->first()->id;
+            \App\Libraries\DBHelper::deleteRegister($list_id);
+            
             DB::table('dx_menu')
                     ->where('title', '=', trans('db_dx_menu.lbl_edu_users'))
+                    ->whereNull('parent_id')
+                    ->delete();
+            
+            DB::table('dx_menu')
+                    ->where('title', '=', trans('db_dx_menu.lbl_edu_myprofile'))
                     ->whereNull('parent_id')
                     ->delete();
         });
     }
         
-    private function createUserList($arr_vals, $is_addr_tab = 0) {
+    private function createUserList($arr_vals, $is_addr_tab = 0, $row_type_id = 3, $is_read_only = false) {
         $list_id = App\Libraries\DBHelper::createUI([
             'table_name' => 'dx_users',
             'list_title' => $arr_vals['list_title'],
@@ -203,8 +440,8 @@ class DxUsersVasUi extends EduMigration
             'max_lenght' => 50,
             'is_required' => 1
         ]);                                   
-        App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['row_type_id' => 3]);
-        App\Libraries\DBHelper::addFieldToView($list_id, $view->id, $fld_id);
+        App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['row_type_id' => $row_type_id, 'is_readonly' => $is_read_only]);
+        App\Libraries\DBHelper::addFieldToView($list_id, $view->id, $fld_id, ['is_item_link' => 1]);
                 
         $fld_id = DB::table('dx_lists_fields')->insertGetId([
             'list_id' => $list_id,
@@ -215,8 +452,8 @@ class DxUsersVasUi extends EduMigration
             'max_lenght' => 50,
             'is_required' => 1
         ]);                                   
-        App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['row_type_id' => 3]); 
-        App\Libraries\DBHelper::addFieldToView($list_id, $view->id, $fld_id);
+        App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['row_type_id' => $row_type_id, 'is_readonly' => $is_read_only]); 
+        App\Libraries\DBHelper::addFieldToView($list_id, $view->id, $fld_id, ['is_item_link' => 1]);
         
         $fld_id = DB::table('dx_lists_fields')->insertGetId([
             'list_id' => $list_id,
@@ -227,7 +464,7 @@ class DxUsersVasUi extends EduMigration
             'max_lenght' => 12,
             'is_required' => $arr_vals['person_code_required']
         ]);                                   
-        App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['row_type_id' => 3]);
+        App\Libraries\DBHelper::addFieldToForm($list_id, $fld_id, ['row_type_id' => $row_type_id, 'is_readonly' => $is_read_only]);
         App\Libraries\DBHelper::addFieldToView($list_id, $view->id, $fld_id);
         
         if ($is_addr_tab) {
@@ -249,7 +486,7 @@ class DxUsersVasUi extends EduMigration
             'max_lenght' => 200,
             'is_required' => 0
         ]);   
-        $arr_prop = [];
+        $arr_prop = ['is_readonly' => $is_read_only];
         if ($is_addr_tab) {
             $arr_prop['tab_id'] = $tab_addr_id;
         }
@@ -264,7 +501,7 @@ class DxUsersVasUi extends EduMigration
             'max_lenght' => 100,
             'is_required' => 0
         ]);    
-        $arr_prop = ['row_type_id' => 2];
+        $arr_prop = ['row_type_id' => 2, 'is_readonly' => $is_read_only];
         if ($is_addr_tab) {
             $arr_prop['tab_id'] = $tab_addr_id;
         }
@@ -279,7 +516,7 @@ class DxUsersVasUi extends EduMigration
             'max_lenght' => 20,
             'is_required' => 0
         ]);  
-        $arr_prop = ['row_type_id' => 2];
+        $arr_prop = ['row_type_id' => 2, 'is_readonly' => $is_read_only];
         if ($is_addr_tab) {
             $arr_prop['tab_id'] = $tab_addr_id;
         }

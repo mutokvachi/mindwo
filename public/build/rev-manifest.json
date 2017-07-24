@@ -30,5 +30,6 @@
   "css/elix_constructor_wizard.css": "css/elix_constructor_wizard-b7bc91ec.css",
   "js/elix_login.js": "js/elix_login-48058fee.js",
   "js/elix_menu_builder.js": "js/elix_menu_builder-97d95f1a.js",
-  "css/elix_menu_builder.css": "css/elix_menu_builder-844e7bbd.css"
+  "css/elix_menu_builder.css": "css/elix_menu_builder-844e7bbd.css",
+  "js/elix_timeline.js": "js/elix_timeline-af849c5d.js"
 }

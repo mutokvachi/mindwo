@@ -372,6 +372,11 @@ gulp.task('mix_all', function() {
         
         // Scripts for menu builder page
         mix.scripts([
+           'horizontal-timeline/horizontal-timeline.js'
+        ], 'public/js/elix_timeline.js', 'resources/assets/plugins');
+        
+        // Scripts for timeline widget
+        mix.scripts([
            'mindwo/pages/menu_builder.js'
         ], 'public/js/elix_menu_builder.js', 'resources/assets/plugins');
         
@@ -413,7 +418,8 @@ gulp.task('mix_all', function() {
             'css/elix_constructor_wizard.css',
             'js/elix_login.js',
             'js/elix_menu_builder.js',
-            'css/elix_menu_builder.css'
+            'css/elix_menu_builder.css',
+            'js/elix_timeline.js'
         ]);
     });
 });

@@ -66,6 +66,43 @@ class EduOrgsUsersUi extends EduMigration
                 'embeded',
                 'mobile',
             ], false);
+            
+            $def_view_id = DB::table('dx_views')
+                    ->where('list_id', '=', $list_id)
+                    ->where('title', '=', trans('db_' . $this->table_name . '.list_name'))
+                    ->first()
+                    ->id;
+            
+            DB::table('dx_views')
+                    ->where('id', '=', $def_view_id)
+                    ->update([
+                        'view_type_id' => 9,
+                        'custom_sql' => "
+                            SELECT * FROM (
+                                select
+                                        edu_orgs_users.id,
+                                        edu_orgs_users.user_id,
+                                        edu_orgs_users.org_id,
+                                        edu_orgs_users.job_title,
+                                        edu_orgs_users.email,
+                                        edu_orgs_users.phone,
+                                        edu_orgs_users.mobile,
+                                        edu_orgs_users.end_date,
+                                        edu_orgs.title as edu_orgs_2_title
+                                from
+                                        edu_orgs_users
+                                        left join edu_orgs on edu_orgs_users.org_id = edu_orgs.id
+                                where     
+                                        user_id = [ITEM_ID] AND
+                                        (
+                                        exists(select id from dx_users_roles ru where ru.role_id in (1, 74) and ru.user_id=[ME])
+                                        or
+                                        org_id in (select org_id from edu_orgs_users where user_id = [ME] and ifnull(end_date, DATE_ADD(now(), INTERVAL 1 DAY)) >=now())
+                                        )
+                                ) tb 
+                            WHERE 1 = 1
+                        " 
+            ]);
         });
     }
 

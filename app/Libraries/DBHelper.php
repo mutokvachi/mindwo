@@ -85,7 +85,12 @@ namespace App\Libraries
         /**
          * Register field type - color picker (from table dx_field_types)
          */
-        const FIELD_TYPE_COLOR = 17;        
+        const FIELD_TYPE_COLOR = 17;
+                       
+        /**
+         * Register field type - mobile phone (from table dx_field_types)
+         */
+        const FIELD_TYPE_MOBILE = 21;
                
         /**
          * Register field type - textual value from items list (from table dx_field_types)
@@ -176,6 +181,7 @@ namespace App\Libraries
             $site_id = (isset($arr_params['menu_site_id'])) ? $arr_params['menu_site_id'] : 0;
             $order_index = (isset($arr_params['menu_order_index'])) ? $arr_params['menu_order_index'] : 0;
             $fa_icon = (isset($arr_params['menu_icon'])) ? $arr_params['menu_icon'] : null;
+            $url = (isset($arr_params['menu_url'])) ? $arr_params['menu_url'] : null;
             
             if ($parent_menu_id == -1) {
                 return; // no menu needed
@@ -210,6 +216,7 @@ namespace App\Libraries
                 'title_index' => $title_index,
                 'fa_icon' => $fa_icon,
                 'group_id' => $site_id, 
+                'url' => $url,
                 'position_id' => 1 // main menu by default
             ]);
             
@@ -314,18 +321,20 @@ namespace App\Libraries
         
          /**
          * Appends a new field to the view at the end
+          * 
          * @param integer $list_id Register ID
          * @param integer $view_id Register ID
          * @param integer $fld_id Field ID
+         * @param array $arr_params Array with additional field values for dx_views_fields table
          */
-        public static function addFieldToView($list_id, $view_id, $fld_id)
+        public static function addFieldToView($list_id, $view_id, $fld_id, $arr_params = [])
         {
-            DB::table('dx_views_fields')->insert([
-                'list_id' => $list_id,
-                'view_id' => $view_id,
-                'field_id' => $fld_id,
-                'order_index' => (DB::table('dx_views_fields')->where('view_id', '=', $view_id)->max('order_index') + 10)
-            ]);
+            $arr_params['list_id'] = $list_id;
+            $arr_params['view_id'] = $view_id;
+            $arr_params['field_id'] = $fld_id;
+            $arr_params['order_index'] = DB::table('dx_views_fields')->where('view_id', '=', $view_id)->max('order_index') + 10;
+            
+            DB::table('dx_views_fields')->insert($arr_params);
         }
 
         /**

@@ -8,6 +8,7 @@ class EduSeeder extends Seeder
     const ROLE_ORG = 75;
     const ROLE_TEACH = 76;
     const ROLE_STUD = 77;
+    const ROLE_SUPPORT = 78;
     
     /**
      * Run the database seeds.
@@ -30,6 +31,8 @@ class EduSeeder extends Seeder
             
             DB::table('dx_users')
                     ->where('id', '>', 2)->delete();
+            
+            DB::table('edu_orgs')->delete();
             
             // Organizations
             $main_org = DB::table('edu_orgs')->insertGetId([
@@ -163,6 +166,12 @@ class EduSeeder extends Seeder
                 'job_title' => 'Lietvede',
             ]);
             
+            DB::table('edu_orgs_users')->insert([
+                'user_id' => $student1,
+                'org_id' => $stud_org2,
+                'job_title' => 'Lietvede',
+            ]);
+            
             DB::table('dx_users_roles')->insert([
                 'role_id' => self::ROLE_STUD,
                 'user_id' => $student1,
@@ -277,12 +286,27 @@ class EduSeeder extends Seeder
         $this->addRoleListFull(trans('db_dx_users.list_title_org'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_dx_users.list_title_teacher'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_dx_users.list_title_serv'), self::ROLE_MAIN);
-        $this->addRoleListFull(trans('db_dx_users.list_title_student'), self::ROLE_MAIN);        
-        $this->addRoleListRead(trans('db_dx_users.list_title_all'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_dx_users.list_title_student'), self::ROLE_MAIN);  
+        $this->addRoleListEditSelf(trans('db_dx_users.list_title_profile'), self::ROLE_MAIN, 'id');        
+        //$this->addRoleListRead(trans('db_dx_users.list_title_all'), self::ROLE_MAIN); // iespējams šo var ņemt ārā.., tas tikai lookupiem        
+        $this->addRoleListFull(trans('db_edu_orgs.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_orgs_users.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_certif.list_name'), self::ROLE_MAIN);
         
         $this->addRoleListFull(trans('db_dx_users.list_title_student'), self::ROLE_ORG);
-        $this->addRoleListRead(trans('db_dx_users.list_title_all'), self::ROLE_ORG);
+        $this->addRoleListEditSelf(trans('db_dx_users.list_title_profile'), self::ROLE_ORG, 'id');
+        //$this->addRoleListRead(trans('db_dx_users.list_title_all'), self::ROLE_ORG); // iespējams šo var ņemt ārā.., tas tikai lookupiem
+        $this->addRoleListRead(trans('db_edu_orgs.list_name'), self::ROLE_ORG);
+        $this->addRoleListFull(trans('db_edu_orgs_users.list_name'), self::ROLE_ORG);
+        $this->addRoleListFull(trans('db_edu_certif.list_name'), self::ROLE_ORG);
+        
+        $this->addRoleListEditSelf(trans('db_dx_users.list_title_profile'), self::ROLE_TEACH, 'id');
         $this->addRoleListRead(trans('db_dx_users.list_title_all'), self::ROLE_TEACH);
+        
+        $this->addRoleListEditSelf(trans('db_dx_users.list_title_profile'), self::ROLE_STUD, 'id');
+        $this->addRoleListReadSelf(trans('db_edu_certif.list_name'), self::ROLE_STUD, 'user_id');
+        
+        $this->addRoleListEditSelf(trans('db_dx_users.list_title_profile'), self::ROLE_SUPPORT, 'id');        
         
     }
     
@@ -298,10 +322,47 @@ class EduSeeder extends Seeder
         ]);
     }
     
+    private function addRoleListEditSelf($list_title, $role_id, $user_field) {
+        $list_id = DB::table('dx_lists')->where('list_title', '=', $list_title)->first()->id;
+        $fld_id = DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', $user_field)->first()->id;
+        
+        DB::table('dx_roles_lists')->insert([
+            'role_id' => $role_id,
+            'list_id' => $list_id,
+            'is_edit_rights' => 1,
+            'is_delete_rights' => 0,
+            'is_new_rights' => 0,
+            'is_import_rights' => 0,
+            'is_view_rights' => 0,
+            'user_field_id' => $fld_id,
+        ]);
+    }
+    
+    private function addRoleListReadSelf($list_title, $role_id, $user_field) {
+        $list_id = DB::table('dx_lists')->where('list_title', '=', $list_title)->first()->id;
+        $fld_id = DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', $user_field)->first()->id;
+
+        DB::table('dx_roles_lists')->insert([
+            'role_id' => $role_id,
+            'list_id' => $list_id,
+            'is_edit_rights' => 0,
+            'is_delete_rights' => 0,
+            'is_new_rights' => 0,
+            'is_import_rights' => 0,
+            'is_view_rights' => 0,
+            'user_field_id' => $fld_id,
+        ]);
+    }
+    
     private function addRoleListRead($list_title, $role_id) {
         DB::table('dx_roles_lists')->insert([
             'role_id' => $role_id,
-            'list_id' => DB::table('dx_lists')->where('list_title', '=', $list_title)->first()->id
+            'list_id' => DB::table('dx_lists')->where('list_title', '=', $list_title)->first()->id,
+            'is_edit_rights' => 0,
+            'is_delete_rights' => 0,
+            'is_new_rights' => 0,
+            'is_import_rights' => 0,
+            'is_view_rights' => 0
         ]);
     }
    
