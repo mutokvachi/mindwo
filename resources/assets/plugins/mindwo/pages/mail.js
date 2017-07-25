@@ -84,7 +84,7 @@
 		 */
 		initToInput: function()
 		{
-			this.to.select2({
+			this.to.select3({
 				ajax: {
 					url: this.options.url.toAutocomplete,
 					dataType: 'json',
