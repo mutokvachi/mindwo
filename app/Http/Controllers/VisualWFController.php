@@ -159,7 +159,7 @@ class VisualWFController extends Controller
      * @param boolean $getFromDb Parameter if get Xml from database if it is available
      * @return string Prepared Xml
      */
-    private function prepareXML($workflowId, $getFromDb = true)
+    public function prepareXML($workflowId, $getFromDb = true)
     {
         $workflow = \App\Models\Workflow\Workflow::find($workflowId);
 

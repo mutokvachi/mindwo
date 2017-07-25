@@ -521,9 +521,22 @@ class RegisterController extends Controller
     {
         $workflow = $this->getList()->workflows()->first();
 
+        $wf_cntrl = new App\Http\Controllers\VisualWFCOntroller();
+
+        $max_step = $wf_cntrl->getLastStep($workflow);
+        $xml_data = $wf_cntrl->prepareXML($workflow_id);
+
+        /*
+         data-xml_data = '{{ $xml_data }}' 
+     data-max_step_nr="{{ $max_step_nr }}"
+        */
+
         $result = view('constructor.workflows', [
             'step' => 'workflows',
-            'workflow' => $workflow
+            'workflow' => $workflow,
+            'workflow' => $workflow,
+            'xml_data' => $xml_data,
+            'max_step_nr' => $max_step_nr
                 ])->render();
 
         return $result;
