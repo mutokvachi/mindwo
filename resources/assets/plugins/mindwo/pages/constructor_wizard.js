@@ -20,7 +20,7 @@
 		list_id: 0,
 		view_id: 1,
 		step: 'names',
-		steps: ['names', 'columns', 'fields', 'rights'],
+		steps: ['names', 'columns', 'fields', 'rights', 'workflows'],
 		url: '/constructor/register',
 		last_url: '/skats_'
 	};
@@ -388,6 +388,11 @@
 		submit_rights: function()
 		{
 			window.location = this.getNextUrl();
+		},
+
+		submit_workflows: function()
+		{
+			$('.dx-cms-workflow-form').workflow.save();
 		}
 	});
 })(jQuery);
