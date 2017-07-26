@@ -222,29 +222,36 @@ class EduSeeder extends Seeder
             
             // Programms and subjects
             $progr1 = DB::table('edu_programms')->insertGetId([
-                'title' => 'Valsts pārvaldes juridiskie jautājumi',
-                'sub_title' => "C modulis",
+                'title' => 'U projekts',
                 'is_published' => 1,
             ]);
             
             $progr2 = DB::table('edu_programms')->insertGetId([
-                'title' => 'Vadītāju attīstības programma',
-                'sub_title' => "Demo apakšvirsraksts - iespējams nav tāds lauks nepieciešams..",
+                'title' => 'K projekts',               
                 'is_published' => 1,
             ]);
             
             $progr3 = DB::table('edu_programms')->insertGetId([
-                'title' => 'Vadības prasmes valsts pārvaldē',
-                'sub_title' => "Demo apakšvirsraksts - iespējams nav tāds lauks nepieciešams..",
-                'parent_id' => $progr2,
+                'title' => 'Pamatdarbība',                
                 'is_published' => 1,
+            ]);
+            
+            $progr4 = DB::table('edu_programms')->insertGetId([
+                'title' => 'Franču valoda',                
+                'is_published' => 1,
+            ]);
+            
+            $module1 = DB::table('edu_modules')->insertGetId([
+                'title' => 'G modulis "Saziņa ar sabiedrību, komunikācija un prasmju pilnveide valsts pārvaldē"',
+                'programm_id' => $progr3,
+                'is_published' => 1
             ]);
             
             $subj1 = DB::table('edu_subjects')->insertGetId([
                 'title' => 'Efektīva komandas sadarbība',
                 'subject_type_id' => 1,
                 'avail_id' => 1,
-                'programm_id' => $progr3,
+                'module_id' => $module1,
                 'subject_code' => 'A1',
                 'project_code' => 'U',
                 'is_published' => 1,
@@ -254,7 +261,7 @@ class EduSeeder extends Seeder
                 'title' => 'Efektīva sanāksmju vadīšana',
                 'subject_type_id' => 1,
                 'avail_id' => 1,
-                'programm_id' => $progr3,
+                'module_id' => $module1,
                 'subject_code' => 'A2',
                 'project_code' => 'U',
                 'is_published' => 1,
@@ -264,7 +271,7 @@ class EduSeeder extends Seeder
                 'title' => 'Stratēģija – tās izstrāde un ieviešana',
                 'subject_type_id' => 1,
                 'avail_id' => 1,
-                'programm_id' => $progr3,
+                'module_id' => $module1,
                 'subject_code' => 'A3',
                 'project_code' => 'U',
                 'is_published' => 1,
