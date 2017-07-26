@@ -3,9 +3,9 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class EduProgrammsAvailCreate extends Migration
+class EduProgrammsCreate extends Migration
 {
-    private $table_name = "edu_programms_avail";
+   private $table_name = "edu_programms";
     
      /**
      * Run the migrations.
@@ -21,8 +21,12 @@ class EduProgrammsAvailCreate extends Migration
             $table->increments('id');
             
             $table->string('title', 250)->comment = trans('db_' . $this->table_name.'.title');
-            $table->string('code', 20)->comment = trans('db_' . $this->table_name.'.code');
             
+            $table->string('color', 50)->nullable()->comment = trans('db_' . $this->table_name.'.color');
+            $table->text('description')->nullable()->comment = trans('db_' . $this->table_name.'.description');
+                        
+            $table->integer('is_published')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_published');
+                        
             $table->integer('created_user_id')->nullable();
             $table->datetime('created_time')->nullable();
             $table->integer('modified_user_id')->nullable();

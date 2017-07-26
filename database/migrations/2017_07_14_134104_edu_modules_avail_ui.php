@@ -5,7 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 use App\Libraries\Structure\EduMigration;
 use App\Libraries\Structure;
 
-class EduProgrammsAvailUi extends EduMigration
+class EduModulesAvailUi extends EduMigration
 {
     /**
      * Run the migrations.
@@ -16,9 +16,9 @@ class EduProgrammsAvailUi extends EduMigration
     {       
         
         DB::transaction(function () {
-            $table_name = "edu_programms_avail";
-            $list_name = trans('db_edu_programms_avail.list_name');
-            $item_name = trans('db_edu_programms_avail.item_name');
+            $table_name = "edu_modules_avail";
+            $list_name = trans('db_edu_modules_avail.list_name');
+            $item_name = trans('db_edu_modules_avail.item_name');
 
              // create register
             $obj_id = DB::table('dx_objects')->insertGetId(['db_name' => $table_name, 'title' => $list_name , 'is_history_logic' => 1]);
@@ -45,7 +45,7 @@ class EduProgrammsAvailUi extends EduMigration
             ];
             App\Libraries\DBHelper::makeMenu($arr_params);
             
-            DB::table('edu_programms_avail')->insert(trans('db_edu_programms_avail.values'));
+            DB::table('edu_modules_avail')->insert(trans('db_edu_modules_avail.values'));
             
         });
     }
@@ -58,8 +58,8 @@ class EduProgrammsAvailUi extends EduMigration
     public function edu_down()
     {        
         DB::transaction(function () {
-            \App\Libraries\DBHelper::deleteRegister('edu_programms_avail');
-            DB::table('dx_objects')->where('db_name', '=', 'edu_programms_avail')->delete();
+            \App\Libraries\DBHelper::deleteRegister('edu_modules_avail');
+            DB::table('dx_objects')->where('db_name', '=', 'edu_modules_avail')->delete();
         });
     }
 }

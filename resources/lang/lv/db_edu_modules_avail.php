@@ -2,12 +2,12 @@
 
 /*
 |--------------------------------------------------------------------------
-|Labels for CMS register (grid and form labels) - table edu_programms_avail
+|Labels for CMS register (grid and form labels) - table edu_modules_avail
 |--------------------------------------------------------------------------
 */
 return [
-    'list_name' => 'Programmu pieejamība',
-    'item_name' => 'Programmu pieejamība',
+    'list_name' => 'Moduļu pieejamība',
+    'item_name' => 'Moduļu pieejamība',
     
     'title' => 'Nosaukums',
     'code' => 'Kods',
@@ -26,12 +26,8 @@ return [
             'code' => 'AUTH_ORG'
         ],
         [
-            'title' => 'Izpildot zināšanu pārbaudījumu',
-            'code' => 'AFTER_TEST'
-        ],
-        [
-            'title' => 'Sekmīgs zināšanu pārbaudījums',
-            'code' => 'AFTER_TEST_OK'
+            'title' => 'Tikai ar uzaicinājumu',
+            'code' => 'INVITE'
         ],
     ],
 ];

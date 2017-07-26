@@ -76,7 +76,7 @@ class EduSubjectsUi extends EduMigration
             App\Libraries\DBHelper::updateFormField($list_id, "subject_type_id", ['row_type_id' => 2]);
             App\Libraries\DBHelper::updateFormField($list_id, "avail_id", ['row_type_id' => 2]);
             
-            App\Libraries\DBHelper::updateFormField($list_id, "programm_id", ['tab_id' => $tab_main_id]);
+            App\Libraries\DBHelper::updateFormField($list_id, "module_id", ['tab_id' => $tab_main_id]);
             App\Libraries\DBHelper::updateFormField($list_id, "subject_code", ['tab_id' => $tab_main_id, 'row_type_id' => 2]);
             App\Libraries\DBHelper::updateFormField($list_id, "project_code", ['tab_id' => $tab_main_id, 'row_type_id' => 2]);            
             App\Libraries\DBHelper::updateFormField($list_id, "credit_points", ['tab_id' => $tab_main_id, 'row_type_id' => 3]);
@@ -97,26 +97,7 @@ class EduSubjectsUi extends EduMigration
             App\Libraries\DBHelper::updateFormField($list_id, "is_progr_qual_test_ok_need", ['tab_id' => $tab_tests_id, 'row_type_id' => 3]);
             App\Libraries\DBHelper::updateFormField($list_id, "is_subj_qual_test_ok_need", ['tab_id' => $tab_tests_id, 'row_type_id' => 3]);
             App\Libraries\DBHelper::updateFormField($list_id, "cert_numerator_id", ['tab_id' => $tab_tests_id]);
-            
-            $prorgamm_id = DB::table('dx_lists_fields')
-                    ->where('list_id', '=', $list_id)
-                    ->where('db_name', '=', 'programm_id')
-                    ->first()->id;
-            
-            $programms_list = \App\Libraries\DBHelper::getListByTable('edu_programms');
-            
-            $programms_parent_id = DB::table('dx_lists_fields')
-                    ->where('list_id', '=', $programms_list->id)
-                    ->where('db_name', '=', 'parent_id')
-                    ->first()->id;
-            
-            DB::table('dx_lists_fields')
-                    ->where('id', '=', $prorgamm_id)
-                    ->update([
-                        'type_id' => App\Libraries\DBHelper::FIELD_TYPE_MULTILEVEL,
-                        'rel_parent_field_id' => $programms_parent_id
-                    ]);            
-            
+             
             App\Libraries\DBHelper::removeFieldsFromAllViews($list_id, [
                 'subject_code',
                 'project_code',

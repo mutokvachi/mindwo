@@ -10,10 +10,12 @@ return [
     'item_name' => 'Sertifikāts',
     
     'user_id' => 'Saņēmējs',
-    'programm_id' => 'Programma',
+    'module_id' => 'Mācību modulis',
     'subject_id' => 'Mācību pasākums',
     'reg_nr' => 'Reģistrācijas numurs',
     'reg_date' => 'Reģistrēšanas datums',
-    'file_name' => 'Datne',
-    'file_guid' => 'Datnes GUID',
+    'file_name' => 'PDF datne',
+    'file_guid' => 'PDF datnes GUID',
+    'file_word_name' => 'Word datne',
+    'file_word_guid' => 'Word datnes GUID',
 ];

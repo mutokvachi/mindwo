@@ -2,7 +2,7 @@
 
 /*
 |--------------------------------------------------------------------------
-|Labels for CMS register (grid and form labels) - table edu_banks
+|Labels for CMS register (grid and form labels) - table edu_orgs_banks
 |--------------------------------------------------------------------------
 */
 return [

@@ -3,9 +3,9 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class EduProgrammsStudentsActivitiesCreate extends Migration
+class EduModulesStudentsActivitiesCreate extends Migration
 {
-    private $table_name = "edu_programms_students_activities";
+    private $table_name = "edu_modules_students_activities";
     
      /**
      * Run the migrations.
@@ -20,12 +20,12 @@ class EduProgrammsStudentsActivitiesCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');            
             
-            $table->integer('programm_student_id')->unsigned()->comment = trans('db_' . $this->table_name.'.programm_student_id');
+            $table->integer('module_student_id')->unsigned()->comment = trans('db_' . $this->table_name.'.module_student_id');
             $table->integer('activity_id')->unsigned()->comment = trans('db_' . $this->table_name.'.activity_id');
             $table->text('notes')->nullable()->comment = trans('db_' . $this->table_name.'.notes');
             
-            $table->index('programm_student_id');            
-            $table->foreign('programm_student_id')->references('id')->on('edu_programms_students');
+            $table->index('module_student_id');            
+            $table->foreign('module_student_id')->references('id')->on('edu_modules_students');
             
             $table->index('activity_id');            
             $table->foreign('activity_id')->references('id')->on('edu_activities');

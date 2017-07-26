@@ -17,7 +17,7 @@ return [
     'price_for_teacher' => 'Pasniedzēja izmaksas, EUR',
     'price_for_rooms' => 'Telpu izmaksas, EUR',
     'project_code' => 'Projekta kods',
-    'programm_id' => 'Programma',
+    'module_id' => 'Mācību modulis',
     'credit_points' => 'Kredītpunkti',
     'learning_url' => 'Saite uz e-mācībām',
     'description' => 'Apraksts',

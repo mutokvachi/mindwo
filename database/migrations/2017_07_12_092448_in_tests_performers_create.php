@@ -21,7 +21,7 @@ class InTestsPerformersCreate extends Migration
             $table->increments('id');            
             
             $table->integer('user_id')->comment = trans('db_' . $this->table_name.'.user_id');
-            $table->integer('programm_id')->unsigned()->comment = trans('db_' . $this->table_name.'.programm_id');
+            $table->integer('module_id')->unsigned()->comment = trans('db_' . $this->table_name.'.module_id');
             $table->integer('subject_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.subject_id');
             $table->integer('test_id')->unsigned()->comment = trans('db_' . $this->table_name.'.test_id');
             $table->datetime('perform_start')->nullable()->comment = trans('db_' . $this->table_name.'.perform_start');
@@ -33,8 +33,8 @@ class InTestsPerformersCreate extends Migration
             $table->index('user_id');            
             $table->foreign('user_id')->references('id')->on('dx_users');
             
-            $table->index('programm_id');            
-            $table->foreign('programm_id')->references('id')->on('edu_programms');
+            $table->index('module_id');            
+            $table->foreign('module_id')->references('id')->on('edu_modules');
             
             $table->index('subject_id');            
             $table->foreign('subject_id')->references('id')->on('edu_subjects');

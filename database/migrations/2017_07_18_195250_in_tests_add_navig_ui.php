@@ -7,7 +7,7 @@ use App\Libraries\Structure;
 
 class InTestsAddNavigUi extends EduMigration
 {
-    private $table_name = "edu_programms";
+    private $table_name = "edu_modules";
     
     /**
      * Run the migrations.

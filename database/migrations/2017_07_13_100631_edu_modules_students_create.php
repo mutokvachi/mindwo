@@ -3,9 +3,9 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class EduProgrammsStudentsCreate extends Migration
+class EduModulesStudentsCreate extends Migration
 {
-    private $table_name = "edu_programms_students";
+    private $table_name = "edu_modules_students";
     
      /**
      * Run the migrations.
@@ -20,7 +20,7 @@ class EduProgrammsStudentsCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');            
             
-            $table->integer('programm_id')->unsigned()->comment = trans('db_' . $this->table_name.'.programm_id');
+            $table->integer('module_id')->unsigned()->comment = trans('db_' . $this->table_name.'.module_id');
             $table->integer('student_id')->comment = trans('db_' . $this->table_name.'.student_id');
             $table->integer('org_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.org_id');
             $table->datetime('applay_time')->comment = trans('db_' . $this->table_name.'.applay_time');
@@ -28,8 +28,8 @@ class EduProgrammsStudentsCreate extends Migration
             $table->integer('credit_points_earned')->nullable()->default(0)->comment = trans('db_' . $this->table_name.'.credit_points_earned');
             $table->datetime('droped_time')->nullable()->comment = trans('db_' . $this->table_name.'.droped_time');
                         
-            $table->index('programm_id');            
-            $table->foreign('programm_id')->references('id')->on('edu_programms');
+            $table->index('module_id');            
+            $table->foreign('module_id')->references('id')->on('edu_modules');
             
             $table->index('org_id');            
             $table->foreign('org_id')->references('id')->on('edu_orgs');

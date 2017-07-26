@@ -53,6 +53,19 @@ class EduCertifTemplatesUi extends EduMigration
                 'content'
             ], false);
             
+            DB::table('dx_lists_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('db_name', '=', 'file_word_name')
+                    ->update([
+                        'hint' => trans('db_' . $this->table_name . '.file_word_name_hint'),
+                    ]);
+            
+            DB::table('dx_lists_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('db_name', '=', 'file_pdf_name')
+                    ->update([
+                        'hint' => trans('db_' . $this->table_name . '.file_pdf_name_hint'),
+                    ]);
             
         });
     }

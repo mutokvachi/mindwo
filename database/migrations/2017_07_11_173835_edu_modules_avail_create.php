@@ -3,9 +3,9 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class EduProgrammsActivitiesCreate extends Migration
+class EduModulesAvailCreate extends Migration
 {
-    private $table_name = "edu_programms_activities";
+    private $table_name = "edu_modules_avail";
     
      /**
      * Run the migrations.
@@ -18,16 +18,10 @@ class EduProgrammsActivitiesCreate extends Migration
         
         Schema::create($this->table_name, function (Blueprint $table) {
             $table->engine = 'InnoDB';
-            $table->increments('id');            
+            $table->increments('id');
             
-            $table->integer('programm_id')->unsigned()->comment = trans('db_' . $this->table_name.'.programm_id');
-            $table->integer('activity_id')->unsigned()->comment = trans('db_' . $this->table_name.'.activity_id');
-            
-            $table->index('programm_id');            
-            $table->foreign('programm_id')->references('id')->on('edu_programms')->onDelete('cascade');
-            
-            $table->index('activity_id');            
-            $table->foreign('activity_id')->references('id')->on('edu_activities');
+            $table->string('title', 250)->comment = trans('db_' . $this->table_name.'.title');
+            $table->string('code', 20)->comment = trans('db_' . $this->table_name.'.code');
             
             $table->integer('created_user_id')->nullable();
             $table->datetime('created_time')->nullable();

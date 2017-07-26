@@ -21,12 +21,17 @@ class EduCertifTemplatesCreate extends Migration
             $table->increments('id');            
             
             $table->string('title', 250)->nullable()->comment = trans('db_' . $this->table_name.'.title');
-            $table->integer('programm_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.programm_id');
+            $table->integer('module_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.module_id');
             $table->integer('subject_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.subject_id');
-            $table->text('content')->nullable()->comment = trans('db_' . $this->table_name.'.content');
             
-            $table->index('programm_id');            
-            $table->foreign('programm_id')->references('id')->on('edu_programms');
+            $table->string('file_pdf_name', 500)->comment = trans('db_' . $this->table_name.'.file_pdf_name');
+            $table->string('file_pdf_guid', 50)->comment = trans('db_' . $this->table_name.'.file_pdf_guid');
+      
+            $table->string('file_word_name', 500)->comment = trans('db_' . $this->table_name.'.file_word_name');
+            $table->string('file_word_guid', 50)->comment = trans('db_' . $this->table_name.'.file_word_guid');
+                      
+            $table->index('module_id');            
+            $table->foreign('module_id')->references('id')->on('edu_modules');
             
             $table->index('subject_id');            
             $table->foreign('subject_id')->references('id')->on('edu_subjects');

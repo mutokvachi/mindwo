@@ -3,9 +3,9 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class EduProgrammsCreate extends Migration
+class EduModulesCreate extends Migration
 {
-    private $table_name = "edu_programms";
+    private $table_name = "edu_modules";
     
      /**
      * Run the migrations.
@@ -21,8 +21,8 @@ class EduProgrammsCreate extends Migration
             $table->increments('id');
             
             $table->string('title', 250)->comment = trans('db_' . $this->table_name.'.title');
-            $table->string('sub_title', 250)->comment = trans('db_' . $this->table_name.'.sub_title');
-            $table->integer('parent_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.parent_id');
+            
+            $table->integer('programm_id')->unsigned()->comment = trans('db_' . $this->table_name.'.programm_id');
             $table->integer('avail_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.avail_id');
             $table->integer('icon_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.icon_id');
             $table->text('description')->nullable()->comment = trans('db_' . $this->table_name.'.description');
@@ -36,7 +36,7 @@ class EduProgrammsCreate extends Migration
             $table->foreign('icon_id')->references('id')->on('dx_icons_files');
             
             $table->index('avail_id');            
-            $table->foreign('avail_id')->references('id')->on('edu_programms_avail');
+            $table->foreign('avail_id')->references('id')->on('edu_modules_avail');
             
             $table->index('needs_survey_id');            
             $table->foreign('needs_survey_id')->references('id')->on('in_tests');
@@ -44,8 +44,8 @@ class EduProgrammsCreate extends Migration
             $table->index('qualify_test_id');            
             $table->foreign('qualify_test_id')->references('id')->on('in_tests');
             
-            $table->index('parent_id');            
-            $table->foreign('parent_id')->references('id')->on($this->table_name);
+            $table->index('programm_id');            
+            $table->foreign('programm_id')->references('id')->on('edu_programms');
             
             $table->index('cert_numerator_id');            
             $table->foreign('cert_numerator_id')->references('id')->on('dx_numerators');

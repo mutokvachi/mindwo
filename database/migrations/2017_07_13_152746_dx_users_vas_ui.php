@@ -16,14 +16,7 @@ class DxUsersVasUi extends EduMigration
     {        
         DB::transaction(function () {
             
-            // create parent menu
-            $arr_params = [
-                'menu_list_id' => null, 
-                'list_title' => trans('db_dx_menu.lbl_edu_users'),
-                'menu_parent_id' => null,
-                'menu_order_index' => 20,
-            ];
-            $parent_menu_id = App\Libraries\DBHelper::makeMenu($arr_params);
+            $parent_menu_id = DB::table('dx_menu')->where('title', '=', trans('db_dx_menu.lbl_edu_users'))->where('id', '!=', 13)->first()->id;
             
             $this->createUserList([
                 'list_title' => trans('db_dx_users.list_title_edu'),
@@ -408,11 +401,6 @@ class DxUsersVasUi extends EduMigration
             
             $list_id = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_profile'))->first()->id;
             \App\Libraries\DBHelper::deleteRegister($list_id);
-            
-            DB::table('dx_menu')
-                    ->where('title', '=', trans('db_dx_menu.lbl_edu_users'))
-                    ->whereNull('parent_id')
-                    ->delete();
             
             DB::table('dx_menu')
                     ->where('title', '=', trans('db_dx_menu.lbl_edu_myprofile'))

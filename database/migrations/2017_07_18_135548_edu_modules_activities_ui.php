@@ -5,9 +5,9 @@ use Illuminate\Database\Migrations\Migration;
 use App\Libraries\Structure\EduMigration;
 use App\Libraries\Structure;
 
-class EduProgrammsActivitiesUi extends EduMigration
+class EduModulesActivitiesUi extends EduMigration
 {
-    private $table_name = "edu_programms_activities";
+    private $table_name = "edu_modules_activities";
     
     /**
      * Run the migrations.
@@ -41,13 +41,13 @@ class EduProgrammsActivitiesUi extends EduMigration
             DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1, 'is_import_rights' => 1, 'is_view_rights' => 1]); // Sys admins            
                        
             // Add tab to programms
-            $subj_list = \App\Libraries\DBHelper::getListByTable("edu_programms");
+            $subj_list = \App\Libraries\DBHelper::getListByTable("edu_modules");
             $form = DB::table('dx_forms')->where('list_id', '=', $subj_list->id)->first();
-            $subj_field = DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'programm_id')->first();
+            $subj_field = DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'module_id')->first();
             
             $tab_main_id = DB::table('dx_forms_tabs')->insertGetId([
                 'form_id' => $form->id,
-                'title' => trans('db_edu_programms.tab_activities'),
+                'title' => trans('db_edu_modules.tab_activities'),
                 'is_custom_data' => 0,
                 'order_index' => 40,
                 'grid_list_id' => $list_id,

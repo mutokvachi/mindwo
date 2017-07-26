@@ -2,14 +2,14 @@
 
 /*
 |--------------------------------------------------------------------------
-|Labels for CMS register (grid and form labels) - table edu_programms_students
+|Labels for CMS register (grid and form labels) - table edu_modules_students
 |--------------------------------------------------------------------------
 */
 return [
-    'list_name' => 'Programmu dalībnieki',
-    'item_name' => 'Programmas dalībnieks',
+    'list_name' => 'Mācību moduļu dalībnieki',
+    'item_name' => 'Mācību moduļa dalībnieks',
     
-    'programm_id' => 'Programma',
+    'module_id' => 'Mācību modulis',
     'student_id' => 'Dalībnieks',
     'org_id' => 'Organizācija',
     'applay_time' => 'Pieteikšanās laiks',

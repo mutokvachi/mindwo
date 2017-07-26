@@ -24,7 +24,7 @@ class EduSubjectsCreate extends Migration
             $table->integer('subject_type_id')->unsigned()->comment = trans('db_' . $this->table_name.'.subject_type_id');
             $table->integer('avail_id')->unsigned()->comment = trans('db_' . $this->table_name.'.avail_id');
             
-            $table->integer('programm_id')->unsigned()->comment = trans('db_' . $this->table_name.'.programm_id');            
+            $table->integer('module_id')->unsigned()->comment = trans('db_' . $this->table_name.'.module_id');            
             $table->string('subject_code', 50)->comment = trans('db_' . $this->table_name.'.subject_code');
             $table->string('project_code', 50)->comment = trans('db_' . $this->table_name.'.project_code');
             $table->integer('credit_points')->nullable()->default(0)->comment = trans('db_' . $this->table_name.'.credit_points');
@@ -48,10 +48,10 @@ class EduSubjectsCreate extends Migration
             
             
             $table->index('avail_id');            
-            $table->foreign('avail_id')->references('id')->on('edu_programms_avail');
+            $table->foreign('avail_id')->references('id')->on('edu_modules_avail');
             
-            $table->index('programm_id');            
-            $table->foreign('programm_id')->references('id')->on('edu_programms');
+            $table->index('module_id');            
+            $table->foreign('module_id')->references('id')->on('edu_modules');
             
             $table->index('subject_type_id');            
             $table->foreign('subject_type_id')->references('id')->on('edu_subjects_types');

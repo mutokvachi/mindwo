@@ -5,9 +5,9 @@ use Illuminate\Database\Migrations\Migration;
 use App\Libraries\Structure\EduMigration;
 use App\Libraries\Structure;
 
-class EduProgrammsStudentsUi extends EduMigration
+class EduModulesStudentsActivitiesUi extends EduMigration
 {
-    private $table_name = "edu_programms_students";
+   private $table_name = "edu_modules_students_activities";
     
     /**
      * Run the migrations.
@@ -38,29 +38,21 @@ class EduProgrammsStudentsUi extends EduMigration
             \App\Libraries\DBHelper::removeFieldsFromAllForms($this->table_name, ['id'], false);
             
             // user rights
-            DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1, 'is_import_rights' => 1, 'is_view_rights' => 1]); // Sys admins
+            DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1, 'is_import_rights' => 1, 'is_view_rights' => 1]); // Sys admins            
+                       
+            // Add tab to programms
+            $subj_list = \App\Libraries\DBHelper::getListByTable("edu_modules_students");
+            $form = DB::table('dx_forms')->where('list_id', '=', $subj_list->id)->first();
+            $subj_field = DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'module_student_id')->first();
             
-            // menu
-            $parent_menu = DB::table('dx_menu')->where('title', '=', trans('db_dx_menu.lbl_edu_learning'))->first();
-            $arr_params = [
-                'menu_list_id' => $list_id, 
-                'list_title' => trans('db_' . $this->table_name . '.list_name'),
-                'menu_parent_id' => $parent_menu->id
-            ];
-            App\Libraries\DBHelper::makeMenu($arr_params);
-            
-            // fix students related grid ID
-            $student_list = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_student'))->first();            
-            $student_display = DB::table('dx_lists_fields')->where('list_id', '=', $student_list->id)->where('db_name', '=', 'display_name')->first();
-            
-            DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'student_id')->update([
-                'rel_list_id' => $student_list->id,
-                'rel_display_field_id' => $student_display->id
+            $tab_main_id = DB::table('dx_forms_tabs')->insertGetId([
+                'form_id' => $form->id,
+                'title' => trans('db_edu_modules_students.tab_activities'),
+                'is_custom_data' => 0,
+                'order_index' => 10,
+                'grid_list_id' => $list_id,
+                'grid_list_field_id' => $subj_field->id
             ]);
-            
-            App\Libraries\DBHelper::updateFormField($list_id, "applay_time", ['row_type_id' => 3]);
-            App\Libraries\DBHelper::updateFormField($list_id, "is_approved", ['row_type_id' => 3]);
-            App\Libraries\DBHelper::updateFormField($list_id, "credit_points_earned", ['row_type_id' => 3]);
         });
     }
 
