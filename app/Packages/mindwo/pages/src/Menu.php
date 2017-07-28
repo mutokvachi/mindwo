@@ -192,7 +192,8 @@ namespace mindwo\pages
                         'view_id' => $row->view_id,
                         'menu_id' => $row->id,
                         'order_index' => $row->order_index,
-                        'parent_id' => $row->parent_id
+                        'parent_id' => $row->parent_id,
+                        'head_title' => $row->head_title
                     ])->render();
                 }
 
@@ -243,6 +244,7 @@ namespace mindwo\pages
                             ,v.id as view_id
                             ,m.order_index
                             ,m.parent_id
+                            ,m.head_title
                     FROM
                             dx_menu m
                             left join dx_views v on m.list_id = v.list_id AND v.is_default = 1
