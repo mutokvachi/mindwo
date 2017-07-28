@@ -175,5 +175,11 @@ a {
   color: #fff;
   background-color: #E43A45!important;
 }
+#navbar .dropdown-menu .heading {
+  background-color: #3a3a3a;
+  padding-left: 15px;
+  font-size: 12px;
+  color: #c9bebe;
+}
 
 /*# sourceMappingURL=elix_colors_grayred.css.map */
