@@ -22,11 +22,11 @@ class EduSeeder extends Seeder
             DB::table('edu_subjects_groups')->delete();
             DB::table('edu_orgs_users')->delete();
             DB::table('dx_users_roles')
-                    ->whereIn('role_id', [self::ROLE_MAIN, self::ROLE_ORG, self::ROLE_TEACH])
+                    ->whereIn('role_id', [self::ROLE_MAIN, self::ROLE_ORG, self::ROLE_TEACH, self::ROLE_STUD, self::ROLE_SUPPORT])
                     ->delete();
             
             DB::table('dx_roles_lists')
-                    ->whereIn('role_id', [self::ROLE_MAIN, self::ROLE_ORG, self::ROLE_TEACH])
+                    ->whereIn('role_id', [self::ROLE_MAIN, self::ROLE_ORG, self::ROLE_TEACH, self::ROLE_STUD, self::ROLE_SUPPORT])
                     ->delete();
             
             DB::table('dx_tasks')->delete();

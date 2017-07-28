@@ -14,8 +14,9 @@ return [
     'lesson_date' => 'Nodarbības datums',
     'time_from' => 'Laiks no',
     'time_to' => 'Laiks līdz',
-    'room_nr' => 'Telpas numurs',
+    'room_id' => 'Mācību telpa',
     'notes' => 'Piezīmes',
+    'room_title' => 'telpa nr.',
     
     // tabs
     'tab_notes' => 'Piezīmes',
