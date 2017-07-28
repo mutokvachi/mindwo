@@ -1,9 +1,5 @@
 <input class="dx-cms-workflow-form-input-workflow_id" type="hidden" value="{{ $item_id }}"/> 
-<input class="dx-cms-workflow-form-input-list_id" type="hidden" value="{{ $wf_register_id }}"/> 
-<div class="form-group">
-    <div class="dx-cms-workflow-form-label-list">{{ trans('workflow.list') }}</div>
-    <input class="form-control dx-cms-workflow-form-input-list" type="text" maxlength="500" disabled value="{{ $wf_register_name }}"/>  
-</div>
+<input class="dx-cms-workflow-form-input-list_id" type="hidden" value="{{ $wf_register_id }}"/>
 <div class="form-group">
     <div class="dx-cms-workflow-form-label-title">{{ trans('workflow.title') }}</div>
     <textarea class="form-control dx-cms-workflow-form-input-title" name="title" rows="4" maxlength="255" >{{ ($workflow ? $workflow->title : '') }}</textarea>

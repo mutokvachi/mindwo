@@ -392,7 +392,21 @@
 
 		submit_workflows: function()
 		{
-			$('.dx-cms-workflow-form').workflow.save();
+			var self = this;
+
+			if($('.dx-cms-workflow-form-input-title').val().trim().length > 0){
+				var workflow = $('.dx-cms-workflow-form')[0].workflow;
+
+				workflow.saveCallback = function () {
+					if (workflow.isGraphInit) {
+						window.location = self.getNextUrl();
+					}
+				}
+
+				workflow.save({ self: workflow, initGraph: true });
+			} else {
+				window.location = self.getNextUrl();
+			}
 		}
 	});
 })(jQuery);

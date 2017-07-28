@@ -15,19 +15,19 @@ class VisualWFController extends Controller
 
     /**
      * List of cell's Ids
-     * @var array 
+     * @var array
      */
     private $xml_cell_list = [];
 
     /**
      * Current workflow's Id
-     * @var int 
+     * @var int
      */
     private $workflow_id = 0;
 
     /**
      * Array of error found in validation process
-     * @var array 
+     * @var array
      */
     private $error_stack = [];
 
@@ -203,7 +203,7 @@ class VisualWFController extends Controller
     }
 
     /**
-     * 
+     *
      * @param SimpleXMLElement $root Xml object
      * @param string $value Value of the cell
      * @param string $step_id Step's ID
@@ -232,7 +232,7 @@ class VisualWFController extends Controller
             $has_arrow_labels = 1;
             $arrow_count = 2;
             $shape = 'rhombus';
-        } else if ($type_code == 'ENDPOINT') {
+        } elseif ($type_code == 'ENDPOINT') {
             $arrow_count = 1;
             $shape = 'ellipse';
         } elseif ($type_code == 'SET') {
@@ -292,7 +292,7 @@ class VisualWFController extends Controller
     }
 
     /**
-     * 
+     *
      * @param SimpleXMLElement $root Xml object
      * @param string $next_step_nr Next steps number
      * @param int $x Position X
@@ -326,7 +326,7 @@ class VisualWFController extends Controller
     }
 
     /**
-     * Creates arrow graph object 
+     * Creates arrow graph object
      * @param SimpleXMLElement $root Xml object
      * @param string $parent Parents Id
      * @param string $child Childs Id
@@ -377,21 +377,31 @@ class VisualWFController extends Controller
 
         $xlm_data = $request->input('xml_data');
 
-       /* $workflow->list_id = $request->input('list_id');
-        $workflow->title = $request->input('title');
-        $workflow->description = $request->input('description');
-        $workflow->is_custom_approve = $request->input('is_custom_approve');
+        $has_wf_details = $request->input('has_wf_details') == 1;
 
-        $date_format = config('dx.txt_date_format');
-        $valid_to = $request->input('valid_to');
-        if ($valid_to && strlen(trim($valid_to)) > 0) {
-            $workflow->valid_to = date_create_from_format($date_format, $request->input('valid_to'));
+        $wf_title = $request->input('title');
+
+        if ($has_wf_details == 1) {
+            if(!$wf_title || strlen(trim($wf_title)) <= 0){
+                return response()->json(['success' => 0]);
+            }
+
+            $workflow->list_id = $request->input('list_id');
+            $workflow->title = trim($wf_title);
+            $workflow->description = $request->input('description');
+            $workflow->is_custom_approve = $request->input('is_custom_approve');
+
+            $date_format = config('dx.txt_date_format');
+            $valid_to = $request->input('valid_to');
+            if ($valid_to && strlen(trim($valid_to)) > 0) {
+                $workflow->valid_to = date_create_from_format($date_format, $request->input('valid_to'));
+            }
+
+            $valid_from = $request->input('valid_from');
+            if ($valid_from && strlen(trim($valid_from)) > 0) {
+                $workflow->valid_from = date_create_from_format($date_format, $request->input('valid_from'));
+            }
         }
-
-        $valid_from = $request->input('valid_from');
-        if ($valid_from && strlen(trim($valid_from)) > 0) {
-            $workflow->valid_from = date_create_from_format($date_format, $request->input('valid_from'));
-        }*/
 
         if ($xlm_data && strlen(trim($xlm_data)) > 0) {
             $workflow->visual_xml = $xlm_data;
@@ -562,11 +572,11 @@ class VisualWFController extends Controller
             'item_id' => 'required|integer|exists:dx_workflows_def,id'
         ]);
 
-        $workflow_id = $request->input('item_id', 0);        
+        $workflow_id = $request->input('item_id', 0);
 
         if ($workflow_id > 0) {
             $workflow = \App\Models\Workflow\Workflow::find($workflow_id);
-        } else{
+        } else {
             return 'Workflow not saved';
         }
         

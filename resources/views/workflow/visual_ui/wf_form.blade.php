@@ -14,9 +14,7 @@
                         @include('workflow.visual_ui.wf_details', [
                                 'workflow' => $workflow,
                                 'item_id' => $workflow ? $workflow->id : 0,
-                                'wf_register_id' => $wf_register_id,
-                                'wf_register_name' => $wf_register_name
-
+                                'wf_register_id' => $wf_register_id
                         ])
                     </div>
                     <div class="tab-pane dx-cms-workflow-form-tab-steps" id="dx-cms-workflow-form-tab-steps">
@@ -26,15 +24,11 @@
                                 'xml_data' => $xml_data,
                                 'item_id' => $workflow ? $workflow->id : 0,
                                 'wf_register_id' => $wf_register_id,
-                                'wf_register_name' => $wf_register_name,
                                 'max_step_nr' => $max_step_nr
                             ])
                     </div>
                 </div>
             </div>
-        </div>
-        <div>       
-            <button type="button" class="btn btn-primary dx-cms-workflow-form-btn-save">&nbsp;{{ trans('workflow.save') }}</button>
         </div>
 </div>
 <!-- 

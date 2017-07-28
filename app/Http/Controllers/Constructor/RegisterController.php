@@ -519,22 +519,19 @@ class RegisterController extends Controller
      */
     public function editWorkflows($id)
     {
-        $list = $this->getList();
-
-        if ($list) {
-            $list_title = $list->list_title;
-            $wf_register_id = $list->id;
-        } else {
-            $list_title = '';
-            $wf_register_id = 0;
-        }
-
-        $workflow = $list->workflows()->first();
+        $workflow = $this->getList()->workflows()->first();
 
         if ($workflow) {        
             $wf_cntrl = new \App\Http\Controllers\VisualWFCOntroller();
 
-            $max_step_nr = $wf_cntrl->getLastStep($workflow);
+            $max_step = $wf_cntrl->getLastStep($workflow);
+
+            if ($max_step) {
+                $max_step_nr = $max_step->step_nr;
+            } else {
+                $max_step_nr = 0;
+            }
+
             $xml_data = $wf_cntrl->prepareXML($workflow->id);
         } else {
             $max_step_nr = 0;
@@ -546,8 +543,7 @@ class RegisterController extends Controller
             'workflow' => $workflow,
             'xml_data' => $xml_data,
             'max_step_nr' => $max_step_nr,
-            'wf_register_id' => $wf_register_id,
-            'wf_register_name' => $list_title,
+            'wf_register_id' => $id
                 ])->render();
 
         return $result;

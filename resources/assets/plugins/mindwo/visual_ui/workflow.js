@@ -56,6 +56,11 @@ mxBasePath = '/js/plugins/mxgraph/src';
          */
         this.isSending = false;
 
+        /**
+         * Callback function which is called after data is saved;
+         */
+        this.saveCallback = false;
+
         this.isGraphInit = false;
 
         this.dateFormat = '';
@@ -207,18 +212,9 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 return;
             }
 
-
             show_form_splash(1);
 
             self.domObject.data('dx_is_init', '1');
-
-            var footer = self.domObject.closest('.modal-content').find('.modal-footer');
-            footer.prepend('<button type="button" class="btn btn-primary dx-cms-workflow-form-btn-save">&nbsp;' + Lang.get('workflow.save') + '</button>');
-
-            self.domObject.closest('.modal').on('hidden.bs.modal', function () {
-                $(this).unbind("hidden.bs.modal");
-                $('.dx-cms-workflow-form-btn-save', $(this)).remove();
-            });
 
             // Sets parameters
             self.workflowId = self.domObject.data('wf_id');
@@ -228,20 +224,29 @@ mxBasePath = '/js/plugins/mxgraph/src';
             self.locale = self.domObject.data('locale');
             self.max_step_nr = self.domObject.data('max_step_nr');
 
-            self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_from');
-            self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_to');
-
-            $('.dx-cms-workflow-form-btn-save', footer).click(function () {
-                self.save({ self: self, initGraph: false });
-            });
-
             var stepBtn = $('.dx-cms-workflow-form-tab-steps-btn');
 
+            // If tab btn found then workflow is opened from consturctor else it is opened from register (advanced) 
             if (stepBtn.length > 0) {
                 stepBtn.click(function () {
                     return self.onStepsTabClick(self);
                 });
+
+                self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_from');
+                self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_to');
             } else {
+                var footer = self.domObject.closest('.modal-content').find('.modal-footer');
+                footer.prepend('<button type="button" class="btn btn-primary dx-cms-workflow-form-btn-save">&nbsp;' + Lang.get('workflow.save') + '</button>');
+
+                self.domObject.closest('.modal').on('hidden.bs.modal', function () {
+                    $(this).unbind("hidden.bs.modal");
+                    $('.dx-cms-workflow-form-btn-save', $(this)).remove();
+                });
+
+                $('.dx-cms-workflow-form-btn-save', footer).click(function () {
+                    self.save({ self: self, initGraph: false });
+                });
+
                 self.initGraph(self);
             }
 
@@ -266,7 +271,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
             }
         },
         initDatePickers: function (self, picker_name) {
-            var picker = $(picker_name, self.domObject);
+            var picker = $(picker_name);
 
             picker.datetimepicker({
                 lang: self.locale,
@@ -276,8 +281,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 closeOnDateSelect: true
             });
 
-            $(picker_name + '-calc', self.domObject).click(function (e) {
-                $(picker_name, self.domObject).datetimepicker('show');
+            $(picker_name + '-calc').click(function (e) {
+                $(picker_name).datetimepicker('show');
             });
         },
         /**
@@ -307,7 +312,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
                         notify_err(Lang.get('errors.unknown_error'));
                     }
                 });
-            }, { self: self }, Lang.get('workflow.arrange'), Lang.get('workflow.arrange_text'));
+            }, { self: self }, Lang.get('workflow.arrange'), Lang.get('workflow.arrange_text') + '<br>' + Lang.get('workflow.arrangee_tooltip'));
         },
         /**
          * Initializes graph
@@ -446,8 +451,14 @@ mxBasePath = '/js/plugins/mxgraph/src';
                             if (this.currentState != null && (me.getState() == this.currentState ||
                                 me.getState() == null)) {
                                 var tol = iconTolerance;
-                                var scroll_y = self.domObject.closest('.modal-body')[0].scrollTop;
-                                var scroll_x = self.domObject.closest('.modal-body')[0].scrollLeft;
+
+                                if ($('.dx-cms-workflow-form-tab-steps-btn').length > 0) {
+                                    var scroll_y = 0;
+                                    var scroll_x = 0;
+                                } else {
+                                    var scroll_y = self.domObject.closest('.modal-body')[0].scrollTop;
+                                    var scroll_x = self.domObject.closest('.modal-body')[0].scrollLeft;
+                                }
 
                                 var tmp = new mxRectangle(me.getGraphX() - tol - scroll_x,
                                     me.getGraphY() - tol - scroll_y, 2 * tol, 2 * tol);
@@ -553,22 +564,24 @@ mxBasePath = '/js/plugins/mxgraph/src';
         },
         onBeforeFormShow: function (form, self, stepId) {
             form.find('div[dx_fld_name_form=id]').hide();
-            // form.find('div[dx_fld_name_form=step_nr]').hide();
-            // form.find('div[dx_fld_name_form=yes_step_nr]').hide();
-            //  form.find('div[dx_fld_name_form=no_step_nr]').hide();
+            form.find('div[dx_fld_name_form=step_nr]').hide();
+            form.find('div[dx_fld_name_form=yes_step_nr]').hide();
+            form.find('div[dx_fld_name_form=no_step_nr]').hide();
             form.find('div[dx_fld_name_form=workflow_def_id]').hide();
             form.find('div[dx_fld_name_form=list_id]').hide();
 
-            form.find('input[name=step_nr]').val(self.max_step_nr);
+            if (stepId == 0) {
+                form.find('input[name=step_nr]').val(self.max_step_nr);
+            }
 
             form.find('select[dx_fld_name=workflow_def_id]').val(self.workflowId);
             form.find('select[dx_fld_name=workflow_def_id]').change();
             form.find('select[dx_fld_name=list_id]').val(self.wfRegisterListId);
             form.find('select[dx_fld_name=list_id]').change();
 
-            /*  form.find('select[dx_fld_name=task_type_id]').on('change', function (e, o) {
-                  form.find('div[dx_fld_name_form=no_step_nr]').hide();
-              });*/
+            form.find('select[dx_fld_name=task_type_id]').on('change', function (e, o) {
+                   form.find('div[dx_fld_name_form=no_step_nr]').hide();
+             });
         },
         onAfterFormClose: function (form, self, vertex) {
             var stepId = form.find('input[name=id]').val();
@@ -787,6 +800,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
             var data = {
                 workflow_id: self.workflowId,
                 xml_data: xml,
+                has_wf_details: $('.dx-cms-workflow-form-tab-steps-btn').length > 0 ? 1 : 0,
                 list_id: $('.dx-cms-workflow-form-input-list_id').val(),
                 title: $('.dx-cms-workflow-form-input-title').val(),
                 description: $('.dx-cms-workflow-form-input-description').val(),
@@ -813,14 +827,18 @@ mxBasePath = '/js/plugins/mxgraph/src';
             if (data && data.success == 1) {
                 self.workflowId = data.html;
                 notify_info(Lang.get('workflow.success'));
+
+                if (self.saveCallback) {
+                    self.saveCallback();
+                }
             } else {
                 self.showError(data);
             }
 
-            self.isSending = false;
+            self.isSending = false;            
 
             if (initGraph && !self.isGraphInit) {
-                $('.dx-cms-workflow-form-tab-steps-btn', self.domObject).click();
+                $('.dx-cms-workflow-form-tab-steps-btn').click();
             }
 
             hide_form_splash(1);
