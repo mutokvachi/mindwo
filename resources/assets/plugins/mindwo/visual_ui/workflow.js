@@ -7,6 +7,10 @@ mxBasePath = '/js/plugins/mxgraph/src';
      */
     $.fn.DxWorkflow = function () {
         return this.each(function () {
+            if ($(this).data('dx_is_init') == 1) {
+                return;
+            }
+
             this.workflow = new $.DxWorkflow($(this));
         });
     };
@@ -188,7 +192,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
             };
         },
         editWorkflowStep: function (self, stepId, vertex) {
-            if (typeof stepId === 'undefined' || stepId < 0) {
+            if (typeof stepId === 'undefined' || stepId <= 0) {
                 stepId = 0;
                 self.max_step_nr += 10;
             }
@@ -207,10 +211,6 @@ mxBasePath = '/js/plugins/mxgraph/src';
         },
         init: function () {
             var self = this;
-
-            if (self.domObject.data('dx_is_init') == 1) {
-                return;
-            }
 
             show_form_splash(1);
 
