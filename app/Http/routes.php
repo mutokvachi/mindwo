@@ -283,6 +283,7 @@ Route::post('theme/select/{id}', ['middleware' => 'auth_ajax', 'uses' => 'ThemeC
 Route::group(['middleware' => ['auth', 'constructor_access'], 'prefix' => 'constructor', 'namespace' => 'Constructor'], function() {
 	Route::get('/register', ['as' => 'register_index', 'uses' => 'RegisterController@index']);
 	Route::get('/register/create', ['as' => 'register_create', 'uses' => 'RegisterController@create']);
+	Route::delete('/register/tab/{id}', ['as' => 'register_delete_tab', 'middleware' => 'auth_ajax', 'uses' => 'RegisterController@deleteTab']);
 	Route::post('/register', ['as' => 'register_store', 'uses' => 'RegisterController@store']);
 	Route::get('/register/{id}', ['as' => 'register_edit', 'uses' => 'RegisterController@edit']);
 	Route::put('/register/{id}', ['as' => 'register_update', 'uses' => 'RegisterController@update']);
@@ -292,7 +293,6 @@ Route::group(['middleware' => ['auth', 'constructor_access'], 'prefix' => 'const
 	Route::put('/register/{id}/fields', ['as' => 'register_update_fields', 'uses' => 'RegisterController@updateFields']);
 	Route::put('/register/{id}/field_update', ['as' => 'register_update_field', 'uses' => 'RegisterController@updateField']);
 	Route::get('/register/{id}/rights', ['as' => 'register_edit_rights', 'uses' => 'RegisterController@editRights']);
-	Route::put('/register/{id}/rights', ['as' => 'register_update_rights', 'uses' => 'RegisterController@updateRights']);
 	Route::get('/db_fields/{list_id}/{field_type_id}', ['as' => 'register_get_db_fields', 'uses' => 'FieldsController@getDBFields']);
         Route::get('/menu/{site_id}', ['as' => 'menu_builder', 'uses' => 'MenuController@getMenuBuilderPage']);
         Route::put('/menu/{site_id}', ['as' => 'menu_builder_update', 'uses' => 'MenuController@updateMenu']);

@@ -13,10 +13,11 @@ class FormField extends Model
 		'list_id',
 		'form_id',
 		'field_id',
+		'tab_id',
 		'order_index',
 		'row_type_id',
 		'created_user_id',
 		'modified_user_id',
-                'is_hidden'
+		'is_hidden'
 	];
 }

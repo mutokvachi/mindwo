@@ -11,9 +11,15 @@
   <script>
 	  $(document).ready(function()
 	  {
+		  $.fn.ConstructorGrid.defaults.rowHtml = `@include('constructor.fields_row')`;
+		  
+		  $.fn.ConstructorTabs.defaults.tabButton = `@include('constructor.fields_tab', [ 'tab' => null ])`;
+		  $.fn.ConstructorTabs.defaults.relatedHtml = `@include('constructor.fields_related')`;
+		  
 		  $('.dx-constructor-wrap').ConstructorWizard({
 			  list_id: {{ $list_id }},
 			  view_id: {{ $view_id }},
+			  form_id: {{ $form_id }},
 			  step: '{{ $step }}'
 		  });
 	  });
