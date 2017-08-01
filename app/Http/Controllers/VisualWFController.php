@@ -32,6 +32,20 @@ class VisualWFController extends Controller
     private $error_stack = [];
 
     /**
+     * Current step counter when ordering steps on save
+     *
+     * @var integer
+     */
+    private $step_counter = 0;
+
+    /**
+     * ID's of all saved steps on saving operation. All other which are not saved will be deleted.
+     *
+     * @var array
+     */
+    private $saved_steps = [];
+
+    /**
      * Test method to draw graph
      * @return type
      */
@@ -55,7 +69,7 @@ class VisualWFController extends Controller
 
         $xml_data = $this->prepareXML($workflow_id);
 
-        $max_step = $this->getMaxStep($workflow);
+        $max_step = $this->getLastStep($workflow);
 
         if ($max_step) {
             $max_step_nr = $max_step->step_nr;
@@ -86,29 +100,18 @@ class VisualWFController extends Controller
     public function getFirstStep($workflow)
     {
         if ($workflow) {
-            $workflow_steps = \DB::Select('select d.id
-                from dx_workflows d
-                left join dx_workflows dc on d.workflow_def_id = dc.workflow_def_id
-                        AND (d.step_nr = dc.yes_step_nr OR d.step_nr = dc.no_step_nr)
-                where d.workflow_def_id = ?
-                group by d.id
-                having count(dc.id) <= 0
-                order by d.modified_time desc', [$workflow->id]);
-
-            $first_step = \App\Models\Workflow\WorkflowStep::find($workflow_steps[0]->id);
-
-            return $first_step;
+            return $workflow->workflowSteps()->orderBy('step_nr', 'ASC')->first();
         } else {
             return null;
         }
     }
 
     /**
-     * Gets max step of workflow
+     * Gets last step of workflow
      * @param \App\Models\Workflow\Workflow $workflow Workflow object
      * @return \App\Models\Workflow\WorkflowStep First workflow's step
      */
-    public function getMaxStep($workflow)
+    public function getLastStep($workflow)
     {
         if ($workflow) {
             return $workflow->workflowSteps()->orderBy('step_nr', 'DESC')->first();
@@ -139,7 +142,7 @@ class VisualWFController extends Controller
 
     private function deleteNotConnected($workflow, $first_step)
     {
-       /* $workflow_steps = \DB::Select('select d.id
+        $workflow_steps = \DB::Select('select d.id
             from dx_workflows d
             left join dx_workflows dc on d.workflow_def_id = dc.workflow_def_id
                     AND (d.step_nr = dc.yes_step_nr OR d.step_nr = dc.no_step_nr)
@@ -149,9 +152,6 @@ class VisualWFController extends Controller
 
         $first_step_id = ($first_step ? $first_step->id : 0);
 
-        
-        \Log::info('First step id: ' . $first_step_id);
-
         $workflow_steps_ids = [];
         foreach ($workflow_steps as $step) {
             if ($step->id != $first_step_id) {
@@ -159,7 +159,7 @@ class VisualWFController extends Controller
             }
         }
 
-        \App\Models\Workflow\WorkflowStep::destroy($workflow_steps_ids);*/
+        \App\Models\Workflow\WorkflowStep::destroy($workflow_steps_ids);
     }
 
 
@@ -306,17 +306,22 @@ class VisualWFController extends Controller
         $mxGeometry->addAttribute('y', $y);
 
         // Creates last element
-        if ((!$yes_step_nr || $yes_step_nr <= 0) && $type_code != 'ENDPOINT') {
-            $this->createMxCell($root, false, -1, ($step_nr + 1), 0, 0, 'ENDPOINT', $x, $y + $height + 30);
-            $this->createArrow($root, $step_nr, ($step_nr + 1), '', true);
-
-            if($no_step_nr && $no_step_nr > 0){
-                $this->createNextCell($root, $no_step_nr, $x + $width + 40, $y + $height + 30, $shape, $step_nr, false);
-            }
-        } else {
+        if ($yes_step_nr && $yes_step_nr > 0) {
             $this->createNextCell($root, $yes_step_nr, $x, $y + $height + 30, $shape, $step_nr, true);
+        } elseif ($type_code != 'ENDPOINT') {
+            $this->createMxCell($root, false, -1, ($step_nr + 1), 0, 0, 'ENDPOINT', $x, $y + $height + 30);
 
+            $arrow_text = ($type_code == 'CRIT' || $type_code == 'CRITM') ? trans('workflow.yes') : '';
+            $this->createArrow($root, $step_nr, ($step_nr + 1), $arrow_text, true);
+        }
+
+        if ($no_step_nr && $no_step_nr > 0) {
             $this->createNextCell($root, $no_step_nr, $x + $width + 40, $y + $height + 30, $shape, $step_nr, false);
+        } elseif (($type_code == 'CRIT' || $type_code == 'CRITM') && $type_code != 'ENDPOINT') {
+            $this->createMxCell($root, false, -1, ($step_nr + 1), 0, 0, 'ENDPOINT', $x + $width + 40, $y + $height + 30);
+
+            $arrow_text = ($type_code == 'CRIT' || $type_code == 'CRITM') ? trans('workflow.no') : '';
+            $this->createArrow($root, $step_nr, ($step_nr + 1), $arrow_text, false);
         }
     }
 
@@ -441,7 +446,7 @@ class VisualWFController extends Controller
             $workflow->visual_xml = $xlm_data;
             $xml = HtmlDomParser::str_get_html($workflow->visual_xml);
 
-            $this->validateEndpoints($xml);
+            $first_point_id = $this->validateEndpoints($xml);
 
             $this->validateStepsConnections($workflow, $xml);
 
@@ -449,7 +454,7 @@ class VisualWFController extends Controller
                 return response()->json(['success' => 0, 'errors' => $this->error_stack]);
             }
 
-            $this->saveRelations($workflow, $xml);
+            $this->saveRelations($workflow, $xml, $first_point_id);
         }
 
         $workflow->save();
@@ -460,6 +465,7 @@ class VisualWFController extends Controller
     /**
      * Validate if endpoints are correct in workflow
      * @param HtmlDomParser $xml Xml object
+     * @return integer Workflows starting point
      */
     private function validateEndpoints($xml)
     {
@@ -501,6 +507,8 @@ class VisualWFController extends Controller
         if (count($finish_points_ids) <= 0) {
             $this->error_stack[] = trans('errors.workflow.no_finish_points');
         }
+
+        return $start_points_ids[0];
     }
 
     /**
@@ -554,33 +562,91 @@ class VisualWFController extends Controller
      * Saves relations between steps
      * @param \App\Models\Workflow\Workflow $workflow Workflow model
      * @param HtmlDomParser $xml Xml object
+     * @param integer $first_point_id Id of first endpoint
      */
-    private function saveRelations($workflow, $xml)
+    private function saveRelations($workflow, $xml, $first_point_id)
     {
-        $arrows = $xml->find('mxCell[is_yes]');
+        // Finds first step
+        $first_step_element_id = $xml->find('mxCell[source='. $first_point_id . ']', 0)->target;
 
-        foreach ($arrows as $arrow) {
-            $source_step_nr = substr($arrow->source, 1);
-            $target_step_nr = substr($arrow->target, 1);
+        $this->step_counter = 10;
+        $this->saved_steps = [];
+        $first_step_element = $xml->find('mxCell[id='. $first_step_element_id . ']', 0);
 
-            $step = \App\Models\Workflow\WorkflowStep::where('workflow_def_id', $workflow->id)
-                    ->where('step_nr', $source_step_nr)
-                    ->first();
+        \DB::transaction(function () use ($workflow, $xml, $first_step_element, $first_step_element_id) {
+                $this->orderStep($xml, $first_step_element, $first_step_element_id);
 
-            $target_step = \App\Models\Workflow\WorkflowStep::where('workflow_def_id', $workflow->id)
-                    ->where('step_nr', $target_step_nr)
-                    ->first();
+                $this->deleteNotSavedSteps($workflow->id);
+        });
+    }
 
-            if ($step && $target_step) {
-                if ($arrow->is_yes == 1) {
-                    $step->yes_step_nr = $target_step_nr;
+    /**
+     * Deletes all steps that where not connected to workflow
+     *
+     * @param integer $workflow_id Current workflow id
+     * @return void
+     */
+    private function deleteNotSavedSteps($workflow_id)
+    {
+        \App\Models\Workflow\WorkflowStep::where('workflow_def_id', $workflow_id)
+            ->whereNotIn('id', $this->saved_steps)
+            ->delete();
+    }
+
+    /**
+     * Recursive order steps
+     *
+     * @param HtmlDomParser $xml Xml object
+     * @param object $step_element Current step element which will be reordered
+     * @param integer $step_element_id Current steps element id which will be ordered
+     * @return void
+     */
+    private function orderStep($xml, $step_element, $step_element_id)
+    {
+        // Gets current step
+        $step_element  = $xml->find('mxCell[id='. $step_element_id . ']', 0);
+
+        $this->saved_steps[] = $step_element->workflow_step_id;
+
+        // Update current step number
+        $step = \App\Models\Workflow\WorkflowStep::find($step_element->workflow_step_id);
+        $step->step_nr = $this->step_counter;
+
+        // Finds all edges
+        $step_edges = $xml->find('mxCell[source=' . $step_element_id . ']');
+
+        // Iterate all edges
+        foreach ($step_edges as $step_edge) {
+            // Finds element by edge
+            $next_step_elem = $xml->find('mxCell[id='. $step_edge->target . ']', 0);
+
+            // If element is endpoint then we quit
+            if ($next_step_elem->type_code == 'ENDPOINT') {
+                // Resets value because it can be saved in data base
+                if ($step_edge->is_yes == 1) {
+                    $step->yes_step_nr = 0;
                 } else {
-                    $step->no_step_nr = $target_step_nr;
+                    $step->no_step_nr = 0;
                 }
 
-                $step->save();
+                continue;
             }
+
+            // Rise step counter
+            $this->step_counter += 10;
+
+            // Connect our current step with next step depending if it is yes or no step
+            if ($step_edge->is_yes == 1) {
+                $step->yes_step_nr = $this->step_counter;
+            } else {
+                $step->no_step_nr = $this->step_counter;
+            }
+
+            // Move to next step
+            $this->orderStep($xml, $next_step_elem, $step_edge->target);
         }
+
+        $step->save();
     }
 
     /**
@@ -625,7 +691,7 @@ class VisualWFController extends Controller
             $wf_register_id = 0;
         }
 
-        $max_step = $this->getMaxStep($workflow);
+        $max_step = $this->getLastStep($workflow);
 
         if ($max_step) {
             $max_step_nr = $max_step->step_nr;

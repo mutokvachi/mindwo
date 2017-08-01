@@ -22755,6 +22755,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
          */
         deleteStep: function (data) {
             if (data.cell.workflow_step_id > 0) {
+                show_page_splash(1);
+
                 var postData = {
                     step_id: data.cell.workflow_step_id
                 };
@@ -22771,6 +22773,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
                             mxEvent.consume(data.evt);
                             data.self.destroy();
                         }
+
+                        hide_page_splash(1);
                     },
                     error: self.onSaveError
                 });
@@ -22801,7 +22805,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
         init: function () {
             var self = this;
 
-            show_form_splash(1);
+            show_page_splash(1);
 
             self.domObject.data('dx_is_init', '1');
 
@@ -22845,7 +22849,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
              self.domObject.modal('show');
              }*/
 
-            hide_form_splash(1);
+            hide_page_splash(1);
         },
         onStepsTabClick: function (self) {
             if (!self.isGraphInit) {
@@ -22880,27 +22884,32 @@ mxBasePath = '/js/plugins/mxgraph/src';
          */
         setXmlAutomatically: function (self) {
             PageMain.showConfirm(function () {
-                show_form_splash(1);
+                show_page_splash(1);
 
-                $.ajax({
-                    url: DX_CORE.site_url + 'workflow/visual/xml/' + self.workflowId,
-                    type: "get",
-                    dataType: "json",
-                    context: self,
-                    success: function (data) {
-                        if (data && data.success == 1) {
-                            self.setXML(self, data.html);
-                            notify_info(Lang.get('workflow.success_arrange'));
-                        } else {
+                self.saveCallback = function(){
+                    $.ajax({
+                        url: DX_CORE.site_url + 'workflow/visual/xml/' + self.workflowId,
+                        type: "get",
+                        dataType: "json",
+                        context: self,
+                        success: function (data) {
+                            if (data && data.success == 1) {
+                                self.setXML(self, data.html);
+                                notify_info(Lang.get('workflow.success_arrange'));
+                            } else {
+                                notify_err(Lang.get('errors.unknown_error'));
+                            }
+
+                            hide_page_splash(1);
+                        },
+                        error: function () {
                             notify_err(Lang.get('errors.unknown_error'));
                         }
+                    });
+                }
 
-                        hide_form_splash(1);
-                    },
-                    error: function () {
-                        notify_err(Lang.get('errors.unknown_error'));
-                    }
-                });
+                self.save({ self: self, initGraph: false });
+
             }, { self: self }, Lang.get('workflow.arrange'), Lang.get('workflow.arrange_text') + '<br>' + Lang.get('workflow.arrangee_tooltip'));
         },
         /**
@@ -22908,7 +22917,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
          * @returns {undefined}
          */
         initGraph: function () {
-            show_form_splash(1);
+            show_page_splash(1);
 
             var self = this;
 
@@ -23149,29 +23158,41 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 self.loadData();
             }
 
-            hide_form_splash(1);
+            hide_page_splash(1);
         },
+        /**
+         * Hides fields which should be hidden because they are for advanced usage
+         */
         onBeforeFormShow: function (form, self, stepId) {
             form.find('div[dx_fld_name_form=id]').hide();
             form.find('div[dx_fld_name_form=step_nr]').hide();
             form.find('div[dx_fld_name_form=yes_step_nr]').hide();
             form.find('div[dx_fld_name_form=no_step_nr]').hide();
             form.find('div[dx_fld_name_form=workflow_def_id]').hide();
-            form.find('div[dx_fld_name_form=list_id]').hide();
+            form.find('select[dx_fld_name=list_id]').prop('disabled', true);
+
+            var field_id = form.find('select[dx_fld_name=field_id]').val()
 
             if (stepId == 0) {
                 form.find('input[name=step_nr]').val(self.max_step_nr);
+                form.find('select[dx_fld_name=list_id]').val(self.wfRegisterListId);
+                form.find('select[dx_fld_name=list_id]').change();
             }
 
             form.find('select[dx_fld_name=workflow_def_id]').val(self.workflowId);
             form.find('select[dx_fld_name=workflow_def_id]').change();
-            form.find('select[dx_fld_name=list_id]').val(self.wfRegisterListId);
+           /* form.find('select[dx_fld_name=list_id]').val(self.wfRegisterListId);
             form.find('select[dx_fld_name=list_id]').change();
+            form.find('select[dx_fld_name=field_id]').val(parseInt(field_id));
+            form.find('select[dx_fld_name=field_id]').change();*/
 
             form.find('select[dx_fld_name=task_type_id]').on('change', function (e, o) {
                 form.find('div[dx_fld_name_form=no_step_nr]').hide();
             });
         },
+        /**
+         * Reads steps properties and apply to graphic
+         */
         onAfterFormClose: function (form, self, vertex) {
             var stepId = form.find('input[name=id]').val();
             var taskTypeId = form.find('input[name=task_type_id]').val();
@@ -23183,6 +23204,9 @@ mxBasePath = '/js/plugins/mxgraph/src';
             self.setCellProperties(self, vertex, stepId, taskTypeId, stepNr, stepTitle);
 
         },
+        /**
+         * Sets steps properties to graphic's cell
+         */
         setCellProperties: function (self, vertex, stepId, taskTypeId, stepNr, stepTitle) {
             var hasArrowLabels = 0;
             var typeCode = self.wfTaskTypes[taskTypeId];
@@ -23245,6 +23269,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
         /**
          * Count out going edges for cell
          * @param {object} cell Cell under mouse cursor 
+         * @param {boolean} count_only_yes Parameter if count only "yes" edges
          * @returns {int} Count of outgoing edges
          */
         countOutgoingEdges: function (cell, count_only_yes) {
@@ -23281,10 +23306,10 @@ mxBasePath = '/js/plugins/mxgraph/src';
             });
         },
         /**
-         * Apstrādā uzdevuma formas aizvēršanu - izņem pārlūkā ielādēto HTML
-         * Ja forma bija atvērta no saraksta, tad iespējo saraksta funkcionalitāti
+         * Processes task form closing - removes loaded HTML
+         * If form was opened from register, then init register functionality
          * 
-         * @param {object} frm Uzdevuma formas elements
+         * @param {object} frm Form element
          * @returns {undefined}
          */
         handleModalHide: function (frm) {
@@ -23301,6 +23326,9 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 }, 200);
             });
         },
+        /**
+         * 
+         */
         addToolbarItem: function (self, graph, toolbar, prototype, image, is_endpoint) {
             // Function that is executed when the image is dropped on
             // the graph. The cell argument points to the cell under
@@ -23377,7 +23405,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
             }
 
             self.isSending = true;
-            show_form_splash(1);
+            show_page_splash(1);
 
 
             var xml = '';
@@ -23430,7 +23458,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 $('.dx-cms-workflow-form-tab-steps-btn').click();
             }
 
-            hide_form_splash(1);
+            hide_page_splash(1);
 
         },
         onSaveError: function (data) {
@@ -23439,7 +23467,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
             self.showError(data);
 
             self.isSending = false;
-            hide_form_splash(1);
+            hide_page_splash(1);
         },
         /**
          * Shows error
@@ -23493,31 +23521,6 @@ $(document).ajaxComplete(function () {
     // Initializes all found worklfow containers
     $('.dx-cms-workflow-form').DxWorkflow();
 });
-
-/*
- var btns_div = form_object.find(".dx_form_btns_left");
- 
- var make_button = function () {
- 
- if ($("#dx-btn-wf-designer" + form_object.attr('id')).length != 0) {
- return; // poga jau ir pievienota
- }
- 
- btns_div.append("<button id='dx-btn-wf-designer" + form_object.attr('id') + "' type='button' class='btn btn-white dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'><i class='fa fa-eye'></i> " + Lang.get('open_designer') + " </button>");
- 
- $("#dx-btn-wf-designer" + form_object.attr('id')).click(function () {
- var item_id = form_object.find("input[name=id]").val();
- var item_url = '/workflow/visual/form';
- var item_title = Lang.get('workflow.form_title');
- 
- get_popup_item_by_id(item_id, item_url, item_title);
- });
- };
- 
- if (btns_div)
- {
- make_button();
- }*/
 var mxClient={VERSION:"3.7.1",IS_IE:0<=navigator.userAgent.indexOf("MSIE"),IS_IE6:0<=navigator.userAgent.indexOf("MSIE 6"),IS_IE11:!!navigator.userAgent.match(/Trident\/7\./),IS_EDGE:!!navigator.userAgent.match(/Edge\//),IS_QUIRKS:0<=navigator.userAgent.indexOf("MSIE")&&(null==document.documentMode||5==document.documentMode),IS_EM:"spellcheck"in document.createElement("textarea")&&8==document.documentMode,VML_PREFIX:"v",OFFICE_PREFIX:"o",IS_NS:0<=navigator.userAgent.indexOf("Mozilla/")&&0>navigator.userAgent.indexOf("MSIE")&&
 0>navigator.userAgent.indexOf("Edge/"),IS_OP:0<=navigator.userAgent.indexOf("Opera/")||0<=navigator.userAgent.indexOf("OPR/"),IS_OT:0<=navigator.userAgent.indexOf("Presto/")&&0>navigator.userAgent.indexOf("Presto/2.4.")&&0>navigator.userAgent.indexOf("Presto/2.3.")&&0>navigator.userAgent.indexOf("Presto/2.2.")&&0>navigator.userAgent.indexOf("Presto/2.1.")&&0>navigator.userAgent.indexOf("Presto/2.0.")&&0>navigator.userAgent.indexOf("Presto/1."),IS_SF:0<=navigator.userAgent.indexOf("AppleWebKit/")&&
 0>navigator.userAgent.indexOf("Chrome/")&&0>navigator.userAgent.indexOf("Edge/"),IS_IOS:navigator.userAgent.match(/(iPad|iPhone|iPod)/g)?!0:!1,IS_GC:0<=navigator.userAgent.indexOf("Chrome/")&&0>navigator.userAgent.indexOf("Edge/"),IS_CHROMEAPP:null!=window.chrome&&null!=chrome.app&&null!=chrome.app.runtime,IS_FF:0<=navigator.userAgent.indexOf("Firefox/"),IS_MT:0<=navigator.userAgent.indexOf("Firefox/")&&0>navigator.userAgent.indexOf("Firefox/1.")&&0>navigator.userAgent.indexOf("Firefox/2.")||0<=navigator.userAgent.indexOf("Iceweasel/")&&

@@ -524,7 +524,7 @@ class RegisterController extends Controller
         if ($workflow) {        
             $wf_cntrl = new \App\Http\Controllers\VisualWFCOntroller();
 
-            $max_step = $wf_cntrl->getMaxStep($workflow);
+            $max_step = $wf_cntrl->getLastStep($workflow);
 
             if ($max_step) {
                 $max_step_nr = $max_step->step_nr;
