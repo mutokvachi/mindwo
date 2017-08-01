@@ -171,6 +171,7 @@ Route::group(['prefix' => 'workflow'], function() {
         Route::get('/steps/{id}', array('middleware' => 'auth_ajax', 'uses' => 'VisualWFController@getSteps'));
         Route::post('/form', array('middleware' => 'auth_ajax', 'uses' => 'VisualWFController@getWFForm'));
         Route::post('/save', array('middleware' => 'auth_ajax', 'uses'=>'VisualWFController@save'));
+        Route::post('/delete_step', array('middleware' => 'auth_ajax', 'uses'=>'VisualWFController@deleteStep'));
     });
 });
 

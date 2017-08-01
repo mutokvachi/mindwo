@@ -55,7 +55,7 @@ class VisualWFController extends Controller
 
         $xml_data = $this->prepareXML($workflow_id);
 
-        $max_step = $this->getLastStep($workflow);
+        $max_step = $this->getMaxStep($workflow);
 
         if ($max_step) {
             $max_step_nr = $max_step->step_nr;
@@ -86,18 +86,29 @@ class VisualWFController extends Controller
     public function getFirstStep($workflow)
     {
         if ($workflow) {
-            return $workflow->workflowSteps()->orderBy('step_nr', 'ASC')->first();
+            $workflow_steps = \DB::Select('select d.id
+                from dx_workflows d
+                left join dx_workflows dc on d.workflow_def_id = dc.workflow_def_id
+                        AND (d.step_nr = dc.yes_step_nr OR d.step_nr = dc.no_step_nr)
+                where d.workflow_def_id = ?
+                group by d.id
+                having count(dc.id) <= 0
+                order by d.modified_time desc', [$workflow->id]);
+
+            $first_step = \App\Models\Workflow\WorkflowStep::find($workflow_steps[0]->id);
+
+            return $first_step;
         } else {
             return null;
         }
     }
 
     /**
-     * Gets last step of workflow
+     * Gets max step of workflow
      * @param \App\Models\Workflow\Workflow $workflow Workflow object
      * @return \App\Models\Workflow\WorkflowStep First workflow's step
      */
-    public function getLastStep($workflow)
+    public function getMaxStep($workflow)
     {
         if ($workflow) {
             return $workflow->workflowSteps()->orderBy('step_nr', 'DESC')->first();
@@ -128,9 +139,7 @@ class VisualWFController extends Controller
 
     private function deleteNotConnected($workflow, $first_step)
     {
-        //$workflow->workflowSteps()->where()
-
-        $workflow_steps = \DB::Select('select d.id
+       /* $workflow_steps = \DB::Select('select d.id
             from dx_workflows d
             left join dx_workflows dc on d.workflow_def_id = dc.workflow_def_id
                     AND (d.step_nr = dc.yes_step_nr OR d.step_nr = dc.no_step_nr)
@@ -150,7 +159,22 @@ class VisualWFController extends Controller
             }
         }
 
-        \App\Models\Workflow\WorkflowStep::destroy($workflow_steps_ids);
+        \App\Models\Workflow\WorkflowStep::destroy($workflow_steps_ids);*/
+    }
+
+
+    /**
+     * Deletes workflow step
+     * @param Request $request Data request
+     * @return string Json response
+     */
+    public function deleteStep(Request $request)
+    {
+        $step_id = $request->input('step_id');
+
+        \App\Models\Workflow\WorkflowStep::destroy($step_id);
+
+        return response()->json(['success' => 1]);
     }
 
     /**
@@ -196,7 +220,8 @@ class VisualWFController extends Controller
 
         $this->createMxCell($root, false, -1, 2, $workflow_step->step_nr, 0, 'ENDPOINT', 30, 30);
 
-        //  $this->createMxCell($root, $workflow_step->step_nr, $workflow_step->yes_step_nr, $workflow_step->no_step_nr, ($workflow_step->task_type_id == 5 ? 'rhombus' : 'rounded'));
+        //$this->createMxCell($root, $workflow_step->step_nr, $workflow_step->yes_step_nr, $workflow_step->no_step_nr, ($workflow_step->task_type_id == 5 ? 'rhombus' : 'rounded'));
+
         // Removes 'xml version="1.0"' at the beginning of the xml
         $dom = dom_import_simplexml($xml);
         return $dom->ownerDocument->saveXML($dom->ownerDocument->documentElement);
@@ -221,7 +246,7 @@ class VisualWFController extends Controller
         if (in_array($step_nr, $this->xml_cell_list)) {
             return;
         }
-
+        
         $this->xml_cell_list[] = $step_nr;
 
         $mxCell = $root->addChild('mxCell');
@@ -284,6 +309,10 @@ class VisualWFController extends Controller
         if ((!$yes_step_nr || $yes_step_nr <= 0) && $type_code != 'ENDPOINT') {
             $this->createMxCell($root, false, -1, ($step_nr + 1), 0, 0, 'ENDPOINT', $x, $y + $height + 30);
             $this->createArrow($root, $step_nr, ($step_nr + 1), '', true);
+
+            if($no_step_nr && $no_step_nr > 0){
+                $this->createNextCell($root, $no_step_nr, $x + $width + 40, $y + $height + 30, $shape, $step_nr, false);
+            }
         } else {
             $this->createNextCell($root, $yes_step_nr, $x, $y + $height + 30, $shape, $step_nr, true);
 
@@ -373,6 +402,8 @@ class VisualWFController extends Controller
             $workflow = \App\Models\Workflow\Workflow::find($workflow_id);
         } else {
             $workflow = new \App\Models\Workflow\Workflow();
+            $workflow->created_user_id = \Auth::user()->id;
+            $workflow->created_time = new \DateTime();
         }
 
         $xlm_data = $request->input('xml_data');
@@ -382,7 +413,7 @@ class VisualWFController extends Controller
         $wf_title = $request->input('title');
 
         if ($has_wf_details == 1) {
-            if(!$wf_title || strlen(trim($wf_title)) <= 0){
+            if (!$wf_title || strlen(trim($wf_title)) <= 0) {
                 return response()->json(['success' => 0]);
             }
 
@@ -390,6 +421,9 @@ class VisualWFController extends Controller
             $workflow->title = trim($wf_title);
             $workflow->description = $request->input('description');
             $workflow->is_custom_approve = $request->input('is_custom_approve');
+
+            $workflow->modified_user_id = \Auth::user()->id;
+            $workflow->modified_time = new \DateTime();
 
             $date_format = config('dx.txt_date_format');
             $valid_to = $request->input('valid_to');
@@ -591,7 +625,7 @@ class VisualWFController extends Controller
             $wf_register_id = 0;
         }
 
-        $max_step = $this->getLastStep($workflow);
+        $max_step = $this->getMaxStep($workflow);
 
         if ($max_step) {
             $max_step_nr = $max_step->step_nr;

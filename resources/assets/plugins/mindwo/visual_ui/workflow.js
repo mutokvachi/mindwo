@@ -167,9 +167,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
                     mxEvent.removeAllListeners(img);
 
                     PageMain.showConfirm(function (data) {
-                        data.graph.removeCells([data.cell]);
-                        mxEvent.consume(data.evt);
-                        data.self.destroy();
+                        self.deleteStep(data);
                     }, { graph: graph, cell: state.cell, evt: evt, self: this }, Lang.get('workflow.delete_confirm_title'), Lang.get('workflow.delete_confirm_text'));
                 })
             );
@@ -190,6 +188,36 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
                 this.images = null;
             };
+        },
+        /**
+         * Deletes element. If it is workflow step then delete it from database
+         */
+        deleteStep: function (data) {
+            if (data.cell.workflow_step_id > 0) {
+                var postData = {
+                    step_id: data.cell.workflow_step_id
+                };
+
+                $.ajax({
+                    url: DX_CORE.site_url + 'workflow/visual/delete_step',
+                    type: "post",
+                    data: postData,
+                    dataType: "json",
+                    context: self,
+                    success: function (res) {
+                        if(res && res.success && res.success == 1){
+                            data.graph.removeCells([data.cell]);
+                            mxEvent.consume(data.evt);
+                            data.self.destroy();
+                        }
+                    },
+                    error: self.onSaveError
+                });
+            } else {
+                data.graph.removeCells([data.cell]);
+                mxEvent.consume(data.evt);
+                data.self.destroy();
+            }
         },
         editWorkflowStep: function (self, stepId, vertex) {
             if (typeof stepId === 'undefined' || stepId <= 0) {
@@ -580,8 +608,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
             form.find('select[dx_fld_name=list_id]').change();
 
             form.find('select[dx_fld_name=task_type_id]').on('change', function (e, o) {
-                   form.find('div[dx_fld_name_form=no_step_nr]').hide();
-             });
+                form.find('div[dx_fld_name_form=no_step_nr]').hide();
+            });
         },
         onAfterFormClose: function (form, self, vertex) {
             var stepId = form.find('input[name=id]').val();
@@ -835,7 +863,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 self.showError(data);
             }
 
-            self.isSending = false;            
+            self.isSending = false;
 
             if (initGraph && !self.isGraphInit) {
                 $('.dx-cms-workflow-form-tab-steps-btn').click();
