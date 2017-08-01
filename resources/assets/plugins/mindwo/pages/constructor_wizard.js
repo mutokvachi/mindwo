@@ -20,7 +20,7 @@
 		list_id: 0,
 		view_id: 1,
 		step: 'names',
-		steps: ['names', 'columns', 'fields', 'rights'],
+		steps: ['names', 'columns', 'fields', 'rights', 'workflows'],
 		url: '/constructor/register',
 		last_url: '/skats_'
 	};
@@ -388,6 +388,25 @@
 		submit_rights: function()
 		{
 			window.location = this.getNextUrl();
+		},
+
+		submit_workflows: function()
+		{
+			var self = this;
+
+			if($('.dx-cms-workflow-form-input-title').val().trim().length > 0){
+				var workflow = $('.dx-cms-workflow-form')[0].workflow;
+
+				workflow.saveCallback = function () {
+					if (workflow.isGraphInit) {
+						window.location = self.getNextUrl();
+					}
+				}
+
+				workflow.save({ self: workflow, initGraph: true });
+			} else {
+				window.location = self.getNextUrl();
+			}
 		}
 	});
 })(jQuery);

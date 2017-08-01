@@ -54,4 +54,14 @@ class Lists extends Model
 	{
 		return $this->hasMany('App\Models\System\ListRole', 'list_id', 'id');
 	}
+
+	/**
+	 * Related workflows
+	 *
+	 * @return App\Models\Workflow\Workflow Collection of workflows
+	 */
+	public function workflows()
+	{
+		return $this->hasMany('App\Models\Workflow\Workflow', 'list_id', 'id');
+	}
 }

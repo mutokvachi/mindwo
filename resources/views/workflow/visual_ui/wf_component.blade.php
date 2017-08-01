@@ -7,7 +7,7 @@
      data-xml_data = '{{ $xml_data }}' 
      data-wf_id = '{{ $item_id }}' 
      data-wf_register_id = '{{ $wf_register_id }}' 
-     data-wf_task_types = '{{ App\Models\Workflow\TaskType::select('id', 'code')->get()->toJson() }}' 
+     data-wf_task_types = "{{ App\Models\Workflow\TaskType::select('id', 'code')->get()->toJson() }}"
      data-wf_steps_list_id="{{ App\Libraries\DBHelper::getListByTable('dx_workflows')->id }}"
      data-max_step_nr="{{ $max_step_nr }}">
     <div style="margin-bottom: 10px; margin-left: 10px;">
