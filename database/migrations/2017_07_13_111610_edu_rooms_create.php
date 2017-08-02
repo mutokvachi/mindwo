@@ -21,11 +21,12 @@ class EduRoomsCreate extends Migration
             $table->increments('id');            
             
             $table->string('title', 50)->nullable()->comment = trans('db_' . $this->table_name.'.title');
-            $table->integer('org_id')->nullable()->unsigned()->comment = trans('db_' . $this->table_name.'.org_id');
+            $table->integer('org_id')->unsigned()->comment = trans('db_' . $this->table_name.'.org_id');
             $table->string('room_nr', 10)->comment = trans('db_' . $this->table_name.'.room_nr');
-            $table->integer('room_limit')->default(1)->comment = trans('db_' . $this->table_name.'.room_limit');
-            $table->boolean('is_computers')->default(false)->nullable()->comment = trans('db_' . $this->table_name.'.is_computers');            
-                       
+            $table->boolean('is_computers')->default(false)->nullable()->comment = trans('db_' . $this->table_name.'.is_computers'); 
+            $table->boolean('is_elearn')->default(false)->nullable()->comment = trans('db_' . $this->table_name.'.is_elearn');            
+            $table->integer('room_limit')->default(1)->comment = trans('db_' . $this->table_name.'.room_limit');                       
+                        
             $table->index('org_id');            
             $table->foreign('org_id')->references('id')->on('edu_orgs');
             

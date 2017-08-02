@@ -10,6 +10,7 @@ return [
     'item_name' => 'Nodarbība',
     
     'title' => 'Nosaukums',
+    'teacher_id' => 'Pasniedzējs',
     'group_id' => 'Mācību grupa',
     'lesson_date' => 'Nodarbības datums',
     'time_from' => 'Laiks no',
@@ -21,8 +22,9 @@ return [
     // tabs
     'tab_notes' => 'Piezīmes',
     'tab_pauses' => 'Kafijas pauzes',
+    'tab_attend' => 'Apmeklētāji',
+    'tab_teachers' => 'Pasniedzēji',
     
     // views
-    'view_related' => 'Skats saistītajiem ierakstiem',
-    'tab_attend' => 'Apmeklētāji',
+    'view_related' => 'Skats saistītajiem ierakstiem',   
 ];

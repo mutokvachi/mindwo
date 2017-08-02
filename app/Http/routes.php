@@ -298,12 +298,7 @@ Route::group(['middleware' => ['auth', 'constructor_access'], 'prefix' => 'const
         Route::put('/menu/{site_id}', ['as' => 'menu_builder_update', 'uses' => 'MenuController@updateMenu']);
 });
 
-// Lapas
-/*
-Route::get('/{id}/{item}', array('as' => 'page',  'middleware' => 'auth', 'uses'=>'PagesController@showPageItem'));
-Route::get('/{id}', array('as' => 'page',  'middleware' => 'auth', 'uses'=>'PagesController@showPage'));
-Route::post('/{id}', array('as' => 'page',  'middleware' => 'auth', 'uses'=>'PagesController@showPage'));
-
-// Noklusētā lapa
-Route::get('/', array('as' => 'home', 'middleware' => 'auth', 'uses'=>'PagesController@showRoot'));
-*/
+Route::group(['middleware' => ['auth'], 'prefix' => 'calendar', 'namespace' => 'Calendar'], function() {	
+        Route::get('/scheduler', ['as' => 'scheduler', 'uses' => 'SchedulerController@getSchedulerPage']);
+        Route::put('/scheduler', ['as' => 'scheduler_update', 'uses' => 'SchedulerController@updateSchedule']);
+});

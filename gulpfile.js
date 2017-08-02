@@ -131,6 +131,7 @@ gulp.task('mix_all', function() {
 
         // Core scripts for main blade view - will be included in all pages
         mix.scripts([
+            'fullcalendar/lib/moment.min.js',
             'jquery.min.js',
             'bootstrap/js/bootstrap.min.js',
             'js.cookie.min.js',
@@ -147,9 +148,8 @@ gulp.task('mix_all', function() {
             'mindwo/dx_core.js',
             'metronic/app.js',
             'jquery-ui/jquery-ui.min.js',
-            'fullcalendar/moment.min.js',
             'fullcalendar/fullcalendar.min.js',
-            'fullcalendar/lang-all.js',
+            'fullcalendar/locale-all.js',
             'mindwo/blocks/calendar.js',
             'resources/assets/plugins/datetimepicker/jquery.datetimepicker.js',
             'mindwo/blocks/employee_count.js',
@@ -170,8 +170,7 @@ gulp.task('mix_all', function() {
         mix.scripts(['mindwo/pages/search_top.js', 'mindwo/pages/userlinks.js'], 'public/js/elix_userlinks.js', 'resources/assets/plugins');
 
         // Scripts for grids/forms functionality
-        mix.scripts([
-            'moment.min.js',
+        mix.scripts([            
             'bootstrap-daterangepicker/daterangepicker.js',
             'bootstrap-colorpicker/js/bootstrap-colorpicker.js',
             'dropzone/dropzone.min.js',
@@ -226,8 +225,7 @@ gulp.task('mix_all', function() {
             'elix_block_report_plugins.css'
         ], 'public/css/elix_block_report.css', 'public/css');
 
-        mix.scripts([
-            'moment.min.js',
+        mix.scripts([            
             'bootstrap-daterangepicker/daterangepicker.js',
             'mindwo/blocks/report.js',
             'flot/jquery.flot.min.js',
@@ -277,8 +275,7 @@ gulp.task('mix_all', function() {
         //$this->addJSInclude('js/pages/date_range.js');
         //$this->addJSInclude('js/blocks/emplbirth.js');
 
-        mix.scripts([
-            'moment.min.js',
+        mix.scripts([            
             'bootstrap-daterangepicker/daterangepicker.js',
             'tree/jstree.min.js',
             'mindwo/pages/search_tools.js',
@@ -289,8 +286,7 @@ gulp.task('mix_all', function() {
         // Scripts for articles search page functionality
         mix.scripts([
             'cubeportfolio/js/jquery.cubeportfolio.js',
-            'jscroll/jquery.jscroll.js',
-            'moment.min.js',
+            'jscroll/jquery.jscroll.js',            
             'bootstrap-daterangepicker/daterangepicker.js',
             'mindwo/pages/date_range.js',
             'mindwo/pages/search_tools.js',
@@ -384,6 +380,17 @@ gulp.task('mix_all', function() {
         mix.less([
            'pages/sticky_footer.less'
         ], 'public/css/elix_menu_builder.css');
+        
+        // Styles for scheduler
+        mix.styles([
+            'fullcalendar-scheduler/scheduler.css',
+        ], 'public/css/elix_scheduler.css', 'resources/assets/plugins');
+        
+        // Scripts for scheduler
+        mix.scripts([
+           'fullcalendar-scheduler/scheduler.js',
+           'mindwo/pages/scheduler.js'
+        ], 'public/js/elix_scheduler.js', 'resources/assets/plugins');
 		
         // Minify all scripts
         mix.version([
@@ -419,7 +426,9 @@ gulp.task('mix_all', function() {
             'js/elix_login.js',
             'js/elix_menu_builder.js',
             'css/elix_menu_builder.css',
-            'js/elix_timeline.js'
+            'js/elix_timeline.js',
+            'js/elix_scheduler.js',
+            'css/elix_scheduler.css'
         ]);
     });
 });

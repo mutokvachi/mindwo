@@ -8,6 +8,7 @@
 return [
     'list_name' => 'Mācību moduļu dalībnieki',
     'item_name' => 'Mācību moduļa dalībnieks',
+    'head_title' => 'Grupu komplektēšana',
     
     'module_id' => 'Mācību modulis',
     'student_id' => 'Dalībnieks',

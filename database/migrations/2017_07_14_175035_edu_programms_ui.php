@@ -65,12 +65,30 @@ class EduProgrammsUi extends EduMigration
                 'order_index' => 20
             ]);
             
-                     
+            DB::table('dx_lists_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('db_name', '=', 'is_meta_required')
+                    ->update([
+                        'hint' => trans('db_' . $this->table_name . '.is_meta_required_hint')
+                    ]);
             
-            App\Libraries\DBHelper::updateFormField($list_id, "color", ['tab_id' => $tab_main_id, 'row_type_id' => 2]);
-            App\Libraries\DBHelper::updateFormField($list_id, "is_published", ['tab_id' => $tab_main_id, 'row_type_id' => 2]);
+            DB::table('dx_lists_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('db_name', '=', 'color')
+                    ->update([
+                        'type_id' => \App\Libraries\DBHelper::FIELD_TYPE_COLOR,
+                        'hint' => trans('db_' . $this->table_name . '.color_hint')
+                    ]);
+            
+            App\Libraries\DBHelper::updateFormField($list_id, "title", ['row_type_id' => 2]);
+            App\Libraries\DBHelper::updateFormField($list_id, "code", ['row_type_id' => 2]);
+            
+            App\Libraries\DBHelper::updateFormField($list_id, "is_meta_required", ['tab_id' => $tab_main_id,'row_type_id' => 3]);
+            App\Libraries\DBHelper::updateFormField($list_id, "color", ['tab_id' => $tab_main_id, 'row_type_id' => 3]);
+            App\Libraries\DBHelper::updateFormField($list_id, "is_published", ['tab_id' => $tab_main_id, 'row_type_id' => 3]);
             
             App\Libraries\DBHelper::updateFormField($list_id, "description", ['tab_id' => $tab_descr_id]);
+            App\Libraries\DBHelper::updateFormField($list_id, "user_approval_msg", ['tab_id' => $tab_descr_id]);
                                     
             App\Libraries\DBHelper::removeFieldsFromAllViews($list_id, [
                 'description',                

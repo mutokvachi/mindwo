@@ -44,6 +44,28 @@ class EduSeeder extends Seeder
                 'address' => 'Raiņa bulvāris 4',
             ]);
             
+            $rooms =  [
+                [
+                    'room_nr' => 'E-mācības',
+                    'room_limit' => 0,
+                    'org_id' => $main_org,
+                    'is_elearn' => 1
+                ],
+                [
+                    'room_nr' => '224A',
+                    'room_limit' => 40,
+                    'org_id' => $main_org,
+                    'is_elearn' => 0
+                ],
+                [
+                    'room_nr' => '254',
+                    'room_limit' => 50,
+                    'org_id' => $main_org,
+                    'is_elearn' => 0
+                ],
+            ];
+            DB::table('edu_rooms')->insert($rooms);
+            
             $stud_org = DB::table('edu_orgs')->insertGetId([
                 'title' => 'Finanšu ministrija',
                 'org_type_id' => 1,
@@ -223,26 +245,31 @@ class EduSeeder extends Seeder
             // Programms and subjects
             $progr1 = DB::table('edu_programms')->insertGetId([
                 'title' => 'U projekts',
+                'code' => 'U',
                 'is_published' => 1,
             ]);
             
             $progr2 = DB::table('edu_programms')->insertGetId([
-                'title' => 'K projekts',               
+                'title' => 'K projekts',
+                'code' => 'K',
                 'is_published' => 1,
             ]);
             
             $progr3 = DB::table('edu_programms')->insertGetId([
-                'title' => 'Pamatdarbība',                
+                'title' => 'Pamatdarbība',  
+                'code' => 'P',
                 'is_published' => 1,
             ]);
             
             $progr4 = DB::table('edu_programms')->insertGetId([
-                'title' => 'Franču valoda',                
+                'title' => 'Franču valoda',
+                'code' => 'F',
                 'is_published' => 1,
             ]);
             
             $module1 = DB::table('edu_modules')->insertGetId([
-                'title' => 'G modulis "Saziņa ar sabiedrību, komunikācija un prasmju pilnveide valsts pārvaldē"',
+                'title' => 'Saziņa ar sabiedrību, komunikācija un prasmju pilnveide valsts pārvaldē',
+                'code' => 'G',
                 'programm_id' => $progr3,
                 'is_published' => 1
             ]);
@@ -253,7 +280,6 @@ class EduSeeder extends Seeder
                 'avail_id' => 1,
                 'module_id' => $module1,
                 'subject_code' => 'A1',
-                'project_code' => 'U',
                 'is_published' => 1,
             ]);
             
@@ -263,7 +289,6 @@ class EduSeeder extends Seeder
                 'avail_id' => 1,
                 'module_id' => $module1,
                 'subject_code' => 'A2',
-                'project_code' => 'U',
                 'is_published' => 1,
             ]);
             
@@ -273,13 +298,11 @@ class EduSeeder extends Seeder
                 'avail_id' => 1,
                 'module_id' => $module1,
                 'subject_code' => 'A3',
-                'project_code' => 'U',
                 'is_published' => 1,
             ]);
             
             $subj4 = DB::table('edu_subjects_groups')->insertGetId([                
-                'subject_id' => $subj3,
-                'teacher_id' => $teach2,
+                'subject_id' => $subj3,                
                 'seats_limit' => 20,
                 'signup_due' => '2018-05-19',
                 'is_published' => 1,

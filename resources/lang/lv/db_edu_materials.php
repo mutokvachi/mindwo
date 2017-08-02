@@ -8,6 +8,7 @@
 return [
     'list_name' => 'Mācību materiāli',
     'item_name' => 'Mācību materiāls',
+    'head_title' => 'Mācību norise',
     
     'title' => 'Nosaukums',
     'description' => 'Apraksts',

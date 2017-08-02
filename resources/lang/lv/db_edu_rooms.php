@@ -14,21 +14,12 @@ return [
     'room_nr' => 'Telpas numurs',
     'room_limit' => 'Vietu skaits',
     'is_computers' => 'Ir datorklase',
+    'is_elearn' => 'Ir e-mācības',
+    'is_elearn_hint' => 'Virtuāla telpa, kas nepieciešama, lai kalendārā varētu plānot arī e-mācību norisi.',
     
     'lbl_limit' => 'vietas',
     
-    'values' => [
-        [
-            'room_nr' => '312',
-            'room_limit' => 12
-        ],
-        [
-            'room_nr' => '224A',
-            'room_limit' => 40
-        ],
-        [
-            'room_nr' => '254',
-            'room_limit' => 50
-        ]
-    ],
+    // tabs
+    'tab_booked' => 'Aizņemtība',
+    
 ];
