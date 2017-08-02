@@ -390,6 +390,9 @@
 			window.location = this.getNextUrl();
 		},
 
+		/**
+		 * Saves workflow data
+		 */
 		submit_workflows: function()
 		{
 			var self = this;
