@@ -74,13 +74,53 @@ class EduMaterialsUi extends EduMigration
                 'is_custom_data' => 1,
                 'order_index' => 20
             ]);
+            
+            $tab_access_id = DB::table('dx_forms_tabs')->insertGetId([
+                'form_id' => $form->id,
+                'title' => trans('db_' . $this->table_name . '.tab_access'),
+                'is_custom_data' => 1,
+                'order_index' => 25
+            ]);
+            
             App\Libraries\DBHelper::updateFormField($list_id, "description", ['tab_id' => $tab_desc_id]);
             
             App\Libraries\DBHelper::updateFormField($list_id, "file_name", ['tab_id' => $tab_main_id]);
-            App\Libraries\DBHelper::updateFormField($list_id, "org_id", ['tab_id' => $tab_main_id]);
             App\Libraries\DBHelper::updateFormField($list_id, "author", ['row_type_id' => 3, 'tab_id' => $tab_main_id]);
-            App\Libraries\DBHelper::updateFormField($list_id, "is_public_access", ['row_type_id' => 3, 'tab_id' => $tab_main_id]);
             App\Libraries\DBHelper::updateFormField($list_id, "is_published", ['row_type_id' => 3, 'tab_id' => $tab_main_id]);
+                        
+            App\Libraries\DBHelper::updateFormField($list_id, "org_id", ['tab_id' => $tab_access_id]);
+            App\Libraries\DBHelper::updateFormField($list_id, "teacher_id", ['row_type_id' => 2, 'tab_id' => $tab_access_id]);
+            App\Libraries\DBHelper::updateFormField($list_id, "is_public_access", ['row_type_id' => 2, 'tab_id' => $tab_access_id]);
+            
+            // fix teacher related grid ID
+            $teacher_list = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_teacher'))->first();            
+            $teacher_display = DB::table('dx_lists_fields')->where('list_id', '=', $teacher_list->id)->where('db_name', '=', 'display_name')->first();
+            
+            DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'teacher_id')->update([
+                'rel_list_id' => $teacher_list->id,
+                'rel_display_field_id' => $teacher_display->id
+            ]);
+            
+            DB::table('dx_lists_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('db_name', '=', 'teacher_id')
+                    ->update([
+                        'hint' => trans('db_' . $this->table_name . '.teacher_id_hint')
+                    ]);
+            
+            DB::table('dx_lists_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('db_name', '=', 'org_id')
+                    ->update([
+                        'hint' => trans('db_' . $this->table_name . '.org_id_hint')
+                    ]);
+            
+            DB::table('dx_lists_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('db_name', '=', 'is_public_access')
+                    ->update([
+                        'hint' => trans('db_' . $this->table_name . '.is_public_access_hint')
+                    ]);
         });
     }
 

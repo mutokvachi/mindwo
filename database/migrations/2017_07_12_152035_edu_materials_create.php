@@ -22,19 +22,21 @@ class EduMaterialsCreate extends Migration
             
             $table->string('title', 250)->comment = trans('db_' . $this->table_name.'.title');
             $table->text('description')->nullable()->comment = trans('db_' . $this->table_name.'.description');
-            //$table->boolean('is_embeded')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_embeded');
             $table->string('file_name', 500)->nullable()->comment = trans('db_' . $this->table_name.'.file_name');
             $table->string('file_guid', 50)->nullable()->comment = trans('db_' . $this->table_name.'.file_guid');
             $table->text('file_dx_text')->nullable()->comment = trans('db_' . $this->table_name.'.file_dx_text');
-            //$table->text('embeded')->nullable()->comment = trans('db_' . $this->table_name.'.embeded');
-            
-            $table->integer('org_id')->nullable()->unsigned()->comment = trans('db_' . $this->table_name.'.org_id');
             $table->string('author', 200)->nullable()->comment = trans('db_' . $this->table_name.'.author');
-            $table->boolean('is_public_access')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_public_access');
             $table->boolean('is_published')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_published');
             
+            $table->integer('org_id')->nullable()->unsigned()->comment = trans('db_' . $this->table_name.'.org_id');
+            $table->integer('teacher_id')->nullable()->comment = trans('db_' . $this->table_name.'.teacher_id');
+            $table->boolean('is_public_access')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_public_access');
+                        
             $table->index('org_id');            
             $table->foreign('org_id')->references('id')->on('edu_orgs');
+            
+            $table->index('teacher_id');            
+            $table->foreign('teacher_id')->references('id')->on('dx_users');
             
             $table->integer('created_user_id')->nullable();
             $table->datetime('created_time')->nullable();
