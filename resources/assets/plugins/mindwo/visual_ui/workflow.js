@@ -65,10 +65,19 @@ mxBasePath = '/js/plugins/mxgraph/src';
          */
         this.saveCallback = false;
 
+        /**
+         * Parameter if graph has been initialized
+         */
         this.isGraphInit = false;
 
+        /**
+         * System's date format
+         */
         this.dateFormat = '';
 
+        /**
+         * System's locale
+         */
         this.locale = 'en';
 
         /**
@@ -85,6 +94,9 @@ mxBasePath = '/js/plugins/mxgraph/src';
      * @returns {undefined}
      */
     $.extend($.DxWorkflow.prototype, {
+        /**
+         * Vertex styles
+         */
         vertexStyle: {
             ellipse: {
                 style: 'shape=ellipse;editable=0;html=1;whiteSpace=wrap;fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;',
@@ -102,6 +114,11 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 height: 100
             }
         },
+        /**
+         * Defines icons in graph
+         * @param {DxWorkflow} self Current workflow's class instance
+         * @param {obj} state Current view state
+         */
         mxIconSet: function (self, state) {
             this.images = [];
             var graph = state.view.graph;
@@ -191,6 +208,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
         },
         /**
          * Deletes element. If it is workflow step then delete it from database
+         * @param {obj} data Current cell data
          */
         deleteStep: function (data) {
             if (data.cell.workflow_step_id > 0) {
@@ -223,6 +241,12 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 data.self.destroy();
             }
         },
+        /**
+         * Edits workflow
+         * @param {DxWorkflow} self Current workflow's class instance
+         * @param {int} stepId Current step's ID
+         * @param {obj} vertex Steps vertex
+         */
         editWorkflowStep: function (self, stepId, vertex) {
             if (typeof stepId === 'undefined' || stepId <= 0) {
                 stepId = 0;
@@ -241,6 +265,9 @@ mxBasePath = '/js/plugins/mxgraph/src';
             });
 
         },
+        /**
+         * Initializes workflow class
+         */
         init: function () {
             var self = this;
 
@@ -290,6 +317,10 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
             hide_page_splash(1);
         },
+        /**
+         * Initializes graph if graph tab is opened for the first time (This applies only for consturctor)
+         * @param {DxWorkflow} self Current workflow's class instance
+         */
         onStepsTabClick: function (self) {
             if (!self.isGraphInit) {
                 if (self.workflowId > 0) {
@@ -302,6 +333,11 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 }
             }
         },
+        /**
+         * Initializes date picker
+         * @param {DxWorkflow} self Current workflow's class instance
+         * @param {string} picker_name Picker name to init
+         */
         initDatePickers: function (self, picker_name) {
             var picker = $(picker_name);
 
@@ -319,6 +355,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
         },
         /**
          * Sets step's positions automatically by generating them from database
+         * @param {DxWorkflow} self Current workflow's class instance
          * @returns {undefined}
          */
         setXmlAutomatically: function (self) {
@@ -601,6 +638,9 @@ mxBasePath = '/js/plugins/mxgraph/src';
         },
         /**
          * Hides fields which should be hidden because they are for advanced usage
+         * @param {jQueryObj} form Current form 
+         * @param {DxWorkflow} self Current workflow's class instance
+         * @param {int} stepId Current step's ID
          */
         onBeforeFormShow: function (form, self, stepId) {
             form.find('div[dx_fld_name_form=id]').hide();
@@ -631,6 +671,9 @@ mxBasePath = '/js/plugins/mxgraph/src';
         },
         /**
          * Reads steps properties and apply to graphic
+         * @param {jQueryObj} form Current form 
+         * @param {DxWorkflow} self Current workflow's class instance
+         * @param {obj} vertex Selected step's vertex
          */
         onAfterFormClose: function (form, self, vertex) {
             var stepId = form.find('input[name=id]').val();
@@ -645,6 +688,12 @@ mxBasePath = '/js/plugins/mxgraph/src';
         },
         /**
          * Sets steps properties to graphic's cell
+         * @param {DxWorkflow} self Current workflow's class instance
+         * @param {obj} vertex Selected step's vertex
+         * @param {int} stepId Current step's ID
+         * @param {int} taskTypeId Step's task type
+         * @param {int} stepNr Step's number
+         * @param {string} stepTitle Step's title
          */
         setCellProperties: function (self, vertex, stepId, taskTypeId, stepNr, stepTitle) {
             var hasArrowLabels = 0;
@@ -733,9 +782,9 @@ mxBasePath = '/js/plugins/mxgraph/src';
             return outEdgesCount;
         },
         /**
-         * Uzstāda ritjoslu modālajam uzdevuma logam
+         * Sets scroll bar to form
          * 
-         * @param {object} frm Uzdevuma formas elements
+         * @param {object} frm Form element
          * @returns {undefined}
          */
         handleModalScrollbar: function (frm) {
@@ -766,7 +815,12 @@ mxBasePath = '/js/plugins/mxgraph/src';
             });
         },
         /**
-         * 
+         * @param {DxWorkflow} self Current workflow's class instance
+         * @param {obj} graph Current workflow graph
+         * @param {obj} toolbar Current toolbar
+         * @param {obj} prototype Object's prototype
+         * @param {obj} image Item's image
+         * @param {boolean} is_endpoint Current workflow's class instance
          */
         addToolbarItem: function (self, graph, toolbar, prototype, image, is_endpoint) {
             // Function that is executed when the image is dropped on
@@ -835,6 +889,10 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
             return mxUtils.getPrettyXml(node);
         },
+        /**
+         * Saves workflow
+         * @param {obj} data Data contains current Workflow class instance and boolean if graph must be initialized {self, initgraph}
+         */
         save: function (data) {
             var self = data.self;
             var initGraph = data.initGraph;
@@ -877,6 +935,11 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 error: self.onSaveError
             });
         },
+        /**
+         * Event when workflow has been saved
+         * @param {JSON} data Ajax response data
+         * @param {boolean} initGraph Parameter if graph should be initialized
+         */
         onSaveSuccess: function (data, initGraph) {
             var self = this;
 
@@ -900,6 +963,10 @@ mxBasePath = '/js/plugins/mxgraph/src';
             hide_page_splash(1);
 
         },
+        /**
+         * Event when workflow has not been saved
+         * @param {JSON} data Ajax response data
+         */
         onSaveError: function (data) {
             var self = this;
 
@@ -926,6 +993,11 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 toastr.error(Lang.get('errors.workflow.not_saved') + ': ' + errMsg);
             }
         },
+        /**
+         * Load XML into graph
+         * @param {DxWorkflow} self Current workflow's class instance
+         * @param {string} xml XMl which contains workflow graph
+         */
         setXML: function (self, xml) {
             // Gets the default parent for inserting new cells. This
             // is normally the first child of the root (ie. layer 0).

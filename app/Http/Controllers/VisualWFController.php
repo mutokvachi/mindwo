@@ -140,6 +140,13 @@ class VisualWFController extends Controller
         return $dom->ownerDocument->saveXML($dom->ownerDocument->documentElement);
     }
 
+    /**
+     * Delete steps which are not connected
+     *
+     * @param App\Models\Workflow\Workflow $workflow Current workflow
+     * @param App\Models\Workflow\WorkflowStep $first_step First step of current workflow
+     * @return void
+     */
     private function deleteNotConnected($workflow, $first_step)
     {
         $workflow_steps = \DB::Select('select d.id
