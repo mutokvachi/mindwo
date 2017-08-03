@@ -16,4 +16,5 @@ return [
     
     // tabs
     'tab_banks' => 'Banku konti',
+    'tab_rooms' => 'Mācību telpas',
 ];

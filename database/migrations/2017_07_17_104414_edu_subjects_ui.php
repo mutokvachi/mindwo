@@ -77,11 +77,10 @@ class EduSubjectsUi extends EduMigration
             App\Libraries\DBHelper::updateFormField($list_id, "avail_id", ['row_type_id' => 2]);
             
             App\Libraries\DBHelper::updateFormField($list_id, "module_id", ['tab_id' => $tab_main_id]);
-            App\Libraries\DBHelper::updateFormField($list_id, "subject_code", ['tab_id' => $tab_main_id, 'row_type_id' => 2]);
-            App\Libraries\DBHelper::updateFormField($list_id, "project_code", ['tab_id' => $tab_main_id, 'row_type_id' => 2]);            
-            App\Libraries\DBHelper::updateFormField($list_id, "credit_points", ['tab_id' => $tab_main_id, 'row_type_id' => 3]);
-            App\Libraries\DBHelper::updateFormField($list_id, "is_org_approve_need", ['tab_id' => $tab_main_id, 'row_type_id' => 3]);
-            App\Libraries\DBHelper::updateFormField($list_id, "is_published", ['tab_id' => $tab_main_id, 'row_type_id' => 3]);
+            App\Libraries\DBHelper::updateFormField($list_id, "subject_code", ['tab_id' => $tab_main_id, 'row_type_id' => 4]);            
+            App\Libraries\DBHelper::updateFormField($list_id, "credit_points", ['tab_id' => $tab_main_id, 'row_type_id' => 4]);
+            App\Libraries\DBHelper::updateFormField($list_id, "is_org_approve_need", ['tab_id' => $tab_main_id, 'row_type_id' => 4]);
+            App\Libraries\DBHelper::updateFormField($list_id, "is_published", ['tab_id' => $tab_main_id, 'row_type_id' => 4]);
             
             App\Libraries\DBHelper::updateFormField($list_id, "is_fee", ['tab_id' => $tab_main_id, 'row_type_id' => 3, 'group_label' => trans('db_' . $this->table_name . '.group_costs')]);
             App\Libraries\DBHelper::updateFormField($list_id, "price_for_teacher", ['tab_id' => $tab_main_id, 'row_type_id' => 3]);
@@ -89,9 +88,7 @@ class EduSubjectsUi extends EduMigration
                         
             App\Libraries\DBHelper::updateFormField($list_id, "description", ['tab_id' => $tab_descr_id]);
             App\Libraries\DBHelper::updateFormField($list_id, "learning_url", ['tab_id' => $tab_descr_id]);
-            App\Libraries\DBHelper::updateFormField($list_id, "user_approval_msg", ['tab_id' => $tab_descr_id]);
-            
-            App\Libraries\DBHelper::updateFormField($list_id, "info_survey_id", ['tab_id' => $tab_tests_id]);
+                        
             App\Libraries\DBHelper::updateFormField($list_id, "subject_pretest_id", ['tab_id' => $tab_tests_id]);
             App\Libraries\DBHelper::updateFormField($list_id, "is_subj_qual_test_ok_need", ['tab_id' => $tab_tests_id, 'row_type_id' => 3]);
             App\Libraries\DBHelper::updateFormField($list_id, "is_progr_qual_test_ok_need", ['tab_id' => $tab_tests_id, 'row_type_id' => 3]);
@@ -107,9 +104,7 @@ class EduSubjectsUi extends EduMigration
                 'price_for_teacher',
                 'price_for_rooms',
                 'learning_url',
-                'description',
-                'user_approval_msg',
-                'info_survey_id',
+                'description',                           
                 'subject_pretest_id',
                 'is_subj_qual_test_ok_need',
                 'is_progr_qual_test_ok_need',

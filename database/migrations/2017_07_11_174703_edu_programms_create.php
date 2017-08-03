@@ -21,10 +21,12 @@ class EduProgrammsCreate extends Migration
             $table->increments('id');
             
             $table->string('title', 250)->comment = trans('db_' . $this->table_name.'.title');
-            
+            $table->string('code', 3)->comment = trans('db_' . $this->table_name.'.code');
+            $table->boolean('is_meta_required')->default(false)->comment = trans('db_' . $this->table_name.'.is_meta_required');
             $table->string('color', 50)->nullable()->comment = trans('db_' . $this->table_name.'.color');
             $table->text('description')->nullable()->comment = trans('db_' . $this->table_name.'.description');
-                        
+            $table->text('user_approval_msg')->nullable()->comment = trans('db_' . $this->table_name.'.user_approval_msg');
+            
             $table->integer('is_published')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_published');
                         
             $table->integer('created_user_id')->nullable();

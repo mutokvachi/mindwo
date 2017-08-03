@@ -39,4 +39,12 @@ return [
     'international' => 'Starptautiska',
     'holiday' => 'Brīvdiena',
     'birthdays' => 'Dzimšanas dienas',
+    
+    'scheduler' => [
+        'page_title' => 'Mācību grupu plānošana',
+        'new_group' => 'Jauna mācību grupa',
+        'save_btn' => 'Saglabāt',
+        'undo_btn' => 'Atcelt',
+        'publish_btn' => 'Publicēt',
+    ],
 ];

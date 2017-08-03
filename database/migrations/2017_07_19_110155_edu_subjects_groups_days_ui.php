@@ -54,10 +54,9 @@ class EduSubjectsGroupsDaysUi extends EduMigration
                 'grid_list_field_id' => $subj_field->id
             ]);
             
-            App\Libraries\DBHelper::updateFormField($list_id, "lesson_date", ['row_type_id' => 4]);
-            App\Libraries\DBHelper::updateFormField($list_id, "time_from", ['row_type_id' => 4]);
-            App\Libraries\DBHelper::updateFormField($list_id, "time_to", ['row_type_id' => 4]);
-            App\Libraries\DBHelper::updateFormField($list_id, "room_nr", ['row_type_id' => 4]);
+            App\Libraries\DBHelper::updateFormField($list_id, "lesson_date", ['row_type_id' => 3]);
+            App\Libraries\DBHelper::updateFormField($list_id, "time_from", ['row_type_id' => 3]);
+            App\Libraries\DBHelper::updateFormField($list_id, "time_to", ['row_type_id' => 3]);           
             
             $form = DB::table('dx_forms')->where('list_id', '=', $list_id)->first();
             

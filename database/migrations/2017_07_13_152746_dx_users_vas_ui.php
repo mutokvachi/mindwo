@@ -247,11 +247,11 @@ class DxUsersVasUi extends EduMigration
                             SELECT * FROM (
                                 select distinct
                                         dx_users.id as id,
-                                        dx_users.display_name as dx_users_display_name,
-                                        dx_users.display_name
+                                        dx_users.full_name_code as dx_users_display_name,
+                                        dx_users.full_name_code as display_name
                                 from
                                         dx_users
-                                        left join edu_orgs_users ou on u.id = ou.user_id
+                                        left join edu_orgs_users ou on dx_users.id = ou.user_id
                                         left join edu_orgs o on ou.org_id = o.id
                                 where
                                         (dx_users.is_role_student = 1 or

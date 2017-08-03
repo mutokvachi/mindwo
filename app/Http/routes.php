@@ -171,6 +171,7 @@ Route::group(['prefix' => 'workflow'], function() {
         Route::get('/steps/{id}', array('middleware' => 'auth_ajax', 'uses' => 'VisualWFController@getSteps'));
         Route::post('/form', array('middleware' => 'auth_ajax', 'uses' => 'VisualWFController@getWFForm'));
         Route::post('/save', array('middleware' => 'auth_ajax', 'uses'=>'VisualWFController@save'));
+        Route::post('/delete_step', array('middleware' => 'auth_ajax', 'uses'=>'VisualWFController@deleteStep'));
     });
 });
 
@@ -297,17 +298,14 @@ Route::group(['middleware' => ['auth', 'constructor_access'], 'prefix' => 'const
 	Route::put('/register/{id}/field_update', ['as' => 'register_update_field', 'uses' => 'RegisterController@updateField']);
 	Route::get('/register/{id}/rights', ['as' => 'register_edit_rights', 'uses' => 'RegisterController@editRights']);
 	Route::put('/register/{id}/rights', ['as' => 'register_update_rights', 'uses' => 'RegisterController@updateRights']);
+    Route::get('/register/{id}/workflows', ['as' => 'register_edit_workflows', 'uses' => 'RegisterController@editWorkflows']);
+	Route::put('/register/{id}/workflows', ['as' => 'register_update_workflows', 'uses' => 'RegisterController@updateWorkflows']);
 	Route::get('/db_fields/{list_id}/{field_type_id}', ['as' => 'register_get_db_fields', 'uses' => 'FieldsController@getDBFields']);
         Route::get('/menu/{site_id}', ['as' => 'menu_builder', 'uses' => 'MenuController@getMenuBuilderPage']);
         Route::put('/menu/{site_id}', ['as' => 'menu_builder_update', 'uses' => 'MenuController@updateMenu']);
 });
 
-// Lapas
-/*
-Route::get('/{id}/{item}', array('as' => 'page',  'middleware' => 'auth', 'uses'=>'PagesController@showPageItem'));
-Route::get('/{id}', array('as' => 'page',  'middleware' => 'auth', 'uses'=>'PagesController@showPage'));
-Route::post('/{id}', array('as' => 'page',  'middleware' => 'auth', 'uses'=>'PagesController@showPage'));
-
-// Noklusētā lapa
-Route::get('/', array('as' => 'home', 'middleware' => 'auth', 'uses'=>'PagesController@showRoot'));
-*/
+Route::group(['middleware' => ['auth'], 'prefix' => 'calendar', 'namespace' => 'Calendar'], function() {	
+        Route::get('/scheduler', ['as' => 'scheduler', 'uses' => 'SchedulerController@getSchedulerPage']);
+        Route::put('/scheduler', ['as' => 'scheduler_update', 'uses' => 'SchedulerController@updateSchedule']);
+});

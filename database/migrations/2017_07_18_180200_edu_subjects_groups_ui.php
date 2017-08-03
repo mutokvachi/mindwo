@@ -60,15 +60,6 @@ class EduSubjectsGroupsUi extends EduMigration
             
             App\Libraries\DBHelper::removeFieldsFromAllViews($list_id, ['title'], true);
             
-            // fix teachers related grid ID
-            $teacher_list = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_teacher'))->first();            
-            $teacher_display = DB::table('dx_lists_fields')->where('list_id', '=', $teacher_list->id)->where('db_name', '=', 'display_name')->first();
-            
-            DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'teacher_id')->update([
-                'rel_list_id' => $teacher_list->id,
-                'rel_display_field_id' => $teacher_display->id
-            ]);
-            
             // Adjust fields
             $form = DB::table('dx_forms')->where('list_id', '=', $list_id)->first();
             
@@ -79,7 +70,6 @@ class EduSubjectsGroupsUi extends EduMigration
                 'order_index' => 10
             ]);
             
-            App\Libraries\DBHelper::updateFormField($list_id, "teacher_id", ['tab_id' => $tab_main_id]);
             App\Libraries\DBHelper::updateFormField($list_id, "seats_limit", ['row_type_id' => 3, 'tab_id' => $tab_main_id]);
             App\Libraries\DBHelper::updateFormField($list_id, "signup_due", ['row_type_id' => 3, 'tab_id' => $tab_main_id]);
             App\Libraries\DBHelper::updateFormField($list_id, "is_published", ['row_type_id' => 3, 'tab_id' => $tab_main_id]);

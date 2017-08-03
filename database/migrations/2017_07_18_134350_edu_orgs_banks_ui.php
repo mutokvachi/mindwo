@@ -38,16 +38,7 @@ class EduOrgsBanksUi extends EduMigration
             \App\Libraries\DBHelper::removeFieldsFromAllForms($this->table_name, ['id'], false);
             
             // user rights
-            DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1, 'is_import_rights' => 1, 'is_view_rights' => 1]); // Sys admins            
-            
-            // fix user_id lookup
-            $user_list = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_all'))->first();            
-            $user_display = DB::table('dx_lists_fields')->where('list_id', '=', $user_list->id)->where('db_name', '=', 'display_name')->first();
-            
-            DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'user_id')->update([
-                'rel_list_id' => $user_list->id,
-                'rel_display_field_id' => $user_display->id
-            ]);
+            DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1, 'is_import_rights' => 1, 'is_view_rights' => 1]); // Sys admins 
             
             $this->addTab($list_id, trans('db_edu_orgs.list_name'));
         });

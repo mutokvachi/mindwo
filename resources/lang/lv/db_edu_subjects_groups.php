@@ -9,8 +9,7 @@ return [
     'list_name' => 'Mācību grupas',
     'item_name' => 'Mācību grupa',
     
-    'subject_id' => 'Mācību pasākums',
-    'teacher_id' => 'Pasniedzējs',
+    'subject_id' => 'Mācību pasākums',    
     'seats_limit' => 'Vietu limits',
     'signup_due' => 'Pieteikšanās termiņš',
     'is_published' => 'Ir publicēts',
