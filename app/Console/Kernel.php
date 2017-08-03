@@ -25,6 +25,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\ServerLogImport::class,
         \App\Console\Commands\CalculateTimeoffAll::class,
         \App\Console\Commands\UnlockItems::class,
+        \App\Console\Commands\CleanCache::class,
     ];
 
     /**
