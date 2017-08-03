@@ -9263,15 +9263,40 @@ var PageMain = function()
     };
     
     /**
+    * Delay events with the same id, good for window resize events, keystroke, etc
+    * 
+    * @param {Function} func : callback function to be run when done
+    * @param {Integer} wait : integer in milliseconds
+    * @param {String} id : unique event id
+    */
+    var delayedEvent = (function () {
+        var timers = {};
+
+        return function (func, wait, id) {
+            wait = wait || 200;
+            id = id || 'anonymous';
+            if (timers[id]) {
+                clearTimeout(timers[id]);
+                console.log('Delayed timer cleared for: ' + id);
+            }
+            console.log('Delayed timer set for: ' + id);
+            timers[id] = setTimeout(func, wait);
+        };
+    })();
+    
+    /**
      * Nodrošina lapas pārzīmēšanu, ja tiek mainīts pārlūka loga izmērs
      * 
      * @returns {undefined}
      */
     var handleWindowResize = function() {
         $(window).resize(function() {
+            delayedEvent(resizePageFromCookie(), 500, 'vertical-ui-win-resize')
+            /*
             setTimeout(function() {
                 resizePageFromCookie();
             }, 500);
+            */
         });  
     };
     
@@ -9282,9 +9307,12 @@ var PageMain = function()
      */
     var handleWindowResizeHorUI = function() {
         $(window).resize(function() {
+            delayedEvent(resizePage(), 500, 'horizontal-ui-win-resize')
+            /*
             setTimeout(function() {
                 resizePage();
             }, 500);
+            */
         });  
     };
     

@@ -812,6 +812,33 @@ namespace App\Libraries
                     ->update(['order_index' => $after_order]);
         }
         
+        /**
+         * Returns display text for lookup or dropdown field value
+         * 
+         * @param integer $item_value ID for lookup item
+         * @param array $fld_attr Aray with field attributes
+         * @return string Textual value for given lookup ID
+         */
+        public static function getLookupDisplayText($item_value, $fld_attr)
+        {                         
+            if ($item_value == 0) {
+                return "";
+            }
+                        
+            $val_row =  DB::table($fld_attr->rel_table_name)
+                        ->select($fld_attr->rel_field_name . ' as txt')
+                        ->where('id', '=', $item_value)
+                        ->first();
+
+            $txt_display = "";
+            if ($val_row) {
+                $txt_display = $val_row->txt;
+            }
+
+            return $txt_display;
+            
+        }
+        
     }
 
 }

@@ -15822,6 +15822,7 @@ function post_grid_ajax(formData, grid_data_htm_id, form_htm_id, is_scroll)
                     }
                     
                     setTimeout(function(){ 
+						console.log("resizePage caller: dx_grid_core.js post_grid_ajax()");
                         PageMain.resizePage();                     
                     }, 100);
                     
