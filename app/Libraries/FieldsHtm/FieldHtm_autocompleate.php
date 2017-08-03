@@ -88,28 +88,18 @@ namespace App\Libraries\FieldsHtm
             
             $this->fld_attr->is_right_check = 0; // we turn off right check because otherwise wont work CMS for users with default value [ME]
             
-            try 
-            {                                
-                $sql_rel = getLookupSQL($this->fld_attr->rel_list_id, $this->fld_attr->rel_table_name, $this->fld_attr, "txt");
-                
-                $sql_rel .= " AND id = " . $this->item_value;
-                
-                $items = DB::select($sql_rel);
-                
-                $txt_display = (count($items) > 0) ? $items[0]->txt : "";
-                
-                return $txt_display;
+            $val_row =  DB::table($this->fld_attr->rel_table_name)
+                        ->select($this->fld_attr->rel_field_name . ' as txt')
+                        ->where('id', '=', $this->item_value)
+                        ->first();
+
+            $txt_display = "";
+            if ($val_row) {
+                $txt_display = $val_row->txt;
             }
-            catch (Exceptions\DXCustomException $e) {
-                throw $e;
-            }
-            catch (\mindwo\pages\Exceptions\PagesException $e) {
-                throw $e;
-            }
-            catch(\Exception $e)
-            {
-                throw new Exceptions\DXCustomException(sprintf(trans('errors.lookup_sql_error'), $this->fld_attr->db_name));
-            }
+
+            return $txt_display;
+            
         }
 
     }
