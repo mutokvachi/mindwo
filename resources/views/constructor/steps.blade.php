@@ -3,7 +3,7 @@
     @for($i = 0, $j = array_search($step, $steps); $i < count($steps); $i++)
       <div class="col-md-2 mt-step-col
         dx-step-{{ $steps[$i] }}
-        {{ $i == 0 ? 'col-md-offset-2 first' : '' }}
+        {{ $i == 0 ? 'col-md-offset-1 first' : '' }}
         {{ $i == count($steps) - 1 ? 'last' : '' }}
         {{ $i < $j ? 'done' : '' }}
         {{ $step == $steps[$i] ? 'active' : '' }}

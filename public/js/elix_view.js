@@ -22554,17 +22554,18 @@ window.DxCrypto = new window.DxCryptoClass();
 
 mxBasePath = '/js/plugins/mxgraph/src';
 
-(function ($)
-{
+(function ($) {
     /**
      * Creates jQuery plugin for workflow form
      * @returns DxWorkflow
      */
-    $.fn.DxWorkflow = function ()
-    {
-        return this.each(function ()
-        {
-            new $.DxWorkflow($(this));
+    $.fn.DxWorkflow = function () {
+        return this.each(function () {
+            if ($(this).data('dx_is_init') == 1) {
+                return;
+            }
+
+            this.workflow = new $.DxWorkflow($(this));
         });
     };
 
@@ -22613,10 +22614,24 @@ mxBasePath = '/js/plugins/mxgraph/src';
          */
         this.isSending = false;
 
+        /**
+         * Callback function which is called after data is saved;
+         */
+        this.saveCallback = false;
+
+        /**
+         * Parameter if graph has been initialized
+         */
         this.isGraphInit = false;
 
+        /**
+         * System's date format
+         */
         this.dateFormat = '';
 
+        /**
+         * System's locale
+         */
         this.locale = 'en';
 
         /**
@@ -22633,6 +22648,9 @@ mxBasePath = '/js/plugins/mxgraph/src';
      * @returns {undefined}
      */
     $.extend($.DxWorkflow.prototype, {
+        /**
+         * Vertex styles
+         */
         vertexStyle: {
             ellipse: {
                 style: 'shape=ellipse;editable=0;html=1;whiteSpace=wrap;fillColor=#E1E5EC;strokeColor=#4B77BE;fontColor=black;',
@@ -22650,8 +22668,12 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 height: 100
             }
         },
-        mxIconSet: function (self, state)
-        {
+        /**
+         * Defines icons in graph
+         * @param {DxWorkflow} self Current workflow's class instance
+         * @param {obj} state Current view state
+         */
+        mxIconSet: function (self, state) {
             this.images = [];
             var graph = state.view.graph;
 
@@ -22672,14 +22694,13 @@ mxBasePath = '/js/plugins/mxgraph/src';
                     img.style.top = (state.y + (state.height / 2) - 20) + 'px';
 
                     mxEvent.addGestureListeners(img,
-                            mxUtils.bind(this, function (evt)
-                            {
-                                self.editWorkflowStep(self, state.cell.workflow_step_id, state.cell);
+                        mxUtils.bind(this, function (evt) {
+                            self.editWorkflowStep(self, state.cell.workflow_step_id, state.cell);
 
-                                mxEvent.consume(evt);
-                                this.destroy();
-                            })
-                            );
+                            mxEvent.consume(evt);
+                            this.destroy();
+                        })
+                    );
 
                     state.view.graph.container.appendChild(img);
                     this.images.push(img);
@@ -22706,35 +22727,28 @@ mxBasePath = '/js/plugins/mxgraph/src';
             }
 
             mxEvent.addGestureListeners(img,
-                    mxUtils.bind(this, function (evt)
-                    {
-                        // Disables dragging the image
-                        mxEvent.consume(evt);
-                    })
-                    );
+                mxUtils.bind(this, function (evt) {
+                    // Disables dragging the image
+                    mxEvent.consume(evt);
+                })
+            );
 
             mxEvent.addListener(img, 'click',
-                    mxUtils.bind(this, function (evt)
-                    {
-                        mxEvent.removeAllListeners(img);
+                mxUtils.bind(this, function (evt) {
+                    mxEvent.removeAllListeners(img);
 
-                        PageMain.showConfirm(function (data) {
-                            data.graph.removeCells([data.cell]);
-                            mxEvent.consume(data.evt);
-                            data.self.destroy();
-                        }, {graph: graph, cell: state.cell, evt: evt, self: this}, Lang.get('workflow.delete_confirm_title'), Lang.get('workflow.delete_confirm_text'));
-                    })
-                    );
+                    PageMain.showConfirm(function (data) {
+                        self.deleteStep(data);
+                    }, { graph: graph, cell: state.cell, evt: evt, self: this }, Lang.get('workflow.delete_confirm_title'), Lang.get('workflow.delete_confirm_text'));
+                })
+            );
 
             state.view.graph.container.appendChild(img);
             this.images.push(img);
 
-            this.destroy = function ()
-            {
-                if (this.images != null)
-                {
-                    for (var i = 0; i < this.images.length; i++)
-                    {
+            this.destroy = function () {
+                if (this.images != null) {
+                    for (var i = 0; i < this.images.length; i++) {
                         var img = this.images[i];
 
                         mxEvent.removeAllListeners(img);
@@ -22746,8 +22760,49 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 this.images = null;
             };
         },
+        /**
+         * Deletes element. If it is workflow step then delete it from database
+         * @param {obj} data Current cell data
+         */
+        deleteStep: function (data) {
+            if (data.cell.workflow_step_id > 0) {
+                show_page_splash(1);
+
+                var postData = {
+                    step_id: data.cell.workflow_step_id
+                };
+
+                $.ajax({
+                    url: DX_CORE.site_url + 'workflow/visual/delete_step',
+                    type: "post",
+                    data: postData,
+                    dataType: "json",
+                    context: self,
+                    success: function (res) {
+                        if(res && res.success && res.success == 1){
+                            data.graph.removeCells([data.cell]);
+                            mxEvent.consume(data.evt);
+                            data.self.destroy();
+                        }
+
+                        hide_page_splash(1);
+                    },
+                    error: self.onSaveError
+                });
+            } else {
+                data.graph.removeCells([data.cell]);
+                mxEvent.consume(data.evt);
+                data.self.destroy();
+            }
+        },
+        /**
+         * Edits workflow
+         * @param {DxWorkflow} self Current workflow's class instance
+         * @param {int} stepId Current step's ID
+         * @param {obj} vertex Steps vertex
+         */
         editWorkflowStep: function (self, stepId, vertex) {
-            if (typeof stepId === 'undefined' || stepId < 0) {
+            if (typeof stepId === 'undefined' || stepId <= 0) {
                 stepId = 0;
                 self.max_step_nr += 10;
             }
@@ -22764,25 +22819,15 @@ mxBasePath = '/js/plugins/mxgraph/src';
             });
 
         },
+        /**
+         * Initializes workflow class
+         */
         init: function () {
             var self = this;
 
-            if (self.domObject.data('dx_is_init') == 1) {
-                return;
-            }
-
-
-            show_form_splash(1);
+            show_page_splash(1);
 
             self.domObject.data('dx_is_init', '1');
-
-            var footer = self.domObject.closest('.modal-content').find('.modal-footer');
-            footer.prepend('<button type="button" class="btn btn-primary dx-cms-workflow-form-btn-save">&nbsp;' + Lang.get('workflow.save') + '</button>');
-
-            self.domObject.closest('.modal').on('hidden.bs.modal', function () {
-                $(this).unbind("hidden.bs.modal");
-                $('.dx-cms-workflow-form-btn-save', $(this)).remove();
-            });
 
             // Sets parameters
             self.workflowId = self.domObject.data('wf_id');
@@ -22792,14 +22837,31 @@ mxBasePath = '/js/plugins/mxgraph/src';
             self.locale = self.domObject.data('locale');
             self.max_step_nr = self.domObject.data('max_step_nr');
 
-            self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_from');
-            self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_to');
+            var stepBtn = $('.dx-cms-workflow-form-tab-steps-btn');
 
-            $('.dx-cms-workflow-form-btn-save', footer).click(function () {
-                self.save({self: self, initGraph: false});
-            });
+            // If tab btn found then workflow is opened from consturctor else it is opened from register (advanced) 
+            if (stepBtn.length > 0) {
+                stepBtn.click(function () {
+                    return self.onStepsTabClick(self);
+                });
 
-            self.initGraph(self);
+                self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_from');
+                self.initDatePickers(this, '.dx-cms-workflow-form-input-valid_to');
+            } else {
+                var footer = self.domObject.closest('.modal-content').find('.modal-footer');
+                footer.prepend('<button type="button" class="btn btn-primary dx-cms-workflow-form-btn-save">&nbsp;' + Lang.get('workflow.save') + '</button>');
+
+                self.domObject.closest('.modal').on('hidden.bs.modal', function () {
+                    $(this).unbind("hidden.bs.modal");
+                    $('.dx-cms-workflow-form-btn-save', $(this)).remove();
+                });
+
+                $('.dx-cms-workflow-form-btn-save', footer).click(function () {
+                    self.save({ self: self, initGraph: false });
+                });
+
+                self.initGraph(self);
+            }
 
             /*if (self.domObject) {
              self.handleModalScrollbar(self.domObject);
@@ -22807,10 +22869,31 @@ mxBasePath = '/js/plugins/mxgraph/src';
              self.domObject.modal('show');
              }*/
 
-            hide_form_splash(1);
+            hide_page_splash(1);
         },
+        /**
+         * Initializes graph if graph tab is opened for the first time (This applies only for consturctor)
+         * @param {DxWorkflow} self Current workflow's class instance
+         */
+        onStepsTabClick: function (self) {
+            if (!self.isGraphInit) {
+                if (self.workflowId > 0) {
+                    self.initGraph(self);
+                } else {
+                    //callback, callbackParameters, title, bodyText, acceptText, declineText
+                    PageMain.showConfirm(self.save, { self: self, initGraph: true }, Lang.get('workflow.must_save_title'), Lang.get('workflow.must_save_text'));
+
+                    return false;
+                }
+            }
+        },
+        /**
+         * Initializes date picker
+         * @param {DxWorkflow} self Current workflow's class instance
+         * @param {string} picker_name Picker name to init
+         */
         initDatePickers: function (self, picker_name) {
-            var picker = $(picker_name, self.domObject);
+            var picker = $(picker_name);
 
             picker.datetimepicker({
                 lang: self.locale,
@@ -22820,45 +22903,51 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 closeOnDateSelect: true
             });
 
-            $(picker_name + '-calc', self.domObject).click(function (e) {
-                $(picker_name, self.domObject).datetimepicker('show');
+            $(picker_name + '-calc').click(function (e) {
+                $(picker_name).datetimepicker('show');
             });
         },
         /**
          * Sets step's positions automatically by generating them from database
+         * @param {DxWorkflow} self Current workflow's class instance
          * @returns {undefined}
          */
         setXmlAutomatically: function (self) {
             PageMain.showConfirm(function () {
-                show_form_splash(1);
+                show_page_splash(1);
 
-                $.ajax({
-                    url: DX_CORE.site_url + 'workflow/visual/xml/' + self.workflowId,
-                    type: "get",
-                    dataType: "json",
-                    context: self,
-                    success: function (data) {
-                        if (data && data.success == 1) {
-                            self.setXML(self, data.html);
-                            notify_info(Lang.get('workflow.success_arrange'));
-                        } else {
+                self.saveCallback = function(){
+                    $.ajax({
+                        url: DX_CORE.site_url + 'workflow/visual/xml/' + self.workflowId,
+                        type: "get",
+                        dataType: "json",
+                        context: self,
+                        success: function (data) {
+                            if (data && data.success == 1) {
+                                self.setXML(self, data.html);
+                                notify_info(Lang.get('workflow.success_arrange'));
+                            } else {
+                                notify_err(Lang.get('errors.unknown_error'));
+                            }
+
+                            hide_page_splash(1);
+                        },
+                        error: function () {
                             notify_err(Lang.get('errors.unknown_error'));
                         }
+                    });
+                }
 
-                        hide_form_splash(1);
-                    },
-                    error: function () {
-                        notify_err(Lang.get('errors.unknown_error'));
-                    }
-                });
-            }, {self: self}, Lang.get('workflow.arrange'), Lang.get('workflow.arrange_text'));
+                self.save({ self: self, initGraph: false });
+
+            }, { self: self }, Lang.get('workflow.arrange'), Lang.get('workflow.arrange_text') + '<br>' + Lang.get('workflow.arrangee_tooltip'));
         },
         /**
          * Initializes graph
          * @returns {undefined}
          */
         initGraph: function () {
-            show_form_splash(1);
+            show_page_splash(1);
 
             var self = this;
 
@@ -22878,13 +22967,11 @@ mxBasePath = '/js/plugins/mxgraph/src';
             var tbContainer = self.domObject.find('.dx-wf-toolbar')[0];
 
             // Checks if browser is supported
-            if (!mxClient.isBrowserSupported())
-            {
+            if (!mxClient.isBrowserSupported()) {
                 // Displays an error message if the browser is
                 // not supported.
                 mxUtils.error('Browser is not supported!', 200, false);
-            } else
-            {
+            } else {
                 // Defines an icon for creating new connections in the connection handler.
                 // This will automatically disable the highlighting of the source vertex.
                 mxConnectionHandler.prototype.connectImage = new mxImage(mxBasePath + '/images/connector.gif', 16, 16);
@@ -22922,8 +23009,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
                  */
 
                 // Workaround for Internet Explorer ignoring certain styles
-                if (mxClient.IS_QUIRKS)
-                {
+                if (mxClient.IS_QUIRKS) {
                     document.body.style.overflow = 'hidden';
                     new mxDivResizer(tbContainer);
                     new mxDivResizer(container);
@@ -22979,98 +23065,90 @@ mxBasePath = '/js/plugins/mxgraph/src';
 
                 // Shows icons if the mouse is over a cell
                 self.graph.addMouseListener(
-                        {
-                            currentState: null,
-                            currentIconSet: null,
-                            mouseDown: function (sender, me)
-                            {
-                                // Hides icons on mouse down
-                                if (this.currentState != null)
-                                {
-                                    this.dragLeave(me.getEvent(), this.currentState);
-                                    this.currentState = null;
-                                }
-                            },
-                            mouseMove: function (sender, me)
-                            {
-                                if (this.currentState != null && (me.getState() == this.currentState ||
-                                        me.getState() == null))
-                                {
-                                    var tol = iconTolerance;
+                    {
+                        currentState: null,
+                        currentIconSet: null,
+                        mouseDown: function (sender, me) {
+                            // Hides icons on mouse down
+                            if (this.currentState != null) {
+                                this.dragLeave(me.getEvent(), this.currentState);
+                                this.currentState = null;
+                            }
+                        },
+                        mouseMove: function (sender, me) {
+                            if (this.currentState != null && (me.getState() == this.currentState ||
+                                me.getState() == null)) {
+                                var tol = iconTolerance;
+
+                                if ($('.dx-cms-workflow-form-tab-steps-btn').length > 0) {
+                                    var scroll_y = 0;
+                                    var scroll_x = 0;
+                                } else {
                                     var scroll_y = self.domObject.closest('.modal-body')[0].scrollTop;
                                     var scroll_x = self.domObject.closest('.modal-body')[0].scrollLeft;
-
-                                    var tmp = new mxRectangle(me.getGraphX() - tol - scroll_x,
-                                            me.getGraphY() - tol - scroll_y, 2 * tol, 2 * tol);
-
-                                    if (mxUtils.intersects(tmp, this.currentState))
-                                    {
-                                        return;
-                                    }
                                 }
 
-                                var tmp = self.graph.view.getState(me.getCell());
+                                var tmp = new mxRectangle(me.getGraphX() - tol - scroll_x,
+                                    me.getGraphY() - tol - scroll_y, 2 * tol, 2 * tol);
 
-                                // Ignores everything but vertices
-                                // || (tmp != null && !self.graph.getModel().isVertex(tmp.cell))
-                                if (self.graph.isMouseDown)
-                                {
-                                    tmp = null;
-                                }
-
-                                if (tmp != this.currentState)
-                                {
-                                    if (this.currentState != null)
-                                    {
-                                        this.dragLeave(me.getEvent(), this.currentState);
-                                    }
-
-                                    this.currentState = tmp;
-
-                                    if (this.currentState != null)
-                                    {
-                                        this.dragEnter(me.getEvent(), this.currentState);
-                                    }
-                                }
-                            },
-                            mouseUp: function (sender, me) {
-                            },
-                            dragEnter: function (evt, state)
-                            {
-                                if (self.graph.getModel().isVertex(state.cell)) {
-                                    var outEdgesCount = self.countOutgoingEdges(state.cell, false);
-
-                                    // Allow new edges if limit has not yet been reached
-                                    if (outEdgesCount < state.cell.arrow_count) {
-                                        self.graph.setConnectable(true);
-                                    }
-                                }
-
-                                if (this.currentIconSet == null)
-                                {
-                                    this.currentIconSet = new self.mxIconSet(self, state);
-                                }
-                            },
-                            dragLeave: function (evt, state)
-                            {
-                                if (self.graph.getModel().isVertex(state.cell)) {
-                                    self.graph.setConnectable(false);
-                                }
-
-                                if (this.currentIconSet != null)
-                                {
-                                    this.currentIconSet.destroy();
-                                    this.currentIconSet = null;
+                                if (mxUtils.intersects(tmp, this.currentState)) {
+                                    return;
                                 }
                             }
-                        });
+
+                            var tmp = self.graph.view.getState(me.getCell());
+
+                            // Ignores everything but vertices
+                            // || (tmp != null && !self.graph.getModel().isVertex(tmp.cell))
+                            if (self.graph.isMouseDown) {
+                                tmp = null;
+                            }
+
+                            if (tmp != this.currentState) {
+                                if (this.currentState != null) {
+                                    this.dragLeave(me.getEvent(), this.currentState);
+                                }
+
+                                this.currentState = tmp;
+
+                                if (this.currentState != null) {
+                                    this.dragEnter(me.getEvent(), this.currentState);
+                                }
+                            }
+                        },
+                        mouseUp: function (sender, me) {
+                        },
+                        dragEnter: function (evt, state) {
+                            if (self.graph.getModel().isVertex(state.cell)) {
+                                var outEdgesCount = self.countOutgoingEdges(state.cell, false);
+
+                                // Allow new edges if limit has not yet been reached
+                                if (outEdgesCount < state.cell.arrow_count) {
+                                    self.graph.setConnectable(true);
+                                }
+                            }
+
+                            if (this.currentIconSet == null) {
+                                this.currentIconSet = new self.mxIconSet(self, state);
+                            }
+                        },
+                        dragLeave: function (evt, state) {
+                            if (self.graph.getModel().isVertex(state.cell)) {
+                                self.graph.setConnectable(false);
+                            }
+
+                            if (this.currentIconSet != null) {
+                                this.currentIconSet.destroy();
+                                this.currentIconSet = null;
+                            }
+                        }
+                    });
 
                 // Stops editing on enter or escape keypress
                 var keyHandler = new mxKeyHandler(self.graph);
                 var rubberband = new mxRubberband(self.graph);
 
-                var addVertex = function (icon, is_endpoint)
-                {
+                var addVertex = function (icon, is_endpoint) {
                     var style, w, h;
 
                     if (is_endpoint) {
@@ -23089,8 +23167,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
                     var img = self.addToolbarItem(self, self.graph, toolbar, vertex, icon, is_endpoint);
                     img.enabled = true;
 
-                    self.graph.getSelectionModel().addListener(mxEvent.CHANGE, function ()
-                    {
+                    self.graph.getSelectionModel().addListener(mxEvent.CHANGE, function () {
                         var tmp = self.graph.isSelectionEmpty();
                         mxUtils.setOpacity(img, (tmp) ? 100 : 20);
                         img.enabled = tmp;
@@ -23102,10 +23179,8 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 addVertex(mxBasePath + '/images/ellipse.gif', true);
 
                 var keyHandler = new mxKeyHandler(self.graph);
-                keyHandler.bindKey(46, function (evt)
-                {
-                    if (self.graph.isEnabled())
-                    {
+                keyHandler.bindKey(46, function (evt) {
+                    if (self.graph.isEnabled()) {
                         self.graph.removeCells();
                     }
                 });
@@ -23113,27 +23188,47 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 self.loadData();
             }
 
-            hide_form_splash(1);
+            hide_page_splash(1);
         },
+        /**
+         * Hides fields which should be hidden because they are for advanced usage
+         * @param {jQueryObj} form Current form 
+         * @param {DxWorkflow} self Current workflow's class instance
+         * @param {int} stepId Current step's ID
+         */
         onBeforeFormShow: function (form, self, stepId) {
             form.find('div[dx_fld_name_form=id]').hide();
-           // form.find('div[dx_fld_name_form=step_nr]').hide();
-           // form.find('div[dx_fld_name_form=yes_step_nr]').hide();
-          //  form.find('div[dx_fld_name_form=no_step_nr]').hide();
+            form.find('div[dx_fld_name_form=step_nr]').hide();
+            form.find('div[dx_fld_name_form=yes_step_nr]').hide();
+            form.find('div[dx_fld_name_form=no_step_nr]').hide();
             form.find('div[dx_fld_name_form=workflow_def_id]').hide();
-            form.find('div[dx_fld_name_form=list_id]').hide();
+            form.find('select[dx_fld_name=list_id]').prop('disabled', true);
 
-            form.find('input[name=step_nr]').val(self.max_step_nr);
-            
+            var field_id = form.find('select[dx_fld_name=field_id]').val()
+
+            if (stepId == 0) {
+                form.find('input[name=step_nr]').val(self.max_step_nr);
+                form.find('select[dx_fld_name=list_id]').val(self.wfRegisterListId);
+                form.find('select[dx_fld_name=list_id]').change();
+            }
+
             form.find('select[dx_fld_name=workflow_def_id]').val(self.workflowId);
             form.find('select[dx_fld_name=workflow_def_id]').change();
-            form.find('select[dx_fld_name=list_id]').val(self.wfRegisterListId);
+           /* form.find('select[dx_fld_name=list_id]').val(self.wfRegisterListId);
             form.find('select[dx_fld_name=list_id]').change();
-            
-          /*  form.find('select[dx_fld_name=task_type_id]').on('change', function (e, o) {
+            form.find('select[dx_fld_name=field_id]').val(parseInt(field_id));
+            form.find('select[dx_fld_name=field_id]').change();*/
+
+            form.find('select[dx_fld_name=task_type_id]').on('change', function (e, o) {
                 form.find('div[dx_fld_name_form=no_step_nr]').hide();
-            });*/
+            });
         },
+        /**
+         * Reads steps properties and apply to graphic
+         * @param {jQueryObj} form Current form 
+         * @param {DxWorkflow} self Current workflow's class instance
+         * @param {obj} vertex Selected step's vertex
+         */
         onAfterFormClose: function (form, self, vertex) {
             var stepId = form.find('input[name=id]').val();
             var taskTypeId = form.find('input[name=task_type_id]').val();
@@ -23145,6 +23240,15 @@ mxBasePath = '/js/plugins/mxgraph/src';
             self.setCellProperties(self, vertex, stepId, taskTypeId, stepNr, stepTitle);
 
         },
+        /**
+         * Sets steps properties to graphic's cell
+         * @param {DxWorkflow} self Current workflow's class instance
+         * @param {obj} vertex Selected step's vertex
+         * @param {int} stepId Current step's ID
+         * @param {int} taskTypeId Step's task type
+         * @param {int} stepNr Step's number
+         * @param {string} stepTitle Step's title
+         */
         setCellProperties: function (self, vertex, stepId, taskTypeId, stepNr, stepTitle) {
             var hasArrowLabels = 0;
             var typeCode = self.wfTaskTypes[taskTypeId];
@@ -23207,6 +23311,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
         /**
          * Count out going edges for cell
          * @param {object} cell Cell under mouse cursor 
+         * @param {boolean} count_only_yes Parameter if count only "yes" edges
          * @returns {int} Count of outgoing edges
          */
         countOutgoingEdges: function (cell, count_only_yes) {
@@ -23231,9 +23336,9 @@ mxBasePath = '/js/plugins/mxgraph/src';
             return outEdgesCount;
         },
         /**
-         * Uzstāda ritjoslu modālajam uzdevuma logam
+         * Sets scroll bar to form
          * 
-         * @param {object} frm Uzdevuma formas elements
+         * @param {object} frm Form element
          * @returns {undefined}
          */
         handleModalScrollbar: function (frm) {
@@ -23243,10 +23348,10 @@ mxBasePath = '/js/plugins/mxgraph/src';
             });
         },
         /**
-         * Apstrādā uzdevuma formas aizvēršanu - izņem pārlūkā ielādēto HTML
-         * Ja forma bija atvērta no saraksta, tad iespējo saraksta funkcionalitāti
+         * Processes task form closing - removes loaded HTML
+         * If form was opened from register, then init register functionality
          * 
-         * @param {object} frm Uzdevuma formas elements
+         * @param {object} frm Form element
          * @returns {undefined}
          */
         handleModalHide: function (frm) {
@@ -23263,13 +23368,19 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 }, 200);
             });
         },
-        addToolbarItem: function (self, graph, toolbar, prototype, image, is_endpoint)
-        {
+        /**
+         * @param {DxWorkflow} self Current workflow's class instance
+         * @param {obj} graph Current workflow graph
+         * @param {obj} toolbar Current toolbar
+         * @param {obj} prototype Object's prototype
+         * @param {obj} image Item's image
+         * @param {boolean} is_endpoint Current workflow's class instance
+         */
+        addToolbarItem: function (self, graph, toolbar, prototype, image, is_endpoint) {
             // Function that is executed when the image is dropped on
             // the graph. The cell argument points to the cell under
             // the mousepointer if there is one.
-            var funct = function (graph, evt, cell, x, y)
-            {
+            var funct = function (graph, evt, cell, x, y) {
                 graph.stopEditing(false);
 
                 var vertex = graph.getModel().cloneCell(prototype);
@@ -23291,8 +23402,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
             };
 
             // Creates the image which is used as the drag icon (preview)
-            var img = toolbar.addMode(null, image, function (evt, cell)
-            {
+            var img = toolbar.addMode(null, image, function (evt, cell) {
                 var pt = this.graph.getPointForEvent(evt);
                 funct(graph, evt, cell, pt.x, pt.y);
             });
@@ -23300,17 +23410,14 @@ mxBasePath = '/js/plugins/mxgraph/src';
             // Disables dragging if element is disabled. This is a workaround
             // for wrong event order in IE. Following is a dummy listener that
             // is invoked as the last listener in IE.
-            mxEvent.addListener(img, 'mousedown', function (evt)
-            {
+            mxEvent.addListener(img, 'mousedown', function (evt) {
                 // do nothing
             });
 
             // This listener is always called first before any other listener
             // in all browsers.
-            mxEvent.addListener(img, 'mousedown', function (evt)
-            {
-                if (img.enabled == false)
-                {
+            mxEvent.addListener(img, 'mousedown', function (evt) {
+                if (img.enabled == false) {
                     mxEvent.consume(evt);
                 }
             });
@@ -23334,8 +23441,12 @@ mxBasePath = '/js/plugins/mxgraph/src';
             var encoder = new mxCodec();
             var node = encoder.encode(self.graph.getModel());
 
-            return  mxUtils.getPrettyXml(node);
+            return mxUtils.getPrettyXml(node);
         },
+        /**
+         * Saves workflow
+         * @param {obj} data Data contains current Workflow class instance and boolean if graph must be initialized {self, initgraph}
+         */
         save: function (data) {
             var self = data.self;
             var initGraph = data.initGraph;
@@ -23345,7 +23456,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
             }
 
             self.isSending = true;
-            show_form_splash(1);
+            show_page_splash(1);
 
 
             var xml = '';
@@ -23357,6 +23468,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
             var data = {
                 workflow_id: self.workflowId,
                 xml_data: xml,
+                has_wf_details: $('.dx-cms-workflow-form-tab-steps-btn').length > 0 ? 1 : 0,
                 list_id: $('.dx-cms-workflow-form-input-list_id').val(),
                 title: $('.dx-cms-workflow-form-input-title').val(),
                 description: $('.dx-cms-workflow-form-input-description').val(),
@@ -23377,12 +23489,21 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 error: self.onSaveError
             });
         },
+        /**
+         * Event when workflow has been saved
+         * @param {JSON} data Ajax response data
+         * @param {boolean} initGraph Parameter if graph should be initialized
+         */
         onSaveSuccess: function (data, initGraph) {
             var self = this;
 
             if (data && data.success == 1) {
                 self.workflowId = data.html;
                 notify_info(Lang.get('workflow.success'));
+
+                if (self.saveCallback) {
+                    self.saveCallback();
+                }
             } else {
                 self.showError(data);
             }
@@ -23390,19 +23511,23 @@ mxBasePath = '/js/plugins/mxgraph/src';
             self.isSending = false;
 
             if (initGraph && !self.isGraphInit) {
-                $('.dx-cms-workflow-form-tab-steps-btn', self.domObject).click();
+                $('.dx-cms-workflow-form-tab-steps-btn').click();
             }
 
-            hide_form_splash(1);
+            hide_page_splash(1);
 
         },
+        /**
+         * Event when workflow has not been saved
+         * @param {JSON} data Ajax response data
+         */
         onSaveError: function (data) {
             var self = this;
 
             self.showError(data);
 
             self.isSending = false;
-            hide_form_splash(1);
+            hide_page_splash(1);
         },
         /**
          * Shows error
@@ -23422,14 +23547,18 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 toastr.error(Lang.get('errors.workflow.not_saved') + ': ' + errMsg);
             }
         },
+        /**
+         * Load XML into graph
+         * @param {DxWorkflow} self Current workflow's class instance
+         * @param {string} xml XMl which contains workflow graph
+         */
         setXML: function (self, xml) {
             // Gets the default parent for inserting new cells. This
             // is normally the first child of the root (ie. layer 0).
             var parent = self.graph.getDefaultParent();
 
             self.graph.getModel().beginUpdate();
-            try
-            {
+            try {
                 var doc = mxUtils.parseXml(xml);
                 var dec = new mxCodec(doc);
                 var model = dec.decode(doc.documentElement);
@@ -23439,8 +23568,7 @@ mxBasePath = '/js/plugins/mxgraph/src';
                 if (typeof model.getRoot != 'undefined') {
                     self.graph.getModel().mergeChildren(model.getRoot().getChildAt(0), parent);
                 }
-            } finally
-            {
+            } finally {
                 // Updates the display
                 self.graph.getModel().endUpdate();
             }
@@ -23451,38 +23579,13 @@ mxBasePath = '/js/plugins/mxgraph/src';
 // ajaxComplete ready
 $(document).ready(function () {
     // Initializes all found worklfow containers
-    $('.dx-cms-workflow-form[data-dx_is_init=0]').DxWorkflow();
+    $('.dx-cms-workflow-form').DxWorkflow();
 });
 
 $(document).ajaxComplete(function () {
     // Initializes all found worklfow containers
-    $('.dx-cms-workflow-form[data-dx_is_init=0]').DxWorkflow();
+    $('.dx-cms-workflow-form').DxWorkflow();
 });
-
-/*
- var btns_div = form_object.find(".dx_form_btns_left");
- 
- var make_button = function () {
- 
- if ($("#dx-btn-wf-designer" + form_object.attr('id')).length != 0) {
- return; // poga jau ir pievienota
- }
- 
- btns_div.append("<button id='dx-btn-wf-designer" + form_object.attr('id') + "' type='button' class='btn btn-white dropdown-toggle' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'><i class='fa fa-eye'></i> " + Lang.get('open_designer') + " </button>");
- 
- $("#dx-btn-wf-designer" + form_object.attr('id')).click(function () {
- var item_id = form_object.find("input[name=id]").val();
- var item_url = '/workflow/visual/form';
- var item_title = Lang.get('workflow.form_title');
- 
- get_popup_item_by_id(item_id, item_url, item_title);
- });
- };
- 
- if (btns_div)
- {
- make_button();
- }*/
 var mxClient={VERSION:"3.7.1",IS_IE:0<=navigator.userAgent.indexOf("MSIE"),IS_IE6:0<=navigator.userAgent.indexOf("MSIE 6"),IS_IE11:!!navigator.userAgent.match(/Trident\/7\./),IS_EDGE:!!navigator.userAgent.match(/Edge\//),IS_QUIRKS:0<=navigator.userAgent.indexOf("MSIE")&&(null==document.documentMode||5==document.documentMode),IS_EM:"spellcheck"in document.createElement("textarea")&&8==document.documentMode,VML_PREFIX:"v",OFFICE_PREFIX:"o",IS_NS:0<=navigator.userAgent.indexOf("Mozilla/")&&0>navigator.userAgent.indexOf("MSIE")&&
 0>navigator.userAgent.indexOf("Edge/"),IS_OP:0<=navigator.userAgent.indexOf("Opera/")||0<=navigator.userAgent.indexOf("OPR/"),IS_OT:0<=navigator.userAgent.indexOf("Presto/")&&0>navigator.userAgent.indexOf("Presto/2.4.")&&0>navigator.userAgent.indexOf("Presto/2.3.")&&0>navigator.userAgent.indexOf("Presto/2.2.")&&0>navigator.userAgent.indexOf("Presto/2.1.")&&0>navigator.userAgent.indexOf("Presto/2.0.")&&0>navigator.userAgent.indexOf("Presto/1."),IS_SF:0<=navigator.userAgent.indexOf("AppleWebKit/")&&
 0>navigator.userAgent.indexOf("Chrome/")&&0>navigator.userAgent.indexOf("Edge/"),IS_IOS:navigator.userAgent.match(/(iPad|iPhone|iPod)/g)?!0:!1,IS_GC:0<=navigator.userAgent.indexOf("Chrome/")&&0>navigator.userAgent.indexOf("Edge/"),IS_CHROMEAPP:null!=window.chrome&&null!=chrome.app&&null!=chrome.app.runtime,IS_FF:0<=navigator.userAgent.indexOf("Firefox/"),IS_MT:0<=navigator.userAgent.indexOf("Firefox/")&&0>navigator.userAgent.indexOf("Firefox/1.")&&0>navigator.userAgent.indexOf("Firefox/2.")||0<=navigator.userAgent.indexOf("Iceweasel/")&&
