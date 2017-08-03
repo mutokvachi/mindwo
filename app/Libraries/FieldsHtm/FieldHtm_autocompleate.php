@@ -36,7 +36,7 @@ namespace App\Libraries\FieldsHtm
                     'rel_field_id' => $this->fld_attr->rel_field_id,
                     'rel_view_id' => $this->fld_attr->rel_view_id,
                     'rel_display_formula_field' => $this->fld_attr->rel_display_formula_field,
-                    'txt_display' => $this->getDisplayText(),
+                    'txt_display' => \App\Libraries\DBHelper::getLookupDisplayText($this->item_value, $this->fld_attr),
                     'is_required' => $this->fld_attr->is_required,
                     'form_url' => $form_url,
                     'frm_uniq_id_js' => $frm_uniq_id_js
@@ -47,7 +47,7 @@ namespace App\Libraries\FieldsHtm
          * Returns textual value of the field
          */
         public function getTxtVal() {
-            return $this->getDisplayText();
+            return \App\Libraries\DBHelper::getLookupDisplayText($this->item_value, $this->fld_attr);
         }
 
         /**
