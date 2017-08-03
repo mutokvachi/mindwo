@@ -7,7 +7,7 @@
     "require": {
         "php": ">=5.6.19",
         "laravel/framework": "5.2.*",        
-        "doctrine/dbal": "dev-master",
+        "doctrine/dbal": "2.5.*",
         "imagine/imagine": "dev-master",
         "illuminate/html": "dev-master",
         "phpdocumentor/phpdocumentor": "2.*",
