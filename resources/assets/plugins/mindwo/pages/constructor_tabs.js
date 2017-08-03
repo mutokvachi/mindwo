@@ -121,6 +121,11 @@ Module.create('ConstructorTabs', {
 					return;
 				}
 				
+				if(!$('.dx-constructor-tab-button').length)
+				{
+					$('.dx-constructor-form-tabs').show();
+				}
+				
 				var title = frm.find('input[name="title"]').val();
 				var order_index = frm.find('input[name="order_index"]').val();
 				var is_custom_data = (frm.find('input[name="is_custom_data"]').bootstrapSwitch('state'));
@@ -133,7 +138,9 @@ Module.create('ConstructorTabs', {
 				button.attr('data-order', order_index);
 				button = button.appendTo('.dx-constructor-tab-buttons .dd-list');
 				
-				var tab = $('<div class="dx-constructor-tab" style="display: none"></div>').appendTo('.dx-constructor-tabs');
+				var tab = $('<div class="dx-constructor-tab" style="display: none"></div>')
+					.appendTo('.dx-constructor-tabs-wrap');
+				
 				tab.addClass('tab-id-' + id);
 				tab.attr('data-tab-id', id);
 				tab.attr('data-tab-title', title);
@@ -243,7 +250,16 @@ Module.create('ConstructorTabs', {
 					tab.remove();
 					button.remove();
 					
-					self.activate($('.dx-constructor-tab-button').first());
+					var buttons = $('.dx-constructor-tab-button');
+					
+					if(buttons.length)
+					{
+						self.activate(buttons.first());
+					}
+					else
+					{
+						$('.dx-constructor-form-tabs').hide();
+					}
 					
 					toastr.success(Lang.get('constructor.tab_del_success'))
 				},

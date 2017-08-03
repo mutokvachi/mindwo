@@ -1,8 +1,8 @@
 <div class="dx-constructor-grid">
-  @if(($grid = $grids[$tab->id]))
+  @if(($grid = $grids[$tabId]))
   @endif
   @for($i = 0; $i < count($grid); $i++)
-    @push("row_content_{$tab->id}_$i")
+    @push("row_content_{$tabId}_$i")
       @for($j = 0; $j < count($grid[$i]); $j++)
         @if($field = $grid[$i][$j])
         @endif
@@ -14,7 +14,7 @@
         ])
       @endfor
     @endpush
-    @include('constructor.fields_row', [ 'id' => "{$tab->id}_$i" ])
+    @include('constructor.fields_row', [ 'id' => "{$tabId}_$i" ])
   @endfor
   @if(count($grid) < 4)
     @for($i = 0; $i < 4 - count($grid); $i++)

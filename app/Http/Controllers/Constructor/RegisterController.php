@@ -289,10 +289,11 @@ class RegisterController extends Controller
 		
 		$grids = [];
 		$grid = [];
-		$row = [];
 		$listFieldsIds = [];
 		
 		$tabs = $this->getList()->form->tabs()->orderBy('order_index')->get();
+		
+		$tabIds = [0];
 		
 		foreach($tabs as $tab)
 		{
@@ -301,12 +302,17 @@ class RegisterController extends Controller
 				continue;
 			}
 			
+			$tabIds[] = $tab->id;
+		}
+		
+		foreach($tabIds as $tabId)
+		{
 			$grid = [];
 			$row = [];
 			
 			foreach($formFields as $field)
 			{
-				if($field->tab_id != $tab->id)
+				if($field->tab_id != $tabId)
 				{
 					continue;
 				}
@@ -336,7 +342,7 @@ class RegisterController extends Controller
 				}
 			}
 			
-			$grids[$tab->id] = $grid;
+			$grids[$tabId] = $grid;
 		}
 		
 		$listFields = $this
@@ -390,7 +396,7 @@ class RegisterController extends Controller
 				foreach($row as $itemIndex => $id)
 				{
 					$items[$id] = [
-						'tab_id' => $tabId,
+						'tab_id' => ($tabId > 0 ? $tabId : null),
 						'order_index' => ($rowIndex + 1) . $itemIndex . '0',
 						'row_type_id' => count($row)
 					];

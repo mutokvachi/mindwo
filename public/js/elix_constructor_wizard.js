@@ -566,17 +566,20 @@ $(document).ready(function()
 	$("input.dx-bool").ViewEditor();
 });
 /**
- * Author:  Eugene Ostapenko <evo@olympsoft.com>
- * License: MIT
- * Created: 21.07.17, 16:39
+ * ConstructorTabs - manages form tabs.
  */
-
 Module.create('ConstructorTabs', {
+	/**
+	 * Default values of options
+	 */
 	defaults: {
 		form_id: 0,
 		list_id: 0,
 		relatedHtml: ''
 	},
+	/**
+	 * Constructor
+	 */
 	construct: function() {
 		var self = this;
 		
@@ -618,6 +621,10 @@ Module.create('ConstructorTabs', {
 		});
 	},
 	
+	/**
+	 * Initialize droppable plugin for specified tab button.
+	 * @param button
+	 */
 	initButton(button)
 	{
 		var self = this;
@@ -643,6 +650,10 @@ Module.create('ConstructorTabs', {
 		});
 	},
 	
+	/**
+	 * Activate specified tab
+	 * @param tab
+	 */
 	activate: function(tab) {
 		$('.dx-constructor-tab:visible').hide();
 		
@@ -659,6 +670,9 @@ Module.create('ConstructorTabs', {
 		}
 	},
 	
+	/**
+	 * Handler for Add tab button
+	 */
 	add: function() {
 		var self = this;
 		open_form('form', 0, 16, 66, this.options.form_id, "", 1, "", {
@@ -674,6 +688,11 @@ Module.create('ConstructorTabs', {
 					return;
 				}
 				
+				if(!$('.dx-constructor-tab-button').length)
+				{
+					$('.dx-constructor-form-tabs').show();
+				}
+				
 				var title = frm.find('input[name="title"]').val();
 				var order_index = frm.find('input[name="order_index"]').val();
 				var is_custom_data = (frm.find('input[name="is_custom_data"]').bootstrapSwitch('state'));
@@ -686,7 +705,9 @@ Module.create('ConstructorTabs', {
 				button.attr('data-order', order_index);
 				button = button.appendTo('.dx-constructor-tab-buttons .dd-list');
 				
-				var tab = $('<div class="dx-constructor-tab" style="display: none"></div>').appendTo('.dx-constructor-tabs');
+				var tab = $('<div class="dx-constructor-tab" style="display: none"></div>')
+					.appendTo('.dx-constructor-tabs-wrap');
+				
 				tab.addClass('tab-id-' + id);
 				tab.attr('data-tab-id', id);
 				tab.attr('data-tab-title', title);
@@ -729,6 +750,9 @@ Module.create('ConstructorTabs', {
 		});
 	},
 	
+	/**
+	 * Handler for Edit tab button
+	 */
 	edit: function() {
 		var self = this;
 		var tab = this.activeTab;
@@ -761,6 +785,9 @@ Module.create('ConstructorTabs', {
 		});
 	},
 	
+	/**
+	 * Handler for Delete tab button
+	 */
 	del: function() {
 		var self = this;
 		var tab = this.activeTab;
@@ -790,7 +817,16 @@ Module.create('ConstructorTabs', {
 					tab.remove();
 					button.remove();
 					
-					self.activate($('.dx-constructor-tab-button').first());
+					var buttons = $('.dx-constructor-tab-button');
+					
+					if(buttons.length)
+					{
+						self.activate(buttons.first());
+					}
+					else
+					{
+						$('.dx-constructor-form-tabs').hide();
+					}
 					
 					toastr.success(Lang.get('constructor.tab_del_success'))
 				},
@@ -812,15 +848,16 @@ Module.create('ConstructorTabs', {
 });
 
 /**
- * Author:  Eugene Ostapenko <evo@olympsoft.com>
- * License: MIT
- * Created: 26.05.17, 23:09
+ * ConstructorGrid - a plugin that manages grid of constructor and allows form to be designed
+ * by dragging and dropping elements.
  */
-
 Module.create('ConstructorGrid', {
 	defaults: {
 		'rowHtml': ''
 	},
+	/**
+	 * Constructor
+	 */
 	construct: function()
 	{
 		var self = this;
@@ -940,22 +977,41 @@ Module.create('ConstructorGrid', {
 		});
 	},
 	
+	/**
+	 * When a field or a row is started to drag, highlight appropriate tabs where it can be dropped to.
+	 * @param event
+	 * @param ui
+	 */
 	onSortStart: function(event, ui)
 	{
 		$('.dx-constructor-tab-buttons').addClass('highlight');
 	},
 	
+	/**
+	 * Remove highlights on drag stop.
+	 * @param event
+	 * @param ui
+	 */
 	onSortStop: function(event, ui)
 	{
 		$('.dx-constructor-tab-buttons').removeClass('highlight');
 	},
 	
+	/**
+	 * Clones element being dragged. It needed to drag elements between hidden tabs.
+	 * @param event
+	 * @param element
+	 * @returns {*}
+	 */
 	sortHelper: function(event, element)
 	{
 		var el = $(element.clone()).appendTo(document.body);
 		return el.get(0);
 	},
 	
+	/**
+	 * Add a new row to the grid.
+	 */
 	createRow: function()
 	{
 		var row = $(this.options.rowHtml).appendTo(this.root);
@@ -968,11 +1024,19 @@ Module.create('ConstructorGrid', {
 		row.find('.columns').sortable(this.sortableOpts);
 	},
 	
+	/**
+	 * Handle deletion of a field.
+	 * @param field
+	 */
 	removeField: function(field)
 	{
 		field.appendTo(this.fieldsContainer).attr('class', 'col-md-12');
 	},
 	
+	/**
+	 * Handle removal of a row.
+	 * @param row
+	 */
 	removeRow: function(row)
 	{
 		var self = this;
@@ -985,6 +1049,10 @@ Module.create('ConstructorGrid', {
 		row.remove();
 	},
 	
+	/**
+	 * Open modal dialog with properties of a field.
+	 * @param item
+	 */
 	showProperties: function(item)
 	{
 		var fieldId = item.data('id');
@@ -1002,6 +1070,9 @@ Module.create('ConstructorGrid', {
 		this.dialog.modal('show');
 	},
 	
+	/**
+	 * Update properties of a field via ajax call.
+	 */
 	saveProperties: function()
 	{
 		var self = this;
@@ -1050,6 +1121,9 @@ Module.create('ConstructorGrid', {
 		self.dialog.modal('hide');
 	},
 	
+	/**
+	 * Update all rows.
+	 */
 	updateGrid: function()
 	{
 		var self = this;
@@ -1060,6 +1134,10 @@ Module.create('ConstructorGrid', {
 		});
 	},
 	
+	/**
+	 * Calculate correct width of fields and apply grid styles to them.
+	 * @param row
+	 */
 	updateRow: function(row)
 	{
 		var items = row.children().filter(function()
@@ -1091,7 +1169,6 @@ Module.create('ConstructorGrid', {
  * License: MIT
  * Created: 25.05.17, 17:48
  */
-
 Module.create('ConstructorWizard', {
 	defaults: {
 		list_id: 0,
@@ -1103,6 +1180,9 @@ Module.create('ConstructorWizard', {
 		last_url: '/skats_'
 	},
 	
+	/**
+	 * Constructor
+	 */
 	construct: function()
 	{
 		var self = this;
@@ -1272,18 +1352,24 @@ Module.create('ConstructorWizard', {
 		// handle row creation
 		this.root.find('.dx-add-row-btn').click(function()
 		{
-			var tab = self.root.find('.dx-constructor-tab:visible');
-			
-			if(tab.hasClass('related-grid'))
+			if($(this).parents('.dx-constructor-tabs').length)
 			{
-				return;
+				var tab = self.root.find('.dx-constructor-tab:visible');
+				
+				if(tab.hasClass('related-grid'))
+				{
+					return;
+				}
+				
+				tab.find('.dx-constructor-grid').data('ConstructorGrid').createRow();
+				
+				// window.scrollTo(0, document.body.scrollHeight);
 			}
 			
-			var grid = tab.find('.dx-constructor-grid').data('ConstructorGrid');
-			
-			grid.createRow();
-			
-			window.scrollTo(0, document.body.scrollHeight);
+			else
+			{
+				self.root.find('.dx-constructor-form .dx-constructor-grid').data('ConstructorGrid').createRow();
+			}
 		});
 		
 		$('.dx-preview-btn').click(function()
@@ -1442,7 +1528,7 @@ Module.create('ConstructorWizard', {
 			request.tabs.push($(this).data('id'));
 		});
 		
-		this.root.find('.dx-constructor-tab.custom-data').each(function()
+		this.root.find('.dx-constructor-form, .dx-constructor-tab.custom-data').each(function()
 		{
 			var tab = [];
 			

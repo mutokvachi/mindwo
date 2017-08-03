@@ -14,6 +14,9 @@ Module.create('ConstructorWizard', {
 		last_url: '/skats_'
 	},
 	
+	/**
+	 * Constructor
+	 */
 	construct: function()
 	{
 		var self = this;
@@ -183,18 +186,24 @@ Module.create('ConstructorWizard', {
 		// handle row creation
 		this.root.find('.dx-add-row-btn').click(function()
 		{
-			var tab = self.root.find('.dx-constructor-tab:visible');
-			
-			if(tab.hasClass('related-grid'))
+			if($(this).parents('.dx-constructor-tabs').length)
 			{
-				return;
+				var tab = self.root.find('.dx-constructor-tab:visible');
+				
+				if(tab.hasClass('related-grid'))
+				{
+					return;
+				}
+				
+				tab.find('.dx-constructor-grid').data('ConstructorGrid').createRow();
+				
+				// window.scrollTo(0, document.body.scrollHeight);
 			}
 			
-			var grid = tab.find('.dx-constructor-grid').data('ConstructorGrid');
-			
-			grid.createRow();
-			
-			window.scrollTo(0, document.body.scrollHeight);
+			else
+			{
+				self.root.find('.dx-constructor-form .dx-constructor-grid').data('ConstructorGrid').createRow();
+			}
 		});
 		
 		$('.dx-preview-btn').click(function()
@@ -353,7 +362,7 @@ Module.create('ConstructorWizard', {
 			request.tabs.push($(this).data('id'));
 		});
 		
-		this.root.find('.dx-constructor-tab.custom-data').each(function()
+		this.root.find('.dx-constructor-form, .dx-constructor-tab.custom-data').each(function()
 		{
 			var tab = [];
 			
