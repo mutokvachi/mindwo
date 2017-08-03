@@ -196,6 +196,10 @@ Route::group(['prefix' => 'chat'], function() {
         Route::get('/count/{list_id}/{item_id}', array('middleware' => 'auth_ajax', 'uses' => 'ChatController@getUserCount')); 
 });
 
+Route::group(['prefix' => 'edu', 'namespace' => 'Education'], function() {
+        Route::get('/catalog', array('middleware' => 'auth', 'uses' => 'CatalogController@getView'));
+});
+
 // Lietotāji - autorizācija, atslēgšanās
 Route::post('/login', 'UserController@loginUser');
 Route::get('/login', array('as' => 'login', 'uses' => 'UserController@showIndex'));
