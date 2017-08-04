@@ -2,6 +2,7 @@
 
 @section('main_custom_css')        
     @include('pages.view_css_includes')
+    <link href="{{ elixir('css/elix_education.css') }}" rel="stylesheet" />
 @stop
 
 @section('main_content')
@@ -10,7 +11,7 @@
         <div class="portlet-title">
             <div class="caption">
                 <i class="fa fa-university"></i>
-                <span class="caption-subject bold uppercase">Kursu grafiks</span>
+                <span class="caption-subject bold uppercase">Kursu katalogs</span>
             </div>
         </div>
         <div class="portlet-body">
@@ -35,7 +36,7 @@
                             @if($course->is_full)
                             <button class="btn btn-sm btn-danger disabled">Grupa ir pilna</button>
                             @else
-                            <button class="btn btn-sm btn-success">Pieteikties</button>
+                            <button class="btn btn-sm btn-primary">Pieteikties</button>
                             @endif
                         </div>                        
                     </div>
@@ -50,4 +51,5 @@
 
 @section('main_custom_javascripts')
     @include('pages.view_js_includes')
+    <script src = "{{ elixir('js/elix_education.js') }}" type='text/javascript'></script>
 @stop

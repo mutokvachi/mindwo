@@ -80,3 +80,5 @@ $(document).ready(function () {
     // Initializes chat window
     $('.dx-edu-catalog-page').DxEduCatalog();
 });
+
+//# sourceMappingURL=elix_education.js.map

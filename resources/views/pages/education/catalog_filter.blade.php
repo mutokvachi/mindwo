@@ -11,60 +11,64 @@
  -->
  <div class='row'>
     <div class="form-group col-lg-4">
-        <div style="font-size:11px;">Nosaukums</div>
+        <div style="font-size:11px;">Meklēšanas frāze</div>
         <input class="form-control input-sm" type="text" maxlength="500" value=""/>  
     </div>
+    <div class="form-group col-lg-4">
+        <div style="font-size:11px;">&nbsp;</div>
+        <button class="btn btn-sm btn-primary">Meklēt</button>
+        <button id="dx-edu-catalog-btn-filter-detailed" class="btn btn-sm" data-toggle="collapse" data-target="#dx-edu-catalog-filter-detailed">
+            Paplašināta meklēšana <i class="fa fa-caret-down"> </i>
+        </button>
+    </div>
 </div>
-<div class='row'>
-    <div class="form-group col-lg-3">
+<div id="dx-edu-catalog-filter-detailed" class="row collapse">
+    <div class="form-group col-lg-3 dx-edu-multiselect-container">
         <div style="font-size:11px;">Joma</div>
-        <select class='form-control input-sm'>  
-            <option value="" selected>Visas</option>         
+        <select class='form-control input-sm mt-multiselect' multiple="multiple" data-label="left">         
             <option value="1">Valoda</option>
             <option value="2">Nodokļi</option>
         </select>  
     </div>
-    <div class="form-group col-lg-3">
+    <div class="form-group col-lg-3 dx-edu-multiselect-container">
         <div style="font-size:11px;">Programma</div>
-        <select class='form-control input-sm'> 
-            <option value="" selected>Visas</option>          
+        <select class='form-control input-sm mt-multiselect' multiple="multiple" data-label="left">          
             <option value="1">Programma</option>
         </select>  
     </div>
-    <div class="form-group col-lg-3">
+    <div class="form-group col-lg-3 dx-edu-multiselect-container">
         <div style="font-size:11px;">Modulis</div>
-        <select class='form-control input-sm'>           
-            <option value="" selected>Visi</option>
+        <select class='form-control input-sm mt-multiselect' multiple="multiple" data-label="left">     
             <option value="1">Modulis</option>
         </select> 
     </div>
-    <div class="form-group col-lg-3">
+    <div class="form-group col-lg-3 dx-edu-multiselect-container">
         <div style="font-size:11px;">Pasniedzējs</div>
-        <select class='form-control input-sm'>           
-            <option value="" selected>Visi</option>
+        <select class='form-control input-sm mt-multiselect' multiple="multiple" data-label="left">
             <option value="1">Valērija Egle</option>
             <option value="2">Zandis Ezers</option>
         </select>  
     </div>
-</div>
-<div class='row'>
     <div class="form-group col-lg-3">
         <div style="font-size:11px;">Datums</div>
         <div class='input-group dx-datetime'>
         <span class='input-group-btn'>
-            <button type='button' class='btn btn-white btn-sm dx-datetime-cal-btn' style="border: 1px solid #c2cad8!important; margin-right: -2px!important;"><i class='fa fa-calendar'></i></button>
+            <button type='button' class='btn btn-white btn-sm' style="border: 1px solid #c2cad8!important; margin-right: -2px!important;"
+                onclick="javascript:$('.dx-edu-datetime-field').click();">
+                <i class='fa fa-calendar'></i>
+                </button>
         </span>
-        <input class='form-control dx-datetime-field input-sm' type="text"/>
+        <input class='form-control dx-edu-datetime-field input-sm' type="text"/>
     </div>
     <span class="glyphicon form-control-feedback" aria-hidden="true"></span> 
     </div>
     <div class="form-group col-lg-3">
         <div style="font-size:11px;">Laiks no</div>
-        <input class="form-control input-sm" type="text" maxlength="500" value=""/>  
+        <input class="form-control input-sm dx-edu-time-field" type="text" maxlength="500" value=""/>  
     </div>
     <div class="form-group col-lg-3">
         <div style="font-size:11px;">Laiks līdz</div>
-        <input class="form-control input-sm" type="text" maxlength="500" value=""/>  
+        <input class="form-control input-sm dx-edu-time-field" type="text" maxlength="500" value=""/>  
     </div>   
     <div class="form-group col-lg-1">
         <div style="font-size:11px;">Rādīt tikai bezmaksas</div>
@@ -84,6 +88,17 @@
                 type="checkbox" 
                 class="dx-bool" 
                 checked
+                data-size="small"
+                data-off-text="Nē" 
+                data-on-text="Jā" />
+        </div> 
+    </div>
+    <div class="form-group col-lg-1">
+        <div style="font-size:11px;">Rādīt tikai aktīvos</div>
+        <div>
+            <input
+                type="checkbox" 
+                class="dx-bool"                 
                 data-size="small"
                 data-off-text="Nē" 
                 data-on-text="Jā" />

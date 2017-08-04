@@ -1492,6 +1492,1184 @@
 
 }));
 
+/*!
+ * Timepicker Component for Twitter Bootstrap
+ *
+ * Copyright 2013 Joris de Wit and bootstrap-timepicker contributors
+ *
+ * Contributors https://github.com/jdewit/bootstrap-timepicker/graphs/contributors
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+(function($, window, document) {
+  'use strict';
+
+  // TIMEPICKER PUBLIC CLASS DEFINITION
+  var Timepicker = function(element, options) {
+    this.widget = '';
+    this.$element = $(element);
+    this.defaultTime = options.defaultTime;
+    this.disableFocus = options.disableFocus;
+    this.disableMousewheel = options.disableMousewheel;
+    this.isOpen = options.isOpen;
+    this.minuteStep = options.minuteStep;
+    this.modalBackdrop = options.modalBackdrop;
+    this.orientation = options.orientation;
+    this.secondStep = options.secondStep;
+    this.snapToStep = options.snapToStep;
+    this.showInputs = options.showInputs;
+    this.showMeridian = options.showMeridian;
+    this.showSeconds = options.showSeconds;
+    this.template = options.template;
+    this.appendWidgetTo = options.appendWidgetTo;
+    this.showWidgetOnAddonClick = options.showWidgetOnAddonClick;
+    this.icons = options.icons;
+    this.maxHours = options.maxHours;
+    this.explicitMode = options.explicitMode; // If true 123 = 1:23, 12345 = 1:23:45, else invalid.
+
+    this.handleDocumentClick = function (e) {
+      var self = e.data.scope;
+      // This condition was inspired by bootstrap-datepicker.
+      // The element the timepicker is invoked on is the input but it has a sibling for addon/button.
+      if (!(self.$element.parent().find(e.target).length ||
+          self.$widget.is(e.target) ||
+          self.$widget.find(e.target).length)) {
+        self.hideWidget();
+      }
+    };
+
+    this._init();
+  };
+
+  Timepicker.prototype = {
+
+    constructor: Timepicker,
+    _init: function() {
+      var self = this;
+
+      if (this.showWidgetOnAddonClick && (this.$element.parent().hasClass('input-group') && this.$element.parent().hasClass('bootstrap-timepicker'))) {
+        this.$element.parent('.input-group.bootstrap-timepicker').find('.input-group-addon').on({
+          'click.timepicker': $.proxy(this.showWidget, this)
+        });
+        this.$element.on({
+          'focus.timepicker': $.proxy(this.highlightUnit, this),
+          'click.timepicker': $.proxy(this.highlightUnit, this),
+          'keydown.timepicker': $.proxy(this.elementKeydown, this),
+          'blur.timepicker': $.proxy(this.blurElement, this),
+          'mousewheel.timepicker DOMMouseScroll.timepicker': $.proxy(this.mousewheel, this)
+        });
+      } else {
+        if (this.template) {
+          this.$element.on({
+            'focus.timepicker': $.proxy(this.showWidget, this),
+            'click.timepicker': $.proxy(this.showWidget, this),
+            'blur.timepicker': $.proxy(this.blurElement, this),
+            'mousewheel.timepicker DOMMouseScroll.timepicker': $.proxy(this.mousewheel, this)
+          });
+        } else {
+          this.$element.on({
+            'focus.timepicker': $.proxy(this.highlightUnit, this),
+            'click.timepicker': $.proxy(this.highlightUnit, this),
+            'keydown.timepicker': $.proxy(this.elementKeydown, this),
+            'blur.timepicker': $.proxy(this.blurElement, this),
+            'mousewheel.timepicker DOMMouseScroll.timepicker': $.proxy(this.mousewheel, this)
+          });
+        }
+      }
+
+      if (this.template !== false) {
+        this.$widget = $(this.getTemplate()).on('click', $.proxy(this.widgetClick, this));
+      } else {
+        this.$widget = false;
+      }
+
+      if (this.showInputs && this.$widget !== false) {
+        this.$widget.find('input').each(function() {
+          $(this).on({
+            'click.timepicker': function() { $(this).select(); },
+            'keydown.timepicker': $.proxy(self.widgetKeydown, self),
+            'keyup.timepicker': $.proxy(self.widgetKeyup, self)
+          });
+        });
+      }
+
+      this.setDefaultTime(this.defaultTime);
+    },
+
+    blurElement: function() {
+      this.highlightedUnit = null;
+      this.updateFromElementVal();
+    },
+
+    clear: function() {
+      this.hour = '';
+      this.minute = '';
+      this.second = '';
+      this.meridian = '';
+
+      this.$element.val('');
+    },
+
+    decrementHour: function() {
+      if (this.showMeridian) {
+        if (this.hour === 1) {
+          this.hour = 12;
+        } else if (this.hour === 12) {
+          this.hour--;
+
+          return this.toggleMeridian();
+        } else if (this.hour === 0) {
+          this.hour = 11;
+
+          return this.toggleMeridian();
+        } else {
+          this.hour--;
+        }
+      } else {
+        if (this.hour <= 0) {
+          this.hour = this.maxHours - 1;
+        } else {
+          this.hour--;
+        }
+      }
+    },
+
+    decrementMinute: function(step) {
+      var newVal;
+
+      if (step) {
+        newVal = this.minute - step;
+      } else {
+        newVal = this.minute - this.minuteStep;
+      }
+
+      if (newVal < 0) {
+        this.decrementHour();
+        this.minute = newVal + 60;
+      } else {
+        this.minute = newVal;
+      }
+    },
+
+    decrementSecond: function() {
+      var newVal = this.second - this.secondStep;
+
+      if (newVal < 0) {
+        this.decrementMinute(true);
+        this.second = newVal + 60;
+      } else {
+        this.second = newVal;
+      }
+    },
+
+    elementKeydown: function(e) {
+      switch (e.which) {
+      case 9: //tab
+        if (e.shiftKey) {
+          if (this.highlightedUnit === 'hour') {
+            this.hideWidget();
+            break;
+          }
+          this.highlightPrevUnit();
+        } else if ((this.showMeridian && this.highlightedUnit === 'meridian') || (this.showSeconds && this.highlightedUnit === 'second') || (!this.showMeridian && !this.showSeconds && this.highlightedUnit ==='minute')) {
+          this.hideWidget();
+          break;
+        } else {
+          this.highlightNextUnit();
+        }
+        e.preventDefault();
+        this.updateFromElementVal();
+        break;
+      case 27: // escape
+        this.updateFromElementVal();
+        break;
+      case 37: // left arrow
+        e.preventDefault();
+        this.highlightPrevUnit();
+        this.updateFromElementVal();
+        break;
+      case 38: // up arrow
+        e.preventDefault();
+        switch (this.highlightedUnit) {
+        case 'hour':
+          this.incrementHour();
+          this.highlightHour();
+          break;
+        case 'minute':
+          this.incrementMinute();
+          this.highlightMinute();
+          break;
+        case 'second':
+          this.incrementSecond();
+          this.highlightSecond();
+          break;
+        case 'meridian':
+          this.toggleMeridian();
+          this.highlightMeridian();
+          break;
+        }
+        this.update();
+        break;
+      case 39: // right arrow
+        e.preventDefault();
+        this.highlightNextUnit();
+        this.updateFromElementVal();
+        break;
+      case 40: // down arrow
+        e.preventDefault();
+        switch (this.highlightedUnit) {
+        case 'hour':
+          this.decrementHour();
+          this.highlightHour();
+          break;
+        case 'minute':
+          this.decrementMinute();
+          this.highlightMinute();
+          break;
+        case 'second':
+          this.decrementSecond();
+          this.highlightSecond();
+          break;
+        case 'meridian':
+          this.toggleMeridian();
+          this.highlightMeridian();
+          break;
+        }
+
+        this.update();
+        break;
+      }
+    },
+
+    getCursorPosition: function() {
+      var input = this.$element.get(0);
+
+      if ('selectionStart' in input) {// Standard-compliant browsers
+
+        return input.selectionStart;
+      } else if (document.selection) {// IE fix
+        input.focus();
+        var sel = document.selection.createRange(),
+          selLen = document.selection.createRange().text.length;
+
+        sel.moveStart('character', - input.value.length);
+
+        return sel.text.length - selLen;
+      }
+    },
+
+    getTemplate: function() {
+      var template,
+        hourTemplate,
+        minuteTemplate,
+        secondTemplate,
+        meridianTemplate,
+        templateContent;
+
+      if (this.showInputs) {
+        hourTemplate = '<input type="text" class="bootstrap-timepicker-hour" maxlength="2"/>';
+        minuteTemplate = '<input type="text" class="bootstrap-timepicker-minute" maxlength="2"/>';
+        secondTemplate = '<input type="text" class="bootstrap-timepicker-second" maxlength="2"/>';
+        meridianTemplate = '<input type="text" class="bootstrap-timepicker-meridian" maxlength="2"/>';
+      } else {
+        hourTemplate = '<span class="bootstrap-timepicker-hour"></span>';
+        minuteTemplate = '<span class="bootstrap-timepicker-minute"></span>';
+        secondTemplate = '<span class="bootstrap-timepicker-second"></span>';
+        meridianTemplate = '<span class="bootstrap-timepicker-meridian"></span>';
+      }
+
+      templateContent = '<table>'+
+         '<tr>'+
+           '<td><a href="#" data-action="incrementHour"><span class="'+ this.icons.up +'"></span></a></td>'+
+           '<td class="separator">&nbsp;</td>'+
+           '<td><a href="#" data-action="incrementMinute"><span class="'+ this.icons.up +'"></span></a></td>'+
+           (this.showSeconds ?
+             '<td class="separator">&nbsp;</td>'+
+             '<td><a href="#" data-action="incrementSecond"><span class="'+ this.icons.up +'"></span></a></td>'
+           : '') +
+           (this.showMeridian ?
+             '<td class="separator">&nbsp;</td>'+
+             '<td class="meridian-column"><a href="#" data-action="toggleMeridian"><span class="'+ this.icons.up +'"></span></a></td>'
+           : '') +
+         '</tr>'+
+         '<tr>'+
+           '<td>'+ hourTemplate +'</td> '+
+           '<td class="separator">:</td>'+
+           '<td>'+ minuteTemplate +'</td> '+
+           (this.showSeconds ?
+            '<td class="separator">:</td>'+
+            '<td>'+ secondTemplate +'</td>'
+           : '') +
+           (this.showMeridian ?
+            '<td class="separator">&nbsp;</td>'+
+            '<td>'+ meridianTemplate +'</td>'
+           : '') +
+         '</tr>'+
+         '<tr>'+
+           '<td><a href="#" data-action="decrementHour"><span class="'+ this.icons.down +'"></span></a></td>'+
+           '<td class="separator"></td>'+
+           '<td><a href="#" data-action="decrementMinute"><span class="'+ this.icons.down +'"></span></a></td>'+
+           (this.showSeconds ?
+            '<td class="separator">&nbsp;</td>'+
+            '<td><a href="#" data-action="decrementSecond"><span class="'+ this.icons.down +'"></span></a></td>'
+           : '') +
+           (this.showMeridian ?
+            '<td class="separator">&nbsp;</td>'+
+            '<td><a href="#" data-action="toggleMeridian"><span class="'+ this.icons.down +'"></span></a></td>'
+           : '') +
+         '</tr>'+
+       '</table>';
+
+      switch(this.template) {
+      case 'modal':
+        template = '<div class="bootstrap-timepicker-widget modal hide fade in" data-backdrop="'+ (this.modalBackdrop ? 'true' : 'false') +'">'+
+          '<div class="modal-header">'+
+            '<a href="#" class="close" data-dismiss="modal">&times;</a>'+
+            '<h3>Pick a Time</h3>'+
+          '</div>'+
+          '<div class="modal-content">'+
+            templateContent +
+          '</div>'+
+          '<div class="modal-footer">'+
+            '<a href="#" class="btn btn-primary" data-dismiss="modal">OK</a>'+
+          '</div>'+
+        '</div>';
+        break;
+      case 'dropdown':
+        template = '<div class="bootstrap-timepicker-widget dropdown-menu">'+ templateContent +'</div>';
+        break;
+      }
+
+      return template;
+    },
+
+    getTime: function() {
+      if (this.hour === '') {
+        return '';
+      }
+
+      return this.hour + ':' + (this.minute.toString().length === 1 ? '0' + this.minute : this.minute) + (this.showSeconds ? ':' + (this.second.toString().length === 1 ? '0' + this.second : this.second) : '') + (this.showMeridian ? ' ' + this.meridian : '');
+    },
+
+    hideWidget: function() {
+      if (this.isOpen === false) {
+        return;
+      }
+
+      this.$element.trigger({
+        'type': 'hide.timepicker',
+        'time': {
+          'value': this.getTime(),
+          'hours': this.hour,
+          'minutes': this.minute,
+          'seconds': this.second,
+          'meridian': this.meridian
+        }
+      });
+
+      if (this.template === 'modal' && this.$widget.modal) {
+        this.$widget.modal('hide');
+      } else {
+        this.$widget.removeClass('open');
+      }
+
+      $(document).off('mousedown.timepicker, touchend.timepicker', this.handleDocumentClick);
+
+      this.isOpen = false;
+      // show/hide approach taken by datepicker
+      this.$widget.detach();
+    },
+
+    highlightUnit: function() {
+      this.position = this.getCursorPosition();
+      if (this.position >= 0 && this.position <= 2) {
+        this.highlightHour();
+      } else if (this.position >= 3 && this.position <= 5) {
+        this.highlightMinute();
+      } else if (this.position >= 6 && this.position <= 8) {
+        if (this.showSeconds) {
+          this.highlightSecond();
+        } else {
+          this.highlightMeridian();
+        }
+      } else if (this.position >= 9 && this.position <= 11) {
+        this.highlightMeridian();
+      }
+    },
+
+    highlightNextUnit: function() {
+      switch (this.highlightedUnit) {
+      case 'hour':
+        this.highlightMinute();
+        break;
+      case 'minute':
+        if (this.showSeconds) {
+          this.highlightSecond();
+        } else if (this.showMeridian){
+          this.highlightMeridian();
+        } else {
+          this.highlightHour();
+        }
+        break;
+      case 'second':
+        if (this.showMeridian) {
+          this.highlightMeridian();
+        } else {
+          this.highlightHour();
+        }
+        break;
+      case 'meridian':
+        this.highlightHour();
+        break;
+      }
+    },
+
+    highlightPrevUnit: function() {
+      switch (this.highlightedUnit) {
+      case 'hour':
+        if(this.showMeridian){
+          this.highlightMeridian();
+        } else if (this.showSeconds) {
+          this.highlightSecond();
+        } else {
+          this.highlightMinute();
+        }
+        break;
+      case 'minute':
+        this.highlightHour();
+        break;
+      case 'second':
+        this.highlightMinute();
+        break;
+      case 'meridian':
+        if (this.showSeconds) {
+          this.highlightSecond();
+        } else {
+          this.highlightMinute();
+        }
+        break;
+      }
+    },
+
+    highlightHour: function() {
+      var $element = this.$element.get(0),
+          self = this;
+
+      this.highlightedUnit = 'hour';
+
+      if ($element.setSelectionRange) {
+        setTimeout(function() {
+          if (self.hour < 10) {
+            $element.setSelectionRange(0,1);
+          } else {
+            $element.setSelectionRange(0,2);
+          }
+        }, 0);
+      }
+    },
+
+    highlightMinute: function() {
+      var $element = this.$element.get(0),
+          self = this;
+
+      this.highlightedUnit = 'minute';
+
+      if ($element.setSelectionRange) {
+        setTimeout(function() {
+          if (self.hour < 10) {
+            $element.setSelectionRange(2,4);
+          } else {
+            $element.setSelectionRange(3,5);
+          }
+        }, 0);
+      }
+    },
+
+    highlightSecond: function() {
+      var $element = this.$element.get(0),
+          self = this;
+
+      this.highlightedUnit = 'second';
+
+      if ($element.setSelectionRange) {
+        setTimeout(function() {
+          if (self.hour < 10) {
+            $element.setSelectionRange(5,7);
+          } else {
+            $element.setSelectionRange(6,8);
+          }
+        }, 0);
+      }
+    },
+
+    highlightMeridian: function() {
+      var $element = this.$element.get(0),
+          self = this;
+
+      this.highlightedUnit = 'meridian';
+
+      if ($element.setSelectionRange) {
+        if (this.showSeconds) {
+          setTimeout(function() {
+            if (self.hour < 10) {
+              $element.setSelectionRange(8,10);
+            } else {
+              $element.setSelectionRange(9,11);
+            }
+          }, 0);
+        } else {
+          setTimeout(function() {
+            if (self.hour < 10) {
+              $element.setSelectionRange(5,7);
+            } else {
+              $element.setSelectionRange(6,8);
+            }
+          }, 0);
+        }
+      }
+    },
+
+    incrementHour: function() {
+      if (this.showMeridian) {
+        if (this.hour === 11) {
+          this.hour++;
+          return this.toggleMeridian();
+        } else if (this.hour === 12) {
+          this.hour = 0;
+        }
+      }
+      if (this.hour === this.maxHours - 1) {
+        this.hour = 0;
+
+        return;
+      }
+      this.hour++;
+    },
+
+    incrementMinute: function(step) {
+      var newVal;
+
+      if (step) {
+        newVal = this.minute + step;
+      } else {
+        newVal = this.minute + this.minuteStep - (this.minute % this.minuteStep);
+      }
+
+      if (newVal > 59) {
+        this.incrementHour();
+        this.minute = newVal - 60;
+      } else {
+        this.minute = newVal;
+      }
+    },
+
+    incrementSecond: function() {
+      var newVal = this.second + this.secondStep - (this.second % this.secondStep);
+
+      if (newVal > 59) {
+        this.incrementMinute(true);
+        this.second = newVal - 60;
+      } else {
+        this.second = newVal;
+      }
+    },
+
+    mousewheel: function(e) {
+      if (this.disableMousewheel) {
+        return;
+      }
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      var delta = e.originalEvent.wheelDelta || -e.originalEvent.detail,
+          scrollTo = null;
+
+      if (e.type === 'mousewheel') {
+        scrollTo = (e.originalEvent.wheelDelta * -1);
+      }
+      else if (e.type === 'DOMMouseScroll') {
+        scrollTo = 40 * e.originalEvent.detail;
+      }
+
+      if (scrollTo) {
+        e.preventDefault();
+        $(this).scrollTop(scrollTo + $(this).scrollTop());
+      }
+
+      switch (this.highlightedUnit) {
+      case 'minute':
+        if (delta > 0) {
+          this.incrementMinute();
+        } else {
+          this.decrementMinute();
+        }
+        this.highlightMinute();
+        break;
+      case 'second':
+        if (delta > 0) {
+          this.incrementSecond();
+        } else {
+          this.decrementSecond();
+        }
+        this.highlightSecond();
+        break;
+      case 'meridian':
+        this.toggleMeridian();
+        this.highlightMeridian();
+        break;
+      default:
+        if (delta > 0) {
+          this.incrementHour();
+        } else {
+          this.decrementHour();
+        }
+        this.highlightHour();
+        break;
+      }
+
+      return false;
+    },
+
+    /**
+     * Given a segment value like 43, will round and snap the segment
+     * to the nearest "step", like 45 if step is 15. Segment will
+     * "overflow" to 0 if it's larger than 59 or would otherwise
+     * round up to 60.
+     */
+    changeToNearestStep: function (segment, step) {
+      if (segment % step === 0) {
+        return segment;
+      }
+      if (Math.round((segment % step) / step)) {
+        return (segment + (step - segment % step)) % 60;
+      } else {
+        return segment - segment % step;
+      }
+    },
+
+    // This method was adapted from bootstrap-datepicker.
+    place : function() {
+      if (this.isInline) {
+        return;
+      }
+      var widgetWidth = this.$widget.outerWidth(), widgetHeight = this.$widget.outerHeight(), visualPadding = 10, windowWidth =
+        $(window).width(), windowHeight = $(window).height(), scrollTop = $(window).scrollTop();
+
+      var zIndex = parseInt(this.$element.parents().filter(function() { return $(this).css('z-index') !== 'auto'; }).first().css('z-index'), 10) + 10;
+      var offset = this.component ? this.component.parent().offset() : this.$element.offset();
+      var height = this.component ? this.component.outerHeight(true) : this.$element.outerHeight(false);
+      var width = this.component ? this.component.outerWidth(true) : this.$element.outerWidth(false);
+      var left = offset.left, top = offset.top;
+
+      this.$widget.removeClass('timepicker-orient-top timepicker-orient-bottom timepicker-orient-right timepicker-orient-left');
+
+      if (this.orientation.x !== 'auto') {
+        this.$widget.addClass('timepicker-orient-' + this.orientation.x);
+        if (this.orientation.x === 'right') {
+          left -= widgetWidth - width;
+        }
+      } else{
+        // auto x orientation is best-placement: if it crosses a window edge, fudge it sideways
+        // Default to left
+        this.$widget.addClass('timepicker-orient-left');
+        if (offset.left < 0) {
+          left -= offset.left - visualPadding;
+        } else if (offset.left + widgetWidth > windowWidth) {
+          left = windowWidth - widgetWidth - visualPadding;
+        }
+      }
+      // auto y orientation is best-situation: top or bottom, no fudging, decision based on which shows more of the widget
+      var yorient = this.orientation.y, topOverflow, bottomOverflow;
+      if (yorient === 'auto') {
+        topOverflow = -scrollTop + offset.top - widgetHeight;
+        bottomOverflow = scrollTop + windowHeight - (offset.top + height + widgetHeight);
+        if (Math.max(topOverflow, bottomOverflow) === bottomOverflow) {
+          yorient = 'top';
+        } else {
+          yorient = 'bottom';
+        }
+      }
+      this.$widget.addClass('timepicker-orient-' + yorient);
+      if (yorient === 'top'){
+        top += height;
+      } else{
+        top -= widgetHeight + parseInt(this.$widget.css('padding-top'), 10);
+      }
+
+      this.$widget.css({
+        top : top,
+        left : left,
+        zIndex : zIndex
+      });
+    },
+
+    remove: function() {
+      $('document').off('.timepicker');
+      if (this.$widget) {
+        this.$widget.remove();
+      }
+      delete this.$element.data().timepicker;
+    },
+
+    setDefaultTime: function(defaultTime) {
+      if (!this.$element.val()) {
+        if (defaultTime === 'current') {
+          var dTime = new Date(),
+            hours = dTime.getHours(),
+            minutes = dTime.getMinutes(),
+            seconds = dTime.getSeconds(),
+            meridian = 'AM';
+
+          if (seconds !== 0) {
+            seconds = Math.ceil(dTime.getSeconds() / this.secondStep) * this.secondStep;
+            if (seconds === 60) {
+              minutes += 1;
+              seconds = 0;
+            }
+          }
+
+          if (minutes !== 0) {
+            minutes = Math.ceil(dTime.getMinutes() / this.minuteStep) * this.minuteStep;
+            if (minutes === 60) {
+              hours += 1;
+              minutes = 0;
+            }
+          }
+
+          if (this.showMeridian) {
+            if (hours === 0) {
+              hours = 12;
+            } else if (hours >= 12) {
+              if (hours > 12) {
+                hours = hours - 12;
+              }
+              meridian = 'PM';
+            } else {
+              meridian = 'AM';
+            }
+          }
+
+          this.hour = hours;
+          this.minute = minutes;
+          this.second = seconds;
+          this.meridian = meridian;
+
+          this.update();
+
+        } else if (defaultTime === false) {
+          this.hour = 0;
+          this.minute = 0;
+          this.second = 0;
+          this.meridian = 'AM';
+        } else {
+          this.setTime(defaultTime);
+        }
+      } else {
+        this.updateFromElementVal();
+      }
+    },
+
+    setTime: function(time, ignoreWidget) {
+      if (!time) {
+        this.clear();
+        return;
+      }
+
+      var timeMode,
+          timeArray,
+          hour,
+          minute,
+          second,
+          meridian;
+
+      if (typeof time === 'object' && time.getMonth){
+        // this is a date object
+        hour    = time.getHours();
+        minute  = time.getMinutes();
+        second  = time.getSeconds();
+
+        if (this.showMeridian){
+          meridian = 'AM';
+          if (hour > 12){
+            meridian = 'PM';
+            hour = hour % 12;
+          }
+
+          if (hour === 12){
+            meridian = 'PM';
+          }
+        }
+      } else {
+        timeMode = ((/a/i).test(time) ? 1 : 0) + ((/p/i).test(time) ? 2 : 0); // 0 = none, 1 = AM, 2 = PM, 3 = BOTH.
+        if (timeMode > 2) { // If both are present, fail.
+          this.clear();
+          return;
+        }
+
+        timeArray = time.replace(/[^0-9\:]/g, '').split(':');
+
+        hour = timeArray[0] ? timeArray[0].toString() : timeArray.toString();
+
+        if(this.explicitMode && hour.length > 2 && (hour.length % 2) !== 0 ) {
+          this.clear();
+          return;
+        }
+
+        minute = timeArray[1] ? timeArray[1].toString() : '';
+        second = timeArray[2] ? timeArray[2].toString() : '';
+
+        // adaptive time parsing
+        if (hour.length > 4) {
+          second = hour.slice(-2);
+          hour = hour.slice(0, -2);
+        }
+
+        if (hour.length > 2) {
+          minute = hour.slice(-2);
+          hour = hour.slice(0, -2);
+        }
+
+        if (minute.length > 2) {
+          second = minute.slice(-2);
+          minute = minute.slice(0, -2);
+        }
+
+        hour = parseInt(hour, 10);
+        minute = parseInt(minute, 10);
+        second = parseInt(second, 10);
+
+        if (isNaN(hour)) {
+          hour = 0;
+        }
+        if (isNaN(minute)) {
+          minute = 0;
+        }
+        if (isNaN(second)) {
+          second = 0;
+        }
+
+        // Adjust the time based upon unit boundary.
+        // NOTE: Negatives will never occur due to time.replace() above.
+        if (second > 59) {
+          second = 59;
+        }
+
+        if (minute > 59) {
+          minute = 59;
+        }
+
+        if (hour >= this.maxHours) {
+          // No day/date handling.
+          hour = this.maxHours - 1;
+        }
+
+        if (this.showMeridian) {
+          if (hour > 12) {
+            // Force PM.
+            timeMode = 2;
+            hour -= 12;
+          }
+          if (!timeMode) {
+            timeMode = 1;
+          }
+          if (hour === 0) {
+            hour = 12; // AM or PM, reset to 12.  0 AM = 12 AM.  0 PM = 12 PM, etc.
+          }
+          meridian = timeMode === 1 ? 'AM' : 'PM';
+        } else if (hour < 12 && timeMode === 2) {
+          hour += 12;
+        } else {
+          if (hour >= this.maxHours) {
+            hour = this.maxHours - 1;
+          } else if ((hour < 0) || (hour === 12 && timeMode === 1)){
+            hour = 0;
+          }
+        }
+      }
+
+      this.hour = hour;
+      if (this.snapToStep) {
+        this.minute = this.changeToNearestStep(minute, this.minuteStep);
+        this.second = this.changeToNearestStep(second, this.secondStep);
+      } else {
+        this.minute = minute;
+        this.second = second;
+      }
+      this.meridian = meridian;
+
+      this.update(ignoreWidget);
+    },
+
+    showWidget: function() {
+      if (this.isOpen) {
+        return;
+      }
+
+      if (this.$element.is(':disabled')) {
+        return;
+      }
+
+      // show/hide approach taken by datepicker
+      this.$widget.appendTo(this.appendWidgetTo);
+      $(document).on('mousedown.timepicker, touchend.timepicker', {scope: this}, this.handleDocumentClick);
+
+      this.$element.trigger({
+        'type': 'show.timepicker',
+        'time': {
+          'value': this.getTime(),
+          'hours': this.hour,
+          'minutes': this.minute,
+          'seconds': this.second,
+          'meridian': this.meridian
+        }
+      });
+
+      this.place();
+      if (this.disableFocus) {
+        this.$element.blur();
+      }
+
+      // widget shouldn't be empty on open
+      if (this.hour === '') {
+        if (this.defaultTime) {
+          this.setDefaultTime(this.defaultTime);
+        } else {
+          this.setTime('0:0:0');
+        }
+      }
+
+      if (this.template === 'modal' && this.$widget.modal) {
+        this.$widget.modal('show').on('hidden', $.proxy(this.hideWidget, this));
+      } else {
+        if (this.isOpen === false) {
+          this.$widget.addClass('open');
+        }
+      }
+
+      this.isOpen = true;
+    },
+
+    toggleMeridian: function() {
+      this.meridian = this.meridian === 'AM' ? 'PM' : 'AM';
+    },
+
+    update: function(ignoreWidget) {
+      this.updateElement();
+      if (!ignoreWidget) {
+        this.updateWidget();
+      }
+
+      this.$element.trigger({
+        'type': 'changeTime.timepicker',
+        'time': {
+          'value': this.getTime(),
+          'hours': this.hour,
+          'minutes': this.minute,
+          'seconds': this.second,
+          'meridian': this.meridian
+        }
+      });
+    },
+
+    updateElement: function() {
+      this.$element.val(this.getTime()).change();
+    },
+
+    updateFromElementVal: function() {
+      this.setTime(this.$element.val());
+    },
+
+    updateWidget: function() {
+      if (this.$widget === false) {
+        return;
+      }
+
+      var hour = this.hour,
+          minute = this.minute.toString().length === 1 ? '0' + this.minute : this.minute,
+          second = this.second.toString().length === 1 ? '0' + this.second : this.second;
+
+      if (this.showInputs) {
+        this.$widget.find('input.bootstrap-timepicker-hour').val(hour);
+        this.$widget.find('input.bootstrap-timepicker-minute').val(minute);
+
+        if (this.showSeconds) {
+          this.$widget.find('input.bootstrap-timepicker-second').val(second);
+        }
+        if (this.showMeridian) {
+          this.$widget.find('input.bootstrap-timepicker-meridian').val(this.meridian);
+        }
+      } else {
+        this.$widget.find('span.bootstrap-timepicker-hour').text(hour);
+        this.$widget.find('span.bootstrap-timepicker-minute').text(minute);
+
+        if (this.showSeconds) {
+          this.$widget.find('span.bootstrap-timepicker-second').text(second);
+        }
+        if (this.showMeridian) {
+          this.$widget.find('span.bootstrap-timepicker-meridian').text(this.meridian);
+        }
+      }
+    },
+
+    updateFromWidgetInputs: function() {
+      if (this.$widget === false) {
+        return;
+      }
+
+      var t = this.$widget.find('input.bootstrap-timepicker-hour').val() + ':' +
+              this.$widget.find('input.bootstrap-timepicker-minute').val() +
+              (this.showSeconds ? ':' + this.$widget.find('input.bootstrap-timepicker-second').val() : '') +
+              (this.showMeridian ? this.$widget.find('input.bootstrap-timepicker-meridian').val() : '')
+      ;
+
+      this.setTime(t, true);
+    },
+
+    widgetClick: function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+
+      var $input = $(e.target),
+          action = $input.closest('a').data('action');
+
+      if (action) {
+        this[action]();
+      }
+      this.update();
+
+      if ($input.is('input')) {
+        $input.get(0).setSelectionRange(0,2);
+      }
+    },
+
+    widgetKeydown: function(e) {
+      var $input = $(e.target),
+          name = $input.attr('class').replace('bootstrap-timepicker-', '');
+
+      switch (e.which) {
+      case 9: //tab
+        if (e.shiftKey) {
+          if (name === 'hour') {
+            return this.hideWidget();
+          }
+        } else if ((this.showMeridian && name === 'meridian') || (this.showSeconds && name === 'second') || (!this.showMeridian && !this.showSeconds && name === 'minute')) {
+          return this.hideWidget();
+        }
+        break;
+      case 27: // escape
+        this.hideWidget();
+        break;
+      case 38: // up arrow
+        e.preventDefault();
+        switch (name) {
+        case 'hour':
+          this.incrementHour();
+          break;
+        case 'minute':
+          this.incrementMinute();
+          break;
+        case 'second':
+          this.incrementSecond();
+          break;
+        case 'meridian':
+          this.toggleMeridian();
+          break;
+        }
+        this.setTime(this.getTime());
+        $input.get(0).setSelectionRange(0,2);
+        break;
+      case 40: // down arrow
+        e.preventDefault();
+        switch (name) {
+        case 'hour':
+          this.decrementHour();
+          break;
+        case 'minute':
+          this.decrementMinute();
+          break;
+        case 'second':
+          this.decrementSecond();
+          break;
+        case 'meridian':
+          this.toggleMeridian();
+          break;
+        }
+        this.setTime(this.getTime());
+        $input.get(0).setSelectionRange(0,2);
+        break;
+      }
+    },
+
+    widgetKeyup: function(e) {
+      if ((e.which === 65) || (e.which === 77) || (e.which === 80) || (e.which === 46) || (e.which === 8) || (e.which >= 48 && e.which <= 57) || (e.which >= 96 && e.which <= 105)) {
+        this.updateFromWidgetInputs();
+      }
+    }
+  };
+
+  //TIMEPICKER PLUGIN DEFINITION
+  $.fn.timepicker = function(option) {
+    var args = Array.apply(null, arguments);
+    args.shift();
+    return this.each(function() {
+      var $this = $(this),
+        data = $this.data('timepicker'),
+        options = typeof option === 'object' && option;
+
+      if (!data) {
+        $this.data('timepicker', (data = new Timepicker(this, $.extend({}, $.fn.timepicker.defaults, options, $(this).data()))));
+      }
+
+      if (typeof option === 'string') {
+        data[option].apply(data, args);
+      }
+    });
+  };
+
+  $.fn.timepicker.defaults = {
+    defaultTime: 'current',
+    disableFocus: false,
+    disableMousewheel: false,
+    isOpen: false,
+    minuteStep: 15,
+    modalBackdrop: false,
+    orientation: { x: 'auto', y: 'auto'},
+    secondStep: 15,
+    snapToStep: false,
+    showSeconds: false,
+    showInputs: true,
+    showMeridian: true,
+    template: 'dropdown',
+    appendWidgetTo: 'body',
+    showWidgetOnAddonClick: true,
+    icons: {
+      up: 'glyphicon glyphicon-chevron-up',
+      down: 'glyphicon glyphicon-chevron-down'
+    },
+    maxHours: 24,
+    explicitMode: false
+  };
+
+  $.fn.timepicker.Constructor = Timepicker;
+
+  $(document).on(
+    'focus.timepicker.data-api click.timepicker.data-api',
+    '[data-provide="timepicker"]',
+    function(e){
+      var $this = $(this);
+      if ($this.data('timepicker')) {
+        return;
+      }
+      e.preventDefault();
+      // component click requires us to explicitly show it
+      $this.timepicker();
+    }
+  );
+
+})(jQuery, window, document);
+
 /* =========================================================
  * bootstrap-colorpicker.js 
  * http://www.eyecon.ro/bootstrap-colorpicker
@@ -2032,6 +3210,1187 @@
 	};
 
 }( window.jQuery );
+/**
+ * Bootstrap Multiselect v0.9.8 (https://github.com/davidstutz/bootstrap-multiselect)
+ * 
+ * Copyright 2012 - 2014 David Stutz
+ * 
+ * Dual licensed under the BSD-3-Clause and the Apache License, Version 2.0.
+ */
+!function($) {
+ 
+    "use strict";// jshint ;_;
+
+    if (typeof ko !== 'undefined' && ko.bindingHandlers && !ko.bindingHandlers.multiselect) {
+        ko.bindingHandlers.multiselect = {
+
+            init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+
+                var listOfSelectedItems = allBindingsAccessor().selectedOptions;
+                var config = ko.utils.unwrapObservable(valueAccessor());
+
+                $(element).multiselect(config);
+
+                if (isObservableArray(listOfSelectedItems)) {
+                    
+                    // Set the initial selection state on the multiselect list.
+                    $(element).multiselect('select', ko.utils.unwrapObservable(listOfSelectedItems));
+                    
+                    // Subscribe to the selectedOptions: ko.observableArray
+                    listOfSelectedItems.subscribe(function (changes) {
+                        var addedArray = [], deletedArray = [];
+                        forEach(changes, function (change) {
+                            switch (change.status) {
+                                case 'added':
+                                    addedArray.push(change.value);
+                                    break;
+                                case 'deleted':
+                                    deletedArray.push(change.value);
+                                    break;
+                            }
+                        });
+                        
+                        if (addedArray.length > 0) {
+                            $(element).multiselect('select', addedArray);
+                        }
+                        
+                        if (deletedArray.length > 0) {
+                            $(element).multiselect('deselect', deletedArray);
+                        }
+                    }, null, "arrayChange");
+                }
+            },
+
+            update: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+
+                var listOfItems = allBindingsAccessor().options,
+                    ms = $(element).data('multiselect'),
+                    config = ko.utils.unwrapObservable(valueAccessor());
+
+                if (isObservableArray(listOfItems)) {
+                    // Subscribe to the options: ko.observableArray incase it changes later
+                    listOfItems.subscribe(function (theArray) {
+                        $(element).multiselect('rebuild');
+                    });
+                }
+
+                if (!ms) {
+                    $(element).multiselect(config);
+                }
+                else {
+                    ms.updateOriginalOptions();
+                }
+            }
+        };
+    }
+
+    function isObservableArray(obj) {
+        return ko.isObservable(obj) && !(obj.destroyAll === undefined);
+    }
+
+    function forEach(array, callback) {
+        for (var index = 0; index < array.length; ++index) {
+            callback(array[index]);
+        }
+    }
+
+    /**
+     * Constructor to create a new multiselect using the given select.
+     * 
+     * @param {jQuery} select
+     * @param {Object} options
+     * @returns {Multiselect}
+     */
+    function Multiselect(select, options) {
+
+        this.options = this.mergeOptions(options);
+        this.$select = $(select);
+
+        // Initialization.
+        // We have to clone to create a new reference.
+        this.originalOptions = this.$select.clone()[0].options;
+        this.query = '';
+        this.searchTimeout = null;
+
+        this.options.multiple = this.$select.attr('multiple') === "multiple";
+        this.options.onChange = $.proxy(this.options.onChange, this);
+        this.options.onDropdownShow = $.proxy(this.options.onDropdownShow, this);
+        this.options.onDropdownHide = $.proxy(this.options.onDropdownHide, this);
+        this.options.onDropdownShown = $.proxy(this.options.onDropdownShown, this);
+        this.options.onDropdownHidden = $.proxy(this.options.onDropdownHidden, this);
+        
+        // Build select all if enabled.
+        this.buildContainer();
+        this.buildButton();
+        this.buildDropdown();
+        this.buildSelectAll();
+        this.buildDropdownOptions();
+        this.buildFilter();
+        
+        this.updateButtonText();
+        this.updateSelectAll();
+        
+        if (this.options.disableIfEmpty) {
+            this.disableIfEmpty();
+        }
+        
+        this.$select.hide().after(this.$container);
+    };
+
+    Multiselect.prototype = {
+
+        defaults: {
+            /**
+             * Default text function will either print 'None selected' in case no
+             * option is selected or a list of the selected options up to a length
+             * of 3 selected options.
+             * 
+             * @param {jQuery} options
+             * @param {jQuery} select
+             * @returns {String}
+             */
+            buttonText: function(options, select) {
+                if (options.length === 0) {
+                    return this.nonSelectedText + ' <b class="caret"></b>';
+                }
+                else {
+                    if (options.length > this.numberDisplayed) {
+                        return options.length + ' ' + this.nSelectedText + ' <b class="caret"></b>';
+                    }
+                    else {
+                        var selected = '';
+                        options.each(function() {
+                            var label = ($(this).attr('label') !== undefined) ? $(this).attr('label') : $(this).html();
+
+                            selected += label + ', ';
+                        });
+                        return selected.substr(0, selected.length - 2) + ' <b class="caret"></b>';
+                    }
+                }
+            },
+            /**
+             * Updates the title of the button similar to the buttonText function.
+             * 
+             * @param {jQuery} options
+             * @param {jQuery} select
+             * @returns {@exp;selected@call;substr}
+             */
+            buttonTitle: function(options, select) {
+                if (options.length === 0) {
+                    return this.nonSelectedText;
+                }
+                else {
+                    var selected = '';
+                    options.each(function () {
+                        selected += $(this).text() + ', ';
+                    });
+                    return selected.substr(0, selected.length - 2);
+                }
+            },
+            /**
+             * Create a label.
+             * 
+             * @param {jQuery} element
+             * @returns {String}
+             */
+            label: function(element){
+                return $(element).attr('label') || $(element).html();
+            },
+            /**
+             * Triggered on change of the multiselect.
+             * 
+             * Not triggered when selecting/deselecting options manually.
+             * 
+             * @param {jQuery} option
+             * @param {Boolean} checked
+             */
+            onChange : function(option, checked) {
+
+            },
+            /**
+             * Triggered when the dropdown is shown.
+             * 
+             * @param {jQuery} event
+             */
+            onDropdownShow: function(event) {
+                
+            },
+            /**
+             * Triggered when the dropdown is hidden.
+             * 
+             * @param {jQuery} event
+             */
+            onDropdownHide: function(event) {
+                
+            },
+            /**
+             * Triggered after the dropdown is shown.
+             * 
+             * @param {jQuery} event
+             */
+            onDropdownShown: function(event) {
+                
+            },
+            /**
+             * Triggered after the dropdown is hidden.
+             * 
+             * @param {jQuery} event
+             */
+            onDropdownHidden: function(event) {
+                
+            },
+            buttonClass: 'btn btn-default',
+            dropRight: false,
+            selectedClass: 'active',
+            buttonWidth: 'auto',
+            buttonContainer: '<div class="btn-group" />',
+            // Maximum height of the dropdown menu.
+            // If maximum height is exceeded a scrollbar will be displayed.
+            maxHeight: false,
+            checkboxName: false,
+            includeSelectAllOption: false,
+            includeSelectAllIfMoreThan: 0,
+            selectAllText: ' Select all',
+            selectAllValue: 'multiselect-all',
+            enableFiltering: false,
+            enableCaseInsensitiveFiltering: false,
+            filterPlaceholder: 'Search',
+            // possible options: 'text', 'value', 'both'
+            filterBehavior: 'text',
+            preventInputChangeEvent: false,
+            nonSelectedText: 'None selected',
+            nSelectedText: 'selected',
+            numberDisplayed: 3,
+            disableIfEmpty: false,
+            templates: {
+                button: '<button type="button" class="multiselect dropdown-toggle" data-toggle="dropdown"></button>',
+                ul: '<ul class="multiselect-container dropdown-menu"></ul>',
+                filter: '<li class="multiselect-item filter"><div class="input-group"><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span><input class="form-control multiselect-search" type="text"></div></li>',
+                li: '<li><a href="javascript:void(0);"><label></label></a></li>',
+                divider: '<li class="multiselect-item divider"></li>',
+                liGroup: '<li class="multiselect-item group"><label class="multiselect-group"></label></li>'
+            }
+        },
+
+        constructor: Multiselect,
+
+        /**
+         * Builds the container of the multiselect.
+         */
+        buildContainer: function() {
+            this.$container = $(this.options.buttonContainer);
+            this.$container.on('show.bs.dropdown', this.options.onDropdownShow);
+            this.$container.on('hide.bs.dropdown', this.options.onDropdownHide);
+            this.$container.on('shown.bs.dropdown', this.options.onDropdownShown);
+            this.$container.on('hidden.bs.dropdown', this.options.onDropdownHidden);
+        },
+
+        /**
+         * Builds the button of the multiselect.
+         */
+        buildButton: function() {
+            this.$button = $(this.options.templates.button).addClass(this.options.buttonClass);
+
+            // Adopt active state.
+            if (this.$select.prop('disabled')) {
+                this.disable();
+            }
+            else {
+                this.enable();
+            }
+
+            // Manually add button width if set.
+            if (this.options.buttonWidth && this.options.buttonWidth !== 'auto') {
+                this.$button.css({
+                    'width' : this.options.buttonWidth
+                });
+                this.$container.css({
+                    'width': this.options.buttonWidth
+                });
+            }
+
+            // Keep the tab index from the select.
+            var tabindex = this.$select.attr('tabindex');
+            if (tabindex) {
+                this.$button.attr('tabindex', tabindex);
+            }
+
+            this.$container.prepend(this.$button);
+        },
+
+        /**
+         * Builds the ul representing the dropdown menu.
+         */
+        buildDropdown: function() {
+
+            // Build ul.
+            this.$ul = $(this.options.templates.ul);
+
+            if (this.options.dropRight) {
+                this.$ul.addClass('pull-right');
+            }
+
+            // Set max height of dropdown menu to activate auto scrollbar.
+            if (this.options.maxHeight) {
+                // TODO: Add a class for this option to move the css declarations.
+                this.$ul.css({
+                    'max-height': this.options.maxHeight + 'px',
+                    'overflow-y': 'auto',
+                    'overflow-x': 'hidden'
+                });
+            }
+
+            this.$container.append(this.$ul);
+        },
+
+        /**
+         * Build the dropdown options and binds all nessecary events.
+         * 
+         * Uses createDivider and createOptionValue to create the necessary options.
+         */
+        buildDropdownOptions: function() {
+
+            this.$select.children().each($.proxy(function(index, element) {
+                
+                // Support optgroups and options without a group simultaneously.
+                var tag = $(element).prop('tagName')
+                    .toLowerCase();
+            
+                if ($(element).prop('value') === this.options.selectAllValue) {
+                    return;
+                }
+
+                if (tag === 'optgroup') {
+                    this.createOptgroup(element);
+                }
+                else if (tag === 'option') {
+
+                    if ($(element).data('role') === 'divider') {
+                        this.createDivider();
+                    }
+                    else {
+                        this.createOptionValue(element);
+                    }
+
+                }
+                
+                // Other illegal tags will be ignored.
+            }, this));
+
+            // Bind the change event on the dropdown elements.
+            $('li input', this.$ul).on('change', $.proxy(function(event) {
+                var $target = $(event.target);
+
+                var checked = $target.prop('checked') || false;
+                var isSelectAllOption = $target.val() === this.options.selectAllValue;
+
+                // Apply or unapply the configured selected class.
+                if (this.options.selectedClass) {
+                    if (checked) {
+                        $target.parents('li')
+                            .addClass(this.options.selectedClass);
+                    }
+                    else {
+                        $target.parents('li')
+                            .removeClass(this.options.selectedClass);
+                    }
+                }
+
+                // Get the corresponding option.
+                var value = $target.val();
+                var $option = this.getOptionByValue(value);
+
+                var $optionsNotThis = $('option', this.$select).not($option);
+                var $checkboxesNotThis = $('input', this.$container).not($target);
+
+                if (isSelectAllOption) {
+                    if (checked) {
+                        this.selectAll();
+                    }
+                    else {
+                        this.deselectAll();
+                    }
+                }
+
+                if(!isSelectAllOption){
+                    if (checked) {
+                        $option.prop('selected', true);
+
+                        if (this.options.multiple) {
+                            // Simply select additional option.
+                            $option.prop('selected', true);
+                        }
+                        else {
+                            // Unselect all other options and corresponding checkboxes.
+                            if (this.options.selectedClass) {
+                                $($checkboxesNotThis).parents('li').removeClass(this.options.selectedClass);
+                            }
+
+                            $($checkboxesNotThis).prop('checked', false);
+                            $optionsNotThis.prop('selected', false);
+
+                            // It's a single selection, so close.
+                            this.$button.click();
+                        }
+
+                        if (this.options.selectedClass === "active") {
+                            $optionsNotThis.parents("a").css("outline", "");
+                        }
+                    }
+                    else {
+                        // Unselect option.
+                        $option.prop('selected', false);
+                    }
+                }
+
+                this.$select.change();
+
+                this.updateButtonText();
+                this.updateSelectAll();
+                
+                this.options.onChange($option, checked);
+
+                if(this.options.preventInputChangeEvent) {
+                    return false;
+                }
+            }, this));
+
+            $('li a', this.$ul).on('touchstart click', function(event) {
+                event.stopPropagation();
+
+                var $target = $(event.target);
+
+                if (event.shiftKey) {
+                    var checked = $target.prop('checked') || false;
+
+                    if (checked) {
+                        var prev = $target.parents('li:last')
+                            .siblings('li[class="active"]:first');
+
+                        var currentIdx = $target.parents('li')
+                            .index();
+                        var prevIdx = prev.index();
+
+                        if (currentIdx > prevIdx) {
+                            $target.parents("li:last").prevUntil(prev).each(
+                                function() {
+                                    $(this).find("input:first").prop("checked", true)
+                                        .trigger("change");
+                                }
+                            );
+                        }
+                        else {
+                            $target.parents("li:last").nextUntil(prev).each(
+                                function() {
+                                    $(this).find("input:first").prop("checked", true)
+                                        .trigger("change");
+                                }
+                            );
+                        }
+                    }
+                }
+
+                $target.blur();
+            });
+
+            // Keyboard support.
+            this.$container.off('keydown.multiselect').on('keydown.multiselect', $.proxy(function(event) {
+                if ($('input[type="text"]', this.$container).is(':focus')) {
+                    return;
+                }
+                if ((event.keyCode === 9 || event.keyCode === 27)
+                        && this.$container.hasClass('open')) {
+                    
+                    // Close on tab or escape.
+                    this.$button.click();
+                }
+                else {
+                    var $items = $(this.$container).find("li:not(.divider):not(.disabled) a").filter(":visible");
+
+                    if (!$items.length) {
+                        return;
+                    }
+
+                    var index = $items.index($items.filter(':focus'));
+
+                    // Navigation up.
+                    if (event.keyCode === 38 && index > 0) {
+                        index--;
+                    }
+                    // Navigate down.
+                    else if (event.keyCode === 40 && index < $items.length - 1) {
+                        index++;
+                    }
+                    else if (!~index) {
+                        index = 0;
+                    }
+
+                    var $current = $items.eq(index);
+                    $current.focus();
+
+                    if (event.keyCode === 32 || event.keyCode === 13) {
+                        var $checkbox = $current.find('input');
+
+                        $checkbox.prop("checked", !$checkbox.prop("checked"));
+                        $checkbox.change();
+                    }
+
+                    event.stopPropagation();
+                    event.preventDefault();
+                }
+            }, this));
+        },
+
+        /**
+         * Create an option using the given select option.
+         * 
+         * @param {jQuery} element
+         */
+        createOptionValue: function(element) {
+            if ($(element).is(':selected')) {
+                $(element).prop('selected', true);
+            }
+
+            // Support the label attribute on options.
+            var label = this.options.label(element);
+            var value = $(element).val();
+            var inputType = this.options.multiple ? "checkbox" : "radio";
+
+            var $li = $(this.options.templates.li);
+            $('label', $li).addClass(inputType);
+            
+            if (this.options.checkboxName) {
+                $('label', $li).append('<input type="' + inputType + '" name="' + this.options.checkboxName + '" />');
+            }
+            else {
+                $('label', $li).append('<input type="' + inputType + '" />');
+            }
+            
+            var selected = $(element).prop('selected') || false;
+            var $checkbox = $('input', $li);
+            $checkbox.val(value);
+
+            if (value === this.options.selectAllValue) {
+                $li.addClass("multiselect-item multiselect-all");
+                $checkbox.parent().parent()
+                    .addClass('multiselect-all');
+            }
+
+            $('label', $li).append(" " + label);
+
+            this.$ul.append($li);
+
+            if ($(element).is(':disabled')) {
+                $checkbox.attr('disabled', 'disabled')
+                    .prop('disabled', true)
+                    .parents('a')
+                    .attr("tabindex", "-1")
+                    .parents('li')
+                    .addClass('disabled');
+            }
+
+            $checkbox.prop('checked', selected);
+
+            if (selected && this.options.selectedClass) {
+                $checkbox.parents('li')
+                    .addClass(this.options.selectedClass);
+            }
+        },
+
+        /**
+         * Creates a divider using the given select option.
+         * 
+         * @param {jQuery} element
+         */
+        createDivider: function(element) {
+            var $divider = $(this.options.templates.divider);
+            this.$ul.append($divider);
+        },
+
+        /**
+         * Creates an optgroup.
+         * 
+         * @param {jQuery} group
+         */
+        createOptgroup: function(group) {
+            var groupName = $(group).prop('label');
+
+            // Add a header for the group.
+            var $li = $(this.options.templates.liGroup);
+            $('label', $li).text(groupName);
+
+            this.$ul.append($li);
+
+            if ($(group).is(':disabled')) {
+                $li.addClass('disabled');
+            }
+
+            // Add the options of the group.
+            $('option', group).each($.proxy(function(index, element) {
+                this.createOptionValue(element);
+            }, this));
+        },
+
+        /**
+         * Build the selct all.
+         * 
+         * Checks if a select all has already been created.
+         */
+        buildSelectAll: function() {
+            var alreadyHasSelectAll = this.hasSelectAll();
+            
+            if (!alreadyHasSelectAll && this.options.includeSelectAllOption && this.options.multiple
+                    && $('option', this.$select).length > this.options.includeSelectAllIfMoreThan) {
+                
+                // Check whether to add a divider after the select all.
+                if (this.options.includeSelectAllDivider) {
+                    this.$ul.prepend($(this.options.templates.divider));
+                }
+
+                var $li = $(this.options.templates.li);
+                $('label', $li).addClass("checkbox");
+                
+                if (this.options.checkboxName) {
+                    $('label', $li).append('<input type="checkbox" name="' + this.options.checkboxName + '" />');
+                }
+                else {
+                    $('label', $li).append('<input type="checkbox" />');
+                }
+                
+                var $checkbox = $('input', $li);
+                $checkbox.val(this.options.selectAllValue);
+
+                $li.addClass("multiselect-item multiselect-all");
+                $checkbox.parent().parent()
+                    .addClass('multiselect-all');
+
+                $('label', $li).append(" " + this.options.selectAllText);
+
+                this.$ul.prepend($li);
+
+                $checkbox.prop('checked', false);
+            }
+        },
+
+        /**
+         * Builds the filter.
+         */
+        buildFilter: function() {
+
+            // Build filter if filtering OR case insensitive filtering is enabled and the number of options exceeds (or equals) enableFilterLength.
+            if (this.options.enableFiltering || this.options.enableCaseInsensitiveFiltering) {
+                var enableFilterLength = Math.max(this.options.enableFiltering, this.options.enableCaseInsensitiveFiltering);
+
+                if (this.$select.find('option').length >= enableFilterLength) {
+
+                    this.$filter = $(this.options.templates.filter);
+                    $('input', this.$filter).attr('placeholder', this.options.filterPlaceholder);
+                    this.$ul.prepend(this.$filter);
+
+                    this.$filter.val(this.query).on('click', function(event) {
+                        event.stopPropagation();
+                    }).on('input keydown', $.proxy(function(event) {
+                        // This is useful to catch "keydown" events after the browser has updated the control.
+                        clearTimeout(this.searchTimeout);
+
+                        this.searchTimeout = this.asyncFunction($.proxy(function() {
+
+                            if (this.query !== event.target.value) {
+                                this.query = event.target.value;
+
+                                $.each($('li', this.$ul), $.proxy(function(index, element) {
+                                    var value = $('input', element).val();
+                                    var text = $('label', element).text();
+
+                                    var filterCandidate = '';
+                                    if ((this.options.filterBehavior === 'text')) {
+                                        filterCandidate = text;
+                                    }
+                                    else if ((this.options.filterBehavior === 'value')) {
+                                        filterCandidate = value;
+                                    }
+                                    else if (this.options.filterBehavior === 'both') {
+                                        filterCandidate = text + '\n' + value;
+                                    }
+
+                                    if (value !== this.options.selectAllValue && text) {
+                                        // By default lets assume that element is not
+                                        // interesting for this search.
+                                        var showElement = false;
+
+                                        if (this.options.enableCaseInsensitiveFiltering && filterCandidate.toLowerCase().indexOf(this.query.toLowerCase()) > -1) {
+                                            showElement = true;
+                                        }
+                                        else if (filterCandidate.indexOf(this.query) > -1) {
+                                            showElement = true;
+                                        }
+
+                                        if (showElement) {
+                                            $(element).show().removeClass("filter-hidden");
+                                        }
+                                        else {
+                                            $(element).hide().addClass("filter-hidden");
+                                        }
+                                    }
+                                }, this));
+                            }
+
+                            this.updateSelectAll();
+                        }, this), 300, this);
+                    }, this));
+                }
+            }
+        },
+
+        /**
+         * Unbinds the whole plugin.
+         */
+        destroy: function() {
+            this.$container.remove();
+            this.$select.show();
+            this.$select.data('multiselect', null);
+        },
+
+        /**
+         * Refreshs the multiselect based on the selected options of the select.
+         */
+        refresh: function() {
+            $('option', this.$select).each($.proxy(function(index, element) {
+                var $input = $('li input', this.$ul).filter(function() {
+                    return $(this).val() === $(element).val();
+                });
+
+                if ($(element).is(':selected')) {
+                    $input.prop('checked', true);
+
+                    if (this.options.selectedClass) {
+                        $input.parents('li')
+                            .addClass(this.options.selectedClass);
+                    }
+                }
+                else {
+                    $input.prop('checked', false);
+
+                    if (this.options.selectedClass) {
+                        $input.parents('li')
+                            .removeClass(this.options.selectedClass);
+                    }
+                }
+
+                if ($(element).is(":disabled")) {
+                    $input.attr('disabled', 'disabled')
+                        .prop('disabled', true)
+                        .parents('li')
+                        .addClass('disabled');
+                }
+                else {
+                    $input.prop('disabled', false)
+                        .parents('li')
+                        .removeClass('disabled');
+                }
+            }, this));
+
+            this.updateButtonText();
+            this.updateSelectAll();
+        },
+
+        /**
+         * Select all options of the given values.
+         * 
+         * If triggerOnChange is set to true, the on change event is triggered if
+         * and only if one value is passed.
+         * 
+         * @param {Array} selectValues
+         * @param {Boolean} triggerOnChange
+         */
+        select: function(selectValues, triggerOnChange) {
+            if(!$.isArray(selectValues)) {
+                selectValues = [selectValues];
+            }
+
+            for (var i = 0; i < selectValues.length; i++) {
+                var value = selectValues[i];
+
+                var $option = this.getOptionByValue(value);
+                var $checkbox = this.getInputByValue(value);
+
+                if($option === undefined || $checkbox === undefined) {
+                    continue;
+                }
+                
+                if (!this.options.multiple) {
+                    this.deselectAll(false);
+                }
+                
+                if (this.options.selectedClass) {
+                    $checkbox.parents('li')
+                        .addClass(this.options.selectedClass);
+                }
+
+                $checkbox.prop('checked', true);
+                $option.prop('selected', true);
+            }
+
+            this.updateButtonText();
+
+            if (triggerOnChange && selectValues.length === 1) {
+                this.options.onChange($option, true);
+            }
+        },
+
+        /**
+         * Clears all selected items.
+         */
+        clearSelection: function () {
+            this.deselectAll(false);
+            this.updateButtonText();
+            this.updateSelectAll();
+        },
+
+        /**
+         * Deselects all options of the given values.
+         * 
+         * If triggerOnChange is set to true, the on change event is triggered, if
+         * and only if one value is passed.
+         * 
+         * @param {Array} deselectValues
+         * @param {Boolean} triggerOnChange
+         */
+        deselect: function(deselectValues, triggerOnChange) {
+            if(!$.isArray(deselectValues)) {
+                deselectValues = [deselectValues];
+            }
+
+            for (var i = 0; i < deselectValues.length; i++) {
+
+                var value = deselectValues[i];
+
+                var $option = this.getOptionByValue(value);
+                var $checkbox = this.getInputByValue(value);
+
+                if($option === undefined || $checkbox === undefined) {
+                    continue;
+                }
+
+                if (this.options.selectedClass) {
+                    $checkbox.parents('li')
+                        .removeClass(this.options.selectedClass);
+                }
+
+                $checkbox.prop('checked', false);
+                $option.prop('selected', false);
+            }
+
+            this.updateButtonText();
+
+            if (triggerOnChange && deselectValues.length === 1) {
+                this.options.onChange($option, false);
+            }
+        },
+        
+        /**
+         * Selects all enabled & visible options.
+         */
+        selectAll: function () {
+            var allCheckboxes = $("li input[type='checkbox']:enabled", this.$ul);
+            var visibleCheckboxes = allCheckboxes.filter(":visible");
+            var allCheckboxesCount = allCheckboxes.length;
+            var visibleCheckboxesCount = visibleCheckboxes.length;
+                
+            visibleCheckboxes.prop('checked', true);
+            $("li:not(.divider):not(.disabled)", this.$ul).filter(":visible").addClass(this.options.selectedClass);
+            
+            if (allCheckboxesCount === visibleCheckboxesCount) {
+                $("option:enabled", this.$select).prop('selected', true);
+            }
+            else {
+                var values = visibleCheckboxes.map(function() {
+                    return $(this).val();
+                }).get();
+                
+                $("option:enabled", this.$select).filter(function(index) {
+                    return $.inArray($(this).val(), values) !== -1;
+                }).prop('selected', true);
+            }
+        },
+
+        /**
+         * Deselects all options.
+         * 
+         * If justVisible is true or not specified, only visible options are deselected.
+         * 
+         * @param {Boolean} justVisible
+         */
+        deselectAll: function (justVisible) {
+            var justVisible = typeof justVisible === 'undefined' ? true : justVisible;
+            
+            if(justVisible) {              
+                var visibleCheckboxes = $("li input[type='checkbox']:enabled", this.$ul).filter(":visible");
+                visibleCheckboxes.prop('checked', false);
+                
+                var values = visibleCheckboxes.map(function() {
+                    return $(this).val();
+                }).get();
+                
+                $("option:enabled", this.$select).filter(function(index) {
+                    return $.inArray($(this).val(), values) !== -1;
+                }).prop('selected', false);
+                
+                if (this.options.selectedClass) {
+                    $("li:not(.divider):not(.disabled)", this.$ul).filter(":visible").removeClass(this.options.selectedClass);
+                }
+            }
+            else {
+                $("li input[type='checkbox']:enabled", this.$ul).prop('checked', false);
+                $("option:enabled", this.$select).prop('selected', false);
+                
+                if (this.options.selectedClass) {
+                    $("li:not(.divider):not(.disabled)", this.$ul).removeClass(this.options.selectedClass);
+                }
+            }
+        },
+
+        /**
+         * Rebuild the plugin.
+         * 
+         * Rebuilds the dropdown, the filter and the select all option.
+         */
+        rebuild: function() {
+            this.$ul.html('');
+
+            // Important to distinguish between radios and checkboxes.
+            this.options.multiple = this.$select.attr('multiple') === "multiple";
+
+            this.buildSelectAll();
+            this.buildDropdownOptions();
+            this.buildFilter();
+            
+            this.updateButtonText();
+            this.updateSelectAll();
+            
+            if (this.options.disableIfEmpty) {
+                this.disableIfEmpty();
+            }
+            
+            if (this.options.dropRight) {
+                this.$ul.addClass('pull-right');
+            }
+        },
+
+        /**
+         * The provided data will be used to build the dropdown.
+         * 
+         * @param {Array} dataprovider
+         */
+        dataprovider: function(dataprovider) {
+            var optionDOM = "";
+            var groupCounter = 0;
+
+            $.each(dataprovider, function (index, option) {
+                if ($.isArray(option.children)) {
+                    groupCounter++;
+                    optionDOM += '<optgroup label="' + (option.title || 'Group ' + groupCounter) + '">';
+
+                    forEach(option.children, function(subOption) {
+                        optionDOM += '<option value="' + subOption.value + '">' + (subOption.label || subOption.value) + '</option>';
+                    });
+
+                    optionDOM += '</optgroup>';
+                }
+                else {
+                    optionDOM += '<option value="' + option.value + '">' + (option.label || option.value) + '</option>';
+                }
+            });
+            
+            this.$select.html(optionDOM);
+            this.rebuild();
+        },
+
+        /**
+         * Enable the multiselect.
+         */
+        enable: function() {
+            this.$select.prop('disabled', false);
+            this.$button.prop('disabled', false)
+                .removeClass('disabled');
+        },
+
+        /**
+         * Disable the multiselect.
+         */
+        disable: function() {
+            this.$select.prop('disabled', true);
+            this.$button.prop('disabled', true)
+                .addClass('disabled');
+        },
+
+        /**
+         * Disable the multiselect if there are no options in the select.
+         */
+        disableIfEmpty: function () {
+            if ($('option', this.$select).length <= 0) {
+                this.disable();
+            }
+            else {
+                this.enable();
+            }
+        },
+
+        /**
+         * Set the options.
+         * 
+         * @param {Array} options
+         */
+        setOptions: function(options) {
+            this.options = this.mergeOptions(options);
+        },
+
+        /**
+         * Merges the given options with the default options.
+         * 
+         * @param {Array} options
+         * @returns {Array}
+         */
+        mergeOptions: function(options) {
+            return $.extend(true, {}, this.defaults, options);
+        },
+        
+        /**
+         * Checks whether a select all checkbox is present.
+         * 
+         * @returns {Boolean}
+         */
+        hasSelectAll: function() {
+            return $('li.' + this.options.selectAllValue, this.$ul).length > 0;
+        },
+        
+        /**
+         * Updates the select all checkbox based on the currently displayed and selected checkboxes.
+         */
+        updateSelectAll: function() {
+            if (this.hasSelectAll()) {
+                var allBoxes = $("li:not(.multiselect-item):not(.filter-hidden) input:enabled", this.$ul);
+                var allBoxesLength = allBoxes.length;
+                var checkedBoxesLength = allBoxes.filter(":checked").length;
+                var selectAllLi  = $("li." + this.options.selectAllValue, this.$ul);
+                var selectAllInput = selectAllLi.find("input");
+                
+                if (checkedBoxesLength > 0 && checkedBoxesLength === allBoxesLength) {
+                    selectAllInput.prop("checked", true);
+                    selectAllLi.addClass(this.options.selectedClass);
+                }
+                else {
+                    selectAllInput.prop("checked", false);
+                    selectAllLi.removeClass(this.options.selectedClass);
+                }
+            }
+        },
+        
+        /**
+         * Update the button text and its title based on the currently selected options.
+         */
+        updateButtonText: function() {
+            var options = this.getSelected();
+            
+            // First update the displayed button text.
+            $('button.multiselect', this.$container).html(this.options.buttonText(options, this.$select));
+            
+            // Now update the title attribute of the button.
+            $('button.multiselect', this.$container).attr('title', this.options.buttonTitle(options, this.$select));
+        },
+
+        /**
+         * Get all selected options.
+         * 
+         * @returns {jQUery}
+         */
+        getSelected: function() {
+            return $('option', this.$select).filter(":selected");
+        },
+
+        /**
+         * Gets a select option by its value.
+         * 
+         * @param {String} value
+         * @returns {jQuery}
+         */
+        getOptionByValue: function (value) {
+
+            var options = $('option', this.$select);
+            var valueToCompare = value.toString();
+
+            for (var i = 0; i < options.length; i = i + 1) {
+                var option = options[i];
+                if (option.value === valueToCompare) {
+                    return $(option);
+                }
+            }
+        },
+
+        /**
+         * Get the input (radio/checkbox) by its value.
+         * 
+         * @param {String} value
+         * @returns {jQuery}
+         */
+        getInputByValue: function (value) {
+
+            var checkboxes = $('li input', this.$ul);
+            var valueToCompare = value.toString();
+
+            for (var i = 0; i < checkboxes.length; i = i + 1) {
+                var checkbox = checkboxes[i];
+                if (checkbox.value === valueToCompare) {
+                    return $(checkbox);
+                }
+            }
+        },
+
+        /**
+         * Used for knockout integration.
+         */
+        updateOriginalOptions: function() {
+            this.originalOptions = this.$select.clone()[0].options;
+        },
+
+        asyncFunction: function(callback, timeout, self) {
+            var args = Array.prototype.slice.call(arguments, 3);
+            return setTimeout(function() {
+                callback.apply(self || window, args);
+            }, timeout);
+        }
+    };
+
+    $.fn.multiselect = function(option, parameter, extraOptions) {
+        return this.each(function() {
+            var data = $(this).data('multiselect');
+            var options = typeof option === 'object' && option;
+            
+            // Initialize the multiselect.
+            if (!data) {
+                data = new Multiselect(this, options);
+                $(this).data('multiselect', data);
+            }
+
+            // Call multiselect method.
+            if (typeof option === 'string') {
+                data[option](parameter, extraOptions);
+                
+                if (option === 'destroy') {
+                    $(this).data('multiselect', false);
+                }
+            }
+        });
+    };
+
+    $.fn.multiselect.Constructor = Multiselect;
+
+    $(function() {
+        $("select[data-role=multiselect]").multiselect();
+    });
+
+}(window.jQuery);
+
 (function(){var a,b,c,d,e,f,g,h,i=[].slice,j={}.hasOwnProperty,k=function(a,b){function c(){this.constructor=a}for(var d in b)j.call(b,d)&&(a[d]=b[d]);return c.prototype=b.prototype,a.prototype=new c,a.__super__=b.prototype,a};g=function(){},b=function(){function a(){}return a.prototype.addEventListener=a.prototype.on,a.prototype.on=function(a,b){return this._callbacks=this._callbacks||{},this._callbacks[a]||(this._callbacks[a]=[]),this._callbacks[a].push(b),this},a.prototype.emit=function(){var a,b,c,d,e,f;if(d=arguments[0],a=2<=arguments.length?i.call(arguments,1):[],this._callbacks=this._callbacks||{},c=this._callbacks[d])for(e=0,f=c.length;f>e;e++)b=c[e],b.apply(this,a);return this},a.prototype.removeListener=a.prototype.off,a.prototype.removeAllListeners=a.prototype.off,a.prototype.removeEventListener=a.prototype.off,a.prototype.off=function(a,b){var c,d,e,f,g;if(!this._callbacks||0===arguments.length)return this._callbacks={},this;if(d=this._callbacks[a],!d)return this;if(1===arguments.length)return delete this._callbacks[a],this;for(e=f=0,g=d.length;g>f;e=++f)if(c=d[e],c===b){d.splice(e,1);break}return this},a}(),a=function(a){function c(a,b){var e,f,g;if(this.element=a,this.version=c.version,this.defaultOptions.previewTemplate=this.defaultOptions.previewTemplate.replace(/\n*/g,""),this.clickableElements=[],this.listeners=[],this.files=[],"string"==typeof this.element&&(this.element=document.querySelector(this.element)),!this.element||null==this.element.nodeType)throw new Error("Invalid dropzone element.");if(this.element.dropzone)throw new Error("Dropzone already attached.");if(c.instances.push(this),this.element.dropzone=this,e=null!=(g=c.optionsForElement(this.element))?g:{},this.options=d({},this.defaultOptions,e,null!=b?b:{}),this.options.forceFallback||!c.isBrowserSupported())return this.options.fallback.call(this);if(null==this.options.url&&(this.options.url=this.element.getAttribute("action")),!this.options.url)throw new Error("No URL provided.");if(this.options.acceptedFiles&&this.options.acceptedMimeTypes)throw new Error("You can't provide both 'acceptedFiles' and 'acceptedMimeTypes'. 'acceptedMimeTypes' is deprecated.");this.options.acceptedMimeTypes&&(this.options.acceptedFiles=this.options.acceptedMimeTypes,delete this.options.acceptedMimeTypes),this.options.method=this.options.method.toUpperCase(),(f=this.getExistingFallback())&&f.parentNode&&f.parentNode.removeChild(f),this.options.previewsContainer!==!1&&(this.previewsContainer=this.options.previewsContainer?c.getElement(this.options.previewsContainer,"previewsContainer"):this.element),this.options.clickable&&(this.clickableElements=this.options.clickable===!0?[this.element]:c.getElements(this.options.clickable,"clickable")),this.init()}var d,e;return k(c,a),c.prototype.Emitter=b,c.prototype.events=["drop","dragstart","dragend","dragenter","dragover","dragleave","addedfile","removedfile","thumbnail","error","errormultiple","processing","processingmultiple","uploadprogress","totaluploadprogress","sending","sendingmultiple","success","successmultiple","canceled","canceledmultiple","complete","completemultiple","reset","maxfilesexceeded","maxfilesreached","queuecomplete"],c.prototype.defaultOptions={url:null,method:"post",withCredentials:!1,parallelUploads:2,uploadMultiple:!1,maxFilesize:256,paramName:"file",createImageThumbnails:!0,maxThumbnailFilesize:10,thumbnailWidth:120,thumbnailHeight:120,filesizeBase:1e3,maxFiles:null,filesizeBase:1e3,params:{},clickable:!0,ignoreHiddenFiles:!0,acceptedFiles:null,acceptedMimeTypes:null,autoProcessQueue:!0,autoQueue:!0,addRemoveLinks:!1,previewsContainer:null,capture:null,dictDefaultMessage:"Drop files here to upload",dictFallbackMessage:"Your browser does not support drag'n'drop file uploads.",dictFallbackText:"Please use the fallback form below to upload your files like in the olden days.",dictFileTooBig:"File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.",dictInvalidFileType:"You can't upload files of this type.",dictResponseError:"Server responded with {{statusCode}} code.",dictCancelUpload:"Cancel upload",dictCancelUploadConfirmation:"Are you sure you want to cancel this upload?",dictRemoveFile:"Remove file",dictRemoveFileConfirmation:null,dictMaxFilesExceeded:"You can not upload any more files.",accept:function(a,b){return b()},init:function(){return g},forceFallback:!1,fallback:function(){var a,b,d,e,f,g;for(this.element.className=""+this.element.className+" dz-browser-not-supported",g=this.element.getElementsByTagName("div"),e=0,f=g.length;f>e;e++)a=g[e],/(^| )dz-message($| )/.test(a.className)&&(b=a,a.className="dz-message");return b||(b=c.createElement('<div class="dz-message"><span></span></div>'),this.element.appendChild(b)),d=b.getElementsByTagName("span")[0],d&&(d.textContent=this.options.dictFallbackMessage),this.element.appendChild(this.getFallbackForm())},resize:function(a){var b,c,d;return b={srcX:0,srcY:0,srcWidth:a.width,srcHeight:a.height},c=a.width/a.height,b.optWidth=this.options.thumbnailWidth,b.optHeight=this.options.thumbnailHeight,null==b.optWidth&&null==b.optHeight?(b.optWidth=b.srcWidth,b.optHeight=b.srcHeight):null==b.optWidth?b.optWidth=c*b.optHeight:null==b.optHeight&&(b.optHeight=1/c*b.optWidth),d=b.optWidth/b.optHeight,a.height<b.optHeight||a.width<b.optWidth?(b.trgHeight=b.srcHeight,b.trgWidth=b.srcWidth):c>d?(b.srcHeight=a.height,b.srcWidth=b.srcHeight*d):(b.srcWidth=a.width,b.srcHeight=b.srcWidth/d),b.srcX=(a.width-b.srcWidth)/2,b.srcY=(a.height-b.srcHeight)/2,b},drop:function(){return this.element.classList.remove("dz-drag-hover")},dragstart:g,dragend:function(){return this.element.classList.remove("dz-drag-hover")},dragenter:function(){return this.element.classList.add("dz-drag-hover")},dragover:function(){return this.element.classList.add("dz-drag-hover")},dragleave:function(){return this.element.classList.remove("dz-drag-hover")},paste:g,reset:function(){return this.element.classList.remove("dz-started")},addedfile:function(a){var b,d,e,f,g,h,i,j,k,l,m,n,o;if(this.element===this.previewsContainer&&this.element.classList.add("dz-started"),this.previewsContainer){for(a.previewElement=c.createElement(this.options.previewTemplate.trim()),a.previewTemplate=a.previewElement,this.previewsContainer.appendChild(a.previewElement),l=a.previewElement.querySelectorAll("[data-dz-name]"),f=0,i=l.length;i>f;f++)b=l[f],b.textContent=a.name;for(m=a.previewElement.querySelectorAll("[data-dz-size]"),g=0,j=m.length;j>g;g++)b=m[g],b.innerHTML=this.filesize(a.size);for(this.options.addRemoveLinks&&(a._removeLink=c.createElement('<a class="dz-remove" href="javascript:undefined;" data-dz-remove>'+this.options.dictRemoveFile+"</a>"),a.previewElement.appendChild(a._removeLink)),d=function(b){return function(d){return d.preventDefault(),d.stopPropagation(),a.status===c.UPLOADING?c.confirm(b.options.dictCancelUploadConfirmation,function(){return b.removeFile(a)}):b.options.dictRemoveFileConfirmation?c.confirm(b.options.dictRemoveFileConfirmation,function(){return b.removeFile(a)}):b.removeFile(a)}}(this),n=a.previewElement.querySelectorAll("[data-dz-remove]"),o=[],h=0,k=n.length;k>h;h++)e=n[h],o.push(e.addEventListener("click",d));return o}},removedfile:function(a){var b;return a.previewElement&&null!=(b=a.previewElement)&&b.parentNode.removeChild(a.previewElement),this._updateMaxFilesReachedClass()},thumbnail:function(a,b){var c,d,e,f;if(a.previewElement){for(a.previewElement.classList.remove("dz-file-preview"),f=a.previewElement.querySelectorAll("[data-dz-thumbnail]"),d=0,e=f.length;e>d;d++)c=f[d],c.alt=a.name,c.src=b;return setTimeout(function(){return function(){return a.previewElement.classList.add("dz-image-preview")}}(this),1)}},error:function(a,b){var c,d,e,f,g;if(a.previewElement){for(a.previewElement.classList.add("dz-error"),"String"!=typeof b&&b.error&&(b=b.error),f=a.previewElement.querySelectorAll("[data-dz-errormessage]"),g=[],d=0,e=f.length;e>d;d++)c=f[d],g.push(c.textContent=b);return g}},errormultiple:g,processing:function(a){return a.previewElement&&(a.previewElement.classList.add("dz-processing"),a._removeLink)?a._removeLink.textContent=this.options.dictCancelUpload:void 0},processingmultiple:g,uploadprogress:function(a,b){var c,d,e,f,g;if(a.previewElement){for(f=a.previewElement.querySelectorAll("[data-dz-uploadprogress]"),g=[],d=0,e=f.length;e>d;d++)c=f[d],g.push("PROGRESS"===c.nodeName?c.value=b:c.style.width=""+b+"%");return g}},totaluploadprogress:g,sending:g,sendingmultiple:g,success:function(a){return a.previewElement?a.previewElement.classList.add("dz-success"):void 0},successmultiple:g,canceled:function(a){return this.emit("error",a,"Upload canceled.")},canceledmultiple:g,complete:function(a){return a._removeLink&&(a._removeLink.textContent=this.options.dictRemoveFile),a.previewElement?a.previewElement.classList.add("dz-complete"):void 0},completemultiple:g,maxfilesexceeded:g,maxfilesreached:g,queuecomplete:g,previewTemplate:'<div class="dz-preview dz-file-preview">\n  <div class="dz-image"><img data-dz-thumbnail /></div>\n  <div class="dz-details">\n    <div class="dz-size"><span data-dz-size></span></div>\n    <div class="dz-filename"><span data-dz-name></span></div>\n  </div>\n  <div class="dz-progress"><span class="dz-upload" data-dz-uploadprogress></span></div>\n  <div class="dz-error-message"><span data-dz-errormessage></span></div>\n  <div class="dz-success-mark">\n    <svg width="54px" height="54px" viewBox="0 0 54 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">\n      <title>Check</title>\n      <defs></defs>\n      <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">\n        <path d="M23.5,31.8431458 L17.5852419,25.9283877 C16.0248253,24.3679711 13.4910294,24.366835 11.9289322,25.9289322 C10.3700136,27.4878508 10.3665912,30.0234455 11.9283877,31.5852419 L20.4147581,40.0716123 C20.5133999,40.1702541 20.6159315,40.2626649 20.7218615,40.3488435 C22.2835669,41.8725651 24.794234,41.8626202 26.3461564,40.3106978 L43.3106978,23.3461564 C44.8771021,21.7797521 44.8758057,19.2483887 43.3137085,17.6862915 C41.7547899,16.1273729 39.2176035,16.1255422 37.6538436,17.6893022 L23.5,31.8431458 Z M27,53 C41.3594035,53 53,41.3594035 53,27 C53,12.6405965 41.3594035,1 27,1 C12.6405965,1 1,12.6405965 1,27 C1,41.3594035 12.6405965,53 27,53 Z" id="Oval-2" stroke-opacity="0.198794158" stroke="#747474" fill-opacity="0.816519475" fill="#FFFFFF" sketch:type="MSShapeGroup"></path>\n      </g>\n    </svg>\n  </div>\n  <div class="dz-error-mark">\n    <svg width="54px" height="54px" viewBox="0 0 54 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">\n      <title>Error</title>\n      <defs></defs>\n      <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">\n        <g id="Check-+-Oval-2" sketch:type="MSLayerGroup" stroke="#747474" stroke-opacity="0.198794158" fill="#FFFFFF" fill-opacity="0.816519475">\n          <path d="M32.6568542,29 L38.3106978,23.3461564 C39.8771021,21.7797521 39.8758057,19.2483887 38.3137085,17.6862915 C36.7547899,16.1273729 34.2176035,16.1255422 32.6538436,17.6893022 L27,23.3431458 L21.3461564,17.6893022 C19.7823965,16.1255422 17.2452101,16.1273729 15.6862915,17.6862915 C14.1241943,19.2483887 14.1228979,21.7797521 15.6893022,23.3461564 L21.3431458,29 L15.6893022,34.6538436 C14.1228979,36.2202479 14.1241943,38.7516113 15.6862915,40.3137085 C17.2452101,41.8726271 19.7823965,41.8744578 21.3461564,40.3106978 L27,34.6568542 L32.6538436,40.3106978 C34.2176035,41.8744578 36.7547899,41.8726271 38.3137085,40.3137085 C39.8758057,38.7516113 39.8771021,36.2202479 38.3106978,34.6538436 L32.6568542,29 Z M27,53 C41.3594035,53 53,41.3594035 53,27 C53,12.6405965 41.3594035,1 27,1 C12.6405965,1 1,12.6405965 1,27 C1,41.3594035 12.6405965,53 27,53 Z" id="Oval-2" sketch:type="MSShapeGroup"></path>\n        </g>\n      </g>\n    </svg>\n  </div>\n</div>'},d=function(){var a,b,c,d,e,f,g;for(d=arguments[0],c=2<=arguments.length?i.call(arguments,1):[],f=0,g=c.length;g>f;f++){b=c[f];for(a in b)e=b[a],d[a]=e}return d},c.prototype.getAcceptedFiles=function(){var a,b,c,d,e;for(d=this.files,e=[],b=0,c=d.length;c>b;b++)a=d[b],a.accepted&&e.push(a);return e},c.prototype.getRejectedFiles=function(){var a,b,c,d,e;for(d=this.files,e=[],b=0,c=d.length;c>b;b++)a=d[b],a.accepted||e.push(a);return e},c.prototype.getFilesWithStatus=function(a){var b,c,d,e,f;for(e=this.files,f=[],c=0,d=e.length;d>c;c++)b=e[c],b.status===a&&f.push(b);return f},c.prototype.getQueuedFiles=function(){return this.getFilesWithStatus(c.QUEUED)},c.prototype.getUploadingFiles=function(){return this.getFilesWithStatus(c.UPLOADING)},c.prototype.getActiveFiles=function(){var a,b,d,e,f;for(e=this.files,f=[],b=0,d=e.length;d>b;b++)a=e[b],(a.status===c.UPLOADING||a.status===c.QUEUED)&&f.push(a);return f},c.prototype.init=function(){var a,b,d,e,f,g,h;for("form"===this.element.tagName&&this.element.setAttribute("enctype","multipart/form-data"),this.element.classList.contains("dropzone")&&!this.element.querySelector(".dz-message")&&this.element.appendChild(c.createElement('<div class="dz-default dz-message"><span>'+this.options.dictDefaultMessage+"</span></div>")),this.clickableElements.length&&(d=function(a){return function(){return a.hiddenFileInput&&document.body.removeChild(a.hiddenFileInput),a.hiddenFileInput=document.createElement("input"),a.hiddenFileInput.setAttribute("type","file"),(null==a.options.maxFiles||a.options.maxFiles>1)&&a.hiddenFileInput.setAttribute("multiple","multiple"),a.hiddenFileInput.className="dz-hidden-input",null!=a.options.acceptedFiles&&a.hiddenFileInput.setAttribute("accept",a.options.acceptedFiles),null!=a.options.capture&&a.hiddenFileInput.setAttribute("capture",a.options.capture),a.hiddenFileInput.style.visibility="hidden",a.hiddenFileInput.style.position="absolute",a.hiddenFileInput.style.top="0",a.hiddenFileInput.style.left="0",a.hiddenFileInput.style.height="0",a.hiddenFileInput.style.width="0",document.body.appendChild(a.hiddenFileInput),a.hiddenFileInput.addEventListener("change",function(){var b,c,e,f;if(c=a.hiddenFileInput.files,c.length)for(e=0,f=c.length;f>e;e++)b=c[e],a.addFile(b);return d()})}}(this))(),this.URL=null!=(g=window.URL)?g:window.webkitURL,h=this.events,e=0,f=h.length;f>e;e++)a=h[e],this.on(a,this.options[a]);return this.on("uploadprogress",function(a){return function(){return a.updateTotalUploadProgress()}}(this)),this.on("removedfile",function(a){return function(){return a.updateTotalUploadProgress()}}(this)),this.on("canceled",function(a){return function(b){return a.emit("complete",b)}}(this)),this.on("complete",function(a){return function(){return 0===a.getUploadingFiles().length&&0===a.getQueuedFiles().length?setTimeout(function(){return a.emit("queuecomplete")},0):void 0}}(this)),b=function(a){return a.stopPropagation(),a.preventDefault?a.preventDefault():a.returnValue=!1},this.listeners=[{element:this.element,events:{dragstart:function(a){return function(b){return a.emit("dragstart",b)}}(this),dragenter:function(a){return function(c){return b(c),a.emit("dragenter",c)}}(this),dragover:function(a){return function(c){var d;try{d=c.dataTransfer.effectAllowed}catch(e){}return c.dataTransfer.dropEffect="move"===d||"linkMove"===d?"move":"copy",b(c),a.emit("dragover",c)}}(this),dragleave:function(a){return function(b){return a.emit("dragleave",b)}}(this),drop:function(a){return function(c){return b(c),a.drop(c)}}(this),dragend:function(a){return function(b){return a.emit("dragend",b)}}(this)}}],this.clickableElements.forEach(function(a){return function(b){return a.listeners.push({element:b,events:{click:function(d){return b!==a.element||d.target===a.element||c.elementInside(d.target,a.element.querySelector(".dz-message"))?a.hiddenFileInput.click():void 0}}})}}(this)),this.enable(),this.options.init.call(this)},c.prototype.destroy=function(){var a;return this.disable(),this.removeAllFiles(!0),(null!=(a=this.hiddenFileInput)?a.parentNode:void 0)&&(this.hiddenFileInput.parentNode.removeChild(this.hiddenFileInput),this.hiddenFileInput=null),delete this.element.dropzone,c.instances.splice(c.instances.indexOf(this),1)},c.prototype.updateTotalUploadProgress=function(){var a,b,c,d,e,f,g,h;if(d=0,c=0,a=this.getActiveFiles(),a.length){for(h=this.getActiveFiles(),f=0,g=h.length;g>f;f++)b=h[f],d+=b.upload.bytesSent,c+=b.upload.total;e=100*d/c}else e=100;return this.emit("totaluploadprogress",e,c,d)},c.prototype._getParamName=function(a){return"function"==typeof this.options.paramName?this.options.paramName(a):""+this.options.paramName+(this.options.uploadMultiple?"["+a+"]":"")},c.prototype.getFallbackForm=function(){var a,b,d,e;return(a=this.getExistingFallback())?a:(d='<div class="dz-fallback">',this.options.dictFallbackText&&(d+="<p>"+this.options.dictFallbackText+"</p>"),d+='<input type="file" name="'+this._getParamName(0)+'" '+(this.options.uploadMultiple?'multiple="multiple"':void 0)+' /><input type="submit" value="Upload!"></div>',b=c.createElement(d),"FORM"!==this.element.tagName?(e=c.createElement('<form action="'+this.options.url+'" enctype="multipart/form-data" method="'+this.options.method+'"></form>'),e.appendChild(b)):(this.element.setAttribute("enctype","multipart/form-data"),this.element.setAttribute("method",this.options.method)),null!=e?e:b)},c.prototype.getExistingFallback=function(){var a,b,c,d,e,f;for(b=function(a){var b,c,d;for(c=0,d=a.length;d>c;c++)if(b=a[c],/(^| )fallback($| )/.test(b.className))return b},f=["div","form"],d=0,e=f.length;e>d;d++)if(c=f[d],a=b(this.element.getElementsByTagName(c)))return a},c.prototype.setupEventListeners=function(){var a,b,c,d,e,f,g;for(f=this.listeners,g=[],d=0,e=f.length;e>d;d++)a=f[d],g.push(function(){var d,e;d=a.events,e=[];for(b in d)c=d[b],e.push(a.element.addEventListener(b,c,!1));return e}());return g},c.prototype.removeEventListeners=function(){var a,b,c,d,e,f,g;for(f=this.listeners,g=[],d=0,e=f.length;e>d;d++)a=f[d],g.push(function(){var d,e;d=a.events,e=[];for(b in d)c=d[b],e.push(a.element.removeEventListener(b,c,!1));return e}());return g},c.prototype.disable=function(){var a,b,c,d,e;for(this.clickableElements.forEach(function(a){return a.classList.remove("dz-clickable")}),this.removeEventListeners(),d=this.files,e=[],b=0,c=d.length;c>b;b++)a=d[b],e.push(this.cancelUpload(a));return e},c.prototype.enable=function(){return this.clickableElements.forEach(function(a){return a.classList.add("dz-clickable")}),this.setupEventListeners()},c.prototype.filesize=function(a){var b,c,d,e,f,g,h,i;for(g=["TB","GB","MB","KB","b"],d=e=null,c=h=0,i=g.length;i>h;c=++h)if(f=g[c],b=Math.pow(this.options.filesizeBase,4-c)/10,a>=b){d=a/Math.pow(this.options.filesizeBase,4-c),e=f;break}return d=Math.round(10*d)/10,"<strong>"+d+"</strong> "+e},c.prototype._updateMaxFilesReachedClass=function(){return null!=this.options.maxFiles&&this.getAcceptedFiles().length>=this.options.maxFiles?(this.getAcceptedFiles().length===this.options.maxFiles&&this.emit("maxfilesreached",this.files),this.element.classList.add("dz-max-files-reached")):this.element.classList.remove("dz-max-files-reached")},c.prototype.drop=function(a){var b,c;a.dataTransfer&&(this.emit("drop",a),b=a.dataTransfer.files,b.length&&(c=a.dataTransfer.items,c&&c.length&&null!=c[0].webkitGetAsEntry?this._addFilesFromItems(c):this.handleFiles(b)))},c.prototype.paste=function(a){var b,c;if(null!=(null!=a&&null!=(c=a.clipboardData)?c.items:void 0))return this.emit("paste",a),b=a.clipboardData.items,b.length?this._addFilesFromItems(b):void 0},c.prototype.handleFiles=function(a){var b,c,d,e;for(e=[],c=0,d=a.length;d>c;c++)b=a[c],e.push(this.addFile(b));return e},c.prototype._addFilesFromItems=function(a){var b,c,d,e,f;for(f=[],d=0,e=a.length;e>d;d++)c=a[d],f.push(null!=c.webkitGetAsEntry&&(b=c.webkitGetAsEntry())?b.isFile?this.addFile(c.getAsFile()):b.isDirectory?this._addFilesFromDirectory(b,b.name):void 0:null!=c.getAsFile?null==c.kind||"file"===c.kind?this.addFile(c.getAsFile()):void 0:void 0);return f},c.prototype._addFilesFromDirectory=function(a,b){var c,d;return c=a.createReader(),d=function(a){return function(c){var d,e,f;for(e=0,f=c.length;f>e;e++)d=c[e],d.isFile?d.file(function(c){return a.options.ignoreHiddenFiles&&"."===c.name.substring(0,1)?void 0:(c.fullPath=""+b+"/"+c.name,a.addFile(c))}):d.isDirectory&&a._addFilesFromDirectory(d,""+b+"/"+d.name)}}(this),c.readEntries(d,function(a){return"undefined"!=typeof console&&null!==console&&"function"==typeof console.log?console.log(a):void 0})},c.prototype.accept=function(a,b){return a.size>1024*this.options.maxFilesize*1024?b(this.options.dictFileTooBig.replace("{{filesize}}",Math.round(a.size/1024/10.24)/100).replace("{{maxFilesize}}",this.options.maxFilesize)):c.isValidFile(a,this.options.acceptedFiles)?null!=this.options.maxFiles&&this.getAcceptedFiles().length>=this.options.maxFiles?(b(this.options.dictMaxFilesExceeded.replace("{{maxFiles}}",this.options.maxFiles)),this.emit("maxfilesexceeded",a)):this.options.accept.call(this,a,b):b(this.options.dictInvalidFileType)},c.prototype.addFile=function(a){return a.upload={progress:0,total:a.size,bytesSent:0},this.files.push(a),a.status=c.ADDED,this.emit("addedfile",a),this._enqueueThumbnail(a),this.accept(a,function(b){return function(c){return c?(a.accepted=!1,b._errorProcessing([a],c)):(a.accepted=!0,b.options.autoQueue&&b.enqueueFile(a)),b._updateMaxFilesReachedClass()}}(this))},c.prototype.enqueueFiles=function(a){var b,c,d;for(c=0,d=a.length;d>c;c++)b=a[c],this.enqueueFile(b);return null},c.prototype.enqueueFile=function(a){if(a.status!==c.ADDED||a.accepted!==!0)throw new Error("This file can't be queued because it has already been processed or was rejected.");return a.status=c.QUEUED,this.options.autoProcessQueue?setTimeout(function(a){return function(){return a.processQueue()}}(this),0):void 0},c.prototype._thumbnailQueue=[],c.prototype._processingThumbnail=!1,c.prototype._enqueueThumbnail=function(a){return this.options.createImageThumbnails&&a.type.match(/image.*/)&&a.size<=1024*this.options.maxThumbnailFilesize*1024?(this._thumbnailQueue.push(a),setTimeout(function(a){return function(){return a._processThumbnailQueue()}}(this),0)):void 0},c.prototype._processThumbnailQueue=function(){return this._processingThumbnail||0===this._thumbnailQueue.length?void 0:(this._processingThumbnail=!0,this.createThumbnail(this._thumbnailQueue.shift(),function(a){return function(){return a._processingThumbnail=!1,a._processThumbnailQueue()}}(this)))},c.prototype.removeFile=function(a){return a.status===c.UPLOADING&&this.cancelUpload(a),this.files=h(this.files,a),this.emit("removedfile",a),0===this.files.length?this.emit("reset"):void 0},c.prototype.removeAllFiles=function(a){var b,d,e,f;for(null==a&&(a=!1),f=this.files.slice(),d=0,e=f.length;e>d;d++)b=f[d],(b.status!==c.UPLOADING||a)&&this.removeFile(b);return null},c.prototype.createThumbnail=function(a,b){var c;return c=new FileReader,c.onload=function(d){return function(){var e;return"image/svg+xml"===a.type?(d.emit("thumbnail",a,c.result),void(null!=b&&b())):(e=document.createElement("img"),e.onload=function(){var c,g,h,i,j,k,l,m;return a.width=e.width,a.height=e.height,h=d.options.resize.call(d,a),null==h.trgWidth&&(h.trgWidth=h.optWidth),null==h.trgHeight&&(h.trgHeight=h.optHeight),c=document.createElement("canvas"),g=c.getContext("2d"),c.width=h.trgWidth,c.height=h.trgHeight,f(g,e,null!=(j=h.srcX)?j:0,null!=(k=h.srcY)?k:0,h.srcWidth,h.srcHeight,null!=(l=h.trgX)?l:0,null!=(m=h.trgY)?m:0,h.trgWidth,h.trgHeight),i=c.toDataURL("image/png"),d.emit("thumbnail",a,i),null!=b?b():void 0},e.onerror=b,e.src=c.result)}}(this),c.readAsDataURL(a)},c.prototype.processQueue=function(){var a,b,c,d;if(b=this.options.parallelUploads,c=this.getUploadingFiles().length,a=c,!(c>=b)&&(d=this.getQueuedFiles(),d.length>0)){if(this.options.uploadMultiple)return this.processFiles(d.slice(0,b-c));for(;b>a;){if(!d.length)return;this.processFile(d.shift()),a++}}},c.prototype.processFile=function(a){return this.processFiles([a])},c.prototype.processFiles=function(a){var b,d,e;for(d=0,e=a.length;e>d;d++)b=a[d],b.processing=!0,b.status=c.UPLOADING,this.emit("processing",b);return this.options.uploadMultiple&&this.emit("processingmultiple",a),this.uploadFiles(a)},c.prototype._getFilesWithXhr=function(a){var b,c;return c=function(){var c,d,e,f;for(e=this.files,f=[],c=0,d=e.length;d>c;c++)b=e[c],b.xhr===a&&f.push(b);return f}.call(this)},c.prototype.cancelUpload=function(a){var b,d,e,f,g,h,i;if(a.status===c.UPLOADING){for(d=this._getFilesWithXhr(a.xhr),e=0,g=d.length;g>e;e++)b=d[e],b.status=c.CANCELED;for(a.xhr.abort(),f=0,h=d.length;h>f;f++)b=d[f],this.emit("canceled",b);this.options.uploadMultiple&&this.emit("canceledmultiple",d)}else((i=a.status)===c.ADDED||i===c.QUEUED)&&(a.status=c.CANCELED,this.emit("canceled",a),this.options.uploadMultiple&&this.emit("canceledmultiple",[a]));return this.options.autoProcessQueue?this.processQueue():void 0},e=function(){var a,b;return b=arguments[0],a=2<=arguments.length?i.call(arguments,1):[],"function"==typeof b?b.apply(this,a):b},c.prototype.uploadFile=function(a){return this.uploadFiles([a])},c.prototype.uploadFiles=function(a){var b,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,A,B,C,D,E,F,G,H,I,J,K,L;for(w=new XMLHttpRequest,x=0,B=a.length;B>x;x++)b=a[x],b.xhr=w;p=e(this.options.method,a),u=e(this.options.url,a),w.open(p,u,!0),w.withCredentials=!!this.options.withCredentials,s=null,g=function(c){return function(){var d,e,f;for(f=[],d=0,e=a.length;e>d;d++)b=a[d],f.push(c._errorProcessing(a,s||c.options.dictResponseError.replace("{{statusCode}}",w.status),w));return f}}(this),t=function(c){return function(d){var e,f,g,h,i,j,k,l,m;if(null!=d)for(f=100*d.loaded/d.total,g=0,j=a.length;j>g;g++)b=a[g],b.upload={progress:f,total:d.total,bytesSent:d.loaded};else{for(e=!0,f=100,h=0,k=a.length;k>h;h++)b=a[h],(100!==b.upload.progress||b.upload.bytesSent!==b.upload.total)&&(e=!1),b.upload.progress=f,b.upload.bytesSent=b.upload.total;if(e)return}for(m=[],i=0,l=a.length;l>i;i++)b=a[i],m.push(c.emit("uploadprogress",b,f,b.upload.bytesSent));return m}}(this),w.onload=function(b){return function(d){var e;if(a[0].status!==c.CANCELED&&4===w.readyState){if(s=w.responseText,w.getResponseHeader("content-type")&&~w.getResponseHeader("content-type").indexOf("application/json"))try{s=JSON.parse(s)}catch(f){d=f,s="Invalid JSON response from server."}return t(),200<=(e=w.status)&&300>e?b._finished(a,s,d):g()}}}(this),w.onerror=function(){return function(){return a[0].status!==c.CANCELED?g():void 0}}(this),r=null!=(G=w.upload)?G:w,r.onprogress=t,j={Accept:"application/json","Cache-Control":"no-cache","X-Requested-With":"XMLHttpRequest"},this.options.headers&&d(j,this.options.headers);for(h in j)i=j[h],w.setRequestHeader(h,i);if(f=new FormData,this.options.params){H=this.options.params;for(o in H)v=H[o],f.append(o,v)}for(y=0,C=a.length;C>y;y++)b=a[y],this.emit("sending",b,w,f);if(this.options.uploadMultiple&&this.emit("sendingmultiple",a,w,f),"FORM"===this.element.tagName)for(I=this.element.querySelectorAll("input, textarea, select, button"),z=0,D=I.length;D>z;z++)if(l=I[z],m=l.getAttribute("name"),n=l.getAttribute("type"),"SELECT"===l.tagName&&l.hasAttribute("multiple"))for(J=l.options,A=0,E=J.length;E>A;A++)q=J[A],q.selected&&f.append(m,q.value);else(!n||"checkbox"!==(K=n.toLowerCase())&&"radio"!==K||l.checked)&&f.append(m,l.value);for(k=F=0,L=a.length-1;L>=0?L>=F:F>=L;k=L>=0?++F:--F)f.append(this._getParamName(k),a[k],a[k].name);return w.send(f)},c.prototype._finished=function(a,b,d){var e,f,g;for(f=0,g=a.length;g>f;f++)e=a[f],e.status=c.SUCCESS,this.emit("success",e,b,d),this.emit("complete",e);return this.options.uploadMultiple&&(this.emit("successmultiple",a,b,d),this.emit("completemultiple",a)),this.options.autoProcessQueue?this.processQueue():void 0},c.prototype._errorProcessing=function(a,b,d){var e,f,g;for(f=0,g=a.length;g>f;f++)e=a[f],e.status=c.ERROR,this.emit("error",e,b,d),this.emit("complete",e);return this.options.uploadMultiple&&(this.emit("errormultiple",a,b,d),this.emit("completemultiple",a)),this.options.autoProcessQueue?this.processQueue():void 0},c}(b),a.version="4.0.1",a.options={},a.optionsForElement=function(b){return b.getAttribute("id")?a.options[c(b.getAttribute("id"))]:void 0},a.instances=[],a.forElement=function(a){if("string"==typeof a&&(a=document.querySelector(a)),null==(null!=a?a.dropzone:void 0))throw new Error("No Dropzone found for given element. This is probably because you're trying to access it before Dropzone had the time to initialize. Use the `init` option to setup any additional observers on your Dropzone.");return a.dropzone},a.autoDiscover=!0,a.discover=function(){var b,c,d,e,f,g;for(document.querySelectorAll?d=document.querySelectorAll(".dropzone"):(d=[],b=function(a){var b,c,e,f;for(f=[],c=0,e=a.length;e>c;c++)b=a[c],f.push(/(^| )dropzone($| )/.test(b.className)?d.push(b):void 0);return f},b(document.getElementsByTagName("div")),b(document.getElementsByTagName("form"))),g=[],e=0,f=d.length;f>e;e++)c=d[e],g.push(a.optionsForElement(c)!==!1?new a(c):void 0);return g},a.blacklistedBrowsers=[/opera.*Macintosh.*version\/12/i],a.isBrowserSupported=function(){var b,c,d,e,f;if(b=!0,window.File&&window.FileReader&&window.FileList&&window.Blob&&window.FormData&&document.querySelector)if("classList"in document.createElement("a"))for(f=a.blacklistedBrowsers,d=0,e=f.length;e>d;d++)c=f[d],c.test(navigator.userAgent)&&(b=!1);else b=!1;else b=!1;return b},h=function(a,b){var c,d,e,f;for(f=[],d=0,e=a.length;e>d;d++)c=a[d],c!==b&&f.push(c);return f},c=function(a){return a.replace(/[\-_](\w)/g,function(a){return a.charAt(1).toUpperCase()})},a.createElement=function(a){var b;return b=document.createElement("div"),b.innerHTML=a,b.childNodes[0]},a.elementInside=function(a,b){if(a===b)return!0;for(;a=a.parentNode;)if(a===b)return!0;return!1},a.getElement=function(a,b){var c;if("string"==typeof a?c=document.querySelector(a):null!=a.nodeType&&(c=a),null==c)throw new Error("Invalid `"+b+"` option provided. Please provide a CSS selector or a plain HTML element.");return c},a.getElements=function(a,b){var c,d,e,f,g,h,i,j;if(a instanceof Array){e=[];try{for(f=0,h=a.length;h>f;f++)d=a[f],e.push(this.getElement(d,b))}catch(k){c=k,e=null}}else if("string"==typeof a)for(e=[],j=document.querySelectorAll(a),g=0,i=j.length;i>g;g++)d=j[g],e.push(d);else null!=a.nodeType&&(e=[a]);if(null==e||!e.length)throw new Error("Invalid `"+b+"` option provided. Please provide a CSS selector, a plain HTML element or a list of those.");return e},a.confirm=function(a,b,c){return window.confirm(a)?b():null!=c?c():void 0},a.isValidFile=function(a,b){var c,d,e,f,g;if(!b)return!0;for(b=b.split(","),d=a.type,c=d.replace(/\/.*$/,""),f=0,g=b.length;g>f;f++)if(e=b[f],e=e.trim(),"."===e.charAt(0)){if(-1!==a.name.toLowerCase().indexOf(e.toLowerCase(),a.name.length-e.length))return!0}else if(/\/\*$/.test(e)){if(c===e.replace(/\/.*$/,""))return!0}else if(d===e)return!0;return!1},"undefined"!=typeof jQuery&&null!==jQuery&&(jQuery.fn.dropzone=function(b){return this.each(function(){return new a(this,b)})}),"undefined"!=typeof module&&null!==module?module.exports=a:window.Dropzone=a,a.ADDED="added",a.QUEUED="queued",a.ACCEPTED=a.QUEUED,a.UPLOADING="uploading",a.PROCESSING=a.UPLOADING,a.CANCELED="canceled",a.ERROR="error",a.SUCCESS="success",e=function(a){var b,c,d,e,f,g,h,i,j,k;for(h=a.naturalWidth,g=a.naturalHeight,c=document.createElement("canvas"),c.width=1,c.height=g,d=c.getContext("2d"),d.drawImage(a,0,0),e=d.getImageData(0,0,1,g).data,k=0,f=g,i=g;i>k;)b=e[4*(i-1)+3],0===b?f=i:k=i,i=f+k>>1;return j=i/g,0===j?1:j},f=function(a,b,c,d,f,g,h,i,j,k){var l;return l=e(b),a.drawImage(b,c,d,f,g,h,i,j,k/l)},d=function(a,b){var c,d,e,f,g,h,i,j,k;if(e=!1,k=!0,d=a.document,j=d.documentElement,c=d.addEventListener?"addEventListener":"attachEvent",i=d.addEventListener?"removeEventListener":"detachEvent",h=d.addEventListener?"":"on",f=function(c){return"readystatechange"!==c.type||"complete"===d.readyState?(("load"===c.type?a:d)[i](h+c.type,f,!1),!e&&(e=!0)?b.call(a,c.type||c):void 0):void 0
 },g=function(){var a;try{j.doScroll("left")}catch(b){return a=b,void setTimeout(g,50)}return f("poll")},"complete"!==d.readyState){if(d.createEventObject&&j.doScroll){try{k=!a.frameElement}catch(l){}k&&g()}return d[c](h+"DOMContentLoaded",f,!1),d[c](h+"readystatechange",f,!1),a[c](h+"load",f,!1)}},a._autoDiscoverFunction=function(){return a.autoDiscover?a.discover():void 0},d(window,a._autoDiscoverFunction)}).call(this);
 /*!

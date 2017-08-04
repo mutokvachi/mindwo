@@ -1,0 +1,1 @@
+{"version":3,"sources":["catalog.less","catalog.css"],"names":[],"mappings":"AAAI;EAEQ,cAAA;ECAX","file":"elix_education.css","sourcesContent":["    .dx-edu-multiselect-container{\r\n        button.multiselect{\r\n            height: 30px;\r\n        }\r\n    }\r\n",null]}
