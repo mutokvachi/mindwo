@@ -34,7 +34,7 @@ class EduSubjectsUi extends EduMigration
             $list_id = App\Libraries\DBHelper::getListByTable($this->table_name)->id;       
 
             // reorganize view fields - hide or remove unneeded
-            \App\Libraries\DBHelper::removeFieldsFromAllViews($this->table_name, ['id', 'title_full'], true); // hide ID field                       
+            \App\Libraries\DBHelper::removeFieldsFromAllViews($this->table_name, ['id', 'title'], true); // hide ID field                       
             \App\Libraries\DBHelper::removeFieldsFromAllForms($this->table_name, ['id', 'title_full'], false);
             
             // user rights

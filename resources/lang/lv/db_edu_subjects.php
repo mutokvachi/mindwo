@@ -9,6 +9,7 @@ return [
     'list_name' => 'Mācību pasākumi',
     'item_name' => 'Mācību pasākums',
     
+    'title_full' => 'Pilnais nosaukums',
     'title' => 'Nosaukums',
     'avail_id' => 'Pieejamība',
     'subject_code' => 'Kods',
