@@ -79,7 +79,7 @@ namespace App\Libraries\FieldsHtm
          * @return type
          */
         private function adjustItems($items) {
-            \Log::info("ITEAM VAL: " . $this->item_value . ' FLD: ' . $this->fld_attr->db_name);
+            
             if ($this->item_value == 0) {
                 return $items;
             }
@@ -95,7 +95,7 @@ namespace App\Libraries\FieldsHtm
 
             $nt->id = $this->item_value;
             $nt->txt = \App\Libraries\DBHelper::getLookupDisplayText($this->item_value, $this->fld_attr);
-            \Log::info("DARB: " . $nt->txt . " id " . $this->item_value);
+            
             array_push($items, $nt);
             return $items;
         }
