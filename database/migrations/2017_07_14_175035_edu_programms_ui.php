@@ -92,7 +92,8 @@ class EduProgrammsUi extends EduMigration
             App\Libraries\DBHelper::updateFormField($list_id, "user_approval_msg", ['tab_id' => $tab_descr_id]);
                                     
             App\Libraries\DBHelper::removeFieldsFromAllViews($list_id, [
-                'description',                
+                'description',   
+                'dx_supervise_id'
             ], false);
             
         });

@@ -10,6 +10,7 @@ return [
     'item_name' => 'Mācību programmas',
     'head_title' => 'Katalogs',
     
+    'dx_supervise_id' => 'Datu pārvaldītājs',
     'title' => 'Nosaukums',
     'code' => 'Programmas kods',
     'is_meta_required' => 'Ir paplašinātais profils',

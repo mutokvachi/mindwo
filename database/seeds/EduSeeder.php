@@ -31,10 +31,23 @@ class EduSeeder extends Seeder
             
             DB::table('dx_tasks')->delete();
             
+            DB::table('dx_users_supervise')->delete();
+            
             DB::table('dx_users')
                     ->where('id', '>', 2)->delete();
             
             DB::table('edu_orgs')->delete();
+            
+            DB::table('dx_supervise')->delete();
+            
+            // Supervise
+            $sup1 = DB::table('dx_supervise')->insertGetId([
+               'title' => 'Valsts adminisrācijas skola' 
+            ]);
+            
+            $sup2 = DB::table('dx_supervise')->insertGetId([
+               'title' => 'Finanšu ministrija' 
+            ]);
             
             // Organizations
             $main_org = DB::table('edu_orgs')->insertGetId([
@@ -107,6 +120,11 @@ class EduSeeder extends Seeder
             DB::table('dx_users_roles')->insert([
                 'role_id' => self::ROLE_MAIN,
                 'user_id' => $main_user1,
+            ]);
+            
+            DB::table('dx_users_supervise')->insert([
+               'user_id' => $main_user1,
+               'supervise_id' => $sup1,
             ]);
             // ---- End main coordinators
             
@@ -247,24 +265,28 @@ class EduSeeder extends Seeder
                 'title' => 'U projekts',
                 'code' => 'U',
                 'is_published' => 1,
+                'dx_supervise_id' => $sup1,
             ]);
             
             $progr2 = DB::table('edu_programms')->insertGetId([
                 'title' => 'K projekts',
                 'code' => 'K',
                 'is_published' => 1,
+                'dx_supervise_id' => $sup1,
             ]);
             
             $progr3 = DB::table('edu_programms')->insertGetId([
                 'title' => 'Pamatdarbība',  
                 'code' => 'P',
                 'is_published' => 1,
+                'dx_supervise_id' => $sup1,
             ]);
             
             $progr4 = DB::table('edu_programms')->insertGetId([
                 'title' => 'Franču valoda',
                 'code' => 'F',
                 'is_published' => 1,
+                'dx_supervise_id' => $sup2,
             ]);
             
             $module1 = DB::table('edu_modules')->insertGetId([
@@ -319,11 +341,38 @@ class EduSeeder extends Seeder
         $this->addRoleListFull(trans('db_dx_users.list_title_teacher'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_dx_users.list_title_serv'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_dx_users.list_title_student'), self::ROLE_MAIN);  
-        $this->addRoleListEditSelf(trans('db_dx_users.list_title_profile'), self::ROLE_MAIN, 'id');        
-        //$this->addRoleListRead(trans('db_dx_users.list_title_all'), self::ROLE_MAIN); // iespējams šo var ņemt ārā.., tas tikai lookupiem        
+        $this->addRoleListEditSelf(trans('db_dx_users.list_title_profile'), self::ROLE_MAIN, 'id');
         $this->addRoleListFull(trans('db_edu_orgs.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_orgs_users.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_certif.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_programms.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_modules.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_subjects.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_activities.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_dx_icons_files.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_in_tests_types.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_subjects_types.list_name'), self::ROLE_MAIN);
+        //$this->addRoleListFull(trans('db_in_tests_performers.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_orgs_types.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_subjects_teachers.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_materials.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_subjects_materials.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_banks.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_orgs_banks.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_modules_activities.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_certif_templates.list_name'), self::ROLE_MAIN);
+        //$this->addRoleListFull(trans('db_edu_certif.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_modules_students.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_modules_students_activities.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_subjects_groups.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_subjects_groups_members.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_rooms.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_subjects_groups_days.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_subjects_groups_attend.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_subjects_groups_days_teachers.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_subjects_groups_days_pauses.list_name'), self::ROLE_MAIN);
+        //$this->addRoleListFull(trans('db_edu_subjects_groups_days.list_name'), self::ROLE_MAIN);
+        
         
         $this->addRoleListFull(trans('db_dx_users.list_title_student'), self::ROLE_ORG);
         $this->addRoleListEditSelf(trans('db_dx_users.list_title_profile'), self::ROLE_ORG, 'id');
