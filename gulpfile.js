@@ -35,7 +35,7 @@ gulp.task('mix_all', function() {
         mix.less([
             '/pages/crypto/crypto.less',
             '/forms/chat.less',
-            'bootstrap-timepicker/css/timepicker.js',
+            '../plugins/bootstrap-timepicker/css/timepicker.less',
         ], 'public/css/elix_view_less.css');
 
         // Core styles for main page - plugins

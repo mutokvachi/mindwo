@@ -46,31 +46,39 @@
             self.domObject.data('dx_is_init', 1);
 
             // Opens chat window
-            self.domObject.find('#dx-edu-catalog-btn-filter-detailed').click(self.onClickToogleAdvancedFilter);
+            self.domObject.find('.dx-edu-catalog-btn-filter-detailed').on('click', function () {
+                self.onClickToogleAdvancedFilter(self);
+            });
 
             self.domObject.find('select').multiselect({
                 buttonWidth: '100%'
             });
-            
+
             self.domObject.find('.dx-edu-datetime-field').daterangepicker();
 
             self.domObject.find('.dx-edu-time-field').timepicker({
-                autoclose:!0,
-                minuteStep:30,
-                showSeconds:0,
-                showMeridian:0});
+                template: 'dropdown',
+                autoclose: true,
+                minuteStep: 10,
+                defaultTime: '0:00',
+                showSeconds: false,
+                showMeridian: false,
+                showInputs: true
+            });
         },
         /**
          * Shows or hides advanced filter
          */
-        onClickToogleAdvancedFilter: function () {
-            var icon = $(this).find('.fa');
+        onClickToogleAdvancedFilter: function (self) {
+            var icon = self.domObject.find('.dx-edu-catalog-btn-filter-detailed').find('.fa');
 
-            if (icon) {
-                icon.toggleClass('fa-caret-down fa-caret-up');
-            } else {
-               icon.toggleClass('fa-caret-up fa-caret-down');
-            }
+            icon.each(function () {
+                if ($(this)) {
+                    $(this).toggleClass('fa-caret-down fa-caret-up');
+                } else {
+                    $(this).toggleClass('fa-caret-up fa-caret-down');
+                }
+            });
         }
     });
 })(jQuery);
