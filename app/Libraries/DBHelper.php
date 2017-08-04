@@ -217,7 +217,7 @@ namespace App\Libraries
                 'fa_icon' => $fa_icon,
                 'group_id' => $site_id, 
                 'url' => $url,
-                'position_id' => 1 // main menu by default
+                'position_id' => 1, // main menu by default
             ]);
             
         }

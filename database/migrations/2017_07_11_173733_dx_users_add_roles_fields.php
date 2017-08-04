@@ -21,6 +21,11 @@ class DxUsersAddRolesFields extends Migration
             $table->boolean('is_role_student')->nullable()->default(false)->comment = trans('db_' . $this->table_name . '.criteria_role_title_student');
             $table->boolean('is_role_supply')->nullable()->default(false)->comment = trans('db_' . $this->table_name . '.criteria_role_title_serv');
             $table->boolean('is_anonim')->nullable()->default(false)->comment = trans('db_' . $this->table_name . '.is_anonim');
+            
+            $table->integer('region_id')->nullable()->unsigned()->comment = trans('db_' . $this->table_name.'.region_id');
+            
+            $table->index('region_id');            
+            $table->foreign('region_id')->references('id')->on('dx_regions');
         });
     }
 
@@ -38,6 +43,8 @@ class DxUsersAddRolesFields extends Migration
             $table->dropColumn(['is_role_student']);
             $table->dropColumn(['is_role_supply']);
             $table->dropColumn(['is_anonim']);
+            $table->dropForeign(['region_id']);
+            $table->dropColumn(['region_id']);
         });
     }
 }

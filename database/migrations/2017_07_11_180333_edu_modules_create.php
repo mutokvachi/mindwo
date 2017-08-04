@@ -59,7 +59,7 @@ class EduModulesCreate extends Migration
 
                         SET proj = (SELECT code FROM edu_programms WHERE id = new.programm_id);
 
-                        SET new.title_full = CONCAT(proj, '-', new.code, ': ', new.title);                
+                        SET new.title_full = CONCAT('[', proj, '-', new.code, '] ', new.title);                
                     END;";
                 
         DB::unprepared("CREATE TRIGGER tr_edu_modules_insert BEFORE INSERT ON edu_modules FOR EACH ROW " . $sql_trig);

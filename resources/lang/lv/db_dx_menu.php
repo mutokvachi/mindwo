@@ -18,4 +18,6 @@ return [
     'lbl_edu_learning' => 'Mācības',
     'lbl_edu_tests' => 'Anketas un testi',
     'lbl_edu_myprofile' => 'Mans profils',
+    'lbl_edu_calendar' => 'Kalendārs',
+    'lbl_edu_calendar_head' => 'Grupu komplektēšana',
 ];

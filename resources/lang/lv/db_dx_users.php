@@ -74,6 +74,8 @@ return [
     'is_receive_notify' => 'Saņemt jaunumus no VAS',
     'cert_date' => 'Datums',
     'cert_file' => 'Sertifikāts',
+    'region_id' => 'Deklarētā dzīvesvieta',
+    'region_id_hint' => 'Norāda republikas pilsētas vai novada nosaukumu.',
     
     // views
     'view_related' => 'Skats saistītajiem ierakstiem',

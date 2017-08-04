@@ -34,8 +34,8 @@ class EduSubjectsUi extends EduMigration
             $list_id = App\Libraries\DBHelper::getListByTable($this->table_name)->id;       
 
             // reorganize view fields - hide or remove unneeded
-            \App\Libraries\DBHelper::removeFieldsFromAllViews($this->table_name, ['id'], true); // hide ID field                       
-            \App\Libraries\DBHelper::removeFieldsFromAllForms($this->table_name, ['id'], false);
+            \App\Libraries\DBHelper::removeFieldsFromAllViews($this->table_name, ['id', 'title_full'], true); // hide ID field                       
+            \App\Libraries\DBHelper::removeFieldsFromAllForms($this->table_name, ['id', 'title_full'], false);
             
             // user rights
             DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1, 'is_import_rights' => 1, 'is_view_rights' => 1]); // Sys admins

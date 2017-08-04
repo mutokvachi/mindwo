@@ -92,7 +92,7 @@
                                 <div id="ext-cont">
                                     <div id="external-events">
                                         @foreach($subjects as $subj)
-                                        <div class='dx-event'>{{ $subj->title }}</div>
+                                        <div class='dx-event'>{{ $subj->title_full }}</div>
                                         @endforeach 
                                     </div>
                                 </div>

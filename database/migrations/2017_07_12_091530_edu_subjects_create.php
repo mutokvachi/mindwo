@@ -20,7 +20,8 @@ class EduSubjectsCreate extends Migration
             $table->engine = 'InnoDB';
             $table->increments('id');            
             
-            $table->string('title', 250)->comment = trans('db_' . $this->table_name.'.title');
+            $table->string('title_full', 250)->nullable()->comment = trans('db_' . $this->table_name.'.title_full');
+            $table->string('title', 200)->comment = trans('db_' . $this->table_name.'.title');
             $table->integer('subject_type_id')->unsigned()->comment = trans('db_' . $this->table_name.'.subject_type_id');
             $table->integer('avail_id')->unsigned()->comment = trans('db_' . $this->table_name.'.avail_id');
             
@@ -64,6 +65,28 @@ class EduSubjectsCreate extends Migration
             $table->integer('modified_user_id')->nullable();
             $table->datetime('modified_time')->nullable(); 
         });
+        
+        $sql_trig = "BEGIN
+                        DECLARE cod varchar(50);
+                        DECLARE next_id int default 0;
+                        
+                        SET cod = (SELECT CONCAT(edu_programms.code, '-', edu_modules.code) FROM edu_modules JOIN edu_programms ON edu_modules.programm_id = edu_programms.id WHERE edu_modules.id = new.module_id);
+                                                
+                        select 
+                            auto_increment into next_id
+                        from 
+                            information_schema.tables
+                        where 
+                            table_name = 'edu_subjects'
+                            and table_schema = database();
+     
+                        SET new.title_full = CONCAT('[', cod, '-', next_id, '] ', new.title);                
+                    END;";
+                
+        DB::unprepared("CREATE TRIGGER tr_edu_subjects_insert BEFORE INSERT ON edu_subjects FOR EACH ROW " . $sql_trig);
+        
+        DB::unprepared("CREATE TRIGGER tr_edu_subjects_update BEFORE UPDATE ON edu_subjects FOR EACH ROW " . $sql_trig);
+ 
     }
 
     /**
