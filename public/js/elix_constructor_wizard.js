@@ -585,8 +585,9 @@ Module.create('ConstructorTabs', {
 		
 		this.activeTabButton = $('.dx-constructor-tab-button').first().addClass('active');
 		this.activeTab = $('.dx-constructor-tab').first();
-		this.tabAddModal = $('#fields_tab_add');
-		this.tabEditModal = $('#fields_tab_edit');
+		this.tabAddRowBtn = $('.dx-constructor-tabs .dx-add-row-btn');
+		
+		this.activeTab.hasClass('related-grid') && this.tabAddRowBtn.hide();
 		
 		this.root.find('.dd-list').sortable({
 			containment: 'parent'
@@ -610,14 +611,6 @@ Module.create('ConstructorTabs', {
 		
 		$('.dx-tab-delete-btn').click(function() {
 			self.del();
-		});
-		
-		this.tabAddModal.on('click', '.dx-tab-add-save-btn', function() {
-			self.addSave();
-		});
-		
-		this.tabEditModal.on('click', '.dx-tab-edit-save-btn', function() {
-			self.editSave();
 		});
 	},
 	
@@ -667,6 +660,11 @@ Module.create('ConstructorTabs', {
 		if(tab.hasClass('custom-data'))
 		{
 			this.activeTab.find('.dx-constructor-grid').data('ConstructorGrid').updateGrid();
+			this.tabAddRowBtn.show();
+		}
+		else
+		{
+			this.tabAddRowBtn.hide();
 		}
 	},
 	
