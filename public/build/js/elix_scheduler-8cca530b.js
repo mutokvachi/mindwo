@@ -6568,42 +6568,11 @@ detectWarningInContainer = function(containerEl) {
             this.root = $(root);
             this.subjects_list_id = this.root.data('subjects-list-id');
             this.groups_list_id = this.root.data("groups-list-id");
-            this.days_list_id = this.root.data("days-list-id");
-            this.gr_count = 0;
+            this.days_list_id = this.root.data("days-list-id");            
             this.room_id = this.root.data("room-id");
             this.current_date = this.root.data("crrent-date");
             
-            var saveData = function(onsaved) {
-                show_page_splash();
-                var request = {
-                        site_id: self.site_id,
-                        items: self.nodes,
-                        _method: 'put'
-                };
-                
-                var save_url = self.options.root_url + self.options.scheduler_url + 'save';
-                
-                $.ajax({
-                        type: 'post',
-                        url: save_url,
-                        dataType: 'json',
-                        data: request,
-                        success: function(data)
-                        {                            
-                            $(".dx-stick-footer").removeClass('dx-page-in-edit-mode');
-                            
-                            if (onsaved) {
-                                onsaved.call(this);
-                            }
-                            else {
-                                show_page_splash();
-                                notify_info(Lang.get('constructor.menu.msg_saved'));                                
-                            }
-                        }
-                });  
-            };
-            /*
-            var newItemOpen = function() {
+            var newSubjectOpen = function() {
                 open_form('form', 0, self.subjects_list_id, 0, 0, "", 1, "", {
                     after_close: function(frm)
                     {
@@ -6612,14 +6581,38 @@ detectWarningInContainer = function(containerEl) {
                             // add tp container
                             var n = $("<div>");
                             n.addClass('dx-event');
-                            n.text(frm.find("[name=title]").val());
+                            n.attr("data-subject-id", new_id);
+                            
+                            var sp = $("<span>").addClass("dx-item-title").text(frm.find("[name=title]").val());
+                            sp.appendTo(n);                            
+                            
                             n.appendTo("#external-events");
                             addDr(n);
                         }
                     }
                 });
-            };            
+            };  
+            
+            this.root.find(".dx-new-btn").click(function() {                
+                newSubjectOpen();
+            });
+            
+            var newGroupOpen = function() {
+                open_form('form', 0, self.groups_list_id, 0, 0, "", 1, "", {
+                    after_close: function(frm)
+                    {
+                        show_page_splash();
+                        $(".dx-stick-footer").removeClass('dx-page-in-edit-mode');
+                        window.location.reload();
+                    }
+                });
+            };  
+            
+            this.root.find(".dx-new-group-btn").click(function() {                
+                newGroupOpen();
+            });
            
+           /*
             var undo_changes = function() {
                 show_page_splash();
                 $(".dx-stick-footer").removeClass('dx-page-in-edit-mode');
@@ -6630,9 +6623,7 @@ detectWarningInContainer = function(containerEl) {
                 PageMain.showConfirm(undo_changes, null, Lang.get('constructor.menu.confirm_title'), Lang.get('constructor.menu.confirm_msg'), Lang.get('constructor.menu.confirm_yes'), Lang.get('constructor.menu.confirm_no'), null);
             });
             
-            this.root.find(".dx-new-btn").click(function() {                
-                newItemOpen();
-            });
+            
             
             this.root.find(".dx-save-btn").click(function() {
                 var arr = $('#calendar').fullCalendar( 'clientEvents' );
@@ -6701,6 +6692,26 @@ detectWarningInContainer = function(containerEl) {
                                             duration: "02:00",
                                             dx_subj_id: el.data("subject-id"),
                                             dx_group_id: el.data("group-id"),
+                                            dx_day_id: 0,
+                                    });
+                                }
+                            });
+                        });
+                    }
+                    else {
+                        el.find(".dx-subj-edit").click(function() {
+                            open_form('form', el.data("subject-id"), self.subjects_list_id, 0, 0, "", 0, "", {
+                                after_close: function(frm)
+                                {
+                                    el.find(".dx-item-title").text(frm.find("[name=title]").val());
+                                    
+                                    el.data('event', {
+                                            title: $.trim(el.find(".dx-item-title").text()), // use the element's text as the event title
+                                            stick: true, // maintain when user navigates (see docs on the renderEvent method)
+                                            className: '',
+                                            duration: "02:00",
+                                            dx_subj_id: el.data("subject-id"),
+                                            dx_group_id: 0,
                                             dx_day_id: 0,
                                     });
                                 }

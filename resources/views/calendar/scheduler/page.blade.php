@@ -97,7 +97,7 @@
                                 <div id="ext-cont">
                                     <div id="external-events">
                                         @foreach($subjects as $subj)
-                                        <div class='dx-event' data-subject-id="{{ $subj->id }}"><span class="dx-item-title">{{ $subj->title_full }}</span></div>
+                                        <div class='dx-event' data-subject-id="{{ $subj->id }}"><span class="dx-item-title">{{ $subj->title_full }}</span><a class="pull-right" href="javascript:;"><i class="fa fa-edit dx-subj-edit"></i></a></div>
                                         @endforeach 
                                     </div>
                                 </div>
