@@ -20,11 +20,11 @@
       }
       
       .dx-cafe {
-          background-color: #d6df32!important;
+            background-color: #d6df32!important;
             padding: 6px;
             border: 1px solid gray;
-     margin-right: 6px;
-        color: white;
+            margin-right: 6px;
+            color: white;
       }
             
       .calendar {
@@ -43,13 +43,9 @@
           background-color: #f5cbd1;
       }
       
-      /*
-      #calendar {
-		max-width: 700px;
-		margin: 50px auto;
-        }
-        */
-
+      .portlet.calendar .fc-button {
+          top: -10px!important;
+      }
   </style>
 @endsection
 
@@ -65,44 +61,64 @@
 @endsection
 
 @section('main_content')
-<div class="dx-scheduler" data-group-list-id="{{ $groups_list_id }}">
+<div class="dx-scheduler" 
+     data-subjects-list-id="{{ $subjects_list_id }}" 
+     data-groups-list-id="{{ $groups_list_id }}"
+     data-days-list-id="{{ $days_list_id }}"
+     data-rooms-json='{!! json_encode($rooms, JSON_UNESCAPED_UNICODE) !!}'
+     data-events-json='{!! json_encode($events, JSON_UNESCAPED_UNICODE) !!}'
+     data-room-id="{{ $current_room_id }}"
+     data-crrent-date="{{ date('Y-m-d') }}"
+     >
     <div class="portlet light portlet-fit bordered calendar">
 	<div class="portlet-title">
             <div class="caption font-grey-cascade uppercase">
                 <i class="fa fa-calendar"></i> {{ trans('calendar.scheduler.page_title') }}        
-             </div>
+            </div>
+            @include('calendar.scheduler.rooms')
 	</div>
 	<div class="portlet-body">
 		<div class="row">
 			<div class="col-md-5 col-sm-12">
-				   <div class="row" style="margin-bottom: 15px;">
-                                        <div class="col-md-6 dx-title">
-                                            Mācību pasākumi
+                                <div class="row" style="margin-bottom: 15px;">
+                                    <div class="col-md-6 dx-title">
+                                        Mācību pasākumi
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="dx-cafe pull-left"><i class="fa fa-coffee" title="Kafijas pauze"></i></div>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control dx-search-subj" placeholder="Meklēt pasākumu...">
+                                            <span class="input-group-btn">
+                                              <button class="btn btn-primary dx-new-btn" style="min-width: 142px;" title="Jauns mācību pasākums" type="button">Jauns pasākums</button>
+                                            </span>
                                         </div>
-                                        <div class="col-md-6">
-                                            <div class="dx-cafe pull-left"><i class="fa fa-coffee" title="Kafijas pauze"></i></div>
-                                            <div class="input-group">
-                                                <input type="text" class="form-control dx-search-subj" placeholder="Meklēt pasākumu...">
-                                                <span class="input-group-btn">
-                                                  <button class="btn btn-default dx-new-btn" title="Jauns mācību pasākums" type="button">Jauns</button>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>    
+                                    </div>
+                                </div>    
                                 <div id="ext-cont">
                                     <div id="external-events">
                                         @foreach($subjects as $subj)
-                                        <div class='dx-event'>{{ $subj->title_full }}</div>
+                                        <div class='dx-event' data-subject-id="{{ $subj->id }}"><span class="dx-item-title">{{ $subj->title_full }}</span></div>
                                         @endforeach 
                                     </div>
                                 </div>
                             
                                 <div class="row" style="margin-bottom: 15px;">
-                                        <div class="col-md-6 dx-title">
-                                            Mācību grupas sagatavošanā
+                                    <div class="col-md-6 dx-title">
+                                        Mācību grupas sagatavošanā
+                                    </div>
+                                    <div class="col-md-6">                                        
+                                        <div class="input-group">
+                                            <input type="text" class="form-control dx-search-subj" placeholder="Meklēt grupu...">
+                                            <span class="input-group-btn">
+                                              <button class="btn btn-primary dx-new-group-btn" style="min-width: 142px;" title="Jauna mācību grupa" type="button">Jauna grupa</button>
+                                            </span>
                                         </div>
+                                    </div>
                                 </div>
 				<div id="dx-groups-box">
+                                    @foreach($groups as $group)
+                                    <div class='dx-event dx-group' data-subject-id="{{ $group->subject_id }}" data-group-id="{{ $group->id }}"><span class="dx-item-title">{{ $group->title }}</span><a class="pull-right" href="javascript:;"><i class="fa fa-edit dx-group-edit"></i></a></div>
+                                    @endforeach
                                 </div>
 			</div>
                        

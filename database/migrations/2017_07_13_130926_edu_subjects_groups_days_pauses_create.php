@@ -27,7 +27,7 @@ class EduSubjectsGroupsDaysPausesCreate extends Migration
             $table->string('notes', 1000)->nullable()->comment = trans('db_' . $this->table_name.'.notes');
             
             $table->index('group_day_id');            
-            $table->foreign('group_day_id')->references('id')->on('edu_subjects_groups_days');
+            $table->foreign('group_day_id')->references('id')->on('edu_subjects_groups_days')->onDelete('cascade');
             
             $table->index('feed_org_id');            
             $table->foreign('feed_org_id')->references('id')->on('edu_orgs');

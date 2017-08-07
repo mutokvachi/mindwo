@@ -24,7 +24,7 @@ class EduSubjectsGroupsCreate extends Migration
             $table->integer('subject_id')->unsigned()->comment = trans('db_' . $this->table_name.'.subject_id');
             
             $table->integer('seats_limit')->default(0)->comment = trans('db_' . $this->table_name.'.seats_limit');
-            $table->datetime('signup_due')->comment = trans('db_' . $this->table_name.'.signup_due');
+            $table->datetime('signup_due')->nullable()->comment = trans('db_' . $this->table_name.'.signup_due');
             $table->boolean('is_published')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_published');
             $table->boolean('is_generated')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_generated');
             $table->datetime('approved_time')->nullable()->comment = trans('db_' . $this->table_name.'.approved_time');
@@ -46,24 +46,31 @@ class EduSubjectsGroupsCreate extends Migration
         });
         
         DB::unprepared("CREATE TRIGGER tr_edu_subjects_groups_insert BEFORE INSERT ON  edu_subjects_groups FOR EACH ROW 
-            BEGIN
-                DECLARE subj_title varchar(250);
-                DECLARE max_id int(10);
-                
-                SET max_id = (SELECT max(id) FROM edu_subjects_groups) + 1;
-                SET subj_title = (SELECT title FROM edu_subjects WHERE id = new.subject_id);
+            BEGIN               
+                DECLARE cod varchar(250);
+                DECLARE next_id int default 0;
+                 
+                select 
+                    auto_increment into next_id
+                from 
+                    information_schema.tables
+                where 
+                    table_name = 'edu_subjects_groups'
+                    and table_schema = database();
+                            
+                SET cod = (SELECT CONCAT('[', edu_programms.code, '-', edu_modules.code, '-', edu_subjects.id, '] ', edu_subjects.title) FROM edu_subjects JOIN edu_modules on edu_subjects.module_id = edu_modules.id JOIN edu_programms ON edu_modules.programm_id = edu_programms.id WHERE edu_subjects.id = new.subject_id);
                                 
-                SET new.title = CONCAT('G',ifnull(max_id, 1),': ',subj_title);
+                SET new.title = CONCAT('G',next_id,': ',cod);
             END;
         ");
         
         DB::unprepared("CREATE TRIGGER tr_edu_subjects_groups_update BEFORE UPDATE ON  edu_subjects_groups FOR EACH ROW 
             BEGIN
-                DECLARE subj_title varchar(250);
+                DECLARE cod varchar(250);
+                                            
+                SET cod = (SELECT CONCAT('[', edu_programms.code, '-', edu_modules.code, '-', edu_subjects.id, '] ', edu_subjects.title) FROM edu_subjects JOIN edu_modules on edu_subjects.module_id = edu_modules.id JOIN edu_programms ON edu_modules.programm_id = edu_programms.id WHERE edu_subjects.id = new.subject_id);
                                 
-                SET subj_title = (SELECT title FROM edu_subjects WHERE id = new.subject_id);
-                                
-                SET new.title = CONCAT('G',new.id,subj_title);
+                SET new.title = CONCAT('G',new.id,': ',cod);
             END;
         ");
     }

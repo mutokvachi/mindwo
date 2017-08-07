@@ -26,7 +26,7 @@ class EduSubjectsGroupsDaysTeachersCreate extends Migration
             $table->time('time_to')->comment = trans('db_' . $this->table_name.'.time_to');
             
             $table->index('group_day_id');            
-            $table->foreign('group_day_id')->references('id')->on('edu_subjects_groups_days');
+            $table->foreign('group_day_id')->references('id')->on('edu_subjects_groups_days')->onDelete('cascade');
             
             $table->index('teacher_id');            
             $table->foreign('teacher_id')->references('id')->on('dx_users');

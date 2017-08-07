@@ -6550,7 +6550,8 @@ detectWarningInContainer = function(containerEl) {
 	
 	$.fn.DxScheduler.defaults = {
             root_url: getBaseUrl(),
-            scheduler_url: "calendar/scheduler/"
+            scheduler_url: "calendar/scheduler/",
+            group_prefix: "G"
 	};
 	
 	/**
@@ -6565,8 +6566,12 @@ detectWarningInContainer = function(containerEl) {
             var self = this;
             this.options = opts;
             this.root = $(root);
-            this.group_list_id = this.root.data('group-list-id');
+            this.subjects_list_id = this.root.data('subjects-list-id');
+            this.groups_list_id = this.root.data("groups-list-id");
+            this.days_list_id = this.root.data("days-list-id");
             this.gr_count = 0;
+            this.room_id = this.root.data("room-id");
+            this.current_date = this.root.data("crrent-date");
             
             var saveData = function(onsaved) {
                 show_page_splash();
@@ -6597,9 +6602,9 @@ detectWarningInContainer = function(containerEl) {
                         }
                 });  
             };
-            
+            /*
             var newItemOpen = function() {
-                open_form('form', 0, self.group_list_id, 0, 0, "", 1, "", {
+                open_form('form', 0, self.subjects_list_id, 0, 0, "", 1, "", {
                     after_close: function(frm)
                     {
                         var new_id = parseInt(frm.find("[name=item_id]").val());
@@ -6613,8 +6618,8 @@ detectWarningInContainer = function(containerEl) {
                         }
                     }
                 });
-            };
-            
+            };            
+           
             var undo_changes = function() {
                 show_page_splash();
                 $(".dx-stick-footer").removeClass('dx-page-in-edit-mode');
@@ -6629,7 +6634,13 @@ detectWarningInContainer = function(containerEl) {
                 newItemOpen();
             });
             
-            this.root.find(".dx-save-btn").click(function() {                
+            this.root.find(".dx-save-btn").click(function() {
+                var arr = $('#calendar').fullCalendar( 'clientEvents' );
+                arr.forEach(function(el) {
+                    console.log(el.id + "|" + el.title + "|" + el.start + "|" + el.end + "|" + el.resourceId);
+                });
+               
+                return;
                 saveData();
             });
             
@@ -6648,30 +6659,18 @@ detectWarningInContainer = function(containerEl) {
                     return $(this).find(".dd-list").length !== 0 && ($(this).attr("data-list-id") != "0" || ($(this).attr("data-url") && $(this).attr("data-url") != "javascript:;"));
                 }).addClass("parentError");
             };
-            
-            var initDrag = function(el) {
-                    // create an Event Object (http://arshaw.com/fullcalendar/docs/event_data/Event_Object/)
-                    // it doesn't need to have a start or end
-                    var eventObject = {
-                            title: $.trim(el.text()), // use the element's text as the event title
-                            stick: true
-                    };
-                    // store the Event Object in the DOM element so we can get to it later
-                    el.data('eventObject', eventObject);
-                    // make the event draggable using jQuery UI
-                    el.draggable({
-                            zIndex: 999,
-                            revert: true, // will cause the event to go back to its
-                            revertDuration: 0 //  original position after the drag
-                    });
-            };
-            
+            */
+           
             var addDr = function(el, gr) {
-                // store data so the calendar knows to render an event upon drop
+                    // store data so the calendar knows to render an event upon drop
                     el.data('event', {
-                            title: $.trim(el.text()), // use the element's text as the event title
+                            title: $.trim(el.find(".dx-item-title").text()), // use the element's text as the event title
                             stick: true, // maintain when user navigates (see docs on the renderEvent method)
-                            className: (gr) ? gr : ''
+                            className: (gr) ? gr : '',
+                            duration: "02:00",
+                            dx_subj_id: el.data("subject-id"),
+                            dx_group_id: el.data("group-id"),
+                            dx_day_id: 0,
                     });
 
                     // make the event draggable using jQuery UI
@@ -6686,48 +6685,56 @@ detectWarningInContainer = function(containerEl) {
                             revert: true,      // will cause the event to go back to its
                             revertDuration: 0  //  original position after the drag
                     });
+                    
+                    if (gr) {
+                        el.find(".dx-group-edit").click(function() {
+                            open_form('form', el.data("group-id"), self.groups_list_id, 0, 0, "", 0, "", {
+                                after_close: function(frm)
+                                {
+                                    el.attr('data-subject-id', frm.find("[name=subject_id]").val());
+                                    el.find(".dx-item-title").text(self.options.group_prefix + el.data("group-id") + ": " + frm.find("[dx_fld_name=subject_id]").val());
+                                    
+                                    el.data('event', {
+                                            title: $.trim(el.find(".dx-item-title").text()), // use the element's text as the event title
+                                            stick: true, // maintain when user navigates (see docs on the renderEvent method)
+                                            className: 'group',
+                                            duration: "02:00",
+                                            dx_subj_id: el.data("subject-id"),
+                                            dx_group_id: el.data("group-id"),
+                                            dx_day_id: 0,
+                                    });
+                                }
+                            });
+                        });
+                    }
             };
             
             var addDrCafe = function(el) {
                 
                 // store data so the calendar knows to render an event upon drop
-                    el.data('event', {
-                            title: 'Kafijas pauze', // use the element's text as the event title
-                            stick: true, // maintain when user navigates (see docs on the renderEvent method),
-                            duration: "00:30",
-                            className: "cafe"
-                    });
+                el.data('event', {
+                        title: 'Kafijas pauze', // use the element's text as the event title
+                        stick: true, // maintain when user navigates (see docs on the renderEvent method),
+                        duration: "00:30",
+                        className: "cafe",
+                        color: "#d6df32"
+                });
 
-                    // make the event draggable using jQuery UI
-                    el.draggable({                           
-                            zIndex: 999,
-                            revert: true,      // will cause the event to go back to its
-                            revertDuration: 0  //  original position after the drag
-                    });
+                // make the event draggable using jQuery UI
+                el.draggable({                           
+                        zIndex: 999,
+                        revert: true,      // will cause the event to go back to its
+                        revertDuration: 0  //  original position after the drag
+                });
             };
             
             addDrCafe($('.dx-cafe'));
             $('#external-events .dx-event').each(function() {
-                    
                     addDr($(this));
-
             });
-
-
-            var addEvent = function(title) {
-                    title = title.length === 0 ? "Untitled Event" : title;
-                    var html = $('<div class="external-event label label-default">' + title + '</div>');
-                    jQuery('#event_box').append(html);
-                    initDrag(html);
-            };
-
-            $('#external-events div.external-event').each(function() {
-                    initDrag($(this));
-            });
-
-            $('#event_add').unbind('click').click(function() {
-                    var title = $('#event_title').val();
-                    addEvent(title);
+            
+            $('#dx-groups-box .dx-group').each(function() {
+                    addDr($(this), "group");
             });
             
             this.root.find(".dx-search-subj").on("keyup", function()
@@ -6741,33 +6748,149 @@ detectWarningInContainer = function(containerEl) {
                     $("#external-events").find(".dx-event:contains('" + $(this).val() + "')").show();
 
             });
+            
+            var newGroupHtml = function(arr_data) {
+                var new_el = $("<div>");
+                new_el.addClass('dx-event').addClass('dx-group');
+                new_el.attr("data-subject-id", arr_data.subj_id);
+                new_el.attr("data-group-id", arr_data.group_id);
+                
+                var sp = $("<span class='dx-item-title'></span>");
+                sp.text(arr_data.text);
+                sp.appendTo(new_el);
+                
+                new_el.appendTo( "#dx-groups-box" );
+                
+                var a = $('<a class="pull-right" href="javascript:;"><i class="fa fa-edit dx-group-edit"></i></a>');
+                a.appendTo(new_el);
+                addDr(new_el, "group");
+            };
+            
+            var newCafeToDb = function(event) {
+                console.log("Create new coffe pause in db!");
+            };
+            
+            var newGroupToDb = function(event) {
+                console.log("Create new group in db!");
+                
+                var formData = new FormData();
+                formData.append("subject_id", event.dx_subj_id);
+                formData.append("start_time", event.start.format("YYYY-MM-DD HH:mm"));
+                formData.append("end_time", event.end.format("YYYY-MM-DD HH:mm"));
+                formData.append("room_id", (event.resourceId) ? event.resourceId : self.room_id);
+                
+                var request = new FormAjaxRequest (self.options.scheduler_url + "new_group", '', '', formData);
 
-            //predefined events
-            /*
-            $('#event_box').html("");
-            addEvent("K-A Korupcijas novēršana");
-            addEvent("K-A Korupcijas sekas");
-            addEvent("K-A Budžetu droša plānošana");
-            addEvent("U-B Biznesa vadība");
-            addEvent("U-C Efektivitāte");
-            addEvent("U-C Dienas plānošana");
-            */
+                request.callback = function(data) {
+                    event.id = data.day_id;
+                    event.title = self.options.group_prefix + data.group_id + ": " + event.title;
+                    event.className="group";
+                    event.dx_day_id = data.day_id;
+                    event.dx_group_id = data.group_id;
+                    $('#calendar').fullCalendar( 'updateEvent', event );
+
+                    newGroupHtml({subj_id: event.dx_subj_id, group_id: data.group_id, text: event.title});
+                };
+                
+                request.err_callback = function() {                    
+                    $('#calendar').fullCalendar( 'removeEvents', function(ev) {                        
+                        if (!ev.id) {
+                            return true;
+                        }
+                        return false;
+                    });
+                };
+
+                request.doRequest();
+            };
+            
+            var newDayToDb = function(event) {
+                console.log("Create new day for existing group in db!");
+                
+                var formData = new FormData();
+                formData.append("group_id", event.dx_group_id);
+                formData.append("start_time", event.start.format("YYYY-MM-DD HH:mm"));
+                formData.append("end_time", event.end.format("YYYY-MM-DD HH:mm"));
+                formData.append("room_id", (event.resourceId) ? event.resourceId : self.room_id);
+                
+                var request = new FormAjaxRequest (self.options.scheduler_url + "new_day", '', '', formData);
+
+                request.callback = function(data) {
+                    event.id = data.day_id;
+                    event.dx_day_id = data.day_id;
+                    $('#calendar').fullCalendar( 'updateEvent', event );
+                };
+                
+                request.err_callback = function() {                    
+                    $('#calendar').fullCalendar( 'removeEvents', function(ev) {                        
+                        if (!ev.id) {
+                            return true;
+                        }
+                        return false;
+                    });
+                };
+
+                request.doRequest();
+            };
+            
+            var updateCafeToDb = function(event) {
+                console.log("Update existing coffe pause in db!");
+            };
+            
+            var updateDayToDb = function(event) {
+                console.log("Update existing day in db!");
+                
+                var formData = new FormData();
+                formData.append("day_id", event.dx_day_id);
+                formData.append("start_time", event.start.format("YYYY-MM-DD HH:mm"));
+                formData.append("end_time", event.end.format("YYYY-MM-DD HH:mm"));
+                formData.append("room_id", (event.resourceId) ? event.resourceId : self.room_id);
+                
+                var request = new FormAjaxRequest (self.options.scheduler_url + "update_day", '', '', formData);
+
+                request.callback = function(data) {                    
+                    // do nothing - everything ok
+                };
+                
+                request.err_callback = function() {                    
+                   // ToDo: here we need somehow to rollback UI changes
+                };
+
+                request.doRequest();
+            };
+            
+            var cal_tools = 'prev,next,today';
+            var def_view = '';
+            var rooms_arr = null;
+            
+            if (this.room_id) {
+                cal_tools = cal_tools + ',month,agendaWeek,agendaDay';
+                def_view = 'agendaWeek';
+            }
+            else {
+                cal_tools = cal_tools + ',timelineDay,timelineThreeDays';
+                def_view = 'timelineThreeDays';
+                rooms_arr = this.root.data('rooms-json');
+            }
+            
             $('#calendar').fullCalendar({
                         schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
-			now: '2017-05-17',
+			now: self.current_date,
                         weekends: false,
 			editable: true,
                         droppable: true,
 			aspectRatio: 1.8,
 			scrollTime: '00:00',
                         displayEventTime: false,
+                        allDaySlot: false,
+                        resourceLabelText: "Telpas",
 			header: {
 				left: 'title',
                                 center: '',
-                                right: 'prev,next,today,timelineDay,timelineThreeDays,month,agendaWeek,agendaDay,listMonth'
+                                right: cal_tools
 			},
                         locale: Lang.getLocale(),
-			defaultView: 'timelineDay',
+			defaultView: def_view,
 			views: {
 				timelineThreeDays: {
 					type: 'timeline',
@@ -6783,52 +6906,60 @@ detectWarningInContainer = function(containerEl) {
                             start: '09:00', // a start time (10am in this example)
                             end: '18:00', // an end time (6pm in this example)
                         },
-                        drop: function(date, allDay) { // this function is called when something is dropped
-                                /*
-                                // retrieve the dropped element's stored Event Object
-                                var originalEventObject = $(this).data('eventObject');
-                                // we need to copy it, so that multiple events don't have a reference to the same object
-                                var copiedEventObject = $.extend({}, originalEventObject);
-
-                                // assign it the date that was reported
-                                copiedEventObject.start = date;
-                                copiedEventObject.allDay = allDay;
-                                copiedEventObject.className = $(this).attr("data-class");
-
-                                // render the event on the calendar
-                                // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
-                                $('#calendar').fullCalendar('renderEvent', copiedEventObject, true);
-                                */
-                                // remove the element from the "Draggable Events" list
-                                //$(this).remove();                                
-                                if (!$(this).hasClass('dx-group') && !$(this).hasClass('dx-cafe')) {                                    
-                                    self.gr_count++;
-                                    var newEl = $(this).clone().addClass('dx-group').css('max-width', 'none').appendTo( "#dx-groups-box" );
-                                    newEl.text("G" + self.gr_count + ": " + newEl.text());
-                                    addDr(newEl, "group");
-                                }
-                        },
-                        eventReceive : function(event) {
-                            if (event.className=="group" || event.className=="cafe") {
+                        eventReceive : function(event) {                            
+                            if (event.className == "cafe") {
+                                newCafeToDb(event);
                                 return;
                             }
                             
-                            event.title = "G" + self.gr_count + ": " + event.title;
-                            event.className="group";
-                            $('#calendar').fullCalendar( 'updateEvent', event );
+                            if (event.className == "group") {
+                                newDayToDb(event);
+                            }
+                            else {
+                                newGroupToDb(event);
+                            }
                         },
-			resourceGroupField: 'building',
-			resources: [
-				{ id: 'a', building: 'Valsts administrācijas skola', title: 'Telpa 342' },
-				{ id: 'b', building: 'Valsts administrācijas skola', title: 'Telpa 356' },
-				{ id: 'c', building: 'Finanšu ministrija', title: 'Telpa 133'}				
-			],
-			events: [
-				{ id: '1', resourceId: 'b', start: '2017-05-15T09:00:00', end: '2017-05-15T11:00:00', title: 'K-A Korupcijas novēršana' },
-				{ id: '2', resourceId: 'c', start: '2017-05-16T15:00:00', end: '2017-05-16T18:00:00', title: 'K-A Pareiza pieeja plānošanā' },
-				{ id: '3', resourceId: 'a', start: '2017-05-17T14:00:00', end: '2017-05-17T15:00:00', title: 'K-A Korupcijas novēršana' },
-				{ id: '4', resourceId: 'b', start: '2017-05-17T16:30:00', end: '2017-05-17T17:30:00', title: 'K-A Efektīva vadība' }
-			]
+                        eventResize: function(event, delta, revertFunc) {
+                            if (event.className == "cafe") {
+                                updateCafeToDb(event);
+                            }
+                            else {
+                                updateDayToDb(event);
+                            }
+                        },
+                        eventDrop: function( event, delta, revertFunc, jsEvent, ui, view ){
+                            if (!event.id) {
+                                return;
+                            }
+                            
+                            if (event.className == "cafe") {
+                                updateCafeToDb(event);
+                            }
+                            else {
+                                updateDayToDb(event);
+                            }
+                        },
+                        eventClick: function(calEvent, jsEvent, view) {
+
+                            if (calEvent.className == "cafe") {
+                                alert("Coffe pause opening will be implemented");
+                                return;
+                            }
+                            
+                            open_form('form', calEvent.dx_day_id, self.days_list_id, 0, 0, "", 0, "", {
+                                after_close: function(frm)
+                                {
+                                    alert("Update day if needed!");
+                                }
+                            });
+                            
+                            // change the border color just for fun
+                            $(this).css('border-color', 'red');
+
+                        },
+			resourceGroupField: 'organization',
+			resources: rooms_arr,
+			events: this.root.data('events-json')
 		});  
            
             

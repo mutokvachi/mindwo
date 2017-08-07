@@ -302,6 +302,7 @@ Route::group(['middleware' => ['auth', 'constructor_access'], 'prefix' => 'const
 });
 
 Route::group(['middleware' => ['auth'], 'prefix' => 'calendar', 'namespace' => 'Calendar'], function() {	
-        Route::get('/scheduler', ['as' => 'scheduler', 'uses' => 'SchedulerController@getSchedulerPage']);
-        Route::put('/scheduler', ['as' => 'scheduler_update', 'uses' => 'SchedulerController@updateSchedule']);
+        Route::get('/scheduler/{current_room_id}', ['as' => 'scheduler', 'uses' => 'SchedulerController@getSchedulerPage']);        
+        Route::post('/scheduler/new_group', ['as' => 'scheduler_new_group', 'uses' => 'SchedulerController@createNewGroup']);
+        Route::post('/scheduler/update_day', ['as' => 'scheduler_update_day', 'uses' => 'SchedulerController@updateDay']);
 });

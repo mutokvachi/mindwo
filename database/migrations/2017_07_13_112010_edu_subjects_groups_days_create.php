@@ -30,7 +30,7 @@ class EduSubjectsGroupsDaysCreate extends Migration
             $table->string('notes', 500)->nullable()->comment = trans('db_' . $this->table_name.'.notes');
             
             $table->index('group_id');            
-            $table->foreign('group_id')->references('id')->on('edu_subjects_groups');
+            $table->foreign('group_id')->references('id')->on('edu_subjects_groups')->onDelete('cascade');
             
             $table->index('room_id');            
             $table->foreign('room_id')->references('id')->on('edu_rooms');

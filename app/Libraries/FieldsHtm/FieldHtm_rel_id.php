@@ -85,8 +85,7 @@ namespace App\Libraries\FieldsHtm
             }
             
             foreach($items as $item) {
-                if ($item->id == $this->item_value) {
-                    \Log::info("ITEAM VAL dddd: " . $this->item_value);
+                if ($item->id == $this->item_value) {                    
                     return $items;
                 }
             }
