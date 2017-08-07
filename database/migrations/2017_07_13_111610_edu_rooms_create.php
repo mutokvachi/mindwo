@@ -36,17 +36,19 @@ class EduRoomsCreate extends Migration
             $table->datetime('modified_time')->nullable(); 
         });
         
-        DB::unprepared("CREATE TRIGGER tr_edu_rooms_insert BEFORE INSERT ON edu_rooms FOR EACH ROW 
+        $trig_sql = "
             BEGIN
-                SET new.title = CONCAT(new.room_nr, '  (" . trans('db_' . $this->table_name.'.lbl_limit') . ": ', new.room_limit, ')');                
+                if new.room_limit > 0 then
+                    SET new.title = CONCAT(new.room_nr, '  (" . trans('db_' . $this->table_name.'.lbl_limit') . ": ', new.room_limit, ')');                
+                else
+                    SET new.title = new.room_nr;
+                end if;
             END;
-        ");
+        ";
         
-        DB::unprepared("CREATE TRIGGER tr_edu_rooms_update BEFORE UPDATE ON edu_rooms FOR EACH ROW 
-            BEGIN
-                SET new.title = CONCAT(new.room_nr, '  (" . trans('db_' . $this->table_name.'.lbl_limit') . ": ', new.room_limit, ')'); 
-            END;
-        ");
+        DB::unprepared("CREATE TRIGGER tr_edu_rooms_insert BEFORE INSERT ON edu_rooms FOR EACH ROW " . $trig_sql);
+              
+        DB::unprepared("CREATE TRIGGER tr_edu_rooms_update BEFORE UPDATE ON edu_rooms FOR EACH ROW " . $trig_sql);
     }
 
     /**

@@ -35,6 +35,7 @@ return [
     'tab_tests' => 'Testēšana',
     'tab_teachers' => 'Pasniedzēji',
     'tab_materials' => 'Materiāli',
+    'tab_tags' => 'Mācību jomas',
     
     // groups
     'group_costs' => 'Izmaksas',

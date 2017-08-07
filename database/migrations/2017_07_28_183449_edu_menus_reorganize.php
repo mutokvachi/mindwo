@@ -24,7 +24,7 @@ class EduMenusReorganize extends EduMigration
                 'list_title' => trans('db_dx_menu.lbl_edu_calendar'),
                 'menu_parent_id' => $parent_menu->id,
                 'menu_order_index' => 40,
-                'menu_url' => 'calendar/scheduler'
+                'menu_url' => 'calendar/scheduler/0'
             ];
             $new_id = App\Libraries\DBHelper::makeMenu($arr_params);
             
