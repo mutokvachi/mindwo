@@ -34,7 +34,8 @@ gulp.task('mix_all', function() {
         // Prepare less styles for elix_view.css
         mix.less([
             '/pages/crypto/crypto.less',
-            '/forms/chat.less'
+            '/forms/chat.less',
+            '../plugins/bootstrap-timepicker/css/timepicker.less',
         ], 'public/css/elix_view_less.css');
 
         // Core styles for main page - plugins
@@ -69,6 +70,7 @@ gulp.task('mix_all', function() {
         // Styles for view page
         mix.styles([
             'datetimepicker/jquery.datetimepicker.css',
+            'bootstrap-multiselect/Content/bootstrap-multiselect.css',            
             'dropzone/dropzone.min.css',
             'dropzone/basic.min.css',
             'select2/select2-bootstrap.css',
@@ -108,6 +110,13 @@ gulp.task('mix_all', function() {
         mix.less([
             'colors/grayred.less'
         ], 'public/css/elix_colors_grayred.css');
+
+        // Scripts for education module
+        mix.less([
+            '/pages/education/catalog.less',
+            '/pages/education/registration.less',
+            '/pages/education/course.less'
+        ], 'public/css/elix_education.css', 'resources/assets/plugins');
         
         // Styles for articles search page
         mix.styles([
@@ -128,6 +137,11 @@ gulp.task('mix_all', function() {
             'mindwo/pages/documents.js'
         ],
                 'public/js/elix_documents.js', 'resources/assets/plugins');
+
+        // Scripts for education module
+        mix.scripts([
+            'mindwo/pages/education/catalog.js'
+        ], 'public/js/elix_education.js', 'resources/assets/plugins');
 
         // Core scripts for main blade view - will be included in all pages
         mix.scripts([
@@ -172,7 +186,9 @@ gulp.task('mix_all', function() {
         // Scripts for grids/forms functionality
         mix.scripts([            
             'bootstrap-daterangepicker/daterangepicker.js',
+            'bootstrap-timepicker/js/bootstrap-timepicker.js',
             'bootstrap-colorpicker/js/bootstrap-colorpicker.js',
+            'bootstrap-multiselect/Scripts/bootstrap-multiselect.js',
             'dropzone/dropzone.min.js',
             'jasny-bootstrap/js/jasny-bootstrap.js',
             'tree/jstree.min.js',
@@ -397,6 +413,8 @@ gulp.task('mix_all', function() {
             'js/elix_userlinks.js',
             'js/elix_plugins.js',
             'js/elix_view.js',
+            'js/elix_education.js',
+            'css/elix_education.css',
             'js/elix_employees.js',
             'js/elix_profile.js',
             'css/elix_plugins.css',
