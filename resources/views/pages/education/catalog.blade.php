@@ -32,11 +32,11 @@
                             <span style="font-weight:bold;">{{ $course->date->format('d.m.Y') }}</span> {{$course->time_from . ' - ' . $course->time_to }}
                         </div>
                         <div>
-                            <button class="btn btn-sm">Uzzināt vairāk</button>
+                            <a href="{{Request::root()}}/edu/course/{{ $course->id }}" class="btn btn-default btn-sm">Uzzināt vairāk</a>
                             @if($course->is_full)
                             <button class="btn btn-sm btn-danger disabled">Grupa ir pilna</button>
                             @else
-                            <button class="btn btn-sm btn-primary">Pieteikties</button>
+                            <a href="{{Request::root()}}/edu/registration/{{ $course->id }}" class="btn btn-sm btn-primary">Pieteikties</a>
                             @endif
                         </div>                        
                     </div>
@@ -45,7 +45,6 @@
             @endforeach
         </div>
     </div>
-    @include('pages.crypto.modal_generate_cert')
 </div>
 @stop
 

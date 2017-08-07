@@ -6,16 +6,16 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 /**
- * Education catalog controller
+ * Education registration controller
  */
-class CatalogController extends Controller
+class RegistrationController extends Controller
 {
     /**
-     * Retrieves catalog view
+     * Retrieves registration view
      *
      * @return void
      */
-    public function getView()
+    public function getView($id = 0)
     {
         $courses = [];
 
@@ -49,8 +49,8 @@ class CatalogController extends Controller
             'is_full' => false
         ];
 
-        return view('pages.education.catalog', [
-                    'courses' => $courses
+        return view('pages.education.registration.registration', [
+                    'course' => $id  == 0 ? false : $courses[$id]
                 ])->render();
     }
 }

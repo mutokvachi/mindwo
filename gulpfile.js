@@ -113,7 +113,9 @@ gulp.task('mix_all', function() {
 
         // Scripts for education module
         mix.less([
-            '/pages/education/catalog.less'
+            '/pages/education/catalog.less',
+            '/pages/education/registration.less',
+            '/pages/education/course.less'
         ], 'public/css/elix_education.css', 'resources/assets/plugins');
         
         // Styles for articles search page

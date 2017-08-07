@@ -15,12 +15,12 @@ class CourseController extends Controller
      *
      * @return void
      */
-    public function getView()
+    public function getView($id)
     {
         $courses = [];
 
-        $courses[] = (object)[
-            'id' => 3,
+        $courses[1] = (object)[
+            'id' => 1,
             'icon' => 'fa fa-briefcase',
             'title' => 'Jaunais Publisko iepirkumu likums - iesācējiem',
             'date' => new \DateTime('2017-08-21'),
@@ -29,7 +29,7 @@ class CourseController extends Controller
             'is_full' => false
         ];
 
-        $courses[] = (object)[
+        $courses[2] = (object)[
             'id' => 2,
             'icon' => 'fa fa-university',
             'title' => 'Jautājumu uzdošana un atbilžu sniegšana formālās situācijās angļu valodā',
@@ -39,8 +39,8 @@ class CourseController extends Controller
             'is_full' => true
         ];
 
-        $courses[] = (object)[
-            'id' => 2,
+        $courses[3] = (object)[
+            'id' => 3,
             'icon' => 'fa fa-university',
             'title' => 'Jautājumu uzdošana un atbilžu sniegšana formālās situācijās angļu valodā',
             'date' => new \DateTime('2017-09-10'),
@@ -49,8 +49,8 @@ class CourseController extends Controller
             'is_full' => false
         ];
 
-        return view('pages.education.course.frame', [
-                    'courses' => $courses
+        return view('pages.education.course.course', [
+                    'course' => $courses[$id]
                 ])->render();
     }
 }

@@ -199,6 +199,8 @@ Route::group(['prefix' => 'chat'], function() {
 
 Route::group(['prefix' => 'edu', 'namespace' => 'Education'], function() {
         Route::get('/catalog', array('middleware' => 'auth', 'uses' => 'CatalogController@getView'));
+        Route::get('/course/{id}', array('middleware' => 'auth', 'uses' => 'CourseController@getView'));
+        Route::get('/registration/{id?}', array('middleware' => 'auth', 'uses' => 'RegistrationController@getView'));
 });
 
 // Lietotāji - autorizācija, atslēgšanās
