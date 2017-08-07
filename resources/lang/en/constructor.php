@@ -32,6 +32,8 @@ return [
 	'step_fields_desc' => 'Form fields',
 	'step_rights' => 'Rights',
 	'step_rights_desc' => 'Assign user roles',
+    'step_workflows' => 'Workflows',
+	'step_workflows_desc' => 'Automate business processes',
 	'step_menu' => 'Navigation',
 	'step_menu_desc' => 'Setup link in menu',
 	'tab_add' => 'Add tab',

@@ -8,5 +8,8 @@
 return [    
     
     'is_title_hidden' => 'Nerādīt nosaukumu navigācijā',
-    'hint_is_title_hidden' => "Pazīme, vai nosaukums tiks paslēpts saskarnes navigācijā, t.i., būs redzama tikai ikona."
+    'hint_is_title_hidden' => "Pazīme, vai nosaukums tiks paslēpts saskarnes navigācijā, t.i., būs redzama tikai ikona.",
+    
+    'head_title' => 'Papildus virsraksts',
+    'head_title_hint' => 'Papildus virsraksts tiks attēlots virs attiecīgās izvēlnes. Šo iespēju var izmantot, lai vizuāli grupētu izvēlnes.',
 ];

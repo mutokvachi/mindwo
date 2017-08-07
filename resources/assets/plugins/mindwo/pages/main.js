@@ -506,15 +506,40 @@ var PageMain = function()
     };
     
     /**
+    * Delay events with the same id, good for window resize events, keystroke, etc
+    * 
+    * @param {Function} func : callback function to be run when done
+    * @param {Integer} wait : integer in milliseconds
+    * @param {String} id : unique event id
+    */
+    var delayedEvent = (function () {
+        var timers = {};
+
+        return function (func, wait, id) {
+            wait = wait || 200;
+            id = id || 'anonymous';
+            if (timers[id]) {
+                clearTimeout(timers[id]);
+                console.log('Delayed timer cleared for: ' + id);
+            }
+            console.log('Delayed timer set for: ' + id);
+            timers[id] = setTimeout(func, wait);
+        };
+    })();
+    
+    /**
      * Nodrošina lapas pārzīmēšanu, ja tiek mainīts pārlūka loga izmērs
      * 
      * @returns {undefined}
      */
     var handleWindowResize = function() {
         $(window).resize(function() {
+            delayedEvent(resizePageFromCookie(), 500, 'vertical-ui-win-resize')
+            /*
             setTimeout(function() {
                 resizePageFromCookie();
             }, 500);
+            */
         });  
     };
     
@@ -525,9 +550,12 @@ var PageMain = function()
      */
     var handleWindowResizeHorUI = function() {
         $(window).resize(function() {
+            delayedEvent(resizePage(), 500, 'horizontal-ui-win-resize')
+            /*
             setTimeout(function() {
                 resizePage();
             }, 500);
+            */
         });  
     };
     
@@ -659,13 +687,19 @@ var PageMain = function()
      * @param {string} err AJAX response error text
      * @returns {undefined}
      */
-    var showAjaxError = function(xhr, err) {
-        console.log("AJAX err: " + err);
-        // session ended - relogin required
+    var showAjaxError = function(xhr, err, settings) {
+        console.log("AJAX err: " + err + " URL: " + settings.url);
+        
         if (xhr.status == 401) {
-            hide_page_splash(1);
-            hide_form_splash(1);
-            reLoginModal.modal("show");
+            // session ended
+            if (reLogin.auth_popup.is(":visible")) {
+                // relogin already opened
+                return false;
+            }
+            
+            // relogin required
+            reLogin.ajax_obj = settings;
+            reLogin.openForm();
             return;
         }
         
@@ -978,8 +1012,8 @@ var PageMain = function()
         resizePage: function() {
             resizePage();
         },
-        errorHandler: function(xhr, err) {
-            showAjaxError(xhr, err);
+        errorHandler: function(xhr, err, settings) {
+            showAjaxError(xhr, err, settings);
         },
         getAjaxErrTxt: function(xhr) {
             return getAjaxErrorText(xhr);
@@ -1000,7 +1034,7 @@ $(document).ready(function() {
 });
 
 $(document).ajaxError(function(event, xhr, settings, err) {
-    PageMain.errorHandler(xhr, err);
+    PageMain.errorHandler(xhr, err, settings);
 });
 
 $(document).ajaxComplete(function(event, xhr, settings) {

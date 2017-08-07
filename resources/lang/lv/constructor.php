@@ -30,6 +30,8 @@ return [
 	'step_fields_desc' => 'Formas lauku izkārtojums',
 	'step_rights' => 'Tiesības',
 	'step_rights_desc' => 'Piešķirt lietotāju lomas',
+    'step_workflows' => 'Darbplūsmas',
+	'step_workflows_desc' => 'Biznesa procesu automatizācija',
 	'step_menu' => 'Navigācija',
 	'step_menu_desc' => 'Saite uz reģistru',
         'register_menu_parent' => 'Navigācija - pakārtots zem izvēlnes',

@@ -7,6 +7,7 @@ namespace App\Libraries\FieldsHtm
     use App\Exceptions;
     use DB;
     use Log;
+    use stdClass;
     
     /**
      * Izkrītošās izvēlnes lauka attēlošanas klase
@@ -38,7 +39,7 @@ namespace App\Libraries\FieldsHtm
         public function getHtm()
         {
             $items = $this->get_dropdown_items();
-
+            
             if ($this->fld_attr->is_required && count($items) == 1) {
                 $this->item_value = $items[0]->id;
             }
@@ -67,21 +68,37 @@ namespace App\Libraries\FieldsHtm
          * Returns textual value of the field
          */
         public function getTxtVal()
-        {
-            if (!$this->item_value) {
-                return "";
+        {  
+            return \App\Libraries\DBHelper::getLookupDisplayText($this->item_value, $this->fld_attr);
+        }
+
+        /**
+         * Checks if current item is in lookup results. If not - then it is added
+         * This is needed to provide logic that in dropdowns is not visible old values but when old item is opened for editing then that value should be available in dropdown
+         * @param type $items
+         * @return type
+         */
+        private function adjustItems($items) {
+            
+            if ($this->item_value == 0) {
+                return $items;
             }
             
-            $items = $this->get_dropdown_items();
             foreach($items as $item) {
-                if ($item->id == $this->item_value) {
-                    return $item->txt;
+                if ($item->id == $this->item_value) {                    
+                    return $items;
                 }
             }
             
-            return "";
-        }
+            $nt = new stdClass();
 
+            $nt->id = $this->item_value;
+            $nt->txt = \App\Libraries\DBHelper::getLookupDisplayText($this->item_value, $this->fld_attr);
+            
+            array_push($items, $nt);
+            return $items;
+        }
+        
         /**
          * Uzstāda noklusēto vērtību jauna ieraksta gadījumā
          */
@@ -131,7 +148,7 @@ namespace App\Libraries\FieldsHtm
                 }
 
 
-                return DB::select($sql_rel);
+                return $this->adjustItems(DB::select($sql_rel));
             }
             catch (\Exception $e) {
                 Log::info("REL ID ERROR: " . $e->getMessage());

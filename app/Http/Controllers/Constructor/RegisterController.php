@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Route;
 class RegisterController extends Controller
 {
 	/**
-	 * Current register ID beeing processed
+	 * Current register ID being processed
 	 * @var integer
 	 */
 	protected $id = 0;
@@ -30,7 +30,7 @@ class RegisterController extends Controller
 	protected $list = null;
 	protected $view = null;
 	protected $form = null;
-	protected $steps = ['names', 'columns', 'fields', 'rights'];
+	protected $steps = ['names', 'columns', 'fields', 'rights', 'workflows'];
 	
 	/**
 	 * RegisterController constructor.
@@ -537,6 +537,61 @@ class RegisterController extends Controller
 		])->render();
 		
 		return $result;
+	}
+	
+	/**
+	 * Opens workflow edit view
+	 *
+	 * @param [integer] $id Lists's ID
+	 * @return string HTML view
+	 */
+	public function editWorkflows($id)
+	{
+		$workflow = $this->getList()->workflows()->first();
+		
+		if($workflow)
+		{
+			$wf_cntrl = new \App\Http\Controllers\VisualWFController();
+			
+			$max_step = $wf_cntrl->getLastStep($workflow);
+			
+			if($max_step)
+			{
+				$max_step_nr = $max_step->step_nr;
+			}
+			else
+			{
+				$max_step_nr = 0;
+			}
+			
+			$xml_data = $wf_cntrl->prepareXML($workflow->id);
+		}
+		else
+		{
+			$max_step_nr = 0;
+			$xml_data = '';
+		}
+		
+		$result = view('constructor.workflows', [
+			'step' => 'workflows',
+			'workflow' => $workflow,
+			'xml_data' => $xml_data,
+			'max_step_nr' => $max_step_nr,
+			'wf_register_id' => $id
+		])->render();
+		
+		return $result;
+	}
+	
+	/**
+	 * Updates workflows data
+	 *
+	 * @param [integer] $id List's ID
+	 * @return void
+	 */
+	public function updateWorkflows($id)
+	{
+	
 	}
 	
 	protected function getList()

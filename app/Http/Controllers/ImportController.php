@@ -26,12 +26,6 @@ class ImportController extends Controller
     const FILE_FIELD_NAME = "import_file";
 
     /**
-     * Supported field types. ID's from table dx_field_types
-     * @var type 
-     */
-    private $supported_fields = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20];
-
-    /**
      * Register ID
      * 
      * @var integer
@@ -443,7 +437,7 @@ class ImportController extends Controller
      */
     private function getListFields()
     {
-        $this->list_fields = DBHistory::getListFields($this->list_id, $this->supported_fields);
+        $this->list_fields = DBHistory::getListFields($this->list_id);
 
         $this->addFormatedTitles();
     }

@@ -1,4 +1,7 @@
 @if (Config::get('dx.is_horizontal_menu'))
+    @if (isset($head_title) && $head_title)
+        <li class="heading">{{ $head_title }}</li>
+    @endif
     <li class="{{ ($level ==0) ? $active : '' }} {{($level > 0 && $sub_items_htm) ? 'dropdown-submenu' : '' }}" data-level="{{ $level }}">
         <a href="{{ $href }}" data-list-id="{{ $list_id }}" data-view-id="{{ $view_id }}" data-level="{{ $level }}" data-toggle="{{ ($sub_items_htm) ? 'dropdown' : '' }}" class="{{ ($sub_items_htm) ? 'dropdown-toggle' : ''}}" {{ $target }} {!! ($color) ? 'style="color: ' . $color . ';"' : '' !!}>
             

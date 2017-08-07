@@ -158,4 +158,6 @@ return [
     
     'btn_ok' => 'Labi',
     'attention' => 'Uzmanību!',
+    
+    'import_wrong_multival' => "Daudzlīmeņu klasifikatorā ':list' nav atrodama Excel datnē norādītā vērtība ':val'! Lūdzu, papildiniet klasifikatoru un atkārtojiet importu.",
 ];

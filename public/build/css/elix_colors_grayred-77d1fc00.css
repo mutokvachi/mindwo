@@ -1,20 +1,20 @@
 .dx-page-container,
 #td_data {
-  background-color: #dae8cf !important;
+  background-color: #f9f6f6;
 }
 .dx-form-chat-content .name {
-  color: #016eb1 !important;
+  color: #cb4654 !important;
 }
 .dx-form-chat-content .btn {
-  background-color: #82af16 !important;
-  border: 1px solid #6f9a00 !important;
+  background-color: #cb4654 !important;
+  border: 1px solid #700f11 !important;
 }
 #dx-menu-wrap,
 .navbar-default {
   background-color: #3a3a3a !important;
 }
 #dx-menu-wrap.dx-top-menu {
-  border-bottom: 4px solid #82af16 !important;
+  border-bottom: 4px solid #cb4654 !important;
 }
 @media screen and (min-width: 768px) {
   #navbar {
@@ -36,37 +36,37 @@
     height: 0;
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
-    border-bottom: 6px solid #82af16;
+    border-bottom: 6px solid #cb4654;
   }
 }
 .navbar-default .navbar-nav > .open > a,
 .navbar-default .navbar-nav > .open > a:hover,
 .navbar-default .navbar-nav > .open > a:focus {
-  background-color: #444;
+  background-color: #cb4654;
 }
 button.navbar-toggle {
-  background-color: #82af16 !important;
-  border: 1px solid #6f9a00 !important;
+  background-color: #cb4654 !important;
+  border: 1px solid #700f11 !important;
   border-radius: 2px !important;
 }
 #dx-top-search-form input {
   color: #b8b8b8 !important;
-  background-color: #444 !important;
+  background-color: #ffffff !important;
   border: 1px solid #777 !important;
 }
 #dx-top-search-form .btn {
-  background-color: #82af16 !important;
+  background-color: #cb4654 !important;
   border: 1px solid #777 !important;
 }
 .navbar-nav li.active a {
   background-color: transparent !important;
 }
 .tabbable-line > .nav-tabs > li.active {
-  border-color: #82af16;
+  border-color: #cb4654;
 }
 .tabbable-line > .nav-tabs > li.open,
 .tabbable-line > .nav-tabs > li:hover {
-  border-color: #6f9a00;
+  border-color: #700f11;
 }
 .form-control {
   background-color: #fafafa;
@@ -75,22 +75,22 @@ button.navbar-toggle {
 }
 .form-control:focus {
   background-color: #ffffff;
-  border-color: #6f9a00;
+  border-color: #700f11;
 }
 .btn {
   border-radius: 2px !important;
 }
 .btn.btn-primary {
-  background-color: #82af16 !important;
-  border: 1px solid #6f9a00 !important;
+  background-color: #cb4654 !important;
+  border: 1px solid #700f11 !important;
 }
 .btn.dx-form-chat-btn-send {
-  background-color: #82af16 !important;
-  border: 1px solid #6f9a00 !important;
+  background-color: #cb4654 !important;
+  border: 1px solid #700f11 !important;
 }
 .btn.btn-block {
-  background-color: #82af16 !important;
-  border: 1px solid #6f9a00 !important;
+  background-color: #cb4654 !important;
+  border: 1px solid #700f11 !important;
 }
 .btn.btn-white,
 .btn.btn-default,
@@ -100,25 +100,25 @@ button.navbar-toggle {
 }
 .actions .btn.btn-circle {
   color: white;
-  background-color: #82af16 !important;
-  border: 1px solid #6f9a00 !important;
+  background-color: #cb4654 !important;
+  border: 1px solid #700f11 !important;
 }
 .close-quick-sidebar {
-  background-color: #82af16 !important;
-  border: 1px solid #6f9a00 !important;
+  background-color: #cb4654 !important;
+  border: 1px solid #700f11 !important;
 }
 .btn.blue-soft {
-  background-color: #82af16 !important;
-  border: 1px solid #6f9a00 !important;
+  background-color: #cb4654 !important;
+  border: 1px solid #700f11 !important;
 }
 .btn.green-jungle {
   background-color: #26C281;
 }
 .mt-actions .btn.btn-outline.green {
-  color: #016eb1 !important;
+  color: #cb4654 !important;
 }
 .mt-actions .mt-action .mt-action-body .mt-action-row .mt-action-info .mt-action-icon > i {
-  color: #82af16;
+  color: #cb4654;
 }
 .form-control[disabled],
 .form-control[readonly],
@@ -133,7 +133,7 @@ fieldset[disabled] .form-control {
 }
 .bootstrap-switch .bootstrap-switch-handle-off.bootstrap-switch-primary,
 .bootstrap-switch .bootstrap-switch-handle-on.bootstrap-switch-primary {
-  background-color: #82af16 !important;
+  background-color: #cb4654 !important;
 }
 .dx-grid-table thead th div,
 .dx-grid-table thead td div {
@@ -143,7 +143,7 @@ fieldset[disabled] .form-control {
   background-color: #ECECEC;
 }
 a {
-  color: #016eb1;
+  color: #cb4654;
 }
 .btn.btn-outline.green-meadow:hover,
 .btn.btn-outline.green-meadow:active,
@@ -175,5 +175,11 @@ a {
   color: #fff;
   background-color: #E43A45!important;
 }
+#navbar .dropdown-menu .heading {
+  background-color: #3a3a3a;
+  padding-left: 15px;
+  font-size: 12px;
+  color: #c9bebe;
+}
 
-/*# sourceMappingURL=elix_colors_bamboo.css.map */
+/*# sourceMappingURL=elix_colors_grayred.css.map */

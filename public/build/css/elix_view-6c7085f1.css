@@ -1560,7 +1560,7 @@ a.header-filter:hover {
 
 .dx-grid-container {
 	position: relative;
-	height: calc(100% - 49px - 22px - 20px);
+	/*height: calc(100% - 49px - 22px - 20px);*/
 	background-color: white;
 	margin-bottom: 20px;
 	overflow: hidden;
@@ -1921,6 +1921,14 @@ table.dataTable tbody>tr.selected,table.dataTable tbody>tr>.selected{background-
     svg {
         min-height:500px;
     }
+}
+
+.dx-cms-workflow-form-tab-steps .dx-wf-graph {
+    max-height:none;  
+
+    svg {
+        height:auto;
+    }  
 }
 
 .dx-wf-toolbar {

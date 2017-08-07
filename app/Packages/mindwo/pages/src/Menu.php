@@ -116,7 +116,7 @@ namespace mindwo\pages
             
             $database_name = Config::get('database.connections.' . Config::get('database.default') . '.database') . "_" . getRootForCache();
             
-            return base_path() . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'menu' . DIRECTORY_SEPARATOR . $database_name . "_" . $mob_prefix . 'menu_' . $this->user_id . '.htm';
+            return base_path() . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'menu' . DIRECTORY_SEPARATOR . $database_name . "_" . $mob_prefix . 'align_' . (Config::get('dx.is_horizontal_menu') ? 'horiz' : 'vert') . '_menu_' . $this->user_id . '.htm';
         }
 
         /**
@@ -192,7 +192,8 @@ namespace mindwo\pages
                         'view_id' => $row->view_id,
                         'menu_id' => $row->id,
                         'order_index' => $row->order_index,
-                        'parent_id' => $row->parent_id
+                        'parent_id' => $row->parent_id,
+                        'head_title' => $row->head_title
                     ])->render();
                 }
 
@@ -243,6 +244,7 @@ namespace mindwo\pages
                             ,v.id as view_id
                             ,m.order_index
                             ,m.parent_id
+                            ,m.head_title
                     FROM
                             dx_menu m
                             left join dx_views v on m.list_id = v.list_id AND v.is_default = 1

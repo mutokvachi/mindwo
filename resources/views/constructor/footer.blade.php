@@ -16,8 +16,8 @@
             </button>
           @endif
           @includeIf('constructor.'.$step.'_buttons')
-          <button id="submit_step" type="button" class="btn {{ ($step == 'rights') ? 'btn-white' : 'btn-primary'}} dx-wizard-btn pull-right">
-            @if($step == 'rights')
+          <button id="submit_step" type="button" class="btn {{ ($step == 'workflows') ? 'btn-white' : 'btn-primary'}} dx-wizard-btn pull-right">
+            @if($step == 'workflows')
               {{ trans('constructor.view_list') }} <i class="fa fa-list"></i>
             @else
               {{ trans('constructor.next') }} <i class="fa fa-arrow-right"></i>

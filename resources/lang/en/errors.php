@@ -160,5 +160,6 @@ return [
     
     'btn_ok' => 'OK',
     'attention' => 'Attention!',
-    
+    'import_wrong_multival' => "The multilevel classifier ':list' does not contain the value ':val'! Please, add value in classifier and then try again.",
+    'import_several_multival' => "The multilevel classifier ':list' have several rows ':val'! Please, make classifier values unique and then try again.",
 ];
