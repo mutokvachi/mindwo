@@ -50,7 +50,7 @@ class RegistrationController extends Controller
         ];
 
         return view('pages.education.registration.registration', [
-                    'course' => $id  == 0 ? false : $courses[$id]
+                    'course' => $id  == 0 ? false : $courses[1]
                 ])->render();
     }
 }
