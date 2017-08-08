@@ -36,7 +36,14 @@ class EduSeeder extends Seeder
             DB::table('dx_users')
                     ->where('id', '>', 2)->delete();
             
+            DB::table('edu_rooms')->delete();
             DB::table('edu_orgs')->delete();
+            
+            DB::table('edu_subjects_groups_days')->delete();
+            DB::table('edu_subjects_groups')->delete();
+            DB::table('edu_subjects')->delete();
+            DB::table('edu_modules')->delete();
+            DB::table('edu_programms')->delete();
             
             DB::table('dx_supervise')->delete();
             
@@ -351,8 +358,7 @@ class EduSeeder extends Seeder
         $this->addRoleListFull(trans('db_edu_activities.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_dx_icons_files.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_in_tests_types.list_name'), self::ROLE_MAIN);
-        $this->addRoleListFull(trans('db_edu_subjects_types.list_name'), self::ROLE_MAIN);
-        //$this->addRoleListFull(trans('db_in_tests_performers.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_subjects_types.list_name'), self::ROLE_MAIN);        
         $this->addRoleListFull(trans('db_edu_orgs_types.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_subjects_teachers.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_materials.list_name'), self::ROLE_MAIN);
@@ -361,7 +367,6 @@ class EduSeeder extends Seeder
         $this->addRoleListFull(trans('db_edu_orgs_banks.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_modules_activities.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_certif_templates.list_name'), self::ROLE_MAIN);
-        //$this->addRoleListFull(trans('db_edu_certif.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_modules_students.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_modules_students_activities.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_subjects_groups.list_name'), self::ROLE_MAIN);
@@ -370,9 +375,10 @@ class EduSeeder extends Seeder
         $this->addRoleListFull(trans('db_edu_subjects_groups_days.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_subjects_groups_attend.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_subjects_groups_days_teachers.list_name'), self::ROLE_MAIN);
-        $this->addRoleListFull(trans('db_edu_subjects_groups_days_pauses.list_name'), self::ROLE_MAIN);
-        //$this->addRoleListFull(trans('db_edu_subjects_groups_days.list_name'), self::ROLE_MAIN);
-        
+        $this->addRoleListFull(trans('db_edu_subjects_groups_days_pauses.list_name'), self::ROLE_MAIN);        
+        $this->addRoleListFull(trans('db_edu_rooms_calendars.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_tags.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_subjects_tags.list_name'), self::ROLE_MAIN);
         
         $this->addRoleListFull(trans('db_dx_users.list_title_student'), self::ROLE_ORG);
         $this->addRoleListEditSelf(trans('db_dx_users.list_title_profile'), self::ROLE_ORG, 'id');
