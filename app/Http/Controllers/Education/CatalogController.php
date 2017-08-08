@@ -58,10 +58,10 @@ class CatalogController extends Controller
     public function getData(Request $request)
     {
         $text = $request->input('text');
-        $tag = $request->input('tag');
-        $program = $request->input('program');
-        $module = $request->input('module');
-        $teacher = $request->input('teacher');
+        $tags = $request->input('tag');
+        $programs = $request->input('program');
+        $modules = $request->input('module');
+        $teachers = $request->input('teacher');
         $date_from = $request->input('date_from');
         $date_to = $request->input('date_to');
         $time_from = $request->input('time_from');
@@ -69,46 +69,109 @@ class CatalogController extends Controller
         $only_free = $request->input('only_free');
         $show_full = $request->input('show_full');
 
-       // $groups = 
-
-       $query = DB::table('edu_subjects AS sub')
+        $query = DB::table('edu_subjects AS sub')
             ->selectRaw(DB::raw('sub.id AS sub_id, gr.id AS gr_id, MIN(IFNULL(gr.title, sub.title)) AS title'))
-            ->join('edu_subjects_groups AS gr', 'sub.id', '=', 'gr.subject_id')            
+            ->join('edu_subjects_groups AS gr', 'sub.id', '=', 'gr.subject_id')
+
+            ->join('edu_subjects_tags AS ta', 'ta.subject_id', '=', 'sub.id') //tag filtr
+            ->join('edu_tags AS tag', 'ta.tag_id', '=', 'tag.id') //tag filtr
+
+            ->join('edu_modules AS m', 'm.id', '=', 'sub.module_id') //prog
+            ->join('edu_programms AS pr', 'pr.id', '=', 'm.programm_id') //prog
+
+            ->join('edu_subjects_teachers AS te', 'te.subject_id', '=', 'sub.id') //teach  
+            ->join('dx_users AS u', 'te.teacher_id', '=', 'u.id') //teach            
+
             ->where('sub.is_published', 1) // Only published
             ->where('gr.signup_due', '>=', Carbon::today()->toDateString())
-            ->groupBy('sub.id, gr.id'); // Signup date larger than today
+            ->groupBy('sub.id', 'gr.id'); // Signup date larger than today
 
-        if($date_from || $date_to || $time_from || $time_to) {
+        if($text && strlen(trim($text)) > 0){
+            $query->where(function ($query) use ($text) {
+               $query->orWhere('sub.title', 'like', '%' . $text . '%');
+               $query->orWhere('gr.title', 'like', '%' . $text . '%');
+               $query->orWhere('tag.title', 'like', '%' . $text . '%');
+               $query->orWhere('m.title', 'like', '%' . $text . '%');
+               $query->orWhere('pr.title', 'like', '%' . $text . '%');
+               $query->orWhere('u.display_name', 'like', '%' . $text . '%');
+            });
+        }
+
+        // Filter by tags
+        if ($tags && count($tags) > 0) { 
+            $query->where(function ($query) use ($tags) {
+                foreach ($tags as $tag) {
+                    $query->orWhere('ta.tag_id', '=', $tag);
+                }
+            });
+        }
+
+        // Filter by programms
+        if ($programs && count($programs) > 0) {
+            $query->where(function ($query) use ($programs) {
+                foreach ($programs as $program) {
+                    $query->orWhere('m.programm_id', '=', $program);
+                }
+            });
+        }
+
+        // Filter by modules
+        if ($modules && count($modules) > 0) {
+            $query->where(function ($query) use ($modules) {
+                foreach ($modules as $module) {
+                    $query->orWhere('sub.module_id', '=', $module);
+                }
+            });
+        }
+
+        // Filter by teachers
+        if ($teachers && count($teachers) > 0) {
+            
+            $query->where(function ($query) use ($teachers) {
+                foreach ($teachers as $teacher) {
+                    $query->orWhere('te.teacher_id', '=', $teacher);
+                }
+            });
+        }
+
+        if ($date_from || $date_to || $time_from || $time_to) {
             $query->join('edu_subjects_groups_days AS grd', 'gr.id', '=', 'grd.group_id');
 
-            if($date_from){
-                $query->where('grd.lesson_date', '>=', $date_from);
+            \Log::info('date_from' . $date_from);
+            if ($date_from) {
+                $query->where(function ($query) use ($date_from) {
+                    $query->where('grd.lesson_date', '>=', $date_from)
+                        ->orWhereNull('gr.id');
+                });
             }
 
-            if($date_to){
-                $query->where('grd.lesson_date', '<=', $date_to);
+            if ($date_to) {
+                 $query->where(function ($query) use ($date_to) {
+                    $query->where('grd.lesson_date', '<=', $date_to)
+                        ->orWhereNull('gr.id');
+                 });
             }
 
-          /*  if($time_from){
+            if ($time_from) {
                 $query->where('grd.time_from', '>=', $time_from);
             }
 
-            if($time_to){
+            if ($time_to) {
                 $query->where('grd.time_from', '<=', $time_to);
-            }*/
+            }
         }
 
         // If true show only which are free
-        if($only_free == 1){
+        if ($only_free == 1) {
             $query->where('sub.is_fee', 0);
         }
 
         // If false then don't show those which are full
-        if($show_full == 0){
+        if ($show_full == 0) {
             $query->whereRaw('(SELECT COUNT(*) FROM edu_subjects_groups_members grm WHERE grm.group_id = gr.id) < gr.seats_limit');
         }
 
-        $res = $query->get();  
+        $res = $query->get();
 
         /*$groups = [];
 

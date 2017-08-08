@@ -80,11 +80,15 @@
                 "linkedCalendars": false
             });
 
+            self.domObject.find('.dx-edu-datetime-field').each(function(){
+                $(this).val('');
+            });
+
             self.domObject.find('.dx-edu-time-field').timepicker({
                 template: 'dropdown',
                 autoclose: true,
                 minuteStep: 10,
-                defaultTime: '0:00',
+                defaultTime: '',
                 showSeconds: false,
                 showMeridian: false,
                 showInputs: true
@@ -94,7 +98,27 @@
                 self.search(self);
             });
 
+            self.domObject.find('.dx-edu-catalog-btn-filter-clear').on('click',function () {
+                self.clearFilter(self);
+            })
+
             self.search(self);
+        },
+        clearFilter: function (self) {
+            self.domObject.find('.dx-edu-catalog-filter-text').val('');
+            self.domObject.find('.dx-edu-catalog-filter-tag').multiselect('deselectAll', false);
+            self.domObject.find('.dx-edu-catalog-filter-program').multiselect('deselectAll', false);
+            self.domObject.find('.dx-edu-catalog-filter-module').multiselect('deselectAll', false);
+            self.domObject.find('.dx-edu-catalog-filter-teacher').multiselect('deselectAll', false);
+            self.domObject.find('.dx-edu-catalog-filter-tag').multiselect('refresh');
+            self.domObject.find('.dx-edu-catalog-filter-program').multiselect('refresh');
+            self.domObject.find('.dx-edu-catalog-filter-module').multiselect('refresh');
+            self.domObject.find('.dx-edu-catalog-filter-teacher').multiselect('refresh');
+            self.domObject.find('.dx-edu-catalog-filter-date').val('');
+            self.domObject.find('.dx-edu-catalog-filter-time_from').val('');
+            self.domObject.find('.dx-edu-catalog-filter-time_to').val('');
+            self.domObject.find('.dx-edu-catalog-filter-only_free').bootstrapSwitch('state', false);
+            self.domObject.find('.dx-edu-catalog-filter-show_full').bootstrapSwitch('state', true);
         },
         /**
          * Shows or hides advanced filter
@@ -114,6 +138,7 @@
             show_page_splash(1);
 
             var datePicker = self.domObject.find('.dx-edu-catalog-filter-date').data('daterangepicker');
+            var datePickerIsEmpty = self.domObject.find('.dx-edu-catalog-filter-date').val() == '';
 
             var data = {
                 text: self.domObject.find('.dx-edu-catalog-filter-text').val(),
@@ -121,8 +146,8 @@
                 program: self.domObject.find('.dx-edu-catalog-filter-program').val(),
                 module: self.domObject.find('.dx-edu-catalog-filter-module').val(),
                 teacher: self.domObject.find('.dx-edu-catalog-filter-teacher').val(),
-                date_from: datePicker.startDate.format('YYYY-MM-DD'),
-                date_to: datePicker.endDate.format('YYYY-MM-DD'),
+                date_from: datePickerIsEmpty ? '' : datePicker.startDate.format('YYYY-MM-DD'),
+                date_to: datePickerIsEmpty ? '' : datePicker.endDate.format('YYYY-MM-DD'),
                 time_from: self.domObject.find('.dx-edu-catalog-filter-time_from').val(),
                 time_to: self.domObject.find('.dx-edu-catalog-filter-time_to').val(),
                 only_free: self.domObject.find('.dx-edu-catalog-filter-only_free').bootstrapSwitch('state') ? 1 : 0,
