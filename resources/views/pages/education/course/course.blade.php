@@ -10,16 +10,16 @@
     <div class="portlet light">
         <div class="portlet-title">
             <div class="caption">
-                <i class="{{ $course->icon }}"></i>
-                <span class="caption-subject bold uppercase">{{ $course->title }}</span>
+                <i class="{{ $group->icon ? $group->icon : 'fa fa-university' }}"></i>
+                <span class="caption-subject bold uppercase">{{ $group->title }}</span>
             </div>
         </div>
         <div class="portlet-body">
             <div style="margin-bottom: 10px;">                
-                @if($course->is_full)
+                @if($group->is_full)
                 <button class="btn btn-md btn-danger disabled">Grupa ir pilna</button>
                 @else
-                <a href="{{Request::root()}}/edu/registration/{{ $course->id }}" class="btn btn-md btn-primary">Pieteikties</a>
+                <a href="{{Request::root()}}/edu/registration/{{ $group->id }}" class="btn btn-md btn-primary">Pieteikties</a>
                 @endif
             </div>
             <ul class="nav nav-tabs">
