@@ -36,7 +36,9 @@
             this.root = $(root);
             this.subjects_list_id = this.root.data('subjects-list-id');
             this.groups_list_id = this.root.data("groups-list-id");
-            this.days_list_id = this.root.data("days-list-id");            
+            this.days_list_id = this.root.data("days-list-id"); 
+            this.rooms_list_id = this.root.data("rooms-list-id");
+            
             this.room_id = this.root.data("room-id");
             this.current_date = this.root.data("crrent-date");
             
@@ -69,15 +71,41 @@
                 open_form('form', 0, self.groups_list_id, 0, 0, "", 1, "", {
                     after_close: function(frm)
                     {
-                        show_page_splash();
-                        $(".dx-stick-footer").removeClass('dx-page-in-edit-mode');
-                        window.location.reload();
+                        var new_id = parseInt(frm.find("[name=item_id]").val());
+                        if (new_id > 0 ) {
+                            show_page_splash();
+                            $(".dx-stick-footer").removeClass('dx-page-in-edit-mode');
+                            window.location.reload();
+                        }
                     }
                 });
             };  
             
             this.root.find(".dx-new-group-btn").click(function() {                
                 newGroupOpen();
+            });
+            
+            this.root.find(".dx-rooms-cbo").change(function (event) {
+                event.preventDefault();
+
+                show_page_splash(1);
+                var url = self.options.root_url + self.options.scheduler_url + self.root.find('.dx-rooms-cbo option:selected').val();
+                window.location.assign(encodeURI(url));
+            });
+            
+            this.root.find(".dx-room-edit-btn").click(function() {
+                var room_id = parseInt(self.root.find('.dx-rooms-cbo option:selected').val());
+                if (room_id) {
+                    open_form('form', room_id, self.rooms_list_id, 0, 0, "", 0, "", {
+                        after_close: function(frm)
+                        {
+                            // ToDo: reload rooms cbo
+                        }
+                    });
+                } 
+                else {
+                    notify_err("Vispirms izvēlieties telpu no saraksta!");
+                }
             });
            
            /*
@@ -135,14 +163,18 @@
                     // make the event draggable using jQuery UI
                     el.draggable({
                             start: function() {
-                                el.css('max-width', '200px');
+                                el.css('width', '300px;');
                             },
                             stop: function() {
-                                el.css('max-width', 'none');
+                                el.css('width', 'auto');
                             },
                             zIndex: 999,
                             revert: true,      // will cause the event to go back to its
-                            revertDuration: 0  //  original position after the drag
+                            revertDuration: 0,  //  original position after the drag
+                            appendTo: 'body',
+                            containment: 'window',
+                            scroll: false,
+                            helper: 'clone'
                     });
                     
                     if (gr) {
@@ -225,6 +257,18 @@
                     }
                     $("#external-events").find(".dx-event").hide();
                     $("#external-events").find(".dx-event:contains('" + $(this).val() + "')").show();
+
+            });
+            
+            this.root.find(".dx-search-group").on("keyup", function()
+            {
+                    if(!$(this).val())
+                    {
+                            $("#dx-groups-box").find(".dx-event").show();
+                            return;
+                    }
+                    $("#dx-groups-box").find(".dx-event").hide();
+                    $("#dx-groups-box").find(".dx-event:contains('" + $(this).val() + "')").show();
 
             });
             
@@ -428,13 +472,9 @@
                             open_form('form', calEvent.dx_day_id, self.days_list_id, 0, 0, "", 0, "", {
                                 after_close: function(frm)
                                 {
-                                    alert("Update day if needed!");
+                                    // ToDo: check if something changed and referesh
                                 }
                             });
-                            
-                            // change the border color just for fun
-                            $(this).css('border-color', 'red');
-
                         },
 			resourceGroupField: 'organization',
 			resources: rooms_arr,

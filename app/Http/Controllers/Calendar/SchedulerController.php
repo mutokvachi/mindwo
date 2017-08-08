@@ -40,6 +40,13 @@ class SchedulerController extends Controller
     private $days_list_id = 0;
     
     /**
+     * List ID for rooms table edu_rooms
+     * 
+     * @var integer
+     */
+    private $rooms_list_id = 0;
+    
+    /**
      * Id for newly created group
      * 
      * @var integer 
@@ -66,6 +73,7 @@ class SchedulerController extends Controller
             'subjects_list_id' => $this->subjects_list_id,
             'groups_list_id' => $this->groups_list_id,
             'days_list_id' => $this->days_list_id,
+            'rooms_list_id' => $this->rooms_list_id,
             'subjects' => DB::table('edu_subjects')->orderBy('title')->get(),
             'groups' => DB::table('edu_subjects_groups')->where('is_published', '=', 0)->orderBy('id')->get(),
             'rooms' => $rooms,
@@ -136,6 +144,34 @@ class SchedulerController extends Controller
         ]);
     }
     
+    public function newDay(Request $request) {
+        $this->validate($request, [
+            'group_id' => 'required|integer|exists:edu_subjects_groups,id',
+            'start_time' => 'required',
+            'end_time' => 'required',
+            'room_id' => 'required|integer|exists:edu_rooms,id',
+        ]);
+        
+        $this->checkRights();
+        
+        DB::transaction(function () use ($request)
+        {
+            $this->new_day_id = DB::table('edu_subjects_groups_days')->insertGetId([
+                'group_id' => $request->input("group_id"),
+                'lesson_date' => check_date($request->input("start_time"), "yyyy-mm-dd"),
+                'time_from' => check_time($request->input("start_time"), "yyyy-mm-dd HH:ii"),
+                'time_to' => check_date($request->input("end_time"), "yyyy-mm-dd HH:ii"),
+                'room_id' => $request->input("room_id")
+            ]);
+                  
+        });
+        
+        return response()->json([
+            'success' => 1,
+            'day_id' => $this->new_day_id
+        ]);
+    }
+    
     private function getEvents($current_room_id) {
         return  DB::table('edu_subjects_groups_days as d')
                 ->select(
@@ -190,6 +226,7 @@ class SchedulerController extends Controller
         $this->subjects_list_id = \App\Libraries\DBHelper::getListByTable('edu_subjects')->id;
         $this->groups_list_id = \App\Libraries\DBHelper::getListByTable('edu_subjects_groups')->id;
         $this->days_list_id = \App\Libraries\DBHelper::getListByTable('edu_subjects_groups_days')->id;
+        $this->rooms_list_id = \App\Libraries\DBHelper::getListByTable('edu_rooms')->id;
         
         $rights = Rights::getRightsOnList($this->subjects_list_id);
 

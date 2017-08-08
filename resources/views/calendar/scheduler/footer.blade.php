@@ -5,13 +5,16 @@
           <span>{{ trans('calendar.scheduler.page_title') }}</span>
       </div>
       <div class='col-lg-10 col-md-9 col-sm-12 col-xs-12 dx-right'>
-        <a href="javascript:;" class="btn btn-default dx-undo-btn">
-          <i class="fa fa-undo"></i> {{ trans('calendar.scheduler.undo_btn') }} 
+        <a href="javascript:;" class="btn btn-default dx-new-btn" title="Jauns mācību pasākums">
+          {{ trans('calendar.scheduler.new_subj_btn') }} 
         </a>
-        <a href="javascript:;" class="btn btn-primary dx-save-btn">
-          <i class="fa fa-save"></i> {{ trans('calendar.scheduler.save_btn') }}
+        <a href="javascript:;" class="btn btn-default dx-new-group-btn">
+          {{ trans('calendar.scheduler.new_group_btn') }} 
         </a>
-        <a href="javascript:;" class="btn btn-default dx-publish-btn">
+        <a href="javascript:;" class="btn btn-default dx-complect-btn">
+          <i class="fa fa-users"></i> {{ trans('calendar.scheduler.complect_btn') }}
+        </a>
+        <a href="javascript:;" class="btn btn-primary dx-publish-btn">
           <i class="fa fa-globe"></i> {{ trans('calendar.scheduler.publish_btn') }} 
         </a>
       </div>

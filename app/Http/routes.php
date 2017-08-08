@@ -311,4 +311,6 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'calendar', 'namespace' => '
         Route::get('/scheduler/{current_room_id}', ['as' => 'scheduler', 'uses' => 'SchedulerController@getSchedulerPage']);        
         Route::post('/scheduler/new_group', ['as' => 'scheduler_new_group', 'uses' => 'SchedulerController@createNewGroup']);
         Route::post('/scheduler/update_day', ['as' => 'scheduler_update_day', 'uses' => 'SchedulerController@updateDay']);
+        Route::post('/scheduler/new_day', ['as' => 'scheduler_new_day', 'uses' => 'SchedulerController@newDay']);
+        
 });

@@ -43,8 +43,9 @@ return [
     'scheduler' => [
         'page_title' => 'Mācību grupu plānošana',
         'new_group' => 'Jauna mācību grupa',
-        'save_btn' => 'Saglabāt',
-        'undo_btn' => 'Atcelt',
+        'complect_btn' => 'Komplektēt',
         'publish_btn' => 'Publicēt',
+        'new_subj_btn' => 'Jauns pasākums',
+        'new_group_btn' => 'Jauna grupa',
     ],
 ];
