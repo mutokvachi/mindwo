@@ -41,6 +41,7 @@ class EduSeeder extends Seeder
             
             DB::table('edu_subjects_groups_days')->delete();
             DB::table('edu_subjects_groups')->delete();
+            DB::table('edu_subjects_teachers')->delete();
             DB::table('edu_subjects')->delete();
             DB::table('edu_modules')->delete();
             DB::table('edu_programms')->delete();

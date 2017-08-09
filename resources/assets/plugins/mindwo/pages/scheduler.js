@@ -417,7 +417,8 @@
 			views: {
 				timelineThreeDays: {
 					type: 'timeline',
-					duration: { days: 3 }
+					duration: { days: 7 },
+                                        buttonText: '5 dienas'
 				}
 			},
                         minTime: "09:00:00",
@@ -428,6 +429,13 @@
 
                             start: '09:00', // a start time (10am in this example)
                             end: '18:00', // an end time (6pm in this example)
+                        },
+                        eventRender: function (event, element) {
+                            element.addClass('context-menu-one');
+                            element.attr('data-subject-id', event.dx_subj_id);
+                            element.attr('data-group-id', event.dx_group_id);
+                            element.attr('data-day-id', event.dx_day_id);
+                            element.attr('data-event-id', event.id);
                         },
                         eventReceive : function(event) {                            
                             if (event.className == "cafe") {
@@ -479,8 +487,45 @@
 			resourceGroupField: 'organization',
 			resources: rooms_arr,
 			events: this.root.data('events-json')
-		});  
+            });  
            
+            $.contextMenu({
+                selector: '.context-menu-one', 
+                callback: function(key, options) {
+                    if (key == "subject") {
+                        open_form('form', options.$trigger.data('subject-id'), self.subjects_list_id, 0, 0, "", 0, "", {after_close: function(frm) {
+                            // ToDo: refresh all page
+                        }});
+                    }
+                    
+                    if (key == "group") {
+                        open_form('form', options.$trigger.data('group-id'), self.groups_list_id, 0, 0, "", 0, "", {after_close: function(frm) {
+                            // ToDo: refresh all page
+                        }});
+                    }
+                    
+                    if (key == "day") {
+                        open_form('form', options.$trigger.data('day-id'), self.days_list_id, 0, 0, "", 0, "", {after_close: function(frm) {
+                            // ToDo: refresh all page
+                        }});
+                    }
+                    
+                    if (key == "delete") {
+                        
+                    }
+                },
+                items: {
+                    "subject": {name: "Pasākums", icon: "fa-graduation-cap"},
+                    "group": {name: "Grupa", icon: "fa-users"},
+                    "day": {name: "Nodarbība", icon: "fa-calendar-o"},                    
+                    "sep1": "---------",
+                    "delete": {name: "Dzēst nodarbību", icon: "fa-trash-o"}
+                }
+            });
+
+            $('.context-menu-one').on('click', function(e){
+                console.log('clicked', this);
+            })    
             
             $(window).on('beforeunload', function()
             {

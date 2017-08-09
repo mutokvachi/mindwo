@@ -400,12 +400,14 @@ gulp.task('mix_all', function() {
         // Styles for scheduler
         mix.styles([
             'fullcalendar-scheduler/scheduler.css',
+            'jquery-contextMenu/jquery.contextMenu.css'
         ], 'public/css/elix_scheduler.css', 'resources/assets/plugins');
         
         // Scripts for scheduler
         mix.scripts([
            'fullcalendar-scheduler/scheduler.js',
-           'mindwo/pages/scheduler.js'
+           'mindwo/pages/scheduler.js',
+           'jquery-contextMenu/jquery.contextMenu.js'
         ], 'public/js/elix_scheduler.js', 'resources/assets/plugins');
 		
         // Minify all scripts
