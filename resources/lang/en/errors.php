@@ -162,4 +162,6 @@ return [
     'attention' => 'Attention!',
     'import_wrong_multival' => "The multilevel classifier ':list' does not contain the value ':val'! Please, add value in classifier and then try again.",
     'import_several_multival' => "The multilevel classifier ':list' have several rows ':val'! Please, make classifier values unique and then try again.",
+    'import_lookup_several' => "Can't map value for the field ':fld', because classifier ':list' have several records ':term'.",
+    'import_lookup_no_field' => "The list ':list' does not have field named ':fld'!",
 ];

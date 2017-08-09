@@ -160,4 +160,7 @@ return [
     'attention' => 'Uzmanību!',
     
     'import_wrong_multival' => "Daudzlīmeņu klasifikatorā ':list' nav atrodama Excel datnē norādītā vērtība ':val'! Lūdzu, papildiniet klasifikatoru un atkārtojiet importu.",
+    'import_several_multival' => "Daudzlīmenu klasifikatorā ':list' ir vairāki ieraksti ':val'! Lūdzu, norādiet klasifikatorā unikālas ierakstu vērtības un atkērtojiet importu.",
+    'import_lookup_several' => "Uzmeklēšanas laukam ':fld' nav iespējams viennozīmīgi identificēt vērtību, jo saistītajā reģistrā ':list' atrasti vairāki vienādi ieraksti ':term'.",
+    'import_lookup_no_field' => "Reģistrā ':list' nav definēts lauks ':fld'!",
 ];
