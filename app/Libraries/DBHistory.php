@@ -98,7 +98,9 @@ namespace App\Libraries
                             'o_rel.db_name as rel_table_name',
                             'o_rel.is_history_logic as rel_table_is_history_logic',
                             'lf.is_public_file',
-                            'lf.id as field_id'
+                            'lf.id as field_id',
+                            'lf_rel.id as rel_field_id',
+                            'l_rel.list_title as rel_list_title'
                             )
                     ->leftJoin('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
                     ->leftJoin('dx_lists_fields as lf_rel', 'lf.rel_display_field_id', '=', 'lf_rel.id')

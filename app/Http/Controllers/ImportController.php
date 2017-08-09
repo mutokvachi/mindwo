@@ -427,7 +427,7 @@ class ImportController extends Controller
             return;
         }
 
-        $fld_save = FieldsImport\FieldImportFactory::build_field($val, $fld, $this->file_import->tmp_dir);
+        $fld_save = FieldsImport\FieldImportFactory::build_field($val, $fld, $this->file_import->tmp_dir, $this->save_arr);
 
         $this->save_arr = array_merge($this->save_arr, $fld_save->getVal());
     }
@@ -508,10 +508,14 @@ class ImportController extends Controller
         $val = $this->toASCII($val);
         $val = trim($val);
         $val = str_replace("/", " ", $val);
+        $val = str_replace("'", " ", $val);
+        $val = str_replace("(", " ", $val);
+        $val = str_replace(")", " ", $val);
+        $val = trim($val);
         $val = str_replace("  ", " ", $val);
         $val = str_replace("  ", " ", $val);
         $val = str_replace(" ", "_", $val);
-
+        
         return $val;
     }
 
