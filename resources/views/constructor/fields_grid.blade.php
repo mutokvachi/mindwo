@@ -2,6 +2,25 @@
   @if(($grid = $grids[$tabId]))
   @endif
   @for($i = 0; $i < count($grid); $i++)
+    @if(isset($grid[$i][0]) && ($first = $grid[$i][0]) && strlen($first->group_label))
+      @include('constructor.fields_row_label', [
+        'id' => $i,
+        'field' => $first
+      ])
+      {{--
+      @push("row_content_label_$i")
+        <div class="form-group">
+          <div class="input-group">
+            <span class="input-group-addon">
+              <i class="fa fa-tag"></i>
+            </span>
+            <input class="form-control" autocomplete="off" placeholder="{{ trans('constructor.group_label') }}" name="group_label_{{ $i }}" value="{{ $first->group_label }}">
+          </div>
+        </div>
+      @endpush
+      @include('constructor.fields_row', [ 'id' => "label_$i" ])
+      --}}
+    @endif
     @push("row_content_{$tabId}_$i")
       @for($j = 0; $j < count($grid[$i]); $j++)
         @if($field = $grid[$i][$j])
@@ -14,11 +33,11 @@
         ])
       @endfor
     @endpush
-    @include('constructor.fields_row', [ 'id' => "{$tabId}_$i" ])
+    @include('constructor.fields_row_columns', [ 'id' => "{$tabId}_$i" ])
   @endfor
   @if(count($grid) < 4)
     @for($i = 0; $i < 4 - count($grid); $i++)
-      @include('constructor.fields_row')
+      @include('constructor.fields_row_columns')
     @endfor
   @endif
 </div>

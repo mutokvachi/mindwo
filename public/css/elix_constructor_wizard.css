@@ -178,9 +178,16 @@
 	font-weight: bold;
 }
 
-.dx-constructor-grid, .dx-constructor-related {
-	/*
-	min-height: 300px;
-	 */
+.dx-constructor-row .form-group {
+	margin: 0 15px;
+}
+
+.dx-constructor-row .form-control {
+	height: 30px;
+	padding: 4px 12px;
+}
+
+.dx-constructor-row .input-group-addon {
+	padding: 6px 8px;
 }
 /*# sourceMappingURL=elix_constructor_wizard.css.map */

@@ -382,6 +382,7 @@ class RegisterController extends Controller
 		$items0 = $request->input('items', []);
 		
 		$items = [];
+		$label = null;
 		
 		// prepare form fields to be stored in db
 		foreach($items0 as $tabId => $rows)
@@ -393,13 +394,25 @@ class RegisterController extends Controller
 			
 			foreach($rows as $rowIndex => $row)
 			{
+				if(isset($row[0]['label']))
+				{
+					$label = trim($row[0]['label']);
+					continue;
+				}
+				
 				foreach($row as $itemIndex => $id)
 				{
 					$items[$id] = [
 						'tab_id' => ($tabId > 0 ? $tabId : null),
 						'order_index' => ($rowIndex + 1) . $itemIndex . '0',
+						'group_label' => $label,
 						'row_type_id' => count($row)
 					];
+					
+					if($label)
+					{
+						$label = null;
+					}
 				}
 			}
 		}
@@ -434,8 +447,11 @@ class RegisterController extends Controller
 					$item = $items[$field->field_id];
 					$field->tab_id = $item['tab_id'];
 					$field->order_index = $item['order_index'];
+					$field->group_label = $item['group_label'];
 					$field->row_type_id = $item['row_type_id'];
 					$field->modified_user_id = $userId;
+					
+					
 					$field->save();
 					
 					unset($items[$field->field_id]);
@@ -457,6 +473,7 @@ class RegisterController extends Controller
 					'list_id' => $this->id,
 					'field_id' => $id,
 					'tab_id' => $item['tab_id'],
+					'group_label' => $item['group_label'],
 					'order_index' => $item['order_index'],
 					'row_type_id' => $item['row_type_id'],
 					'created_user_id' => $userId,

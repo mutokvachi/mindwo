@@ -149,7 +149,7 @@ Module.create('ConstructorGrid', {
 	},
 	
 	/**
-	 * Clones element being dragged. It needed to drag elements between hidden tabs.
+	 * Clones element being dragged. It is needed to drag elements between hidden tabs.
 	 * @param event
 	 * @param element
 	 * @returns {*}
@@ -163,16 +163,21 @@ Module.create('ConstructorGrid', {
 	/**
 	 * Add a new row to the grid.
 	 */
-	createRow: function()
+	createRow: function(type)
 	{
-		var row = $(this.options.rowHtml).appendTo(this.root);
+		var html = (type === 'columns') ? this.options.rowHtml : this.options.labelHtml;
+		
+		var row = $(html).appendTo(this.root);
 		
 		row.find('.dx-constructor-row-remove').tooltipster({
 			theme: 'tooltipster-light',
 			animation: 'grow'
 		});
 		
-		row.find('.columns').sortable(this.sortableOpts);
+			if(type === 'columns')
+		{
+			row.find('.columns').sortable(this.sortableOpts);
+		}
 	},
 	
 	/**
@@ -181,7 +186,14 @@ Module.create('ConstructorGrid', {
 	 */
 	removeField: function(field)
 	{
-		field.appendTo(this.fieldsContainer).attr('class', 'col-md-12');
+		if(field.hasClass('dx-field'))
+		{
+			field.appendTo(this.fieldsContainer).attr('class', 'col-md-12');
+		}
+		else
+		{
+			field.remove();
+		}
 	},
 	
 	/**
@@ -286,7 +298,7 @@ Module.create('ConstructorGrid', {
 	},
 	
 	/**
-	 * Calculate correct width of fields and apply grid styles to them.
+	 * Calculate correct width of fields and apply grid classes to them.
 	 * @param row
 	 */
 	updateRow: function(row)

@@ -23,9 +23,14 @@
       <h4>{{ trans('constructor.form_fields') }}</h4>
       @include('constructor.fields_grid', ['tabId' => 0])
       <div class="col-md-12" style="text-align: center">
-        <button type="button" class="btn green dx-add-row-btn" style="">
-          <i class="fa fa-plus"></i> {{ trans('constructor.add_row') }}
-        </button>
+        <div class="btn-group" role="group">
+          <button type="button" class="btn green dx-add-row-btn" data-type="columns">
+            <i class="fa fa-plus"></i> {{ trans('constructor.add_row') }}
+          </button>
+          <button type="button" class="btn green dx-add-row-btn" data-type="label">
+            <i class="fa fa-tags"></i> {{ trans('constructor.add_label') }}
+          </button>
+        </div>
       </div>
     </div>
     <div class="dx-constructor-form-tabs" style="{{ count($tabs) ? '' : 'display: none' }}">
@@ -65,13 +70,18 @@
         </div>
         <div class="col-md-12" style="text-align: center">
           <div class="btn-group" role="group">
-            <button type="button" class="btn green dx-add-row-btn" style="">
+            <button type="button" class="btn green dx-add-row-btn" data-type="columns">
               <i class="fa fa-plus"></i> {{ trans('constructor.add_row') }}
             </button>
-            <button type="button" class="btn green dx-tab-edit-btn" style="">
+            <button type="button" class="btn green dx-add-row-btn" data-type="label">
+              <i class="fa fa-tags"></i> {{ trans('constructor.add_label') }}
+            </button>
+          </div>
+          <div class="btn-group" role="group">
+            <button type="button" class="btn green dx-tab-edit-btn">
               <i class="fa fa-edit"></i> {{ trans('constructor.tab_edit') }}
             </button>
-            <button type="button" class="btn green dx-tab-delete-btn" style="">
+            <button type="button" class="btn green dx-tab-delete-btn">
               <i class="fa fa-close"></i> {{ trans('constructor.tab_del') }}
             </button>
           </div>

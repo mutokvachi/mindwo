@@ -17,7 +17,8 @@ Module.create('ConstructorWizard', {
 	/**
 	 * Constructor
 	 */
-	construct: function() {
+	construct: function()
+	{
 		var self = this;
 		
 		var initName = 'init_' + this.options.step;
@@ -29,12 +30,14 @@ Module.create('ConstructorWizard', {
 			self[initName]();
 		}
 		
-		this.root.on('click', '.mt-element-step .link', function() {
+		this.root.on('click', '.mt-element-step .link', function()
+		{
 			window.location = $(this).data('url');
 		});
 		
 		// submit step
-		this.root.on('click', '#submit_step', function() {
+		this.root.on('click', '#submit_step', function()
+		{
 			if($.isFunction(self[submitName]))
 			{
 				self[submitName]();
@@ -42,25 +45,30 @@ Module.create('ConstructorWizard', {
 		});
 		
 		// go one step back
-		this.root.on('click', '#prev_step', function() {
+		this.root.on('click', '#prev_step', function()
+		{
 			window.location = self.getPrevUrl();
 		});
 		
 		// Advanced settings button on the top of the page
-		$('.dx-adv-btn').click(function() {
+		$('.dx-adv-btn').click(function()
+		{
 			view_list_item('form', self.options.list_id, 3, 0, 0, "", "", {
-				after_close: function() {
+				after_close: function()
+				{
 					window.location.reload();
 				}
 			});
 		});
 	},
 	
-	getStepNumber: function() {
+	getStepNumber: function()
+	{
 		return this.options.steps.indexOf(this.options.step);
 	},
 	
-	getCurrentUrl: function() {
+	getCurrentUrl: function()
+	{
 		if(!this.options.list_id)
 		{
 			return this.options.url;
@@ -74,7 +82,8 @@ Module.create('ConstructorWizard', {
 		return this.options.url + '/' + this.options.list_id + '/' + this.options.step;
 	},
 	
-	getNextUrl: function(list_id) {
+	getNextUrl: function(list_id)
+	{
 		if(this.getStepNumber() + 1 == this.options.steps.length)
 		{
 			return this.options.last_url + this.options.view_id;
@@ -85,7 +94,8 @@ Module.create('ConstructorWizard', {
 		return this.options.url + '/' + list_id + '/' + this.options.steps[this.getStepNumber() + 1];
 	},
 	
-	getPrevUrl: function() {
+	getPrevUrl: function()
+	{
 		if(this.getStepNumber() == 1)
 		{
 			return this.options.url + '/' + this.options.list_id;
@@ -94,7 +104,8 @@ Module.create('ConstructorWizard', {
 		return this.options.url + '/' + this.options.list_id + '/' + this.options.steps[this.getStepNumber() - 1];
 	},
 	
-	init_columns: function() {
+	init_columns: function()
+	{
 		var self = this;
 		
 		$(".dx-view-edit-form").ViewEditor({
@@ -102,16 +113,19 @@ Module.create('ConstructorWizard', {
 			reloadBlockGrid: null,
 			root_url: getBaseUrl(),
 			load_tab_grid: null,
-			onsave: function() {
+			onsave: function()
+			{
 				window.location = self.getNextUrl();
 			}
 		});
 		
 		this.viewEditor = $(".dx-view-edit-form").data('ViewEditor');
 		
-		$('.dx-new-field').click(function() {
+		$('.dx-new-field').click(function()
+		{
 			new_list_item(7, 17, self.options.list_id, "", "", {
-				after_close: function(frm) {
+				after_close: function(frm)
+				{
 					var item_id = $(frm).find('input[name="item_id"]').val();
 					var item_name = $(frm).find('input[name="title_list"]').val();
 					
@@ -156,7 +170,8 @@ Module.create('ConstructorWizard', {
 		});
 	},
 	
-	init_fields: function() {
+	init_fields: function()
+	{
 		var self = this;
 		
 		this.root.find('.dx-constructor-tab-buttons').ConstructorTabs({
@@ -169,42 +184,45 @@ Module.create('ConstructorWizard', {
 		});
 		
 		// handle row creation
-		this.root.find('.dx-add-row-btn').click(function() {
+		this.root.find('.dx-add-row-btn').click(function()
+		{
+			var grid;
+			
 			if($(this).parents('.dx-constructor-tabs').length)
 			{
 				var tab = self.root.find('.dx-constructor-tab:visible');
 				
-				if(tab.hasClass('related-grid'))
-				{
-					return;
-				}
-				
-				tab.find('.dx-constructor-grid').data('ConstructorGrid').createRow();
-				
-				// window.scrollTo(0, document.body.scrollHeight);
+				grid = tab.find('.dx-constructor-grid').data('ConstructorGrid');
 			}
 			
 			else
 			{
-				self.root.find('.dx-constructor-form .dx-constructor-grid').data('ConstructorGrid').createRow();
+				grid = self.root.find('.dx-constructor-form .dx-constructor-grid').data('ConstructorGrid');
 			}
+			
+			grid.createRow($(this).data('type'));
 		});
 		
-		$('.dx-preview-btn').click(function() {
-			self.submit_fields(function() {
+		$('.dx-preview-btn').click(function()
+		{
+			self.submit_fields(function()
+			{
 				new_list_item(self.options.list_id, 0, 0, "", "");
 			});
 		});
 	},
 	
-	init_rights: function() {
+	init_rights: function()
+	{
 		var self = this;
 		var rights = ['is_new_rights', 'is_edit_rights', 'is_delete_rights'];
 		var tbody = $('.dx-constructor-roles-table tbody');
 		
-		this.root.on('click', '.dx-constructor-add-role', function() {
+		this.root.on('click', '.dx-constructor-add-role', function()
+		{
 			new_list_item(23, 105, self.options.list_id, "", "", {
-				after_close: function(frm) {
+				after_close: function(frm)
+				{
 					var role_id = $(frm).find('input[name="id"]').val();
 					
 					if((typeof role_id == 'undefined') || role_id == 0)
@@ -241,13 +259,15 @@ Module.create('ConstructorWizard', {
 			});
 		});
 		
-		this.root.on('click', '.dx-constructor-edit-role', function() {
+		this.root.on('click', '.dx-constructor-edit-role', function()
+		{
 			var a = $(this);
 			var td = $(this).closest('td').next();
 			var role_id = $(this).data('role_id');
 			
 			view_list_item('form', role_id, 23, 105, self.options.list_id, "", "", {
-				after_close: function(frm) {
+				after_close: function(frm)
+				{
 					a.text($(frm).find('input[dx_fld_name="role_id"]').val());
 					
 					td.empty();
@@ -265,7 +285,8 @@ Module.create('ConstructorWizard', {
 		});
 	},
 	
-	submit_names: function() {
+	submit_names: function()
+	{
 		var self = this;
 		var listName = this.root.find('#list_name');
 		var itemName = this.root.find('#item_name');
@@ -301,12 +322,14 @@ Module.create('ConstructorWizard', {
 			url: this.getCurrentUrl(),
 			dataType: 'json',
 			data: request,
-			success: function(data) {
+			success: function(data)
+			{
 				hide_page_splash(1);
 				
 				window.location = self.getNextUrl(data.list_id);
 			},
-			error: function(jqXHR, textStatus, errorThrown) {
+			error: function(jqXHR, textStatus, errorThrown)
+			{
 				console.log(textStatus);
 				console.log(jqXHR);
 				hide_page_splash(1);
@@ -314,11 +337,13 @@ Module.create('ConstructorWizard', {
 		});
 	},
 	
-	submit_columns: function() {
+	submit_columns: function()
+	{
 		$(".dx-view-edit-form").data('ViewEditor').save();
 	},
 	
-	submit_fields: function(onSuccess) {
+	submit_fields: function(onSuccess)
+	{
 		var self = this;
 		
 		show_page_splash(1);
@@ -329,19 +354,34 @@ Module.create('ConstructorWizard', {
 			items: []
 		};
 		
-		this.root.find('.dx-constructor-tab-buttons .dd-item').each(function() {
+		this.root.find('.dx-constructor-tab-buttons .dd-item').each(function()
+		{
 			request.tabs.push($(this).data('id'));
 		});
 		
-		this.root.find('.dx-constructor-form, .dx-constructor-tab.custom-data').each(function() {
+		this.root.find('.dx-constructor-form, .dx-constructor-tab.custom-data').each(function()
+		{
 			var tab = [];
 			
-			$(this).find('.dx-constructor-grid .columns').each(function() {
+			$(this).find('.dx-constructor-grid .dx-constructor-row').each(function()
+			{
 				var row = [];
+				var label;
 				
-				$(this).find('.dd-item').each(function() {
-					row.push($(this).data('id'));
-				});
+				if($(this).find('.columns').length)
+				{
+					$(this).find('.dd-item').each(function()
+					{
+						row.push($(this).data('id'));
+					});
+				}
+				
+				else if((label = $(this).find('.dx-constructor-label')) && label.length && label.val().length)
+				{
+					row.push({
+						label: label.val()
+					})
+				}
 				
 				if(row.length)
 				{
@@ -360,7 +400,8 @@ Module.create('ConstructorWizard', {
 			url: this.getCurrentUrl(),
 			dataType: 'json',
 			data: request,
-			success: function(data) {
+			success: function(data)
+			{
 				$('.dx-constructor-grid .dd-item.not-in-form').removeClass('not-in-form');
 				$('.dx-fields-container .dd-item').addClass('not-in-form');
 				
@@ -375,7 +416,8 @@ Module.create('ConstructorWizard', {
 				
 				hide_page_splash(1);
 			},
-			error: function(jqXHR, textStatus, errorThrown) {
+			error: function(jqXHR, textStatus, errorThrown)
+			{
 				console.log(textStatus);
 				console.log(jqXHR);
 				hide_page_splash(1);
@@ -383,21 +425,24 @@ Module.create('ConstructorWizard', {
 		});
 	},
 	
-	submit_rights: function() {
+	submit_rights: function()
+	{
 		window.location = this.getNextUrl();
 	},
 	
 	/**
 	 * Saves workflow data
 	 */
-	submit_workflows: function() {
+	submit_workflows: function()
+	{
 		var self = this;
 		
 		if($('.dx-cms-workflow-form-input-title').val().trim().length > 0)
 		{
 			var workflow = $('.dx-cms-workflow-form')[0].workflow;
 			
-			workflow.saveCallback = function() {
+			workflow.saveCallback = function()
+			{
 				if(workflow.isGraphInit)
 				{
 					window.location = self.getNextUrl();

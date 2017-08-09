@@ -11,7 +11,8 @@
   <script>
 	  $(document).ready(function()
 	  {
-		  $.fn.ConstructorGrid.defaults.rowHtml = `@include('constructor.fields_row')`;
+		  $.fn.ConstructorGrid.defaults.rowHtml = `@include('constructor.fields_row_columns', [ 'id' => 'columns' ])`;
+		  $.fn.ConstructorGrid.defaults.labelHtml = `@include('constructor.fields_row_label', [ 'id' => 'label' ])`;
 		  
 		  $.fn.ConstructorTabs.defaults.tabButton = `@include('constructor.fields_tab', [ 'tab' => null ])`;
 		  $.fn.ConstructorTabs.defaults.relatedHtml = `@include('constructor.fields_related')`;

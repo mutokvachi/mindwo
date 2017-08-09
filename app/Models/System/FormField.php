@@ -15,6 +15,7 @@ class FormField extends Model
 		'field_id',
 		'tab_id',
 		'order_index',
+		'group_label',
 		'row_type_id',
 		'created_user_id',
 		'modified_user_id',

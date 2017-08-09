@@ -2,6 +2,7 @@
 
 return [
 	'add_field' => 'Add field',
+	'add_label' => 'Add label',
 	'add_role' => 'Add role',
 	'add_row' => 'Add row',
 	'adv_settings' => 'Advanced settings',
@@ -13,6 +14,7 @@ return [
 	'error_transaction' => 'Cannot complete operation. Database transaction failed.',
 	'form_fields' => 'Form fields',
 	'form_tabs' => 'Form tabs',
+	'group_label' => 'Group label',
 	'is_delete_rights' => 'Can delete',
 	'is_edit_rights' => 'Can edit',
 	'is_new_rights' => 'Can create',
