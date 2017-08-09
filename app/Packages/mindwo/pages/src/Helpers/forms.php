@@ -47,6 +47,7 @@ function getLookupSQL($list_id, $table_name, $field_item, $txt_alias) {
     $sql_txt = $table_name . "." . $txt_field_name . " as " . $table_name . "_" . $txt_field_name;
     
     if (!str_contains($sql, $sql_txt)) {
+        \Log::info("Lookup SQL error: " . $sql . " NOT FOUND " . $sql_txt);
         throw new PagesException(sprintf(trans('mindwo/pages::errors.lookup_view_error'), $table_name, $txt_field_name));
     }
 
