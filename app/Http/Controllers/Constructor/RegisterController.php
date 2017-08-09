@@ -392,6 +392,8 @@ class RegisterController extends Controller
 				continue;
 			}
 			
+			$label = null;
+			
 			foreach($rows as $rowIndex => $row)
 			{
 				if(isset($row[0]['label']))
