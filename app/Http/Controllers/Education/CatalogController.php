@@ -70,7 +70,16 @@ class CatalogController extends Controller
         $show_full = $request->input('show_full');
 
         $query = DB::table('edu_subjects AS sub')
-            ->selectRaw(DB::raw('sub.id AS sub_id, gr.id AS gr_id, MIN(IFNULL(gr.title, sub.title)) AS title'))
+            ->selectRaw(DB::raw('sub.id AS sub_id, 
+                gr.id AS gr_id, 
+                sub.title, 
+                SUM((SELECT COUNT(*) FROM edu_subjects_groups_members grm WHERE grm.group_id = gr.id) < gr.seats_limit) as is_not_full,
+                MIN(grd.lesson_date) min_lesson_date,
+                MAX(grd.lesson_date) max_lesson_date'
+                ))
+
+            ->join('edu_subjects_groups_days AS grd', 'gr.id', '=', 'grd.group_id')
+
             ->join('edu_subjects_groups AS gr', 'sub.id', '=', 'gr.subject_id')
 
             ->join('edu_subjects_tags AS ta', 'ta.subject_id', '=', 'sub.id') //tag filtr
@@ -84,7 +93,7 @@ class CatalogController extends Controller
 
             ->where('sub.is_published', 1) // Only published
             ->where('gr.signup_due', '>=', Carbon::today()->toDateString())
-            ->groupBy('sub.id', 'gr.id'); // Signup date larger than today
+            ->groupBy('sub.id'); // Signup date larger than today
 
         if($text && strlen(trim($text)) > 0){
             $query->where(function ($query) use ($text) {
@@ -134,10 +143,7 @@ class CatalogController extends Controller
             });
         }
 
-        if ($date_from || $date_to || $time_from || $time_to) {
-            $query->join('edu_subjects_groups_days AS grd', 'gr.id', '=', 'grd.group_id');
-
-            \Log::info('date_from' . $date_from);
+        if ($date_from || $date_to || $time_from || $time_to) { 
             if ($date_from) {
                 $query->where(function ($query) use ($date_from) {
                     $query->where('grd.lesson_date', '>=', $date_from)
