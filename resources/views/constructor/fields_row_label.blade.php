@@ -4,7 +4,9 @@
       <span class="input-group-addon">
         <i class="fa fa-tag font-blue"></i>
       </span>
-      <input class="form-control dx-constructor-label" autocomplete="off" placeholder="{{ trans('constructor.group_label') }}" name="group_label" value="{{ $field->group_label }}">
+      <input class="form-control dx-constructor-label" name="group_label" autocomplete="off"
+        placeholder="{{ trans('constructor.group_label') }}"
+        value="{{ isset($field) ? $field->group_label : '' }}">
     </div>
   </div>
 @endsection

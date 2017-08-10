@@ -723,10 +723,10 @@ Module.create('ConstructorTabs', {
 						list_id: self.options.list_id
 					});
 					
-					grid.data('ConstructorGrid').createRow();
-					grid.data('ConstructorGrid').createRow();
-					grid.data('ConstructorGrid').createRow();
-					grid.data('ConstructorGrid').createRow();
+					grid.data('ConstructorGrid').createRow('columns');
+					grid.data('ConstructorGrid').createRow('columns');
+					grid.data('ConstructorGrid').createRow('columns');
+					grid.data('ConstructorGrid').createRow('columns');
 				}
 				else
 				{
