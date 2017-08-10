@@ -57,6 +57,8 @@ class CatalogController extends Controller
 
     public function getData(Request $request)
     {
+\DB::connection()->enableQueryLog();
+
         $text = $request->input('text');
         $tags = $request->input('tag');
         $programs = $request->input('program');
@@ -70,34 +72,37 @@ class CatalogController extends Controller
         $show_full = $request->input('show_full');
 
         $query = DB::table('edu_subjects AS sub')
-            ->selectRaw(DB::raw('sub.id AS sub_id, 
-                gr.id AS gr_id, 
+            ->selectRaw(DB::raw('sub.id,
                 sub.title, 
                 SUM((SELECT COUNT(*) FROM edu_subjects_groups_members grm WHERE grm.group_id = gr.id) < gr.seats_limit) as is_not_full,
                 MIN(grd.lesson_date) min_lesson_date,
-                MAX(grd.lesson_date) max_lesson_date'
+                MAX(grd.lesson_date) max_lesson_date,
+                COUNT(gr.id) group_count'
                 ))
 
-            ->join('edu_subjects_groups_days AS grd', 'gr.id', '=', 'grd.group_id')
+            ->leftJoin('edu_subjects_groups AS gr', 'sub.id', '=', 'gr.subject_id')
+            ->leftJoin('edu_subjects_groups_days AS grd', 'gr.id', '=', 'grd.group_id')
 
-            ->join('edu_subjects_groups AS gr', 'sub.id', '=', 'gr.subject_id')
+            ->leftJoin('edu_subjects_tags AS ta', 'ta.subject_id', '=', 'sub.id') //tag filtr
+            ->leftJoin('edu_tags AS tag', 'ta.tag_id', '=', 'tag.id') //tag filtr
 
-            ->join('edu_subjects_tags AS ta', 'ta.subject_id', '=', 'sub.id') //tag filtr
-            ->join('edu_tags AS tag', 'ta.tag_id', '=', 'tag.id') //tag filtr
+            ->leftJoin('edu_modules AS m', 'm.id', '=', 'sub.module_id') //prog
+            ->leftJoin('edu_programms AS pr', 'pr.id', '=', 'm.programm_id') //prog
 
-            ->join('edu_modules AS m', 'm.id', '=', 'sub.module_id') //prog
-            ->join('edu_programms AS pr', 'pr.id', '=', 'm.programm_id') //prog
+            ->leftJoin('edu_subjects_teachers AS te', 'te.subject_id', '=', 'sub.id') //teach  
+            ->leftJoin('dx_users AS u', 'te.teacher_id', '=', 'u.id') //teach            
 
-            ->join('edu_subjects_teachers AS te', 'te.subject_id', '=', 'sub.id') //teach  
-            ->join('dx_users AS u', 'te.teacher_id', '=', 'u.id') //teach            
+            ->where('sub.is_published', 1) // Only published            
+            ->where(function ($query) {
+                $query->where('gr.signup_due', '>=', Carbon::today()->toDateString());
+                $query->orWhereNull('gr.signup_due');                
+            })
 
-            ->where('sub.is_published', 1) // Only published
-            ->where('gr.signup_due', '>=', Carbon::today()->toDateString())
             ->groupBy('sub.id'); // Signup date larger than today
 
         if($text && strlen(trim($text)) > 0){
             $query->where(function ($query) use ($text) {
-               $query->orWhere('sub.title', 'like', '%' . $text . '%');
+               $query->where('sub.title', 'like', '%' . $text . '%');
                $query->orWhere('gr.title', 'like', '%' . $text . '%');
                $query->orWhere('tag.title', 'like', '%' . $text . '%');
                $query->orWhere('m.title', 'like', '%' . $text . '%');
@@ -146,15 +151,13 @@ class CatalogController extends Controller
         if ($date_from || $date_to || $time_from || $time_to) { 
             if ($date_from) {
                 $query->where(function ($query) use ($date_from) {
-                    $query->where('grd.lesson_date', '>=', $date_from)
-                        ->orWhereNull('gr.id');
+                    $query->where('grd.lesson_date', '>=', $date_from);
                 });
             }
 
             if ($date_to) {
                  $query->where(function ($query) use ($date_to) {
-                    $query->where('grd.lesson_date', '<=', $date_to)
-                        ->orWhereNull('gr.id');
+                    $query->where('grd.lesson_date', '<=', $date_to);
                  });
             }
 
@@ -178,6 +181,13 @@ class CatalogController extends Controller
         }
 
         $res = $query->get();
+
+        
+$query = \DB::getQueryLog();
+$lastQuery = end($query);
+
+\Log::info('query = '. json_encode( $lastQuery) );
+\DB::disableQueryLog();
 
         /*$groups = [];
 
