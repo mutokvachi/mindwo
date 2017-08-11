@@ -76,6 +76,10 @@ return [
     'cert_file' => 'Sertifikāts',
     'region_id' => 'Deklarētā dzīvesvieta',
     'region_id_hint' => 'Norāda republikas pilsētas vai novada nosaukumu.',
+    'introduction' => 'Īss apraksts', 
+    'experience' => 'Pieredze', 
+    'education' => 'Izglītība', 
+    'additional_info' => 'Papildus informācija',
     
     // views
     'view_related' => 'Skats saistītajiem ierakstiem',
