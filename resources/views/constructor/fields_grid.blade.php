@@ -7,19 +7,6 @@
         'id' => $i,
         'field' => $first
       ])
-      {{--
-      @push("row_content_label_$i")
-        <div class="form-group">
-          <div class="input-group">
-            <span class="input-group-addon">
-              <i class="fa fa-tag"></i>
-            </span>
-            <input class="form-control" autocomplete="off" placeholder="{{ trans('constructor.group_label') }}" name="group_label_{{ $i }}" value="{{ $first->group_label }}">
-          </div>
-        </div>
-      @endpush
-      @include('constructor.fields_row', [ 'id' => "label_$i" ])
-      --}}
     @endif
     @push("row_content_{$tabId}_$i")
       @for($j = 0; $j < count($grid[$i]); $j++)

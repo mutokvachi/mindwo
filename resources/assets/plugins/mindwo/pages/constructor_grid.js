@@ -174,7 +174,7 @@ Module.create('ConstructorGrid', {
 			animation: 'grow'
 		});
 		
-			if(type === 'columns')
+		if(type === 'columns')
 		{
 			row.find('.columns').sortable(this.sortableOpts);
 		}

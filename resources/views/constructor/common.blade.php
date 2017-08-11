@@ -58,4 +58,3 @@
     @include('constructor.footer')
   </div>
 @endsection
-

@@ -447,7 +447,7 @@ Module.create('ConstructorWizard', {
 				{
 					window.location = self.getNextUrl();
 				}
-			}
+			};
 			
 			workflow.save({self: workflow, initGraph: true});
 		}

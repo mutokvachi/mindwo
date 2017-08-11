@@ -1021,7 +1021,7 @@ Module.create('ConstructorGrid', {
 			animation: 'grow'
 		});
 		
-			if(type === 'columns')
+		if(type === 'columns')
 		{
 			row.find('.columns').sortable(this.sortableOpts);
 		}
@@ -1621,15 +1621,15 @@ Module.create('ConstructorWizard', {
 			{
 				if(workflow.isGraphInit)
 				{
-					window.location = self.getNextUrl();
+					//window.location = self.getNextUrl();
 				}
-			}
+			};
 			
 			workflow.save({self: workflow, initGraph: true});
 		}
 		else
 		{
-			window.location = self.getNextUrl();
+			//window.location = self.getNextUrl();
 		}
 	}
 });
