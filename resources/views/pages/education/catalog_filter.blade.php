@@ -83,7 +83,7 @@
             <span class="input-group-addon"><i class="fa fa-clock-o"></i></span>
         </div>
     </div>   
-    <div class="form-group col-lg-1 col-md-2 col-sm-3">
+    <div class="form-group col-lg-2 col-md-2 col-sm-3">
         <div style="font-size:11px;">Rādīt tikai bezmaksas</div>
         <div>
             <input
@@ -94,7 +94,7 @@
                 data-on-text="Jā" />
         </div>
     </div>
-    <div class="form-group col-lg-1 col-md-2 col-sm-3">
+    <div class="form-group col-lg-2 col-md-2 col-sm-3">
         <div style="font-size:11px;">Rādīt pilnās grupas</div>
         <div>
             <input
