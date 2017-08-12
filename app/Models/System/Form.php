@@ -25,4 +25,9 @@ class Form extends Model
 	{
 		return $this->belongsTo('App\Models\System\Lists', 'id', 'list_id');
 	}
+	
+	public function tabs()
+	{
+		return $this->hasMany('App\Models\System\FormTab', 'form_id', 'id');
+	}
 }
