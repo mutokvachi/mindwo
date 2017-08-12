@@ -4,11 +4,6 @@
   @include('pages.view_css_includes')
   <link href="{{ elixir('css/elix_menu_builder.css') }}" rel="stylesheet"/>
   <style>
-      .dx-menu-builder-stick-title {
-          font-size: 16px;
-          padding-top: 32px!important;
-          text-transform: uppercase;
-      }
       .dx-menu-builder {
           width: 70%;
           margin: 0 auto;

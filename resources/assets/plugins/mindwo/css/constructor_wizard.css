@@ -1,3 +1,6 @@
+.dx-constructor-wrap {
+}
+
 .mt-element-step .step-line .mt-step-title::after {
 	top: -32px;
 }
@@ -57,33 +60,33 @@
 	margin: 5px 0;
 }
 
-.constructor-grid {
+.dx-constructor-grid {
 	/*
 	border: 1px solid #ccc;
 	padding: 10px 0;
 	*/
 }
 
-.constructor-grid .row-container {
+.dx-constructor-row {
 	position: relative;
 	background-color: #f4f4f4;
 	padding: 4px 49px;
 	margin: 5px 0;
 }
 
-.constructor-grid .dd-list {
+.dx-constructor-row .dd-list {
 	height: 30px;
 }
 
-.constructor-grid .dd-item {
+.dx-constructor-row .dd-item {
 	margin: 0;
 }
 
-.constructor-grid .placeholder {
+.dx-constructor-row .placeholder {
 	background-color: #e8e8e8;
 }
 
-.constructor-grid .row-box {
+.dx-constructor-row .row-box {
 	position: absolute;
 	width: 30px;
 	height: 30px;
@@ -94,23 +97,56 @@
 	background-color: white;
 }
 
-.constructor-grid .row-handle {
+.dx-constructor-row .row-handle {
 	top: 4px;
 	left: 4px;
 	cursor: move;
 }
 
-.constructor-grid .row-button {
+.dx-constructor-row .row-button {
 	top: 4px;
 	right: 4px;
 }
 
-.constructor-grid .row-button a {
+.dx-constructor-row .row-button a {
 	display: inline-block;
 	width: 28px;
 	height: 28px;
 }
 
-.constructor-grid .dx-field-hidden .dx-fld-title {
+.dx-constructor-row .dx-field-hidden .dx-fld-title {
 	color: #ccc !important;
+}
+
+.dx-constructor-tab-buttons {
+}
+
+.dx-constructor-tab-buttons .dd-item {
+	float: left;
+	margin: 4px;
+}
+
+.dx-constructor-tab-buttons .dd-item.ui-droppable-hover {
+	box-shadow: 0 0 10px #adf;
+}
+
+.dx-constructor-tab-buttons.highlight .dd-item.related-grid {
+	opacity: 0.3
+}
+
+.dx-constructor-tab-button.active .title {
+	font-weight: bold;
+}
+
+.dx-constructor-row .form-group {
+	margin: 0 15px;
+}
+
+.dx-constructor-row .form-control {
+	height: 30px;
+	padding: 4px 12px;
+}
+
+.dx-constructor-row .input-group-addon {
+	padding: 6px 8px;
 }
