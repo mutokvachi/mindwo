@@ -1,0 +1,193 @@
+/* Stic footer on bottom - on scroll too */
+.dx-stick-footer {
+	position: fixed;
+	left: 0px;
+	bottom: 0px;
+	height: 80px;
+	width: 100%;
+	z-index: 5000;
+	border-top: 1px solid darkgray;
+	background-color: #f1f4f7;
+}
+
+.dx-stick-footer .dx-left {
+	height: 80px;
+	background-color: #f1f4f7;
+	border-right: 1px solid lightgray;
+	padding-top: 10px;
+}
+
+.dx-stick-footer .dx-right {
+	height: 80px;
+	background-color: #e4ebef;
+	padding-top: 23px;
+}
+
+.dx-stick-footer .dx-left .dx-empl-title {
+	font-weight: bold;
+}
+
+.dx-stick-footer .dx-left .row, .dx-stick-footer .dx-right .row {
+	padding-left: 36px;
+	padding-right: 36px;
+}
+
+.dx-stick-footer-title {
+	font-size: 16px;
+	padding-top: 32px!important;
+	text-transform: uppercase;
+}
+
+.dx-constructor-wrap {
+}
+
+.mt-element-step .step-line .mt-step-title::after {
+	top: -32px;
+}
+
+.mt-element-step .step-line .mt-step-title::before {
+	top: -32px;
+}
+
+.mt-element-step .link {
+	cursor: pointer;
+}
+
+.mt-element-step .link:hover .mt-step-number {
+	background-color: #eee !important;
+}
+
+.dx-view-edit-form .dd-item {
+	margin: 4px 0 !important;
+}
+
+.dd-item.ui-draggable {
+	z-index: 100;
+}
+
+.dd-item.ui-draggable.ui-draggable-dragging {
+	z-index: 1000;
+}
+
+.dd-item .dd3-content {
+	overflow: hidden;
+	margin: 0;
+}
+
+.dd-item .dd3-content b {
+}
+
+.droppable-grid {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.droppable-grid td {
+	width: 25%;
+	padding: 2px;
+	height: 36px;
+	border: 1px dashed #ccc;
+}
+
+.dx-fields-container a {
+	display: none;
+}
+
+.dx-fields-container .dd-list {
+}
+
+.dx-fields-container .dd-list > div {
+	margin: 5px 0;
+}
+
+.dx-constructor-grid {
+	/*
+	border: 1px solid #ccc;
+	padding: 10px 0;
+	*/
+}
+
+.dx-constructor-row {
+	position: relative;
+	background-color: #f4f4f4;
+	padding: 4px 49px;
+	margin: 5px 0;
+}
+
+.dx-constructor-row .dd-list {
+	height: 30px;
+}
+
+.dx-constructor-row .dd-item {
+	margin: 0;
+}
+
+.dx-constructor-row .placeholder {
+	background-color: #e8e8e8;
+}
+
+.dx-constructor-row .row-box {
+	position: absolute;
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	vertical-align: middle;
+	text-align: center;
+	color: #999;
+	background-color: white;
+}
+
+.dx-constructor-row .row-handle {
+	top: 4px;
+	left: 4px;
+	cursor: move;
+}
+
+.dx-constructor-row .row-button {
+	top: 4px;
+	right: 4px;
+}
+
+.dx-constructor-row .row-button a {
+	display: inline-block;
+	width: 28px;
+	height: 28px;
+}
+
+.dx-constructor-row .dx-field-hidden .dx-fld-title {
+	color: #ccc !important;
+}
+
+.dx-constructor-tab-buttons {
+}
+
+.dx-constructor-tab-buttons .dd-item {
+	float: left;
+	margin: 4px;
+}
+
+.dx-constructor-tab-buttons .dd-item.ui-droppable-hover {
+	box-shadow: 0 0 10px #adf;
+}
+
+.dx-constructor-tab-buttons.highlight .dd-item.related-grid {
+	opacity: 0.3
+}
+
+.dx-constructor-tab-button.active .title {
+	font-weight: bold;
+}
+
+.dx-constructor-row .form-group {
+	margin: 0 15px;
+}
+
+.dx-constructor-row .form-control {
+	height: 30px;
+	padding: 4px 12px;
+}
+
+.dx-constructor-row .input-group-addon {
+	padding: 6px 8px;
+}
+/*# sourceMappingURL=elix_constructor_wizard.css.map */
