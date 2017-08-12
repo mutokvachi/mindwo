@@ -50,7 +50,7 @@ class CourseController extends Controller
         ];
 
         return view('pages.education.course.course', [
-                    'course' => $courses[$id]
+                    'group' => $courses[1]
                 ])->render();
     }
 }

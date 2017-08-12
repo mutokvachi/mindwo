@@ -28,6 +28,13 @@ return [
     'is_org_approve_need' => 'Ir iestādes saskaņojums',
     'cert_numerator_id' => 'Sertifikātu numerators',
     'is_published' => 'Ir publicēts',
+
+    'purpose' => 'Mācību kursa mērķis', 
+    'target_audience' => 'Mērķauditorija', 
+    'prerequisites' => 'Priekšnosacījumi', 
+    'topics' => 'Tēmas', 
+    'benefits' => 'Dalībnieku ieguvumi',
+    'coordinator_id' => 'Koordinators',
     
     // tabs
     'tab_main' => 'Pamatdati',
