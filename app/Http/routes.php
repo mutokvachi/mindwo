@@ -312,5 +312,6 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'calendar', 'namespace' => '
         Route::post('/scheduler/new_group', ['as' => 'scheduler_new_group', 'uses' => 'SchedulerController@createNewGroup']);
         Route::post('/scheduler/update_day', ['as' => 'scheduler_update_day', 'uses' => 'SchedulerController@updateDay']);
         Route::post('/scheduler/new_day', ['as' => 'scheduler_new_day', 'uses' => 'SchedulerController@newDay']);
-        
+        Route::post('/scheduler/new_coffee', ['as' => 'scheduler_new_coffee', 'uses' => 'SchedulerController@newCoffee']);        
+        Route::post('/scheduler/update_coffee', ['as' => 'scheduler_update_coffee', 'uses' => 'SchedulerController@updateCoffee']);
 });

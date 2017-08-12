@@ -33,6 +33,12 @@ class EduSubjectsGroupsDaysTeachersUi extends EduMigration
             // get list
             $list_id = App\Libraries\DBHelper::getListByTable($this->table_name)->id;       
 
+            DB::table('dx_lists')
+                    ->where('id', '=', $list_id)
+                    ->update([
+                        'is_cascade_delete' => 1
+                    ]);
+            
             // reorganize view fields - hide or remove unneeded
             \App\Libraries\DBHelper::removeFieldsFromAllViews($this->table_name, ['id'], true); // hide ID field                       
             \App\Libraries\DBHelper::removeFieldsFromAllForms($this->table_name, ['id'], false);

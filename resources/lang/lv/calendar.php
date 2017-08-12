@@ -47,5 +47,6 @@ return [
         'publish_btn' => 'Publicēt',
         'new_subj_btn' => 'Jauns pasākums',
         'new_group_btn' => 'Jauna grupa',
+        'error_no_day_for_coffee' => 'Kafijas pauzei nav iespējams noteikt atbilstošo nodarbību! Lūdzu, pievienojiet kafijas pauzi konkrētā nodarbībā.'
     ],
 ];

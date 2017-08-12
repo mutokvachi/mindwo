@@ -38,6 +38,7 @@
             this.groups_list_id = this.root.data("groups-list-id");
             this.days_list_id = this.root.data("days-list-id"); 
             this.rooms_list_id = this.root.data("rooms-list-id");
+            this.coffee_list_id = this.root.data("coffee-list-id");
             
             this.room_id = this.root.data("room-id");
             this.current_date = this.root.data("crrent-date");
@@ -158,6 +159,7 @@
                             dx_subj_id: el.data("subject-id"),
                             dx_group_id: el.data("group-id"),
                             dx_day_id: 0,
+                            dx_coffee_id: 0,
                     });
 
                     // make the event draggable using jQuery UI
@@ -193,6 +195,7 @@
                                             dx_subj_id: el.data("subject-id"),
                                             dx_group_id: el.data("group-id"),
                                             dx_day_id: 0,
+                                            dx_coffee_id: 0,
                                     });
                                 }
                             });
@@ -213,6 +216,7 @@
                                             dx_subj_id: el.data("subject-id"),
                                             dx_group_id: 0,
                                             dx_day_id: 0,
+                                            dx_coffee_id: 0,
                                     });
                                 }
                             });
@@ -228,7 +232,11 @@
                         stick: true, // maintain when user navigates (see docs on the renderEvent method),
                         duration: "00:30",
                         className: "cafe",
-                        color: "#d6df32"
+                        color: "#d6df32",
+                        dx_subj_id: 0,
+                        dx_group_id: 0,
+                        dx_day_id: 0,
+                        dx_coffee_id: 0,
                 });
 
                 // make the event draggable using jQuery UI
@@ -291,6 +299,34 @@
             
             var newCafeToDb = function(event) {
                 console.log("Create new coffe pause in db!");
+                
+                var formData = new FormData();                
+                formData.append("start_time", event.start.format("YYYY-MM-DD HH:mm"));
+                formData.append("end_time", event.end.format("YYYY-MM-DD HH:mm"));
+                formData.append("room_id", (event.resourceId) ? event.resourceId : self.room_id);
+                
+                var request = new FormAjaxRequest (self.options.scheduler_url + "new_coffee", '', '', formData);
+
+                request.callback = function(data) {
+                    event.id = 'C' + data.coffee_id;
+                    event.dx_subj_id = data.subject_id;
+                    event.dx_day_id = data.day_id;
+                    event.dx_group_id = data.group_id;
+                    event.dx_coffee_id = data.coffee_id;
+                    
+                    $('#calendar').fullCalendar( 'updateEvent', event );
+                };
+                
+                request.err_callback = function() {                    
+                    $('#calendar').fullCalendar( 'removeEvents', function(ev) {                        
+                        if (!ev.id) {
+                            return true;
+                        }
+                        return false;
+                    });
+                };
+
+                request.doRequest();
             };
             
             var newGroupToDb = function(event) {
@@ -310,6 +346,7 @@
                     event.className="group";
                     event.dx_day_id = data.day_id;
                     event.dx_group_id = data.group_id;
+                    
                     $('#calendar').fullCalendar( 'updateEvent', event );
 
                     newGroupHtml({subj_id: event.dx_subj_id, group_id: data.group_id, text: event.title});
@@ -358,6 +395,29 @@
             
             var updateCafeToDb = function(event) {
                 console.log("Update existing coffe pause in db!");
+                var formData = new FormData(); 
+                formData.append("coffee_id", event.dx_coffee_id);
+                formData.append("start_time", event.start.format("YYYY-MM-DD HH:mm"));
+                formData.append("end_time", event.end.format("YYYY-MM-DD HH:mm"));
+                formData.append("room_id", (event.resourceId) ? event.resourceId : self.room_id);
+                
+                var request = new FormAjaxRequest (self.options.scheduler_url + "update_coffee", '', '', formData);
+
+                request.callback = function(data) {
+                    event.id = 'C' + data.coffee_id;
+                    event.dx_subj_id = data.subject_id;
+                    event.dx_day_id = data.day_id;
+                    event.dx_group_id = data.group_id;
+                    event.dx_coffee_id = data.coffee_id;
+                    
+                    $('#calendar').fullCalendar( 'updateEvent', event );
+                };
+                
+                request.err_callback = function() {                    
+                    // ToDo: here we need somehow to rollback UI changes
+                };
+
+                request.doRequest();
             };
             
             var updateDayToDb = function(event) {
@@ -423,6 +483,10 @@
 			},
                         minTime: "09:00:00",
                         maxTime: "18:00:00",
+                        eventConstraint:{
+                            start: '09:00', 
+                            end: '18:00', 
+                        },
                         businessHours: {
                             // days of week. an array of zero-based day of week integers (0=Sunday)
                             dow: [ 1, 2, 3, 4 ], // Monday - Thursday
@@ -436,6 +500,8 @@
                             element.attr('data-group-id', event.dx_group_id);
                             element.attr('data-day-id', event.dx_day_id);
                             element.attr('data-event-id', event.id);
+                            element.attr('data-coffee-id', event.dx_coffee_id);
+                            console.log("element rendered: " + element.html());
                         },
                         eventReceive : function(event) {                            
                             if (event.className == "cafe") {
@@ -473,14 +539,19 @@
                         eventClick: function(calEvent, jsEvent, view) {
 
                             if (calEvent.className == "cafe") {
-                                alert("Coffe pause opening will be implemented");
+                                open_form('form', calEvent.dx_coffee_id, self.coffee_list_id, 0, 0, "", 0, "", {
+                                    after_close: function(frm)
+                                    {
+                                        // ToDo: check if something changed and refresh
+                                    }
+                                });
                                 return;
                             }
                             
                             open_form('form', calEvent.dx_day_id, self.days_list_id, 0, 0, "", 0, "", {
                                 after_close: function(frm)
                                 {
-                                    // ToDo: check if something changed and referesh
+                                    // ToDo: check if something changed and refresh
                                 }
                             });
                         },
@@ -510,6 +581,12 @@
                         }});
                     }
                     
+                    if (key == "coffee") {
+                        open_form('form', options.$trigger.data('coffee-id'), self.coffee_list_id, 0, 0, "", 0, "", {after_close: function(frm) {
+                            // ToDo: refresh all page
+                        }});
+                    }
+                    
                     if (key == "delete") {
                         
                     }
@@ -517,9 +594,15 @@
                 items: {
                     "subject": {name: "Pasākums", icon: "fa-graduation-cap"},
                     "group": {name: "Grupa", icon: "fa-users"},
-                    "day": {name: "Nodarbība", icon: "fa-calendar-o"},                    
+                    "day": {name: "Nodarbība", icon: "fa-calendar-o"},
+                    "sep0": "---------",
+                    "coffee": {name: "Kafijas pauze", icon: "fa-coffee", disabled: function(key, opt) { 
+                        // this references the trigger element
+                        console.log("Calculate coffee menu: " + opt.$trigger.html());
+                        return !parseInt(opt.$trigger.data('coffee-id')); 
+                    }},
                     "sep1": "---------",
-                    "delete": {name: "Dzēst nodarbību", icon: "fa-trash-o"}
+                    "delete": {name: "Dzēst", icon: "fa-trash-o"}
                 }
             });
 

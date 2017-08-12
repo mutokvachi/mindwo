@@ -78,6 +78,7 @@
      data-groups-list-id="{{ $groups_list_id }}"
      data-days-list-id="{{ $days_list_id }}"
      data-rooms-list-id="{{ $rooms_list_id }}"
+     data-coffee-list-id="{{ $coffee_list_id }}"
      data-rooms-json='{!! json_encode($rooms, JSON_UNESCAPED_UNICODE) !!}'
      data-events-json='{!! json_encode($events, JSON_UNESCAPED_UNICODE) !!}'
      data-room-id="{{ $current_room_id }}"
