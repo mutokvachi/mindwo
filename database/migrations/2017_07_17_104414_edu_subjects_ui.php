@@ -87,11 +87,10 @@ class EduSubjectsUi extends EduMigration
             
             App\Libraries\DBHelper::updateFormField($list_id, "learning_url", ['tab_id' => $tab_descr_id, 'order_index' => 100]);
                         
-            App\Libraries\DBHelper::updateFormField($list_id, "subject_pretest_id", ['tab_id' => $tab_tests_id]);
-            App\Libraries\DBHelper::updateFormField($list_id, "is_subj_qual_test_ok_need", ['tab_id' => $tab_tests_id, 'row_type_id' => 3]);
-            App\Libraries\DBHelper::updateFormField($list_id, "is_progr_qual_test_ok_need", ['tab_id' => $tab_tests_id, 'row_type_id' => 3]);
-            App\Libraries\DBHelper::updateFormField($list_id, "is_subj_qual_test_ok_need", ['tab_id' => $tab_tests_id, 'row_type_id' => 3]);
-            App\Libraries\DBHelper::updateFormField($list_id, "subject_end_test_id", ['tab_id' => $tab_tests_id]);
+            App\Libraries\DBHelper::updateFormField($list_id, "subject_pretest_id", ['tab_id' => $tab_tests_id, 'group_label' => trans('db_' . $this->table_name . '.group_qualif')]);
+            App\Libraries\DBHelper::updateFormField($list_id, "is_subj_qual_test_ok_need", ['tab_id' => $tab_tests_id, 'row_type_id' => 2]);
+            App\Libraries\DBHelper::updateFormField($list_id, "is_progr_qual_test_ok_need", ['tab_id' => $tab_tests_id, 'row_type_id' => 2]);
+            App\Libraries\DBHelper::updateFormField($list_id, "subject_end_test_id", ['tab_id' => $tab_tests_id , 'group_label' => trans('db_' . $this->table_name . '.group_certif')]);
             App\Libraries\DBHelper::updateFormField($list_id, "cert_numerator_id", ['tab_id' => $tab_tests_id]);
              
             App\Libraries\DBHelper::removeFieldsFromAllViews($list_id, [

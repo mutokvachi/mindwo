@@ -63,6 +63,13 @@ class EduSubjectsGroupsMembersUi extends EduMigration
                 'grid_list_field_id' => $subj_field->id
             ]);
             
+            DB::table('dx_lists_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('db_name', '=', 'student_id')
+                    ->update([
+                'type_id' => \App\Libraries\DBHelper::FIELD_TYPE_LOOKUP
+            ]);
+            
         });
     }
 

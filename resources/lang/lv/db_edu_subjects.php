@@ -45,4 +45,6 @@ return [
     
     // groups
     'group_costs' => 'Izmaksas',
+    'group_qualif' => 'Kvalificēšanās nosacījumi',
+    'group_certif' => 'Sertificēšana',
 ];

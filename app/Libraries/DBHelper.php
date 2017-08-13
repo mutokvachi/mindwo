@@ -71,6 +71,11 @@ namespace App\Libraries
          * Register field type - HTML text (from table dx_field_types)
          */
         const FIELD_TYPE_HTML = 10;
+        
+        /**
+         * Register field type - email (from table dx_field_types)
+         */
+        const FIELD_TYPE_EMAIL = 11;
 
         /**
          * Register field type - file (from table dx_field_types)

@@ -126,7 +126,7 @@ class DxUsersVasUi extends EduMigration
             $fld_id = DB::table('dx_lists_fields')->insertGetId([
                 'list_id' => $list_id,
                 'db_name' => 'login_name',
-                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_EMAIL,
                 'title_list' => trans('db_dx_users.login_name_email'),
                 'title_form' => trans('db_dx_users.login_name_email'),
                 'max_lenght' => 200,
@@ -199,7 +199,7 @@ class DxUsersVasUi extends EduMigration
             $fld_id = DB::table('dx_lists_fields')->insertGetId([
                 'list_id' => $list_id,
                 'db_name' => 'email',
-                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_EMAIL,
                 'title_list' => trans('db_edu_orgs_users.email'),
                 'title_form' => trans('db_edu_orgs_users.email'),
                 'formula' => '[' . trans('db_edu_orgs_users.email') .']',
@@ -209,7 +209,7 @@ class DxUsersVasUi extends EduMigration
             $fld_id = DB::table('dx_lists_fields')->insertGetId([
                 'list_id' => $list_id,
                 'db_name' => 'phone',
-                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_MOBILE,
                 'title_list' => trans('db_edu_orgs_users.phone'),
                 'title_form' => trans('db_edu_orgs_users.phone'),
                 'formula' => '[' . trans('db_edu_orgs_users.phone') .']',
@@ -219,7 +219,7 @@ class DxUsersVasUi extends EduMigration
             $fld_id = DB::table('dx_lists_fields')->insertGetId([
                 'list_id' => $list_id,
                 'db_name' => 'mobile',
-                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_MOBILE,
                 'title_list' => trans('db_edu_orgs_users.mobile'),
                 'title_form' => trans('db_edu_orgs_users.mobile'),
                 'formula' => '[' . trans('db_edu_orgs_users.mobile') .']',
@@ -306,7 +306,7 @@ class DxUsersVasUi extends EduMigration
             $fld_id = DB::table('dx_lists_fields')->insertGetId([
                 'list_id' => $profile_list_id,
                 'db_name' => 'login_name',
-                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_EMAIL,
                 'title_list' => trans('db_dx_users.login_name_email'),
                 'title_form' => trans('db_dx_users.login_name_email'),
                 'max_lenght' => 200,

@@ -53,16 +53,12 @@ class EduSeeder extends Seeder
                'title' => 'Valsts adminisrācijas skola' 
             ]);
             
-            $sup2 = DB::table('dx_supervise')->insertGetId([
-               'title' => 'Finanšu ministrija' 
-            ]);
-            
             // Organizations
             $main_org = DB::table('edu_orgs')->insertGetId([
                 'title' => 'Valsts administrācijas skola',
                 'org_type_id' => 1,
-                'reg_nr' => '123456788',
-                'address' => 'Raiņa bulvāris 4',
+                'reg_nr' => '90000028156',
+                'address' => 'Raiņa bulvāris 4, Rīga, LV-1050',
             ]);
             
             $rooms =  [
@@ -72,57 +68,28 @@ class EduSeeder extends Seeder
                     'org_id' => $main_org,
                     'is_elearn' => 1
                 ],
-                [
-                    'room_nr' => '224A',
-                    'room_limit' => 40,
-                    'org_id' => $main_org,
-                    'is_elearn' => 0
-                ],
-                [
-                    'room_nr' => '254',
-                    'room_limit' => 50,
-                    'org_id' => $main_org,
-                    'is_elearn' => 0
-                ],
             ];
             DB::table('edu_rooms')->insert($rooms);
-            
-            $stud_org = DB::table('edu_orgs')->insertGetId([
-                'title' => 'Finanšu ministrija',
-                'org_type_id' => 1,
-                'reg_nr' => '2212121212',
-                'address' => 'Aspazijas bulvāris 4',
-            ]);
-            
-            $stud_org2 = DB::table('edu_orgs')->insertGetId([
-                'title' => 'Labklājības ministrija',
-                'org_type_id' => 1,
-                'reg_nr' => '444343434',
-                'address' => 'Aspazijas bulvāris 12',
-            ]);
-            
-            $teach_org = DB::table('edu_orgs')->insertGetId([
-                'title' => 'LATVICON mācību centrs',
-                'org_type_id' => 1,
-                'reg_nr' => '12121212',
-                'address' => 'Brīvības bulvāris 4',
-            ]);            
+                       
             // ---- End organizations
             
             // Main coordinators
             $main_user1 = DB::table('dx_users')->insertGetId([
-                'first_name' => 'Oskars',
-                'last_name' => 'Bērziņš',
+                'first_name' => 'Kristaps',
+                'last_name' => 'Kalns',
                 'person_code' => rand('100000', '999999'),
                 'is_role_coordin_main' => 1,
                 'password' => '$2y$10$S803OIF2qhP8ZliilBZI9eYGCMXhhvAkiWuXXcG3J.Pp2hnImjv2q',
-                'login_name' => 'oskars',
+                'login_name' => 'kristaps.kalns@vas.gov.lv',
+                'email' => 'kristaps.kalns@vas.gov.lv'
             ]);
             
             DB::table('edu_orgs_users')->insert([
                 'user_id' => $main_user1,
                 'org_id' => $main_org,
-                'job_title' => 'Konsultants',
+                'job_title' => 'IT vadītājs',
+                'email' => 'kristaps.kalns@vas.gov.lv',
+                'mobile' => '(+371) 26318965'
             ]);
             
             DB::table('dx_users_roles')->insert([
@@ -134,139 +101,91 @@ class EduSeeder extends Seeder
                'user_id' => $main_user1,
                'supervise_id' => $sup1,
             ]);
+            
+            $main_user2 = DB::table('dx_users')->insertGetId([
+                'first_name' => 'Gatis',
+                'last_name' => 'Bērzinš',
+                'person_code' => rand('100000', '999999'),
+                'is_role_coordin_main' => 1,
+                'password' => '$2y$10$S803OIF2qhP8ZliilBZI9eYGCMXhhvAkiWuXXcG3J.Pp2hnImjv2q',
+                'login_name' => 'gatis.berzins@vas.gov.lv',
+                'email' => 'gatis.berzins@vas.gov.lv'
+            ]);
+            
+            DB::table('edu_orgs_users')->insert([
+                'user_id' => $main_user2,
+                'org_id' => $main_org,
+                'job_title' => 'Mācību koordinators Eiropas fondu projektā U',
+                'email' => 'gatis.berzins@vas.gov.lv',
+                'phone' => '(+371) 67821286'
+            ]);
+            
+            DB::table('dx_users_roles')->insert([
+                'role_id' => self::ROLE_MAIN,
+                'user_id' => $main_user2,
+            ]);
+            
+            DB::table('dx_users_supervise')->insert([
+               'user_id' => $main_user2,
+               'supervise_id' => $sup1,
+            ]);
+            
+            $main_user3 = DB::table('dx_users')->insertGetId([
+                'first_name' => 'Sanita',
+                'last_name' => 'Medne',
+                'person_code' => rand('100000', '999999'),
+                'is_role_coordin_main' => 1,
+                'password' => '$2y$10$S803OIF2qhP8ZliilBZI9eYGCMXhhvAkiWuXXcG3J.Pp2hnImjv2q',
+                'login_name' => 'sanita.medne@vas.gov.lv',
+                'email' => 'sanita.medne@vas.gov.lv'
+            ]);
+            
+            DB::table('edu_orgs_users')->insert([
+                'user_id' => $main_user3,
+                'org_id' => $main_org,
+                'job_title' => 'Mācību koordinators Eiropas fondu projektā K',
+                'email' => 'sanita.medne@vas.gov.lv',
+                'phone' => '(+371) 67821285'
+            ]);
+            
+            DB::table('dx_users_roles')->insert([
+                'role_id' => self::ROLE_MAIN,
+                'user_id' => $main_user3,
+            ]);
+            
+            DB::table('dx_users_supervise')->insert([
+               'user_id' => $main_user3,
+               'supervise_id' => $sup1,
+            ]);
+            
+            $main_user4 = DB::table('dx_users')->insertGetId([
+                'first_name' => 'Līga',
+                'last_name' => 'Griķe',
+                'person_code' => rand('100000', '999999'),
+                'is_role_coordin_main' => 1,
+                'password' => '$2y$10$S803OIF2qhP8ZliilBZI9eYGCMXhhvAkiWuXXcG3J.Pp2hnImjv2q',
+                'login_name' => 'liga.grike@vas.gov.lv',
+                'email' => 'liga.grike@vas.gov.lv'
+            ]);
+            
+            DB::table('edu_orgs_users')->insert([
+                'user_id' => $main_user4,
+                'org_id' => $main_org,
+                'job_title' => 'Mācību koordinators VAS pamatapmācību departamentā',
+                'email' => 'liga.grike@vas.gov.lv',
+                'phone' => '(+371) 67229770'
+            ]);
+            
+            DB::table('dx_users_roles')->insert([
+                'role_id' => self::ROLE_MAIN,
+                'user_id' => $main_user4,
+            ]);
+            
+            DB::table('dx_users_supervise')->insert([
+               'user_id' => $main_user4,
+               'supervise_id' => $sup1,
+            ]);
             // ---- End main coordinators
-            
-            // Orgs coordinators
-            $org_user1 = DB::table('dx_users')->insertGetId([
-                'first_name' => 'Māris',
-                'last_name' => 'Ozoliņš',
-                'person_code' => rand('100000', '999999'),
-                'is_role_coordin' => 1,
-                'password' => '$2y$10$S803OIF2qhP8ZliilBZI9eYGCMXhhvAkiWuXXcG3J.Pp2hnImjv2q',
-                'login_name' => 'maris',
-            ]);
-            
-            DB::table('edu_orgs_users')->insert([
-                'user_id' => $org_user1,
-                'org_id' => $stud_org,
-                'job_title' => 'Iestādes mācību koordinators',
-            ]);
-            
-            DB::table('dx_users_roles')->insert([
-                'role_id' => self::ROLE_ORG,
-                'user_id' => $org_user1,
-            ]);
-            // ---- End org coordinators
-            
-            // Teachers
-            $teach1 = DB::table('dx_users')->insertGetId([
-                'first_name' => 'Jānis',
-                'last_name' => 'Kalniņš',
-                'person_code' => rand('100000', '999999'),
-                'is_role_teacher' => 1,
-                'password' => '$2y$10$S803OIF2qhP8ZliilBZI9eYGCMXhhvAkiWuXXcG3J.Pp2hnImjv2q',
-                'login_name' => 'janis',
-            ]);
-            
-            DB::table('edu_orgs_users')->insert([
-                'user_id' => $teach1,
-                'org_id' => $teach_org,
-                'job_title' => 'Ekonomikas pasniedzējs',
-            ]);
-            
-            DB::table('dx_users_roles')->insert([
-                'role_id' => self::ROLE_TEACH,
-                'user_id' => $teach1,
-            ]);
-            
-            $teach2 = DB::table('dx_users')->insertGetId([
-                'first_name' => 'Aija',
-                'last_name' => 'Bērziņa',
-                'person_code' => rand('100000', '999999'),
-                'is_role_teacher' => 1,
-                'password' => '$2y$10$S803OIF2qhP8ZliilBZI9eYGCMXhhvAkiWuXXcG3J.Pp2hnImjv2q',
-                'login_name' => 'aija',
-            ]);
-            
-            DB::table('edu_orgs_users')->insert([
-                'user_id' => $teach2,
-                'org_id' => $teach_org,
-                'job_title' => 'Matemātikas pasniedzējs',
-            ]);
-            
-            DB::table('dx_users_roles')->insert([
-                'role_id' => self::ROLE_TEACH,
-                'user_id' => $teach2,
-            ]);
-            // ---- End teachers
-            
-            // Students
-            $student1 = DB::table('dx_users')->insertGetId([
-                'first_name' => 'Mērija',
-                'last_name' => 'Kociņa',
-                'person_code' => rand('100000', '999999'),
-                'is_role_student' => 1,
-                'password' => '$2y$10$S803OIF2qhP8ZliilBZI9eYGCMXhhvAkiWuXXcG3J.Pp2hnImjv2q',
-                'login_name' => 'merija',
-            ]);
-            
-            DB::table('edu_orgs_users')->insert([
-                'user_id' => $student1,
-                'org_id' => $stud_org,
-                'job_title' => 'Lietvede',
-            ]);
-            
-            DB::table('edu_orgs_users')->insert([
-                'user_id' => $student1,
-                'org_id' => $stud_org2,
-                'job_title' => 'Lietvede',
-            ]);
-            
-            DB::table('dx_users_roles')->insert([
-                'role_id' => self::ROLE_STUD,
-                'user_id' => $student1,
-            ]);
-            
-            $student2 = DB::table('dx_users')->insertGetId([
-                'first_name' => 'Maija',
-                'last_name' => 'Evere',
-                'person_code' => rand('100000', '999999'),
-                'is_role_student' => 1,
-                'password' => '$2y$10$S803OIF2qhP8ZliilBZI9eYGCMXhhvAkiWuXXcG3J.Pp2hnImjv2q',
-                'login_name' => 'maija',
-            ]);
-            
-            DB::table('edu_orgs_users')->insert([
-                'user_id' => $student2,
-                'org_id' => $stud_org,
-                'job_title' => 'Galvenā grāmatvede',
-            ]);
-            
-            DB::table('dx_users_roles')->insert([
-                'role_id' => self::ROLE_STUD,
-                'user_id' => $student2,
-            ]);
-            
-            $student3 = DB::table('dx_users')->insertGetId([
-                'first_name' => 'Līvija',
-                'last_name' => 'Kalniņa',
-                'person_code' => rand('100000', '999999'),
-                'is_role_student' => 1,
-                'password' => '$2y$10$S803OIF2qhP8ZliilBZI9eYGCMXhhvAkiWuXXcG3J.Pp2hnImjv2q',
-                'login_name' => 'livija',
-            ]);
-            
-            DB::table('edu_orgs_users')->insert([
-                'user_id' => $student3,
-                'org_id' => $stud_org2,
-                'job_title' => 'Galvenā ekonomiste',
-            ]);
-            
-            DB::table('dx_users_roles')->insert([
-                'role_id' => self::ROLE_STUD,
-                'user_id' => $student3,
-            ]);
-            // ---- End students
             
             // Programms and subjects
             $progr1 = DB::table('edu_programms')->insertGetId([
@@ -294,50 +213,8 @@ class EduSeeder extends Seeder
                 'title' => 'Franču valoda',
                 'code' => 'F',
                 'is_published' => 1,
-                'dx_supervise_id' => $sup2,
+                'dx_supervise_id' => $sup1,
             ]);
-            
-            $module1 = DB::table('edu_modules')->insertGetId([
-                'title' => 'Saziņa ar sabiedrību, komunikācija un prasmju pilnveide valsts pārvaldē',
-                'code' => 'G',
-                'programm_id' => $progr3,
-                'is_published' => 1
-            ]);
-            
-            $subj1 = DB::table('edu_subjects')->insertGetId([
-                'title' => 'Efektīva komandas sadarbība',
-                'subject_type_id' => 1,
-                'avail_id' => 1,
-                'module_id' => $module1,
-                'subject_code' => 'A1',
-                'is_published' => 1,
-            ]);
-            
-            $subj2 = DB::table('edu_subjects')->insertGetId([
-                'title' => 'Efektīva sanāksmju vadīšana',
-                'subject_type_id' => 1,
-                'avail_id' => 1,
-                'module_id' => $module1,
-                'subject_code' => 'A2',
-                'is_published' => 1,
-            ]);
-            
-            $subj3 = DB::table('edu_subjects')->insertGetId([
-                'title' => 'Stratēģija – tās izstrāde un ieviešana',
-                'subject_type_id' => 1,
-                'avail_id' => 1,
-                'module_id' => $module1,
-                'subject_code' => 'A3',
-                'is_published' => 1,
-            ]);
-            
-            $subj4 = DB::table('edu_subjects_groups')->insertGetId([                
-                'subject_id' => $subj3,                
-                'seats_limit' => 20,
-                'signup_due' => '2018-05-19',
-                'is_published' => 1,
-            ]);
-            // ---- End programms and subjects
             
             $this->rolesLists();
         });
@@ -350,22 +227,32 @@ class EduSeeder extends Seeder
         $this->addRoleListFull(trans('db_dx_users.list_title_serv'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_dx_users.list_title_student'), self::ROLE_MAIN);  
         $this->addRoleListEditSelf(trans('db_dx_users.list_title_profile'), self::ROLE_MAIN, 'id');
-        $this->addRoleListFull(trans('db_edu_orgs.list_name'), self::ROLE_MAIN);
-        $this->addRoleListFull(trans('db_edu_orgs_users.list_name'), self::ROLE_MAIN);
+        
+        
         $this->addRoleListFull(trans('db_edu_certif.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_programms.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_modules.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_subjects.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull('Testi', self::ROLE_MAIN);
+        
+        // Classifiers
         $this->addRoleListFull(trans('db_edu_activities.list_name'), self::ROLE_MAIN);
-        $this->addRoleListFull(trans('db_dx_icons_files.list_name'), self::ROLE_MAIN);
-        $this->addRoleListFull(trans('db_in_tests_types.list_name'), self::ROLE_MAIN);
-        $this->addRoleListFull(trans('db_edu_subjects_types.list_name'), self::ROLE_MAIN);        
-        $this->addRoleListFull(trans('db_edu_orgs_types.list_name'), self::ROLE_MAIN);
+        //$this->addRoleListRead(trans('db_dx_icons_files.list_name'), self::ROLE_MAIN);
+        //$this->addRoleListRead(trans('db_in_tests_types.list_name'), self::ROLE_MAIN);
+        //$this->addRoleListRead(trans('db_edu_subjects_types.list_name'), self::ROLE_MAIN);        
+        //$this->addRoleListRead(trans('db_edu_orgs_types.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_dx_regions.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull('Numeratori', self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_banks.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_orgs.list_name'), self::ROLE_MAIN);        
+        $this->addRoleListFull(trans('db_edu_orgs_banks.list_name'), self::ROLE_MAIN);
+        $this->addRoleListFull(trans('db_edu_orgs_users.list_name'), self::ROLE_MAIN);
+        
         $this->addRoleListFull(trans('db_edu_subjects_teachers.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_materials.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_subjects_materials.list_name'), self::ROLE_MAIN);
-        $this->addRoleListFull(trans('db_edu_banks.list_name'), self::ROLE_MAIN);
-        $this->addRoleListFull(trans('db_edu_orgs_banks.list_name'), self::ROLE_MAIN);
+        
+        
         $this->addRoleListFull(trans('db_edu_modules_activities.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_certif_templates.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_modules_students.list_name'), self::ROLE_MAIN);
@@ -405,8 +292,8 @@ class EduSeeder extends Seeder
             'is_edit_rights' => 1,
             'is_delete_rights' => 1,
             'is_new_rights' => 1,
-            'is_import_rights' => 1,
-            'is_view_rights' => 1
+            'is_import_rights' => 0,
+            'is_view_rights' => 0
         ]);
     }
     
