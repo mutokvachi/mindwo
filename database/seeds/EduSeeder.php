@@ -233,7 +233,7 @@ class EduSeeder extends Seeder
         $this->addRoleListFull(trans('db_edu_programms.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_modules.list_name'), self::ROLE_MAIN);
         $this->addRoleListFull(trans('db_edu_subjects.list_name'), self::ROLE_MAIN);
-        $this->addRoleListFull('Testi', self::ROLE_MAIN);
+        $this->addRoleListFull('Anketas un testi', self::ROLE_MAIN);
         
         // Classifiers
         $this->addRoleListFull(trans('db_edu_activities.list_name'), self::ROLE_MAIN);
