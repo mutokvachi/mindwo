@@ -53,6 +53,7 @@ return [
     'import_wrong_bool' => "Importējamajā Excel datnē Jā/Nē laukā '%s' norādīta nekorekta vērtība '%s'! Laukā pieļaujams norādīt tikai vērtības '%s' vai '%s'.",
     
     'import_wrong_date' => "Importējamajā datuma laukā '%s' norādīta nekorekta vērtība '%s'! Datumam jābūt formātā '%s' vai '%s'.",
+    'import_wrong_email' => "Importējamajā e-pasta laukā ':field' norādīta nekorekta vērtība ':val'! E-pastam jābūt formātā 'vards@domens.lv'.",
     
     'excel_row' => 'Dažas Excel rindas netika importētas, jo dublējās reģistra ieraksti. Dublējošo un neimportēto Excel rindu numuri: ',
     
@@ -163,4 +164,6 @@ return [
     'import_several_multival' => "Daudzlīmenu klasifikatorā ':list' ir vairāki ieraksti ':val'! Lūdzu, norādiet klasifikatorā unikālas ierakstu vērtības un atkērtojiet importu.",
     'import_lookup_several' => "Uzmeklēšanas laukam ':fld' nav iespējams viennozīmīgi identificēt vērtību, jo saistītajā reģistrā ':list' atrasti vairāki vienādi ieraksti ':term'.",
     'import_lookup_no_field' => "Reģistrā ':list' nav definēts lauks ':fld'!",
+    
+    'not_valid_email' => "Norādītā e-pasta adrese ':email' ir nekorekta! E-pasta adresei jābūt formātā 'vards@domens.lv'.",
 ];

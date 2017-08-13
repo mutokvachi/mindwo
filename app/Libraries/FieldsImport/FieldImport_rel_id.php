@@ -90,11 +90,11 @@ namespace App\Libraries\FieldsImport
             // Check rights on list
             \App\Libraries\Helper::checkSaveRights($this->fld->rel_list_id, 1);
             
-            $arr_val = [];
-            
-            if ($this->fld->rel_list_id == Config::get('dx.employee_list_id')) {
-                // split full name into First name and Last name
-                $val_formated = trim(str_replace("  ", " ", $val));
+            $arr_val = \App\Libraries\DBHelper::getRegisterFieldsPredefined($this->fld->rel_list_id);
+                        
+            if ($this->fld->rel_table_name == 'dx_users') {
+                // split full name (vs or without person code) into First name and Last name (and person code if provided)
+                $val_formated = trim(str_replace("  ", " ", $val)); 
                 $arr_names = explode(" ", $val_formated);
                 
                 if (count($arr_names) == 2) {
@@ -104,8 +104,15 @@ namespace App\Libraries\FieldsImport
                 else if (count($arr_names) > 2) {
                     $arr_val['first_name'] = $arr_names[0];
                     $arr_val['last_name'] = $arr_names[1];
+                    
                     for ($i=2; $i<count($arr_names); $i++) {
-                        $arr_val['last_name'] .= " " . $arr_names[$i];
+                        if ($i == (count($arr_names) - 1) && $this->hasNumber($val)) {
+                            // the last portion of string is person code because it contains numbers
+                            $arr_val['person_code'] = $arr_names[$i];
+                        } 
+                        else {
+                            $arr_val['last_name'] .= " " . $arr_names[$i];
+                        }
                     }
                 }
                 else {
@@ -191,6 +198,15 @@ namespace App\Libraries\FieldsImport
             $sql = $sql . " AND txt = :" . $field_item->rel_field_name . " ORDER BY txt ASC";
             
             return $sql;
+        }
+
+        /**
+         * Checks if given string contains at least 1 number
+         * @param string $text String to be checked for numbers
+         * @return boolean True if have at least 1 number
+         */
+        private function hasNumber($text) {
+            return preg_match("/\d/", $text) > 0;
         }
 
     }
