@@ -185,6 +185,34 @@ class EduSeeder extends Seeder
                'user_id' => $main_user4,
                'supervise_id' => $sup1,
             ]);
+            
+            $main_user5 = DB::table('dx_users')->insertGetId([
+                'first_name' => 'Agile',
+                'last_name' => 'Agile',
+                'person_code' => rand('100000', '999999'),
+                'is_role_coordin_main' => 1,
+                'password' => '$2y$10$S803OIF2qhP8ZliilBZI9eYGCMXhhvAkiWuXXcG3J.Pp2hnImjv2q',
+                'login_name' => 'info@agile.lv',
+                'email' => 'info@agile.lv'
+            ]);
+            
+            DB::table('edu_orgs_users')->insert([
+                'user_id' => $main_user5,
+                'org_id' => $main_org,
+                'job_title' => 'Testēšanas amats',
+                'email' => 'info@agile.lv',
+                'mobile' => '(+371) 26321422'
+            ]);
+            
+            DB::table('dx_users_roles')->insert([
+                'role_id' => self::ROLE_MAIN,
+                'user_id' => $main_user5,
+            ]);
+            
+            DB::table('dx_users_supervise')->insert([
+               'user_id' => $main_user5,
+               'supervise_id' => $sup1,
+            ]);
             // ---- End main coordinators
             
             // Programms and subjects
