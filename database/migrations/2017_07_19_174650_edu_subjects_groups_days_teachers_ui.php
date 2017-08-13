@@ -48,7 +48,7 @@ class EduSubjectsGroupsDaysTeachersUi extends EduMigration
                    
             // fix teachers related grid ID
             $teacher_list = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_teacher'))->first();            
-            $teacher_display = DB::table('dx_lists_fields')->where('list_id', '=', $teacher_list->id)->where('db_name', '=', 'display_name')->first();
+            $teacher_display = DB::table('dx_lists_fields')->where('list_id', '=', $teacher_list->id)->where('db_name', '=', 'full_name_code')->first();
             
             DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'teacher_id')->update([
                 'rel_list_id' => $teacher_list->id,

@@ -66,6 +66,11 @@ namespace App\Libraries
          * Reģistra lauka tips - datums (no tabulas dx_field_types)
          */
         const FIELD_TYPE_DATE = 9;
+        
+        /**
+         * Register field type - HTML text (from table dx_field_types)
+         */
+        const FIELD_TYPE_HTML = 10;
 
         /**
          * Register field type - file (from table dx_field_types)

@@ -81,6 +81,12 @@ return [
     'education' => 'Izglītība', 
     'additional_info' => 'Papildus informācija',
     
+    // hints
+    'introduction_hint' => 'Norāda vispārīgu aprakstu par pasniedzēju, kas publiskajā portālā tiks attēlots kā pirmā rindkopa uzreiz aiz pasniedzēja fotogrāfijas.',
+    'experience_hint' => 'Norāda pasniedzēja darba pieredzes aprakstu kā arī pieredzi mācību pasniegšanā, ja tāda ir.',
+    'education_hint' => 'Norāda informāciju par pasniedzēja izglītību - absolvētās universitātes, iegūtie grādi, sertifikāti u.c.',
+    'additional_info_hint' => 'Norāda papildus informāciju par pasniedzēja sasniegumiem, piemēram, publikācijas, apbalvojumi, sarakstītās grāmatas u.c.',
+    
     // views
     'view_related' => 'Skats saistītajiem ierakstiem',
     
@@ -92,4 +98,5 @@ return [
     'tab_general' => 'Kontakti',
     'tab_bank' => 'Bankas konts',
     'tab_certif' => 'Apmeklētie kursi',
+    'tab_description' => 'Apraksts',
 ];

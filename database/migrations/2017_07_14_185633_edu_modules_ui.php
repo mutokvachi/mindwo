@@ -75,8 +75,7 @@ class EduModulesUi extends EduMigration
             
             App\Libraries\DBHelper::updateFormField($list_id, "programm_id", ['tab_id' => $tab_main_id, 'row_type_id' => 2]);
             App\Libraries\DBHelper::updateFormField($list_id, "code", ['tab_id' => $tab_main_id, 'row_type_id' => 2]);
-            
-            App\Libraries\DBHelper::updateFormField($list_id, "avail_id", ['tab_id' => $tab_main_id]);            
+                                    
             App\Libraries\DBHelper::updateFormField($list_id, "icon_id", ['tab_id' => $tab_main_id, 'row_type_id' => 2]);
             App\Libraries\DBHelper::updateFormField($list_id, "is_published", ['tab_id' => $tab_main_id, 'row_type_id' => 2]);
             
@@ -86,16 +85,25 @@ class EduModulesUi extends EduMigration
             App\Libraries\DBHelper::updateFormField($list_id, "cert_numerator_id", ['tab_id' => $tab_tests_id, 'row_type_id' => 2]);
             App\Libraries\DBHelper::updateFormField($list_id, "subj_quota_percent", ['tab_id' => $tab_tests_id, 'row_type_id' => 2]);
             
-            App\Libraries\DBHelper::removeFieldsFromAllViews($list_id, [                
-                'avail_id',
+            App\Libraries\DBHelper::removeFieldsFromAllViews($list_id, [
                 'icon_id',
                 'description',                
                 'qualify_test_id',
                 'cert_numerator_id',
             ], false);
             
-            DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'subj_quota_percent')->update([
+            DB::table('dx_lists_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('db_name', '=', 'subj_quota_percent')
+                    ->update([
                 'hint' => trans('db_' . $this->table_name . '.subj_quota_percent_hint')
+            ]);
+            
+            DB::table('dx_lists_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('db_name', '=', 'icon_id')
+                    ->update([
+                'hint' => trans('db_' . $this->table_name . '.icon_id_hint')
             ]);
             
         });

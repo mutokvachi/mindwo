@@ -27,24 +27,22 @@ class EduSubjectsCreate extends Migration
             
             $table->integer('module_id')->unsigned()->comment = trans('db_' . $this->table_name.'.module_id');            
             $table->string('subject_code', 5)->comment = trans('db_' . $this->table_name.'.subject_code');            
-            $table->integer('credit_points')->nullable()->default(0)->comment = trans('db_' . $this->table_name.'.credit_points');
+            
             $table->boolean('is_org_approve_need')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_org_approve_need'); 
             $table->boolean('is_published')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_published');
-            
-            $table->boolean('is_fee')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_fee');
+                        
+            $table->decimal('price_for_student', 7, 2)->nullable()->default(0)->comment = trans('db_' . $this->table_name.'.price_for_student');
             $table->decimal('price_for_teacher', 7, 2)->nullable()->default(0)->comment = trans('db_' . $this->table_name.'.price_for_teacher');
             $table->decimal('price_for_rooms', 7, 2)->nullable()->default(0)->comment = trans('db_' . $this->table_name.'.price_for_rooms');            
-                        
-            $table->text('description')->nullable()->comment = trans('db_' . $this->table_name.'.description');
+             
             $table->string('learning_url', 1000)->nullable()->comment = trans('db_' . $this->table_name.'.learning_url');
                         
             $table->integer('subject_pretest_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.subject_pretest_id');
             $table->boolean('is_subj_qual_test_ok_need')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_subj_qual_test_ok_need');
             $table->boolean('is_progr_qual_test_ok_need')->nullable()->default(false)->comment = trans('db_' . $this->table_name.'.is_progr_qual_test_ok_need');
-                       
+            $table->integer('subject_end_test_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.subject_end_test_id');
             $table->integer('cert_numerator_id')->nullable()->comment = trans('db_' . $this->table_name.'.cert_numerator_id');
-            
-            
+                        
             $table->index('avail_id');            
             $table->foreign('avail_id')->references('id')->on('edu_modules_avail');
             
@@ -56,6 +54,9 @@ class EduSubjectsCreate extends Migration
                         
             $table->index('subject_pretest_id');            
             $table->foreign('subject_pretest_id')->references('id')->on('in_tests');
+            
+            $table->index('subject_end_test_id');            
+            $table->foreign('subject_end_test_id')->references('id')->on('in_tests');
             
             $table->index('cert_numerator_id');            
             $table->foreign('cert_numerator_id')->references('id')->on('dx_numerators');

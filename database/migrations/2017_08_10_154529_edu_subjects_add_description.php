@@ -2,9 +2,8 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use App\Libraries\Structure\EduMigration;
 
-class EduSubjectsAddDescription extends EduMigration
+class EduSubjectsAddDescription extends Migration
 {
     private $table_name = "edu_subjects";
 
@@ -13,7 +12,7 @@ class EduSubjectsAddDescription extends EduMigration
      *
      * @return void
      */
-    public function edu_up()
+    public function up()
     {
         Schema::table($this->table_name, function (Blueprint $table) {
             $table->text('purpose')->nullable()->comment = trans('db_' . $this->table_name.'.purpose');
@@ -34,7 +33,7 @@ class EduSubjectsAddDescription extends EduMigration
      *
      * @return void
      */
-    public function edu_down()
+    public function down()
     {
         Schema::table($this->table_name, function (Blueprint $table) {
             $table->dropForeign(['coordinator_id']);

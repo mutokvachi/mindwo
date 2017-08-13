@@ -14,12 +14,8 @@ return [
         
     'values' => [
         [
-            'title' => 'Publiska - visiem lietotājiem',
+            'title' => 'Visiem lietotājiem',
             'code' => 'PUBLIC'
-        ],
-        [
-            'title' => 'Autentificētiem lietotājiem',
-            'code' => 'AUTH_ALL'
         ],
         [
             'title' => 'Valsts pārvaldes darbiniekiem',
