@@ -712,6 +712,30 @@ namespace App\Libraries
             
         }
         
+         /**
+         * Returns array with register pre-defined fields values for inserting in db
+         * Registers could have low level WHERE criteria set for several fields - in order to organize user rights
+         * 
+         * @param integer $list_id Register ID
+         * @param array $save_arr Saving array
+         * @return array
+         */
+        public static function getRegisterFieldsPredefined($list_id) {
+            // fill register level fields values
+            $flds = DB::table('dx_lists_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('operation_id', '=', 1)
+                    ->whereNotNull('default_value')
+                    ->get();
+            
+            $save_arr = [];
+            foreach($flds as $fld) {
+                $save_arr[$fld->db_name] = $fld->default_value;
+            }
+            
+            return $save_arr;
+        }
+        
     }
 
 }
