@@ -23,6 +23,11 @@
               {{ trans('constructor.next') }} <i class="fa fa-arrow-right"></i>
             @endif
           </button>
+          @if($step == 'workflows')
+            <button id="save_step" type="button" class="btn btn-primary dx-wizard-btn pull-right">
+              {{ trans('constructor.save') }}
+            </button>
+          @endif
         </div>
       </div>
     </div>

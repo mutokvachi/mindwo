@@ -1226,6 +1226,17 @@ Module.create('ConstructorWizard', {
 			window.location = self.getPrevUrl();
 		});
 		
+		this.root.on('click', '#save_step', function()
+		{
+			if($.isFunction(self[submitName]))
+			{
+				self[submitName](function()
+				{
+					toastr.success(Lang.get('constructor.save_success'));
+				});
+			}
+		});
+		
 		// Advanced settings button on the top of the page
 		$('.dx-adv-btn').click(function()
 		{
@@ -1609,7 +1620,7 @@ Module.create('ConstructorWizard', {
 	/**
 	 * Saves workflow data
 	 */
-	submit_workflows: function()
+	submit_workflows: function(onSuccess)
 	{
 		var self = this;
 		
@@ -1619,9 +1630,13 @@ Module.create('ConstructorWizard', {
 			
 			workflow.saveCallback = function()
 			{
-				if(workflow.isGraphInit)
+				if($.isFunction(onSuccess))
 				{
-					//window.location = self.getNextUrl();
+					onSuccess();
+				}
+				else if(workflow.isGraphInit)
+				{
+					window.location = self.getNextUrl();
 				}
 			};
 			
@@ -1629,7 +1644,7 @@ Module.create('ConstructorWizard', {
 		}
 		else
 		{
-			//window.location = self.getNextUrl();
+			window.location = self.getNextUrl();
 		}
 	}
 });
