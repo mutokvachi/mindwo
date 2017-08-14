@@ -1621,7 +1621,7 @@ Module.create('ConstructorWizard', {
 			{
 				if(workflow.isGraphInit)
 				{
-					//window.location = self.getNextUrl();
+					window.location = self.getNextUrl();
 				}
 			};
 			
@@ -1629,7 +1629,7 @@ Module.create('ConstructorWizard', {
 		}
 		else
 		{
-			//window.location = self.getNextUrl();
+			window.location = self.getNextUrl();
 		}
 	}
 });
