@@ -87,6 +87,15 @@ class Subject extends Model
     }
 
     /**
+     * Subject coordinator
+     * @return \App\User
+     */
+    public function coordinator()
+    {
+        return $this->belongsTo('\App\Models\Education\OrgUser', 'coordinator_id', 'user_id');
+    }
+
+    /**
      * User who last created record
      * @return \App\User
      */

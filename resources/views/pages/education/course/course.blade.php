@@ -37,7 +37,7 @@
                     <a href="#dx-edu-course-tab-time" data-toggle="tab"> Laiks, ilgums, cena </a>
                 </li>
                 <li>
-                    <a href="#dx-edu-course-tab-teachers" data-toggle="tab"> Pasniedzējs </a>
+                    <a href="#dx-edu-course-tab-teachers" data-toggle="tab"> Pasniedzēji </a>
                 </li>
                 <li>
                     <a href="#dx-edu-course-tab-contact" data-toggle="tab"> Kontakti </a>
