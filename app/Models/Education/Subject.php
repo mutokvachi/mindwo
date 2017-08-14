@@ -3,6 +3,8 @@
 namespace App\Models\Education;
 
 use Illuminate\Database\Eloquent\Model;
+use DB;
+use Carbon\Carbon;
 
 class Subject extends Model
 {
@@ -26,9 +28,62 @@ class Subject extends Model
         'modified_time'
     ];
 
+    /**
+     * Related education module
+     *
+     * @return \App\Models\Education\Module
+     */
     public function module()
     {
         return $this->belongsTo('\App\Models\Education\Module', 'module_id');
+    }
+
+    /**
+     * All teachers for specified subject
+     *
+     * @return \App\User
+     */
+    public function teachers()
+    {
+        return $this->belongsToMany('\App\User', 'edu_subjects_teachers', 'subject_id', 'teacher_id');
+    }
+
+    /**
+     * Return all available published groups
+     *
+     * @return \App\Models\Education\SubjectGroup
+     */
+    public function avaliableGroups()
+    {
+        return $this->hasMany('\App\Models\Education\SubjectGroup', 'subject_id')
+            ->where(function ($query) {
+                $query->where('edu_subjects_groups.signup_due', '>=', Carbon::today()->toDateString());
+                $query->orWhereNull('edu_subjects_groups.signup_due');
+            })
+            ->where('edu_subjects_groups.is_published', 1);
+    }
+
+    /**
+     * Gets info about availability is_not_full and group_count
+     *
+     * @return object
+     */
+    public function getAvailability()
+    {
+         $res = DB::table('edu_subjects AS sub')
+            ->selectRaw(DB::raw('SUM((SELECT COUNT(*) FROM edu_subjects_groups_members grm WHERE grm.group_id = gr.id) < gr.seats_limit) as is_not_full,
+                COUNT(gr.id) group_count'
+                ))
+            ->leftJoin('edu_subjects_groups AS gr', 'sub.id', '=', 'gr.subject_id')
+            ->where(function ($query) {
+                $query->where('gr.signup_due', '>=', Carbon::today()->toDateString());
+                $query->orWhereNull('gr.signup_due');
+            })
+            ->where('sub.id', $this->id)
+            ->groupBy('sub.id')
+            ->first();
+
+        return $res;
     }
 
     /**

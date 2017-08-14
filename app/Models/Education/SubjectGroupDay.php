@@ -28,6 +28,26 @@ class SubjectGroupDay extends Model
     ];
 
     /**
+     * Specified room
+     *
+     * @return \App\Models\Education\Room
+     */
+    public function room()
+    {
+        return $this->belongsTo('\App\Models\Education\Room', 'room_id');
+    }
+
+    /**
+     * All teachers at specified day
+     *
+     * @return \App\User
+     */
+    public function teachers()
+    {
+        return $this->belongsToMany('\App\User', 'edu_subjects_groups_days_teachers', 'group_day_id', 'teacher_id');
+    }
+
+    /**
      * User who last created record
      * @return \App\User
      */

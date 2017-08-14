@@ -35,6 +35,8 @@ return [
     'topics' => 'Tēmas', 
     'benefits' => 'Dalībnieku ieguvumi',
     'coordinator_id' => 'Koordinators',
+    'price' => 'Cena',
+    'duration' => 'Ilgums',
     
     // tabs
     'tab_main' => 'Pamatdati',
