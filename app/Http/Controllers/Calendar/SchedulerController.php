@@ -406,10 +406,12 @@ class SchedulerController extends Controller
     }
     
     /**
-     * Prepares events and coffee pauses array
+     * Prepares events and coffee pauses array - used for calendar JSON feed
      * 
      * @param integer $current_room_id Room ID, 0 for all rooms
-     * @return array Events and coffee pauses rows array
+     * @param string $start Start date in format yyyy-mm-dd
+     * @param string $end End date in format yyyy-mm-dd
+     * @return array Events and coffee pauses rows array for given date interval
      */
     private function getEvents($current_room_id, $start, $end) {
         
