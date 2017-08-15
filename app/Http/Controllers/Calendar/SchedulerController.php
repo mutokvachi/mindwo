@@ -74,7 +74,10 @@ class SchedulerController extends Controller
     private $new_cofee_id = 0;
     
     /**
-     * Returns scheduler page
+     * Get scheduler page UI
+     * 
+     * @param integer $current_room_id Room ID or 0 for all rooms
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function getSchedulerPage($current_room_id)
     {
@@ -88,15 +91,54 @@ class SchedulerController extends Controller
             'days_list_id' => $this->days_list_id,
             'rooms_list_id' => $this->rooms_list_id,
             'coffee_list_id' => $this->coffee_list_id,
-            'subjects' => DB::table('edu_subjects')->orderBy('title')->get(),
-            'groups' => DB::table('edu_subjects_groups')->where('is_published', '=', 0)->orderBy('id')->get(),
+            'subjects' => $this->getSubjects(),
+            'groups' => $this->getGroups(),
             'rooms' => $rooms,
             'rooms_cbo' => $this->getCboRooms($rooms),
-            'events' => $this->getEvents($current_room_id),
             'current_room_id' => $current_room_id
         ]);
     }
     
+    /**
+     * Return all data in JSON arrays used for scheduler
+     * This is used to refresh scheduler UI if related data is updated via AJAX
+     * 
+     * @param integer $current_room_id Room ID
+     * @return \Illuminate\Http\JsonResponse Returns all data arrays in JSON
+     */
+    public function getSchedulerJSON($current_room_id) {
+        $this->checkRights();
+        
+        $rooms = $this->getRooms();
+        
+        return response()->json([
+            'success' => 1, 
+            'subjects' => json_encode($this->getSubjects()),
+            'groups' => json_encode($this->getGroups()),
+            'rooms' => json_encode($rooms),
+            'rooms_cbo' => $this->getCboRooms($rooms)
+        ]);
+    }
+    
+     /**
+     * Return events data in JSON arrays used for scheduler
+     * This is used to refresh scheduler UI if related data is updated via AJAX
+     * 
+     * @param integer $current_room_id Room ID
+     * @return \Illuminate\Http\JsonResponse Returns all data arrays in JSON
+     */
+    public function getSchedulerEventsJSON($current_room_id, Request $request) {
+        $this->checkRights();
+        
+        return json_encode($this->getEvents($current_room_id, $request->input('start'), $request->input('end')), JSON_UNESCAPED_UNICODE);
+    }
+    
+    /**
+     * Creates new group for given subject, room and start/end times
+     * 
+     * @param \Illuminate\Http\Request $request POST request
+     * @return \Illuminate\Http\JsonResponse Returns created items IDs as JSON
+     */
     public function createNewGroup(Request $request) {
         $this->validate($request, [
             'subject_id' => 'required|integer|exists:edu_subjects,id',
@@ -149,6 +191,12 @@ class SchedulerController extends Controller
         ]);
     }
     
+    /**
+     * Update existing day start/end times and/or changes allocated room
+     * 
+     * @param \Illuminate\Http\Request $request POST request
+     * @return \Illuminate\Http\JsonResponse Returns success status
+     */
     public function updateDay(Request $request) {
         $this->validate($request, [
             'day_id' => 'required|integer|exists:edu_subjects_groups_days,id',
@@ -194,6 +242,12 @@ class SchedulerController extends Controller
         ]);
     }
     
+    /**
+     * Creates new day for given group, room and start/end times
+     * 
+     * @param \Illuminate\Http\Request $request POST request
+     * @return \Illuminate\Http\JsonResponse Returns created day ID in JSON
+     */
     public function newDay(Request $request) {
         $this->validate($request, [
             'group_id' => 'required|integer|exists:edu_subjects_groups,id',
@@ -222,6 +276,12 @@ class SchedulerController extends Controller
         ]);
     }
     
+    /**
+     * Creates new coffee pause record for given room and start/end times
+     * 
+     * @param \Illuminate\Http\Request $request POST request
+     * @return \Illuminate\Http\JsonResponse Returns created coffee pause ID and associated subject, group and day IDs in JSON
+     */
     public function newCoffee(Request $request) {
         $this->validate($request, [            
             'start_time' => 'required',
@@ -267,6 +327,12 @@ class SchedulerController extends Controller
         ]);
     }
     
+    /**
+     * Updates existing coffee pause record
+     * 
+     * @param \Illuminate\Http\Request $request POST request
+     * @return \Illuminate\Http\JsonResponse Returns coffee pause ID and associated subject, group and day IDs in JSON
+     */
     public function updateCoffee(Request $request) {
         $this->validate($request, [  
             'coffee_id' => 'required|integer|exists:edu_subjects_groups_days_pauses,id',
@@ -316,7 +382,36 @@ class SchedulerController extends Controller
         ]);
     }
     
-    private function getEvents($current_room_id) {
+    /**
+     * Prepares array with subjects
+     * 
+     * @return array
+     */
+    private function getSubjects() {
+        return DB::table('edu_subjects')
+                ->orderBy('title')
+                ->get();
+    }
+    
+    /**
+     * Prepares array with groups 
+     * 
+     * @return array
+     */
+    private function getGroups() {
+        return DB::table('edu_subjects_groups')
+                ->where('is_published', '=', 0)
+                ->orderBy('id')
+                ->get();
+    }
+    
+    /**
+     * Prepares events and coffee pauses array
+     * 
+     * @param integer $current_room_id Room ID, 0 for all rooms
+     * @return array Events and coffee pauses rows array
+     */
+    private function getEvents($current_room_id, $start, $end) {
         
         $coffee = DB::table('edu_subjects_groups_days_pauses as c')
                     ->select(
@@ -337,6 +432,7 @@ class SchedulerController extends Controller
                             $query->where('d.room_id', '=', $current_room_id);
                         }
                     })
+                    ->whereBetween('d.lesson_date', [$start, $end])
                     ->join('edu_subjects_groups_days as d', 'c.group_day_id', '=', 'd.id')
                     ->join('edu_subjects_groups as g', 'd.group_id', '=', 'g.id');
         
@@ -359,12 +455,18 @@ class SchedulerController extends Controller
                         $query->where('d.room_id', '=', $current_room_id);
                     }
                 })
+                ->whereBetween('d.lesson_date', [$start, $end])
                 ->join('edu_subjects_groups as g', 'd.group_id', '=', 'g.id')
                 ->union($coffee)
                 ->orderBy('start')
                 ->get();
     }
     
+    /**
+     * Prepares rooms array
+     * 
+     * @return array Rooms
+     */
     private function getRooms() {
         
         return DB::table('edu_rooms as r')
@@ -374,6 +476,12 @@ class SchedulerController extends Controller
                     ->get();
     }
     
+    /**
+     * Appends "All rooms" item to rooms array
+     * 
+     * @param array $rooms Rooms array
+     * @return array Rooms array with apended "All rooms" item (with ID = 0)
+     */
     private function getCboRooms($rooms) {
         
         $nt = new stdClass();

@@ -6575,22 +6575,26 @@ detectWarningInContainer = function(containerEl) {
             this.room_id = this.root.data("room-id");
             this.current_date = this.root.data("crrent-date");
             
+            var addSubjToDiv = function(new_id, title) {
+                var n = $("<div>");
+                n.addClass('dx-event');
+                n.attr("data-subject-id", new_id);
+
+                var sp = $("<span>").addClass("dx-item-title").text(title);
+                sp.appendTo(n);                            
+
+                n.appendTo("#external-events");
+                addDr(n);
+            };
+            
             var newSubjectOpen = function() {
                 open_form('form', 0, self.subjects_list_id, 0, 0, "", 1, "", {
                     after_close: function(frm)
                     {
                         var new_id = parseInt(frm.find("[name=item_id]").val());
                         if (new_id > 0 ) {
-                            // add tp container
-                            var n = $("<div>");
-                            n.addClass('dx-event');
-                            n.attr("data-subject-id", new_id);
-                            
-                            var sp = $("<span>").addClass("dx-item-title").text(frm.find("[name=title]").val());
-                            sp.appendTo(n);                            
-                            
-                            n.appendTo("#external-events");
-                            addDr(n);
+                            // add to container
+                            addSubjToDiv(new_id, frm.find("[name=title]").val());
                         }
                     }
                 });
@@ -6974,6 +6978,22 @@ detectWarningInContainer = function(containerEl) {
                 request.doRequest();
             };
             
+            var refreshAllData = function() {                
+                $.getJSON( self.options.root_url + self.options.scheduler_url + "json/" + self.room_id, function( data ) {
+                    $("#external-events").empty();
+                    $.each(JSON.parse(data.subjects), function() {                        
+                        addSubjToDiv(this.id, this.title_full);                       
+                    });
+                    
+                    $("#dx-groups-box").empty();
+                    $.each(JSON.parse(data.groups), function() {                        
+                        newGroupHtml({subj_id: this.subject_id, group_id: this.id, text: this.title});                    
+                    });
+                   
+                    $('#calendar').fullCalendar( 'refetchEvents' );
+                });
+            }
+            
             var cal_tools = 'prev,next,today';
             var def_view = '';
             var rooms_arr = null;
@@ -7075,6 +7095,7 @@ detectWarningInContainer = function(containerEl) {
                                     after_close: function(frm)
                                     {
                                         // ToDo: check if something changed and refresh
+                                        refreshAllData();
                                     }
                                 });
                                 return;
@@ -7084,12 +7105,16 @@ detectWarningInContainer = function(containerEl) {
                                 after_close: function(frm)
                                 {
                                     // ToDo: check if something changed and refresh
+                                    refreshAllData();
                                 }
                             });
                         },
 			resourceGroupField: 'organization',
 			resources: rooms_arr,
-			events: this.root.data('events-json')
+			events: {
+                            url: self.options.root_url + self.options.scheduler_url + "events_json/" + self.room_id,
+                            type: 'GET'
+                        }
             });  
            
             $.contextMenu({

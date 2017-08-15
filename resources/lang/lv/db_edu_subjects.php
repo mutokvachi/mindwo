@@ -12,7 +12,7 @@ return [
     'title_full' => 'Pilnais nosaukums',
     'title' => 'Nosaukums',
     'avail_id' => 'Pieejamība',
-    'subject_code' => 'Kods',
+    'subject_code' => 'Pasākuma kods',
     'subject_type_id' => 'Veids',
     'price_for_student' => 'Mācību maksa, EUR',
     'price_for_teacher' => 'Pasniedzēja izmaksas, EUR',
@@ -34,6 +34,9 @@ return [
     'topics' => 'Tēmas', 
     'benefits' => 'Dalībnieku ieguvumi',
     'coordinator_id' => 'Koordinators',
+    
+    // hints
+    'subject_code_hint' => 'Norāda unikālu pasākuma identifikācijas kodu moduļa ietvaros. Ja laukā netiek norādīta vērtība, tad, saglabājot, sistēma automātiski iestatīs pasākuma kodu atbilstoši pasākumu skaitam modulī.',
     
     // tabs
     'tab_main' => 'Pamatdati',
