@@ -6576,6 +6576,7 @@ detectWarningInContainer = function(containerEl) {
             this.current_date = this.root.data("crrent-date");
             
             var addSubjToDiv = function(new_id, title) {
+                //<div class='dx-event' data-subject-id="{{ $subj->id }}"><span class="dx-item-title">{{ $subj->title_full }}</span><a class="pull-right" href="javascript:;"><i class="fa fa-edit dx-subj-edit"></i></a></div>
                 var n = $("<div>");
                 n.addClass('dx-event');
                 n.attr("data-subject-id", new_id);
@@ -6583,6 +6584,8 @@ detectWarningInContainer = function(containerEl) {
                 var sp = $("<span>").addClass("dx-item-title").text(title);
                 sp.appendTo(n);                            
 
+                var a = $("<a class='pull-right dx-subj-edit' href='javascript:;'><i class='fa fa-edit'></i></a>");
+                a.appendTo(n);
                 n.appendTo("#external-events");
                 addDr(n);
             };
@@ -6610,9 +6613,7 @@ detectWarningInContainer = function(containerEl) {
                     {
                         var new_id = parseInt(frm.find("[name=item_id]").val());
                         if (new_id > 0 ) {
-                            show_page_splash();
-                            $(".dx-stick-footer").removeClass('dx-page-in-edit-mode');
-                            window.location.reload();
+                            refreshAllData();
                         }
                     }
                 });
@@ -6636,7 +6637,7 @@ detectWarningInContainer = function(containerEl) {
                     open_form('form', room_id, self.rooms_list_id, 0, 0, "", 0, "", {
                         after_close: function(frm)
                         {
-                            // ToDo: reload rooms cbo
+                            refreshAllData();
                         }
                     });
                 } 
@@ -6645,46 +6646,6 @@ detectWarningInContainer = function(containerEl) {
                 }
             });
            
-           /*
-            var undo_changes = function() {
-                show_page_splash();
-                $(".dx-stick-footer").removeClass('dx-page-in-edit-mode');
-                window.location.reload();
-            };
-            
-            this.root.find(".dx-undo-btn").click(function() {
-                PageMain.showConfirm(undo_changes, null, Lang.get('constructor.menu.confirm_title'), Lang.get('constructor.menu.confirm_msg'), Lang.get('constructor.menu.confirm_yes'), Lang.get('constructor.menu.confirm_no'), null);
-            });
-            
-            
-            
-            this.root.find(".dx-save-btn").click(function() {
-                var arr = $('#calendar').fullCalendar( 'clientEvents' );
-                arr.forEach(function(el) {
-                    console.log(el.id + "|" + el.title + "|" + el.start + "|" + el.end + "|" + el.resourceId);
-                });
-               
-                return;
-                saveData();
-            });
-            
-            var updateOutput = function (e) {
-                var list = e.length ? e : $(e.target);
-                if (window.JSON) {
-                    self.nodes = window.JSON.stringify(list.nestable('serialize'));                    
-                    $('.dx-stick-footer').addClass('dx-page-in-edit-mode');
-                    self.root.find(".dx-undo-btn").show();
-                } else {
-                    notify_err(Lang.get('constructor.menu.err_json_support'));
-                }
-                
-                $(".dd-item").removeClass("parentError");
-                $(".dd-item").filter(function() {
-                    return $(this).find(".dd-list").length !== 0 && ($(this).attr("data-list-id") != "0" || ($(this).attr("data-url") && $(this).attr("data-url") != "javascript:;"));
-                }).addClass("parentError");
-            };
-            */
-           
             var addDr = function(el, gr) {
                     // store data so the calendar knows to render an event upon drop
                     el.data('event', {
@@ -6692,6 +6653,7 @@ detectWarningInContainer = function(containerEl) {
                             stick: true, // maintain when user navigates (see docs on the renderEvent method)
                             className: (gr) ? gr : '',
                             duration: "02:00",
+                            start: "09:00",
                             dx_subj_id: el.data("subject-id"),
                             dx_group_id: el.data("group-id"),
                             dx_day_id: 0,
@@ -6720,6 +6682,7 @@ detectWarningInContainer = function(containerEl) {
                             open_form('form', el.data("group-id"), self.groups_list_id, 0, 0, "", 0, "", {
                                 after_close: function(frm)
                                 {
+                                    /*
                                     el.attr('data-subject-id', frm.find("[name=subject_id]").val());
                                     el.find(".dx-item-title").text(self.options.group_prefix + el.data("group-id") + ": " + frm.find("[dx_fld_name=subject_id]").val());
                                     
@@ -6733,6 +6696,8 @@ detectWarningInContainer = function(containerEl) {
                                             dx_day_id: 0,
                                             dx_coffee_id: 0,
                                     });
+                                    */
+                                    refreshAllData();
                                 }
                             });
                         });
@@ -6742,6 +6707,7 @@ detectWarningInContainer = function(containerEl) {
                             open_form('form', el.data("subject-id"), self.subjects_list_id, 0, 0, "", 0, "", {
                                 after_close: function(frm)
                                 {
+                                    /*
                                     el.find(".dx-item-title").text(frm.find("[name=title]").val());
                                     
                                     el.data('event', {
@@ -6754,6 +6720,8 @@ detectWarningInContainer = function(containerEl) {
                                             dx_day_id: 0,
                                             dx_coffee_id: 0,
                                     });
+                                    */
+                                    refreshAllData();
                                 }
                             });
                         });
@@ -6769,6 +6737,7 @@ detectWarningInContainer = function(containerEl) {
                         duration: "00:30",
                         className: "cafe",
                         color: "#d6df32",
+                        start: "09:00",
                         dx_subj_id: 0,
                         dx_group_id: 0,
                         dx_day_id: 0,
@@ -6821,6 +6790,9 @@ detectWarningInContainer = function(containerEl) {
                 new_el.addClass('dx-event').addClass('dx-group');
                 new_el.attr("data-subject-id", arr_data.subj_id);
                 new_el.attr("data-group-id", arr_data.group_id);
+                
+                var ch = $("<input type='checkbox'/>");
+                ch.appendTo(new_el);
                 
                 var sp = $("<span class='dx-item-title'></span>");
                 sp.text(arr_data.text);
@@ -6989,14 +6961,17 @@ detectWarningInContainer = function(containerEl) {
                     $.each(JSON.parse(data.groups), function() {                        
                         newGroupHtml({subj_id: this.subject_id, group_id: this.id, text: this.title});                    
                     });
-                   
+                    
+                    $('#calendar').fullCalendar( 'removeEvents');
+                    $('#calendar').fullCalendar( 'removeResources');
+                    $('#calendar').fullCalendar( 'refetchResources' );
                     $('#calendar').fullCalendar( 'refetchEvents' );
                 });
             }
             
             var cal_tools = 'prev,next,today';
             var def_view = '';
-            var rooms_arr = null;
+            //var rooms_arr = null;
             
             if (this.room_id) {
                 cal_tools = cal_tools + ',month,agendaWeek,agendaDay';
@@ -7005,7 +6980,7 @@ detectWarningInContainer = function(containerEl) {
             else {
                 cal_tools = cal_tools + ',timelineDay,timelineThreeDays';
                 def_view = 'timelineThreeDays';
-                rooms_arr = this.root.data('rooms-json');
+                //rooms_arr = this.root.data('rooms-json');
             }
             
             $('#calendar').fullCalendar({
@@ -7019,6 +6994,7 @@ detectWarningInContainer = function(containerEl) {
                         displayEventTime: false,
                         allDaySlot: false,
                         resourceLabelText: "Telpas",
+                        navLinks: true, // can click day/week names to navigate views
 			header: {
 				left: 'title',
                                 center: '',
@@ -7053,7 +7029,11 @@ detectWarningInContainer = function(containerEl) {
                             element.attr('data-day-id', event.dx_day_id);
                             element.attr('data-event-id', event.id);
                             element.attr('data-coffee-id', event.dx_coffee_id);
-                            console.log("element rendered: " + element.html());
+                            
+                            if (event.className == "closed") {
+                                event.overlap = false;
+                            }
+                            
                         },
                         eventReceive : function(event) {                            
                             if (event.className == "cafe") {
@@ -7061,10 +7041,38 @@ detectWarningInContainer = function(containerEl) {
                                 return;
                             }
                             
+                            var view = $('#calendar').fullCalendar('getView');
+                            
+                            if (view.name == "month") {
+                                var day_events = $('#calendar').fullCalendar( 'clientEvents' , function(ev) {
+                                    
+                                    if (ev.id && ev.start.isSame(event.start)) {
+                                                                                
+                                        event.start = event.start.add(2, 'hours');
+                                        event.end = event.end.add(2, 'hours');
+                                    }                                    
+                                    
+                                });
+                                
+                                if (event.end.hour() > 18) {
+                                    $('#calendar').fullCalendar( 'removeEvents', function(ev) {                        
+                                        if (!ev.id) {
+                                            return true;
+                                        }
+                                        return false;
+                                    });
+                                    notify_err("Norādītajā datumā visi iespējamie laiki jau ir aizpildīti ar pasākumiem!");                                        
+                                    return;
+                                }
+                                    
+                                $('#calendar').fullCalendar( 'updateEvent', event );
+                            }
+                            
                             if (event.className == "group") {
                                 newDayToDb(event);
                             }
                             else {
+                                
                                 newGroupToDb(event);
                             }
                         },
@@ -7094,7 +7102,6 @@ detectWarningInContainer = function(containerEl) {
                                 open_form('form', calEvent.dx_coffee_id, self.coffee_list_id, 0, 0, "", 0, "", {
                                     after_close: function(frm)
                                     {
-                                        // ToDo: check if something changed and refresh
                                         refreshAllData();
                                     }
                                 });
@@ -7104,13 +7111,23 @@ detectWarningInContainer = function(containerEl) {
                             open_form('form', calEvent.dx_day_id, self.days_list_id, 0, 0, "", 0, "", {
                                 after_close: function(frm)
                                 {
-                                    // ToDo: check if something changed and refresh
                                     refreshAllData();
                                 }
                             });
                         },
+                        loading: function(isLoading, view) {
+                            if (isLoading) {
+                                show_page_splash(1);
+                            }
+                            else {
+                                hide_page_splash(1);
+                            }
+                        },
 			resourceGroupField: 'organization',
-			resources: rooms_arr,
+			resources: {
+                            url: self.options.root_url + self.options.scheduler_url + "rooms_json/" + self.room_id,
+                            type: 'GET'
+                        },
 			events: {
                             url: self.options.root_url + self.options.scheduler_url + "events_json/" + self.room_id,
                             type: 'GET'
@@ -7122,25 +7139,25 @@ detectWarningInContainer = function(containerEl) {
                 callback: function(key, options) {
                     if (key == "subject") {
                         open_form('form', options.$trigger.data('subject-id'), self.subjects_list_id, 0, 0, "", 0, "", {after_close: function(frm) {
-                            // ToDo: refresh all page
+                            refreshAllData();
                         }});
                     }
                     
                     if (key == "group") {
                         open_form('form', options.$trigger.data('group-id'), self.groups_list_id, 0, 0, "", 0, "", {after_close: function(frm) {
-                            // ToDo: refresh all page
+                            refreshAllData();
                         }});
                     }
                     
                     if (key == "day") {
                         open_form('form', options.$trigger.data('day-id'), self.days_list_id, 0, 0, "", 0, "", {after_close: function(frm) {
-                            // ToDo: refresh all page
+                            refreshAllData();
                         }});
                     }
                     
                     if (key == "coffee") {
                         open_form('form', options.$trigger.data('coffee-id'), self.coffee_list_id, 0, 0, "", 0, "", {after_close: function(frm) {
-                            // ToDo: refresh all page
+                            refreshAllData();
                         }});
                     }
                     

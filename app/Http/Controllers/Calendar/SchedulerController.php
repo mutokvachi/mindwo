@@ -125,12 +125,33 @@ class SchedulerController extends Controller
      * This is used to refresh scheduler UI if related data is updated via AJAX
      * 
      * @param integer $current_room_id Room ID
-     * @return \Illuminate\Http\JsonResponse Returns all data arrays in JSON
+     * @param \Illuminate\Http\Request $request GET request
+     * @return \Illuminate\Http\JsonResponse Returns events data arrays in JSON
      */
     public function getSchedulerEventsJSON($current_room_id, Request $request) {
         $this->checkRights();
         
         return json_encode($this->getEvents($current_room_id, $request->input('start'), $request->input('end')), JSON_UNESCAPED_UNICODE);
+    }
+    
+     /**
+     * Return rooms data in JSON arrays used for scheduler
+     * This is used to refresh scheduler UI if related data is updated via AJAX
+     * 
+     * @param integer $current_room_id Room ID
+     * @param \Illuminate\Http\Request $request GET request
+     * @return \Illuminate\Http\JsonResponse Returns rooms data arrays in JSON
+     */
+    public function getSchedulerRoomsJSON($current_room_id, Request $request) {
+        
+        if ($current_room_id) {
+            return [];
+        }
+        $this->checkRights();
+        
+        $rooms = $this->getRooms();
+        
+        return json_encode($rooms, JSON_UNESCAPED_UNICODE);
     }
     
     /**
@@ -427,7 +448,8 @@ class SchedulerController extends Controller
                             'd.id as dx_day_id',
                             'c.id as dx_coffee_id',
                             DB::raw("'cafe' as className"),
-                            DB::raw("'#d6df32' as color")
+                            DB::raw("'#d6df32' as color"),
+                            DB::raw("'' as rendering")
                     )
                     ->where(function($query) use ($current_room_id) {
                         if ($current_room_id) {
@@ -437,6 +459,46 @@ class SchedulerController extends Controller
                     ->whereBetween('d.lesson_date', [$start, $end])
                     ->join('edu_subjects_groups_days as d', 'c.group_day_id', '=', 'd.id')
                     ->join('edu_subjects_groups as g', 'd.group_id', '=', 'g.id');
+                    
+        $rooms = DB::table('edu_rooms_calendars as r')
+                    ->select(
+                            DB::raw("CONCAT('R', r.id) as id"), 
+                            'r.room_id as resourceId', 
+                            DB::raw("DATE_FORMAT(r.from_time, '%Y-%m-%dT%H:%i') as start"),
+                            DB::raw("DATE_FORMAT(r.to_time, '%Y-%m-%dT%H:%i') as end"),
+                            DB::raw("'Telpa nav pieejama' as title"),
+                            DB::raw('0 as dx_subj_id'),
+                            DB::raw('0 as dx_group_id'),
+                            DB::raw('0 as dx_day_id'),
+                            DB::raw('0 as dx_coffee_id'),
+                            DB::raw("'closed' as className"),
+                            DB::raw("'#ff9f89' as color"),
+                            DB::raw("'background' as rendering")
+                    )
+                    ->where(function($query) use ($current_room_id) {
+                        if ($current_room_id) {
+                            $query->where('r.room_id', '=', $current_room_id);
+                        }
+                    });
+                    
+        $holidays = DB::table('dx_holidays as h')
+                    ->select(
+                            DB::raw("CONCAT('H', r.id, '-', h.id) as id"), 
+                            'r.id as resourceId', 
+                            DB::raw("CONCAT(ifnull(h.from_year,year(now())), '-', LPAD(m.nr, 2, '0'), '-', LPAD(d.code, 2, '0'), 'T00:00') as start"),
+                            DB::raw("CONCAT(ifnull(h.from_year,year(now())), '-', LPAD(m.nr, 2, '0'), '-', LPAD(d.code, 2, '0'), 'T23:59') as end"),
+                            DB::raw("'Brīvdiena' as title"),
+                            DB::raw('0 as dx_subj_id'),
+                            DB::raw('0 as dx_group_id'),
+                            DB::raw('0 as dx_day_id'),
+                            DB::raw('0 as dx_coffee_id'),
+                            DB::raw("'closed' as className"),
+                            DB::raw("'#ff9f89' as color"),
+                            DB::raw("'background' as rendering")
+                    )
+                    ->join('dx_months as m', 'h.from_month_id', '=', 'm.id')
+                    ->join('dx_month_days as d', 'h.from_day_id', '=', 'd.id')
+                    ->join('edu_rooms as r', 'r.id', '>', DB::raw('0'));
         
         return  DB::table('edu_subjects_groups_days as d')
                 ->select(
@@ -450,7 +512,8 @@ class SchedulerController extends Controller
                         'd.id as dx_day_id',
                         DB::raw('0 as dx_coffee_id'),
                         DB::raw("'group' as className"),
-                        DB::raw("'#69a4e0' as color")
+                        DB::raw("'#69a4e0' as color"),
+                        DB::raw("'' as rendering")
                 )
                 ->where(function($query) use ($current_room_id) {
                     if ($current_room_id) {
@@ -460,6 +523,8 @@ class SchedulerController extends Controller
                 ->whereBetween('d.lesson_date', [$start, $end])
                 ->join('edu_subjects_groups as g', 'd.group_id', '=', 'g.id')
                 ->union($coffee)
+                ->union($rooms)
+                ->union($holidays)
                 ->orderBy('start')
                 ->get();
     }
