@@ -5,7 +5,7 @@
     <select class='form-control dx-phone-select' style="width:30%; padding-right: 0px; ">
         <option value='0'></option>
         @foreach($countries as $country)
-        <option value='{{ $country->phone_code }}' {{ ($country->phone_code == $code_part) ? 'selected' : '' }}>{{ $country->code . ' (' . $country->phone_code . ')'}}</option>
+        <option value='{{ $country->phone_code }}' {{ ($country->phone_code == $code_part || count($countries) == 1) ? 'selected' : '' }}>{{ $country->code . ' (' . $country->phone_code . ')'}}</option>
         @endforeach
         
         @if ($is_new_rights)

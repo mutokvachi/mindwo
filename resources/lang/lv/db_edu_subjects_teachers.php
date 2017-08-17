@@ -11,5 +11,5 @@ return [
     
     'subject_id' => 'Mācību pasākums',
     'teacher_id' => 'Pasniedzējs',
-    'is_content_rights' => 'Ir tiesības rediģēt saturu',
+    'is_content_rights' => 'Var rediģēt mācību materiālus',
 ];

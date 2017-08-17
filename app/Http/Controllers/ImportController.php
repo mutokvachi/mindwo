@@ -299,7 +299,7 @@ class ImportController extends Controller
         {
             try {
                 
-                if (isset($this->save_arr["id"]) && $this->save_arr["id"] > 0) {
+                if ($this->save_arr["id"] > 0) {
                     $id = $this->save_arr["id"];
                     $data_row = DB::table($this->list_object->db_name)->where('id', '=', $id)->first();
                     if ($data_row) {
@@ -330,6 +330,7 @@ class ImportController extends Controller
                     }
                 }
                 else {
+                    unset($this->save_arr["id"]);
                     $this->addHistory();
                     // insert without ID field
                     $id = DB::table($this->list_object->db_name)->insertGetId($this->save_arr);
@@ -369,18 +370,7 @@ class ImportController extends Controller
      * This is used for example for dx_doc based registers where n registers are based on 1 table and there is field list_id
      */
     private function setCriteriaArray() {
-        $this->criteria_arr = []; // reset array
-
-        // get default values from list fields definitions
-        $fields = DB::table('dx_lists_fields')
-                ->select('db_name', 'criteria')
-                ->where('list_id', '=', $this->list_id)
-                ->whereNotNull('criteria')
-                ->get();
-        
-        foreach($fields as $fld) {
-            $this->criteria_arr[$fld->db_name] = $fld->criteria;
-        }
+        $this->criteria_arr = \App\Libraries\DBHelper::getRegisterFieldsPredefined($this->list_id);
     }
     
     /**
@@ -427,7 +417,7 @@ class ImportController extends Controller
             return;
         }
 
-        $fld_save = FieldsImport\FieldImportFactory::build_field($val, $fld, $this->file_import->tmp_dir);
+        $fld_save = FieldsImport\FieldImportFactory::build_field($val, $fld, $this->file_import->tmp_dir, $this->save_arr);
 
         $this->save_arr = array_merge($this->save_arr, $fld_save->getVal());
     }
@@ -508,10 +498,14 @@ class ImportController extends Controller
         $val = $this->toASCII($val);
         $val = trim($val);
         $val = str_replace("/", " ", $val);
+        $val = str_replace("'", " ", $val);
+        $val = str_replace("(", " ", $val);
+        $val = str_replace(")", " ", $val);
+        $val = trim($val);
         $val = str_replace("  ", " ", $val);
         $val = str_replace("  ", " ", $val);
         $val = str_replace(" ", "_", $val);
-
+        
         return $val;
     }
 

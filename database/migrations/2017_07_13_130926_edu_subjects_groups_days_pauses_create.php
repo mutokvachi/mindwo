@@ -23,6 +23,7 @@ class EduSubjectsGroupsDaysPausesCreate extends Migration
             $table->integer('group_day_id')->unsigned()->comment = trans('db_' . $this->table_name.'.group_day_id');
             $table->time('time_from')->comment = trans('db_' . $this->table_name.'.time_from');
             $table->time('time_to')->comment = trans('db_' . $this->table_name.'.time_to');
+            $table->integer('room_id')->nullable()->unsigned()->comment = trans('db_' . $this->table_name.'.room_id');
             $table->integer('feed_org_id')->nullable()->unsigned()->comment = trans('db_' . $this->table_name.'.feed_org_id');
             $table->string('notes', 1000)->nullable()->comment = trans('db_' . $this->table_name.'.notes');
             
@@ -31,6 +32,9 @@ class EduSubjectsGroupsDaysPausesCreate extends Migration
             
             $table->index('feed_org_id');            
             $table->foreign('feed_org_id')->references('id')->on('edu_orgs');
+            
+            $table->index('room_id');            
+            $table->foreign('room_id')->references('id')->on('edu_rooms');
             
             $table->integer('created_user_id')->nullable();
             $table->datetime('created_time')->nullable();

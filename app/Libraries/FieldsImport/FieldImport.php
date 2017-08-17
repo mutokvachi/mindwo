@@ -28,6 +28,12 @@ namespace App\Libraries\FieldsImport
          * @var Array
          */
         public $val_arr = array();
+        
+        /**
+         * Array with importable record other fields values
+         * @var Array
+         */
+        public $save_arr = array();
 
         /**
          * Field value from Excel cell
@@ -62,13 +68,16 @@ namespace App\Libraries\FieldsImport
          *
          * @param  mixed $excel_value Field value from Excel cell 
          * @param  object $fld Field object
+         * @param  string $tmp_dir Temporary directory used for files upload/unzip
+         * @param  array $save_arr Array with other imported record values
          * @return void
          */
-        public function __construct($excel_value, $fld, $tmp_dir)
+        public function __construct($excel_value, $fld, $tmp_dir, $save_arr)
         {
             $this->excel_value = $excel_value;
             $this->fld = $fld;
             $this->tmp_dir = $tmp_dir;
+            $this->save_arr = $save_arr;
             
             $this->prepareVal();
 

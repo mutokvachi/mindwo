@@ -1833,7 +1833,7 @@ class TasksController extends Controller
                 case 4:
                     return ($item_val < $condition_val);
                 case 5:
-                    return (strpos(str_replace(" ", "", "," . $condition_val . ","), "," . $item_val . ",") > 0);
+                    return (strpos(str_replace(" ", "", "," . $condition_val . ","), "," . $item_val . ",") > -1);
                 case 6:
                     return isNull($item_val);
                 case 7:

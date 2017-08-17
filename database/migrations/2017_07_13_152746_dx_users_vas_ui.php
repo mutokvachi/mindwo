@@ -126,7 +126,7 @@ class DxUsersVasUi extends EduMigration
             $fld_id = DB::table('dx_lists_fields')->insertGetId([
                 'list_id' => $list_id,
                 'db_name' => 'login_name',
-                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_EMAIL,
                 'title_list' => trans('db_dx_users.login_name_email'),
                 'title_form' => trans('db_dx_users.login_name_email'),
                 'max_lenght' => 200,
@@ -151,7 +151,7 @@ class DxUsersVasUi extends EduMigration
                                         u.person_code,
                                         u.first_name,
                                         u.last_name,
-                                        u.display_name,
+                                        u.full_name_code,
                                         u.login_name,
                                         u.is_anonim,
                                         u.is_role_student,
@@ -199,7 +199,7 @@ class DxUsersVasUi extends EduMigration
             $fld_id = DB::table('dx_lists_fields')->insertGetId([
                 'list_id' => $list_id,
                 'db_name' => 'email',
-                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_EMAIL,
                 'title_list' => trans('db_edu_orgs_users.email'),
                 'title_form' => trans('db_edu_orgs_users.email'),
                 'formula' => '[' . trans('db_edu_orgs_users.email') .']',
@@ -209,7 +209,7 @@ class DxUsersVasUi extends EduMigration
             $fld_id = DB::table('dx_lists_fields')->insertGetId([
                 'list_id' => $list_id,
                 'db_name' => 'phone',
-                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_MOBILE,
                 'title_list' => trans('db_edu_orgs_users.phone'),
                 'title_form' => trans('db_edu_orgs_users.phone'),
                 'formula' => '[' . trans('db_edu_orgs_users.phone') .']',
@@ -219,7 +219,7 @@ class DxUsersVasUi extends EduMigration
             $fld_id = DB::table('dx_lists_fields')->insertGetId([
                 'list_id' => $list_id,
                 'db_name' => 'mobile',
-                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_MOBILE,
                 'title_list' => trans('db_edu_orgs_users.mobile'),
                 'title_form' => trans('db_edu_orgs_users.mobile'),
                 'formula' => '[' . trans('db_edu_orgs_users.mobile') .']',
@@ -250,8 +250,8 @@ class DxUsersVasUi extends EduMigration
                             SELECT * FROM (
                                 select distinct
                                         dx_users.id as id,
-                                        dx_users.full_name_code as dx_users_display_name,
-                                        dx_users.full_name_code as display_name
+                                        dx_users.full_name_code as dx_users_full_name_code,
+                                        dx_users.full_name_code
                                 from
                                         dx_users
                                         left join edu_orgs_users ou on dx_users.id = ou.user_id
@@ -306,7 +306,7 @@ class DxUsersVasUi extends EduMigration
             $fld_id = DB::table('dx_lists_fields')->insertGetId([
                 'list_id' => $profile_list_id,
                 'db_name' => 'login_name',
-                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
+                'type_id' => App\Libraries\DBHelper::FIELD_TYPE_EMAIL,
                 'title_list' => trans('db_dx_users.login_name_email'),
                 'title_form' => trans('db_dx_users.login_name_email'),
                 'max_lenght' => 200,
@@ -486,7 +486,7 @@ class DxUsersVasUi extends EduMigration
         
         $fld_display_id = DB::table('dx_lists_fields')->insertGetId([
             'list_id' => $list_id,
-            'db_name' => 'display_name',
+            'db_name' => 'full_name_code',
             'type_id' => App\Libraries\DBHelper::FIELD_TYPE_TEXT,
             'title_list' => 'Vārds, uzvārds',
             'title_form' => 'Vārds, uzvārds',

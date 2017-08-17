@@ -7,109 +7,87 @@
       <div class="dd dx-cms-nested-list dx-used">
         <div class="row dd-list columns">
           @foreach($listFields as $field)
-            <div class="col-md-12">
-              <div class="dd-item not-in-form" data-id="{{ $field->id }}" data-hidden="0">
-                <div class="dd-handle dd3-handle"></div>
-                <div class="dd3-content">
-                  <span class="controls">
-                    <a href="JavaScript:;" class="pull-right dx-cms-field-remove" title="{{ trans('constructor.remove') }}"><i class="fa fa-times"></i> </a>
-                    <a href="JavaScript:;" class="pull-right dx-cms-field-edit" title="{{ trans('constructor.edit_field') }}"><i class="fa fa-cog"></i></a>
-                  </span>
-                  <b class="dx-fld-title">{{ $field->title_form }}</b>
-                </div>
-              </div>
-            </div>
+            @include('constructor.fields_item', [
+              'field' => $field,
+              'class' => 'not-in-form',
+              'column' => 12,
+              'hidden' => 0
+            ])
           @endforeach
         </div>
       </div>
     </div>
   </div>
   <div class="col-md-9">
-    <h4>{{ trans('constructor.form_fields') }}
-      <button type="button" class="btn btn-white dx-preview-btn pull-right" style="margin-top: -15px;">
-        <i class="fa fa-search"></i> {{ trans('constructor.preview_form') }}
-      </button>
-    </h4>
-    <div class="constructor-grid">
-      @for($i = 0; $i < count($grid); $i++)
-        <div class="row-container">
-          <div class="row-box row-handle"><i class="fa fa-arrows-v"></i></div>
-          <div class="row-box row-button">
-            <a href="javascript:;" class="dx-constructor-row-remove" title="{{ trans('constructor.remove_row') }}"><i class="fa fa-times"></i></a>
-          </div>
-          <div class="row columns dd-list">
-            @for($j = 0; $j < count($grid[$i]); $j++)
-              @if($field = $grid[$i][$j])
+    <div class="dx-constructor-form" data-tab-id="0">
+      <h4>{{ trans('constructor.form_fields') }}</h4>
+      @include('constructor.fields_grid', ['tabId' => 0])
+      <div class="col-md-12" style="text-align: center">
+        <div class="btn-group" role="group">
+          <button type="button" class="btn green dx-add-row-btn" data-type="columns">
+            <i class="fa fa-plus"></i> {{ trans('constructor.add_row') }}
+          </button>
+          <button type="button" class="btn green dx-add-row-btn" data-type="label">
+            <i class="fa fa-tags"></i> {{ trans('constructor.add_label') }}
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="dx-constructor-form-tabs" style="{{ count($tabs) ? '' : 'display: none' }}">
+      <h4>{{ trans('constructor.form_tabs') }}</h4>
+      <div class="dd dx-constructor-tab-buttons clearfix">
+        <div class="dd-list">
+          @foreach($tabs as $tab)
+            @include('constructor.fields_tab', [ 'tab' => $tab ])
+          @endforeach
+        </div>
+      </div>
+      <h4>{{ trans('constructor.tab_fields') }}</h4>
+      <div class="dx-constructor-tabs">
+        <div class="dx-constructor-tabs-wrap">
+          @if($t = 0)
+          @endif
+          @foreach($tabs as $tab)
+            <div class="dx-constructor-tab tab-id-{{ $tab->id }} {{ $tab->is_custom_data ? 'custom-data' : 'related-grid' }}"
+              style="{{ $t ? 'display: none' : '' }}"
+              data-tab-id="{{ $tab->id }}"
+              data-tab-title="{{ $tab->title }}">
+              @if($t++)
               @endif
-              <div class="col-md-{{ 12 / count($grid[$i]) }}">
-                <div class="dd-item {{ $field->is_hidden ? 'dx-field-hidden' : '' }}" data-id="{{ $field->field_id }}" data-hidden="{{ $field->is_hidden ? 1 : 0 }}">
-                  <div class="dd-handle dd3-handle"></div>
-                  <div class="dd3-content">
-                    <span class="controls">
-                      <a href="JavaScript:;" class="pull-right dx-cms-field-remove" title="{{ trans('constructor.remove') }}"><i class="fa fa-times"></i> </a>
-                      <a href="JavaScript:;" class="pull-right dx-cms-field-edit" title="{{ trans('constructor.edit_field') }}"><i class="fa fa-cog"></i></a>
-                    </span>
-                    <b class="dx-fld-title">{{ $field->title_form }}</b>
-                  </div>
-                </div>
-              </div>
-            @endfor
-          </div>
+              <h5>{{ $tab->title }}</h5>
+              @if($tab->is_custom_data == 1)
+                @include('constructor.fields_grid', [
+                  'tabId' => $tab->id
+                ])
+              @else
+                @include('constructor.fields_related', [
+                  'listTitle' => $tab->lists ? $tab->lists->list_title : '',
+                  'fieldTitle' => $tab->field ? $tab->field->title_list : ''
+                ])
+              @endif
+            </div>
+          @endforeach
         </div>
-      @endfor
-      @if(count($grid) < 4)
-        @for($i = 0; $i < 4 - count($grid); $i++)
-            <div class="row-container">
-              <div class="row-box row-handle"><i class="fa fa-arrows-v"></i></div>
-              <div class="row-box row-button">
-                <a href="javascript:;" class="dx-constructor-row-remove" title="{{ trans('constructor.remove_row') }}"><i class="fa fa-times"></i></a>
-              </div>
-              <div class="row columns dd-list">
-              </div>
-            </div>
-        @endfor
-      @endif
-    </div>
-    <div class="row">
-      <div class="col-md-12" style="text-align: center; padding: 15px 0;">
-        <button type="button" class="btn red dx-add-row-btn" style="">
-          <i class="fa fa-plus"></i> {{ trans('constructor.add_row') }}
-        </button>
-      </div>
-    </div>
-  </div>
-  <div class="modal fade dx-popup-modal" id="fields_popup" aria-hidden="true" role="dialog" data-backdrop="static" style="z-index: 999999;">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        @include('elements.form_header', [
-          'form_title' => trans('grid.view_editor_form_title'),
-          'badge' => trans('grid.badge_edit'),
-          'form_icon' => '<i class="fa fa-list"></i>'
-        ])
-        <div class="modal-body" style="overflow-y: auto; max-height: 500px;">
-          <input type="hidden" name="field_id" value="0">
-          <div class="form-group col-md-12">
-            <label for="field_title">
-              <span class="dx-fld-title">{{ trans('grid.lbl_field_title') }}</span>
-            </label>
-            <div class="input-group">
-              <input class="form-control" autocomplete="off" type="text" name="title_form" value="">
-            </div>
+        <div class="col-md-12" style="text-align: center">
+          <div class="btn-group" role="group">
+            <button type="button" class="btn green dx-add-row-btn" data-type="columns">
+              <i class="fa fa-plus"></i> {{ trans('constructor.add_row') }}
+            </button>
+            <button type="button" class="btn green dx-add-row-btn" data-type="label">
+              <i class="fa fa-tags"></i> {{ trans('constructor.add_label') }}
+            </button>
           </div>
-          <div class="form-group col-md-12">
-            <label for="is_hidden">
-              <span class="dx-fld-title">{{ trans('grid.ch_is_hidden') }}</span>
-            </label>
-            <div class="input-group">
-              <input type="checkbox" name="is_hidden" class="dx-bool">
-            </div>
+          <div class="btn-group" role="group">
+            <button type="button" class="btn green dx-tab-edit-btn">
+              <i class="fa fa-edit"></i> {{ trans('constructor.tab_edit') }}
+            </button>
+            <button type="button" class="btn green dx-tab-delete-btn">
+              <i class="fa fa-close"></i> {{ trans('constructor.tab_del') }}
+            </button>
           </div>
-        </div>
-        <div class="modal-footer dx-view-popup-footer">
-          <button type="button" class="btn btn-primary dx-view-btn-save">{{ trans('form.btn_save') }}</button>
-          <button type="button" class="btn btn-white" data-dismiss="modal">{{ trans('form.btn_cancel') }}</button>
         </div>
       </div>
     </div>
   </div>
+  @include('constructor.fields_modal')
 @endsection

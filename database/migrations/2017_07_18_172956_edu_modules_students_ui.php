@@ -51,7 +51,7 @@ class EduModulesStudentsUi extends EduMigration
             
             // fix students related grid ID
             $student_list = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_student'))->first();            
-            $student_display = DB::table('dx_lists_fields')->where('list_id', '=', $student_list->id)->where('db_name', '=', 'display_name')->first();
+            $student_display = DB::table('dx_lists_fields')->where('list_id', '=', $student_list->id)->where('db_name', '=', 'full_name_code')->first();
             
             DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'student_id')->update([
                 'rel_list_id' => $student_list->id,

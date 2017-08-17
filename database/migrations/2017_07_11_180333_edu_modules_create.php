@@ -23,8 +23,7 @@ class EduModulesCreate extends Migration
             $table->string('title_full', 250)->nullable()->comment = trans('db_' . $this->table_name.'.title_full');
             $table->string('title', 240)->comment = trans('db_' . $this->table_name.'.title');            
             $table->integer('programm_id')->unsigned()->comment = trans('db_' . $this->table_name.'.programm_id');
-            $table->string('code', 3)->comment = trans('db_' . $this->table_name.'.code');  
-            $table->integer('avail_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.avail_id');
+            $table->string('code', 3)->comment = trans('db_' . $this->table_name.'.code');              
             $table->integer('icon_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.icon_id');
             $table->text('description')->nullable()->comment = trans('db_' . $this->table_name.'.description');            
             $table->integer('qualify_test_id')->unsigned()->nullable()->comment = trans('db_' . $this->table_name.'.qualify_test_id');
@@ -35,10 +34,7 @@ class EduModulesCreate extends Migration
             
             $table->index('icon_id');            
             $table->foreign('icon_id')->references('id')->on('dx_icons_files');
-            
-            $table->index('avail_id');            
-            $table->foreign('avail_id')->references('id')->on('edu_modules_avail');
-                        
+                                    
             $table->index('qualify_test_id');            
             $table->foreign('qualify_test_id')->references('id')->on('in_tests');
             

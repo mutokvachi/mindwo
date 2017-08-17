@@ -42,7 +42,7 @@ class EduOrgsUsersUi extends EduMigration
             
             // fix user_id lookup
             $user_list = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_users.list_title_all'))->first();            
-            $user_display = DB::table('dx_lists_fields')->where('list_id', '=', $user_list->id)->where('db_name', '=', 'display_name')->first();
+            $user_display = DB::table('dx_lists_fields')->where('list_id', '=', $user_list->id)->where('db_name', '=', 'full_name_code')->first();
             
             DB::table('dx_lists_fields')->where('list_id', '=', $list_id)->where('db_name', '=', 'user_id')->update([
                 'rel_list_id' => $user_list->id,
@@ -102,6 +102,27 @@ class EduOrgsUsersUi extends EduMigration
                                 ) tb 
                             WHERE 1 = 1
                         " 
+            ]);
+            
+            DB::table('dx_lists_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('db_name', '=', 'email')
+                    ->update([
+                'type_id' => \App\Libraries\DBHelper::FIELD_TYPE_EMAIL
+            ]);
+            
+            DB::table('dx_lists_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('db_name', '=', 'phone')
+                    ->update([
+                'type_id' => \App\Libraries\DBHelper::FIELD_TYPE_MOBILE
+            ]);
+            
+            DB::table('dx_lists_fields')
+                    ->where('list_id', '=', $list_id)
+                    ->where('db_name', '=', 'mobile')
+                    ->update([
+                'type_id' => \App\Libraries\DBHelper::FIELD_TYPE_MOBILE
             ]);
         });
     }

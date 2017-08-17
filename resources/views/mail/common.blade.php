@@ -18,7 +18,10 @@
     @endif
   </script>
   <script src="{{ elixir('js/elix_mail.js') }}" type='text/javascript'></script>
+  {{--
+  Must not be included due to JS conflicts
   @include('pages.view_js_includes')
+  --}}
 @endsection
 
 @section('main_content')

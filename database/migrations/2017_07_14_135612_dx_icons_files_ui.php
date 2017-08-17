@@ -45,6 +45,7 @@ class DxIconsFilesUi extends EduMigration
             ];
             App\Libraries\DBHelper::makeMenu($arr_params);
             
+            DB::table('dx_icons_files')->insert(trans('db_dx_icons_files.values'));
         });
     }
 

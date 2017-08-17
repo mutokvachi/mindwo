@@ -38,15 +38,17 @@ class DxRegionsUi extends Migration
             DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1, 'is_import_rights' => 1, 'is_view_rights' => 1]); // Sys admins
             
             $parent_menu = DB::table('dx_menu')->where('title', '=', trans('db_dx_menu.lbl_classifiers'))->first();
-            $arr_params = [
-                'menu_list_id' => $list_id, 
-                'list_title' => $list_name,
-                'menu_parent_id' => $parent_menu->id
-            ];
-            App\Libraries\DBHelper::makeMenu($arr_params);
-            
-            DB::table($this->table_name)->insert(trans('db_' . $this->table_name . '.values'));
-            
+			
+			if ($parent_menu) {
+				$arr_params = [
+					'menu_list_id' => $list_id, 
+					'list_title' => $list_name,
+					'menu_parent_id' => $parent_menu->id
+				];
+				App\Libraries\DBHelper::makeMenu($arr_params);
+				
+				DB::table($this->table_name)->insert(trans('db_' . $this->table_name . '.values'));
+            }
         });
     }
 

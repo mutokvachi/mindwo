@@ -28,11 +28,6 @@
         </tbody>
       </table>
     </div>
-    <div class="col-md-12" style="text-align: center">
-      <a href="javascript:;" class="btn btn-primary red dx-constructor-add-role">
-        <i class='fa fa-plus'></i> {{ trans('constructor.add_role') }}
-      </a>
-    </div>
   </div>
 </div>
 @endsection

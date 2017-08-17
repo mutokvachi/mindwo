@@ -148,6 +148,7 @@ gulp.task('mix_all', function() {
             'fullcalendar/lib/moment.min.js',
             'jquery.min.js',
             'bootstrap/js/bootstrap.min.js',
+            'mindwo/pages/module.js',
             'js.cookie.min.js',
             'bootstrap-hover-dropdown/bootstrap-hover-dropdown.js',
             'jquery-slimscroll/jquery.slimscroll.js',
@@ -214,6 +215,7 @@ gulp.task('mix_all', function() {
             'mindwo/fields/image.js',
             'mindwo/fields/phone.js',
             'mindwo/fields/color.js',
+            'mindwo/fields/int.js',
             'datatables/datatables.all.min.js',
             'datatables/plugins/bootstrap/datatables.bootstrap.js',
             'float-thead/dist/jquery.floatThead.js',
@@ -367,12 +369,14 @@ gulp.task('mix_all', function() {
 	
         // Styles for constructor wizard interface
         mix.styles([
+            'resources/assets/less/pages/sticky_footer.less',
             'resources/assets/plugins/mindwo/css/constructor_wizard.css'
         ], 'public/css/elix_constructor_wizard.css', './');
 
         // Scripts for constructor wizard interface
         mix.scripts([
             'resources/assets/plugins/mindwo/blocks/view_editor.js',
+			'resources/assets/plugins/mindwo/pages/constructor_tabs.js',
             'resources/assets/plugins/mindwo/pages/constructor_grid.js',
             'resources/assets/plugins/mindwo/pages/constructor_wizard.js'
         ], 'public/js/elix_constructor_wizard.js', './');
@@ -400,12 +404,14 @@ gulp.task('mix_all', function() {
         // Styles for scheduler
         mix.styles([
             'fullcalendar-scheduler/scheduler.css',
+            'jquery-contextMenu/jquery.contextMenu.css'
         ], 'public/css/elix_scheduler.css', 'resources/assets/plugins');
         
         // Scripts for scheduler
         mix.scripts([
            'fullcalendar-scheduler/scheduler.js',
-           'mindwo/pages/scheduler.js'
+           'mindwo/pages/scheduler.js',
+           'jquery-contextMenu/jquery.contextMenu.js'
         ], 'public/js/elix_scheduler.js', 'resources/assets/plugins');
 		
         // Minify all scripts

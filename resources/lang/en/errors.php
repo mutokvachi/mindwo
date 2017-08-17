@@ -55,6 +55,7 @@ return [
     
     // here and further needs to revalidate translation (2016-10-04)
     'import_wrong_date' => "In the Excel file date field '%s' provided wrong value '%s'! Dates must be in format '%s' or '%s'.",
+    'import_wrong_email' => "In the Excel file email field ':field' provided wrong value ':val'! E-mail must be in format like 'person@domain.com'.",
     
     'excel_row' => 'Some rows were not imported because of duplicate values. The skipped Excel row numbers: ',
     
@@ -162,4 +163,8 @@ return [
     'attention' => 'Attention!',
     'import_wrong_multival' => "The multilevel classifier ':list' does not contain the value ':val'! Please, add value in classifier and then try again.",
     'import_several_multival' => "The multilevel classifier ':list' have several rows ':val'! Please, make classifier values unique and then try again.",
+    'import_lookup_several' => "Can't map value for the field ':fld', because classifier ':list' have several records ':term'.",
+    'import_lookup_no_field' => "The list ':list' does not have field named ':fld'!",
+    
+    'not_valid_email' => "Provided email ':email' is not valid! Email must be in format like 'person@domain.com'.",
 ];

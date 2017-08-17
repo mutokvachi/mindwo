@@ -77,34 +77,30 @@ class EduSubjectsUi extends EduMigration
             App\Libraries\DBHelper::updateFormField($list_id, "avail_id", ['row_type_id' => 2]);
             
             App\Libraries\DBHelper::updateFormField($list_id, "module_id", ['tab_id' => $tab_main_id]);
-            App\Libraries\DBHelper::updateFormField($list_id, "subject_code", ['tab_id' => $tab_main_id, 'row_type_id' => 4]);            
-            App\Libraries\DBHelper::updateFormField($list_id, "credit_points", ['tab_id' => $tab_main_id, 'row_type_id' => 4]);
-            App\Libraries\DBHelper::updateFormField($list_id, "is_org_approve_need", ['tab_id' => $tab_main_id, 'row_type_id' => 4]);
-            App\Libraries\DBHelper::updateFormField($list_id, "is_published", ['tab_id' => $tab_main_id, 'row_type_id' => 4]);
+            App\Libraries\DBHelper::updateFormField($list_id, "subject_code", ['tab_id' => $tab_main_id, 'row_type_id' => 3]);
+            App\Libraries\DBHelper::updateFormField($list_id, "is_org_approve_need", ['tab_id' => $tab_main_id, 'row_type_id' => 3]);
+            App\Libraries\DBHelper::updateFormField($list_id, "is_published", ['tab_id' => $tab_main_id, 'row_type_id' => 3]);
             
-            App\Libraries\DBHelper::updateFormField($list_id, "is_fee", ['tab_id' => $tab_main_id, 'row_type_id' => 3, 'group_label' => trans('db_' . $this->table_name . '.group_costs')]);
+            App\Libraries\DBHelper::updateFormField($list_id, "price_for_student", ['tab_id' => $tab_main_id, 'row_type_id' => 3, 'group_label' => trans('db_' . $this->table_name . '.group_costs')]);
             App\Libraries\DBHelper::updateFormField($list_id, "price_for_teacher", ['tab_id' => $tab_main_id, 'row_type_id' => 3]);
             App\Libraries\DBHelper::updateFormField($list_id, "price_for_rooms", ['tab_id' => $tab_main_id, 'row_type_id' => 3]);
+            
+            App\Libraries\DBHelper::updateFormField($list_id, "learning_url", ['tab_id' => $tab_descr_id, 'order_index' => 100]);
                         
-            App\Libraries\DBHelper::updateFormField($list_id, "description", ['tab_id' => $tab_descr_id]);
-            App\Libraries\DBHelper::updateFormField($list_id, "learning_url", ['tab_id' => $tab_descr_id]);
-                        
-            App\Libraries\DBHelper::updateFormField($list_id, "subject_pretest_id", ['tab_id' => $tab_tests_id]);
-            App\Libraries\DBHelper::updateFormField($list_id, "is_subj_qual_test_ok_need", ['tab_id' => $tab_tests_id, 'row_type_id' => 3]);
-            App\Libraries\DBHelper::updateFormField($list_id, "is_progr_qual_test_ok_need", ['tab_id' => $tab_tests_id, 'row_type_id' => 3]);
-            App\Libraries\DBHelper::updateFormField($list_id, "is_subj_qual_test_ok_need", ['tab_id' => $tab_tests_id, 'row_type_id' => 3]);
+            App\Libraries\DBHelper::updateFormField($list_id, "subject_pretest_id", ['tab_id' => $tab_tests_id, 'group_label' => trans('db_' . $this->table_name . '.group_qualif')]);
+            App\Libraries\DBHelper::updateFormField($list_id, "is_subj_qual_test_ok_need", ['tab_id' => $tab_tests_id, 'row_type_id' => 2]);
+            App\Libraries\DBHelper::updateFormField($list_id, "is_progr_qual_test_ok_need", ['tab_id' => $tab_tests_id, 'row_type_id' => 2]);
+            App\Libraries\DBHelper::updateFormField($list_id, "subject_end_test_id", ['tab_id' => $tab_tests_id , 'group_label' => trans('db_' . $this->table_name . '.group_certif')]);
             App\Libraries\DBHelper::updateFormField($list_id, "cert_numerator_id", ['tab_id' => $tab_tests_id]);
              
             App\Libraries\DBHelper::removeFieldsFromAllViews($list_id, [
                 'subject_code',
                 'project_code',
-                'credit_points',
                 'is_org_approve_need',
-                'is_fee',
+                'price_for_student',
                 'price_for_teacher',
                 'price_for_rooms',
-                'learning_url',
-                'description',                           
+                'learning_url',                                           
                 'subject_pretest_id',
                 'is_subj_qual_test_ok_need',
                 'is_progr_qual_test_ok_need',

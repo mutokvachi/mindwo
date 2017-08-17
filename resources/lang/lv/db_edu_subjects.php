@@ -12,24 +12,23 @@ return [
     'title_full' => 'Pilnais nosaukums',
     'title' => 'Nosaukums',
     'avail_id' => 'Pieejamība',
-    'subject_code' => 'Kods',
+    'subject_code' => 'Pasākuma kods',
     'subject_type_id' => 'Veids',
-    'is_fee' => 'Ir par maksu',
+    'price_for_student' => 'Mācību maksa, EUR',
     'price_for_teacher' => 'Pasniedzēja izmaksas, EUR',
     'price_for_rooms' => 'Telpu izmaksas, EUR',    
-    'module_id' => 'Mācību modulis',
-    'credit_points' => 'Kredītpunkti',
+    'module_id' => 'Mācību modulis',    
     'learning_url' => 'Saite uz e-mācībām',
-    'description' => 'Apraksts',    
     
     'subject_pretest_id' => 'Kvalificēšanās tests',
     'is_subj_qual_test_ok_need' => 'Testam jābūt sekmīgam',
-    'is_progr_qual_test_ok_need' => 'Programmas testam jābūt sekmīgam',
+    'is_progr_qual_test_ok_need' => 'Moduļa testam jābūt sekmīgam',
+    'subject_end_test_id' => 'Sertificēšanās tests',
     'is_org_approve_need' => 'Ir iestādes saskaņojums',
     'cert_numerator_id' => 'Sertifikātu numerators',
     'is_published' => 'Ir publicēts',
 
-    'purpose' => 'Mācību kursa mērķis', 
+    'purpose' => 'Mācību mērķis', 
     'target_audience' => 'Mērķauditorija', 
     'prerequisites' => 'Priekšnosacījumi', 
     'topics' => 'Tēmas', 
@@ -37,6 +36,9 @@ return [
     'coordinator_id' => 'Koordinators',
     'price' => 'Cena',
     'duration' => 'Ilgums',
+    
+    // hints
+    'subject_code_hint' => 'Norāda unikālu pasākuma identifikācijas kodu moduļa ietvaros. Ja laukā netiek norādīta vērtība, tad, saglabājot, sistēma automātiski iestatīs pasākuma kodu atbilstoši pasākumu skaitam modulī.',
     
     // tabs
     'tab_main' => 'Pamatdati',
@@ -48,4 +50,6 @@ return [
     
     // groups
     'group_costs' => 'Izmaksas',
+    'group_qualif' => 'Kvalificēšanās nosacījumi',
+    'group_certif' => 'Sertificēšana',
 ];

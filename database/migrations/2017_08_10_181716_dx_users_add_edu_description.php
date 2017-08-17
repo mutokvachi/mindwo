@@ -2,9 +2,8 @@
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
-use App\Libraries\Structure\EduMigration;
 
-class DxUsersAddEduDescription extends EduMigration
+class DxUsersAddEduDescription extends Migration
 {
     private $table_name = "dx_users";
 
@@ -13,7 +12,7 @@ class DxUsersAddEduDescription extends EduMigration
      *
      * @return void
      */
-    public function edu_up()
+    public function up()
     {
         Schema::table($this->table_name, function (Blueprint $table) {
             $table->text('introduction')->nullable()->comment = trans('db_' . $this->table_name.'.introduction');
@@ -28,7 +27,7 @@ class DxUsersAddEduDescription extends EduMigration
      *
      * @return void
      */
-    public function edu_down()
+    public function down()
     {
         Schema::table($this->table_name, function (Blueprint $table) {
             $table->dropColumn(['introduction', 'experience', 'education', 'additional_info']);

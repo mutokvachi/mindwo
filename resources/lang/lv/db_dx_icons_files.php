@@ -12,4 +12,16 @@ return [
     'title' => 'Nosaukums',
     'file_name' => 'Ikonas datne',
     'file_guid' => 'Ikonas datnes GUID',
+    
+    'values' => [
+        ['title' => 'Tieslietas'],
+        ['title' => 'Datorzinības'],
+        ['title' => 'Valodas'],
+        ['title' => 'Komunikācija'],
+        ['title' => 'Procesi'],
+        ['title' => 'Finanses'],
+        ['title' => 'Audits'],
+        ['title' => 'Personāls'],
+        ['title' => 'Attīstība'],
+    ]
 ];

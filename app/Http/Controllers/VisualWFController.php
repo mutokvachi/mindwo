@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Workflow\WorkflowStep;
 use Illuminate\Http\Request;
 use Webpatser\Uuid\Uuid;
 use Sunra\PhpSimple\HtmlDomParser;
@@ -45,6 +46,15 @@ class VisualWFController extends Controller
      */
     private $saved_steps = [];
 
+    /**
+     * Here we load all the workflow steps from DB before processing.
+     */
+	private $steps = [];
+	/**
+	 * Here we store once evaluated [ id => step_nr ] pairs to avoid multiple evaluation of step number.
+	 */
+	private $step_numbers = [];
+    
     /**
      * Test method to draw graph
      * @return type
@@ -260,14 +270,14 @@ class VisualWFController extends Controller
 
         $has_arrow_labels = 0;
 
-        if ($type_code == 'CRIT' || $type_code == 'CRITM') {
+        if (in_array($type_code, [ 'APPR', 'EXEC', 'SUPP', 'CRIT', 'CRITM' ])) {
             $has_arrow_labels = 1;
             $arrow_count = 2;
             $shape = 'rhombus';
         } elseif ($type_code == 'ENDPOINT') {
             $arrow_count = 1;
             $shape = 'ellipse';
-        } elseif ($type_code == 'SET') {
+        } elseif (in_array($type_code, [ 'SET', 'INFO'])) {
             $arrow_count = 1;
             $shape = 'rounded';
         } else {
@@ -465,9 +475,13 @@ class VisualWFController extends Controller
         }
 
         $workflow->save();
-
-        return response()->json(['success' => 1, 'html' => $workflow->id]);
-    }
+	
+		return response()->json([
+			'success' => 1,
+			'html' => $workflow->id,
+			'numbers' => $this->step_numbers
+		]);
+	}
 
     /**
      * Validate if endpoints are correct in workflow
@@ -579,13 +593,104 @@ class VisualWFController extends Controller
         $this->step_counter = 10;
         $this->saved_steps = [];
         $first_step_element = $xml->find('mxCell[id='. $first_step_element_id . ']', 0);
-
+        
+        $this->loadSteps($xml);
+        
         \DB::transaction(function () use ($workflow, $xml, $first_step_element, $first_step_element_id) {
-                $this->orderStep($xml, $first_step_element, $first_step_element_id);
+				//$this->orderStep($xml, $first_step_element, $first_step_element_id);
+			
+        		$this->orderSteps($xml, $first_step_element_id);
+				
+        		foreach($this->steps as $step)
+				{
+					$step->save();
+				}
 
                 $this->deleteNotSavedSteps($workflow->id);
         });
     }
+	
+	/**
+	 * Load all steps before ordering - separate database operations from calculations.
+	 *
+	 * @param $xml
+	 */
+    private function loadSteps($xml)
+	{
+		$cells = $xml->find('mxCell[workflow_step_id]');
+		
+		foreach($cells as $cell)
+		{
+			$id = $cell->workflow_step_id;
+			if($id < 1)
+			{
+				continue;
+			}
+			$this->steps[$id] = WorkflowStep::find($id);
+		}
+	}
+	
+	/**
+	 * Calculate step numbers taking into account already calculated and cached values.
+	 *
+	 * @param $xml
+	 * @param $cell_id
+	 */
+	private function orderSteps($xml, $cell_id)
+	{
+		$element = $xml->find('mxCell[id='. $cell_id . ']', 0);
+		
+		$id = $element->workflow_step_id;
+		$step = $this->steps[$id];
+		
+		$this->saved_steps[] = $id;
+		
+		if(isset($this->step_numbers[$id]))
+		{
+			return;
+		}
+		
+		$step->step_nr = $this->step_numbers[$id] = $this->step_counter;
+		$this->step_counter += 10;
+		
+		$edges = $xml->find('mxCell[source=' . $cell_id . ']');
+		
+		foreach($edges as $edge)
+		{
+			$next = $xml->find('mxCell[id='. $edge->target . ']', 0);
+			
+			if($next->type_code == 'ENDPOINT')
+			{
+				if($edge->is_yes == 1)
+				{
+					$step->yes_step_nr = 0;
+				}
+				else
+				{
+					$step->no_step_nr = 0;
+				}
+				
+				continue;
+			}
+			
+			$next_cell_id = $next->id;
+			$next_id = $next->workflow_step_id;
+			
+			if(!isset($this->step_numbers[$next_id]))
+			{
+				$this->orderSteps($xml, $next_cell_id);
+			}
+			
+			if($edge->is_yes == 1)
+			{
+				$step->yes_step_nr = $this->step_numbers[$next_id];
+			}
+			else
+			{
+				$step->no_step_nr = $this->step_numbers[$next_id];
+			}
+		}
+	}
 
     /**
      * Deletes all steps that where not connected to workflow
