@@ -116,7 +116,7 @@ class SchedulerController extends Controller
             'subjects' => json_encode($this->getSubjects()),
             'groups' => json_encode($this->getGroups()),
             'rooms' => json_encode($rooms),
-            'rooms_cbo' => $this->getCboRooms($rooms)
+            'rooms_cbo' => json_encode($this->getCboRooms($rooms))
         ]);
     }
     
@@ -537,7 +537,7 @@ class SchedulerController extends Controller
     private function getRooms() {
         
         return DB::table('edu_rooms as r')
-                    ->select('r.id', 'o.title as organization', 'r.title as title')
+                    ->select('r.id', 'o.title as organization', DB::raw("case when r.is_elearn then r.title else CONCAT(r.title, ' - ', ifnull(r.room_address, o.address)) end as title"))
                     ->join('edu_orgs as o', 'r.org_id', '=', 'o.id')
                     ->orderBy('o.title', 'r.title')
                     ->get();
@@ -554,7 +554,7 @@ class SchedulerController extends Controller
         $nt = new stdClass();
 
         $nt->id = 0;
-        $nt->organization = "Visas telpas";
+        $nt->organization = "Visas organizācijas";
         $nt->title = "Visas telpas";
         
         array_push($rooms, $nt);

@@ -39,6 +39,7 @@
             this.days_list_id = this.root.data("days-list-id"); 
             this.rooms_list_id = this.root.data("rooms-list-id");
             this.coffee_list_id = this.root.data("coffee-list-id");
+            this.cbo_rooms_refreshing = false;
             
             this.room_id = this.root.data("room-id");
             this.current_date = this.root.data("crrent-date");
@@ -92,6 +93,11 @@
             });
             
             this.root.find(".dx-rooms-cbo").change(function (event) {
+                
+                if (self.cbo_rooms_refreshing) {
+                    return false;
+                }
+                
                 event.preventDefault();
 
                 show_page_splash(1);
@@ -112,6 +118,20 @@
                 else {
                     notify_err("Vispirms izvēlieties telpu no saraksta!");
                 }
+            });
+            
+            this.root.find(".dx-room-new-btn").click(function() {
+                open_form('form', 0, self.rooms_list_id, 0, 0, "", 1, "", {
+                    after_close: function(frm)
+                    {
+                        var new_room_id = frm.find('[name=item_id]').val();
+                        if (new_room_id) {
+                            show_page_splash(1);
+                            var url = self.options.root_url + self.options.scheduler_url + new_room_id;
+                            window.location.assign(encodeURI(url));
+                        }
+                    }
+                });
             });
            
             var addDr = function(el, gr) {
@@ -390,7 +410,8 @@
                 };
                 
                 request.err_callback = function() {                    
-                    // ToDo: here we need somehow to rollback UI changes
+                    // rollback UI changes
+                    refreshAllData();
                 };
 
                 request.doRequest();
@@ -412,11 +433,41 @@
                 };
                 
                 request.err_callback = function() {                    
-                   // ToDo: here we need somehow to rollback UI changes
+                   // rollback UI changes
+                   refreshAllData();
                 };
 
                 request.doRequest();
             };
+            
+            var refreshRoomsCbo = function(cbo_json) {
+                self.cbo_rooms_refreshing = true;
+                var cur_val = $(".dx-rooms-cbo").val();
+                var cur_org = "";
+                var htm = "";
+                var cbo = $(".dx-rooms-cbo");
+                        
+                cbo.empty();
+               
+                $.each(JSON.parse(cbo_json), function() {    
+                    if (cur_org != this.organization) {                    
+                        if (cur_org != "") {
+                            htm = htm + "</optgroup>";
+                        }
+                        htm = htm  + "<optgroup label='" +  this.organization + "'>";
+                        cur_org = this.organization;
+                    }
+                    
+                    htm = htm + "<option value='" + this.id + "'>" + this.title + "</option>";                  
+                });
+                
+                if (cur_org != "") {
+                    htm = htm + "</optgroup>";
+                }
+                $(htm).appendTo(cbo);
+                cbo.val(cur_val);
+                self.cbo_rooms_refreshing = false;
+            }
             
             var refreshAllData = function() {                
                 $.getJSON( self.options.root_url + self.options.scheduler_url + "json/" + self.room_id, function( data ) {
@@ -430,10 +481,13 @@
                         newGroupHtml({subj_id: this.subject_id, group_id: this.id, text: this.title});                    
                     });
                     
+                    refreshRoomsCbo(data.rooms_cbo);
+                    
                     $('#calendar').fullCalendar( 'removeEvents');
                     $('#calendar').fullCalendar( 'removeResources');
                     $('#calendar').fullCalendar( 'refetchResources' );
                     $('#calendar').fullCalendar( 'refetchEvents' );
+                    
                 });
             }
             

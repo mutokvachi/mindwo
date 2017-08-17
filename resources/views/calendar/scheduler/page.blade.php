@@ -92,7 +92,7 @@
 	</div>
 	<div class="portlet-body">
 		<div class="row">
-			<div class="col-md-5 col-sm-12">
+			<div class="col-md-4 col-sm-12">
                                 <div class="row" style="margin-bottom: 8px;">
                                     <div class="col-md-5 dx-title">
                                         Mācību pasākumi
@@ -115,7 +115,7 @@
                             
                                 <div class="row" style="margin-bottom: 15px; margin-top: 15px;">
                                     <div class="col-md-6 dx-title">
-                                        Mācību grupas sagatavošanā
+                                        Grupas sagatavošanā
                                     </div>
                                     <div class="col-md-6">                                        
                                         <div class="input-group pull-right">
@@ -132,7 +132,7 @@
                                 </div>
 			</div>
                        
-			<div class="col-md-7 col-sm-12">
+			<div class="col-md-8 col-sm-12">
 				<div id="calendar" class="has-toolbar"> </div>
 			</div>
 		</div>
