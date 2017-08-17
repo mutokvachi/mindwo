@@ -26,6 +26,8 @@ return [
 	'register_name' => 'Register name',
 	'remove' => 'Remove',
 	'remove_row' => 'Remove row',
+	'save' => 'Save',
+	'save_success' => 'The data has been successfully saved.',
 	'step_names' => 'Naming',
 	'step_names_desc' => 'Register & item titles',
 	'step_columns' => 'View',
