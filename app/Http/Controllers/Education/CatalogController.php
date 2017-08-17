@@ -92,7 +92,8 @@ class CatalogController extends Controller
             ->leftJoin('edu_subjects_teachers AS te', 'te.subject_id', '=', 'sub.id') //teach  
             ->leftJoin('dx_users AS u', 'te.teacher_id', '=', 'u.id') //teach            
 
-            ->where('sub.is_published', 1) // Only published            
+            ->where('sub.is_published', 1) // Only published     
+            ->where('gr.is_published', 1) // Only published     
             ->where(function ($query) {
                 $query->where('gr.signup_due', '>=', Carbon::today()->toDateString());
                 $query->orWhereNull('gr.signup_due');                

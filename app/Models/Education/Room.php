@@ -3,13 +3,15 @@
 namespace App\Models\Education;
 
 use Illuminate\Database\Eloquent\Model;
+use DB;
+use Carbon\Carbon;
 
-class SubjectGroup extends Model
+class Room extends Model
 {
      /**
      * @var string Related table
      */
-    protected $table = 'edu_subjects_groups';
+    protected $table = 'edu_rooms';
 
     /**
      * @var bool Disables Laravel's time stamps on insert and update
@@ -26,29 +28,9 @@ class SubjectGroup extends Model
         'modified_time'
     ];
 
-    /**
-     * Related subject
-     *
-     * @return \App\Models\Education\Subject
-     */
-    public function subject()
-    {
-        return $this->belongsTo('\App\Models\Education\Subject', 'subject_id');
-    }
-
-    public function days()
-    {
-        return $this->hasMany('\App\Models\Education\SubjectGroupDay', 'group_id');
-    }
-
-    public function members()
-    {
-        return $this->hasMany('\App\Models\Education\SubjectGroupMember', 'group_id');
-    }
-
     public function organization()
     {
-        return $this->belongsTo('\App\Models\Education\Organization', 'inner_org_id');
+        return $this->belongsTo('\App\Models\Education\Organization', 'org_id');
     }
 
     /**

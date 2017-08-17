@@ -16,7 +16,8 @@
   color: red;
 }
 
-.dx-edu-course-tab-container h4 {
+.dx-edu-course-tab-container h4,
+.dx-edu-course-tab-container h5 {
   font-weight: bold;
 }
 

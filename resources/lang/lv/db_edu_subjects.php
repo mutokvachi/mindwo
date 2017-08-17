@@ -34,6 +34,8 @@ return [
     'topics' => 'Tēmas', 
     'benefits' => 'Dalībnieku ieguvumi',
     'coordinator_id' => 'Koordinators',
+    'price' => 'Cena',
+    'duration' => 'Ilgums',
     
     // hints
     'subject_code_hint' => 'Norāda unikālu pasākuma identifikācijas kodu moduļa ietvaros. Ja laukā netiek norādīta vērtība, tad, saglabājot, sistēma automātiski iestatīs pasākuma kodu atbilstoši pasākumu skaitam modulī.',

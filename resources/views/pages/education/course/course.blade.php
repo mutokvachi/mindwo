@@ -10,16 +10,23 @@
     <div class="portlet light">
         <div class="portlet-title">
             <div class="caption">
-                <i class="{{ $group->icon ? $group->icon : 'fa fa-university' }}"></i>
-                <span class="caption-subject bold uppercase">{{ $group->title }}</span>
+                <i class="{{ 'fa fa-university' }}"></i>
+                <span class="caption-subject bold uppercase">{{ $subject->title }}</span>
             </div>
         </div>
         <div class="portlet-body">
-            <div style="margin-bottom: 10px;">                
-                @if($group->is_full)
-                <button class="btn btn-md btn-danger disabled">Grupa ir pilna</button>
+            <div style="margin-bottom: 10px;">  
+                <?php 
+                    $availability = $subject->getAvailability();              
+                ?>
+               @if($availability->group_count > 0)
+                    @if($availability->is_not_full == 1)
+                        <a href="{{Request::root()}}/edu/registration/{{ $subject->id }}" class="btn btn-sm btn-primary">Pieteikties</a>   
+                    @else
+                        <button class="btn btn-sm btn-danger disabled">Visas grupas ir pilnas</button>
+                    @endif 
                 @else
-                <a href="{{Request::root()}}/edu/registration/{{ $group->id }}" class="btn btn-md btn-primary">Pieteikties</a>
+                    <button class="btn btn-sm btn-danger disabled">Šobrīd nav pieejams</button>
                 @endif
             </div>
             <ul class="nav nav-tabs">
@@ -30,7 +37,7 @@
                     <a href="#dx-edu-course-tab-time" data-toggle="tab"> Laiks, ilgums, cena </a>
                 </li>
                 <li>
-                    <a href="#dx-edu-course-tab-teachers" data-toggle="tab"> Pasniedzējs </a>
+                    <a href="#dx-edu-course-tab-teachers" data-toggle="tab"> Pasniedzēji </a>
                 </li>
                 <li>
                     <a href="#dx-edu-course-tab-contact" data-toggle="tab"> Kontakti </a>
