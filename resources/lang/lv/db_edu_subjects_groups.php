@@ -25,6 +25,7 @@ return [
     'tab_main' => 'Pamatdati',
     'tab_members' => 'Dalībnieki',
     'tab_days' => 'Nodarbības',
+    'tab_orgs' => 'Uzaicināmās iestādes',
     
     // views
     'view_related' => 'Skats saistītajiem ierakstiem',
