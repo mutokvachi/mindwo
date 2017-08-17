@@ -1,12 +1,12 @@
 <div class="dx-edu-course-tab-container">
-    @if($subject->duration)
+    @if(1==0)
     <h4>Ilgums</h4>
     <div>
         {!! $subject->duration !!}
     </div>
     @endif
 
-    @if($subject->price)
+    @if(1==0)
     <h4>Cena</h4>
     <div>
         {!! $subject->price !!}
