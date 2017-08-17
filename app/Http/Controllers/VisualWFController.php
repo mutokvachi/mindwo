@@ -270,14 +270,14 @@ class VisualWFController extends Controller
 
         $has_arrow_labels = 0;
 
-        if ($type_code == 'CRIT' || $type_code == 'CRITM') {
+        if (in_array($type_code, [ 'APPR', 'EXEC', 'SUPP', 'CRIT', 'CRITM' ])) {
             $has_arrow_labels = 1;
             $arrow_count = 2;
             $shape = 'rhombus';
         } elseif ($type_code == 'ENDPOINT') {
             $arrow_count = 1;
             $shape = 'ellipse';
-        } elseif ($type_code == 'SET') {
+        } elseif (in_array($type_code, [ 'SET', 'INFO'])) {
             $arrow_count = 1;
             $shape = 'rounded';
         } else {
