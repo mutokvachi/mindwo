@@ -6677,7 +6677,7 @@ detectWarningInContainer = function(containerEl) {
                             dx_subj_id: el.data("subject-id"),
                             dx_group_id: el.data("group-id"),
                             dx_day_id: 0,
-                            dx_coffee_id: 0,
+                            dx_coffee_id: 0
                     });
 
                     // make the event draggable using jQuery UI
@@ -6702,21 +6702,6 @@ detectWarningInContainer = function(containerEl) {
                             open_form('form', el.data("group-id"), self.groups_list_id, 0, 0, "", 0, "", {
                                 after_close: function(frm)
                                 {
-                                    /*
-                                    el.attr('data-subject-id', frm.find("[name=subject_id]").val());
-                                    el.find(".dx-item-title").text(self.options.group_prefix + el.data("group-id") + ": " + frm.find("[dx_fld_name=subject_id]").val());
-                                    
-                                    el.data('event', {
-                                            title: $.trim(el.find(".dx-item-title").text()), // use the element's text as the event title
-                                            stick: true, // maintain when user navigates (see docs on the renderEvent method)
-                                            className: 'group',
-                                            duration: "02:00",
-                                            dx_subj_id: el.data("subject-id"),
-                                            dx_group_id: el.data("group-id"),
-                                            dx_day_id: 0,
-                                            dx_coffee_id: 0,
-                                    });
-                                    */
                                     refreshAllData();
                                 }
                             });
@@ -6727,20 +6712,6 @@ detectWarningInContainer = function(containerEl) {
                             open_form('form', el.data("subject-id"), self.subjects_list_id, 0, 0, "", 0, "", {
                                 after_close: function(frm)
                                 {
-                                    /*
-                                    el.find(".dx-item-title").text(frm.find("[name=title]").val());
-                                    
-                                    el.data('event', {
-                                            title: $.trim(el.find(".dx-item-title").text()), // use the element's text as the event title
-                                            stick: true, // maintain when user navigates (see docs on the renderEvent method)
-                                            className: '',
-                                            duration: "02:00",
-                                            dx_subj_id: el.data("subject-id"),
-                                            dx_group_id: 0,
-                                            dx_day_id: 0,
-                                            dx_coffee_id: 0,
-                                    });
-                                    */
                                     refreshAllData();
                                 }
                             });
@@ -7025,7 +6996,6 @@ detectWarningInContainer = function(containerEl) {
             
             var cal_tools = 'prev,next,today';
             var def_view = '';
-            //var rooms_arr = null;
             
             if (this.room_id) {
                 cal_tools = cal_tools + ',month,agendaWeek,agendaDay';
@@ -7034,10 +7004,9 @@ detectWarningInContainer = function(containerEl) {
             else {
                 cal_tools = cal_tools + ',timelineDay,timelineThreeDays';
                 def_view = 'timelineThreeDays';
-                //rooms_arr = this.root.data('rooms-json');
             }
             
-            $('#calendar').fullCalendar({
+            var fullcal_params = {
                         schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
 			now: self.current_date,
                         weekends: false,
@@ -7177,16 +7146,20 @@ detectWarningInContainer = function(containerEl) {
                                 hide_page_splash(1);
                             }
                         },
-			resourceGroupField: 'organization',
-			resources: {
-                            url: self.options.root_url + self.options.scheduler_url + "rooms_json/" + self.room_id,
-                            type: 'GET'
-                        },
+			resourceGroupField: 'organization',              
 			events: {
                             url: self.options.root_url + self.options.scheduler_url + "events_json/" + self.room_id,
                             type: 'GET'
                         }
-            });  
+            };
+            
+            if (!this.room_id) {
+                fullcal_params["resources"] = {
+                            url: self.options.root_url + self.options.scheduler_url + "rooms_json/" + self.room_id,
+                            type: 'GET'
+                        };
+            }
+            $('#calendar').fullCalendar(fullcal_params);  
            
             $.contextMenu({
                 selector: '.context-menu-one', 

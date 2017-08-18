@@ -163,7 +163,7 @@ gulp.task('mix_all', function() {
             'mindwo/dx_core.js',
             'metronic/app.js',
             'jquery-ui/jquery-ui.min.js',
-            'fullcalendar/fullcalendar.min.js',
+            'fullcalendar/fullcalendar.js',
             'fullcalendar/locale-all.js',
             'mindwo/blocks/calendar.js',
             'resources/assets/plugins/datetimepicker/jquery.datetimepicker.js',
@@ -410,7 +410,7 @@ gulp.task('mix_all', function() {
         // Scripts for scheduler
         mix.scripts([
            'fullcalendar-scheduler/scheduler.js',
-           'mindwo/pages/scheduler.js',
+           'mindwo/pages/dx_scheduler.js',
            'jquery-contextMenu/jquery.contextMenu.js'
         ], 'public/js/elix_scheduler.js', 'resources/assets/plugins');
 		

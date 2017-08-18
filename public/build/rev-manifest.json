@@ -1,6 +1,6 @@
 {
   "js/elix_userlinks.js": "js/elix_userlinks-3796d0d6.js",
-  "js/elix_plugins.js": "js/elix_plugins-004b4a0d.js",
+  "js/elix_plugins.js": "js/elix_plugins-a5204d2d.js",
   "js/elix_view.js": "js/elix_view-6a60e17d.js",
   "js/elix_education.js": "js/elix_education-42f74f08.js",
   "css/elix_education.css": "css/elix_education-46fdd7a4.css",
@@ -34,6 +34,6 @@
   "js/elix_menu_builder.js": "js/elix_menu_builder-97d95f1a.js",
   "css/elix_menu_builder.css": "css/elix_menu_builder-ae2deb42.css",
   "js/elix_timeline.js": "js/elix_timeline-af849c5d.js",
-  "js/elix_scheduler.js": "js/elix_scheduler-ba3a5d86.js",
+  "js/elix_scheduler.js": "js/elix_scheduler-c5aa627d.js",
   "css/elix_scheduler.css": "css/elix_scheduler-5d2bdb90.css"
 }
