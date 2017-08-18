@@ -6,7 +6,7 @@
             <div class="col-lg-1 col-md-2 col-sm-3 col-xs-12 col-lg-push-11 col-md-push-10 col-sm-push-9" style='margin-bottom: 10px;'>
                 <img style='width: 100%; max-width:200px;' class="" 
                     alt=""  
-                    src="{{Request::root()}}/{{ 1==0 ? 'img/' . $course->teacher->picture_guid : 'assets/global/avatars/default_avatar_big.jpg' }}" />
+                    src="{{Request::root()}}/{{ $teacher->picture_guid ? 'img/' . $teacher->picture_guid : 'assets/global/avatars/default_avatar_big.jpg' }}" />
             </div>
             <div class="col-lg-11 col-md-10 col-sm-9 col-xs-12 col-lg-pull-1 col-md-pull-2 col-sm-pull-3">
                 <p>
