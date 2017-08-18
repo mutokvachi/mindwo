@@ -6972,7 +6972,8 @@ detectWarningInContainer = function(containerEl) {
                 self.cbo_rooms_refreshing = false;
             }
             
-            var refreshAllData = function() {                
+            var refreshAllData = function() {
+                show_page_splash(1);
                 $.getJSON( self.options.root_url + self.options.scheduler_url + "json/" + self.room_id, function( data ) {
                     $("#external-events").empty();
                     $.each(JSON.parse(data.subjects), function() {                        
