@@ -539,7 +539,8 @@ class SchedulerController extends Controller
         return DB::table('edu_rooms as r')
                     ->select('r.id', 'o.title as organization', DB::raw("case when r.is_elearn then r.title else CONCAT(r.title, ' - ', ifnull(r.room_address, o.address)) end as title"))
                     ->join('edu_orgs as o', 'r.org_id', '=', 'o.id')
-                    ->orderBy('o.title', 'r.title')
+                    ->orderBy('o.title')
+                    ->orderBy('r.title')
                     ->get();
     }
     

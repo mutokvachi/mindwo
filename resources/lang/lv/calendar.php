@@ -47,6 +47,13 @@ return [
         'publish_btn' => 'Publicēt',
         'new_subj_btn' => 'Jauns pasākums',
         'new_group_btn' => 'Jauna grupa',
-        'error_no_day_for_coffee' => 'Kafijas pauzei nav iespējams noteikt atbilstošo nodarbību! Lūdzu, pievienojiet kafijas pauzi konkrētā nodarbībā.'
+        'error_no_day_for_coffee' => 'Kafijas pauzei nav iespējams noteikt atbilstošo nodarbību! Lūdzu, pievienojiet kafijas pauzi konkrētā nodarbībā.',
+        'publish_popup_title' => 'Grupu publicēšana',
+        'lbl_publish_count' => 'Publicējamo grupu skaits',
+        'menu_publish_marked' => 'Iezīmētās grupas',
+        'menu_publish_all' => 'Visas grupas',
+        'menu_lbl' => 'Izvēlnes',
+        'tooltip_new_subect' => 'Jauns mācību pasākums',
+        'btn_check_publish' => 'Pārbaudīt un publicēt',
     ],
 ];

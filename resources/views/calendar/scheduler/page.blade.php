@@ -138,6 +138,7 @@
 		</div>
 	</div>
     </div>
+    @include('calendar.scheduler.publish_popup')
     @include('calendar.scheduler.footer')
 </div>
 @endsection

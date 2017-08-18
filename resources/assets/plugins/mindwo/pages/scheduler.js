@@ -715,6 +715,21 @@
                 }
             });
             
+            this.root.find(".dx-publish-default").click(function() {
+                
+                var grps = $("#dx-groups-box").find(".dx-group").length;
+                
+                if (!grps) {
+                    notify_err("Nav neviena grupa sagatavošanā, ko varētu publicēt.");
+                    return;
+                }
+                
+                var frm = $(".dx-publish-popup");
+                frm.find('.dx-total-groups').text(grps);
+                
+                frm.modal('show');
+            });
+            
             // adjust menu for vertical menu UI
             if (!$("body").hasClass("dx-horizontal-menu-ui")) {
                 
