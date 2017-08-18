@@ -131,7 +131,7 @@ class SchedulerController extends Controller
     public function getSchedulerEventsJSON($current_room_id, Request $request) {
         $this->checkRights();
         
-        return json_encode($this->getEvents($current_room_id, $request->input('start'), $request->input('end')), JSON_UNESCAPED_UNICODE);
+        return json_encode($this->getEvents($current_room_id, $request->input('start'), $request->input('end')));
     }
     
      /**
@@ -151,7 +151,7 @@ class SchedulerController extends Controller
         
         $rooms = $this->getRooms();
         
-        return json_encode($rooms, JSON_UNESCAPED_UNICODE);
+        return json_encode($rooms);
     }
     
     /**
