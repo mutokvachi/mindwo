@@ -125,7 +125,7 @@
                                 <div class="ext-cont">
                                     <div id="dx-groups-box">
                                         @foreach($groups as $group)
-                                        <div class='dx-event dx-group' data-subject-id="{{ $group->subject_id }}" data-group-id="{{ $group->id }}"><input type="checkbox"/><span class="dx-item-title">{{ $group->title }}</span><a class="pull-right" href="javascript:;"><i class="fa fa-edit dx-group-edit"></i></a></div>
+                                        <div class='dx-event dx-group' data-subject-id="{{ $group->subject_id }}" data-group-id="{{ $group->id }}"><input type="checkbox"/><span class="dx-item-title">{{ $group->title }}</span><a class="pull-right dx-group-edit" href="javascript:;"><i class="fa fa-edit"></i></a></div>
                                         @endforeach
                                     </div>
                                 </div>

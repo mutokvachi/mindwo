@@ -24,15 +24,30 @@ class PublishController extends Controller
      */
     public function publishGroups(Request $request)
     {
+        $this->validate($request, [
+            'groups_ids' => 'required'
+        ]);
+        
         $this->checkRights();
         
+        /*
+        Visām nodarbībām ir norādīts vismaz viens pasniedzējs;
+        Visām grupām ir norādīta vismaz viena nodarbība;
+        Ja kādai nodarbībai vairāki pasniedzēji, tad nepārklājās pasniedzēju laiki;
+        Grupai norādītais mācību pasākums, modulis un programma ir publicēti;
+        Grupas vietu limits nepārsniedz vietu limitu telpās, kurās notiek nodarbības;
+        Nepārklājās dažādu grupu nodarbību laiki kādā no telpām;
+        Nepārklājās grupas nodarbības laiks telpā, kura tiek izmantota tajā pašā dienā kafijas pauzēm;
+        Visām kafijas pauzēm ir norādīti pakalpojumu sniedzēji;
+        Grupās, kurās dalībnieki paši nevar pieteikties (tikai ar uzaicinājumu), dalībnieku kopējais skaits pa uzaicināmajām iestādēm ir vienāds ar grupu vietu limitu;
+        Grupās, kurās dalībnieki paši nevar pieteikties (tikai ar uzaicinājumu), ir aizpildītas vismaz 50% vietas;
+        Grupās, kurās dalībnieki paši nevar pieteikties (tikai ar uzaicinājumu), dalībnieku skaits nepārsniedz grupas vietu limitu;
+         */
+        
         return response()->json([
-            'success' => 1,/* 
-            'subjects' => json_encode($this->getSubjects()),
-            'groups' => json_encode($this->getGroups()),
-            'rooms' => json_encode($rooms),
-            'rooms_cbo' => json_encode($this->getCboRooms($rooms))             
-             */
+            'success' => 1,
+            'err_count' => 4,
+            'err_htm' => view('calendar.scheduler.err_groups')->render()
         ]);
     }
     

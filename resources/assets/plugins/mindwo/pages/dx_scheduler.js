@@ -40,6 +40,7 @@
             this.rooms_list_id = this.root.data("rooms-list-id");
             this.coffee_list_id = this.root.data("coffee-list-id");
             this.cbo_rooms_refreshing = false;
+            this.publish_ids = "";
             
             this.room_id = this.root.data("room-id");
             this.current_date = this.root.data("crrent-date");
@@ -689,18 +690,89 @@
                 }
             });
             
+            var fillPublishIDs = function(grps) {
+                var ids = "";
+                grps.each(function() {
+                    if (ids != "") {
+                        ids = ids + ",";
+                    } 
+
+                    ids = ids + $(this).attr('data-group-id');
+                });
+                
+                return ids;
+            };
+            
+            $(".dx-publish-popup").find(".dx-check-publish-btn").click(function() {
+                var frm = $(".dx-publish-popup");
+                frm.find(".dx-publish-progress").show();
+                frm.find(".dx-check-publish-btn").hide();
+                frm.find(".dx-cancel-btn").hide();
+                frm.find(".dx-form-close-btn").hide();
+                frm.find(".alert-error").hide();
+                frm.find(".ext-cont").hide();
+                frm.find(".dx-problem-lbl").hide();
+                
+                var formData = new FormData();                
+                formData.append("groups_ids", self.publish_ids);
+                
+                var request = new FormAjaxRequest (self.options.scheduler_url + "publish", '', '', formData);
+                
+                request.callback = function(data) {
+                    $(".dx-publish-popup").find(".dx-publish-progress").hide();
+                    if (data.err_count == 0) {
+                        frm.find(".alert-info").show();
+                        frm.find(".dx-cancel-btn").text("Aizvērt").show();
+                        frm.find(".dx-cancel-btn").show();
+                        frm.find(".dx-form-close-btn").show();
+                        refreshAllData();
+                    }
+                    else {
+                        frm.find(".dx-cancel-btn").show();
+                        frm.find(".dx-check-publish-btn").show();
+                        frm.find(".alert-error").show();
+                        frm.find(".dx-problem-lbl").show().find(".dx-err-count").text(data.err_count);                        
+                        frm.find(".dx-cancel-btn").show();
+                        frm.find(".dx-form-close-btn").show();
+                        frm.find(".ext-cont").html(data.err_htm).show();
+                    }
+                };
+                
+                request.err_callback = function() {                    
+                    frm.find(".dx-check-publish-btn").show();
+                    frm.find(".dx-publish-progress").hide();
+                    frm.find(".dx-cancel-btn").show();
+                    frm.find(".dx-form-close-btn").show();
+                };
+                
+                request.doRequest();
+            });
+            
             this.root.find(".dx-publish-default").click(function() {
+                var grps = $("#dx-groups-box").find(".dx-group input:checked");
+                self.publish_ids = fillPublishIDs(grps);
                 
-                var grps = $("#dx-groups-box").find(".dx-group").length;
+                if (self.publish_ids == "") {
+                    grps = $("#dx-groups-box").find(".dx-group");
+                    self.publish_ids = fillPublishIDs(grps);
+                }
                 
-                if (!grps) {
+                if (!grps.length) {
                     notify_err("Nav neviena grupa sagatavošanā, ko varētu publicēt.");
                     return;
                 }
                 
                 var frm = $(".dx-publish-popup");
-                frm.find('.dx-total-groups').text(grps);
+                frm.find('.dx-total-groups').text(grps.length);
                 
+                frm.find(".alert-error").hide();
+                frm.find(".dx-publish-progress").hide();
+                frm.find(".alert-info").hide();
+                frm.find(".dx-check-publish-btn").show();
+                frm.find(".dx-cancel-btn").show();
+                frm.find(".dx-form-close-btn").show();
+                frm.find(".ext-cont").hide();
+                frm.find(".dx-problem-lbl").hide();
                 frm.modal('show');
             });
             
