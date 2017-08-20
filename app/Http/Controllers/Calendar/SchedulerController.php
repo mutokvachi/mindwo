@@ -421,6 +421,12 @@ class SchedulerController extends Controller
      */
     private function getGroups() {
         return DB::table('edu_subjects_groups')
+                ->select(
+                        'id',
+                        'subject_id',
+                        'title',
+                        DB::raw("case when is_complecting then 'complect' else case when first_publish is null then 'prepare' else 'correct' end end as status")
+                )
                 ->where('is_published', '=', 0)
                 ->orderBy('id')
                 ->get();

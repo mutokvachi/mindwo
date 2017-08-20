@@ -167,4 +167,8 @@ return [
     'import_lookup_no_field' => "The list ':list' does not have field named ':fld'!",
     
     'not_valid_email' => "Provided email ':email' is not valid! Email must be in format like 'person@domain.com'.",
+    
+    'publish_validator_not_exists' => "Provided validator code ':code' is not correct!",
+    
+    'publish_validator_no_group' => "Provided wrong group ID ':id'!",
 ];

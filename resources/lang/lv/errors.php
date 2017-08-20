@@ -166,4 +166,8 @@ return [
     'import_lookup_no_field' => "Reģistrā ':list' nav definēts lauks ':fld'!",
     
     'not_valid_email' => "Norādītā e-pasta adrese ':email' ir nekorekta! E-pasta adresei jābūt formātā 'vards@domens.lv'.",
+    
+    'publish_validator_not_exists' => "Norādīts neeksistējošs validatora kods ':code'!",
+    
+    'publish_validator_no_group' => "Norādīts neeksistējošs grupas identifikators ':id'!",
 ];

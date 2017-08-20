@@ -55,5 +55,10 @@ return [
         'menu_lbl' => 'Izvēlnes',
         'tooltip_new_subect' => 'Jauns mācību pasākums',
         'btn_check_publish' => 'Pārbaudīt un publicēt',
+        'btn_check' => 'Pārbaudīt',
+        'btn_edit_err_group' => 'Skatīt grupu',
+        'btn_solve_err_group' => 'Atrisināts',
+        'link_mark_all' => 'Iezīmēt visu',
+        'link_remove_marks' => 'Noņemt iezīmes',
     ],
 ];

@@ -112,12 +112,22 @@
                                     </div>
                                 </div>
                             
-                                <div class="row" style="margin-bottom: 15px; margin-top: 15px;">
-                                    <div class="col-md-6 dx-title">
-                                        Grupas sagatavošanā
+                                <div class="row" style="margin-bottom: 8px; margin-top: 15px;">
+                                    <div class="col-md-3 dx-title">
+                                        Grupas
                                     </div>
-                                    <div class="col-md-6">                                        
+                                    <div class="col-md-9">                                        
                                         <div class="input-group pull-right">
+                                            <div class="input-group-btn dx-group-filter-btn" data-status='all'>
+                                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="btn-title">Visas nepublicētās</span> <span class="caret"></span></button>
+                                                <ul class="dropdown-menu">
+                                                  <li><a href="javascript:;" data-status='prepare'>Sagatavošanā</a></li>
+                                                  <li><a href="javascript:;" data-status='complect'>Komplektēšanā</a></li>
+                                                  <li><a href="javascript:;" data-status='correct'>Koriģēšanā</a></li>
+                                                  <li role="separator" class="divider"></li>
+                                                  <li><a href="javascript:;" data-status='all'>Visas nepublicētās</a></li>
+                                                </ul>
+                                            </div><!-- /btn-group -->
                                             <input type="text" class="form-control dx-search-group" placeholder="Meklēt grupu...">                                            
                                         </div>
                                     </div>
@@ -125,9 +135,12 @@
                                 <div class="ext-cont">
                                     <div id="dx-groups-box">
                                         @foreach($groups as $group)
-                                        <div class='dx-event dx-group' data-subject-id="{{ $group->subject_id }}" data-group-id="{{ $group->id }}"><input type="checkbox"/><span class="dx-item-title">{{ $group->title }}</span><a class="pull-right dx-group-edit" href="javascript:;"><i class="fa fa-edit"></i></a></div>
+                                        <div class='dx-event dx-group dx-status-{{ $group->status }}' data-subject-id="{{ $group->subject_id }}" data-group-id="{{ $group->id }}"><input type="checkbox"/><span class="dx-item-title">{{ $group->title }}</span><a class="pull-right dx-group-edit" href="javascript:;"><i class="fa fa-edit"></i></a></div>
                                         @endforeach
                                     </div>
+                                </div>
+                                <div style='margin-top: 10px;'>
+                                    <a href='javascript:;' class='dx-mark-set-all'><i class="fa fa-check-square-o"></i> {{ trans('calendar.scheduler.link_mark_all') }}</a> | <a href='javascript:;' class='dx-mark-remove-all'><i class="fa fa-square-o"></i> {{ trans('calendar.scheduler.link_remove_marks') }}</a>
                                 </div>
 			</div>
                        

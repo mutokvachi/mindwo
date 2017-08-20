@@ -30,6 +30,38 @@ class PublishController extends Controller
         
         $this->checkRights();
         
+        $validators = DB::table('edu_publish_validators')
+                      ->where('is_for_publish', '=', true)
+                      ->where('id', '<', 3) // ToDo: just for debug
+                      ->get();
+        
+        $groups = explode(",", $request->input('groups_ids'));
+        $arr_groups = [];
+        
+        foreach($groups as $group) {
+            $group_row = DB::table('edu_subjects_groups')
+                         ->where('id', '=', $group)
+                         ->first();
+            
+            if (!$group_row) {
+                throw new Exceptions\DXCustomException(trans('errors.publish_validator_no_group', ['id' => $group]));
+            }
+            
+            foreach($validators as $validator) {
+                $valid = Validators\ValidatorFactory::build_validator($validator->code, $group_row);
+                
+                $err_arr = $valid->getErrors();
+                
+                if (count($err_arr)) {
+                    array_push($arr_groups, [
+                        'group_id' => $group_row->id,
+                        'group_title' => $group_row->title,
+                        'errors' => $err_arr
+                    ]);
+                }
+            }
+        }
+        
         /*
         Visām nodarbībām ir norādīts vismaz viens pasniedzējs;
         Visām grupām ir norādīta vismaz viena nodarbība;
@@ -46,8 +78,10 @@ class PublishController extends Controller
         
         return response()->json([
             'success' => 1,
-            'err_count' => 4,
-            'err_htm' => view('calendar.scheduler.err_groups')->render()
+            'err_count' => count($arr_groups),
+            'err_htm' => view('calendar.scheduler.err_groups', [
+                            'groups' => $arr_groups
+                         ])->render()
         ]);
     }
     

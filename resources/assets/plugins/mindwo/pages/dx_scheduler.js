@@ -233,16 +233,33 @@
 
             });
             
+            var filterGroups = function() {
+                var crit = self.root.find(".dx-search-group").val();
+                var status = self.root.find(".dx-group-filter-btn").attr("data-status");
+                
+                if(!crit && status === "all")
+                {
+                    $("#dx-groups-box").find(".dx-event").show();
+                    return;
+                }
+                
+                $("#dx-groups-box").find(".dx-event").hide();
+                
+                var stat_class = (status === "all") ? '' : (".dx-status-" + status);
+                
+                $("#dx-groups-box").find(".dx-event" + stat_class + ":contains('" + crit + "')").show();
+                
+            };
+            
             this.root.find(".dx-search-group").on("keyup", function()
             {
-                    if(!$(this).val())
-                    {
-                            $("#dx-groups-box").find(".dx-event").show();
-                            return;
-                    }
-                    $("#dx-groups-box").find(".dx-event").hide();
-                    $("#dx-groups-box").find(".dx-event:contains('" + $(this).val() + "')").show();
-
+                filterGroups();
+            });
+            
+            this.root.find(".dx-group-filter-btn a").click(function() {
+                self.root.find(".dx-group-filter-btn button").find(".btn-title").text($(this).text());
+                self.root.find(".dx-group-filter-btn").attr("data-status", $(this).data("status"));
+                filterGroups();
             });
             
             var newGroupHtml = function(arr_data) {
@@ -253,6 +270,9 @@
                 
                 var ch = $("<input type='checkbox'/>");
                 ch.appendTo(new_el);
+                ch.change(function() {
+                    showHideChoiceBtn(this.checked);
+                });
                 
                 var sp = $("<span class='dx-item-title'></span>");
                 sp.text(arr_data.text);
@@ -461,6 +481,7 @@
                     $('#calendar').fullCalendar( 'refetchResources' );
                     $('#calendar').fullCalendar( 'refetchEvents' );
                     
+                    $(".dx-publish-choice").hide();
                 });
             }
             
@@ -675,11 +696,7 @@
                     "sep1": "---------",
                     "delete": {name: "Dzēst", icon: "fa-trash-o"}
                 }
-            });
-
-            $('.context-menu-one').on('click', function(e){
-                console.log('clicked', this);
-            })    
+            });  
             
             $(window).on('beforeunload', function()
             {
@@ -688,6 +705,16 @@
                     hide_page_splash(1);
                     return 'Your changes have not been saved.';
                 }
+            });
+            
+            this.root.find(".dx-mark-set-all").click(function() {
+                $("#dx-groups-box .dx-group input").prop("checked", true);
+                showHideChoiceBtn(true);
+            });
+            
+            this.root.find(".dx-mark-remove-all").click(function() {
+                $("#dx-groups-box .dx-group input").prop("checked", false);
+                showHideChoiceBtn(false);
             });
             
             var fillPublishIDs = function(grps) {
@@ -701,6 +728,42 @@
                 });
                 
                 return ids;
+            };
+            
+            var setErrEventHandlers = function(frm) {
+                frm.find(".btn-edit-err-group").click(function() {
+                    open_form('form', $(this).data('group-id'), self.groups_list_id, 0, 0, "", 0, "");
+                });
+                
+                frm.find(".dx-err-action").click(function() {
+                    open_form('form', $(this).data('item-id'), $(this).data('list-id'), 0, 0, "", 0, "");
+                });
+                
+                frm.find(".dx-solved-group").click(function() {
+                    var gr = $(this).closest(".dx-group");
+                    gr.addClass('bounceOutLeft');
+                    setTimeout(function(){ 
+                        gr.hide();
+                    }, 500); 
+                    
+                    var er = frm.find(".dx-problem-lbl").find(".dx-err-count");
+                    var cnt = parseInt(er.text()) - 1;
+                    er.text(cnt);
+                    if (cnt == 0) {
+                        clearErrFormState(frm);
+                    }
+                });
+            };
+            
+            var clearErrFormState = function(frm) {
+                frm.find(".alert-error").hide();
+                frm.find(".dx-publish-progress").hide();
+                frm.find(".alert-info").hide();
+                frm.find(".dx-check-publish-btn").show();
+                frm.find(".dx-cancel-btn").show();
+                frm.find(".dx-form-close-btn").show();
+                frm.find(".ext-cont").hide();
+                frm.find(".dx-problem-lbl").hide();
             };
             
             $(".dx-publish-popup").find(".dx-check-publish-btn").click(function() {
@@ -735,6 +798,7 @@
                         frm.find(".dx-cancel-btn").show();
                         frm.find(".dx-form-close-btn").show();
                         frm.find(".ext-cont").html(data.err_htm).show();
+                        setErrEventHandlers(frm);
                     }
                 };
                 
@@ -748,13 +812,46 @@
                 request.doRequest();
             });
             
-            this.root.find(".dx-publish-default").click(function() {
-                var grps = $("#dx-groups-box").find(".dx-group input:checked");
-                self.publish_ids = fillPublishIDs(grps);
+            var showHideChoiceBtn = function(is_checked) {
+                if(is_checked || $("#dx-groups-box .dx-group input:checked").length > 0) {
+                    $(".dx-publish-choice").show();
+                }
+                else {
+                    $(".dx-publish-choice").hide();
+                }
+            };
+            
+            $("#dx-groups-box .dx-group input").change(function() {
+                showHideChoiceBtn(this.checked);
+            });
+            
+            var openPublishPopup = function(e, is_all) {
+                var grps = null;
+                var status = self.root.find(".dx-group-filter-btn").attr("data-status");
+                var stat_class = (status === "all") ? '' : (".dx-status-" + status);
                 
-                if (self.publish_ids == "") {
-                    grps = $("#dx-groups-box").find(".dx-group");
+                if (!is_all) {
+                    grps = $("#dx-groups-box").find(".dx-group" + stat_class).filter(function() {
+                        return ($(this).find("input:checked").length > 0);
+                    });
                     self.publish_ids = fillPublishIDs(grps);
+                }
+                else {
+                    self.publish_ids = "";
+                }
+            
+                if (self.publish_ids == "") {
+                    grps = $("#dx-groups-box").find(".dx-group" + stat_class);
+                    self.publish_ids = fillPublishIDs(grps);
+                }
+                else { 
+                    if(e) {
+                        e.stopPropagation();
+                        self.publish_ids = "";
+                        // Toggle dropdown if not already visible:
+                        $('.dx-publish-btn-group').find(".dx-publish-choice").dropdown('toggle');
+                        return;
+                    }
                 }
                 
                 if (!grps.length) {
@@ -765,15 +862,20 @@
                 var frm = $(".dx-publish-popup");
                 frm.find('.dx-total-groups').text(grps.length);
                 
-                frm.find(".alert-error").hide();
-                frm.find(".dx-publish-progress").hide();
-                frm.find(".alert-info").hide();
-                frm.find(".dx-check-publish-btn").show();
-                frm.find(".dx-cancel-btn").show();
-                frm.find(".dx-form-close-btn").show();
-                frm.find(".ext-cont").hide();
-                frm.find(".dx-problem-lbl").hide();
+                clearErrFormState(frm);
                 frm.modal('show');
+            };
+            
+            this.root.find(".dx-publish-marked").click(function() {
+                openPublishPopup(null, false);
+            });
+            
+            this.root.find(".dx-publish-all").click(function() {
+                openPublishPopup(null, true);
+            });
+
+            this.root.find(".dx-publish-default").click(function(e) {
+                openPublishPopup(e, false);
             });
             
             // adjust menu for vertical menu UI
