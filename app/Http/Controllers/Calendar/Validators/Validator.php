@@ -59,13 +59,15 @@ namespace App\Http\Controllers\Calendar\Validators
          * @param integer $list_id Register ID where is problem
          * @param integer $item_id Item ID for problematic record
          * @param string $title Item title for problematic record - used to display in UI
+         * @param string $url Optional URL to where navigate in order to solve an issue
          */
-        public function setError($list_id, $item_id, $title) {
+        public function setError($list_id, $item_id, $title, $url = '') {
             array_push($this->arr_data, [
                 'list_id' => $list_id, 
                 'item_id' => $item_id, 
                 'title' => $title,
-                'err_text' => $this->err_txt
+                'err_text' => $this->err_txt,
+                'url' => $url
             ]);
         }
         

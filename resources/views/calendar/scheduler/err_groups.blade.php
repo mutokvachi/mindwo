@@ -3,7 +3,13 @@
     <span class="dx-item-title">{{ $group['group_title'] }}</span>
     <ul>
         @foreach($group['errors'] as $err)
-        <li>{{ $err['err_text']}}: <a href='javascript:;' class='dx-err-action' data-list-id='{{ $err['list_id'] }}' data-item-id='{{ $err['item_id'] }}'>{{ $err['title']}}</a></li>
+        <li>{{ $err['err_text']}}: 
+            @if ($err['url'])
+                <a href='{{ Request::root() }}/{{ $err['url'] }}' target='_blank'>{{ $err['title']}}</a>
+            @else
+                <a href='javascript:;' class='dx-err-action' data-list-id='{{ $err['list_id'] }}' data-item-id='{{ $err['item_id'] }}'>{{ $err['title']}}</a>
+            @endif
+        </li>
         @endforeach
     </ul>
     <div>

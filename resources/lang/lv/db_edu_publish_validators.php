@@ -15,6 +15,10 @@ return [
     'is_for_complect' => 'Ir komplektēšanas pārbaude',
    
     'err_action_edit_group' => 'Skatīt grupu',
+    'err_action_edit_subject' => 'Skatīt pasākumu',
+    'err_action_edit_module' => 'Skatīt moduli',
+    'err_action_edit_programm' => 'Skatīt programmu',
+    'err_action_edit_calendar' => 'Skatīt kalendārā',
     
     'values' => [
         [
@@ -32,6 +36,12 @@ return [
         [
             'title' => 'Nodarbības pasniedzējiem pārklājas laiki',
             'code' => 'TEACHER_TIME_OVERLAP',
+            'is_for_publish' => true,
+            'is_for_complect' => true,
+        ],
+        [
+            'title' => 'Nodarbības laiks ir lielāks nekā norādīto pasniedzēju kopējais laiks',
+            'code' => 'TEACHER_TIME_NOT_COVER',
             'is_for_publish' => true,
             'is_for_complect' => true,
         ],
@@ -94,6 +104,12 @@ return [
             'code' => 'MEMBERS_TOO_MUCH',
             'is_for_publish' => true,
             'is_for_complect' => false,
+        ],
+        [
+            'title' => 'Uz komplektēšanu var nodot tikai iekšējās grupas - grupa nav iekšējā',
+            'code' => 'NOT_INNER',
+            'is_for_publish' => false,
+            'is_for_complect' => true,
         ],
     ],
 ];

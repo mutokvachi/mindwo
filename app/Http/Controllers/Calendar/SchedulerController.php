@@ -77,13 +77,16 @@ class SchedulerController extends Controller
      * Get scheduler page UI
      * 
      * @param integer $current_room_id Room ID or 0 for all rooms
+     * @param \Illuminate\Http\Request $request GET request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function getSchedulerPage($current_room_id)
+    public function getSchedulerPage($current_room_id, Request $request)
     {
         $this->checkRights();
         
         $rooms = $this->getRooms();
+        
+        $current_date = $request->input('current_date', null);
         
         return view('calendar.scheduler.page', [
             'subjects_list_id' => $this->subjects_list_id,
@@ -95,7 +98,8 @@ class SchedulerController extends Controller
             'groups' => $this->getGroups(),
             'rooms' => $rooms,
             'rooms_cbo' => $this->getCboRooms($rooms),
-            'current_room_id' => $current_room_id
+            'current_room_id' => $current_room_id,
+            'current_date' => $current_date
         ]);
     }
     

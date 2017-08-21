@@ -17,7 +17,20 @@ use stdClass;
 class PublishController extends Controller
 {
     /**
-     * Validates and publish provided groups
+     *  Validates and publish provided groups
+     
+        Visām nodarbībām ir norādīts vismaz viens pasniedzējs;
+        Visām grupām ir norādīta vismaz viena nodarbība;
+        Ja kādai nodarbībai vairāki pasniedzēji, tad nepārklājās pasniedzēju laiki;
+        Grupai norādītais mācību pasākums, modulis un programma ir publicēti;
+        Grupas vietu limits nepārsniedz vietu limitu telpās, kurās notiek nodarbības;
+        Nepārklājās dažādu grupu nodarbību laiki kādā no telpām;
+        Nepārklājās grupas nodarbības laiks telpā, kura tiek izmantota tajā pašā dienā kafijas pauzēm;
+        Visām kafijas pauzēm ir norādīti pakalpojumu sniedzēji;
+        Grupās, kurās dalībnieki paši nevar pieteikties (tikai ar uzaicinājumu), dalībnieku kopējais skaits pa uzaicināmajām iestādēm ir vienāds ar grupu vietu limitu;
+        Grupās, kurās dalībnieki paši nevar pieteikties (tikai ar uzaicinājumu), ir aizpildītas vismaz 50% vietas;
+        Grupās, kurās dalībnieki paši nevar pieteikties (tikai ar uzaicinājumu), dalībnieku skaits nepārsniedz grupas vietu limitu;
+        Uz komplektēšanu var nodot tikai iekšējās grupas;
      * 
      * @param \Illuminate\Http\Request $request GET request
      * @return \Illuminate\Http\JsonResponse Returns validation errors array and success status in JSON
@@ -32,7 +45,7 @@ class PublishController extends Controller
         
         $validators = DB::table('edu_publish_validators')
                       ->where('is_for_publish', '=', true)
-                      ->where('id', '<', 3) // ToDo: just for debug
+                      ->where('id', '<', 10) // ToDo: just for debug
                       ->get();
         
         $groups = explode(",", $request->input('groups_ids'));
@@ -53,29 +66,24 @@ class PublishController extends Controller
                 $err_arr = $valid->getErrors();
                 
                 if (count($err_arr)) {
-                    array_push($arr_groups, [
-                        'group_id' => $group_row->id,
-                        'group_title' => $group_row->title,
-                        'errors' => $err_arr
-                    ]);
+                    
+                    if (!isset($arr_groups[$group])) {
+                        $arr_groups[$group]['errors'] = [];
+                        $arr_groups[$group]['group_id'] = $group_row->id;
+                        $arr_groups[$group]['group_title'] = $group_row->title;
+                    }
+                    
+                    foreach($err_arr as $err) {
+                        array_push($arr_groups[$group]['errors'], $err);
+                    }
                 }
             }
         }
         
-        /*
-        Visām nodarbībām ir norādīts vismaz viens pasniedzējs;
-        Visām grupām ir norādīta vismaz viena nodarbība;
-        Ja kādai nodarbībai vairāki pasniedzēji, tad nepārklājās pasniedzēju laiki;
-        Grupai norādītais mācību pasākums, modulis un programma ir publicēti;
-        Grupas vietu limits nepārsniedz vietu limitu telpās, kurās notiek nodarbības;
-        Nepārklājās dažādu grupu nodarbību laiki kādā no telpām;
-        Nepārklājās grupas nodarbības laiks telpā, kura tiek izmantota tajā pašā dienā kafijas pauzēm;
-        Visām kafijas pauzēm ir norādīti pakalpojumu sniedzēji;
-        Grupās, kurās dalībnieki paši nevar pieteikties (tikai ar uzaicinājumu), dalībnieku kopējais skaits pa uzaicināmajām iestādēm ir vienāds ar grupu vietu limitu;
-        Grupās, kurās dalībnieki paši nevar pieteikties (tikai ar uzaicinājumu), ir aizpildītas vismaz 50% vietas;
-        Grupās, kurās dalībnieki paši nevar pieteikties (tikai ar uzaicinājumu), dalībnieku skaits nepārsniedz grupas vietu limitu;
-         */
-        
+        if ($request->input('is_publish', 0) && count($arr_groups) == 0) {
+            // publish groups
+        }
+                
         return response()->json([
             'success' => 1,
             'err_count' => count($arr_groups),

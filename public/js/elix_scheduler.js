@@ -6573,9 +6573,10 @@ detectWarningInContainer = function(containerEl) {
             this.coffee_list_id = this.root.data("coffee-list-id");
             this.cbo_rooms_refreshing = false;
             this.publish_ids = "";
+            this.popup_mode = "publish";
             
             this.room_id = this.root.data("room-id");
-            this.current_date = this.root.data("crrent-date");
+            this.current_date = this.root.data("current-date");
             
             var addSubjToDiv = function(new_id, title) {
                 //<div class='dx-event' data-subject-id="{{ $subj->id }}"><span class="dx-item-title">{{ $subj->title_full }}</span><a class="pull-right" href="javascript:;"><i class="fa fa-edit dx-subj-edit"></i></a></div>
@@ -7014,6 +7015,7 @@ detectWarningInContainer = function(containerEl) {
                     $('#calendar').fullCalendar( 'refetchEvents' );
                     
                     $(".dx-publish-choice").hide();
+                    $(".dx-complect-choice").hide();
                 });
             }
             
@@ -7292,39 +7294,59 @@ detectWarningInContainer = function(containerEl) {
                 frm.find(".dx-publish-progress").hide();
                 frm.find(".alert-info").hide();
                 frm.find(".dx-check-publish-btn").show();
+                frm.find(".dx-check-btn").show();
                 frm.find(".dx-cancel-btn").show();
                 frm.find(".dx-form-close-btn").show();
                 frm.find(".ext-cont").hide();
                 frm.find(".dx-problem-lbl").hide();
             };
             
-            $(".dx-publish-popup").find(".dx-check-publish-btn").click(function() {
+            var publishOrCheck = function(is_publish) {
                 var frm = $(".dx-publish-popup");
                 frm.find(".dx-publish-progress").show();
                 frm.find(".dx-check-publish-btn").hide();
+                frm.find(".dx-check-btn").hide();
                 frm.find(".dx-cancel-btn").hide();
                 frm.find(".dx-form-close-btn").hide();
                 frm.find(".alert-error").hide();
                 frm.find(".ext-cont").hide();
                 frm.find(".dx-problem-lbl").hide();
+                frm.find(".alert-info").hide();
                 
                 var formData = new FormData();                
                 formData.append("groups_ids", self.publish_ids);
+                formData.append("is_publish", is_publish);
+                formData.append("mode", self.popup_mode);
                 
                 var request = new FormAjaxRequest (self.options.scheduler_url + "publish", '', '', formData);
                 
                 request.callback = function(data) {
                     $(".dx-publish-popup").find(".dx-publish-progress").hide();
                     if (data.err_count == 0) {
-                        frm.find(".alert-info").show();
+                        var inf = frm.find(".alert-info");
+                        
+                        if (is_publish) {
+                            inf.text(Lang.get('calendar.scheduler.' + self.popup_mode + '.msg_ok'));
+                        }
+                        else {
+                            inf.text(Lang.get('calendar.scheduler.' + self.popup_mode + '.msg_check_ok'));
+                            frm.find(".dx-check-publish-btn").show();
+                            frm.find(".dx-check-btn").show();
+                        }
+                        
+                        inf.show();
                         frm.find(".dx-cancel-btn").text("Aizvērt").show();
                         frm.find(".dx-cancel-btn").show();
                         frm.find(".dx-form-close-btn").show();
-                        refreshAllData();
+                        
+                        if (is_publish) {
+                            refreshAllData();
+                        }
                     }
                     else {
                         frm.find(".dx-cancel-btn").show();
                         frm.find(".dx-check-publish-btn").show();
+                        frm.find(".dx-check-btn").show();
                         frm.find(".alert-error").show();
                         frm.find(".dx-problem-lbl").show().find(".dx-err-count").text(data.err_count);                        
                         frm.find(".dx-cancel-btn").show();
@@ -7336,20 +7358,31 @@ detectWarningInContainer = function(containerEl) {
                 
                 request.err_callback = function() {                    
                     frm.find(".dx-check-publish-btn").show();
+                    frm.find(".dx-check-btn").show();
                     frm.find(".dx-publish-progress").hide();
                     frm.find(".dx-cancel-btn").show();
                     frm.find(".dx-form-close-btn").show();
                 };
                 
                 request.doRequest();
+            };
+            
+            $(".dx-publish-popup").find(".dx-check-publish-btn").click(function() {
+                PageMain.showConfirm(publishOrCheck, true, Lang.get('calendar.scheduler.' + self.popup_mode + '.confirm_title'), Lang.get('calendar.scheduler.' + self.popup_mode + '.confirm_msg'));                
+            });
+            
+            $(".dx-publish-popup").find(".dx-check-btn").click(function() {
+                publishOrCheck(false);
             });
             
             var showHideChoiceBtn = function(is_checked) {
                 if(is_checked || $("#dx-groups-box .dx-group input:checked").length > 0) {
                     $(".dx-publish-choice").show();
+                    $(".dx-complect-choice").show();
                 }
                 else {
                     $(".dx-publish-choice").hide();
+                    $(".dx-complect-choice").hide();
                 }
             };
             
@@ -7357,7 +7390,19 @@ detectWarningInContainer = function(containerEl) {
                 showHideChoiceBtn(this.checked);
             });
             
-            var openPublishPopup = function(e, is_all) {
+            var setLabelsPublishPopup = function(frm, btn) {
+                frm.find(".dx-publish-intro1").text(Lang.get('calendar.scheduler.' + btn + '.intro1'));
+                frm.find(".dx-publish-intro2").text(Lang.get('calendar.scheduler.' + btn + '.intro2'));
+                frm.find(".dx-publish-lbl-count").text(Lang.get('calendar.scheduler.' + btn + '.lbl_count'));
+                frm.find(".dx-publish-ok").text(Lang.get('calendar.scheduler.' + btn + '.msg_ok'));
+                frm.find(".dx-publish-err").text(Lang.get('calendar.scheduler.' + btn + '.msg_err'));
+                frm.find(".dx-publish-err").text(Lang.get('calendar.scheduler.' + btn + '.msg_err'));
+                frm.find(".dx-check-publish-btn").text(Lang.get('calendar.scheduler.' + btn + '.btn_publish'));
+                frm.find(".modal-title").html("<i class='" + Lang.get('calendar.scheduler.' + btn + '.icon_class') + "'></i> " + Lang.get('calendar.scheduler.' + btn + '.popup_title'));
+                
+            };
+            
+            var openPublishPopup = function(e, is_all, btn) {
                 var grps = null;
                 var status = self.root.find(".dx-group-filter-btn").attr("data-status");
                 var stat_class = (status === "all") ? '' : (".dx-status-" + status);
@@ -7381,7 +7426,7 @@ detectWarningInContainer = function(containerEl) {
                         e.stopPropagation();
                         self.publish_ids = "";
                         // Toggle dropdown if not already visible:
-                        $('.dx-publish-btn-group').find(".dx-publish-choice").dropdown('toggle');
+                        $('.dx-' + btn + '-btn-group').find(".dx-" + btn + "-choice").dropdown('toggle');
                         return;
                     }
                 }
@@ -7395,19 +7440,33 @@ detectWarningInContainer = function(containerEl) {
                 frm.find('.dx-total-groups').text(grps.length);
                 
                 clearErrFormState(frm);
+                setLabelsPublishPopup(frm, btn);
+                self.popup_mode = btn;
                 frm.modal('show');
             };
             
             this.root.find(".dx-publish-marked").click(function() {
-                openPublishPopup(null, false);
+                openPublishPopup(null, false, 'publish');
             });
             
             this.root.find(".dx-publish-all").click(function() {
-                openPublishPopup(null, true);
+                openPublishPopup(null, true, 'publish');
             });
 
             this.root.find(".dx-publish-default").click(function(e) {
-                openPublishPopup(e, false);
+                openPublishPopup(e, false, 'publish');
+            });
+            
+            this.root.find(".dx-complect-marked").click(function() {
+                openPublishPopup(null, false, 'complect');
+            });
+            
+            this.root.find(".dx-complect-all").click(function() {
+                openPublishPopup(null, true, 'complect');
+            });
+
+            this.root.find(".dx-complect-default").click(function(e) {
+                openPublishPopup(e, false, 'complect');
             });
             
             // adjust menu for vertical menu UI

@@ -88,7 +88,7 @@
      data-rooms-list-id="{{ $rooms_list_id }}"
      data-coffee-list-id="{{ $coffee_list_id }}"     
      data-room-id="{{ $current_room_id }}"
-     data-crrent-date="{{ date('Y-m-d') }}"
+     data-current-date="{{ ($current_date) ? $current_date : date('Y-m-d') }}"
      >
     <div class="portlet light portlet-fit bordered calendar">
 	<div class="portlet-title">
