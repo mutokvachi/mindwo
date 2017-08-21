@@ -9,7 +9,7 @@
                 return;
             }
 
-            this.chat = new $.DxEduCatalog($(this));
+            this.catalog = new $.DxEduCatalog($(this));
         });
     };
 
@@ -181,6 +181,6 @@
 
 // ajaxComplete ready
 $(document).ready(function () {
-    // Initializes chat window
+    // Initializes window
     $('.dx-edu-catalog-page').DxEduCatalog();
 });

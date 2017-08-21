@@ -63,6 +63,17 @@ class Subject extends Model
             ->where('edu_subjects_groups.is_published', 1);
     }
 
+    public function avaliableOpenGroups()
+    {
+        return $this->hasMany('\App\Models\Education\SubjectGroup', 'subject_id')
+            ->whereRaw('(SELECT COUNT(*) FROM edu_subjects_groups_members grm WHERE grm.group_id = edu_subjects_groups.id) < seats_limit')
+            ->where(function ($query) {
+                $query->where('edu_subjects_groups.signup_due', '>=', Carbon::today()->toDateString());
+                $query->orWhereNull('edu_subjects_groups.signup_due');
+            })
+            ->where('edu_subjects_groups.is_published', 1);
+    }
+
     /**
      * Gets info about availability is_not_full and group_count
      *
