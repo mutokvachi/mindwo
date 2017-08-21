@@ -19,6 +19,7 @@ return [
     'err_action_edit_module' => 'Skatīt moduli',
     'err_action_edit_programm' => 'Skatīt programmu',
     'err_action_edit_calendar' => 'Skatīt kalendārā',
+    'err_action_edit_pause' => 'Skatīt kafijas pauzi',
     
     'values' => [
         [
@@ -40,7 +41,7 @@ return [
             'is_for_complect' => true,
         ],
         [
-            'title' => 'Nodarbības laiks ir lielāks nekā norādīto pasniedzēju kopējais laiks',
+            'title' => 'Nodarbības kopējais laiks nav vienāds ar pasniedzēju kopējo laiku',
             'code' => 'TEACHER_TIME_NOT_COVER',
             'is_for_publish' => true,
             'is_for_complect' => true,
@@ -76,7 +77,7 @@ return [
             'is_for_complect' => true,
         ],
         [
-            'title' => 'Grupas nodarbībai norādītā telpa ir paredzēta arī kafijas pauzei',
+            'title' => 'Grupas nodarbībai norādītā telpa ir paredzēta arī citas grupas kafijas pauzei',
             'code' => 'COFFEE_TIME_OVERLAP',
             'is_for_publish' => true,
             'is_for_complect' => true,

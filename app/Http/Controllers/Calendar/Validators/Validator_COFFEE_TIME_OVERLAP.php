@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Calendar\Validators
     use DB;
     
     /**
-     * Validates if there are not other groups in the same time in rooms
+     * Validates if there are no coffee pauses in the same room as gorup lessons at the same time
      */
-    class Validator_GROUP_TIME_OVERLAP extends Validator
+    class Validator_COFFEE_TIME_OVERLAP extends Validator
     {
         public function validateGroup() {
             $days = DB::table('edu_subjects_groups_days')
@@ -17,11 +17,13 @@ namespace App\Http\Controllers\Calendar\Validators
             $list = null;
             
             foreach($days as $day) {
-                $other_gr = DB::table('edu_subjects_groups_days as d')
+                $other_gr = DB::table('edu_subjects_groups_days_pauses as p')
+                            ->select('p.time_from', 'p.time_to')
+                            ->join('edu_subjects_groups_days as d', 'p.group_day_id', '=', 'd.id')
                             ->where('d.group_id', '!=', $this->group->id)
                             ->whereDate('d.lesson_date', '=', $day->lesson_date)
-                            ->where('d.room_id', '=', $day->room_id)
-                            ->orderBy('d.time_from')
+                            ->where('p.room_id', '=', $day->room_id)
+                            ->orderBy('p.time_from')
                             ->get();
                 
                 foreach($other_gr as $o_gr) {                    

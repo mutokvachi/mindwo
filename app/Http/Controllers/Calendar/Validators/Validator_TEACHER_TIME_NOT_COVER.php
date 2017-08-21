@@ -37,7 +37,7 @@ namespace App\Http\Controllers\Calendar\Validators
                     $teach_total = $teach_total + $teach_from->diffInHours($teach_to);   
                 }
                 
-                if ($day_total!=$teach_total) {
+                if ($teach_total > 0 && $day_total!=$teach_total) {
                     if (!$list) {
                         $list = \App\Libraries\DBHelper::getListByTable('edu_subjects_groups_days');
                     }

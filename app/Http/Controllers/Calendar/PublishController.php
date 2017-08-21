@@ -42,10 +42,12 @@ class PublishController extends Controller
         ]);
         
         $this->checkRights();
+        $mode = $request->input('mode', 'publish');
+        
+        $fld_where = ($mode == "publish") ? "is_for_publish" : "is_for_complect";
         
         $validators = DB::table('edu_publish_validators')
-                      ->where('is_for_publish', '=', true)
-                      ->where('id', '<', 10) // ToDo: just for debug
+                      ->where($fld_where, '=', true)
                       ->get();
         
         $groups = explode(",", $request->input('groups_ids'));
@@ -80,8 +82,14 @@ class PublishController extends Controller
             }
         }
         
-        if ($request->input('is_publish', 0) && count($arr_groups) == 0) {
-            // publish groups
+        if (count($arr_groups) == 0) {
+            if ($mode == "publish") {
+                // publish groups
+                
+            }
+            else {
+                // complect groups
+            }
         }
                 
         return response()->json([
