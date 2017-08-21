@@ -264,7 +264,7 @@
             
             var newGroupHtml = function(arr_data) {
                 var new_el = $("<div>");
-                new_el.addClass('dx-event').addClass('dx-group');
+                new_el.addClass('dx-event').addClass('dx-group').addClass('dx-status-' + arr_data.status);
                 new_el.attr("data-subject-id", arr_data.subj_id);
                 new_el.attr("data-group-id", arr_data.group_id);
                 
@@ -337,7 +337,7 @@
                     
                     $('#calendar').fullCalendar( 'updateEvent', event );
 
-                    newGroupHtml({subj_id: event.dx_subj_id, group_id: data.group_id, text: event.title});
+                    newGroupHtml({subj_id: event.dx_subj_id, group_id: data.group_id, text: event.title, status: 'prepare'});
                 };
                 
                 request.err_callback = function() {                    
@@ -471,9 +471,9 @@
                     
                     $("#dx-groups-box").empty();
                     $.each(JSON.parse(data.groups), function() {                        
-                        newGroupHtml({subj_id: this.subject_id, group_id: this.id, text: this.title});                    
+                        newGroupHtml({subj_id: this.subject_id, group_id: this.id, text: this.title, status: this.status});                    
                     });
-                    
+                    filterGroups();
                     refreshRoomsCbo(data.rooms_cbo);
                     
                     $('#calendar').fullCalendar( 'removeEvents');

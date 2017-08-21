@@ -487,6 +487,29 @@ class SchedulerController extends Controller
                         }
                     });
                     
+        $coffee_rooms = DB::table('edu_subjects_groups_days_pauses as cr')
+                    ->select(
+                            DB::raw("CONCAT('RC', cr.id) as id"), 
+                            'cr.room_id as resourceId', 
+                            DB::raw("CONCAT(d.lesson_date, 'T', cr.time_from) as start"),
+                            DB::raw("CONCAT(d.lesson_date, 'T', cr.time_to) as end"),
+                            DB::raw("'Telpa nav pieejama' as title"),
+                            DB::raw('0 as dx_subj_id'),
+                            DB::raw('0 as dx_group_id'),
+                            DB::raw('0 as dx_day_id'),
+                            DB::raw('0 as dx_coffee_id'),
+                            DB::raw("'closed' as className"),
+                            DB::raw("'#ff9f89' as color"),
+                            DB::raw("'background' as rendering")
+                    )
+                    ->join('edu_subjects_groups_days as d', 'cr.group_day_id', '=', 'd.id')
+                    ->whereRaw('cr.room_id != d.room_id')
+                    ->where(function($query) use ($current_room_id) {
+                        if ($current_room_id) {
+                            $query->where('cr.room_id', '=', $current_room_id);
+                        }
+                    });
+                    
         $holidays = DB::table('dx_holidays as h')
                     ->select(
                             DB::raw("CONCAT('H', r.id, '-', h.id) as id"), 
@@ -531,6 +554,7 @@ class SchedulerController extends Controller
                 ->union($coffee)
                 ->union($rooms)
                 ->union($holidays)
+                ->union($coffee_rooms)
                 ->orderBy('start')
                 ->get();
     }

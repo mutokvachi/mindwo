@@ -42,6 +42,14 @@
         .dx-group {
             background-color: #f5cbd1;
         }
+        
+        .dx-status-correct {
+            background-color: #d6df32;
+        }
+        
+        .dx-status-complect {
+            background-color: #8ebae7;
+        }
 
         .portlet.calendar .fc-button {
             top: -10px!important;
