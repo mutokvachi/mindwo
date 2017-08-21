@@ -1,17 +1,15 @@
 <div class="portlet light">
     <div class="portlet-body">
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-sm-12">
                 <div style="margin-bottom: 10px;">
                     <span class="caption-subject font-dark bold uppercase">
-                        Tuvākās nodarbības
+                        {{ trans('widgets.groups_schedule.nearest_lessons') }}
                     </span>
                     <a class="pull-right" href="javascript:;">
-                        Skatīt visu
+                        {{ trans('widgets.groups_schedule.all_lessons') }}
                     </a>
                 </div>
-
-
                 <table class="fpGraf">
                     <tbody>
                     @foreach($schedule as $s)
@@ -26,7 +24,7 @@
                                     @foreach($s['groups'] as $g)
                                         <tr>
                                             <td class="fpKname">
-                                                <a href="#">
+                                                <a href="#" title="{{ $g['title'] }}">
                                                     {{ $g['title'] }}
                                                 </a>
                                             </td>
@@ -49,4 +47,14 @@
             </div>
         </div>
     </div>
+
+
+
+    {{--<div class="portlet-body">--}}
+        {{--<div class="row">--}}
+            {{--<div class="col-lg-3 col-md-4">--}}
+                {{--{!! $calendar !!}--}}
+            {{--</div>--}}
+        {{--</div>--}}
+    {{--</div>--}}
 </div>
