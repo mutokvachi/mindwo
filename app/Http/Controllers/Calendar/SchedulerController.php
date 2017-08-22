@@ -241,7 +241,16 @@ class SchedulerController extends Controller
         $time_from = check_time($request->input("start_time"), "yyyy-mm-dd HH:ii");
         $time_to = check_date($request->input("end_time"), "yyyy-mm-dd HH:ii");
         
-        DB::transaction(function () use ($request, $time_from, $time_to, $teacher_id)
+        $group_id = DB::table('edu_subjects_groups_days')
+                    ->where('id', '=', $request->input("day_id"))
+                    ->first()
+                    ->group_id;
+        
+        $group = DB::table('edu_subjects_groups')
+                 ->where('id', '=', $group_id)
+                 ->first();
+        
+        DB::transaction(function () use ($request, $time_from, $time_to, $teacher_id, $group, $group_id)
         {
             DB::table('edu_subjects_groups_days')
                     ->where('id', '=', $request->input("day_id"))
@@ -259,6 +268,12 @@ class SchedulerController extends Controller
                             'time_from' => $time_from,
                             'time_to' => $time_to
                         ]);
+            }
+            
+            if ($group->is_published) {
+                DB::table('edu_subjects_groups')
+                    ->where('id', '=', $group_id)
+                    ->update(['is_published' => 0]);
             }
         });
         
@@ -459,7 +474,8 @@ class SchedulerController extends Controller
                             'c.id as dx_coffee_id',
                             DB::raw("'cafe' as className"),
                             DB::raw("'#d6df32' as color"),
-                            DB::raw("'' as rendering")
+                            DB::raw("'' as rendering"),
+                            DB::raw('0 as dx_is_published')
                     )
                     ->where(function($query) use ($current_room_id) {
                         if ($current_room_id) {
@@ -483,7 +499,8 @@ class SchedulerController extends Controller
                             DB::raw('0 as dx_coffee_id'),
                             DB::raw("'closed' as className"),
                             DB::raw("'#ff9f89' as color"),
-                            DB::raw("'background' as rendering")
+                            DB::raw("'background' as rendering"),
+                            DB::raw('0 as dx_is_published')
                     )
                     ->where(function($query) use ($current_room_id) {
                         if ($current_room_id) {
@@ -504,7 +521,8 @@ class SchedulerController extends Controller
                             DB::raw('0 as dx_coffee_id'),
                             DB::raw("'closed' as className"),
                             DB::raw("'#ff9f89' as color"),
-                            DB::raw("'background' as rendering")
+                            DB::raw("'background' as rendering"),
+                            DB::raw('0 as dx_is_published')
                     )
                     ->join('edu_subjects_groups_days as d', 'cr.group_day_id', '=', 'd.id')
                     ->whereRaw('cr.room_id != d.room_id')
@@ -527,7 +545,8 @@ class SchedulerController extends Controller
                             DB::raw('0 as dx_coffee_id'),
                             DB::raw("'closed' as className"),
                             DB::raw("'#ff9f89' as color"),
-                            DB::raw("'background' as rendering")
+                            DB::raw("'background' as rendering"),
+                            DB::raw('0 as dx_is_published')
                     )
                     ->join('dx_months as m', 'h.from_month_id', '=', 'm.id')
                     ->join('dx_month_days as d', 'h.from_day_id', '=', 'd.id')
@@ -546,7 +565,8 @@ class SchedulerController extends Controller
                         DB::raw('0 as dx_coffee_id'),
                         DB::raw("'group' as className"),
                         DB::raw("'#69a4e0' as color"),
-                        DB::raw("'' as rendering")
+                        DB::raw("'' as rendering"),
+                        'g.is_published as dx_is_published'
                 )
                 ->where(function($query) use ($current_room_id) {
                     if ($current_room_id) {

@@ -88,5 +88,7 @@ return [
         'btn_solve_err_group' => 'Atrisināts',
         'link_mark_all' => 'Iezīmēt visu',
         'link_remove_marks' => 'Noņemt iezīmes',
+        'move_confirm_title' => 'Apstipriniet publicētas grupas izmaiņas',
+        'move_confirm_msg' => "Grupa jau ir publicēta! Vai tiešām mainīt nodarbības informāciju un grupai uzstādīt statusu uz 'Koriģēšana'?",
     ],
 ];

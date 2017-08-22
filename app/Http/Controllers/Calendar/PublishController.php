@@ -82,7 +82,7 @@ class PublishController extends Controller
             }
         }
         
-        if (count($arr_groups) == 0) {
+        if ($request->input("is_publish", 0) && count($arr_groups) == 0) {
             if ($mode == "publish") {
                 // publish groups
                 DB::table('edu_subjects_groups')

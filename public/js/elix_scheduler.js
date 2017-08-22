@@ -6679,7 +6679,8 @@ detectWarningInContainer = function(containerEl) {
                             dx_subj_id: el.data("subject-id"),
                             dx_group_id: el.data("group-id"),
                             dx_day_id: 0,
-                            dx_coffee_id: 0
+                            dx_coffee_id: 0,
+                            dx_is_published: 0
                     });
 
                     // make the event draggable using jQuery UI
@@ -6735,6 +6736,7 @@ detectWarningInContainer = function(containerEl) {
                         dx_group_id: 0,
                         dx_day_id: 0,
                         dx_coffee_id: 0,
+                        dx_is_published: 0
                 });
 
                 // make the event draggable using jQuery UI
@@ -6942,9 +6944,7 @@ detectWarningInContainer = function(containerEl) {
                 request.doRequest();
             };
             
-            var updateDayToDb = function(event) {
-                console.log("Update existing day in db!");
-                
+            var updateDayToDbConfirmed = function(event) {
                 var formData = new FormData();
                 formData.append("day_id", event.dx_day_id);
                 formData.append("start_time", event.start.format("YYYY-MM-DD HH:mm"));
@@ -6953,8 +6953,10 @@ detectWarningInContainer = function(containerEl) {
                 
                 var request = new FormAjaxRequest (self.options.scheduler_url + "update_day", '', '', formData);
 
-                request.callback = function(data) {                    
-                    // do nothing - everything ok
+                request.callback = function() {                    
+                    if (parseInt(event.dx_is_published)) {
+                        refreshAllData();
+                    }
                 };
                 
                 request.err_callback = function() {                    
@@ -6963,6 +6965,18 @@ detectWarningInContainer = function(containerEl) {
                 };
 
                 request.doRequest();
+            };
+            
+            var updateDayToDb = function(event) {
+                console.log("Update existing day in db!");
+                
+                if (parseInt(event.dx_is_published)) {                    
+                    PageMain.showConfirm(updateDayToDbConfirmed, event, Lang.get('calendar.scheduler.move_confirm_title'), Lang.get('calendar.scheduler.move_confirm_msg'), null, null, refreshAllData);                
+                }
+                else {
+                    updateDayToDbConfirmed(event);
+                }
+                
             };
             
             var refreshRoomsCbo = function(cbo_json) {
