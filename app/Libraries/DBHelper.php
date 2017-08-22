@@ -108,6 +108,11 @@ namespace App\Libraries
         const FIELD_TYPE_REL_TXT = 22;
         
         /**
+         * Register field type - time picker (from table dx_field_types)
+         */
+        const FIELD_TYPE_TIME = 23;
+        
+        /**
          * Field operation ID - value from table dx_field_operations
          */
         const FIELD_OPERATION_EQUAL = 1;
