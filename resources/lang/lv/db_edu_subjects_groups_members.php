@@ -11,4 +11,11 @@ return [
     
     'group_id' => 'Mācību grupa',
     'student_id' => 'Dalībnieks',
+
+    'name' => 'Vārds',
+    'lastname' => 'Uzvārds',
+    'job' => 'Darba vieta',
+    'position' => 'Amats',
+    'telephone' => 'Tālrunis',
+    'email' => 'E-pasts'
 ];

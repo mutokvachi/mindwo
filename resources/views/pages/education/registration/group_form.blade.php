@@ -20,14 +20,14 @@
                     <label>Izvēlieties grupu</label>
                     <select class='form-control dx-edu-modal-group-select-group'>  
                         @foreach($availableOpenGroups as $group)    
-                        <option value="{{ $group->id }}" data-subject-id="{{ $group->subject_id }}" style="display:none;">{{ $group->title }}</option>
+                        <option value="{{ $group->id }}" data-subject-id="{{ $group->subject_id }}">{{ $group->title }}</option>
                         @endforeach   
                     </select>
                 </div>               
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn pull-left dx-edu-modal-group-decline" data-dismiss="modal">{{ trans('form.btn_close') }}</button>
-                <button type="button" class="btn btn-primary dx-edu-modal-group-accept">{{ trans('form.btn_accept') }}</button>   
+                <button type="button" class="btn btn-primary dx-edu-modal-group-accept">{{ trans('form.btn_accept') }}</button>
             </div>
         </div>
     </div>

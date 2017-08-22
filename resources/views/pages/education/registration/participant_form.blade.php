@@ -8,30 +8,38 @@
                 <h4 class="modal-title" id="dx-edu-modal-participant-label">Grupas izvēle</h4>
             </div>
             <div class="modal-body">
-                <div class="form-group required">
-                    <label>Vārds</label>
-                    <input class='form-control dx-edu-modal-participant-input-name' type="text">
+                <div class='dx-edu-modal-participant-regular'>
+                    <div class="form-group required">
+                        <label>Vārds</label>
+                        <input class='form-control dx-edu-modal-participant-input-name' type="text">
+                    </div>            
+                    <div class="form-group required">
+                        <label>Uzvārds</label>
+                        <input class='form-control dx-edu-modal-participant-input-lastname' type="text">
+                    </div>
+                    <div class="form-group">
+                        <label>Darba vieta</label>
+                        <input class='form-control dx-edu-modal-participant-input-job' type="text">
+                    </div>
+                    <div class="form-group">
+                        <label>Amats</label>
+                        <input class='form-control dx-edu-modal-participant-input-position' type="text">
+                    </div>
+                    <div class="form-group required">
+                        <label>Tālrunis</label>
+                        <input class='form-control dx-edu-modal-participant-input-telephone' type="text">
+                    </div>
+                    <div class="form-group required">
+                        <label>E-pasts</label>
+                        <input class='form-control dx-edu-modal-participant-input-email' type="text">
+                    </div> 
+                </div>   
+                <div class='dx-edu-modal-participant-organization'>
+                    <div class="form-group required">
+                        <label>Darbinieks</label>
+                        <input class='form-control dx-edu-modal-participant-input-employee' type="text">
+                    </div>          
                 </div>            
-                <div class="form-group required">
-                    <label>Uzvārds</label>
-                    <input class='form-control dx-edu-modal-participant-input-lastname' type="text">
-                </div>
-                <div class="form-group">
-                    <label>Darba vieta</label>
-                    <input class='form-control dx-edu-modal-participant-input-job' type="text">
-                </div>
-                <div class="form-group">
-                    <label>Amats</label>
-                    <input class='form-control dx-edu-modal-participant-input-position' type="text">
-                </div>
-                <div class="form-group required">
-                    <label>Tālrunis</label>
-                    <input class='form-control dx-edu-modal-participant-input-telephone' type="text">
-                </div>
-                <div class="form-group required">
-                    <label>E-pasts</label>
-                    <input class='form-control dx-edu-modal-participant-input-email' type="text">
-                </div>              
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn pull-left dx-edu-modal-participant-decline" data-dismiss="modal">{{ trans('form.btn_close') }}</button>

@@ -28,7 +28,39 @@ class RegistrationController extends Controller
 
         return view('pages.education.registration.registration', [
                     'course' => $id  == 0 ? false : false,
-                    'availableOpenGroups' => $availableOpenGroups
+                    'availableOpenGroups' => $availableOpenGroups,
+                    'is_coordinator' => false
                 ])->render();
+    }
+
+    public function getGroup($id)
+    {
+        $group = \App\Models\Education\SubjectGroup::with('subject')->find($id);
+
+        $groupStartDay = $group->firstDay();
+        if ($groupStartDay) {
+            $groupStartDate = date_create($groupStartDay->lesson_date)->format('d.m.Y');
+        } else {
+            $groupStartDate = false;
+        }
+
+        $groupEndDay = $group->lastDay();
+        if ($groupEndDay) {
+            $groupEndDate = date_create($groupStartDay->lesson_date)->format('d.m.Y');
+        } else {
+            $groupEndDate = false;
+        }
+
+        return response()->json(['success' => 1, 
+            'group' => $group, 
+            'group_start' => $groupStartDate, 
+            'group_end' => $groupEndDate
+            ]);
+    }
+
+    public function getData(Request $request)
+    {
+        $text = $request->input('groups');
+
     }
 }

@@ -10,7 +10,7 @@
             </div>
             <div class="col-lg-11 col-md-10 col-sm-9 col-xs-12 col-lg-pull-1 col-md-pull-2 col-sm-pull-3">
                 <p>
-                    {{ $teacher->introduction }}
+                    {!! $teacher->introduction !!}
                 </p>
 
                 @if($teacher->experience)

@@ -51,6 +51,18 @@ class SubjectGroup extends Model
         return $this->belongsTo('\App\Models\Education\Organization', 'inner_org_id');
     }
 
+    public function firstDay()
+    {
+        return $this->hasMany('\App\Models\Education\SubjectGroupDay', 'group_id')
+            ->orderBy('lesson_date', 'ASC')->first();
+    }
+
+    public function lastDay()
+    {
+        return $this->hasMany('\App\Models\Education\SubjectGroupDay', 'group_id')
+            ->orderBy('lesson_date', 'DESC')->first();
+    }
+
     /**
      * User who last created record
      * @return \App\User
