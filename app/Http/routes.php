@@ -202,6 +202,8 @@ Route::group(['prefix' => 'edu', 'namespace' => 'Education'], function() {
         Route::get('/catalog/search', array('middleware' => 'auth', 'uses' => 'CatalogController@getData'));
         Route::get('/course/{id}', array('middleware' => 'auth', 'uses' => 'CourseController@getView'));
         Route::get('/registration/{id?}', array('middleware' => 'auth', 'uses' => 'RegistrationController@getView'));
+        Route::get('/registration/group/{id?}', array('middleware' => 'auth', 'uses' => 'RegistrationController@getGroup'));
+        Route::post('/registration/save', array('middleware' => 'auth', 'uses' => 'RegistrationController@save'));
 });
 
 // Lietotāji - autorizācija, atslēgšanās

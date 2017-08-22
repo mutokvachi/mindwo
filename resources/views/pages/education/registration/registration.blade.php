@@ -6,7 +6,7 @@
 @stop
 
 @section('main_content')
-<div class="dx-edu-course-page">  
+<div class="dx-edu-registration-page">  
     <div class="portlet light">
         <div class="portlet-title">
             <div class="caption">
@@ -15,28 +15,34 @@
             </div>
         </div>
         <div class="portlet-body">
-            <ul class="nav nav-tabs">
-                <li class="active">
-                    <a href="#dx-edu-registration-tab-courses" id="dx-edu-registration-tab-btn-courses" data-toggle="tab"> 1. kursu izvēle </a>
-                </li>
-                <li>
-                    <a href="#dx-edu-registration-tab-participants" id="dx-edu-registration-tab-btn-participants" data-toggle="tab"> 2. dalībnieki </a>
-                </li>
-                <li>
-                    <a href="#dx-edu-registration-tab-invoice" id="dx-edu-registration-tab-btn-invoice" data-toggle="tab"> 3. informācija norēķiniem </a>
-                </li>
-            </ul>
-            <div class="tab-content dx-edu-tab-content">
-                <div class="tab-pane fade active in" id="dx-edu-registration-tab-courses">
-                    @include('pages.education.registration.courses')
+            <div style="{{ $is_coordinator ? '' : 'display:none' }}">
+                <div style="font-weight:bold">Pietikt dalībniekus kā organizācija</div>
+                <div style='margin-bottom:20px'>
+                    <input
+                        type="checkbox" 
+                        class="dx-bool dx-edu-reg-is-coordinator"                 
+                        data-size="small"
+                        data-off-text="Nē" 
+                        data-on-text="Jā" />
+                </div> 
+            </div> 
+            <button class="btn btn-sm btn-default dx-edu-reg-btn-add-group">Pievienot grupu</button>
+
+            <div class="dx-edu-reg-group-container" style="margin-top:20px; margin-bottom:20px;">
+                <div class='dx-edu-reg-group-panel-empty'>
+                    <i>Nav pievienota neviena mācību grupa. Lai pieteiktos mācību grupām, vispirms pievienojiet vismaz vienu mācību grupu!</i>
                 </div>
-                <div class="tab-pane fade" id="dx-edu-registration-tab-participants">
-                    @include('pages.education.registration.participants')
-                </div>
-                <div class="tab-pane fade" id="dx-edu-registration-tab-invoice">
-                    @include('pages.education.registration.invoice')
-                </div>
-            </div>            
+            </div>
+            @include('pages.education.registration.invoice') 
+            <button class="btn btn-primary dx-edu-reg-btn-save disabled">Apstiprināt un saglabāt</button>
+            <p class='dx-edu-reg-label-save' style="font-style:italic; font-size:12px; margin-top:5px;">
+                Lai saglabātu pieteikumu jāpievieno vismaz viena mācību grupa un tai ir jāpiesaista vismaz viens dalībnieks
+            </p>
+
+            @include('pages.education.registration.group_form')   
+            @include('pages.education.registration.participant_form')    
+            @include('pages.education.registration.registration_group_row')
+            @include('pages.education.registration.registration_participant_row')   
         </div>
     </div>
 </div>

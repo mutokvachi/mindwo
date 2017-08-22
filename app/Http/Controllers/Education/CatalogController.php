@@ -57,8 +57,6 @@ class CatalogController extends Controller
 
     public function getData(Request $request)
     {
-\DB::connection()->enableQueryLog();
-
         $text = $request->input('text');
         $tags = $request->input('tag');
         $programs = $request->input('program');
@@ -182,13 +180,6 @@ class CatalogController extends Controller
         }
 
         $res = $query->get();
-
-        
-$query = \DB::getQueryLog();
-$lastQuery = end($query);
-
-\Log::info('query = '. json_encode( $lastQuery) );
-\DB::disableQueryLog();
 
         /*$groups = [];
 

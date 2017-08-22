@@ -140,7 +140,8 @@ gulp.task('mix_all', function() {
 
         // Scripts for education module
         mix.scripts([
-            'mindwo/pages/education/catalog.js'
+            'mindwo/pages/education/catalog.js',
+            'mindwo/pages/education/registration.js'
         ], 'public/js/elix_education.js', 'resources/assets/plugins');
 
         // Core scripts for main blade view - will be included in all pages

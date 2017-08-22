@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Education;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 /**
  * Education registration controller
@@ -17,40 +18,49 @@ class RegistrationController extends Controller
      */
     public function getView($id = 0)
     {
-        $courses = [];
-
-        $courses[1] = (object)[
-            'id' => 1,
-            'icon' => 'fa fa-briefcase',
-            'title' => 'Jaunais Publisko iepirkumu likums - iesācējiem',
-            'date' => new \DateTime('2017-08-21'),
-            'time_from' => '12:30',
-            'time_to' => '17:00',
-            'is_full' => false
-        ];
-
-        $courses[2] = (object)[
-            'id' => 2,
-            'icon' => 'fa fa-university',
-            'title' => 'Jautājumu uzdošana un atbilžu sniegšana formālās situācijās angļu valodā',
-            'date' => new \DateTime('2017-09-05'),
-            'time_from' => '15:00',
-            'time_to' => '19:30',
-            'is_full' => true
-        ];
-
-        $courses[3] = (object)[
-            'id' => 3,
-            'icon' => 'fa fa-university',
-            'title' => 'Jautājumu uzdošana un atbilžu sniegšana formālās situācijās angļu valodā',
-            'date' => new \DateTime('2017-09-10'),
-            'time_from' => '10:30',
-            'time_to' => '15:00',
-            'is_full' => false
-        ];
+        $availableOpenGroups = \App\Models\Education\SubjectGroup::where('edu_subjects_groups.is_published', 1)
+            ->whereRaw('(SELECT COUNT(*) FROM edu_subjects_groups_members grm WHERE grm.group_id = edu_subjects_groups.id) < seats_limit')
+            ->where(function ($query) {
+                $query->where('edu_subjects_groups.signup_due', '>=', Carbon::today()->toDateString());
+                $query->orWhereNull('edu_subjects_groups.signup_due');
+            })
+            ->get();
 
         return view('pages.education.registration.registration', [
-                    'course' => $id  == 0 ? false : $courses[1]
+                    'course' => $id  == 0 ? false : false,
+                    'availableOpenGroups' => $availableOpenGroups,
+                    'is_coordinator' => false
                 ])->render();
+    }
+
+    public function getGroup($id)
+    {
+        $group = \App\Models\Education\SubjectGroup::with('subject')->find($id);
+
+        $groupStartDay = $group->firstDay();
+        if ($groupStartDay) {
+            $groupStartDate = date_create($groupStartDay->lesson_date)->format('d.m.Y');
+        } else {
+            $groupStartDate = false;
+        }
+
+        $groupEndDay = $group->lastDay();
+        if ($groupEndDay) {
+            $groupEndDate = date_create($groupStartDay->lesson_date)->format('d.m.Y');
+        } else {
+            $groupEndDate = false;
+        }
+
+        return response()->json(['success' => 1, 
+            'group' => $group, 
+            'group_start' => $groupStartDate, 
+            'group_end' => $groupEndDate
+            ]);
+    }
+
+    public function getData(Request $request)
+    {
+        $text = $request->input('groups');
+
     }
 }
