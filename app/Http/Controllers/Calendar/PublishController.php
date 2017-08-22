@@ -85,10 +85,21 @@ class PublishController extends Controller
         if (count($arr_groups) == 0) {
             if ($mode == "publish") {
                 // publish groups
-                
+                DB::table('edu_subjects_groups')
+                        ->whereIn('id', $groups)
+                        ->update([
+                            'is_published' => 1,
+                            'first_publish' => date('Y-n-d H:i:s'),
+                            'is_complecting' => 0
+                        ]);
             }
             else {
                 // complect groups
+                DB::table('edu_subjects_groups')
+                        ->whereIn('id', $groups)
+                        ->update([
+                            'is_complecting' => 1
+                        ]);
             }
         }
                 

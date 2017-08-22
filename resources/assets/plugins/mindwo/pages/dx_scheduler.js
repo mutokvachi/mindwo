@@ -694,9 +694,9 @@
                         // this references the trigger element
                         console.log("Calculate coffee menu: " + opt.$trigger.html());
                         return !parseInt(opt.$trigger.data('coffee-id')); 
-                    }},
+                    }}/*,
                     "sep1": "---------",
-                    "delete": {name: "Dzēst", icon: "fa-trash-o"}
+                    "delete": {name: "Dzēst", icon: "fa-trash-o"}*/
                 }
             });  
             
