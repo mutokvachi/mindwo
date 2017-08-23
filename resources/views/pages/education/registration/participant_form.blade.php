@@ -17,6 +17,10 @@
                         <label>Uzvārds</label>
                         <input class='form-control dx-edu-modal-participant-input-lastname' type="text">
                     </div>
+                    <div class="form-group required">
+                        <label>Personas kods</label>
+                        <input class='form-control dx-edu-modal-participant-input-pers_code' type="text">
+                    </div>
                     <div class="form-group">
                         <label>Darba vieta</label>
                         <input class='form-control dx-edu-modal-participant-input-job' type="text">

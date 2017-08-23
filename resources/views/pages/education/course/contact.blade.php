@@ -1,12 +1,12 @@
 <div class="dx-edu-course-tab-container">    
     @if($subject->coordinator)
         <div class="row">            
-            <div class="col-lg-1 col-md-2 col-sm-3 col-xs-12 col-lg-push-11 col-md-push-10 col-sm-push-9" style='margin-bottom: 10px;'>
+            <div class="col-lg-1 col-md-2 col-sm-3 col-xs-12" style='margin-bottom: 10px;'>
                 <img style='width: 100%; max-width:200px;' class="" 
                     alt=""  
                     src="{{Request::root()}}/{{ $subject->coordinator->user->picture_guid ? 'img/' . $subject->coordinator->user->picture_guid : 'assets/global/avatars/default_avatar_big.jpg' }}" />
             </div>
-            <div class="col-lg-11 col-md-10 col-sm-9 col-xs-12 col-lg-pull-1 col-md-pull-2 col-sm-pull-3">
+            <div class="col-lg-11 col-md-10 col-sm-9 col-xs-12">
                 <div style="margin-bottom:10px;">
                     <h4>{{ $subject->coordinator->user->display_name }}</h4>
                     @if($subject->coordinator->job_title)

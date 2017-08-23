@@ -11,7 +11,7 @@
             </div>  
             <div class="form-group required">
                 <label>Maksātāja nosaukums</label>
-                <input class='form-control dx-edu-reg-invoice-type' type="text">
+                <input class='form-control dx-edu-reg-invoice-name' type="text">
             </div>  
             <div class="form-group required">
                 <label>Adrese</label>
@@ -32,7 +32,11 @@
             <div class="form-group required">
                 <label>Bankas konta numurs</label>
                 <input class='form-control dx-edu-reg-invoice-account' type="text">
-            </div>  
+            </div>
+            <div class="form-group required">
+                <label>E-pasts rēķina saņemšanai</label>
+                <input class='form-control dx-edu-reg-invoice-email' type="text">
+            </div>    
         </div>
     </div>
 </div>

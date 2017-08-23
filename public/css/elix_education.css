@@ -11,7 +11,8 @@
   margin-top: -10px;
 }
 
-.dx-edu-course-tab-container .form-group.required label:after {
+.dx-edu-course-tab-container .form-group.required label:after,
+.dx-edu-modal-participant-regular .form-group.required label:after {
   content: " *";
   color: red;
 }
