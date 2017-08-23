@@ -2,7 +2,10 @@
 <div class='row' style="margin-bottom: 10px; padding-bottom:10px; border-bottom: 1px solid #eee; margin-left: 5px; margin-right: 5px;">
     <div class='col-lg-1 col-md-2'>
         <div style="width:60px; height:60px; background-color: #40574d; float:right; margin-top: 10px;">
-            <i class="{{ 'fa fa-university' }}" style="color:white; font-size:24px; margin-left:18px; margin-top:22px;"> </i>                     
+            <?php 
+                $subject = App\Models\Education\Subject::find($res->id);                
+            ?>
+            <i class="{{ ($subject->module && $subject->module->icon && $subject->module->icon->css_class) ? $subject->module->icon->css_class : 'fa fa-university' }}" style="color:white; font-size:24px; margin-left:18px; margin-top:22px;"> </i>                     
         </div>
     </div>
     <div class='col-lg-11 col-md-10'>

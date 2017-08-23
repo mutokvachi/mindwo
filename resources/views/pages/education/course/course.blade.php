@@ -10,7 +10,7 @@
     <div class="portlet light">
         <div class="portlet-title">
             <div class="caption">
-                <i class="{{ 'fa fa-university' }}"></i>
+                <i class="{{ ($subject->module && $subject->module->icon && $subject->module->icon->css_class) ? $subject->module->icon->css_class : 'fa fa-university' }}"></i>
                 <span class="caption-subject bold uppercase">{{ $subject->title }}</span>
             </div>
         </div>
