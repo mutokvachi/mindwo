@@ -348,13 +348,16 @@ class SchedulerController extends Controller
             throw new Exceptions\DXCustomException(trans('calendar.scheduler.error_no_day_for_coffee'));
         }        
         
-        DB::transaction(function () use ($time_from, $time_to, $day, $room)
+        $feed_org_id = $this->getDefaultFeedOrg();
+        
+        DB::transaction(function () use ($time_from, $time_to, $day, $room, $feed_org_id)
         {
             $this->new_cofee_id = DB::table('edu_subjects_groups_days_pauses')->insertGetId([
                 'room_id' => $room->id,
                 'group_day_id' => $day->day_id,
                 'time_from' => $time_from,
-                'time_to' => $time_to
+                'time_to' => $time_to,
+                'feed_org_id' => $feed_org_id
             ]);
         });
         
@@ -420,6 +423,31 @@ class SchedulerController extends Controller
             'coffee_id' => $this->new_cofee_id,
             'subject_id' => $day->subject_id
         ]);
+    }
+    
+    /**
+     * Gets default feeding organization ID
+     * @return integer Organization ID
+     */
+    private function getDefaultFeedOrg() {
+        $feed = DB::table('edu_orgs_types')->where('code', '=', 'FEED')->first();
+        
+        if (!$feed) {
+            return null;
+        }        
+        
+        $feed_org = DB::table('edu_orgs')
+                    ->where('org_type_id', '=', $feed->id)
+                    ->where(function($query) {
+                        $query->whereRaw('active_till is null or active_till > date(now())');
+                    })
+                    ->first();
+            
+        if (!$feed_org) {
+            return null;
+        }
+        
+        return $feed_org->id;
     }
     
     /**

@@ -13,6 +13,7 @@ return [
     'org_type_id' => 'Darbības tips',
     'reg_nr' => 'Reģistrācijas numurs',
     'address' => 'Adrese',
+    'active_till' => 'Spēkā līdz',
     
     // tabs
     'tab_banks' => 'Banku konti',
