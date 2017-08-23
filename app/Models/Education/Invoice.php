@@ -4,12 +4,12 @@ namespace App\Models\Education;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SubjectGroupMember extends Model
+class Invoice extends Model
 {
      /**
      * @var string Related table
      */
-    protected $table = 'edu_subjects_groups_members';
+    protected $table = 'edu_invoices';
 
     /**
      * @var bool Disables Laravel's time stamps on insert and update
@@ -25,11 +25,6 @@ class SubjectGroupMember extends Model
         'created_time',
         'modified_time'
     ];
-
-    public function invoice()
-    {
-        return $this->belongsTo('\App\Models\Education\Invoice', 'invoice_id');
-    }
 
     /**
      * User who last created record

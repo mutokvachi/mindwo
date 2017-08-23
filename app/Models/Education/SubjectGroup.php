@@ -63,6 +63,36 @@ class SubjectGroup extends Model
             ->orderBy('lesson_date', 'DESC')->first();
     }
 
+     public function dateInterval()
+    {
+        $groupStartDay = $this->firstDay();
+        if ($groupStartDay) {
+            $groupStartDate = date_create($groupStartDay->lesson_date)->format('d.m.Y');
+        } else {
+            $groupStartDate = '';
+        }
+
+        $groupEndDay = $this->lastDay();
+        if ($groupEndDay) {
+            $groupEndDate = date_create($groupStartDay->lesson_date)->format('d.m.Y');
+        } else {
+            $groupEndDate = '';
+        }
+
+        $dateInterval = '';
+
+        if(strlen($groupStartDate)>0){
+            $dateInterval .= '(' . $groupStartDate;
+
+            if(strlen($groupEndDate) > 0 && $groupEndDate != $groupStartDate){
+                $dateInterval .= ' - ' . $groupEndDate . ')';
+            } else {
+                 $dateInterval .= ')';
+            }
+        }
+        return $dateInterval;
+    }
+
     /**
      * User who last created record
      * @return \App\User

@@ -55,7 +55,7 @@
                             @if($day->room && $day->room->organization && $day->room->organization->address)                            
                                 {{ $day->room->organization->address }}
                                 @if($day->room->room_nr)
-                                    , {{ $day->room->room_nr }} 
+                                    , telpa {{ $day->room->room_nr }} 
                                 @endif
                             @elseif($group->organization && $group->organization->address)
                                 {{ $group->organization->address }}

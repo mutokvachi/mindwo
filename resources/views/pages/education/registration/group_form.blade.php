@@ -11,8 +11,10 @@
                 <div class="form-group required">
                     <label>Izvēlieties kursu</label>
                     <select class='form-control dx-edu-modal-group-select-course'> 
-                        @foreach(\App\Models\Education\Subject::where('is_published', 1)->orderBy('title')->get() as $subject)    
+                        @foreach(\App\Models\Education\Subject::where('is_published', 1)->orderBy('title')->get() as $subject) 
+                        @if($subject->avaliableOpenGroups->count() > 0)   
                         <option value="{{ $subject->id }}">{{ $subject->title }}</option>
+                        @endif
                         @endforeach
                     </select>
                 </div>
@@ -20,7 +22,7 @@
                     <label>Izvēlieties grupu</label>
                     <select class='form-control dx-edu-modal-group-select-group'>  
                         @foreach($availableOpenGroups as $group)    
-                        <option value="{{ $group->id }}" data-subject-id="{{ $group->subject_id }}">{{ $group->title }}</option>
+                        <option value="{{ $group->id }}" data-subject-id="{{ $group->subject_id }}">{{ $group->dateInterval()  . ' ' . $group->title  }}</option>
                         @endforeach   
                     </select>
                 </div>               
