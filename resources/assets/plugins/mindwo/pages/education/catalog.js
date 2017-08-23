@@ -62,6 +62,7 @@
 
             self.domObject.find('.dx-edu-datetime-field').daterangepicker({
                 locale: {
+                    "format":  self.domObject.data('dx-date-format').toUpperCase(),
                     "separator": " - ",
                     "applyLabel": Lang.get('date_range.btn_set'),
                     "cancelLabel": Lang.get('date_range.btn_cancel'),
@@ -100,6 +101,12 @@
 
             self.domObject.find('.dx-edu-catalog-btn-search').on('click', function () {
                 self.search(self);
+            });
+
+            self.domObject.find('.dx-edu-catalog-filter-text').keyup(function(event){
+                if(event.keyCode == 13){
+                    self.search(self);
+                }
             });
 
             self.domObject.find('.dx-edu-catalog-btn-filter-clear').on('click', function () {

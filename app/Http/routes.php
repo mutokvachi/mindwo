@@ -201,6 +201,7 @@ Route::group(['prefix' => 'edu', 'namespace' => 'Education'], function() {
         Route::get('/catalog', array('middleware' => 'auth', 'uses' => 'CatalogController@getView'));
         Route::get('/catalog/search', array('middleware' => 'auth', 'uses' => 'CatalogController@getData'));
         Route::get('/course/{id}', array('middleware' => 'auth', 'uses' => 'CourseController@getView'));
+        Route::post('/course_feedback', array('middleware' => 'auth', 'uses' => 'CourseController@saveFeedback'));
         Route::get('/registration/{id?}', array('middleware' => 'auth', 'uses' => 'RegistrationController@getView'));
         Route::get('/registration/group/{id?}', array('middleware' => 'auth', 'uses' => 'RegistrationController@getGroup'));
         Route::post('/registration/save', array('middleware' => 'auth', 'uses' => 'RegistrationController@save'));

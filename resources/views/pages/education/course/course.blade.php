@@ -6,7 +6,7 @@
 @stop
 
 @section('main_content')
-<div class="dx-edu-course-page">  
+<div class="dx-edu-course-page" data-dx-subject_id="{{ $subject->id }}">  
     <div class="portlet light">
         <div class="portlet-title">
             <div class="caption">
