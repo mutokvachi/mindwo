@@ -12,6 +12,7 @@ return [
     'title' => 'Nosaukums',
     'file_name' => 'Ikonas datne',
     'file_guid' => 'Ikonas datnes GUID',
+    'css_class' => 'Ikonas klase',
     
     'values' => [
         ['title' => 'Tieslietas'],
