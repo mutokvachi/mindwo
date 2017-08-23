@@ -6,12 +6,15 @@
     </div>
     @endif
 
-    @if(1==0)
+    
     <h4>Cena</h4>
     <div>
-        {!! $subject->price !!}
-    </div>
-    @endif
+        @if($subject->price_for_student > 0)
+            {!! $subject->price_for_student !!} (+PVN 21% pakalpojuma saņēmējiem, kas nav valsts pārvaldes iestādes)
+        @else
+            Cena nav norādīta
+        @endif
+    </div>    
 
     <h4>Grupas</h4>
     @foreach($subject->avaliableGroups as $group)
@@ -52,10 +55,14 @@
                             @endif
                         </td>
                         <td> 
-                            @if($day->room && $day->room->organization && $day->room->organization->address)                            
-                                {{ $day->room->organization->address }}
-                                @if($day->room->room_nr)
-                                    , telpa {{ $day->room->room_nr }} 
+                            @if($day->room && $day->room->organization && $day->room->organization->address)    
+                                @if($day->room->is_elearn == 1)    
+                                    {{ $day->room->room_nr }} 
+                                @else                    
+                                    {{ $day->room->organization->address }}
+                                    @if($day->room->room_nr)
+                                        , telpa {{ $day->room->room_nr }} 
+                                    @endif
                                 @endif
                             @elseif($group->organization && $group->organization->address)
                                 {{ $group->organization->address }}

@@ -51,7 +51,7 @@
                 @include('pages.education.registration.registration_participant_row')   
             </div>
             <div style="margin-bottom:20px;"></div>
-            <a href="/edu/catalog" class="btn btn-default ">Atgriezties uz katalogu</a>
+            <a href="{{Request::root()}}/edu/catalog" class="btn btn-default ">Atgriezties uz katalogu</a>
         </div>
     </div>
 </div>

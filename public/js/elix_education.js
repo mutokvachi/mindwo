@@ -53,6 +53,9 @@
             });
 
             self.domObject.find('select').multiselect({
+                nonSelectedText: 'Nav atīzmēts',
+                allSelectedText: 'Atzīmēti visi',
+                nSelectedText : 'Atzīmēti',
                 buttonWidth: '100%'
             });
 
@@ -321,9 +324,8 @@ $(document).ready(function () {
                     hide_page_splash(1);
 
                     if (res && res.success && res.success == 1) {
-                       // $('.dx-edu-reg-win').hide();
-                        //$('.dx-edu-reg-suc').show();
-                        alert('ok');
+                        $('.dx-edu-reg-win').hide();
+                        $('.dx-edu-reg-suc').show();
                     } else if (res && res.msg) {
                         notify_err(res.msg);
                     } else {

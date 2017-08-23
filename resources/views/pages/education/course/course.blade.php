@@ -16,6 +16,7 @@
         </div>
         <div class="portlet-body">
             <div style="margin-bottom: 10px;">  
+                <a href="{{Request::root()}}/edu/catalog" class="btn btn-sm btn-default ">Atgriezties uz katalogu</a>
                 <?php 
                     $availability = $subject->getAvailability();              
                 ?>

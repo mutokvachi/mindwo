@@ -1,13 +1,24 @@
-<div class="dx-edu-course-tab-container">
-    <h4>Mācību kursa programma</h4>
+<div class="dx-edu-course-tab-container">    
     <div>
+        <h4>Mācību kursa programma: </h4>
         {{ $subject->module->program->title }}
     </div>
 
-    <h4>Mācību kursa modulis</h4>
     <div>
+        <h4>Mācību kursa modulis: </h4>
         {{ $subject->module->title }}
     </div>
+
+    @if($subject->tags->count() > 0)
+    <div>
+        <h4>Birkas: </h4>
+        <ul>
+        @foreach($subject->tags as $tag)
+        <li>{{ $tag->title }}</li>
+        @endforeach
+        </ul>
+    </div>
+    @endif
 
     @if($subject->purpose)
     <h4>Mācību kursa mērķis</h4>

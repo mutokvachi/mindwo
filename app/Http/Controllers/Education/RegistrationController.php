@@ -72,7 +72,7 @@ class RegistrationController extends Controller
     {
         $groups = $request->input('groups');
 
-       \Log::info('Grupas: ' . print_r($groups, true));
+      // \Log::info('Grupas: ' . print_r($groups, true));
 
         $invoice = new  \App\Models\Education\Invoice();
         $invoice->type = $request->input('type');
