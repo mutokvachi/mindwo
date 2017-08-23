@@ -20,11 +20,10 @@
                     $availability = $subject->getAvailability();              
                 ?>
                @if($availability->group_count > 0)
-                    @if($availability->is_not_full == 1)
+                    @if($availability->is_not_full >= 1)
                         <a href="{{Request::root()}}/edu/registration/{{ $subject->id }}" class="btn btn-sm btn-primary">Pieteikties</a>   
-                    @else
-                    <a href="{{Request::root()}}/edu/registration/{{ $subject->id }}" class="btn btn-sm btn-primary">Pieteikties</a>   
-                        <!--<button class="btn btn-sm btn-danger disabled">Visas grupas ir pilnas</button>-->
+                    @else 
+                        <button class="btn btn-sm btn-danger disabled">Visas grupas ir pilnas</button>
                     @endif 
                 @else
                     <button class="btn btn-sm btn-danger disabled">Šobrīd nav pieejams</button>

@@ -19,11 +19,10 @@
             <div>
                 <a href="{{Request::root()}}/edu/course/{{ $res->id }}" class="btn btn-default btn-sm">Uzzināt vairāk</a>
                 @if($res->group_count > 0)
-                    @if($res->is_not_full == 1)
+                    @if($res->is_not_full >= 1)
                         <a href="{{Request::root()}}/edu/registration/{{ $res->id }}" class="btn btn-sm btn-primary">Pieteikties</a>   
-                    @else
-                    <a href="{{Request::root()}}/edu/registration/{{ $res->id }}" class="btn btn-sm btn-primary">Pieteikties</a>   
-                        <!--<button class="btn btn-sm btn-danger disabled">Visas grupas ir pilnas</button>-->
+                    @else                   
+                        <button class="btn btn-sm btn-danger disabled">Visas grupas ir pilnas</button>
                     @endif 
                 @else
                     <button class="btn btn-sm btn-danger disabled">Šobrīd nav pieejams</button>
