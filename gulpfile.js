@@ -141,6 +141,7 @@ gulp.task('mix_all', function() {
         // Scripts for education module
         mix.scripts([
             'mindwo/pages/education/catalog.js',
+            'mindwo/pages/education/course.js',
             'mindwo/pages/education/registration.js'
         ], 'public/js/elix_education.js', 'resources/assets/plugins');
 

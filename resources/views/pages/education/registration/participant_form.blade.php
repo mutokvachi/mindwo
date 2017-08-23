@@ -5,7 +5,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="{{ trans('form.btn_close') }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="dx-edu-modal-participant-label">Grupas izvēle</h4>
+                <h4 class="modal-title" id="dx-edu-modal-participant-label">Dalībnieka izvēle</h4>
             </div>
             <div class="modal-body">
                 <div class='dx-edu-modal-participant-regular'>

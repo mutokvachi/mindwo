@@ -112,10 +112,14 @@ class RegistrationController extends Controller
                         $user->last_name = $participant['lastname'];
                         //$user->pers_code = $participant['job'];
                         //$user->pers_code = $participant['position'];
+                        $user->is_role_student = 1;
                         $user->phone = $participant['telephone'];
                         $user->email = $participant['email'];
                         $user->save();
                     }
+
+                    $user->is_role_student = 1;
+                    $user->save();
 
                     $member = new \App\Models\Education\SubjectGroupMember();
                     $member->group_id = $group->id;

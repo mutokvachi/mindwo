@@ -6,12 +6,12 @@
 @stop
 
 @section('main_content')
-<div class="dx-edu-catalog-page">  
+<div class="dx-edu-catalog-page" data-dx-date-format="{{ config('dx.date_format') }}">  
     <div class="portlet light">
         <div class="portlet-title">
             <div class="caption">
                 <i class="fa fa-university"></i>
-                <span class="caption-subject bold uppercase">Kursu katalogs</span>
+                <span class="caption-subject bold uppercase">Mācību pasākumu katalogs</span>
             </div>
         </div>
         <div class="portlet-body">

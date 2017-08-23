@@ -6,7 +6,7 @@
 @stop
 
 @section('main_content')
-<div class="dx-edu-registration-page" data-subject_id="{{ $subject_id }}">  
+<div class="dx-edu-registration-page" data-subject_id="{{ $subject_id }}" data-dx-date-format="{{ config('dx.date_format') }}">  
     <div class="portlet light">
         <div class="portlet-title">
             <div class="caption">
@@ -32,7 +32,8 @@
                             data-on-text="Jā" />
                     </div> 
                 </div> 
-                <button class="btn btn-sm btn-default dx-edu-reg-btn-add-group">Pievienot grupu</button>
+                <a href="{{Request::root()}}/edu/catalog" class="btn btn-sm btn-default " style="margin-right:5px;">Atgriezties uz katalogu</a> 
+                <button class="btn btn-sm btn-default dx-edu-reg-btn-add-group">Pievienot vēl vienu grupu</button>
 
                 <div class="dx-edu-reg-group-container" style="margin-top:20px; margin-bottom:20px;">
                     <div class='dx-edu-reg-group-panel-empty' style='color:red'>
