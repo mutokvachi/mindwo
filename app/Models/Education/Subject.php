@@ -63,6 +63,16 @@ class Subject extends Model
             ->where('edu_subjects_groups.is_published', 1);
     }
 
+    public function tags()
+    {
+        return $this->belongsToMany('\App\Models\Education\Tag', 'edu_subjects_tags', 'subject_id', 'tag_id');
+    }
+
+    public function feedbacks()
+    {
+        return $this->hasMany('\App\Models\Education\SubjectFeedback', 'subject_id');
+    }
+
     public function avaliableOpenGroups()
     {
         return $this->hasMany('\App\Models\Education\SubjectGroup', 'subject_id')

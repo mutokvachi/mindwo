@@ -26,6 +26,11 @@ class SubjectGroupMember extends Model
         'modified_time'
     ];
 
+    public function invoice()
+    {
+        return $this->belongsTo('\App\Models\Education\Invoice', 'invoice_id');
+    }
+
     /**
      * User who last created record
      * @return \App\User

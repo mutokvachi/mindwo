@@ -4,12 +4,12 @@ namespace App\Models\Education;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Module extends Model
+class SubjectFeedback extends Model
 {
      /**
      * @var string Related table
      */
-    protected $table = 'edu_modules';
+    protected $table = 'edu_subjects_feedbacks';
 
     /**
      * @var bool Disables Laravel's time stamps on insert and update
@@ -26,16 +26,15 @@ class Module extends Model
         'modified_time'
     ];
 
-    public function program()
+    /**
+     * Related subject
+     *
+     * @return \App\Models\Education\Subject
+     */
+    public function subject()
     {
-        return $this->belongsTo('\App\Models\Education\Program', 'programm_id');
+        return $this->belongsTo('\App\Models\Education\Subject', 'subject_id');
     }
-
-    public function icon()
-    {
-        return $this->belongsTo('\App\Models\System\Icon', 'icon_id');
-    }
-
 
     /**
      * User who last created record

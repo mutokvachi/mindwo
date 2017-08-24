@@ -53,6 +53,7 @@
 
             self.domObject.find('.dx-edu-reg-btn-add-group').click(function () {
                 $('.dx-edu-modal-group-select-course').val($(".dx-edu-modal-group-select-course option:first").val());
+                $('.dx-edu-modal-group-select-course').change();
                 $('#dx-edu-modal-group').data('group_id', 0);
                 $('#dx-edu-modal-group').modal('show');
             });
@@ -84,6 +85,15 @@
                 self.saveAll(self);
             });
 
+            hide_page_splash(1);
+
+            if (self.domObject.data('subject_id') > 0) {
+                $('.dx-edu-modal-group-select-course').val(self.domObject.data('subject_id'));
+                $('.dx-edu-modal-group-select-course').change();
+                $('#dx-edu-modal-group').data('group_id', 0);
+                $('#dx-edu-modal-group').modal('show');
+            }
+
             /* self.domObject.find('.dx-edu-datetime-field').each(function(){
                  $(this).val('');
              });
@@ -92,24 +102,31 @@
                  self.search(self);
              });*/
 
-            hide_page_splash(1);
+            
         },
         saveAll: function (self) {
             show_page_splash(1);
 
             var data = {
                 type: $('.dx-edu-reg-invoice-type').val(),
+                name: $('.dx-edu-reg-invoice-name').val(),
                 address: $('.dx-edu-reg-invoice-address').val(),
                 regnr: $('.dx-edu-reg-invoice-regnr').val(),
                 bank: $('.dx-edu-reg-invoice-bank').val(),
                 swift: $('.dx-edu-reg-invoice-swift').val(),
                 account: $('.dx-edu-reg-invoice-account').val(),
+                email: $('.dx-edu-reg-invoice-email').val(),
                 groups: self.basket
             }
 
-            return false;
+            if(data.type.length <= 0 || data.name.length <= 0 || data.address.length <= 0 || 
+                data.regnr.length <= 0 || data.bank.length <= 0 || data.swift.length <= 0 || data.account.length <= 0 || data.email.length <= 0){
+                hide_page_splash(1);
+                notify_err("Informācija par norēķiniem nav aizpildīta. Lauki, kas atzīmēti ar zvaigznīti, ir obligāti jāaizpilda!");
+                return;
+            }
 
-           /* $.ajax({
+            $.ajax({
                 url: DX_CORE.site_url + 'edu/registration/save',
                 type: "post",
                 data: data,
@@ -117,7 +134,8 @@
                     hide_page_splash(1);
 
                     if (res && res.success && res.success == 1) {
-                        self.loadGroupPanel(self, res);
+                        $('.dx-edu-reg-win').hide();
+                        $('.dx-edu-reg-suc').show();
                     } else if (res && res.msg) {
                         notify_err(res.msg);
                     } else {
@@ -129,9 +147,11 @@
 
                     notify_err("Kļūda saglabājot pieteikumu");
                 }
-            });*/
+            });
         },
-        saveGroup: function (self) {
+        saveGroup:function(self){
+            show_page_splash(1);
+
             var subjectId = $('.dx-edu-modal-group-select-course').val();
             var groupId = $('.dx-edu-modal-group-select-group').val();
 
@@ -143,14 +163,18 @@
             var oldGroupId = $('#dx-edu-modal-group').data('group_id');
 
             if (oldGroupId == 0 || oldGroupId != groupId) {
-                if (oldGroupId != groupId) {
+                if (oldGroupId != groupId && oldGroupId != 0) {
+                    self.basket[groupId] = self.basket[oldGroupId];
+
                     delete self.basket[oldGroupId];
                 }
 
-                self.basket[groupId] = {
-                    subject_id: subjectId,
-                    group_id: groupId
-                };
+                if(typeof self.basket[groupId] == 'undefined'){
+                    self.basket[groupId] = {};
+                }
+
+                self.basket[groupId].subject_id = subjectId;
+                self.basket[groupId].group_id = groupId;
 
                 $.ajax({
                     url: DX_CORE.site_url + 'edu/registration/group/' + groupId,
@@ -176,9 +200,12 @@
                 });
             } else {
                 $('#dx-edu-modal-group').modal('hide');
+                hide_page_splash(1);
             }
         },
         saveParticipant: function (self) {
+            show_page_splash(1);
+
             var is_coordinator = $('.dx-edu-reg-is-coordinator').bootstrapSwitch('state');
 
             var data;
@@ -191,16 +218,23 @@
                 data = {
                     name: $('.dx-edu-modal-participant-input-name').val(),
                     lastname: $('.dx-edu-modal-participant-input-lastname').val(),
+                    pers_code: $('.dx-edu-modal-participant-input-pers_code').val(),
                     job: $('.dx-edu-modal-participant-input-job').val(),
                     position: $('.dx-edu-modal-participant-input-position').val(),
                     telephone: $('.dx-edu-modal-participant-input-telephone').val(),
                     email: $('.dx-edu-modal-participant-input-email').val()
                 };
+
+                if(data.name.length <= 0 || data.lastname.length <= 0 || data.pers_code.length <= 0 || data.telephone.length <= 0 || data.email.length <= 0){
+                    hide_page_splash(1);
+                    notify_err("Lauki, kas atzīmēti ar zvaigznīti, ir obligāti jāaizpilda!");
+                    return;
+                }
             }
 
-            var participantId = $('#dx-edu-modal-participant').data('participant_id');
-            var groupId = $('#dx-edu-modal-participant').data('group_id');
+            var participantId = $('#dx-edu-modal-participant').data('participant_id');            
             var groupTemplate = $('#dx-edu-modal-participant').data('group_template');
+            var groupId = groupTemplate.data('group_id');
 
             if (participantId == -1) {
                 if (typeof self.basket[groupId].participants === 'undefined') {
@@ -223,42 +257,44 @@
                 self.basket[groupId].participants[participantId] = data;
             }
 
-            self.loadParticipantPanel(self, data, participantId, groupId, groupTemplate);
+            self.loadParticipantPanel(self, data, participantId, groupTemplate);
 
             $('#dx-edu-modal-participant').modal('hide');
         },
-        editParticipant: function (self, template, groupId, participantId) {
+        editParticipant: function (self, partTemplate, groupTemplate) {
+            var groupId= groupTemplate.data('group_id');
+            var participantId = partTemplate.data('participant_id');
             var data = self.basket[groupId].participants[participantId];
 
             $('.dx-edu-modal-participant-input-name').val(data.name);
             $('.dx-edu-modal-participant-input-lastname').val(data.lastname);
+            $('.dx-edu-modal-participant-input-pers_code').val(data.pers_code);
             $('.dx-edu-modal-participant-input-job').val(data.job);
             $('.dx-edu-modal-participant-input-position').val(data.position);
             $('.dx-edu-modal-participant-input-telephone').val(data.telephone);
             $('.dx-edu-modal-participant-input-email').val(data.email);
 
             $('#dx-edu-modal-participant').data('participant_id', data.participant_id);
-            $('#dx-edu-modal-participant').data('group_id', data.group_id);
-            $('#dx-edu-modal-participant').data('template', template);
+            $('#dx-edu-modal-participant').data('template', partTemplate);
 
             $('#dx-edu-modal-participant').modal('show');
         },
-        editGroup: function (self, template) {
-            var data = self.basket[template.data('group_id')];
+        editGroup: function (self, groupTemplate) {
+            var data = self.basket[groupTemplate.data('group_id')];
 
             $('.dx-edu-modal-group-select-course').val(data.subject_id);
             $('.dx-edu-modal-group-select-course').change();
             $('.dx-edu-modal-group-select-group').val(data.group_id);
 
             $('#dx-edu-modal-group').data('group_id', data.group_id);
-            $('#dx-edu-modal-group').data('template', template);
+            $('#dx-edu-modal-group').data('template', groupTemplate);
 
             $('#dx-edu-modal-group').modal('show');
         },
-        deleteGroup: function (self, template) {
-            delete self.basket[template.data('group_id')];
+        deleteGroup: function (self, groupTemplate) {
+            delete self.basket[groupTemplate.data('group_id')];
 
-            template.remove();
+            groupTemplate.remove();
 
             if ($('.dx-edu-reg-group-container').find('dx-edu-reg-group-panel').length <= 0) {
                 $('.dx-edu-reg-group-container').find('.dx-edu-reg-group-panel-empty').show();
@@ -267,10 +303,13 @@
                 $('.dx-edu-reg-btn-save').addClass('disabled');
             }
         },
-        deleteParticipant: function (self, template, groupId, participantId, groupTemplate) {
+        deleteParticipant: function (self, partTemplate, groupTemplate) {
+            var groupId= groupTemplate.data('group_id');
+            var participantId = partTemplate.data('participant_id');
+
             delete self.basket[groupId].participants[participantId];
 
-            template.remove();
+            partTemplate.remove();
 
             if (groupTemplate.find('.dx-edu-reg-participant-panel').length <= 0) {
                 groupTemplate.find('.dx-edu-reg-participants-panel-empty').show();
@@ -281,7 +320,7 @@
                 $('.dx-edu-reg-btn-save').addClass('disabled');
             }
         },
-        addParticipant: function (self, groupTemplate, groupId) {
+        addParticipant: function (self, groupTemplate) {
             var is_coordinator = $('.dx-edu-reg-is-coordinator').bootstrapSwitch('state');
 
             self.closeParticipantModal();
@@ -295,33 +334,34 @@
             }
 
             $('#dx-edu-modal-participant').data('participant_id', -1);
-            $('#dx-edu-modal-participant').data('group_id', groupId);
             $('#dx-edu-modal-participant').data('group_template', groupTemplate);
             $('#dx-edu-modal-participant').modal('show');
         },
-        loadParticipantPanel: function (self, data, participantId, groupId, groupTemplate) {
+        loadParticipantPanel: function (self, data, participantId, groupTemplate) {
             if ($('#dx-edu-modal-participant').data('participant_id') == -1) {
-                var $template = $($('#dx-edu-reg-participant-panel-temp').html());
+                var $partTemplate = $($('#dx-edu-reg-participant-panel-temp').html());
 
-                $template.find('.dx-edu-reg-btn-edit-participant').on('click', function () {
-                    self.editParticipant(self, $template, groupId, participantId);
+                $partTemplate.find('.dx-edu-reg-btn-edit-participant').on('click', function () {
+                    self.editParticipant(self, $partTemplate, groupTemplate);
                 });
 
-                $template.find('.dx-edu-reg-btn-del-participant').on('click', function () {
-                    self.deleteParticipant(self, $template, groupId, participantId, groupTemplate);
+                $partTemplate.find('.dx-edu-reg-btn-del-participant').on('click', function () {
+                    self.deleteParticipant(self, $partTemplate, groupTemplate);
                 });
 
-                groupTemplate.find('.dx-edu-reg-group-participants').append($template);
+                groupTemplate.find('.dx-edu-reg-group-participants').append($partTemplate);
             } else {
-                var $template = $('#dx-edu-modal-participant').data('template');
+                var $partTemplate = $('#dx-edu-modal-participant').data('template');
             }
 
-            $template.data('participant_id', participantId);
-            $template.data('group_id', groupId);
+            $partTemplate.data('participant_id', participantId);
+           // $partTemplate.data('group_id', groupId);
 
-            $template.find('.dx-edu-reg-participant').html(data.name + ' ' + data.lastname + ' (' + data.email + ')');
+            $partTemplate.find('.dx-edu-reg-participant').html(data.name + ' ' + data.lastname + ' (' + data.email + ')');
 
             groupTemplate.find('.dx-edu-reg-participants-panel-empty').hide();
+
+            hide_page_splash(1);
         },
         loadGroupPanel: function (self, res) {
             if ($('#dx-edu-modal-group').data('group_id') == 0) {
@@ -336,12 +376,28 @@
                 });
 
                 $template.find('.dx-edu-reg-btn-add-participant').on('click', function () {
-                    self.addParticipant(self, $template, res.group.id);
+                    self.addParticipant(self, $template);
                 });
 
                 $('.dx-edu-reg-group-container').append($template);
             } else {
                 var $template = $('#dx-edu-modal-group').data('template');
+
+               /* $template.find('.dx-edu-reg-btn-edit-group').unbind("click");
+                $template.find('.dx-edu-reg-btn-del-group').unbind("click");
+                $template.find('.dx-edu-reg-btn-add-participant').unbind("click");
+
+                $template.find('.dx-edu-reg-btn-edit-group').on('click', function () {
+                    self.editGroup(self, $template);
+                });
+
+                $template.find('.dx-edu-reg-btn-del-group').on('click', function () {
+                    self.deleteGroup(self, $template);
+                });
+
+                $template.find('.dx-edu-reg-btn-add-participant').on('click', function () {
+                    self.addParticipant(self, $template, res.group.id);
+                });*/
             }
 
             $template.data('group_id', res.group.id);
@@ -360,6 +416,8 @@
             }
 
             $('.dx-edu-reg-group-container').find('.dx-edu-reg-group-panel-empty').hide();
+
+            hide_page_splash(1);
         },
         closeGroupModal: function (self) {
             $('.dx-edu-modal-group-select-course').val($(".dx-edu-modal-group-select-course option:first").val());
@@ -367,6 +425,7 @@
         closeParticipantModal: function (self) {
             $('.dx-edu-modal-participant-input-name').val('');
             $('.dx-edu-modal-participant-input-lastname').val('');
+            $('.dx-edu-modal-participant-input-pers_code').val('');
             $('.dx-edu-modal-participant-input-job').val('');
             $('.dx-edu-modal-participant-input-position').val('');
             $('.dx-edu-modal-participant-input-telephone').val('');

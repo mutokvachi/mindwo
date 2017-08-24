@@ -24,7 +24,7 @@
 </div>
 <div id="dx-edu-catalog-filter-detailed" class="row collapse">
     <div class="form-group col-lg-3 col-md-4 col-sm-6 dx-edu-multiselect-container">
-        <div style="font-size:11px;">Joma</div>
+        <div style="font-size:11px;">Birkas</div>
         <select class='form-control input-sm mt-multiselect dx-edu-catalog-filter-tag' multiple="multiple" data-label="left">         
             @foreach(\App\Models\Education\Tag::all() as $tag)
             <option value="{{ $tag->id }}">{{ $tag->title }}</option>

@@ -13,7 +13,7 @@
             <div>
                 <h5 style="font-weight:bold">Pievienotie dalībnieki</h5>
                 <div style="margin-bottom:10px;" class='dx-edu-reg-group-participants'>
-                    <div class='dx-edu-reg-participants-panel-empty'>
+                    <div class='dx-edu-reg-participants-panel-empty' style='color:red'>
                         <i>Nav pievienots neviens dalībnieks!</i>
                     </div>
                 </div>

@@ -53,11 +53,16 @@
             });
 
             self.domObject.find('select').multiselect({
+                nonSelectedText: 'Nav atīzmēts',
+                allSelectedText: 'Atzīmēti visi',
+                nSelectedText: 'Atzīmēti',
+                numberDisplayed: 3,
                 buttonWidth: '100%'
             });
 
             self.domObject.find('.dx-edu-datetime-field').daterangepicker({
                 locale: {
+                    "format":  self.domObject.data('dx-date-format').toUpperCase(),
                     "separator": " - ",
                     "applyLabel": Lang.get('date_range.btn_set'),
                     "cancelLabel": Lang.get('date_range.btn_cancel'),
@@ -80,7 +85,7 @@
                 "linkedCalendars": false
             });
 
-            self.domObject.find('.dx-edu-datetime-field').each(function(){
+            self.domObject.find('.dx-edu-datetime-field').each(function () {
                 $(this).val('');
             });
 
@@ -98,7 +103,13 @@
                 self.search(self);
             });
 
-            self.domObject.find('.dx-edu-catalog-btn-filter-clear').on('click',function () {
+            self.domObject.find('.dx-edu-catalog-filter-text').keyup(function(event){
+                if(event.keyCode == 13){
+                    self.search(self);
+                }
+            });
+
+            self.domObject.find('.dx-edu-catalog-btn-filter-clear').on('click', function () {
                 self.clearFilter(self);
             })
 

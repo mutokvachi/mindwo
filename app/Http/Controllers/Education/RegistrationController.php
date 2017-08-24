@@ -26,10 +26,20 @@ class RegistrationController extends Controller
             })
             ->get();
 
+        $subject_id = 0;
+        if ($id > 0) {
+            $subject = \App\Models\Education\Subject::find($id);
+
+            if ($subject) {
+                $subject_id = $id;
+            }
+        }
+
         return view('pages.education.registration.registration', [
                     'course' => $id  == 0 ? false : false,
                     'availableOpenGroups' => $availableOpenGroups,
-                    'is_coordinator' => false
+                    'is_coordinator' => false,
+                    'subject_id' => $subject_id
                 ])->render();
     }
 
@@ -51,16 +61,77 @@ class RegistrationController extends Controller
             $groupEndDate = false;
         }
 
-        return response()->json(['success' => 1, 
-            'group' => $group, 
-            'group_start' => $groupStartDate, 
+        return response()->json(['success' => 1,
+            'group' => $group,
+            'group_start' => $groupStartDate,
             'group_end' => $groupEndDate
             ]);
     }
 
-    public function getData(Request $request)
+    public function save(Request $request)
     {
-        $text = $request->input('groups');
+        $groups = $request->input('groups');
 
+      // \Log::info('Grupas: ' . print_r($groups, true));
+
+        $invoice = new  \App\Models\Education\Invoice();
+        $invoice->type = $request->input('type');
+        $invoice->name = $request->input('name');
+        $invoice->address = $request->input('address');
+        $invoice->regnr = $request->input('regnr');
+        $invoice->bank = $request->input('bank');
+        $invoice->swift = $request->input('swift');
+        $invoice->account = $request->input('account');
+        $invoice->email = $request->input('email');
+        $invoice->modified_time = new \DateTime();
+        $invoice->created_time = new \DateTime();
+        $invoice->save();
+
+        foreach ($groups as $groupRow) {
+            \Log::info('iteracija gr: ');
+            if (!$groupRow || !is_array($groupRow)) {
+                continue;
+            }
+
+            $group = \App\Models\Education\SubjectGroup::find($groupRow['group_id']);
+
+            if (!$group) {
+                continue;
+            }
+
+            if (array_key_exists('participants', $groupRow)) {
+                foreach ($groupRow['participants'] as $participant) {
+                    \Log::info('iteracija part: ');
+                    $user = \App\User::where('person_code', $participant['pers_code'])->first();
+
+                    if (!$user) {
+                        $user = new \App\User();
+                        $user->person_code = $participant['pers_code'];
+                        $user->display_name = $participant['name'] . ' ' . $participant['lastname'];
+                        $user->first_name = $participant['name'];
+                        $user->last_name = $participant['lastname'];
+                        //$user->pers_code = $participant['job'];
+                        //$user->pers_code = $participant['position'];
+                        $user->is_role_student = 1;
+                        $user->phone = $participant['telephone'];
+                        $user->email = $participant['email'];
+                        $user->save();
+                    }
+
+                    $user->is_role_student = 1;
+                    $user->save();
+
+                    $member = new \App\Models\Education\SubjectGroupMember();
+                    $member->group_id = $group->id;
+                    $member->student_id = $user->id;
+                    $member->invoice_id = $invoice->id;
+                    $member->modified_time = new \DateTime();
+                    $member->created_time = new \DateTime();
+                    $member->save();
+                }
+            }
+        }
+
+        return response()->json(['success' => 1]);
     }
 }

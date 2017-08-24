@@ -71,7 +71,7 @@ class CatalogController extends Controller
 
         $query = DB::table('edu_subjects AS sub')
             ->selectRaw(DB::raw('sub.id,
-                sub.title, 
+                sub.title_full AS title, 
                 SUM((SELECT COUNT(*) FROM edu_subjects_groups_members grm WHERE grm.group_id = gr.id) < gr.seats_limit) as is_not_full,
                 MIN(grd.lesson_date) min_lesson_date,
                 MAX(grd.lesson_date) max_lesson_date,
@@ -90,21 +90,28 @@ class CatalogController extends Controller
             ->leftJoin('edu_subjects_teachers AS te', 'te.subject_id', '=', 'sub.id') //teach  
             ->leftJoin('dx_users AS u', 'te.teacher_id', '=', 'u.id') //teach            
 
-            ->where('sub.is_published', 1) // Only published     
-            ->where('gr.is_published', 1) // Only published     
+            ->where('sub.is_published', 1) // Only published    
             ->where(function ($query) {
-                $query->where('gr.signup_due', '>=', Carbon::today()->toDateString());
-                $query->orWhereNull('gr.signup_due');                
-            })
+                $query->where(function ($query) {
+                        $query->where('gr.is_published', 1);
+                        $query->orWhereNull('gr.id');                
+                    });      
+                $query->where(function ($query) {
+                        $query->where('gr.signup_due', '>=', Carbon::today()->toDateString());
+                        $query->orWhereNull('gr.signup_due');   
+                        $query->orWhereNull('gr.id');                 
+                    });          
+            }) 
+            
 
             ->groupBy('sub.id'); // Signup date larger than today
 
         if($text && strlen(trim($text)) > 0){
             $query->where(function ($query) use ($text) {
-               $query->where('sub.title', 'like', '%' . $text . '%');
+               $query->where('sub.title_full', 'like', '%' . $text . '%');
                $query->orWhere('gr.title', 'like', '%' . $text . '%');
                $query->orWhere('tag.title', 'like', '%' . $text . '%');
-               $query->orWhere('m.title', 'like', '%' . $text . '%');
+               $query->orWhere('m.title_full', 'like', '%' . $text . '%');
                $query->orWhere('pr.title', 'like', '%' . $text . '%');
                $query->orWhere('u.display_name', 'like', '%' . $text . '%');
             });
@@ -171,7 +178,7 @@ class CatalogController extends Controller
 
         // If true show only which are free
         if ($only_free == 1) {
-            $query->where('sub.is_fee', 0);
+            $query->where('sub.price_for_student', '<=', 0);
         }
 
         // If false then don't show those which are full
@@ -180,26 +187,6 @@ class CatalogController extends Controller
         }
 
         $res = $query->get();
-
-        /*$groups = [];
-
-       foreach($res as $row){
-            if(!array_key_exists($row->id, $groups)){
-                $groups[$row->id] = [];
-            }
-
-            $groups[$row->id][] = $row;
-        }*/
-
-
-
-        /*$group_ids =[];
-
-        foreach($res as $row){
-            $group_ids[] = $row->id;
-        }
-
-        $groups = Education\SubjectGroup::find($group_ids);*/
 
         $html = view('pages.education.catalog_body', [
             'results' => $res

@@ -6,23 +6,24 @@
 @stop
 
 @section('main_content')
-<div class="dx-edu-course-page">  
+<div class="dx-edu-course-page" data-dx-subject_id="{{ $subject->id }}">  
     <div class="portlet light">
         <div class="portlet-title">
             <div class="caption">
-                <i class="{{ 'fa fa-university' }}"></i>
+                <i class="{{ ($subject->module && $subject->module->icon && $subject->module->icon->css_class) ? $subject->module->icon->css_class : 'fa fa-university' }}"></i>
                 <span class="caption-subject bold uppercase">{{ $subject->title }}</span>
             </div>
         </div>
         <div class="portlet-body">
             <div style="margin-bottom: 10px;">  
+                <a href="{{Request::root()}}/edu/catalog" class="btn btn-sm btn-default ">Atgriezties uz katalogu</a>
                 <?php 
                     $availability = $subject->getAvailability();              
                 ?>
                @if($availability->group_count > 0)
-                    @if($availability->is_not_full == 1)
+                    @if($availability->is_not_full >= 1)
                         <a href="{{Request::root()}}/edu/registration/{{ $subject->id }}" class="btn btn-sm btn-primary">Pieteikties</a>   
-                    @else
+                    @else 
                         <button class="btn btn-sm btn-danger disabled">Visas grupas ir pilnas</button>
                     @endif 
                 @else

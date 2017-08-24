@@ -4,12 +4,12 @@ namespace App\Models\Education;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Module extends Model
+class Invoice extends Model
 {
      /**
      * @var string Related table
      */
-    protected $table = 'edu_modules';
+    protected $table = 'edu_invoices';
 
     /**
      * @var bool Disables Laravel's time stamps on insert and update
@@ -25,17 +25,6 @@ class Module extends Model
         'created_time',
         'modified_time'
     ];
-
-    public function program()
-    {
-        return $this->belongsTo('\App\Models\Education\Program', 'programm_id');
-    }
-
-    public function icon()
-    {
-        return $this->belongsTo('\App\Models\System\Icon', 'icon_id');
-    }
-
 
     /**
      * User who last created record
