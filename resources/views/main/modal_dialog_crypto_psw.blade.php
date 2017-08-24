@@ -1,4 +1,4 @@
-<div class="modal fade in" id="dx-crypto-modal-psw" tabindex="-1" role="dialog" aria-labelledby="dx-crypto-modal-label" aria-hidden="true">
+<div class="modal fade" id="dx-crypto-modal-psw" tabindex="-1" role="dialog" aria-labelledby="dx-crypto-modal-label" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">      
             <div class="modal-header">

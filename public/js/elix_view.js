@@ -19090,6 +19090,7 @@ var BlockViews = function () {
             
             $(".dx-page-container").css('padding-bottom', '0px');
             $("#td_data .dx-paginator-butons").css('margin-right', 'auto');
+            console.log("WIN height: " + win_h + " td_data min-height: " + page_min);
         }
         catch (e) {
             console.log("Init Height error");
