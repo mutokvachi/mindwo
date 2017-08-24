@@ -16742,8 +16742,7 @@ var BlockViews = function () {
             $("#td_data .portlet").css("box-shadow", "none", "important");
             
             $(".dx-page-container").css('padding-bottom', '0px');
-            $("#td_data .dx-paginator-butons").css('margin-right', 'auto');
-            console.log("WIN height: " + win_h + " td_data min-height: " + page_min);
+            $("#td_data .dx-paginator-butons").css('margin-right', 'auto');            
         }
         catch (e) {
             console.log("Init Height error");
@@ -16930,8 +16929,7 @@ var BlockViews = function () {
                 $("body").addClass("dx-grid-in-page");
             }            
             
-            if (!tab_id) {
-                console.log("Geight from view");
+            if (!tab_id) {                
                 initHeight();
                 
                 if (!is_height_inited) {
