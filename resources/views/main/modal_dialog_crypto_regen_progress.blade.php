@@ -1,4 +1,4 @@
-<div class="modal fade in" id="dx-crypto-modal-regen-masterkey" tabindex="-1" role="dialog" aria-labelledby="dx-crypto-modal-regen-label" aria-hidden="true">
+<div class="modal fade" id="dx-crypto-modal-regen-masterkey" tabindex="-1" role="dialog" aria-labelledby="dx-crypto-modal-regen-label" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div id='dx-crypto-modal-regen-content' class="modal-content">      
             <div class="modal-header">

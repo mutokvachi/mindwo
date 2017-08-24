@@ -1,4 +1,4 @@
-<div class="modal fade in" id="mindwo-modal" tabindex="-1" role="dialog" aria-labelledby="mindwo-modal-label" aria-hidden="true">
+<div class="modal fade" id="mindwo-modal" tabindex="-1" role="dialog" aria-labelledby="mindwo-modal-label" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div id='mindwo-modal-content' class="modal-content">      
             <div class="modal-header">
