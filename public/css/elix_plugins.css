@@ -46030,8 +46030,10 @@ Profile Page
 		position: static;
 		margin: 0;
 		height: auto !important;
+                /*
 		max-height: none !important;
 		overflow: visible !important;
+                */
 	}
 	
 	.modal-footer,
