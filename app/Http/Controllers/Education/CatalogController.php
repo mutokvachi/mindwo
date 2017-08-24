@@ -108,10 +108,10 @@ class CatalogController extends Controller
 
         if($text && strlen(trim($text)) > 0){
             $query->where(function ($query) use ($text) {
-               $query->where('sub.title', 'like', '%' . $text . '%');
+               $query->where('sub.title_full', 'like', '%' . $text . '%');
                $query->orWhere('gr.title', 'like', '%' . $text . '%');
                $query->orWhere('tag.title', 'like', '%' . $text . '%');
-               $query->orWhere('m.title', 'like', '%' . $text . '%');
+               $query->orWhere('m.title_full', 'like', '%' . $text . '%');
                $query->orWhere('pr.title', 'like', '%' . $text . '%');
                $query->orWhere('u.display_name', 'like', '%' . $text . '%');
             });
