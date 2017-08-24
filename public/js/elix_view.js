@@ -18310,6 +18310,13 @@ var BlockViews = function () {
     var is_filter_menu_in = 0;
     
     /**
+     * Indicates if initHeight handled ir initialized
+     * 
+     * @type Number
+     */
+    var is_height_inited = 0;
+    
+    /**
      * Pārlādē bloka tabulārā saraksta datus.
      * Pārlādē vai nu sarakstu, kas ir galvenajā lapā vai arī formā iekļauto sadaļas sarakstu
      *
@@ -18344,8 +18351,6 @@ var BlockViews = function () {
         setTimeout(function () {
             elem.scrollTop(scrollTop);
         }, 100);
-
-
     };
 
     /**
@@ -19089,8 +19094,7 @@ var BlockViews = function () {
             $("#td_data .portlet").css("box-shadow", "none", "important");
             
             $(".dx-page-container").css('padding-bottom', '0px');
-            $("#td_data .dx-paginator-butons").css('margin-right', 'auto');
-            console.log("WIN height: " + win_h + " td_data min-height: " + page_min);
+            $("#td_data .dx-paginator-butons").css('margin-right', 'auto');            
         }
         catch (e) {
             console.log("Init Height error");
@@ -19275,11 +19279,17 @@ var BlockViews = function () {
 
             if (!tab_id && $(this).hasClass('dx-view-fullpage')) {
                 $("body").addClass("dx-grid-in-page");
-            }
+            }            
             
-            PageMain.addResizeCallback(initHeight);
-            initHeight();
+            if (!tab_id) {                
+                initHeight();
                 
+                if (!is_height_inited) {
+                    PageMain.addResizeCallback(initHeight);
+                    is_height_inited = 1;
+                }
+            }
+        
             if((typeof dx_is_cssonly === 'undefined') || !dx_is_cssonly){
 
                 var $table = $(this).find('table.dx-grid-table');
@@ -19342,10 +19352,10 @@ $.fn.hasScrollBar = function (direction) {
 };
 
 $(function () {
-    BlockViews.init();
+    BlockViews.init();    
 });
 
-$(document).ajaxComplete(function (event, xhr, settings) {
+$(document).ajaxComplete(function () {
     BlockViews.init();
 });
 
