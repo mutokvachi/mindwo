@@ -1,4 +1,4 @@
-<div class="modal fade in" id="dx-edu-modal-participant" tabindex="-1" role="dialog" aria-labelledby="dx-edu-modal-participant-label" aria-hidden="true">
+<div class="modal fade" id="dx-edu-modal-participant" tabindex="-1" role="dialog" aria-labelledby="dx-edu-modal-participant-label" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div id='dx-edu-modal-participant-content' class="modal-content">      
             <div class="modal-header">
