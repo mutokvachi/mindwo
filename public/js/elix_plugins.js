@@ -24623,12 +24623,12 @@ var PageMain = function()
      */
     var initFormHeight = function() {
         
-        $.fn.modal.defaults.maxHeight = function() {
+      /*  $.fn.modal.defaults.maxHeight = function() {
             var menu_h = $(window).height(); //$(".page-sidebar-menu").height();
             menu_h = menu_h - 246;
             
             return menu_h;// * DX_CORE.form_height_ratio;
-        };
+        };*/
         
     };
 
