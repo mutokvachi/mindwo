@@ -1,7 +1,7 @@
 @extends('frame')
 
 @section('main_custom_css')  
-  @include('pages.view_css_includes')
+  @include('pages.view_css_includes')  
   <link href="{{ elixir('css/elix_menu_builder.css') }}" rel="stylesheet"/>
   <link href="{{ elixir('css/elix_scheduler.css') }}" rel="stylesheet"/>
   <style>
@@ -101,15 +101,15 @@
 		<div class="row">
 			<div class="col-md-4 col-sm-12">
                                 <div class="row" style="margin-bottom: 8px;">
-                                    <div class="col-md-5 dx-title">
-                                        Mācību pasākumi
+                                    <div class="col-md-3 dx-title">
+                                        {{ trans('calendar.scheduler.lbl_subjects') }}
                                     </div>
-                                    <div class="col-md-7">
+                                    <div class="col-md-9">
                                         
                                         <div class="input-group pull-right">
-                                            <input type="text" class="form-control dx-search-subj" placeholder="Meklēt pasākumu...">                                            
+                                            <input type="text" class="form-control dx-search-subj" placeholder="{{ trans('calendar.scheduler.search_subjects') }}">                                            
                                         </div>
-                                        <div class="dx-cafe pull-right"><i class="fa fa-coffee" title="Kafijas pauze"></i></div>
+                                        <div class="dx-cafe pull-right"><i class="fa fa-coffee" title="{{ trans('calendar.scheduler.hint_coffee') }}"></i></div>
                                     </div>
                                 </div>    
                                 <div class="ext-cont">
@@ -122,21 +122,21 @@
                             
                                 <div class="row" style="margin-bottom: 8px; margin-top: 15px;">
                                     <div class="col-md-3 dx-title">
-                                        Grupas
+                                        {{ trans('calendar.scheduler.lbl_groups') }}
                                     </div>
                                     <div class="col-md-9">                                        
                                         <div class="input-group pull-right">
                                             <div class="input-group-btn dx-group-filter-btn" data-status='all'>
-                                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="btn-title">Visas nepublicētās</span> <span class="caret"></span></button>
+                                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="btn-title">{{ trans('calendar.scheduler.status_all') }}</span> <span class="caret"></span></button>
                                                 <ul class="dropdown-menu">
-                                                  <li><a href="javascript:;" data-status='prepare'>Sagatavošanā</a></li>
-                                                  <li><a href="javascript:;" data-status='complect'>Komplektēšanā</a></li>
-                                                  <li><a href="javascript:;" data-status='correct'>Koriģēšanā</a></li>
+                                                  <li><a href="javascript:;" data-status='prepare'>{{ trans('calendar.scheduler.status_prepare') }}</a></li>
+                                                  <li><a href="javascript:;" data-status='complect'>{{ trans('calendar.scheduler.status_complect') }}</a></li>
+                                                  <li><a href="javascript:;" data-status='correct'>{{ trans('calendar.scheduler.status_correct') }}</a></li>
                                                   <li role="separator" class="divider"></li>
-                                                  <li><a href="javascript:;" data-status='all'>Visas nepublicētās</a></li>
+                                                  <li><a href="javascript:;" data-status='all'>{{ trans('calendar.scheduler.status_all') }}</a></li>
                                                 </ul>
                                             </div><!-- /btn-group -->
-                                            <input type="text" class="form-control dx-search-group" placeholder="Meklēt grupu...">                                            
+                                            <input type="text" class="form-control dx-search-group" placeholder="{{ trans('calendar.scheduler.search_group') }}">                                            
                                         </div>
                                     </div>
                                 </div>

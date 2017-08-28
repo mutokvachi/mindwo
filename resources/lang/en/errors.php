@@ -171,4 +171,14 @@ return [
     'publish_validator_not_exists' => "Provided validator code ':code' is not correct!",
     
     'publish_validator_no_group' => "Provided wrong group ID ':id'!",
+    
+    'no_rights_on_complect' => 'You do not have rights on learning groups complecting functionality!',
+
+    'no_rights_on_organization' => 'You do not have rights on learning groups complecting functionality for provided organization!',
+
+    'no_rights_on_group' => 'You do not have rights on learning groups complecting functionality for provided group!',
+
+    'err_db_msg_title' => 'Data error',
+
+    'err_db_msg_general' => 'Data processing error! Please, contact your IT support.',
 ];

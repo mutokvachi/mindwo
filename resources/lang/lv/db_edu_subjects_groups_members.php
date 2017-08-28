@@ -11,6 +11,7 @@ return [
     
     'group_id' => 'Mācību grupa',
     'student_id' => 'Dalībnieks',
+    'org_id' => 'Organizācija',
 
     'name' => 'Vārds',
     'lastname' => 'Uzvārds',

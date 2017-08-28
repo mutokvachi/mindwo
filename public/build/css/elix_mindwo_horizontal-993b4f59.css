@@ -261,7 +261,7 @@ button.navbar-toggle span.icon-bar {
   margin-left: 0px!important;
 }
 .navbar-fixed-top {
-  z-index: 20000!important;
+  z-index: 10000!important;
 }
 
 /*

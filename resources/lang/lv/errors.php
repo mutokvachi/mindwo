@@ -170,4 +170,14 @@ return [
     'publish_validator_not_exists' => "Norādīts neeksistējošs validatora kods ':code'!",
     
     'publish_validator_no_group' => "Norādīts neeksistējošs grupas identifikators ':id'!",
+    
+    'no_rights_on_complect' => 'Jums nav tiesību uz komplektēšanas funkcionalitāti!',
+
+    'no_rights_on_organization' => 'Jums nav tiesību uz komplektēšanas funkcionalitāti norādītajai organizācijai!',
+
+    'no_rights_on_group' => 'Jums nav tiesību uz komplektēšanas funkcionalitāti norādītajai grupai!',
+
+    'err_db_msg_title' => 'Datu kļūda',
+
+    'err_db_msg_general' => 'Datu apstrādes kļūda! Lūdzu, sazinieties ar sistēmas IT atbalstu.',
 ];

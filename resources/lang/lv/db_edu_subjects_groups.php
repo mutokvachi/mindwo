@@ -20,7 +20,9 @@ return [
     'canceled_reason' => 'Atcelšanas iemesls',
     'approved_time' => 'Apstiprināšanas laiks',
     'title' => 'Grupas nosaukums',
-    
+    'main_teacher_id' => 'Galvenais pasniedzējs',
+    'main_teacher_id_hint' => 'Norāda pasniedzēju, kura paraksts tiks attēlots sertifikātā',
+
     // tabs
     'tab_main' => 'Pamatdati',
     'tab_members' => 'Dalībnieki',

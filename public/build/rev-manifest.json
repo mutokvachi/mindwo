@@ -1,6 +1,6 @@
 {
   "js/elix_userlinks.js": "js/elix_userlinks-3796d0d6.js",
-  "js/elix_plugins.js": "js/elix_plugins-8a12b7bc.js",
+  "js/elix_plugins.js": "js/elix_plugins-424cb00c.js",
   "js/elix_view.js": "js/elix_view-a3539cd2.js",
   "js/elix_education.js": "js/elix_education-5199acd7.js",
   "css/elix_education.css": "css/elix_education-af6cb277.css",
@@ -9,7 +9,7 @@
   "css/elix_plugins.css": "css/elix_plugins-a62df9ad.css",
   "css/elix_mindwo.css": "css/elix_mindwo-cd0728fd.css",
   "css/elix_view.css": "css/elix_view-8f0a6ee7.css",
-  "css/elix_mindwo_horizontal.css": "css/elix_mindwo_horizontal-360312e1.css",
+  "css/elix_mindwo_horizontal.css": "css/elix_mindwo_horizontal-993b4f59.css",
   "js/elix_mindwo_horizontal_menu.js": "js/elix_mindwo_horizontal_menu-a200d772.js",
   "js/elix_documents.js": "js/elix_documents-61029def.js",
   "css/elix_metronic.css": "css/elix_metronic-acf336ca.css",
@@ -34,6 +34,8 @@
   "js/elix_menu_builder.js": "js/elix_menu_builder-97d95f1a.js",
   "css/elix_menu_builder.css": "css/elix_menu_builder-ae2deb42.css",
   "js/elix_timeline.js": "js/elix_timeline-af849c5d.js",
-  "js/elix_scheduler.js": "js/elix_scheduler-497708dc.js",
-  "css/elix_scheduler.css": "css/elix_scheduler-5d2bdb90.css"
+  "js/elix_scheduler.js": "js/elix_scheduler-b587a235.js",
+  "css/elix_scheduler.css": "css/elix_scheduler-5d2bdb90.css",
+  "js/elix_complect.js": "js/elix_complect-a8546e90.js",
+  "css/elix_complect.css": "css/elix_complect-5cc42f7c.css"
 }

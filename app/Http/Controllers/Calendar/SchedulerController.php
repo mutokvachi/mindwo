@@ -99,7 +99,8 @@ class SchedulerController extends Controller
             'rooms' => $rooms,
             'rooms_cbo' => $this->getCboRooms($rooms),
             'current_room_id' => $current_room_id,
-            'current_date' => $current_date
+            'current_date' => $current_date,
+            'page_title' => trans('calendar.scheduler.page_title')
         ]);
     }
     
@@ -188,7 +189,8 @@ class SchedulerController extends Controller
         {
             $this->new_group_id = DB::table('edu_subjects_groups')->insertGetId([
                 'subject_id' => $request->input('subject_id'),
-                'seats_limit' => $room->room_limit
+                'seats_limit' => $room->room_limit,
+                'main_teacher_id' => $teacher_id
             ]);
 
             $this->new_day_id = DB::table('edu_subjects_groups_days')->insertGetId([
