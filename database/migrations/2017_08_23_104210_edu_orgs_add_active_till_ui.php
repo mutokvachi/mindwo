@@ -7,7 +7,7 @@ use App\Libraries\Structure;
 
 class EduOrgsAddActiveTillUi extends EduMigration
 {
-     private $table_name = "edu_orgs";
+    private $table_name = "edu_orgs";
     
     /**
      * Run the migrations.

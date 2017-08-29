@@ -413,9 +413,21 @@ gulp.task('mix_all', function() {
         // Scripts for scheduler
         mix.scripts([
            'fullcalendar-scheduler/scheduler.js',
-           'mindwo/pages/dx_scheduler.js',
+           'mindwo/pages/education/dx_scheduler.js',
            'jquery-contextMenu/jquery.contextMenu.js'
         ], 'public/js/elix_scheduler.js', 'resources/assets/plugins');
+        
+        // Styles for complecting
+        mix.styles([
+            'fullcalendar-scheduler/scheduler.css',
+        ], 'public/css/elix_complect.css', 'resources/assets/plugins');
+        
+        // Scripts for complecting
+        mix.scripts([
+           'fullcalendar-scheduler/scheduler.js',
+           'mindwo/pages/education/dx_complect.js',
+           'mindwo/pages/education/dx_group_info.js',
+        ], 'public/js/elix_complect.js', 'resources/assets/plugins');
 		
         // Minify all scripts
         mix.version([
@@ -455,7 +467,9 @@ gulp.task('mix_all', function() {
             'css/elix_menu_builder.css',
             'js/elix_timeline.js',
             'js/elix_scheduler.js',
-            'css/elix_scheduler.css'
+            'css/elix_scheduler.css',
+            'js/elix_complect.js',
+            'css/elix_complect.css'
         ]);
     });
 });

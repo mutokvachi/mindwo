@@ -372,7 +372,7 @@ var PageMain = function()
      */
     var initSpecialTooltips = function() {
         $('[title]:not(.tooltipstered)').filter(function(i){
-            return $(this).attr('title') != "";
+            return $(this).attr('title') != "" && !$(this).hasClass('dx-dont-tooltipster');
         }).tooltipster({
             theme: 'tooltipster-light',
             animation: 'grow'

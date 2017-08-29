@@ -245,7 +245,7 @@ namespace App\Libraries
          */
         public static function getListObject($list_id) {
             return DB::table("dx_lists as l")
-                   ->select('o.*', 'l.id as list_id')
+                   ->select('o.*', 'l.id as list_id', 'o.db_name as table_name')
                    ->leftJoin('dx_objects as o', 'l.object_id', '=', 'o.id')
                    ->where('l.id', '=', $list_id)
                    ->first();

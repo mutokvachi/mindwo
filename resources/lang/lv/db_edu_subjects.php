@@ -15,10 +15,9 @@ return [
     'subject_code' => 'Pasākuma kods',
     'subject_type_id' => 'Veids',
     'price_for_student' => 'Mācību maksa, EUR',
-    'price_for_teacher' => 'Pasniedzēja izmaksas, EUR',
-    'price_for_rooms' => 'Telpu izmaksas, EUR',    
     'module_id' => 'Mācību modulis',    
     'learning_url' => 'Saite uz e-mācībām',
+    'academic_hours' => 'Akadēmiskās stundas',
     
     'subject_pretest_id' => 'Kvalificēšanās tests',
     'is_subj_qual_test_ok_need' => 'Testam jābūt sekmīgam',

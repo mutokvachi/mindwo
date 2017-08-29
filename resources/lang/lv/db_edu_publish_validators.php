@@ -95,7 +95,7 @@ return [
             'is_for_complect' => true,
         ],
         [
-            'title' => 'Grupas dalībnieku skaits nav pietiekošs',
+            'title' => 'Grupas dalībnieku skaits nav vismaz 50%',
             'code' => 'MEMBERS_NOT_ENOUGH',
             'is_for_publish' => true,
             'is_for_complect' => false,
@@ -111,6 +111,24 @@ return [
             'code' => 'NOT_INNER',
             'is_for_publish' => false,
             'is_for_complect' => true,
+        ],
+        [
+            'title' => 'Grupa jau ir komplektēšanā',
+            'code' => 'NOT_COMPLECT',
+            'is_for_publish' => false,
+            'is_for_complect' => true,
+        ],
+        [
+            'title' => 'Grupa jau ir bijusi komplektēšanā',
+            'code' => 'NOT_COMPLECT_AGAIN',
+            'is_for_publish' => false,
+            'is_for_complect' => true,
+        ],
+        [
+            'title' => 'Grupai nav norādīts galvenais pasniedzējs, kura paraksts tiks ievietots sertifikātā',
+            'code' => 'NO_MAIN_TEACHER',
+            'is_for_publish' => true,
+            'is_for_complect' => false,
         ],
     ],
 ];

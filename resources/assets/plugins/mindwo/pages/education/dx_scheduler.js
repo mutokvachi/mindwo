@@ -850,11 +850,11 @@
             };
             
             $(".dx-publish-popup").find(".dx-check-publish-btn").click(function() {
-                PageMain.showConfirm(publishOrCheck, true, Lang.get('calendar.scheduler.' + self.popup_mode + '.confirm_title'), Lang.get('calendar.scheduler.' + self.popup_mode + '.confirm_msg'));                
+                PageMain.showConfirm(publishOrCheck, 1, Lang.get('calendar.scheduler.' + self.popup_mode + '.confirm_title'), Lang.get('calendar.scheduler.' + self.popup_mode + '.confirm_msg'));                
             });
             
             $(".dx-publish-popup").find(".dx-check-btn").click(function() {
-                publishOrCheck(false);
+                publishOrCheck(0);
             });
             
             var showHideChoiceBtn = function(is_checked) {

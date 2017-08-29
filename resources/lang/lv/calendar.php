@@ -53,6 +53,18 @@ return [
         'menu_publish_all' => 'Visas grupas',
         'menu_lbl' => 'Izvēlnes',
         'tooltip_new_subect' => 'Jauns mācību pasākums',
+        
+        'lbl_subjects' => 'Pasākumi',
+        'lbl_groups' => 'Grupas',
+        'search_subjects' => 'Meklēt pasākumu...',
+        'search_group' => 'Meklēt grupu...',
+        'hint_coffee' => 'Kafijas pauze',
+        
+        'status_prepare' => 'Sagatavošanā',
+        'status_complect' => 'Komplektēšanā',
+        'status_correct' => 'Koriģēšanā',
+        'status_all' => 'Visas nepublicētās',
+        
         'publish' => [
             'popup_title' => 'Grupu publicēšana',
             'btn_publish' => 'Publicēt',
@@ -91,4 +103,14 @@ return [
         'move_confirm_title' => 'Apstipriniet publicētas grupas izmaiņas',
         'move_confirm_msg' => "Grupa jau ir publicēta! Vai tiešām mainīt nodarbības informāciju un grupai uzstādīt statusu uz 'Koriģēšana'?",
     ],
+    
+    'complect' => [
+        'page_title' => 'Grupu komplektēšana',
+        'group_popup_title' => 'Grupas komplektēšana',
+        'lbl_avail_cnt' => 'Darbinieki',
+        'lbl_members_cnt' => 'Dalībnieki',
+        'lbl_cnt_from' => 'no',
+        'btn_new_empl' => 'Jauns darbinieks',
+        'btn_import' => 'Importēt darbiniekus',
+    ]
 ];

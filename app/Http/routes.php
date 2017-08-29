@@ -322,4 +322,11 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'calendar', 'namespace' => '
         Route::get('/scheduler/events_json/{current_room_id}', ['as' => 'scheduler_events_json', 'uses' => 'SchedulerController@getSchedulerEventsJSON']); 
         Route::get('/scheduler/rooms_json/{current_room_id}', ['as' => 'scheduler_rooms_json', 'uses' => 'SchedulerController@getSchedulerRoomsJSON']); 
         Route::post('/scheduler/publish', ['as' => 'scheduler_publish', 'uses' => 'PublishController@publishGroups']);
+        
+        Route::get('/complect/{current_org_id}', ['as' => 'complect', 'uses' => 'ComplectController@getComplectPage']);
+        Route::get('/complect/events_json/{current_org_id}', ['as' => 'complect_events_json', 'uses' => 'ComplectController@getComplectEventsJSON']);
+        Route::get('/complect/groups_json/{current_org_id}', ['as' => 'complect_groups_json', 'uses' => 'ComplectController@getComplectGroupsJSON']);
+        Route::get('/complect/group/{org_id}/{group_id}', ['as' => 'complect_group_json', 'uses' => 'ComplectController@getGroupInfoJSON']);
+        Route::post('/complect/add_member', ['as' => 'complect_group_add_member', 'uses' => 'ComplectController@addGroupMember']);    
+        Route::post('/complect/remove_member', ['as' => 'complect_group_add_member', 'uses' => 'ComplectController@removeGroupMember']);        
 });
