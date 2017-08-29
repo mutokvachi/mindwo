@@ -4,12 +4,19 @@ namespace App\Libraries\FieldsHtm
 {
     use DB;
     use PDO;
-    
+    use Illuminate\Support\Facades\Schema;
+
     /**
      * Hierarhisku ierakstu (koka) lauka attēlošanas klase
      */
     class FieldHtm_tree extends FieldHtm
     {
+
+        /**
+         * It is optimistically supposed that hierarchy structured tables have an field named "parent_id"
+         */
+        const PARENT_FIELD = "parent_id";
+
         /**
          * Pilnais ceļš līdz elementam sākot no vecākā, piemēram, el1->el11->el111 utt
          * Izmanto attēlošanai formas laukā
@@ -73,7 +80,10 @@ namespace App\Libraries\FieldsHtm
             {
                     $sql_multi = " AND multi_list_id = " . $this->fld_attr->rel_list_id;
             }
-                
+            
+            if (!$this->fld_attr->rel_parent_field_name) {
+                $this->fld_attr->rel_parent_field_name = $this->getParentFieldName();
+            }
             $sql_rel = "SELECT id, " . $this->fld_attr->rel_parent_field_name . " as parent_id, " . $this->fld_attr->rel_field_name . " as title FROM " . $this->fld_attr->rel_table_name . " WHERE 1=1" . $sql_multi . " ORDER BY " . $this->fld_attr->rel_field_name;
                         
             DB::setFetchMode(PDO::FETCH_ASSOC); // We need to get values as array to use it in recursion                  
@@ -83,6 +93,20 @@ namespace App\Libraries\FieldsHtm
             DB::setFetchMode(PDO::FETCH_CLASS); // Set back default fetch mode
             
             return $rows;
+        }
+
+        /**
+         * Checks if related register table have field named "parent_id" and returns that name if field exists
+         *
+         * @return string Returns "parent_id" if field exists otherwise error is thrown
+         */
+        private function getParentFieldName() {
+            if (!Schema::hasColumn($this->fld_attr->rel_table_name, self::PARENT_FIELD))
+            {
+                throw new Exceptions\DXCustomException(trans('fields.tree_config_err_no_parent', ['table' => $this->fld_attr->rel_table_name]));
+            }
+
+            return self::PARENT_FIELD;
         }
         
         /**
