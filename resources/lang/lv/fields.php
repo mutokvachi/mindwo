@@ -55,4 +55,6 @@ return [
     'hint_whatsapp' => 'Atvērt WhatsApp',
     
     'add_new_phone' => '[JAUNS]',
+
+    'tree_config_err_no_parent' => "Nav iespējams noteikt saistītā ieraksta vecāka lauka nosaukumu tabulai ':table'! Lūdzu, sazinieties ar sistēmas uzturētāju.",
 ];
