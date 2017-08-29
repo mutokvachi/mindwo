@@ -157,7 +157,6 @@ class ImportController extends Controller
 
         //Set db table for list
         $this->list_object = \App\Libraries\DBHelper::getListObject($this->list_id);
-        $this->list_object->table_name = $this->list_object->db_name; // in order to work history logic for updates
         
         //Sets current time for audit info
         $this->time_now = date('Y-n-d H:i:s');                

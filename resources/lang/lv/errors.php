@@ -180,4 +180,13 @@ return [
     'err_db_msg_title' => 'Datu kļūda',
 
     'err_db_msg_general' => 'Datu apstrādes kļūda! Lūdzu, sazinieties ar sistēmas IT atbalstu.',
+
+    'cant_identify_object' => "Nav iespējams viennozīmīgi identificēt objektu pēc norādītās tabulas ':table'! Atbilstošo objektu skaits ir :found.",
+    'cant_identify_register' => "Nav iespējams viennozīmīgi identificēt reģistru pēc norādītās tabulas ':table'! Atbilstošo reģistru skaits ir :found.",
+    'object_dont_have_history' => "Objektam ':table' nav iestatīta vēstures veidošana!",
+    'object_update_without_where' => "Objekta ':table' datu labošanas metodei nav norādīts neviens kritērijs!",
+    'object_update_without_id' => "Objekta ':table' datu labošanas metodei kā kritērijs nav norādīts ID lauks!",
+    'object_update_without_compare' => "Nekorekti izmantota izmaiņu veikšanas vēstures auditācijas metode - nav vispirms salīdzinātas izmaiņas ar metodi compareChanges().",
+    'object_update_commit_no_prepare' => "Nekorekti izmantota izmaiņu veikšanas metode - nav sagatavotas auditējamās izmaiņās ar metodi update().",
+    
 ];

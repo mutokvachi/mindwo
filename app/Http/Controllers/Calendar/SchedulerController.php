@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Libraries\DBHistory;
 use Auth;
 use stdClass;
+use App\Libraries\DB_DX;
 
 /**
  * Scheduler UI controller
@@ -183,17 +184,21 @@ class SchedulerController extends Controller
         
         $teacher_id = (count($teachers) == 1) ? $teachers[0]->teacher_id : null;
         $time_from = check_time($request->input("start_time"), "yyyy-mm-dd HH:ii");
-        $time_to = check_date($request->input("end_time"), "yyyy-mm-dd HH:ii");
+        $time_to = check_time($request->input("end_time"), "yyyy-mm-dd HH:ii");
         
-        DB::transaction(function () use ($request, $room, $teacher_id, $time_from, $time_to)
-        {
-            $this->new_group_id = DB::table('edu_subjects_groups')->insertGetId([
+        $dx_db_g = (new DB_DX())->table('edu_subjects_groups');
+        $dx_db_d = (new DB_DX())->table('edu_subjects_groups_days');
+        $dx_db_t = ($teacher_id) ? (new DB_DX())->table('edu_subjects_groups_days_teachers') : null;
+
+        DB::transaction(function () use ($request, $room, $teacher_id, $time_from, $time_to, $dx_db_g, $dx_db_d, $dx_db_t)
+        {            
+            $this->new_group_id = $dx_db_g->insertGetId([
                 'subject_id' => $request->input('subject_id'),
                 'seats_limit' => $room->room_limit,
                 'main_teacher_id' => $teacher_id
             ]);
 
-            $this->new_day_id = DB::table('edu_subjects_groups_days')->insertGetId([
+            $this->new_day_id = $dx_db_d->insertGetId([
                 'group_id' =>  $this->new_group_id,
                 'lesson_date' => check_date($request->input("start_time"), "yyyy-mm-dd"),
                 'time_from' => $time_from,
@@ -201,8 +206,8 @@ class SchedulerController extends Controller
                 'room_id' => $room->id
             ]);
             
-            if ($teacher_id) {
-                DB::table('edu_subjects_groups_days_teachers')->insert([
+            if ($dx_db_t) {
+                $dx_db_t->insertGetId([
                     'teacher_id' => $teacher_id,
                     'group_day_id' => $this->new_day_id,
                     'time_from' => $time_from,
@@ -241,7 +246,7 @@ class SchedulerController extends Controller
         
         $teacher_id = (count($teachers) == 1) ? $teachers[0]->id : null;
         $time_from = check_time($request->input("start_time"), "yyyy-mm-dd HH:ii");
-        $time_to = check_date($request->input("end_time"), "yyyy-mm-dd HH:ii");
+        $time_to = check_time($request->input("end_time"), "yyyy-mm-dd HH:ii");
         
         $group_id = DB::table('edu_subjects_groups_days')
                     ->where('id', '=', $request->input("day_id"))
@@ -252,30 +257,35 @@ class SchedulerController extends Controller
                  ->where('id', '=', $group_id)
                  ->first();
         
-        DB::transaction(function () use ($request, $time_from, $time_to, $teacher_id, $group, $group_id)
-        {
-            DB::table('edu_subjects_groups_days')
-                    ->where('id', '=', $request->input("day_id"))
-                    ->update([                        
-                        'lesson_date' => check_date($request->input("start_time"), "yyyy-mm-dd"),
-                        'time_from' => $time_from,
-                        'time_to' => $time_to,
-                        'room_id' => $request->input("room_id")
-            ]);
+        $dx_db_d = (new DB_DX())->table('edu_subjects_groups_days')
+                                ->where('id', '=', $request->input("day_id"))
+                                ->update([                        
+                                    'lesson_date' => check_date($request->input("start_time"), "yyyy-mm-dd"),
+                                    'time_from' => $time_from,
+                                    'time_to' => $time_to,
+                                    'room_id' => $request->input("room_id")
+        ]); 
+
+        $dx_db_t = ($teacher_id) ? (new DB_DX())->table('edu_subjects_groups_days_teachers')
+                                    ->where('id', '=', $teacher_id)
+                                    ->update([
+                                        'time_from' => $time_from,
+                                        'time_to' => $time_to
+                                    ]) : null;
+                                    
+        $dx_db_g =  ($group->is_published) ? (new DB_DX())->table('edu_subjects_groups')
+                                    ->where('id', '=', $group_id)
+                                    ->update(['is_published' => 0]) : null;
+
+        DB::transaction(function () use ($dx_db_d, $dx_db_t, $dx_db_g){
+            $dx_db_d->commitUpdate();
             
-           if ($teacher_id) {
-                DB::table('edu_subjects_groups_days_teachers')
-                        ->where('id', '=', $teacher_id)
-                        ->update([
-                            'time_from' => $time_from,
-                            'time_to' => $time_to
-                        ]);
+            if ($dx_db_t) {
+                $dx_db_t->commitUpdate();
             }
             
-            if ($group->is_published) {
-                DB::table('edu_subjects_groups')
-                    ->where('id', '=', $group_id)
-                    ->update(['is_published' => 0]);
+            if ($dx_db_g) {
+                $dx_db_g->commitUpdate();
             }
         });
         
@@ -300,9 +310,11 @@ class SchedulerController extends Controller
         
         $this->checkRights();
         
-        DB::transaction(function () use ($request)
+        $dx_db = (new DB_DX())->table('edu_subjects_groups_days');
+
+        DB::transaction(function () use ($request, $dx_db)
         {
-            $this->new_day_id = DB::table('edu_subjects_groups_days')->insertGetId([
+            $this->new_day_id = $dx_db->insertGetId([
                 'group_id' => $request->input("group_id"),
                 'lesson_date' => check_date($request->input("start_time"), "yyyy-mm-dd"),
                 'time_from' => check_time($request->input("start_time"), "yyyy-mm-dd HH:ii"),
@@ -335,7 +347,7 @@ class SchedulerController extends Controller
         $room = DB::table('edu_rooms')->where('id', '=', $request->input("room_id"))->first();
         
         $time_from = check_time($request->input("start_time"), "yyyy-mm-dd HH:ii");
-        $time_to = check_date($request->input("end_time"), "yyyy-mm-dd HH:ii");
+        $time_to = check_time($request->input("end_time"), "yyyy-mm-dd HH:ii");
         
         $day = DB::table('edu_subjects_groups_days as d')
                 ->select('d.id as day_id', 'd.group_id', 'g.subject_id')
@@ -352,9 +364,10 @@ class SchedulerController extends Controller
         
         $feed_org_id = $this->getDefaultFeedOrg();
         
-        DB::transaction(function () use ($time_from, $time_to, $day, $room, $feed_org_id)
+        $dx_db = (new DB_DX())->table('edu_subjects_groups_days_pauses');
+        DB::transaction(function () use ($time_from, $time_to, $day, $room, $feed_org_id, $dx_db)
         {
-            $this->new_cofee_id = DB::table('edu_subjects_groups_days_pauses')->insertGetId([
+            $this->new_cofee_id = $dx_db->insertGetId([
                 'room_id' => $room->id,
                 'group_day_id' => $day->day_id,
                 'time_from' => $time_from,
@@ -390,7 +403,7 @@ class SchedulerController extends Controller
         $room = DB::table('edu_rooms')->where('id', '=', $request->input("room_id"))->first();
         
         $time_from = check_time($request->input("start_time"), "yyyy-mm-dd HH:ii");
-        $time_to = check_date($request->input("end_time"), "yyyy-mm-dd HH:ii");
+        $time_to = check_time($request->input("end_time"), "yyyy-mm-dd HH:ii");
         
         $day = DB::table('edu_subjects_groups_days as d')
                 ->select('d.id as day_id', 'd.group_id', 'g.subject_id')
@@ -407,15 +420,16 @@ class SchedulerController extends Controller
         
         $this->new_cofee_id = $request->input("coffee_id");
         
-        DB::transaction(function () use ($time_from, $time_to, $day)
-        {
-            DB::table('edu_subjects_groups_days_pauses')
-                    ->where('id', '=', $this->new_cofee_id)
-                    ->update([
-                    'group_day_id' => $day->day_id,
-                    'time_from' => $time_from,
-                    'time_to' => $time_to
-            ]);
+        $dx_db = (new DB_DX())->table('edu_subjects_groups_days_pauses')
+            ->where('id', '=', $this->new_cofee_id)
+            ->update([
+            'group_day_id' => $day->day_id,
+            'time_from' => $time_from,
+            'time_to' => $time_to
+        ]);
+
+        DB::transaction(function () use ($dx_db){
+            $dx_db->commitUpdate();
         });
         
         return response()->json([
