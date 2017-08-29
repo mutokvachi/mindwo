@@ -11,6 +11,7 @@ use Config;
 use App\Libraries\DBHistory;
 use Auth;
 use stdClass;
+use App\Libraries\DB_DX;
 
 /**
  * Complecting UI controller
@@ -114,6 +115,8 @@ class ComplectController extends Controller
                         ->where('list_title', '=', trans('db_dx_users.list_title_student'))
                         ->first();
 
+        $members = $this->getGroupMembers($org_id, $group_id);
+
         return response()->json([
             'success' => 1,
             'htm' => view('calendar.complect.group_info', [
@@ -123,7 +126,7 @@ class ComplectController extends Controller
                             'avail_empl' => $this->getAvailEmpl($org_id, $group_id),
                             'empl_count' => $empl_count,
                             'is_ajax' => ($empl_count > Config::get('education.empl_load_limit', 300)) ? 1 : 0,
-                            'members' => $this->getGroupMembers($org_id, $group_id),
+                            'members' => $members,
                             'empl_list_id' => $empl_list->id
                          ])->render()            
         ]);
@@ -154,9 +157,10 @@ class ComplectController extends Controller
             throw new Exceptions\DXCustomException(trans('errors.no_rights_on_group'));
         }
 
-        DB::transaction(function () use ($org_id, $group_id, $empl_id)
+        $dx_db = (new DB_DX())->table('edu_subjects_groups_members');
+        DB::transaction(function () use ($org_id, $group_id, $empl_id, $dx_db)
         {
-            DB::table('edu_subjects_groups_members')->insert([
+            $dx_db->insertGetId([
                 'org_id' => $org_id,
                 'group_id' => $group_id,
                 'student_id' => $empl_id
@@ -193,15 +197,22 @@ class ComplectController extends Controller
             throw new Exceptions\DXCustomException(trans('errors.no_rights_on_group'));
         }
 
-        DB::transaction(function () use ($org_id, $group_id, $empl_id)
-        {
-            DB::table('edu_subjects_groups_members')
+        $group_member =  DB::table('edu_subjects_groups_members')
                 ->where('org_id', '=', $org_id)
                 ->where('group_id', '=', $group_id)
                 ->where('student_id', '=', $empl_id)
-                ->delete();
-        });
+                ->first();
         
+        if ($group_member) {
+            $dx_db = (new DB_DX())->table('edu_subjects_groups_members')
+                    ->where('id', '=', $group_member->id)
+                    ->delete();
+
+            DB::transaction(function () use ($dx_db){
+                $dx_db->commitDelete();                
+            });
+        }
+
         return response()->json([
             'success' => 1
         ]);
@@ -261,6 +272,7 @@ class ComplectController extends Controller
                 ->join('edu_orgs_users as ou', 'm.student_id', '=', 'ou.user_id')
                 ->join('dx_users as u', 'ou.user_id', '=', 'u.id')
                 ->where('m.group_id', '=', $group_id)
+                ->where('m.org_id', '=', $org_id)
                 ->where('ou.org_id', '=', $org_id)
                 ->whereRaw('(ou.end_date is null or ou.end_date >= date(now()))')
                 ->orderBy('u.display_name')

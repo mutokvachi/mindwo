@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Libraries\DBHistory;
 use Auth;
 use stdClass;
+use App\Libraries\DB_DX;
 
 /**
  * Scheduled groups validation and publishing controller
@@ -82,27 +83,38 @@ class PublishController extends Controller
             }
         }
         
-        \Log::info("Publish mark: " . $request->input("is_publish", 0));
-        
         if ($request->input("is_publish", 0) && count($arr_groups) == 0) {
+            
             if ($mode == "publish") {
-                // publish groups
-                DB::table('edu_subjects_groups')
-                        ->whereIn('id', $groups)
-                        ->update([
-                            'is_published' => 1,
-                            'first_publish' => date('Y-n-d H:i:s'),
-                            'is_complecting' => 0
-                        ]);
+                $arr_vals = [
+                    'is_published' => 1,
+                    'first_publish' => date('Y-n-d H:i:s'),
+                    'is_complecting' => 0
+                ];
             }
             else {
-                // complect groups
-                DB::table('edu_subjects_groups')
-                        ->whereIn('id', $groups)
-                        ->update([
-                            'is_complecting' => 1
-                        ]);
+                $arr_vals = [
+                    'is_complecting' => 1
+                ];
             }
+
+            $dx_db = (new DB_DX())->table('edu_subjects_groups');
+            $arr_dbs = [];
+            foreach($groups as $group) {
+            
+                array_push($arr_dbs, 
+                    $dx_db
+                        ->where('id', '=', $group)
+                        ->update($arr_vals)
+                );
+            }
+    
+            DB::transaction(function () use ($arr_dbs){
+                foreach($arr_dbs as $db) {
+                    $db->commitUpdate();
+                }
+            });
+            
         }
                 
         return response()->json([

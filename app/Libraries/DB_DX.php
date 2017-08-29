@@ -59,6 +59,31 @@ namespace App\Libraries
             return $id;
         }
 
+        public function delete() {
+            if (count($this->arr_where) == 0) {
+                throw new Exceptions\DXCustomException(trans('errors.object_update_without_where', ['table' => $table_name]));
+            }
+            
+            $id = $this->getIdVal();
+
+            $this->update_history_obj = new DBHistory($this->list_object, $this->list_fields, null, $id);
+            $this->update_history_obj->setCurrentData();
+            
+            return $this;
+            
+        }
+
+        public function commitDelete() {
+            if (!$this->update_history_obj) {
+                throw new Exceptions\DXCustomException(trans('errors.object_update_commit_no_prepare'));
+            }
+
+            $id = $this->getIdVal();
+
+            $this->update_history_obj->makeDeleteHistory();
+            DB::table($this->list_object->db_name)->where('id', '=', $id)->delete();
+        }
+
         public function where($fld, $oper, $val) {
             array_push($this->arr_where, ['field' => $fld, 'operation' => $oper, 'value' => $val]);
             return $this;
@@ -100,7 +125,19 @@ namespace App\Libraries
             if ($this->update_obj) {
                 $this->update_history_obj->makeUpdateHistory();
                 $this->update_obj->update($this->update_arr);
+
+                return true;
             }
+
+            return false;
+        }
+
+        public function clearUpdate() {
+            $this->is_update_prepared = false;
+            $this->update_obj = null;
+            $this->update_history_obj = null;
+            $this->arr_where = [];
+            $this->update_arr = [];
         }
 
         private function getIdVal() {

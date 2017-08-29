@@ -245,7 +245,7 @@ namespace App\Libraries
          * 
          * @return Array Masīvs ar ieraksta datiem
          */
-        private function setCurrentData()
+        public function setCurrentData()
         {
             $sql = "SELECT * FROM " . $this->db_table->table_name . " WHERE id=" . $this->item_id;
                         
@@ -278,7 +278,9 @@ namespace App\Libraries
          */
         private function saveDeleted()
         {
-            $this->setCurrentData();
+            if (!$this->current_arr) {
+                $this->setCurrentData();
+            }
             
             foreach ($this->fields_arr as $field) {
                 $this->saveFieldVal($field);
@@ -327,6 +329,11 @@ namespace App\Libraries
             
             if ($this->data_arr[":" . $field->db_name] == $this->current_arr[$field->db_name]) {                
                 return; // Lauka vērtība nav mainīta
+            }
+
+            if ($field->type_sys_name == 'bool') {
+                $this->current_arr[$field->db_name] = ($this->current_arr[$field->db_name]) ? trans('fields.yes') : trans('fields.no');
+                $this->data_arr[":" . $field->db_name] = ($this->data_arr[":" . $field->db_name]) ? trans('fields.yes') : trans('fields.no');                
             }
             
             $this->insertHistory($field, $this->current_arr[$field->db_name], $this->data_arr[":" . $field->db_name]);

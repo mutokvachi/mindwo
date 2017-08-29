@@ -13,6 +13,7 @@ use Auth;
 use App\Libraries\FieldsImport;
 use App\Libraries\DBHistory;
 use Log;
+use App\Libraries\DB_DX;
 
 /**
  * Provides functionality for data importing from Excel files to any register
@@ -126,6 +127,13 @@ class ImportController extends Controller
      * @var Array 
      */
     private $criteria_arr = [];
+
+    /**
+     * History making object for data updates
+     *
+     * @var \App\Libraries\DB_DX
+     */
+    private $dx_db = null;
     
     /**
      * Imports uploaded file data into database
@@ -294,64 +302,70 @@ class ImportController extends Controller
         
         $this->updateSaveArray();
         
-        DB::transaction(function ()
-        {
-            try {
-                
-                if ($this->save_arr["id"] > 0) {
-                    $id = $this->save_arr["id"];
-                    $data_row = DB::table($this->list_object->db_name)->where('id', '=', $id)->first();
-                    if ($data_row) {
-                        // update by ID field
-                        unset($this->save_arr["id"]);
-                        
-                        $arr_data = [];
-                        foreach($this->save_arr as $key => $val) {
-                            $arr_data[":" . $key] = $val;
-                        }
-                        
-                        $history = new DBHistory($this->list_object, $this->list_fields, $arr_data, $id);
-                        $history->makeUpdateHistory();
-                        
-                        if ($history->is_update_change) {
-                            $this->addHistory();
-                            DB::table($this->list_object->db_name)->where('id', '=', $id)->update($this->save_arr);
-                            $this->update_count++;
-                        }
+        try {            
+            if ($this->save_arr["id"] > 0) {
+                $id = $this->save_arr["id"];
+                $data_row = DB::table($this->list_object->db_name)->where('id', '=', $id)->first();
+                if ($data_row) {
+                    // update by ID field
+                    unset($this->save_arr["id"]);
+                    
+                    if (!$this->dx_db) {
+                        $this->dx_db = (new DB_DX())->table($this->list_object->db_name);
                     }
                     else {
-                        $this->addHistory();
-                        // insert with provided ID
+                        $this->dx_db->clearUpdate(); // clear previous made update data
+                    }
+
+                    $this->dx_db = $this->dx_db
+                        ->where('id', '=', $id)
+                        ->update($this->save_arr);
+            
+                    DB::transaction(function (){
+                        if ($this->dx_db->commitUpdate()) {
+                            $this->update_count++;
+                        }
+                    });
+                }
+                else {
+                    $this->addHistory();
+
+                    // insert with provided ID
+                    DB::transaction(function () use ($id) {                        
                         DB::table($this->list_object->db_name)->insert($this->save_arr);
+
                         $history = new DBHistory($this->list_object, null, null, $id);
                         $history->makeInsertHistory();
                         $this->import_count++;
-                    }
+                    });
                 }
-                else {
-                    unset($this->save_arr["id"]);
-                    $this->addHistory();
-                    // insert without ID field
+            }
+            else {
+                unset($this->save_arr["id"]);
+                $this->addHistory();
+                // insert without ID field
+                DB::transaction(function () {    
                     $id = DB::table($this->list_object->db_name)->insertGetId($this->save_arr);
+                    
                     $history = new DBHistory($this->list_object, null, null, $id);
                     $history->makeInsertHistory();
                     $this->import_count++;
-                }                
-            }
-            catch (\Exception $e) {
-                if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
-                    // skip record
-                    if (strlen($this->duplicate) > 0) {
-                        $this->duplicate .= ", ";
-                    }
-                    $this->duplicate .= ($this->row_nr+1);                            
+                });
+            }                
+        }
+        catch (\Exception $e) {
+            if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
+                // skip record
+                if (strlen($this->duplicate) > 0) {
+                    $this->duplicate .= ", ";
+                }
+                $this->duplicate .= ($this->row_nr+1);                            
 
-                }
-                else {
-                    throw $e;
-                }
             }
-        }); 
+            else {
+                throw $e;
+            }
+        }        
     }
     
     /**
