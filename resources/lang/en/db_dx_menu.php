@@ -12,4 +12,12 @@ return [
     
     'head_title' => 'Menu heading',
     'head_title_hint' => 'Additional heading will be displayed before this menu item. This feature can be used to group menu items.',
+    // education
+    'lbl_classifiers' => 'Classifiers',
+    'lbl_edu_users' => 'Users',
+    'lbl_edu_learning' => 'Education',
+    'lbl_edu_tests' => 'Questionaries and tests',
+    'lbl_edu_myprofile' => 'Mans profilsMy profile',
+    'lbl_edu_calendar' => 'Calendar',
+    'lbl_edu_calendar_head' => 'Groups complecting',
 ];

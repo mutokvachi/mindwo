@@ -15,9 +15,11 @@ return [
     'description' => 'Apraksts',
     'file_name' => 'Sagataves datne',
     'file_guid' => 'Datnes GUID',
-    'numerator_id' => 'Numerators',
-    'field_id' => 'Lauks',
-    'operation_id' => 'Operācija',
-    'criteria' => 'Kritērijs',
+    'numerator_id' => 'Numerators',    
     'is_as_pdf' => 'Ģenerēt PDF formātā',
+
+    // tabs
+    'tab_main' => 'Pamatdati',
+    'tab_settings' => 'Iestatījumi',
+    'tab_filter' => 'Nosacījumi',
 ];
