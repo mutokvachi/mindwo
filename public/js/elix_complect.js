@@ -6769,7 +6769,9 @@ detectWarningInContainer = function(containerEl) {
                         
             this.org_id = this.root.data("org-id");
             this.group_id = this.root.data("group-id"); 
-            
+            this.is_ajax = parseInt(this.root.data("is-ajax"));
+            this.ajax_timer_id = 0;
+
             // Employees filtering
             var filterEmpl = function(obj) {
                 var crit = self.root.find(".dx-search-data[data-obj=" + obj + "]").val();
@@ -6788,6 +6790,23 @@ detectWarningInContainer = function(containerEl) {
                 refreshCount(obj);
             };
 
+            var filterEmplAjax = function() {
+                var crit = self.root.find(".dx-search-data[data-obj=avail]").val();
+                /*
+                if (crit.length > 0 && crit.length < 3) {
+                    return; // do not search small phrases
+                }
+                */
+                self.root.find(".dx-empl-count-avail").html("Notiek meklēšana...");
+                $.getJSON( self.options.root_url + self.options.complect_url + "search_empl_json/" + self.org_id + "/" + self.group_id + "?criteria=" + escape(crit), function( data ) {
+                    refillEmpl("avail", data.htm); 
+                    
+                    refreshCount("avail");
+                    self.ajax_timer_id = 0;
+                });
+
+            };
+
             var refreshCount = function(obj) {
                 var visible_cnt = $("#dx-" + obj +"-box .dx-empl-info:visible").length;
                 var total_cnt = parseInt(self.root.attr('data-total-' + obj));
@@ -6804,7 +6823,17 @@ detectWarningInContainer = function(containerEl) {
             
             this.root.find(".dx-search-data").on("keyup", function()
             {
-                filterEmpl($(this).data('obj'));
+                var obj = $(this).data('obj');
+
+                if (!self.is_ajax || obj === "members") {
+                    filterEmpl(obj);
+                }
+                else {
+                    if (self.ajax_timer_id > 0) {
+                        clearTimeout(self.ajax_timer_id);
+                    }
+                    self.ajax_timer_id = setTimeout(filterEmplAjax, 500);
+                }
             });            
             // End employees filtering
 
@@ -6911,13 +6940,33 @@ detectWarningInContainer = function(containerEl) {
             this.root.find(".dx-empl-name").click(openEmplForm);
             // End employees profiles
 
-            // Data reloading            
+            // Data reloading 
+            var refillEmpl = function(obj, htm) {
+                var el_box = $("#dx-" + obj + "-box");
+                el_box.empty();
+                el_box.html(htm);                
+                el_box.find(".dx-empl-name").click(openEmplForm);
+                el_box.find(".dx-empl-add").click(addToGroup);
+                el_box.find(".dx-empl-remove").click(removeFromGroup);
+            }
+            
             var refreshEmpl = function() {
                 show_page_splash(1);
-                $.getJSON( self.options.root_url + self.options.complect_url + "refresh_empl/" + self.org_id + "/" + self.group_id, function( data ) {
-                    $("#dx-avail-box").empty();
-                    $("#dx-avail-box").html(data.htm);
-                    filterEmpl("avail");
+                var crit = self.root.find(".dx-search-data[data-obj=avail]").val();
+                $.getJSON( self.options.root_url + self.options.complect_url + "empl_json/" + self.org_id + "/" + self.group_id + "/" + self.is_ajax + "?criteria=" + escape(crit), function( data ) {
+                    refillEmpl("avail", data.htm_avail);
+                    refillEmpl("members", data.htm_members);
+
+                    if (!self.is_ajax) {
+                        filterEmpl("avail");
+                    }
+                    else {
+                        refreshCount("avail");
+                    }
+
+                    filterEmpl("members");
+                    
+                    hide_page_splash(1);
                 });
             }
             // End data reloading

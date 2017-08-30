@@ -83,9 +83,7 @@
                     </div>
                     <div class="ext-cont">
                         <div id="dx-avail-box">
-                            @foreach($avail_empl as $empl)
-                                @include('calendar.complect.empl_row', ['empl' => $empl, 'dont_tool' => 'dx-dont-tooltipster'])
-                            @endforeach
+                            @include('calendar.complect.empl_avail')
                         </div>
                     </div>
                 </div>
@@ -105,9 +103,7 @@
                     </div>
                     <div class="ext-cont">
                         <div id="dx-members-box">
-                            @foreach($members as $empl)
-                                @include('calendar.complect.empl_row', ['empl' => $empl])
-                            @endforeach
+                            @include('calendar.complect.empl_members')
                         </div>
                     </div>
                 </div>

@@ -328,5 +328,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'calendar', 'namespace' => '
         Route::get('/complect/groups_json/{current_org_id}', ['as' => 'complect_groups_json', 'uses' => 'ComplectController@getComplectGroupsJSON']);
         Route::get('/complect/group/{org_id}/{group_id}', ['as' => 'complect_group_json', 'uses' => 'ComplectController@getGroupInfoJSON']);
         Route::post('/complect/add_member', ['as' => 'complect_group_add_member', 'uses' => 'ComplectController@addGroupMember']);    
-        Route::post('/complect/remove_member', ['as' => 'complect_group_add_member', 'uses' => 'ComplectController@removeGroupMember']);        
+        Route::post('/complect/remove_member', ['as' => 'complect_group_add_member', 'uses' => 'ComplectController@removeGroupMember']);
+        Route::get('/complect/empl_json/{org_id}/{group_id}/{is_ajax}', ['as' => 'complect_empl_json', 'uses' => 'ComplectController@getEmplJSON']); 
+        Route::get('/complect/search_empl_json/{org_id}/{group_id}', ['as' => 'complect_search_empl_json', 'uses' => 'ComplectController@getSearchEmplJSON']);        
 });

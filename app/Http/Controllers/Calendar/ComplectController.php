@@ -115,8 +115,6 @@ class ComplectController extends Controller
                         ->where('list_title', '=', trans('db_dx_users.list_title_student'))
                         ->first();
 
-        $members = $this->getGroupMembers($org_id, $group_id);
-
         return response()->json([
             'success' => 1,
             'htm' => view('calendar.complect.group_info', [
@@ -126,9 +124,66 @@ class ComplectController extends Controller
                             'avail_empl' => $this->getAvailEmpl($org_id, $group_id),
                             'empl_count' => $empl_count,
                             'is_ajax' => ($empl_count > Config::get('education.empl_load_limit', 300)) ? 1 : 0,
-                            'members' => $members,
+                            'members' => $this->getGroupMembers($org_id, $group_id),
                             'empl_list_id' => $empl_list->id
                          ])->render()            
+        ]);
+    }
+
+     /**
+     * Return organization and group members employees data in JSON response
+     * This is used to refresh group info form UI
+     *      
+     * @param integer $org_id Organization ID
+     * @param integer $group_id Group ID
+     * @param boolean $is_ajax Indicates if available employees is searched by AJAX (for large organizations)
+     * @param \Illuminate\Http\Request $request GET request
+     * @return \Illuminate\Http\JsonResponse Returns employees HTML in JSON response
+     */
+    public function getEmplJSON($org_id, $group_id, $is_ajax, Request $request) {
+        $this->checkRights($org_id, $group_id);
+        
+        $groups = $this->getGroups($org_id, $group_id);
+
+        if (count($groups) == 0) {
+            throw new Exceptions\DXCustomException(trans('errors.no_rights_on_group'));
+        }
+
+
+        return response()->json([
+            'success' => 1,
+            'htm_avail' => view('calendar.complect.empl_avail', [
+                            'avail_empl' => ($is_ajax) ? $this->getSearchEmpl($org_id, $group_id, $request->input("criteria", "")) : $this->getAvailEmpl($org_id, $group_id),
+                         ])->render(),
+            'htm_members' => view('calendar.complect.empl_members', [
+                            'members' => $this->getGroupMembers($org_id, $group_id),
+                         ])->render()            
+        ]);
+    }
+
+    /**
+     * Return organization searched employees data in JSON response
+     * This is used to search employees in gorup info UI for big organizations
+     *      
+     * @param integer $org_id Organization ID
+     * @param integer $group_id Group ID
+     * @param \Illuminate\Http\Request $request GET request
+     * @return \Illuminate\Http\JsonResponse Returns employees HTML in JSON response
+     */
+    public function getSearchEmplJSON($org_id, $group_id, Request $request) {
+        $this->checkRights($org_id, $group_id);
+        
+        $groups = $this->getGroups($org_id, $group_id);
+
+        if (count($groups) == 0) {
+            throw new Exceptions\DXCustomException(trans('errors.no_rights_on_group'));
+        }
+
+        return response()->json([
+            'success' => 1,
+            'htm' => view('calendar.complect.empl_avail', [
+                            'avail_empl' => $this->getSearchEmpl($org_id, $group_id, $request->input("criteria", "")),
+                         ])->render()          
         ]);
     }
     
@@ -253,10 +308,64 @@ class ComplectController extends Controller
             return $rows->take(Config::get('education.empl_load_limit', 300))
                         ->orderBy('u.display_name')
                         ->get();
-        }
-        
+        }        
     }
 
+    /**
+     * Formats string from GET parameter to UTF-8 (used to un-escape uri parameters)
+     *
+     * @param string $str String to be formated
+     * @return string Formated string in UTF-8
+     */
+    private function utf8_urldecode($str) {
+        return html_entity_decode(preg_replace("/%u([0-9a-f]{3,4})/i", "&#x\\1;", urldecode($str)), null, 'UTF-8');
+    }
+
+    /**
+     * Search organization employees by name or person code fragment
+     *
+     * @param integer $org_id Organization ID
+     * @param integer $group_id Group ID
+     * @param string $crit Search phrase
+     * @return array Search results
+     */
+    private function getSearchEmpl($org_id, $group_id, $crit) {
+
+        $criteria = $this->utf8_urldecode($crit);
+        $criteria = str_replace(" ", "%", $criteria);
+
+        return DB::table('edu_orgs_users as ou')
+            ->select(
+                'u.id',
+                'u.display_name',
+                'u.person_code',
+                'ou.job_title',
+                'ou.email',
+                'ou.phone',
+                'ou.mobile',
+                DB::raw('(SELECT count(*) WHERE exists(select 1 from edu_subjects_groups_members m WHERE m.student_id = u.id AND m.group_id = ' . $group_id . ' AND m.org_id = ' . $org_id . ')) as is_member')
+            )
+            ->join('dx_users as u', 'ou.user_id', '=', 'u.id')
+            ->where('ou.org_id', '=', $org_id)
+            ->whereRaw('(ou.end_date is null or ou.end_date >= date(now()))')
+            ->where(function($query) use ($criteria) {
+                if ($criteria) {
+                    $query->where('u.full_name_code', 'like', '%' . $criteria . '%');
+                }
+            })
+            ->take(Config::get('education.empl_load_limit', 300))
+            ->orderBy('u.display_name')
+            ->get();
+          
+    }
+
+    /**
+     * Returns group members array
+     *
+     * @param integer $org_id Organization ID
+     * @param integer $group_id Group ID
+     * @return array
+     */
     private function getGroupMembers($org_id, $group_id) {
         return DB::table('edu_subjects_groups_members as m')
                 ->select(
