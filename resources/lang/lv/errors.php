@@ -166,4 +166,28 @@ return [
     'import_lookup_no_field' => "Reģistrā ':list' nav definēts lauks ':fld'!",
     
     'not_valid_email' => "Norādītā e-pasta adrese ':email' ir nekorekta! E-pasta adresei jābūt formātā 'vards@domens.lv'.",
+    
+    'publish_validator_not_exists' => "Norādīts neeksistējošs validatora kods ':code'!",
+    
+    'publish_validator_no_group' => "Norādīts neeksistējošs grupas identifikators ':id'!",
+    
+    'no_rights_on_complect' => 'Jums nav tiesību uz komplektēšanas funkcionalitāti!',
+
+    'no_rights_on_organization' => 'Jums nav tiesību uz komplektēšanas funkcionalitāti norādītajai organizācijai!',
+
+    'no_rights_on_group' => 'Jums nav tiesību uz komplektēšanas funkcionalitāti norādītajai grupai!',
+
+    'err_db_msg_title' => 'Datu kļūda',
+
+    'err_db_msg_general' => 'Datu apstrādes kļūda! Lūdzu, sazinieties ar sistēmas IT atbalstu.',
+
+    'cant_identify_object' => "Nav iespējams viennozīmīgi identificēt objektu pēc norādītās tabulas ':table'! Atbilstošo objektu skaits ir :found.",
+    'cant_identify_register' => "Nav iespējams viennozīmīgi identificēt reģistru pēc norādītās tabulas ':table'! Atbilstošo reģistru skaits ir :found.",
+    'object_dont_have_history' => "Objektam ':table' nav iestatīta vēstures veidošana!",
+    'object_update_without_where' => "Objekta ':table' datu labošanas/dzēšanas metodei nav norādīts neviens kritērijs!",
+    'object_update_without_id' => "Objekta ':table' datu labošanas metodei kā kritērijs nav norādīts ID lauks!",
+    'object_update_without_compare' => "Nekorekti izmantota izmaiņu veikšanas vēstures auditācijas metode - nav vispirms salīdzinātas izmaiņas ar metodi compareChanges().",
+    'object_update_commit_no_prepare' => "Nekorekti izmantota izmaiņu veikšanas metode - nav sagatavotas auditējamās izmaiņās ar metodi update().",
+    'object_delete_commit_no_history' => "Nekorekti izmantota dzēšanas metode - nav sagatavotas auditējamās izmaiņas ar metodi delete()!",
+    
 ];

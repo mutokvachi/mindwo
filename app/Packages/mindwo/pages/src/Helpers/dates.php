@@ -197,3 +197,58 @@ function getDateTimeObj($dat_str, $is_set_to_1900)
 
     return $d_obj;
 }
+
+/**
+ * Check if time is in correct format
+ * 
+ * @param string $my_date  Date and time
+ * @param string $format   Datetime format, for example yyyy-mm-dd HH:ii
+ * @return string          Time in format HH:ii
+ */
+function check_time($my_date, $format)
+{
+    $d_pos = strpos($format, 'd');
+    $m_pos = strpos($format, 'm');
+    $y_pos = strpos($format, 'y');
+
+    if ($d_pos === false || $m_pos === false || $y_pos === false)
+    {
+        return "";
+    }
+
+    $day = intval(substr($my_date, $d_pos, 2));
+    $month = intval(substr($my_date, $m_pos, 2));
+    $year = intval(substr($my_date, $y_pos, 4));
+
+    if (strlen($year) != 4 || $day == 0 || $month == 0 || $year == 0)
+    {
+        return "";
+    }
+
+    if (checkdate($month, $day, $year) == false)
+    {
+        return "";
+    }
+    
+    
+    // Check time
+    $h_pos = strpos($format, 'H');
+    $i_pos = strpos($format, 'i');
+
+    if ($h_pos === false)
+    {
+        return "";
+    }
+
+    // dd.mm.yyyy HH:ii
+    $h = substr($my_date, $h_pos, 2);
+    $i = substr($my_date, $i_pos, 2);
+
+    if (strlen($h) != 2 || strlen($i) != 2 || intval($h) < 0 || intval($h) > 23 || intval($i) < 0 || intval($i) > 59)
+    {
+        return "";
+    }
+
+    return str_pad($h, 2, "0", STR_PAD_LEFT) . ":" . str_pad($i, 2, "0", STR_PAD_LEFT);
+    
+}

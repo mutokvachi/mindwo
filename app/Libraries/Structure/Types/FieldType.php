@@ -21,15 +21,17 @@ namespace App\Libraries\Structure\Types
         public $is_required = 0;
         public $table_name = "";
         
+        public $is_text_extract = 0;
         /**
-         * Lauka tipa konstruktors
+         * Field type class constructor
          * 
-         * @param integer $list_id      Reģistra ID
-         * @param string  $field_obj    Tabulas lauka objekts
-         * @return void
+         * @param string $table_name Table name
+         * @param integer $list_id Register ID
+         * @param string $field_name Field name in db
+         * @param object $field_obj Column info returned by DB::connection()->getDoctrineColumn
+         * @param boolean $is_text_extract Is text exstraction from file field
          */
-
-        public function __construct($table_name, $list_id, $field_name, $field_obj)
+        public function __construct($table_name, $list_id, $field_name, $field_obj, $is_text_extract = 0)
         {
             $this->field_obj = $field_obj;
             $this->list_id = $list_id;
@@ -37,6 +39,7 @@ namespace App\Libraries\Structure\Types
             $this->field_title = $this->getFieldTitle();
             $this->is_required = $this->getFieldRequired();
             $this->table_name = $table_name;
+            $this->is_text_extract = $is_text_extract;
             
             $this->initField();
             

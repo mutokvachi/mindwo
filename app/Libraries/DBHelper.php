@@ -66,6 +66,16 @@ namespace App\Libraries
          * Reģistra lauka tips - datums (no tabulas dx_field_types)
          */
         const FIELD_TYPE_DATE = 9;
+        
+        /**
+         * Register field type - HTML text (from table dx_field_types)
+         */
+        const FIELD_TYPE_HTML = 10;
+        
+        /**
+         * Register field type - email (from table dx_field_types)
+         */
+        const FIELD_TYPE_EMAIL = 11;
 
         /**
          * Register field type - file (from table dx_field_types)
@@ -85,7 +95,12 @@ namespace App\Libraries
         /**
          * Register field type - color picker (from table dx_field_types)
          */
-        const FIELD_TYPE_COLOR = 17;        
+        const FIELD_TYPE_COLOR = 17;
+                       
+        /**
+         * Register field type - mobile phone (from table dx_field_types)
+         */
+        const FIELD_TYPE_MOBILE = 21;
                
         /**
          * Register field type - textual value from items list (from table dx_field_types)
@@ -93,9 +108,134 @@ namespace App\Libraries
         const FIELD_TYPE_REL_TXT = 22;
         
         /**
+         * Register field type - time picker (from table dx_field_types)
+         */
+        const FIELD_TYPE_TIME = 23;
+        
+        /**
          * Field operation ID - value from table dx_field_operations
          */
         const FIELD_OPERATION_EQUAL = 1;
+        
+        /**
+         * Creates UI with list, default view, ID field and form
+         * @param array $arr_params Array with keys: table_name, list_title, item_title
+         * 
+         * @return integer Created list ID
+         */
+        public static function createUI($arr_params) {
+            $obj = DB::table('dx_objects')
+                   ->where('db_name', '=', $arr_params['table_name'])
+                   ->first();
+            
+            if (!$obj) {
+                
+                $is_history = Schema::hasColumn($arr_params['table_name'], 'created_user_id');
+                
+                $obj_id = DB::table('dx_objects')->insertGetId([
+                    'db_name' => $arr_params['table_name'],
+                    'title' => $arr_params['list_title'],
+                    'is_history_logic' => $is_history
+                ]);
+            }
+            else {
+                $obj_id = $obj->id;
+            }
+            
+            $list_id = DB::table('dx_lists')->insertGetId([
+                'object_id' => $obj_id,
+                'list_title' => $arr_params['list_title']
+            ]);
+            
+            $id_fld_id = DB::table('dx_lists_fields')->insertGetId([
+                'list_id' => $list_id,
+                'db_name' => 'id',
+                'type_id' => self::FIELD_TYPE_ID,
+                'title_list' => 'ID',
+                'title_form' => 'ID'
+            ]);
+            
+            $view_id = DB::table('dx_views')->insertGetId([
+                'list_id' => $list_id,
+                'title' => $arr_params['list_title'],
+                'view_type_id' => 1,
+                'is_default' => 1
+            ]);
+            
+            DB::table('dx_views_fields')->insert([
+                'list_id' => $list_id,
+                'view_id' => $view_id,
+                'field_id' => $id_fld_id,
+                'order_index' => 10,
+                'is_hidden' => 1
+            ]);
+            
+            DB::table('dx_forms')->insert([
+                'list_id' => $list_id,
+                'title' => $arr_params['item_title'],
+                'form_type_id' => 1
+            ]);
+            
+            $arr_params['menu_list_id'] = $list_id;              
+            DBHelper::makeMenu($arr_params);
+                        
+            // add admin role
+            DB::table('dx_roles_lists')->insert(['role_id' => 1, 'list_id' => $list_id, 'is_edit_rights' => 1, 'is_delete_rights' => 1, 'is_new_rights' => 1, 'is_import_rights' => 1, 'is_view_rights' => 1]); // Sys admins
+            
+            return $list_id;
+        }
+        
+        /**
+         * Creates new menu item
+         * 
+         * @param array $arr_params Array with keys: menu_parent_id, menu_site_id, list_title, menu_list_id, menu_icon, menu_order_index
+         * @return integer New menu ID
+         */
+        public static function makeMenu($arr_params) {
+            $parent_menu_id = (isset($arr_params['menu_parent_id'])) ? $arr_params['menu_parent_id'] : 0;
+            $site_id = (isset($arr_params['menu_site_id'])) ? $arr_params['menu_site_id'] : 0;
+            $order_index = (isset($arr_params['menu_order_index'])) ? $arr_params['menu_order_index'] : 0;
+            $fa_icon = (isset($arr_params['menu_icon'])) ? $arr_params['menu_icon'] : null;
+            $url = (isset($arr_params['menu_url'])) ? $arr_params['menu_url'] : null;
+            
+            if ($parent_menu_id == -1) {
+                return; // no menu needed
+            }
+            
+            if (!$parent_menu_id) {
+                $parent_menu_id = null;
+            }
+            
+            if (!$site_id) {
+                $site_id = 1; // by default authorized portal part
+            }
+            
+            $site = DB::table("dx_menu_groups")->where("id", '=', $site_id)->first();
+            
+            if (!$order_index) {
+                if ($parent_menu_id) {
+                    $order_index = DB::table('dx_menu')->where('parent_id', '=', $parent_menu_id)->max('order_index') + 10;
+                }
+                else {
+                    $order_index = 10;
+                }
+            }
+            
+            $title_index = $site->title . ": [" . sprintf("%04d", $order_index) . "] " . $arr_params['list_title'];
+            
+            return DB::table('dx_menu')->insertgetId([
+                'parent_id' => $parent_menu_id, 
+                'title' => $arr_params['list_title'], 
+                'list_id' => $arr_params['menu_list_id'], 
+                'order_index' => $order_index, 
+                'title_index' => $title_index,
+                'fa_icon' => $fa_icon,
+                'group_id' => $site_id, 
+                'url' => $url,
+                'position_id' => 1, // main menu by default
+            ]);
+            
+        }
         
         /**
          * Returns object row by list_id
@@ -105,7 +245,7 @@ namespace App\Libraries
          */
         public static function getListObject($list_id) {
             return DB::table("dx_lists as l")
-                   ->select('o.*', 'l.id as list_id')
+                   ->select('o.*', 'l.id as list_id', 'o.db_name as table_name')
                    ->leftJoin('dx_objects as o', 'l.object_id', '=', 'o.id')
                    ->where('l.id', '=', $list_id)
                    ->first();
@@ -196,18 +336,20 @@ namespace App\Libraries
         
          /**
          * Appends a new field to the view at the end
+          * 
          * @param integer $list_id Register ID
          * @param integer $view_id Register ID
          * @param integer $fld_id Field ID
+         * @param array $arr_params Array with additional field values for dx_views_fields table
          */
-        public static function addFieldToView($list_id, $view_id, $fld_id)
+        public static function addFieldToView($list_id, $view_id, $fld_id, $arr_params = [])
         {
-            DB::table('dx_views_fields')->insert([
-                'list_id' => $list_id,
-                'view_id' => $view_id,
-                'field_id' => $fld_id,
-                'order_index' => (DB::table('dx_views_fields')->where('view_id', '=', $view_id)->max('order_index') + 10)
-            ]);
+            $arr_params['list_id'] = $list_id;
+            $arr_params['view_id'] = $view_id;
+            $arr_params['field_id'] = $fld_id;
+            $arr_params['order_index'] = DB::table('dx_views_fields')->where('view_id', '=', $view_id)->max('order_index') + 10;
+            
+            DB::table('dx_views_fields')->insert($arr_params);
         }
 
         /**

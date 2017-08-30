@@ -167,4 +167,27 @@ return [
     'import_lookup_no_field' => "The list ':list' does not have field named ':fld'!",
     
     'not_valid_email' => "Provided email ':email' is not valid! Email must be in format like 'person@domain.com'.",
+    
+    'publish_validator_not_exists' => "Provided validator code ':code' is not correct!",
+    
+    'publish_validator_no_group' => "Provided wrong group ID ':id'!",
+    
+    'no_rights_on_complect' => 'You do not have rights on learning groups complecting functionality!',
+
+    'no_rights_on_organization' => 'You do not have rights on learning groups complecting functionality for provided organization!',
+
+    'no_rights_on_group' => 'You do not have rights on learning groups complecting functionality for provided group!',
+
+    'err_db_msg_title' => 'Data error',
+
+    'err_db_msg_general' => 'Data processing error! Please, contact your IT support.',
+
+    'cant_identify_object' => "Can not identify object by provided table name ':table'! Found objects count is :found.",
+    'cant_identify_register' => "Can not identify register by provided table name ':table'! Found registers count is :found.",
+    'object_dont_have_history' => "The object ':table' does not have history logic enabled!",
+    'object_update_without_where' => "The object ':table' update/delete method called without Where criteria!",
+    'object_update_without_id' => "The object ':table' update method called without ID field in the Where criteria!",
+    'object_update_without_compare' => "Wrong call of data changes audit method - it must be compared changes before by calling the method compareChanges().",
+    'object_update_commit_no_prepare' => "Wrong call of data changes save method - it must be prepared changes before by calling the method update().",
+    'object_delete_commit_no_history' => "Wrong call of data deletion method - it must be prepared changes before by calling the method delete()!",
 ];

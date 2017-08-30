@@ -14,7 +14,7 @@ return [
     
     'site_title' => ':app :: SVS',
     
-    'hello_title' => 'Sveicināti :app SVS vietnē!',
+    'hello_title' => 'Sveicināti :app vietnē!',
     
     'about_title' => 'Vietne pieejama tikai autorizētiem lietotājiem.',
     

@@ -42,6 +42,7 @@ return [
     
     'link_history' => 'History',
     'hint_history' => 'View item changes history',
+    'hint_settings' => 'Open form settings',
     'history_form_title' => 'History',
     'btn_changes' => 'See changes',
     
@@ -82,7 +83,5 @@ return [
         'e_no_users' => 'No users in this chat',  
         'i_upload_progress' => 'Uploading attachments...',      
         'task_chat_description' => 'You have been added in discussion about document.',
-        
-        'hint_settings' => 'Open form settings',
     ]
 ];

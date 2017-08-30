@@ -28,3 +28,4 @@
     trans_tree_cancel="{{ trans('fields.tree_cancel') }}"
     trans_tree_choose="{{ trans('fields.tree_choose') }}"
     trans_passw_form_title="{{ trans('password_form.form_title') }}"
+    data-user-id = "{{ (Auth::guest()) ? '0' : Auth::user()->id }}"
