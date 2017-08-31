@@ -11,12 +11,14 @@ return [
     'btn_cancel' => 'Atcelt',
     'label_password' => 'Šifrēšanas parole',
     'label_password_again' => 'Šifrēšanas parole atkārtoti',
-    'title_modal_password' => 'Atšifrēšanas apstiprinājums',
+    'title_modal_password' => 'Šifrēšanas paroles ievade',
     'title_modal_generate_cert' => 'Ģenerēt sertifikātu',
     'btn_generate_cert' => 'Ģenerēt sertifikātu',
     'btn_generate_new_cert' => 'Ģenerēt jaunu sertifikātu',
     'btn_regen_masterkey' => 'Ģenerēt jaunu galveno atslēgu',
     'regen_masterkey_label' => 'Datu šifrēšana ar jaunu galveno atslēgu',
+    'encrypt_label' => 'Datu šifrēšana',
+    'decrypt_label' => 'Datu atšifrēšana',
     'regen_masterkey_records_label' => 'Apstrādātie ieraksti',
     'help_warning' => 'Uzmanību!',
     'help_success' => 'Informācija:',
@@ -24,6 +26,8 @@ return [
     'help_success_text' => 'Jums ir uzģenerēts sertifikāts',
     'help_success_func' => 'Operācija izpildīta',
     'help_success_regen_text' => 'Dati ir sekmīgi pāršifrēti un saglabāti',
+    'help_success_encrypt_text' => 'Dati ir sekmīgi sašifrēti un saglabāti',
+    'help_success_decrypt_text' => 'Dati ir sekmīgi atšifrēti un saglabāti',
     'e_unknown' => 'Nezināma kļūda',
     'e_add_yourself_first' => 'Vispirms Jums jāpievieno pašiem sevi pie galvenās atslēgas grupas un tikai tad ir iespējams pievienot citus lietotājus',
     'e_missing_masterkey' => "Jums nav pieškirta piekļuve šai galvenās atslēgas grupai",
@@ -48,7 +52,7 @@ return [
     'i_cancel_regen_process' => 'Apstādina procesu...',
     'w_confirm_generate_new_cert' => '<b>Vai Jūs tiešām vēlaties ģenerēt jaunu sertifikātu?</b></br>Jūsu pieeja šifrētiem datiem tiks zaudēta - pieeju var atjaunot tikai cits lietotājs ar tiesībām uz šifrētajiem datiem.',
     'regen_process_exist' => 'Pāršifrēšanas process jau sācies',
-    'regen_process_exist_by_user' => 'Pāršifrēšanas process jau uzsākts no lietotāja :user_name',
+    'regen_process_exist_by_user' => 'Šobrīd sistēmā ir uzsākts pāršifrēšanas process no lietotāja :user_name',
     'w_regen_process_exist' => 'Datu pāršifrēšanas process jau ir sācies. Ja Jūs izvēlaties "Nē", tad tiks uzsākts jauns pāršifrēšnas process.</b></br><b>Vai vēlaties turpināt esošo procesu?</b>',
     'db' => [
         'user_id' => 'Lietotājs',
@@ -68,6 +72,7 @@ return [
         'created_time' => 'Izveides laiks',
         'modified_time' => 'Labošanas laiks',
         'crypto' => 'Kriptogrāfija',
+        'field' => 'Lauks'
         
     ]
 ];

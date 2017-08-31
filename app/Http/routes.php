@@ -180,8 +180,9 @@ Route::group(['prefix' => 'crypto', 'namespace' => 'Crypto'], function() {
         Route::get('/get_user_cert/{user_id?}/{master_key_group_id?}', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@getUserCertificate'));
         Route::get('/check_existing_keys/{master_key_group_id?}', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@hasExistingKeys'));
         Route::post('/save_cert', array('middleware' => 'auth', 'uses' => 'CryptoCertificateController@saveUserCertificate'));
-        Route::get('/pending_data/{regenProcessId}/{master_key_group_id}/{getMasterKey}/{masterKey?}', array('middleware' => 'auth', 'uses' => 'CryptoMasterKeyRegenerationController@prepareRecrypt'));
-        Route::get('/check_regen/{master_key_group_id}', array('middleware' => 'auth', 'uses' => 'CryptoMasterKeyRegenerationController@checkExistingRegenProcesses'));
+        Route::get('/pending_data/{regenProcessId}/{master_key_group_id}/{getMasterKey}/{masterKey}/{fieldId?}', array('middleware' => 'auth', 'uses' => 'CryptoMasterKeyRegenerationController@prepareRecrypt'));
+        Route::get('/check_regen/{master_key_group_id}/{field_id}', array('middleware' => 'auth', 'uses' => 'CryptoMasterKeyRegenerationController@checkExistingRegenProcesses'));
+        Route::get('/masterkey_group_by_field/{field_id}', array('middleware' => 'auth', 'uses' => 'CryptoMasterKeyRegenerationController@getMasterKeyGroupByField'));
         Route::post('/save_regen_cache', array('middleware' => 'auth', 'uses' => 'CryptoMasterKeyRegenerationController@saveRegenCache'));
         Route::post('/apply_regen_cache', array('middleware' => 'auth', 'uses' => 'CryptoMasterKeyRegenerationController@applyRegenCache'));
         Route::get('/get_user_public_keys/{master_key_group_id}', array('middleware' => 'auth', 'uses' => 'CryptoMasterKeyRegenerationController@getUserPublicKeys'));

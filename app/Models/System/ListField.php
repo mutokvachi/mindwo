@@ -20,4 +20,14 @@ class ListField extends Model
 		'operation_id',
 		'criteria'
 	];
+
+	/**
+	 * Related list
+	 *
+	 * @return \App\System\List List model
+	 */
+	public function list()
+    {
+        return $this->belongsTo('\App\Models\System\Lists', 'list_id');
+    }
 }

@@ -5,7 +5,7 @@
                 <button type="button" class="close dx-crypto-modal-regen-btn-cancel" aria-label="{{ trans('form.btn_close') }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="dx-crypto-modal-regen-label">{{ trans('crypto.regen_masterkey_label') }}</h4>
+                <h4 class="modal-title" id="dx-crypto-modal-regen-label"></h4>
             </div>
             <div class="modal-body">
                 <div class="dx-crypto-modal-regen-progress">
@@ -20,7 +20,7 @@
                     </div>    
                 </div>
                 <div class="alert alert-success dx-crypto-modal-regen-succ" style="display: none">
-                    <strong>{{ trans('crypto.help_success_func') }}</strong> {{ trans('crypto.help_success_regen_text') }}
+                    <strong>{{ trans('crypto.help_success_func') }}</strong> <span id='dx-crypto-modal-regen-succ-label'></span>
                 </div>
             </div>
             <div class="modal-footer">
