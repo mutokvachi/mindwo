@@ -697,7 +697,7 @@ $.extend(window.DxCryptoClass.prototype, {
             .catch(window.DxCrypto.catchError);
     },
     /**
-     * Unwraps master key and returns unwrapped kye
+     * Unwraps master key and returns unwrapped key
      * @param {ArrayBuffer} wrappedMasterKey Key you want to unwrap
      * @returns {CryptoKey} Unwrapped master key
      */
@@ -921,8 +921,8 @@ $.extend(window.DxCryptoClass.prototype, {
     },
     /**
      * Event on master key save button click - calls function which generates key derived from existing one or creates a new one
-     * @param {type} event
-     * @param {type} form
+     * @param {type} event Event data
+     * @param {type} form Form from which event was called
      * @returns {Boolean}
      */
     onMasterKeysSave: function (event, form) {

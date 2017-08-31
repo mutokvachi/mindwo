@@ -16,9 +16,10 @@ class CryptoMasterKeyRegenerationController extends Controller
     /**
      * Checks if there is existing regeneration process
      * @param int $masterKeyGroupId Master key group which is planed to regenerate.
+     * @param int $fieldId Field id is specified if process is decrypting or encrypting existing field with data
      * @return JSON response of process id if found
      */
-    public function checkExistingRegenProcesses($masterKeyGroupId)
+    public function checkExistingRegenProcesses($masterKeyGroupId, $fieldId)
     {
         $masterKeyGroup = \App\Models\Crypto\MasterkeyGroup::find($masterKeyGroupId);
 
@@ -34,9 +35,14 @@ class CryptoMasterKeyRegenerationController extends Controller
             return response()->json(['success' => 0, 'msg' => trans('crypto.regen_process_exist_by_user', ['user_name' => $other_regen_process->createdUser->display_name])]);
         }
 
-        $regen_process = \App\Models\Crypto\Regen::where('master_key_group_id', $masterKeyGroupId)
-                ->where('created_user_id', \Auth::user()->id)
-                ->first();
+        $regen_process_query = \App\Models\Crypto\Regen::where('master_key_group_id', $masterKeyGroupId)
+                ->where('created_user_id', \Auth::user()->id);
+
+        if($fieldId && $fieldId > 0){
+             $regen_process_query->where('field_id', $fieldId);
+        }
+        
+        $regen_process =  $regen_process_query->first();
 
         $process_id = $regen_process ? $regen_process->id : 0;
 
@@ -51,7 +57,7 @@ class CryptoMasterKeyRegenerationController extends Controller
      * @param string $masterKey New master key wrapped with user's certificate
      * @return JSON Data which must pe recrypted
      */
-    public function prepareRecrypt($regenProcessId, $masterKeyGroupId, $getMasterKey, $masterKey = null)
+    public function prepareRecrypt($regenProcessId, $masterKeyGroupId, $getMasterKey, $masterKey = null, $fieldId = 0)
     {
         $masterKeyGroup = \App\Models\Crypto\MasterkeyGroup::find($masterKeyGroupId);
 
@@ -67,13 +73,22 @@ class CryptoMasterKeyRegenerationController extends Controller
             $process = new \App\Models\Crypto\Regen();
             $process->master_key = $masterKey;
             $process->master_key_group_id = $masterKeyGroupId;
+
+            if($fieldId > 0){
+                $process->field_id = $fieldId;
+            }
+            
             $process->created_user_id = \Auth::user()->id;
             $process->created_time = new \DateTime();
             $process->modified_user_id = \Auth::user()->id;
             $process->modified_time = new \DateTime();
             $process->save();
 
-            $cryptoFields = $this->retrieveCryptedFieldsByMasterKey($masterKeyGroupId);
+            if($fieldId <= 0){
+                $cryptoFields = $this->retrieveCryptedFieldsByMasterKey($masterKeyGroupId);
+            } else {
+                $cryptoFields = $this->retrieveCryptedFieldsByFieldId($fieldId);
+            }
 
             $this->createCryptedDataCache($cryptoFields, $process->id);
         } else {
@@ -110,6 +125,23 @@ class CryptoMasterKeyRegenerationController extends Controller
                 ->leftJoin('dx_lists_fields AS f', 'f.list_id', '=', 'l.id')
                 ->where('f.is_crypted', 1)
                 ->where('l.masterkey_group_id', $masterKeyGroupId)
+                ->get();
+
+        return $cryptoFields;
+    }
+
+    /**
+     * Retrieves field by field id
+     * @param int $fieldId Master key groups ID
+     * @return type
+     */
+    private function retrieveCryptedFieldsByFieldId($fieldId)
+    {
+        $cryptoFields = \DB::table('dx_lists_fields AS f')
+                ->selectRaw('l.id list_id, o.db_name as table_name, f.db_name as column_name, case when f.type_id = 12 then 1 else 0 end as is_file')
+                ->leftJoin('dx_lists AS l', 'f.list_id', '=', 'l.id')
+                ->leftJoin('dx_objects AS o', 'o.id', '=', 'l.object_id')                
+                ->where('f.id', $fieldId)
                 ->get();
 
         return $cryptoFields;
@@ -336,8 +368,7 @@ class CryptoMasterKeyRegenerationController extends Controller
     public function applyRegenCache(Request $request)
     {
         $this->validate($request, [
-            'regen_process_id' => 'required|exists:dx_crypto_regen,id',
-            'master_keys' => 'required'
+            'regen_process_id' => 'required|exists:dx_crypto_regen,id'
         ]);
 
         $process_id = $request->input('regen_process_id');
@@ -346,7 +377,10 @@ class CryptoMasterKeyRegenerationController extends Controller
         DB::transaction(function () use ($process_id, $master_keys_wrapped) {
             $process = $this->saveRegen($process_id);
 
-            $this->saveNewMasterKeys($process->master_key_group_id, $master_keys_wrapped);
+            // If they are not set then this is encryption or decryption process (when we change parameter if field is crypted)
+            if($master_keys_wrapped && count($master_keys_wrapped) > 0){
+                $this->saveNewMasterKeys($process->master_key_group_id, $master_keys_wrapped);
+            }
 
             DB::table('dx_locks')
                     ->where('user_id', '=', \Auth::user()->id)
@@ -453,5 +487,17 @@ class CryptoMasterKeyRegenerationController extends Controller
                 ->count();
 
         return $count > 0;
+    }
+
+    public function getMasterKeyGroupByField($field_id)
+    {
+         $field = \App\Models\System\ListField::find($field_id);
+
+         if($field && $field->list && $field->list->masterkey_group_id){
+            return response()->json(['success' => 1, 'masterkey_group_id' => $field->list->masterkey_group_id]);
+         }
+         else{
+             return response()->json(['success' => 0]);
+         }
     }
 }

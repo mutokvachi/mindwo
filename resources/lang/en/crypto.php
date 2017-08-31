@@ -11,12 +11,14 @@ return [
     'btn_cancel' => 'Cancel',
     'label_password' => 'Encryption password',
     'label_password_again' => 'Encryption password again',
-    'title_modal_password' => 'Your encryption password',
+    'title_modal_password' => 'Encryption password validation',
     'title_modal_generate_cert' => 'Generate certificate',
     'btn_generate_cert' => 'Generate certificate',
     'btn_generate_new_cert' => 'Generate new certificate',
     'btn_regen_masterkey' => 'Generate new master key',
     'regen_masterkey_label' => 'Encrypting data with new master key',
+    'encrypt_label' => 'Data encryption',
+    'decrypt_label' => 'Data decryption',
     'regen_masterkey_records_label' => 'Processed records',
     'help_warning' => 'Warning!',
     'help_success' => 'Info:',
@@ -24,6 +26,8 @@ return [
     'help_success_text' => 'You have generated certificate',
     'help_success_func' => 'Operation is finished',
     'help_success_regen_text' => 'Data is successfully encrypted and saved with new master key',
+    'help_success_encrypt_text' => 'Data is successfully encrypted and saved',
+    'help_success_decrypt_text' => 'Data is successfully decrypted and saved',
     'e_unknown' => 'Uknown error',
     'e_add_yourself_first' => 'First You need to add yourslef to master key group and only then it is possible to add other users',
     'e_missing_masterkey' => "You don't have access to this master key group",
@@ -48,7 +52,7 @@ return [
     'i_cancel_regen_process' => 'Canceling process...',
     'w_confirm_generate_new_cert' => '<b>Do You realy want to generate a new certificate?</b></br>Your access for encrypted data will be lost - access can be restored only by someone else who has access for encrypted data.',
     'regen_process_exist' => 'Reencryption process already started',
-    'regen_process_exist_by_user' => 'Reencryption process already started by user :user_name',
+    'regen_process_exist_by_user' => 'There is running reencryption process which started by user :user_name',
     'w_regen_process_exist' => 'Data reencryption process has been already started. If You choose "No", then a new reencryption process will start. </b></br><b>Do You want to continue same process?</b>',
     'db' => [
         'user_id' => 'User',
@@ -68,5 +72,6 @@ return [
         'created_time' => 'Created time',
         'modified_time' => 'Modified time',
         'crypto' => 'Cryptography',
+        'field' => 'Field'
     ]
 ];
