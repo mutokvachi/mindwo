@@ -47,14 +47,4 @@
             </div>
         </div>
     </div>
-
-
-
-    {{--<div class="portlet-body">--}}
-        {{--<div class="row">--}}
-            {{--<div class="col-lg-3 col-md-4">--}}
-                {{--{!! $calendar !!}--}}
-            {{--</div>--}}
-        {{--</div>--}}
-    {{--</div>--}}
 </div>

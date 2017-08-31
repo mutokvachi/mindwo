@@ -317,5 +317,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'calendar', 'namespace' => '
         Route::post('/scheduler/update_coffee', ['as' => 'scheduler_update_coffee', 'uses' => 'SchedulerController@updateCoffee']);
         Route::get('/scheduler/json/{current_room_id}', ['as' => 'scheduler_json', 'uses' => 'SchedulerController@getSchedulerJSON']);        
         Route::get('/scheduler/events_json/{current_room_id}', ['as' => 'scheduler_events_json', 'uses' => 'SchedulerController@getSchedulerEventsJSON']); 
-        Route::get('/scheduler/rooms_json/{current_room_id}', ['as' => 'scheduler_rooms_json', 'uses' => 'SchedulerController@getSchedulerRoomsJSON']); 
+        Route::get('/scheduler/rooms_json/{current_room_id}', ['as' => 'scheduler_rooms_json', 'uses' => 'SchedulerController@getSchedulerRoomsJSON']);
 });
+
+Route::get('/groups_calendar/load/{date}/{direction}', 'Widgets\EventsController@loadGroupsCalendar')->name('groups_calendar_load');
