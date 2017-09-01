@@ -190,4 +190,8 @@ return [
     'object_update_commit_no_prepare' => "Nekorekti izmantota izmaiņu veikšanas metode - nav sagatavotas auditējamās izmaiņās ar metodi update().",
     'object_delete_commit_no_history' => "Nekorekti izmantota dzēšanas metode - nav sagatavotas auditējamās izmaiņas ar metodi delete()!",
     
+    'doc_gener_in_workflow' => "Ierakstu nevar rediģēt, jo tas ir darbplūsmā vai arī ar statusu Apstiprināts!",
+
+    'doc_gener_no_template' => 'Reģistram nav piesaistīta neviena dokumentu sagatave!',
+
 ];

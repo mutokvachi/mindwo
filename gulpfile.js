@@ -219,6 +219,7 @@ gulp.task('mix_all', function() {
             'mindwo/fields/color.js',
             'mindwo/fields/int.js',
             'mindwo/fields/time.js',
+            'mindwo/pages/doc_generator.js',
             'datatables/datatables.all.min.js',
             'datatables/plugins/bootstrap/datatables.bootstrap.js',
             'float-thead/dist/jquery.floatThead.js',

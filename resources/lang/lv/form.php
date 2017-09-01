@@ -8,8 +8,6 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'word_hint' => 'Ģenerēt Word dokumentu',
-    'word_generate_btn'     => 'Ģenerēt',
     'excel'     => 'Uz Excel',
     'excel_hint' => 'Eksportēt saraksta datus uz Excel',
     'view' => 'Skats',
@@ -83,5 +81,16 @@ return [
         'e_no_users' => 'Šajā sarakstē nav neviena lietotāja', 
         'i_upload_progress' => 'Augšupielāde pielikumus...',   
         'task_chat_description' => 'Jūs esat pievienots diskusijai par dokumentu.',
-    ]
+    ],
+
+    'template' => [
+        'popup_title' => 'Sagataves izvēle',
+        'intro' => 'Reģistram ir piesaistītas vairākas dokumentu sagataves. Lūdzu, izvēlieties, kuru sagatavi izmantot dokumenta ģenerēšanai.',
+        'download' => 'Lejupielādēt sagatavi',
+        'doc_generate_btn' => 'Ģenerēt',
+        'generate_hint' => 'Ģenerēt dokumenta datni no sagataves',
+        'choose_btn' => 'Ģenerēt ar šo sagatavi',
+        'generation_ok' => 'Datne veiksmīgi noģenerēta!',
+        'btn_manage_templ' => 'Pārvaldīt sagataves',
+    ],
 ];

@@ -850,8 +850,71 @@ namespace App\Libraries
                 $txt_display = $val_row->txt;
             }
 
-            return $txt_display;
+            return $txt_display;            
+        }
+
+        /**
+         * Appends hint to CMS register field
+         *
+         * @param mixed $table_name Table name or list ID
+         * @param string $field_name Field name
+         * @param string $hint Field hint text
+         * @return void
+         */
+        public static function addHintTofield($table_name, $field_name, $hint) {
+            $list = DBHelper::getList($table_name);
             
+            if (!$list) {
+                return;
+            }
+
+            DB::table('dx_lists_fields')
+                ->where('list_id', '=', $list->id)
+                ->where('db_name', '=', $field_name)
+                ->update([
+                    'hint' => $hint
+                ]);
+        }
+
+        /**
+         * Set field type
+         *
+         * @param mixed $table_name Table name or list ID
+         * @param string $field_name Field name
+         * @param string type_id ID from table dx_fields_types
+         * @return void
+         */
+        public static function setFieldType($table_name, $field_name, $type_id) {
+            $list = DBHelper::getList($table_name);
+            
+            if (!$list) {
+                return;
+            }
+
+
+            DB::table('dx_lists_fields')
+                ->where('list_id', '=', $list->id)
+                ->where('db_name', '=', $field_name)
+                ->update([
+                    'type_id' => $type_id
+                ]);
+        }
+
+        /**
+         * Get list by table name or ID
+         *
+         * @param mixed $table_name Table name or list ID
+         * @return array List object - row from table dx_lists
+         */
+        public static function getList($table_name) {
+            if (is_numeric($table_name)) {
+                $list = DB::table('dx_lists')->where('id', '=', $table_name)->first();
+            }
+            else {
+                $list = DBHelper::getListByTable($table_name);
+            }
+
+            return $list;
         }
         
          /**

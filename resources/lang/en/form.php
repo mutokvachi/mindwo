@@ -7,9 +7,7 @@ return [
     | Form's labels
     |--------------------------------------------------------------------------
     */
-
-    'word_hint' => 'Generate Word document from template',
-    'word_generate_btn'     => 'Generate',
+    
     'excel'     => 'To Excel',
     'excel_hint' => 'Export list data to Excel',
     'view' => 'View',
@@ -83,5 +81,16 @@ return [
         'e_no_users' => 'No users in this chat',  
         'i_upload_progress' => 'Uploading attachments...',      
         'task_chat_description' => 'You have been added in discussion about document.',
-    ]
+    ],
+
+    'template' => [
+        'popup_title' => 'Choose template',
+        'intro' => 'Register has several templates attached. Please, choose template which will be used for generation.',
+        'download' => 'Download template',
+        'doc_generate_btn' => 'Generate',
+        'generate_hint' => 'Generate document file from template',
+        'choose_btn' => 'Generate',
+        'generation_ok' => 'File successfully generated!',
+        'btn_manage_templ' => 'Manage templates',
+    ],
 ];

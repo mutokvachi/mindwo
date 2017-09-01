@@ -58,24 +58,33 @@ class DxDocTemplatesUi extends Migration
 
             $tab_sett_id = DB::table('dx_forms_tabs')->insertGetId([
                 'form_id' => $form->id,
-                'title' => trans('db_' . $this->table_name . '.tab_settings'),
+                'title' => trans('db_' . $this->table_name . '.tab_template'),
                 'is_custom_data' => 1,
                 'order_index' => 20
             ]);
 
             App\Libraries\DBHelper::updateFormField($list_id, "description", ['tab_id' => $tab_main_id]);
             App\Libraries\DBHelper::updateFormField($list_id, "file_name", ['tab_id' => $tab_main_id]);
+            App\Libraries\DBHelper::updateFormField($list_id, "numerator_id", ['tab_id' => $tab_main_id]);
+            App\Libraries\DBHelper::updateFormField($list_id, "title_file", ['tab_id' => $tab_main_id]);
 
-            App\Libraries\DBHelper::updateFormField($list_id, "numerator_id", ['tab_id' => $tab_sett_id]);
-            App\Libraries\DBHelper::updateFormField($list_id, "is_as_pdf", ['tab_id' => $tab_sett_id]);
+            App\Libraries\DBHelper::updateFormField($list_id, "html_template", ['tab_id' => $tab_sett_id]);
 
             App\Libraries\DBHelper::removeFieldsFromAllViews($list_id, [                
                 'description',                
                 'numerator_id',               
-                'is_as_pdf',
+                'html_template',
+                'title_file',
+                'file_name'
             ], false);
 
+            App\Libraries\DBHelper::addJavaScriptToForm($this->table_name, '2017_09_01_dx_doc_templates.js', trans('db_' . $this->table_name . '.js_info'));
 
+            App\Libraries\DBHelper::addHintTofield($list_id, "title_file", trans('db_' . $this->table_name . '.title_file_hint'));
+            App\Libraries\DBHelper::addHintTofield($list_id, "html_template", trans('db_' . $this->table_name . '.html_template_hint'));
+            App\Libraries\DBHelper::addHintTofield($list_id, "description", trans('db_' . $this->table_name . '.description_hint'));
+
+            App\Libraries\DBHelper::setFieldType($list_id, "list_id", App\Libraries\DBHelper::FIELD_TYPE_LOOKUP);
         });
     }
 

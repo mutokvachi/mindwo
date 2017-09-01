@@ -7,7 +7,14 @@
 @endif
 
 @if ($is_edit_rights && $is_word_generation_btn && $is_editable_wf == 1 && $form_is_edit_mode == 0)
-    <button  type='button' class='btn btn-white dx-form-btn-word' title='{{ trans('form.word_hint') }}'><i class="fa fa-file-word-o"></i> {{ trans('form.word_generate_btn') }}</button>
+    <button  type='button' class='btn btn-white dx-form-btn-word' title='{{ trans('form.template.generate_hint') }}' 
+        data-item-id='{{ $item_id }}'
+        data-list-id='{{ $list_id }}'
+        data-grid-htm-id='{{ $grid_htm_id }}'
+        data-form-htm-id='{{ $frm_uniq_id }}'
+    >
+        <i class="fa fa-file-text-o"></i> {{ trans('form.template.doc_generate_btn') }}
+    </button>
 @endif
 
 @if (Config::get('dx.is_tasks_logic', true) && ($workflow_btn == 1 || $workflow_btn == 3) && $form_is_edit_mode == 0 && $is_editable_wf == 1 && $is_edit_rights)    

@@ -741,11 +741,6 @@ var FormLogic = function()
             $(this).attr('data-is-init', 1);
         });
         
-        frm.find('.dx-form-btn-word[data-is-init!="1"]').click(function() {
-            generate_word(item_id, list_id, grid_htm_id, 'list_item_view_form_' + frm_uniq_id);
-            $(this).attr('data-is-init', 1);
-        });
-        
         frm.find('.dx-form-btn-print[data-is-init!="1"]').click(function() {
             downloadFormPDF(list_id, item_id);
             $(this).attr('data-is-init', 1);

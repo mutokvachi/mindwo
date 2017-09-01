@@ -250,7 +250,7 @@ namespace App\Libraries
         public static function getWordGenerBtn($list_id)
         {
             $is_word_generation_btn = 0;
-            $view_row = DB::table('dx_views')->where('list_id', '=', $list_id)->where('is_for_word_generating', '=', 1)->first();
+            $view_row = DB::table('dx_doc_templates')->where('list_id', '=', $list_id)->first();
             if ($view_row) {
                 $is_word_generation_btn = 1;
             }

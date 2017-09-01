@@ -21,4 +21,6 @@ return [
     'menu_del_field' => 'Lauka dzēšana',
     
     'js_add_menus' => 'Pievieno reģistra darbību pogu',
+
+    'tab_templ' => 'Sagataves',
 ];

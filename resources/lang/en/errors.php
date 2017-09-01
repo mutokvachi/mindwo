@@ -190,4 +190,8 @@ return [
     'object_update_without_compare' => "Wrong call of data changes audit method - it must be compared changes before by calling the method compareChanges().",
     'object_update_commit_no_prepare' => "Wrong call of data changes save method - it must be prepared changes before by calling the method update().",
     'object_delete_commit_no_history' => "Wrong call of data deletion method - it must be prepared changes before by calling the method delete()!",
+
+    'doc_gener_in_workflow' => "Record can't be edited, because it is beeing processed by an workflow or is with status Approoved!",
+    'doc_gener_no_template' => 'Register does not have any template attached!',
+    
 ];

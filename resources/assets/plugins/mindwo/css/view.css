@@ -270,3 +270,26 @@ a.header-filter:hover {
     white-space: nowrap; 
     text-overflow: ellipsis;
 }
+
+/* Templates UI */
+.dx-templates-container {	
+	height: 350px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding: 6px;
+	border: 1px solid #dddddd;	
+	margin-top: 10px;
+	background-color: white;
+}
+
+.dx-templ-row {            
+	color: black;
+    margin: 20px;
+    padding: 10px;
+    border-left: 5px solid #c1c1c1;
+    background-color: #e4e8e7;
+}   
+
+.dx-templ-title {
+	font-weight: bold;
+}
