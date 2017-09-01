@@ -2,7 +2,7 @@
   {{--<a href="{{ url('/mail/compose') }}" data-title="{{ trans('mail.compose') }}" class="btn red compose-btn btn-block">
     <i class="fa fa-edit"></i> {{ trans('mail.compose') }}</a>
   --}}
-  <div class="btn default compose-btn btn-block" style="cursor: default; background: #eef4f7;">{{ trans('reports.page.lbl_categories') }}</div>
+  <div class="btn default category-btn btn-block" style="cursor: default; background: #eef4f7;">{{ trans('reports.page.lbl_categories') }}</div>
   <ul class="inbox-nav">
     @foreach($groups as $group)
       <li>

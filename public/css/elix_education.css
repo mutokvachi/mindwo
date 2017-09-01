@@ -1,0 +1,25 @@
+.dx-edu-multiselect-container button.multiselect {
+  height: 30px;
+}
+.dx-edu-tab-content {
+  border: 1px solid #ddd;
+  border-top: none;
+  padding-left: 15px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-right: 15px;
+  margin-top: -10px;
+}
+
+.dx-edu-course-tab-container .form-group.required label:after,
+.dx-edu-modal-participant-regular .form-group.required label:after {
+  content: " *";
+  color: red;
+}
+
+.dx-edu-course-tab-container h4,
+.dx-edu-course-tab-container h5 {
+  font-weight: bold;
+}
+
+/*# sourceMappingURL=elix_education.css.map */

@@ -781,28 +781,6 @@ function delete_multiple_items(list_id, grid_htm_id, items, is_count1)
     request.doRequest();
 }
 
-/**
- * Izveido JSON formāta tekstu, kurā ietverts ierakta ID, kas tiks padots Word ģenerēšanas Controller
- * Tas nepieciešams, lai servera pusē varētu izmantot View objektus, kuriem kā viens no parametriem ir jānorāda JSON filtra nosacījumi
- * Mums arī ir nepieciešams, lai WORD tiktu ģenerēts tiesi 1 izvēlētajam ierakstam ar norādīto ID 
- * 
- * @param   integer     item_id     Ieraksta identifikators
- * @return  string                  JSON formāta teksts ar ID vērtību
- */ 
-function get_word_filter_data(item_id)
-{
-    var arr_filter = new Array();
-
-    var el = new Array();
-    
-    el.push('id');
-    el.push(item_id);
-
-    arr_filter.push(el);                    
-
-    return JSON.stringify(arr_filter);
-}
-
  /*
  * Ģenerē Word datni. 
  * 

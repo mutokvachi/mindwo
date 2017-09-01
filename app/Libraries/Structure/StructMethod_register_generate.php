@@ -88,31 +88,88 @@ namespace App\Libraries\Structure
                 $fields = DB::getSchemaBuilder()->getColumnListing($obj_row->db_name);
                 foreach($fields as $field)
                 {
-                    if (array_search($field, $this->exclude_fields)===FALSE)
+                    if (array_search($field, $this->exclude_fields)!==FALSE)
                     {
-                        $field_obj = Types\FieldTypeFactory::build_type($obj_row->db_name, $list_id, $field);
-
-                        DB::table('dx_views_fields')->insert([
-                            'list_id' => $list_id,
-                            'view_id' => $view_id,
-                            'field_id' => $field_obj->getFieldID(),
-                            'width' => 0,
-                            'order_index' => $counter*10,
-                            'is_item_link' => 1
-                        ]);
-
-                        DB::table('dx_forms_fields')->insert([
-                            'list_id' => $list_id,
-                            'form_id' => $form_id,
-                            'field_id' => $field_obj->getFieldID(),
-                            'order_index' => $counter*10,
-                            'is_readonly' => (($field == "id") ? 1:0)
-                        ]);
-
-                        $counter++;
+                        continue;
                     }
+                    
+                    $field_obj = $this->getFileFieldObj($obj_row->db_name, $list_id, $field, $fields);
+                                        
+                    if (!$field_obj) {
+                        $field_obj = Types\FieldTypeFactory::build_type($obj_row->db_name, $list_id, $field);
+                    }
+                    
+                    DB::table('dx_views_fields')->insert([
+                        'list_id' => $list_id,
+                        'view_id' => $view_id,
+                        'field_id' => $field_obj->getFieldID(),
+                        'width' => 0,
+                        'order_index' => $counter*10,
+                        'is_item_link' => 1
+                    ]);
+
+                    DB::table('dx_forms_fields')->insert([
+                        'list_id' => $list_id,
+                        'form_id' => $form_id,
+                        'field_id' => $field_obj->getFieldID(),
+                        'order_index' => $counter*10,
+                        'is_readonly' => (($field == "id") ? 1:0)
+                    ]);
+
+                    $counter++;                    
                 }
             });
+        }
+        
+        /**
+         * Check if field is file field (table have _name, _guid and maybe _dx_text field)
+         * 
+         * @param string $table_name Table name
+         * @param integer $list_id Register ID
+         * @param string $field Field name in db
+         * @param array $fields Table all fields array
+         * @return null|\App\Libraries\Structure\Types\FieldType_dx_file
+         */
+        private function getFileFieldObj($table_name, $list_id, $field, $fields) {
+            if (!$this->endsWith($field, "_name")) {
+                return null;
+            }
+            
+            $file_field = str_replace("_name", "", $field);
+                        
+            if (array_search($file_field . "_guid", $fields) === FALSE) {
+                return null;
+            }
+                        
+            // is file field
+            array_push($this->exclude_fields, $file_field . "_guid");
+
+            $is_text_extract = 0;
+            if (array_search($file_field . "_dx_text", $fields) !== FALSE) {
+                // is text extract
+                $is_text_extract = 1;
+                array_push($this->exclude_fields, $file_field . "_dx_text");
+            }
+
+            $obj = DB::connection()->getDoctrineColumn($table_name, $field);
+            return new Types\FieldType_dx_file($table_name, $list_id, $field, $obj);
+        }
+        
+        /**
+         * Detects if string end with provided string
+         * 
+         * @param string $haystack Full string
+         * @param string $needle End part to be checked
+         * @return boolean
+         */
+        private function endsWith($haystack, $needle)
+        {
+            $length = strlen($needle);
+            if ($length == 0) {
+                return true;
+            }
+
+            return (substr($haystack, -$length) === $needle);
         }
         
          /**

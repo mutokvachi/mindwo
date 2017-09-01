@@ -82,7 +82,7 @@ Route::post('/fill_autocompleate', array('as' => 'fill_autocompleate',  'middlew
 Route::post('/load_binded_field', array('as' => 'load_binded_field',  'middleware' => 'auth_ajax', 'uses'=>'FormController@getBindedFieldData'));
 Route::post('/save_form', array('as' => 'save_form',  'middleware' => 'auth_ajax', 'uses'=>'FormController@saveForm'));
 Route::post('/delete_item', array('as' => 'delete_item',  'middleware' => 'auth_ajax', 'uses'=>'FormController@deleteItem'));
-Route::post('/generate_word', array('as' => 'generate_word',  'middleware' => 'auth_ajax', 'uses'=>'WordController@generateWord'));
+Route::get('/docgenerator/{list_id}/{item_id}/{template_id}', array('as' => 'generate_doc',  'middleware' => 'auth_ajax', 'uses'=>'DocGeneratorController@generateDoc'));
 route::post('/register_document', array('as' => 'register_item',  'middleware' => 'auth_ajax', 'uses'=>'RegisterController@registerDocument'));
 Route::post('/get_tasks_history', array('as' => 'get_tasks_history',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@getTasksHistory'));
 Route::post('/cancel_workflow', array('as' => 'cancel_workflow',  'middleware' => 'auth_ajax', 'uses'=>'TasksController@cancelWorkflow'));
@@ -198,6 +198,16 @@ Route::group(['prefix' => 'chat'], function() {
         Route::get('/count/{list_id}/{item_id}', array('middleware' => 'auth_ajax', 'uses' => 'ChatController@getUserCount'));
 });
 
+Route::group(['prefix' => 'edu', 'namespace' => 'Education'], function() {
+        Route::get('/catalog', array('middleware' => 'auth', 'uses' => 'CatalogController@getView'));
+        Route::get('/catalog/search', array('middleware' => 'auth', 'uses' => 'CatalogController@getData'));
+        Route::get('/course/{id}', array('middleware' => 'auth', 'uses' => 'CourseController@getView'));
+        Route::post('/course_feedback', array('middleware' => 'auth', 'uses' => 'CourseController@saveFeedback'));
+        Route::get('/registration/{id?}', array('middleware' => 'auth', 'uses' => 'RegistrationController@getView'));
+        Route::get('/registration/group/{id?}', array('middleware' => 'auth', 'uses' => 'RegistrationController@getGroup'));
+        Route::post('/registration/save', array('middleware' => 'auth', 'uses' => 'RegistrationController@save'));
+});
+
 // Lietotāji - autorizācija, atslēgšanās
 Route::post('/login', 'UserController@loginUser');
 Route::get('/login', array('as' => 'login', 'uses' => 'UserController@showIndex'));
@@ -302,12 +312,24 @@ Route::group(['middleware' => ['auth', 'constructor_access'], 'prefix' => 'const
 	Route::put('/menu/{site_id}', ['as' => 'menu_builder_update', 'uses' => 'MenuController@updateMenu']);
 });
 
-// Lapas
-/*
-Route::get('/{id}/{item}', array('as' => 'page',  'middleware' => 'auth', 'uses'=>'PagesController@showPageItem'));
-Route::get('/{id}', array('as' => 'page',  'middleware' => 'auth', 'uses'=>'PagesController@showPage'));
-Route::post('/{id}', array('as' => 'page',  'middleware' => 'auth', 'uses'=>'PagesController@showPage'));
-
-// Noklusētā lapa
-Route::get('/', array('as' => 'home', 'middleware' => 'auth', 'uses'=>'PagesController@showRoot'));
-*/
+Route::group(['middleware' => ['auth'], 'prefix' => 'calendar', 'namespace' => 'Calendar'], function() {	
+        Route::get('/scheduler/{current_room_id}', ['as' => 'scheduler', 'uses' => 'SchedulerController@getSchedulerPage']);        
+        Route::post('/scheduler/new_group', ['as' => 'scheduler_new_group', 'uses' => 'SchedulerController@createNewGroup']);
+        Route::post('/scheduler/update_day', ['as' => 'scheduler_update_day', 'uses' => 'SchedulerController@updateDay']);
+        Route::post('/scheduler/new_day', ['as' => 'scheduler_new_day', 'uses' => 'SchedulerController@newDay']);
+        Route::post('/scheduler/new_coffee', ['as' => 'scheduler_new_coffee', 'uses' => 'SchedulerController@newCoffee']);        
+        Route::post('/scheduler/update_coffee', ['as' => 'scheduler_update_coffee', 'uses' => 'SchedulerController@updateCoffee']);
+        Route::get('/scheduler/json/{current_room_id}', ['as' => 'scheduler_json', 'uses' => 'SchedulerController@getSchedulerJSON']);        
+        Route::get('/scheduler/events_json/{current_room_id}', ['as' => 'scheduler_events_json', 'uses' => 'SchedulerController@getSchedulerEventsJSON']); 
+        Route::get('/scheduler/rooms_json/{current_room_id}', ['as' => 'scheduler_rooms_json', 'uses' => 'SchedulerController@getSchedulerRoomsJSON']); 
+        Route::post('/scheduler/publish', ['as' => 'scheduler_publish', 'uses' => 'PublishController@publishGroups']);
+        
+        Route::get('/complect/{current_org_id}', ['as' => 'complect', 'uses' => 'ComplectController@getComplectPage']);
+        Route::get('/complect/events_json/{current_org_id}', ['as' => 'complect_events_json', 'uses' => 'ComplectController@getComplectEventsJSON']);
+        Route::get('/complect/groups_json/{current_org_id}', ['as' => 'complect_groups_json', 'uses' => 'ComplectController@getComplectGroupsJSON']);
+        Route::get('/complect/group/{org_id}/{group_id}', ['as' => 'complect_group_json', 'uses' => 'ComplectController@getGroupInfoJSON']);
+        Route::post('/complect/add_member', ['as' => 'complect_group_add_member', 'uses' => 'ComplectController@addGroupMember']);    
+        Route::post('/complect/remove_member', ['as' => 'complect_group_add_member', 'uses' => 'ComplectController@removeGroupMember']);
+        Route::get('/complect/empl_json/{org_id}/{group_id}/{is_ajax}', ['as' => 'complect_empl_json', 'uses' => 'ComplectController@getEmplJSON']); 
+        Route::get('/complect/search_empl_json/{org_id}/{group_id}', ['as' => 'complect_search_empl_json', 'uses' => 'ComplectController@getSearchEmplJSON']);        
+});

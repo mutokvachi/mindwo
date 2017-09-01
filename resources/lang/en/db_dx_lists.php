@@ -22,4 +22,6 @@ return [
     'menu_del_field' => 'Delete field',
     
     'js_add_menus' => 'Adds custom operations button to register form',
+
+    'tab_templ' => 'Templates',
 ];

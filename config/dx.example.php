@@ -447,5 +447,16 @@ return [
         'name' => env('APP_NAME', 'MINDWO'),
         'logo_txt' => env('APP_LOGO_TXT', ''),
         'logo_big_txt' => env('APP_LOGO_BIG_TXT', ''),
-    ]
+    ],
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Is education processes modules enabled. 
+    |
+    | Used to organize large companies employees education or provide educational services as a business.
+    | To use this option several database tables must be filled with proper values.
+    | This option can be turned on/off safely only by system provider.
+    |-------------------------------------------------------------------------- 
+    */
+    'is_edu_modules' => env('APP_EDU_MODULES_ON', false),
 ];

@@ -7,6 +7,11 @@
 */
 return [
     
+    'introduction' => 'Short description', 
+    'experience' => 'Experience', 
+    'education' => 'Education', 
+    'additional_info' => 'Additional information',   
+
     'emergency1_type_id' => 'Primary contact type',
     'emergency1_name' => 'Primary contact name',
     'emergency1_phone' => 'Primary contact phone',

@@ -8,6 +8,7 @@ namespace App\Libraries
     use Auth;
     use \App\Exceptions;
     use Log;
+
     class DBHistory
     {
         /**
@@ -58,6 +59,28 @@ namespace App\Libraries
          * @var boolean
          */
         public $is_update_change = 0;
+
+        /**
+         * Array with current item data rows (used for update coparioson)
+         *
+         * @var array
+         */
+        private $current_arr = null;
+
+        /**
+         * Array with changed item fields values (used for update history saving)
+         *
+         * @var array
+         */
+        private $changes_arr = [];
+
+        /**
+         * Indicates if for data update was called comparison method compareChanges
+         * This is needed because we want to eliminate risk of deadlock error so we perform queries SQLs before transaction
+         *
+         * @var boolean
+         */
+        private $is_update_compared = false;
 
         /**
          * Datu bāzes ieraksta izmaiņu vēstures veidošanas klases konstruktors
@@ -117,36 +140,32 @@ namespace App\Libraries
         }
 
         /**
-         * Izveido ieraksta vēsturi un auditē veiktās izmaiņas datu labošanas gadījumā
+         * Save allredy compared changes in history
          * 
          * @return void
          */
         public function makeUpdateHistory()
         {
             if ($this->db_table->is_history_logic == 0) {
-                return; // reģistram nav paredzēts auditēt datu izmaiņas
+                return; // not setup audit logic
+            }
+
+            if (!$this->is_update_compared) {
+                throw new Exceptions\DXCustomException(trans('errors.object_update_without_compare'));
             }
             
-            try {
-                DB::transaction(function () {
-
-                    // Izveido rediģēšanas notikumu
-                    $this->insertEvent(2);
-
-                    // Salīdzina lauku izmaiņas un saglabā vēsturē mainītās vērtības
-                    $this->compareChanges();
-
-                    if (!$this->is_update_change) {
-                        throw new Exceptions\DXHistoryNoChanges;
-                    }
-                });
+            if (!count($this->changes_arr)) {
+                return; // no changes to save/audit
             }
-            catch (\Exception $e) {
-                if ($e instanceof Exceptions\DXHistoryNoChanges) {
-                    return;
-                }
-                throw $e;
-            }             
+
+            $this->insertEvent(2);
+
+            for($i=0; $i<count($this->changes_arr); $i++) {
+                $this->changes_arr[$i]['event_id'] = $this->event_id;
+            }
+
+            DB::table('dx_db_history')->insert($this->changes_arr);
+                      
         }
 
         /**
@@ -180,11 +199,14 @@ namespace App\Libraries
             
             // Saglabā dzēšamā ieraksta lauku vērtības vēsturē
             $this->saveDeleted();
+
+            DB::table('dx_db_history')->insert($this->changes_arr);
         }
         
         /**
+         * Make event audit record
          * 
-         * @param integer $event_type Notikuma veids (1 - jauns, 2 - rediģēšana, 3 - dzēšana)
+         * @param integer $event_type Event type (1 - new, 2 - edit, 3 - delete)
          */
         private function insertEvent($event_type)
         {
@@ -223,7 +245,7 @@ namespace App\Libraries
          * 
          * @return Array Masīvs ar ieraksta datiem
          */
-        private function getCurrentData()
+        public function setCurrentData()
         {
             $sql = "SELECT * FROM " . $this->db_table->table_name . " WHERE id=" . $this->item_id;
                         
@@ -233,19 +255,22 @@ namespace App\Libraries
 
             DB::setFetchMode(PDO::FETCH_CLASS);
             
-            return $rows[0];
+            $this->current_arr = $rows[0];
         }
 
         /**
          * Salīdzina ieraksta visu lauku vērtības, atšķirības tiks ierakstītas vēstures tabulā dx_db_history
          */
-        private function compareChanges()
-        {
-            $current_arr = $this->getCurrentData();
+        public function compareChanges()
+        {            
+            $this->setCurrentData();
 
             foreach ($this->fields_arr as $field) {
-                $this->compareFieldVal($field, $current_arr);
+                $this->compareFieldVal($field);
             }
+
+            $this->is_update_compared = true;
+            $this->is_update_change = (count($this->changes_arr));
         }
         
         /**
@@ -253,28 +278,29 @@ namespace App\Libraries
          */
         private function saveDeleted()
         {
-            $current_arr = $this->getCurrentData();
-
-            foreach ($this->fields_arr as $field) {
-                $this->saveFieldVal($field, $current_arr);
+            if (!$this->current_arr) {
+                $this->setCurrentData();
             }
+            
+            foreach ($this->fields_arr as $field) {
+                $this->saveFieldVal($field);
+            }            
         }
 
         /**
          * Saglabā dzēšamā ieraksta lauka vērtību vēsturē
          * 
          * @param Object $field Lauka objekts
-         * @param Array $current_arr Ieraksta visu lauku vērtību masīvs atbilstoši datu ievades formai
          * @return void
          */
-        private function saveFieldVal($field, $current_arr)
+        private function saveFieldVal($field)
         {
-            if (is_null($current_arr[$field->db_name]))
+            if (is_null($this->current_arr[$field->db_name]))
             {
                 return;
             }
             
-            $this->insertHistory($field, $current_arr[$field->db_name], null, $current_arr);
+            $this->insertHistory($field, $this->current_arr[$field->db_name], null);
         }
         
         /**
@@ -282,28 +308,35 @@ namespace App\Libraries
          * Ja vērtības atšķiras, tiks veikts ieraksts vēstures tabulā dx_db_history
          * 
          * @param Object $field Lauka objekts
-         * @param Array $current_arr Ieraksta visu lauku vērtību masīvs atbilstoši datu ievades formai
          * @return void
          */
-        private function compareFieldVal($field, $current_arr)
+        private function compareFieldVal($field)
         {
             if (!array_key_exists(":" . $field->db_name, $this->data_arr)) {               
                 return; // Lauks nav iekļauts formas datos, nav izmaiņu ko salīdzināt
             }
             
-            if ($field->type_sys_name == 'datetime' && $current_arr[$field->db_name]) {
+            if ($field->type_sys_name == 'datetime' && $this->current_arr[$field->db_name]) {
                 // remove seconds because in UI is only minutes
-                $timestamp = strtotime($current_arr[$field->db_name]);
-                $current_arr[$field->db_name] = date('Y-m-d H:i', $timestamp);
+                $timestamp = strtotime($this->current_arr[$field->db_name]);
+                $this->current_arr[$field->db_name] = date('Y-m-d H:i', $timestamp);
+            }
+
+            if ($field->type_sys_name == 'time' && $this->current_arr[$field->db_name]) {
+                // remove seconds because in UI is only minutes
+                $this->current_arr[$field->db_name] = substr($this->current_arr[$field->db_name], 0, 5);
             }
             
-            if ($this->data_arr[":" . $field->db_name] == $current_arr[$field->db_name]) {                
+            if ($this->data_arr[":" . $field->db_name] == $this->current_arr[$field->db_name]) {                
                 return; // Lauka vērtība nav mainīta
             }
+
+            if ($field->type_sys_name == 'bool') {
+                $this->current_arr[$field->db_name] = ($this->current_arr[$field->db_name]) ? trans('fields.yes') : trans('fields.no');
+                $this->data_arr[":" . $field->db_name] = ($this->data_arr[":" . $field->db_name]) ? trans('fields.yes') : trans('fields.no');                
+            }
             
-            $this->insertHistory($field, $current_arr[$field->db_name], $this->data_arr[":" . $field->db_name], $current_arr);
-            
-            $this->is_update_change = 1;
+            $this->insertHistory($field, $this->current_arr[$field->db_name], $this->data_arr[":" . $field->db_name]);
         }
 
         /**
@@ -312,10 +345,23 @@ namespace App\Libraries
          * @param Object $field      Lauka objekts
          * @param mixed $old_val     Vecā vērtība
          * @param mixed $new_val     Jaunā vērtība
-         * @param Array $current_arr Ieraksta visu lauku vērtību masīvs atbilstoši datu ievades formai
          */
-        private function insertHistory($field, $old_val, $new_val, $current_arr)
-        {            
+        private function insertHistory($field, $old_val, $new_val)
+        {          
+            array_push($this->changes_arr, [
+                'event_id' => $this->event_id,
+                'field_id' => $field->field_id,
+                'old_val_txt' => $this->getValTxt($field, $old_val),
+                'new_val_txt' => $this->getValTxt($field, $new_val),
+                'old_val_rel_id' => $this->getRelId($field, $old_val),
+                'new_val_rel_id' => $this->getRelId($field, $new_val),
+                'old_val_file_name' => $this->getFileName($field, 1),
+                'new_val_file_name' => $this->getFileName($field, 0),
+                'old_val_file_guid' => $this->getFileGuid($field, 1),
+                'new_val_file_guid' => $this->getFileGuid($field, 0),
+            ]);
+
+            /*
             DB::table('dx_db_history')->insert([
                 'event_id' => $this->event_id,
                 'field_id' => $field->field_id,
@@ -323,12 +369,12 @@ namespace App\Libraries
                 'new_val_txt' => $this->getValTxt($field, $new_val),
                 'old_val_rel_id' => $this->getRelId($field, $old_val),
                 'new_val_rel_id' => $this->getRelId($field, $new_val),
-                'old_val_file_name' => $this->getFileName($field, 1, $current_arr),
-                'new_val_file_name' => $this->getFileName($field, 0, $current_arr),
-                'old_val_file_guid' => $this->getFileGuid($field, 1, $current_arr),
-                'new_val_file_guid' => $this->getFileGuid($field, 0, $current_arr),
-                
+                'old_val_file_name' => $this->getFileName($field, 1),
+                'new_val_file_name' => $this->getFileName($field, 0),
+                'old_val_file_guid' => $this->getFileGuid($field, 1),
+                'new_val_file_guid' => $this->getFileGuid($field, 0),                
             ]);
+            */
         }
         
         /**
@@ -355,6 +401,10 @@ namespace App\Libraries
                         ->select(DB::raw($field->rel_field_name . " as txt"))
                         ->where('id', '=', $val)
                         ->first();
+            
+            if (!$txt_row) {
+                return null;
+            }
             
             return $txt_row->txt;            
         }
@@ -385,10 +435,9 @@ namespace App\Libraries
          * 
          * @param Object $field Lauka objekts
          * @param boolean $is_old Pazīme, vai atgriezt veco lauka vērtību (0 - veco, 1 - jauno)
-         * @param Array $current_arr Ieraksta visu lauku vērtību masīvs atbilstoši datu ievades formai
          * @return string Datnes nosaukums
          */
-        private function getFileName($field, $is_old, $current_arr)
+        private function getFileName($field, $is_old)
         {
             if ($field->type_sys_name != "file")
             {
@@ -401,7 +450,7 @@ namespace App\Libraries
                 $new_file_name = $this->data_arr[":" . $field->db_name];
             }
             
-            return ($is_old) ? $current_arr[$field->db_name] : $new_file_name;
+            return ($is_old) ? $this->current_arr[$field->db_name] : $new_file_name;
         }
         
         /**
@@ -410,10 +459,9 @@ namespace App\Libraries
          * 
          * @param Object $field Lauka objekts
          * @param boolean $is_old Pazīme, vai atgriezt veco lauka vērtību (0 - veco, 1 - jauno)
-         * @param Array $current_arr Ieraksta visu lauku vērtību masīvs atbilstoši datu ievades formai
          * @return string Datnes GUID
          */
-        private function getFileGuid($field, $is_old, $current_arr)
+        private function getFileGuid($field, $is_old)
         {
             if ($field->type_sys_name != "file")
             {
@@ -428,7 +476,7 @@ namespace App\Libraries
                 $new_file_guid = $this->data_arr[":" . $guid_fld];
             }
             
-            return ($is_old) ? $current_arr[$guid_fld] : $new_file_guid;
+            return ($is_old) ? $this->current_arr[$guid_fld] : $new_file_guid;
         }
         
         /**

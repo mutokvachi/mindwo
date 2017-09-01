@@ -216,3 +216,7 @@
 @endif
 
 @include('workflow.wf_cancel')
+
+@if ($is_edit_rights && $is_word_generation_btn && $is_editable_wf == 1 && $form_is_edit_mode == 0)
+    @include('elements.form_template_popup')       
+@endif

@@ -36,6 +36,7 @@ function getListFormURL($list_id)
     }
     else
     {
+        \Log::info('Register ' . $list_id . ' does not have form!');
         throw new PagesException("Reģistram nav definēta datu ievades forma!");
     }
 }

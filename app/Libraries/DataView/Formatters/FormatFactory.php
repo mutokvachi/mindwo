@@ -13,6 +13,7 @@ namespace App\Libraries\DataView\Formatters
         public static function build_field($model_row, $data_row, $is_formula = false) 
         {            
             $type = $model_row['type'];
+            
             $value = $data_row[$model_row['name']];
             
             $class = "App\\Libraries\\DataView\\Formatters\\Format_" . $type;

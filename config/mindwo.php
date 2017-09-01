@@ -16,7 +16,8 @@ return [
         ['class' => '\App\Exceptions\DXExtendedException', 'handler' => 'ExceptionCustom'],
         ['class' => '\App\Exceptions\DXCustomException', 'handler' => 'ExceptionCustom'],
         ['class' => '\mindwo\pages\Exceptions\PagesException', 'handler' => 'ExceptionCustom'],
-    ],
+        ['class' => 'Illuminate\Database\QueryException', 'handler' => 'ExceptionDB'],
+    ], 
     
     /*
     |--------------------------------------------------------------------------
