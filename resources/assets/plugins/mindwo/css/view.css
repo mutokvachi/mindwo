@@ -271,17 +271,37 @@ a.header-filter:hover {
     text-overflow: ellipsis;
 }
 
-/* Templates UI */
-.dx-templates-container {	
-	height: 350px;
-	overflow-y: scroll;
-	overflow-x: hidden;
-	padding: 6px;
-	border: 1px solid #dddddd;	
-	margin-top: 10px;
-	background-color: white;
+/* Adjust mobile view and small desktops */
+@media only screen and (max-width: 1000px) {
+	.dx_form_btns_left button {
+		margin-top: 10px;
+	}
 }
 
+@media only screen and (max-width: 768px) {
+	.dx-paginator-butons {
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+
+	.dx-grid-left-btns button {
+		margin-top: 10px;
+	}
+
+	.dx-register-tools {
+		float: right; /* In order to display popup menu */
+	}
+
+	#dx_tasks_count_li {
+		display: none; /* ToDo: we stil need to display counters somehow in mobile too */
+	}
+
+	.dx-chat-notif-dropdown {
+		display: none;
+	}
+}
+
+/* Templates UI */
 .dx-templ-row {            
 	color: black;
     margin: 20px;
