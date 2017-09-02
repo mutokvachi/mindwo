@@ -333,3 +333,5 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'calendar', 'namespace' => '
         Route::get('/complect/empl_json/{org_id}/{group_id}/{is_ajax}', ['as' => 'complect_empl_json', 'uses' => 'ComplectController@getEmplJSON']); 
         Route::get('/complect/search_empl_json/{org_id}/{group_id}', ['as' => 'complect_search_empl_json', 'uses' => 'ComplectController@getSearchEmplJSON']);        
 });
+
+Route::get('/groups_calendar/load/{date}/{direction}', 'Widgets\EventsController@loadGroupsCalendar')->name('groups_calendar_load');
