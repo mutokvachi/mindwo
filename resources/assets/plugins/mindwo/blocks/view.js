@@ -273,7 +273,6 @@ var BlockViews = function () {
                 else {
                     el_filters.hide();
                     el_icon.hide();
-                    PageMain.resizePage();
                 }
             }
             else {
@@ -287,9 +286,7 @@ var BlockViews = function () {
                 
                 setTimeout(function(){ 
                     el_block.find("input[sql_name=" + fld_name + "]").focus(); 
-                }, 100);
-                
-                PageMain.resizePage();
+                }, 100);                
             }
             $(this).closest(".dx-dropdown-content").hide();
         });
@@ -804,7 +801,7 @@ var BlockViews = function () {
             var grid_top = grid_el.offset().top;
             var win_h = $(window).height();
            
-            var adjust_h = 90;
+            var adjust_h = 110;
 
             var max_h = win_h - grid_top - adjust_h; //bija 100 / 70
             grid_el.css('max-height', max_h + 'px');
@@ -1004,11 +1001,11 @@ var BlockViews = function () {
                 $("body").addClass("dx-grid-in-page");
             }            
             
-            if (!tab_id) {                
+            if (!tab_id) {                           
                 initHeight();
                 
-                if (!is_height_inited) {
-                    PageMain.addResizeCallback(initHeight);
+                if (!is_height_inited) {                    
+                    PageMain.addResizeCallback(initHeight, 'initHeight');
                     is_height_inited = 1;
                 }
             }
@@ -1027,8 +1024,7 @@ var BlockViews = function () {
                 PageMain.addResizeCallback(function()
                 {
                         $table.floatThead('reflow');
-                });
-                setTimeout(function() { PageMain.resizePage(); }, 100);
+                });                
             }			
             else
             {

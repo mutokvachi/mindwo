@@ -1400,12 +1400,6 @@ span.CodeMirror-selectedtext { background: none; }
 	margin-bottom: 20px;
 }
 
-#td_data .dx-grid-outer-div .t_header {
-	/*
-	background-color: white !important;
-	*/
-}
-
 .modal-scrollable {
 	overflow: hidden !important;
 }
