@@ -120,18 +120,6 @@ function post_grid_ajax(formData, grid_data_htm_id, form_htm_id, is_scroll)
 
                         d.scrollTop(d.prop("scrollHeight"));
                     }
-                    
-                    setTimeout(function(){ 
-						console.log("resizePage caller: dx_grid_core.js post_grid_ajax()");
-                        PageMain.resizePage();                     
-                    }, 100);
-                    
-                    // Commented out because it prevents main navigation from working properly on mobiles
-                    /*
-                    setTimeout(function(){ 
-                        $('.dropdown-toggle').dropdown();                        
-                    }, 1000);
-                    */
                 } 
                 else
                 {

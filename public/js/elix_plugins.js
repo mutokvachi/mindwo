@@ -23698,7 +23698,7 @@ var Layout = function () {
                 }
             }
 
-            $(window).trigger('resize');
+            PageMain.executeResizeCallbacks();
         });
     };
 
@@ -24414,7 +24414,22 @@ var PageMain = function()
      * @type Array
      */
     var resize_functions_arr = [];
+
+    /**
+     * Resize function callbacks IDs array
+     * 
+     * @type Array
+     */
+    var callbacks_ids = [];
+
+    /**
+     * Indicates if now code is executed inside function timerResizePage()
+     */
+    var is_in_timer = false;
     
+    /**
+     * New tab object - for links opened from menu
+     */
     var tab_win = null;
 
     /**
@@ -24422,6 +24437,20 @@ var PageMain = function()
      * @type object
      */
     var reLoginModal = null;
+
+    /**
+     * Stores window height to be used in timer each 500 miliseconds to check if resize was done
+     * 
+     * @type integer
+     */
+    var win_h = 0;
+
+    /**
+     * Stores window width to be used in timer each 500 miliseconds to check if resize was done
+     * 
+     * @type integer
+     */
+    var win_w = 0;
     
     /**
      * Papildina datņu lejuplādes saites ar ikonām
@@ -24461,14 +24490,38 @@ var PageMain = function()
             }
         });
     };
-    
+
     /**
-     * Izpilda visas funkcijas no masīva, ja lapai mainās izmērs
-     * 
-     * @returns {undefined}
+     * Checks if window size was changes - if yes then executes call backs
      */
-    var resizePage = function() {
+    var timerResizePage = function() {
+        
+        if (is_in_timer) {
+            return;
+        }
+        
+        var cur_win_h = $(window).height();
+        var cur_win_w = $(window).width();
+
+        if (win_h != cur_win_h || win_w != cur_win_w) {
+            console.log("Timer resize page start: cur h=" + cur_win_h + " old h=" + win_h + " cur w=" + cur_win_w + " old w=" + win_w);
+            
+            executeResizeCallbacks();
+            
+            win_h = cur_win_h;
+            win_w = cur_win_w;
+            console.log("Timer resize page end");
+        }
+        
+        is_in_timer = false;
+    };
+
+    /**
+     * Executes resize callbacks from array
+     */
+    var executeResizeCallbacks = function() {
         for (i = 0; i < resize_functions_arr.length; i++) {
+            console.log("Executing callback nr. " + i);
             resize_functions_arr[i]();
         }
     };
@@ -24521,7 +24574,7 @@ var PageMain = function()
         // set content
         $('.page-container').appendTo('body > .container');
 
-        $('.page-footer').html('<div class="container">' + $('.page-footer').html() + '</div>');        
+        $('.page-footer').html('<div class="container">' + $('.page-footer').html() + '</div>');
     };
     
     /**
@@ -24586,7 +24639,7 @@ var PageMain = function()
             Layout.initFixedSidebar(); // reinitialize fixed sidebar
         }
         
-        resizePage();
+        executeResizeCallbacks();
     };
 
     /**
@@ -24703,27 +24756,6 @@ var PageMain = function()
             "hideMethod": "fadeOut"
         };
     };
-
-    /**
-     * Parāda popup lodziņu ar lietotāja aktuālajiem uzdevumiem, ja tādi ir
-     * 
-     * @returns {undefined}
-     */
-    /*
-    var initUserTasksPopup = function() {
-
-        if (user_tasks_count > 0 && current_route != "view" && current_route != "home" && current_route != "meeting") {
-            
-            setTimeout(function() {
-                $.gritter.add({
-                    title: Lang.get('task_form.lbl_notify_start') + ' <font color="#F1C40F">' + user_tasks_count + '</font> ' + ((user_tasks_count > 1) ? Lang.get('task_form.lbl_tasks_n') : Lang.get('task_form.lbl_tasks_1')),
-                    text: Lang.get('task_form.lbl_goto_start') + ' <a href="' + DX_CORE.site_url + 'skats_aktualie_uzdevumi" class="text-warning">' + Lang.get('task_form.lbl_goto_link_title') + '</a> ' + Lang.get('task_form.lbl_goto_end') + ' ' + ((user_tasks_count > 1) ? Lang.get('task_form.lbl_tasks_n') : Lang.get('task_form.lbl_tasks_1')) + '.',
-                    time: 7000
-                });
-            }, 3000);
-        }
-    }; 
-    */
     
     /**
      * Uzstāda palīdzības popup formās uz datu laukiem, kuriem norādīti paskaidrojumi
@@ -24752,13 +24784,6 @@ var PageMain = function()
             theme: 'tooltipster-light',
             animation: 'grow'
         });
-   
-        /*
-        $('[title]').tooltipster({
-            theme: 'tooltipster-light',
-            animation: 'grow'
-        });
-        */
     }
     
     /**
@@ -24903,39 +24928,7 @@ var PageMain = function()
             timers[id] = setTimeout(func, wait);
         };
     })();
-    
-    /**
-     * Nodrošina lapas pārzīmēšanu, ja tiek mainīts pārlūka loga izmērs
-     * 
-     * @returns {undefined}
-     */
-    var handleWindowResize = function() {
-        $(window).resize(function() {
-            delayedEvent(resizePageFromCookie(), 500, 'vertical-ui-win-resize')
-            /*
-            setTimeout(function() {
-                resizePageFromCookie();
-            }, 500);
-            */
-        });  
-    };
-    
-    /**
-     * Handles window resize events for horizontal menu UI
-     * 
-     * @returns {undefined}
-     */
-    var handleWindowResizeHorUI = function() {
-        $(window).resize(function() {
-            delayedEvent(resizePage(), 500, 'horizontal-ui-win-resize')
-            /*
-            setTimeout(function() {
-                resizePage();
-            }, 500);
-            */
-        });  
-    };
-    
+        
     /**
      * Uzstāda ziņu saitēm, lai tās atver jaunā pārlūka TAB un foksuē TABu.
      * Funkcionalitāte tiek uzstādīta arī mākoņa saitēm.
@@ -25179,13 +25172,8 @@ var PageMain = function()
         
         handleMenuSplash();
         
-        if ($("body").hasClass("dx-horizontal-menu-ui")) {            
-            handleWindowResizeHorUI();
-            resizePage();
-        }
-        else {
-            handleBtnScreen();      
-            handleWindowResize();
+        if (!$("body").hasClass("dx-horizontal-menu-ui")) { 
+            handleBtnScreen();
             initPageSize();
             setActiveMenu();
         }                
@@ -25194,6 +25182,10 @@ var PageMain = function()
             reset_margin();        
             addResizeCallback(reset_margin);
         }
+
+        setInterval(function(){ 
+            timerResizePage();
+        }, 500);
     };
 
     /**
@@ -25202,7 +25194,16 @@ var PageMain = function()
      * @param {function} callback   Izsaucamā funkciaj
      * @returns {undefined}
      */
-    var addResizeCallback = function(callback) {
+    var addResizeCallback = function(callback, id) {
+        if (id) {
+            for(i=0; i<callbacks_ids.length; i++) {
+                if (callbacks_ids[i] == id) {
+                    // allready added
+                    return;
+                }
+            }
+            callbacks_ids.push(id);
+        }
         resize_functions_arr.push(callback);
     };
     
@@ -25257,7 +25258,8 @@ var PageMain = function()
                 window.history.pushState({"list_id": list_id, "view_id": view_id}, "", "/skats_" + view_id);
                 
                 if(is_grid_resize_callback_added == 0) {
-                    PageMain.addResizeCallback(BlockViews.initHeight);
+                    console.log("Added initHeight call back from main.js");
+                    PageMain.addResizeCallback(BlockViews.initHeight, 'initHeight');
                     is_grid_resize_callback_added = 1;
                 }
                 last_view_loaded_id = view_id;
@@ -25367,8 +25369,8 @@ var PageMain = function()
         initPageLoaded: function() {
             initPageLoaded();
         },
-        addResizeCallback: function(callback) {
-            addResizeCallback(callback);
+        addResizeCallback: function(callback, id) {
+            addResizeCallback(callback, id);
         },
         modalsDraggable: function() {
             makeModalsDraggable();
@@ -25387,7 +25389,10 @@ var PageMain = function()
             initAjaxCSRF();
         },
         resizePage: function() {
-            resizePage();
+            // do nothing
+        },
+        executeResizeCallbacks: function() {
+            executeResizeCallbacks();
         },
         errorHandler: function(xhr, err, settings) {
             showAjaxError(xhr, err, settings);

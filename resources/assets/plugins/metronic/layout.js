@@ -414,7 +414,7 @@ var Layout = function () {
                 }
             }
 
-            $(window).trigger('resize');
+            PageMain.executeResizeCallbacks();
         });
     };
 
