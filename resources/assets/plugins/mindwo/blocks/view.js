@@ -795,6 +795,11 @@ var BlockViews = function () {
      * @returns {undefined}
      */
     var initHeight = function () {
+
+        if (DX_CORE.no_grid_height_resize) {
+            return;
+        }
+        
         console.log("View height re-calculation");
         try {
             var grid_el = $("#td_data .dx-grid-outer-div");

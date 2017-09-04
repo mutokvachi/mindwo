@@ -95,6 +95,7 @@
           trans_tree_cancel = "{{ trans('fields.tree_cancel') }}"
           trans_tree_choose = "{{ trans('fields.tree_choose') }}"
           trans_passw_form_title = "{{ trans('password_form.form_title') }}"
+          data-no-grid-height-resize = "{{ Config::get('dx.no_grid_height_resize', 0)}}"
           >
 
         @include('main.splash')   

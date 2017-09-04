@@ -3591,9 +3591,8 @@ var DX_CORE = {
     trans_tree_close: "Aizvērt",
     trans_tree_chosen: "Izvēlētā vērtība:",
     trans_tree_cancel: "Atcelt",
-    trans_tree_choose: "Izvēlēties"
-
-
+    trans_tree_choose: "Izvēlēties",
+    is_grid_height_resize: 1
 };
 
 function getProgressInfo() {
@@ -24520,8 +24519,7 @@ var PageMain = function()
      * Executes resize callbacks from array
      */
     var executeResizeCallbacks = function() {
-        for (i = 0; i < resize_functions_arr.length; i++) {
-            console.log("Executing callback nr. " + i);
+        for (i = 0; i < resize_functions_arr.length; i++) {            
             resize_functions_arr[i]();
         }
     };
@@ -24731,6 +24729,8 @@ var PageMain = function()
         
         user_tasks_count = page_elem.attr("dx_user_tasks_count");
         current_route = page_elem.attr("dx_current_route");
+
+        DX_CORE.no_grid_height_resize = (page_elem.data('no-grid-height-resize')) ? 1 : 0;
     };
 
     /**
@@ -25257,8 +25257,7 @@ var PageMain = function()
                 link.closest("li[data-level=0]").removeClass("open").find("a[aria-expanded=true]").attr("aria-expanded", "false");
                 window.history.pushState({"list_id": list_id, "view_id": view_id}, "", "/skats_" + view_id);
                 
-                if(is_grid_resize_callback_added == 0) {
-                    console.log("Added initHeight call back from main.js");
+                if(is_grid_resize_callback_added == 0) {                    
                     PageMain.addResizeCallback(BlockViews.initHeight, 'initHeight');
                     is_grid_resize_callback_added = 1;
                 }
