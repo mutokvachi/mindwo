@@ -49,6 +49,36 @@ class CryptoMasterKeyRegenerationController extends Controller
         return response()->json(['success' => 1, 'process_id' => $process_id]);
     }
 
+    public function checkColumnSize($fieldId)
+    {
+        $field = \App\Models\System\ListField::find($fieldId);
+
+        if(!$field){
+            return response()->json(['success' => 0]);
+        }
+
+        $table_name = $field->list->object->db_name;
+
+        $con = \DB::connection();
+        $column = $con->getDoctrineColumn($table_name, $field->db_name); // \Doctrine\DBAL\Schema\Column
+
+        if(!$column){
+            return response()->json(['success' => 0]);
+        }
+        
+        $db_size = $column->getLength(); // and many other methods - see below
+
+        $needed_size = ($field->max_length * 4 + 32);
+
+        if($needed_size > $db_size){
+            return response()->json(['success' => 0, 'msg' => trans('crypto.e_encrypt_db_size', ['current' => $db_size, 'needed' => $needed_size])]);
+        } else {
+            return response()->json(['success' => 1]);
+        }
+
+      // 
+    }
+
     /**
      * Prepares data to be recrypted with new master key
      * @param int $regenProcessId Regeneration process ID

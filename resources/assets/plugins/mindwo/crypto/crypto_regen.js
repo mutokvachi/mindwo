@@ -929,6 +929,11 @@ $.extend(window.DxCryptoRegenClass.prototype, {
         // Sets mode if data must be encrypted or decrypted
         if (isCrypted) {
             self.mode = 1;
+
+            // Must check field size if it is to small then data wil be lost
+            if(!self.validateFieldSize()){
+                return;
+            }
         } else {
             self.mode = 2;
         }
@@ -937,18 +942,21 @@ $.extend(window.DxCryptoRegenClass.prototype, {
         self.fieldId = fieldId;
 
         self.prepareCryptoToggleProcess();
-
-
-        /*
-          hide_page_splash(1);
-
-            var btnSave = $('.dx-btn-save-form', form);
-
-            btnSave.data('is-masterkey-generated', 1);
-
-            btnSave.click();
-         */
     },
+
+    validateFieldSize:function(){
+        $.ajax({
+            url: DX_CORE.site_url + 'crypto/check_column_size/' + self.fieldId,
+            type: "get",
+            success: function (res) {
+                if (!res || !res.success || res.success == 0) {
+                    self.catchError(res);
+                }
+            },
+            error: self.catchError
+        });
+    },
+
     prepareCryptoToggleProcess: function () {
         var self = window.DxCryptoRegen;
 
