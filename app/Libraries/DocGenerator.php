@@ -385,6 +385,8 @@ namespace App\Libraries
         */ 
         private function resetFieldType($model_row)
         {
+            $model_row['width'] = 0;
+
             if ($model_row['type'] == 'file' || $model_row['is_link'])
             {
                 $model_row['type'] = 'varchar';
