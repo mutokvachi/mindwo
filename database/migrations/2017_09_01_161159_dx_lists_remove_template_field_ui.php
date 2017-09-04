@@ -18,7 +18,7 @@ class DxListsRemoveTemplateFieldUi extends Migration
             // get list
             $list_id = App\Libraries\DBHelper::getListByTable($this->table_name)->id; 
             
-            App\Libraries\DBHelper::removeFieldCMS($list_id, '	template_name'); 
+            App\Libraries\DBHelper::removeFieldCMS($list_id, 'template_name'); 
             
             $templ_list = DB::table('dx_lists')->where('list_title', '=', trans('db_dx_doc_templates.list_name'))->first();
             $form = DB::table('dx_forms')->where('list_id', '=', $list_id)->first();

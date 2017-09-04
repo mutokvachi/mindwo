@@ -53,9 +53,10 @@ class Kernel extends HttpKernel
         'public_ajax' => \App\Http\Middleware\AjaxPublicAccess::class,
         'auth_ajax' => \App\Http\Middleware\AjaxAuthAccess::class,
         'public_file' => \App\Http\Middleware\FilePublicAccess::class,
-        'mail_access' => \App\Http\Middleware\MailAccess::class,
+        //'mail_access' => \App\Http\Middleware\MailAccess::class,
         'auth_api' => \App\Http\Middleware\ApiAccess::class,
-		'orgchart_access' => \App\Http\Middleware\OrgChartAccess::class,
-		'constructor_access' => \App\Http\Middleware\ConstructorAccess::class,
+		//'orgchart_access' => \App\Http\Middleware\OrgChartAccess::class,
+        //'constructor_access' => \App\Http\Middleware\ConstructorAccess::class,
+        'auth_page' => \App\Http\Middleware\CustomPageAccess::class,
     ];
 }
