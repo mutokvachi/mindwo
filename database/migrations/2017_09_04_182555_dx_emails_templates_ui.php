@@ -4,9 +4,9 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use App\Libraries\Structure;
 
-class DxDocTemplatesUi extends Migration
+class DxEmailsTemplatesUi extends Migration
 {
-    private $table_name = "dx_doc_templates";
+    private $table_name = "dx_emails_templates";
     /**
      * Run the migrations.
      *
@@ -55,35 +55,28 @@ class DxDocTemplatesUi extends Migration
                 'order_index' => 10
             ]);
 
-            $tab_sett_id = DB::table('dx_forms_tabs')->insertGetId([
+            $tab_text_id = DB::table('dx_forms_tabs')->insertGetId([
                 'form_id' => $form->id,
-                'title' => trans('db_' . $this->table_name . '.tab_template'),
+                'title' => trans('db_' . $this->table_name . '.tab_text'),
                 'is_custom_data' => 1,
                 'order_index' => 20
             ]);
 
-            App\Libraries\DBHelper::updateFormField($list_id, "description", ['tab_id' => $tab_main_id]);
-            App\Libraries\DBHelper::updateFormField($list_id, "file_name", ['tab_id' => $tab_main_id]);
-            App\Libraries\DBHelper::updateFormField($list_id, "numerator_id", ['tab_id' => $tab_main_id]);
-            App\Libraries\DBHelper::updateFormField($list_id, "title_file", ['tab_id' => $tab_main_id]);
+            App\Libraries\DBHelper::updateFormField($list_id, "code", ['tab_id' => $tab_main_id]);
+            App\Libraries\DBHelper::updateFormField($list_id, "mail_subject", ['tab_id' => $tab_main_id]);
+            App\Libraries\DBHelper::updateFormField($list_id, "title_bg_color", ['tab_id' => $tab_main_id, 'row_type_id' => 2]);
+            App\Libraries\DBHelper::updateFormField($list_id, "title_fore_color", ['tab_id' => $tab_main_id, 'row_type_id' => 2]);
 
-            App\Libraries\DBHelper::updateFormField($list_id, "html_template", ['tab_id' => $tab_sett_id]);
+            App\Libraries\DBHelper::updateFormField($list_id, "mail_text", ['tab_id' => $tab_text_id]);
 
             App\Libraries\DBHelper::removeFieldsFromAllViews($list_id, [                
-                'description',                
-                'numerator_id',               
-                'html_template',
-                'title_file',
-                'file_name'
+                'title_bg_color',                
+                'title_fore_color',               
+                'mail_text',
             ], false);
 
-            App\Libraries\DBHelper::addJavaScriptToForm($this->table_name, '2017_09_01_dx_doc_templates.js', trans('db_' . $this->table_name . '.js_info'));
-
-            App\Libraries\DBHelper::addHintTofield($list_id, "title_file", trans('db_' . $this->table_name . '.title_file_hint'));
-            App\Libraries\DBHelper::addHintTofield($list_id, "html_template", trans('db_' . $this->table_name . '.html_template_hint'));
-            App\Libraries\DBHelper::addHintTofield($list_id, "description", trans('db_' . $this->table_name . '.description_hint'));
-
-            App\Libraries\DBHelper::setFieldType($list_id, "list_id", App\Libraries\DBHelper::FIELD_TYPE_LOOKUP);
+            App\Libraries\DBHelper::setFieldType($list_id, "title_bg_color", App\Libraries\DBHelper::FIELD_TYPE_COLOR);
+            App\Libraries\DBHelper::setFieldType($list_id, "title_fore_color", App\Libraries\DBHelper::FIELD_TYPE_COLOR);
         });
     }
 

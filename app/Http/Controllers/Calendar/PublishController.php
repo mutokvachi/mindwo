@@ -11,12 +11,17 @@ use App\Libraries\DBHistory;
 use Auth;
 use stdClass;
 use App\Libraries\DB_DX;
+use App\Jobs\SendNotifyMail;
 
 /**
  * Scheduled groups validation and publishing controller
  */
 class PublishController extends Controller
 {
+    private $portal_url = null;
+
+    private $portal_name = null;
+
     /**
      *  Validates and publish provided groups
      
@@ -83,7 +88,7 @@ class PublishController extends Controller
             }
         }
         
-        if ($request->input("is_publish", 0) && count($arr_groups) == 0) {
+        if ($request->input("is_publish", 0) && count($arr_groups) == 0) {            
             
             if ($mode == "publish") {
                 $arr_vals = [
@@ -91,11 +96,20 @@ class PublishController extends Controller
                     'first_publish' => date('Y-n-d H:i:s'),
                     'is_complecting' => 0
                 ];
+                $templ_code = "PUBLISH";
             }
             else {
                 $arr_vals = [
                     'is_complecting' => 1
                 ];
+                $templ_code = "COMPLECT";
+            }
+
+            $coord_templ = DB::table('dx_emails_templates')->where('code', '=', "COORD_" . $templ_code)->first();
+            
+            $coord = [];
+            if ($coord_templ) {
+                $coord = $this->getOrgsCoord($groups);
             }
 
             $dx_db = (new DB_DX())->table('edu_subjects_groups');
@@ -109,9 +123,25 @@ class PublishController extends Controller
                 );
             }
     
-            DB::transaction(function () use ($arr_dbs){
+            DB::transaction(function () use ($arr_dbs, $coord, $coord_templ){
                 foreach($arr_dbs as $db) {
                     $db->commitUpdate();
+                }
+
+                if (count($coord)) {
+                    foreach($coord as $cor) {
+
+                        $mail_text = str_replace("\${Content}", view('emails.edu_groups', ['groups' => $cor['groups']]), $coord_templ->mail_text);
+                        
+                        $email_id = DB::table('dx_emails_sent')->insertGetId([
+                            'template_id' => $coord_templ->id,
+                            'mail_subject' => $coord_templ->mail_subject,
+                            'mail_text' => $mail_text,
+                            'user_id' => $cor['user_id']
+                        ]);
+
+                        $this->sendMail($cor['email'],  $coord_templ->mail_subject, $mail_text, $email_id);
+                    }
                 }
             });
             
@@ -126,7 +156,81 @@ class PublishController extends Controller
         ]);
     }
     
-   
+    private function getOrgsCoord($groups) {
+        $notify = DB::table('edu_subjects_groups_orgs as go')
+               ->select(
+                   'o.title as title_org',
+                   DB::raw('ifnull(ou.email, u.email) as email'),
+                   'go.places_quota',
+                   DB::raw('(SELECT min(d.lesson_date) FROM edu_subjects_groups_days as d WHERE d.group_id = go.group_id) as date_from'),
+                   DB::raw('(SELECT max(d.lesson_date) FROM edu_subjects_groups_days as d WHERE d.group_id = go.group_id) as date_to'),
+                   'ou.user_id',
+                   's.title as title_subject'
+               )
+               ->join('edu_subjects_groups as g', 'go.group_id', '=', 'g.id')
+               ->join('edu_subjects as s', 'g.subject_id', '=', 's.id')
+               ->join('edu_orgs as o', 'go.org_id', '=', 'o.id')
+               ->join('edu_orgs_users as ou', 'go.org_id', '=', 'ou.org_id')
+               ->join('dx_users as u', 'ou.user_id', '=', 'u.id')              
+               ->where('u.is_role_coordin', '=', 1)
+               ->whereIn('go.group_id', $groups)
+               ->orderBy('date_from')
+               ->get();
+        
+        $arr_info = [];
+        foreach($notify as $info) {
+
+            if (!isset($arr_info[$info->user_id])) {
+                $arr_info[$info->user_id] = [
+                    'user_id' => $info->user_id,
+                    'email' => $info->email,
+                    'groups' => []
+                ];
+            }
+
+            array_push($arr_info[$info->user_id]['groups'], 
+                [
+                    'title_org' => $info->title_org,
+                    'places_quota' => $info->places_quota,
+                    'date_from' => $info->date_from,
+                    'date_to' => $info->date_to,
+                    'title_subject' => $info->title_subject
+                ]
+            );
+        }
+
+        return $arr_info;
+    }
+    
+    private function getPortalName() {
+        if (!$this->portal_name) {
+            $this->portal_name =  get_portal_config("PORTAL_NAME");
+        }
+
+        return $this->portal_name;
+    }
+
+    private function getPortalUrl() {
+        if (!$this->portal_url) {
+            $this->portal_url =  get_portal_config("PORTAL_PUBLIC_URL");
+        }
+
+        return $this->portal_url;
+    }
+
+    private function sendMail($email, $subject, $content, $email_id) {
+        
+        $arr_data = [
+            'email' => $email,
+            'subject' => $subject,
+            'content' => $content,
+            "portal_url" => $this->getPortalUrl(),
+            "portal_name" => $this->getPortalName(),
+            'email_id' => $email_id
+        ];
+        
+        $this->dispatch(new SendNotifyMail($arr_data));
+    }
     
     /**
      * Check user rights on list for table edu_subjects_groups
