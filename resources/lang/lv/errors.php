@@ -194,4 +194,8 @@ return [
 
     'doc_gener_no_template' => 'Reģistram nav piesaistīta neviena dokumentu sagatave!',
 
+    'no_rights_on_custom_page' => "Jums nav piekļuves tiesības funkcionalitātei ':page'!",
+
+    'custom_page_not_found' => "Lapa ':url' nav reģistrēta sistēmas lapu sarakstā vai arī lapa nav aktīva!",
+
 ];
