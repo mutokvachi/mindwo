@@ -254,6 +254,7 @@ namespace App\Libraries
             $this->file_path = $this->file_folder . $this->file_guid;
 
             $html = $this->replaceWithFieldsVals($html);
+           
             $snappy->generateFromHtml($html, $this->file_path);
 
             $this->is_pdf = true;
@@ -384,6 +385,8 @@ namespace App\Libraries
         */ 
         private function resetFieldType($model_row)
         {
+            $model_row['width'] = 0;
+
             if ($model_row['type'] == 'file' || $model_row['is_link'])
             {
                 $model_row['type'] = 'varchar';
