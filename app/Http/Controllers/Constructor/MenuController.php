@@ -78,6 +78,7 @@ class MenuController extends Controller
                 ];                        
                         
                 $history = new DBHistory($list_object, $list_fields, $arr_data, $itm["id"]);
+                $history->compareChanges();
                 $history->makeUpdateHistory();
 
                 if ($history->is_update_change) {

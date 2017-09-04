@@ -104,6 +104,17 @@ class SchedulerController extends Controller
             'page_title' => trans('calendar.scheduler.page_title')
         ]);
     }
+
+    /**
+     * Get default scheduler page UI
+     * 
+     * @param \Illuminate\Http\Request $request GET request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function getDefaultSchedulerPage(Request $request)
+    {
+        return $this->getSchedulerPage(0, $request);
+    }
     
     /**
      * Return all data in JSON arrays used for scheduler

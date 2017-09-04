@@ -9,6 +9,17 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Month extends Model
 {
+
+    protected $fillable = [
+        'title',
+        'short_title',
+        'nr',
+        'created_user_id',
+        'created_time',
+        'modified_user_id',
+        'modified_time',
+    ];
+
     /**
      * @var string Related table
      */

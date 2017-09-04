@@ -56,6 +56,17 @@ class ComplectController extends Controller
             'page_title' => trans('calendar.complect.page_title')
         ]);
     }
+
+    /**
+     * Get default complecting page UI
+     * 
+     * @param \Illuminate\Http\Request $request GET request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function getDefaultComplectPage(Request $request)
+    {
+        return $this->getComplectPage(0, $request);
+    }
     
      /**
      * Return events data in JSON arrays used for complecting calendar
