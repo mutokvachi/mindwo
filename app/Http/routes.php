@@ -269,12 +269,12 @@ Route::group(['middleware' => 'auth_ajax', 'prefix' => 'inlineform'], function()
     Route::delete('{id}', 'InlineFormController@destroy');
 });
 
-Route::group(['middleware' => ['auth', 'orgchart_access'], 'prefix' => 'organization'], function() {
+Route::group(['middleware' => ['auth', 'auth_page'], 'prefix' => 'organization'], function() {
     Route::get('chart/{id?}', ['as' => 'organization_chart', 'uses' => 'OrgChartController@show']);
     Route::get('departments', ['as' => 'organization_departments', 'uses' => 'DepartmentsChartController@show']);
 });
 
-Route::group(['middleware' => ['auth', 'mail_access'], 'prefix' => 'mail'], function() {
+Route::group(['middleware' => ['auth', 'auth_page'], 'prefix' => 'mail'], function() {
 	Route::get('', ['as' => 'mail_index', 'uses' => 'MailController@index']);
 	Route::get('sent', ['as' => 'mail_sent', 'uses' => 'MailController@index']);
 	Route::get('draft', ['as' => 'mail_draft', 'uses' => 'MailController@index']);
@@ -292,7 +292,7 @@ Route::group(['middleware' => ['auth', 'mail_access'], 'prefix' => 'mail'], func
 
 Route::post('theme/select/{id}', ['middleware' => 'auth_ajax', 'uses' => 'ThemeController@select']);
 
-Route::group(['middleware' => ['auth', 'constructor_access'], 'prefix' => 'constructor', 'namespace' => 'Constructor'], function() {
+Route::group(['middleware' => ['auth', 'auth_page'], 'prefix' => 'constructor', 'namespace' => 'Constructor'], function() {
 	Route::get('/register', ['as' => 'register_index', 'uses' => 'RegisterController@index']);
 	Route::get('/register/create', ['as' => 'register_create', 'uses' => 'RegisterController@create']);
 	Route::delete('/register/tab/{id}', ['as' => 'register_delete_tab', 'middleware' => 'auth_ajax', 'uses' => 'RegisterController@deleteTab']);
@@ -312,7 +312,7 @@ Route::group(['middleware' => ['auth', 'constructor_access'], 'prefix' => 'const
 	Route::put('/menu/{site_id}', ['as' => 'menu_builder_update', 'uses' => 'MenuController@updateMenu']);
 });
 
-Route::group(['middleware' => ['auth'], 'prefix' => 'calendar', 'namespace' => 'Calendar'], function() {	
+Route::group(['middleware' => ['auth_page'], 'prefix' => 'calendar', 'namespace' => 'Calendar'], function() {	
         Route::get('/scheduler/{current_room_id}', ['as' => 'scheduler', 'uses' => 'SchedulerController@getSchedulerPage']);        
         Route::post('/scheduler/new_group', ['as' => 'scheduler_new_group', 'uses' => 'SchedulerController@createNewGroup']);
         Route::post('/scheduler/update_day', ['as' => 'scheduler_update_day', 'uses' => 'SchedulerController@updateDay']);

@@ -194,4 +194,6 @@ return [
     'doc_gener_in_workflow' => "Record can't be edited, because it is beeing processed by an workflow or is with status Approoved!",
     'doc_gener_no_template' => 'Register does not have any template attached!',
     
+    'no_rights_on_custom_page' => "You don't have access rights on functionality ':page'!",
+    'custom_page_not_found' => "Page ':url' is not registered in the system pages register or functionality is not activated!",
 ];

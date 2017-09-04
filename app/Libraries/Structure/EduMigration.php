@@ -10,6 +10,12 @@ use Config;
  */
 abstract class EduMigration extends Migration
 {
+    const ROLE_MAIN = 74;
+    const ROLE_ORG = 75;
+    const ROLE_TEACH = 76;
+    const ROLE_STUD = 77;
+    const ROLE_SUPPORT = 78;
+    
     /**
      * Migration equivalent for up
      */
