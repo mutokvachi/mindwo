@@ -459,4 +459,14 @@ return [
     |-------------------------------------------------------------------------- 
     */
     'is_edu_modules' => env('APP_EDU_MODULES_ON', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Is grid resizing off
+    |
+    | There is JavaScript function which resizes grid page after loading so no double vertical scrollbars in page.
+    | This option turns off this resizing - can be used in cases if resizing causes undesired effects on some slow browsers
+    |-------------------------------------------------------------------------- 
+    */
+    'no_grid_height_resize' => env('APP_NO_GRID_HEIGT_RESIZE', 0),
 ];
