@@ -312,7 +312,8 @@ Route::group(['middleware' => ['auth', 'auth_page'], 'prefix' => 'constructor', 
 	Route::put('/menu/{site_id}', ['as' => 'menu_builder_update', 'uses' => 'MenuController@updateMenu']);
 });
 
-Route::group(['middleware' => ['auth_page'], 'prefix' => 'calendar', 'namespace' => 'Calendar'], function() {	
+Route::group(['middleware' => ['auth_page'], 'prefix' => 'calendar', 'namespace' => 'Calendar'], function() {
+        Route::get('/scheduler', ['as' => 'scheduler_default', 'uses' => 'SchedulerController@getDefaultSchedulerPage']);	
         Route::get('/scheduler/{current_room_id}', ['as' => 'scheduler', 'uses' => 'SchedulerController@getSchedulerPage']);        
         Route::post('/scheduler/new_group', ['as' => 'scheduler_new_group', 'uses' => 'SchedulerController@createNewGroup']);
         Route::post('/scheduler/update_day', ['as' => 'scheduler_update_day', 'uses' => 'SchedulerController@updateDay']);
@@ -324,6 +325,7 @@ Route::group(['middleware' => ['auth_page'], 'prefix' => 'calendar', 'namespace'
         Route::get('/scheduler/rooms_json/{current_room_id}', ['as' => 'scheduler_rooms_json', 'uses' => 'SchedulerController@getSchedulerRoomsJSON']);
         Route::post('/scheduler/publish', ['as' => 'scheduler_publish', 'uses' => 'PublishController@publishGroups']);
         
+        Route::get('/complect', ['as' => 'complect_default', 'uses' => 'ComplectController@getDefaultComplectPage']);
         Route::get('/complect/{current_org_id}', ['as' => 'complect', 'uses' => 'ComplectController@getComplectPage']);
         Route::get('/complect/events_json/{current_org_id}', ['as' => 'complect_events_json', 'uses' => 'ComplectController@getComplectEventsJSON']);
         Route::get('/complect/groups_json/{current_org_id}', ['as' => 'complect_groups_json', 'uses' => 'ComplectController@getComplectGroupsJSON']);
