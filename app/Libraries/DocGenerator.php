@@ -254,6 +254,7 @@ namespace App\Libraries
             $this->file_path = $this->file_folder . $this->file_guid;
 
             $html = $this->replaceWithFieldsVals($html);
+            \Log::info("PDF HTML: " . $html);
             $snappy->generateFromHtml($html, $this->file_path);
 
             $this->is_pdf = true;

@@ -327,8 +327,16 @@ namespace App\Libraries
                 $this->current_arr[$field->db_name] = substr($this->current_arr[$field->db_name], 0, 5);
             }
             
-            if ($this->data_arr[":" . $field->db_name] == $this->current_arr[$field->db_name]) {                
-                return; // Lauka vērtība nav mainīta
+            if ($this->data_arr[":" . $field->db_name] == $this->current_arr[$field->db_name]) { 
+                if ($field->type_sys_name == 'file') {
+                    $guid_name = str_replace("_name", "_guid", $field->db_name);
+                    if ($this->data_arr[":" . $guid_name] == $this->current_arr[$guid_name]) {
+                        return; // field is not changed
+                    }
+                }
+                else {              
+                    return; // Lauka vērtība nav mainīta
+                }
             }
 
             if ($field->type_sys_name == 'bool') {
