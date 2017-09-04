@@ -254,7 +254,8 @@ namespace App\Libraries
             $this->file_path = $this->file_folder . $this->file_guid;
 
             $html = $this->replaceWithFieldsVals($html);
-           
+            $html = format_html_img(get_portal_config("PORTAL_PUBLIC_URL"), $html);
+
             $snappy->generateFromHtml($html, $this->file_path);
 
             $this->is_pdf = true;
