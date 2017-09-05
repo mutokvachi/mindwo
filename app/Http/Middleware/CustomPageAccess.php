@@ -33,8 +33,7 @@ class CustomPageAccess
                 return redirect()->guest('login');
             }
         }
-
-        $request->root();
+        
         $url = str_replace($request->root() . "/", "", $request->url());
 
         $arr_url = explode("/", $url);
