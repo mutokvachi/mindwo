@@ -12,6 +12,7 @@ use Auth;
 use stdClass;
 use App\Libraries\DB_DX;
 use App\Jobs\SendNotifyMail;
+use App\Libraries\Workflows;
 
 /**
  * Scheduled groups validation and publishing controller
@@ -90,22 +91,28 @@ class PublishController extends Controller
         
         if ($request->input("is_publish", 0) && count($arr_groups) == 0) {            
             
+            $members = [];
+            $members_templ = null;
+
             if ($mode == "publish") {
                 $arr_vals = [
                     'is_published' => 1,
                     'first_publish' => date('Y-n-d H:i:s'),
                     'is_complecting' => 0
                 ];
-                $templ_code = "PUBLISH";
+
+                $members_templ = DB::table('dx_emails_templates')->where('code', '=', "MEMBERS_PUBLISH")->first();
+                if ($members_templ) {
+                    $members = $this->getOrgsMembers($groups);
+                }
             }
             else {
                 $arr_vals = [
                     'is_complecting' => 1
                 ];
-                $templ_code = "COMPLECT";
             }
 
-            $coord_templ = DB::table('dx_emails_templates')->where('code', '=', "COORD_" . $templ_code)->first();
+            $coord_templ = DB::table('dx_emails_templates')->where('code', '=', "COORD_" . strtoupper($mode))->first();
             
             $coord = [];
             if ($coord_templ) {
@@ -123,7 +130,9 @@ class PublishController extends Controller
                 );
             }
     
-            DB::transaction(function () use ($arr_dbs, $coord, $coord_templ){
+            $email_list_id = \App\Libraries\DBHelper::getListByTable("dx_emails_sent")->id;
+
+            DB::transaction(function () use ($arr_dbs, $coord, $coord_templ, $mode, $members, $members_templ, $email_list_id){
                 foreach($arr_dbs as $db) {
                     $db->commitUpdate();
                 }
@@ -131,7 +140,7 @@ class PublishController extends Controller
                 if (count($coord)) {
                     foreach($coord as $cor) {
 
-                        $mail_text = str_replace("\${Content}", view('emails.edu_groups', ['groups' => $cor['groups']]), $coord_templ->mail_text);
+                        $mail_text = str_replace("\${Content}", view('emails.education.coord_' . $mode, ['groups' => $cor['groups']]), $coord_templ->mail_text);
                         
                         $email_id = DB::table('dx_emails_sent')->insertGetId([
                             'template_id' => $coord_templ->id,
@@ -141,6 +150,30 @@ class PublishController extends Controller
                         ]);
 
                         $this->sendMail($cor['email'],  $coord_templ->mail_subject, $mail_text, $email_id);
+
+                        $infoTask = new Workflows\InfoTask($email_list_id, $email_id, false);
+                        $infoTask->makeTask($cor['user_id'], null, "Jāveic komplektēšana mācību grupām. Komplektējamo grupu skaits: " . count($cor['groups']));                
+                    
+                    }
+                }
+
+                if (count($members)) {
+                    foreach($members as $mem) {
+                        
+                        $mail_text = str_replace("\${Content}", view('emails.education.members_publish', ['days' => $mem['days']]), $members_templ->mail_text);
+                        
+                        $email_id = DB::table('dx_emails_sent')->insertGetId([
+                            'template_id' => $members_templ->id,
+                            'mail_subject' => $members_templ->mail_subject,
+                            'mail_text' => $mail_text,
+                            'user_id' => $mem['user_id']
+                        ]);
+
+                        $this->sendMail($mem['email'],  $members_templ->mail_subject, $mail_text, $email_id);
+                            
+                        $infoTask = new Workflows\InfoTask($email_list_id, $email_id, false);
+                        $infoTask->makeTask($mem['user_id'], null, "Jums ir pieejami jauni mācību pasākumi. Pasākumu skaits: " . count($mem['days']));                
+
                     }
                 }
             });
@@ -155,6 +188,58 @@ class PublishController extends Controller
                          ])->render()
         ]);
     }
+
+    private function getOrgsMembers($groups) {
+        $notify = DB::table('edu_subjects_groups_members as gm')
+                ->select(                     
+                    DB::raw('ifnull(ou.email, u.email) as email'),
+                    'd.lesson_date',
+                    'd.time_from',
+                    'd.time_to',
+                    'ou.user_id',
+                    's.title as title_subject',
+                    DB::raw('ifnull(r.room_address, o.address) as room_address'),
+                    'r.room_nr',
+                    'o.title as title_org'
+                )               
+                ->join('edu_subjects_groups as g', 'gm.group_id', '=', 'g.id')
+                ->join('edu_subjects as s', 'g.subject_id', '=', 's.id')
+                ->join('edu_orgs_users as ou', 'gm.org_id', '=', 'ou.org_id')
+                ->join('dx_users as u', 'ou.user_id', '=', 'u.id')
+                ->join('edu_subjects_groups_days as d', 'd.group_id', '=', 'g.id')
+                ->join('edu_rooms as r', 'd.room_id', '=', 'r.id')
+                ->join('edu_orgs as o', 'r.org_id', '=', 'o.id')
+                ->whereIn('gm.group_id', $groups)
+                ->orderBy('lesson_date')
+                ->get();
+
+        $arr_info = [];
+        foreach($notify as $info) {
+
+            if (!isset($arr_info[$info->user_id])) {
+                $arr_info[$info->user_id] = [
+                    'user_id' => $info->user_id,
+                    'email' => $info->email,
+                    'days' => []
+                ];
+            }
+
+            array_push($arr_info[$info->user_id]['days'], 
+                [
+                    'lesson_date' => $info->lesson_date,
+                    'time_from' => substr($info->time_from, 0, 5),
+                    'time_to' => substr($info->time_to, 0, 5),                    
+                    'title_subject' => $info->title_subject,
+                    'title_org' => $info->title_org,
+                    'room_address' => $info->room_address,
+                    'room_nr' => $info->room_nr
+                ]
+            );
+        }
+
+        return $arr_info;
+        
+    }
     
     private function getOrgsCoord($groups) {
         $notify = DB::table('edu_subjects_groups_orgs as go')
@@ -165,7 +250,8 @@ class PublishController extends Controller
                    DB::raw('(SELECT min(d.lesson_date) FROM edu_subjects_groups_days as d WHERE d.group_id = go.group_id) as date_from'),
                    DB::raw('(SELECT max(d.lesson_date) FROM edu_subjects_groups_days as d WHERE d.group_id = go.group_id) as date_to'),
                    'ou.user_id',
-                   's.title as title_subject'
+                   's.title as title_subject',
+                   DB::raw('(SELECT count(*) FROM edu_subjects_groups_members as m WHERE m.group_id = go.group_id AND m.org_id = ou.org_id) as empl_count')
                )
                ->join('edu_subjects_groups as g', 'go.group_id', '=', 'g.id')
                ->join('edu_subjects as s', 'g.subject_id', '=', 's.id')
@@ -194,7 +280,8 @@ class PublishController extends Controller
                     'places_quota' => $info->places_quota,
                     'date_from' => $info->date_from,
                     'date_to' => $info->date_to,
-                    'title_subject' => $info->title_subject
+                    'title_subject' => $info->title_subject,
+                    'empl_count' => $info->empl_count
                 ]
             );
         }
