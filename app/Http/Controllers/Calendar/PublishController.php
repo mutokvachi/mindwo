@@ -435,7 +435,7 @@ class PublishController extends Controller
                 ->join('dx_users as u', 'pou.user_id', '=', 'u.id')
                 ->join('edu_rooms as r', 'gd.room_id', '=', 'r.id')
                 ->join('edu_orgs as o', 'r.org_id', '=', 'o.id')
-                ->whereRaw('pou.end_date is null or pou.end_date >date(now())')
+                ->whereRaw('(pou.end_date is null or pou.end_date >date(now()))')
                 ->whereIn('gd.group_id', $groups)
                 ->orderBy('gd.lesson_date')
                 ->orderBy('dp.time_from')
