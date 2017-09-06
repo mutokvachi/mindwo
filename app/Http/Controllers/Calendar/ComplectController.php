@@ -632,7 +632,7 @@ class ComplectController extends Controller
         
         $main_coord = DB::table('dx_users_roles')
                         ->where('user_id', '=', Auth::user()->id)
-                        ->where('role_id', '=', Config::get('education.roles.main_coord', 0))
+                        ->whereIn('role_id', [Config::get('education.roles.main_coord', 0), 1])
                         ->first();
         
         $this->is_main_coord = ($main_coord) ? true : false;

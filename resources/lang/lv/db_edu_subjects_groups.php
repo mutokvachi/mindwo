@@ -22,13 +22,27 @@ return [
     'title' => 'Grupas nosaukums',
     'main_teacher_id' => 'Galvenais pasniedzējs',
     'main_teacher_id_hint' => 'Norāda pasniedzēju, kura paraksts tiks attēlots sertifikātā',
+    'first_publish' => 'Publicēšanas laiks',
 
     // tabs
     'tab_main' => 'Pamatdati',
     'tab_members' => 'Dalībnieki',
     'tab_days' => 'Nodarbības',
     'tab_orgs' => 'Uzaicināmās iestādes',
-    
+    'tab_cancel' => 'Atcelšana',
+
     // views
     'view_related' => 'Skats saistītajiem ierakstiem',
+
+    'form_js' => 'Izceļ iekšējās grupas iezīmes lauku un parāda vai apslēpj laukus un sadaļas atkarībā no citu lauku vērtībām',
+
+    'status' => [
+        'publish' => 'Grupa ir publicēta',
+        'complect' => 'Grupa tiek komplektēta',
+        'prepare' => 'Grupa ir sagatavošanā',
+        'cancel' => 'Grupa ir atcelta', 
+        'corect' => 'Grupa tiek koriģēta',
+    ],
+
+    'cancel_validation' => "Statusu uzstādīšana atceļot grupu",
 ];
