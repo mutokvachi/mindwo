@@ -39,7 +39,7 @@ $.extend(window.DxCryptoRegenClass.prototype, {
 
         $('#dx-crypto-modal-regen-masterkey').modal('hide');
 
-        if(err.msg && (!msg || msg == undefined)){
+        if (err.msg && (!msg || msg == undefined)) {
             msg = err.msg
         }
 
@@ -86,7 +86,7 @@ $.extend(window.DxCryptoRegenClass.prototype, {
 
         self.masterKeyGroupId = masterKeyGroupId;
 
-        show_page_splash(1);        
+        show_page_splash(1);
 
         self.mode = 0;
 
@@ -201,9 +201,11 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             var masterKeyHex = window.DxCrypto.arrayBufferToHexString(wrappedMasterKey);
 
             self.retrieveEncryptedData(0, masterKeyHex);
-
         });
     },
+    /**
+     * Retrieves master key
+     */
     retrieveMasterkey: function () {
         var self = window.DxCryptoRegen;
 
@@ -212,20 +214,9 @@ $.extend(window.DxCryptoRegenClass.prototype, {
         // Gets raw master key for current user and start process using it
         self.newMasterKey = window.DxCrypto.masterKeyGroups[self.masterKeyGroupId];
 
-        // Gets wrapped master key
-        /*var wrappedMasterKey;
-        for(var  i= 0; i < window.DxCrypto.rawMasterKeys.length; i++){
-            if(window.DxCrypto.rawMasterKeys[i].id == self.masterKeyGroupId){
-                wrappedMasterKey = window.DxCrypto.rawMasterKeys[i].value;
-                break;
-            }
-        }*/
-
         self.showRegenProgress();
         hide_page_splash(1);
         self.updateRegenStatus(Lang.get('crypto.i_gathering_data'));
-
-        //var masterKeyHex = window.DxCrypto.arrayBufferToHexString(wrappedMasterKey);
 
         self.retrieveEncryptedData(0, '');
     },
@@ -401,6 +392,12 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             }
         }
     },
+    /**
+     * Encryptes data with master key
+     * @param {ArrayBuffer} oldValue Value which will be encrypted
+     * @param {function} callback Called after value is encrypted
+     * @returns {Boolean} Return false if function failed or has been stopped
+     */
     encryptData: function (oldValue, callback) {
         var self = window.DxCryptoRegen;
 
@@ -437,6 +434,12 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             })
             .catch(window.DxCryptoRegen.catchError);
     },
+    /**
+     * Decryptes value with master key
+     * @param {ArrayBuffer} oldValue Value which will be decrypted
+     * @param {function} callback Called after value is decrypted
+     * @returns {Boolean} Return false if function failed or has been stopped
+     */
     decryptData: function (oldValue, callback) {
         var self = window.DxCryptoRegen;
 
@@ -782,8 +785,8 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             data: {
                 regen_process_id: self.regenProcessId,
                 master_keys: self.wrappedMasterKeys,
-                field_id:  self.fieldId,
-                mode:  self.mode
+                field_id: self.fieldId,
+                mode: self.mode
             },
             type: "post",
             success: function (res) {
@@ -901,6 +904,11 @@ $.extend(window.DxCryptoRegenClass.prototype, {
         }, 1000);
 
     },
+    /**
+     * Click on save button after encryption/decryption process has finished
+     * @param {DOM} form_object Form object
+     * @returns {undefined}
+     */
     saveCryptoBtnState: function (form_object) {
         var btnSave = form_object.find('.dx-btn-save-form');
 
@@ -948,8 +956,10 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             self.prepareCryptoToggleProcess();
         }
     },
-
-    validateFieldSize:function(){
+    /**
+     * Validate field if field has enough space after data will be encrypted (encrypted data takes more space in DB)
+     */
+    validateFieldSize: function () {
         var self = window.DxCryptoRegen;
 
         $.ajax({
@@ -965,9 +975,11 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             error: self.catchError
         });
     },
-
+    /**
+     * Prepares process which toggles field if it is encrypted or not
+     */
     prepareCryptoToggleProcess: function () {
-        var self = window.DxCryptoRegen;       
+        var self = window.DxCryptoRegen;
 
         $.ajax({
             url: DX_CORE.site_url + 'crypto/masterkey_group_by_field/' + self.fieldId,
