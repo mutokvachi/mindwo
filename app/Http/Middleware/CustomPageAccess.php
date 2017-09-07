@@ -6,6 +6,7 @@ use DB;
 use Closure;
 use App\Exceptions;
 use App\Libraries\Helper;
+use Auth;
 
 /**
  * Class CustomPageAccess
@@ -25,7 +26,14 @@ class CustomPageAccess
 	 */
 	public function handle($request, Closure $next)
 	{
-        $request->root();
+        if (!Auth::check()) {
+            if ($request->ajax()) {
+                 return response()->json(['success' => 0, 'error' => trans('errors.session_ended')], 401);
+            } else {
+                return redirect()->guest('login');
+            }
+        }
+        
         $url = str_replace($request->root() . "/", "", $request->url());
 
         $arr_url = explode("/", $url);

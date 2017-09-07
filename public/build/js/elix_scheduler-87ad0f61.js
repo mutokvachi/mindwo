@@ -6728,7 +6728,7 @@ detectWarningInContainer = function(containerEl) {
                 el.data('event', {
                         title: 'Kafijas pauze', // use the element's text as the event title
                         stick: true, // maintain when user navigates (see docs on the renderEvent method),
-                        duration: "00:30",
+                        duration: "00:15",
                         className: "cafe",
                         color: "#d6df32",
                         start: "09:00",
@@ -7047,30 +7047,31 @@ detectWarningInContainer = function(containerEl) {
             
             var fullcal_params = {
                         schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
-			now: self.current_date,
+			            now: self.current_date,
                         weekends: false,
-			editable: true,
+			            editable: true,
                         droppable: true,
-			aspectRatio: 1.8,
-			scrollTime: '00:00',
+			            aspectRatio: 1.8,
+			            scrollTime: '00:00',
                         displayEventTime: false,
                         allDaySlot: false,
-                        resourceLabelText: "Telpas",
+                        resourceLabelText: "Telpas",                        
+                        snapDuration: "00:15",
                         navLinks: true, // can click day/week names to navigate views
-			header: {
-				left: 'title',
-                                center: '',
-                                right: cal_tools
-			},
+                        header: {
+                            left: 'title',
+                            center: '',
+                            right: cal_tools
+                        },
                         locale: Lang.getLocale(),
-			defaultView: def_view,
-			views: {
-				timelineThreeDays: {
-					type: 'timeline',
-					duration: { days: 7 },
-                                        buttonText: '5 dienas'
-				}
-			},
+                        defaultView: def_view,
+                        views: {
+                            timelineThreeDays: {
+                                type: 'timeline',
+                                duration: { days: 7 },
+                                buttonText: '5 dienas'
+                            }
+                        },
                         minTime: "09:00:00",
                         maxTime: "18:00:00",
                         eventConstraint:{
