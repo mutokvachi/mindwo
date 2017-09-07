@@ -49,6 +49,7 @@ class CoreController extends Controller
         $rights = Rights::getRightsOnList($list_id);
 
         if ($rights == null) {
+            \Log::info("No rights on lookup register with ID: " . $list_id);
             throw new Exceptions\DXCustomException(trans('errors.no_rights_on_register'));
         }
     }
