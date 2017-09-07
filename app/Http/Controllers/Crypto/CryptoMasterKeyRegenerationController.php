@@ -48,7 +48,12 @@ class CryptoMasterKeyRegenerationController extends Controller
 
         return response()->json(['success' => 1, 'process_id' => $process_id]);
     }
-
+    /**
+     * Validates if column in DB is large enough to store encryted data because encrypted data is larger
+     *
+     * @param int $fieldId Field ID
+     * @return void
+     */
     public function checkColumnSize($fieldId)
     {
         $field = \App\Models\System\ListField::find($fieldId);
@@ -95,6 +100,7 @@ class CryptoMasterKeyRegenerationController extends Controller
      * @param int $masterKeyGroupId Master key groups ID
      * @param boolean $getMasterKey True if needs to retrieve master key
      * @param string $masterKey New master key wrapped with user's certificate
+     * @param int $fieldId Optional field id is specified when we decrypt or encrypt specific column. If reencryption then this is 0
      * @return JSON Data which must pe recrypted
      */
     public function prepareRecrypt($regenProcessId, $masterKeyGroupId, $getMasterKey, $masterKey = null, $fieldId = 0)
@@ -187,6 +193,13 @@ class CryptoMasterKeyRegenerationController extends Controller
         return $cryptoFields;
     }
 
+    /**
+     * If object has multiple lists then limit encrypted/decrypted records by specified list
+     *
+     * @param object $cryptoField Object contains data about field
+     * @param object $query Query which will be executed to retrieve data
+     * @return void
+     */
     private function limitMultiListRecords($cryptoField, &$query){
         // Check if multi list option is set
         if($cryptoField->is_multi_registers){
@@ -205,6 +218,13 @@ class CryptoMasterKeyRegenerationController extends Controller
         return $query;
     }
 
+    /**
+     * Limits records which will be encrypted/decrypted if criteria is specified when filtering data shown in register
+     *
+     * @param object $cryptoField Object contains data about field
+     * @param object $query Query which will be executed to retrieve data
+     * @return void
+     */
     private function limitMultiListRecordsByCriteria($cryptoField, &$query){
         $criteriaList = DB::table('dx_lists_fields AS f')
             ->select('f.criteria', 'f.db_name', 'o.sys_name')
@@ -223,10 +243,13 @@ class CryptoMasterKeyRegenerationController extends Controller
     }
 
     /**
-     * Uzģenerē meklēšanas nosacījumus
-     * @param object $query Laravel vaicājuma objekts
-     * @param object $arg Objekts, kas satur datus par pieprasījumu
-     * @param string $prefix Prefiks, ko likt priekšā meklēšanas un kārtošanas nosacījumiem. Šo norādā, ja tiek pieliktas klāt citas tabulas izmantojot JOIN
+     * Generates search terms
+     * 
+     * @param object $query Query which will be executed to retrieve data
+     * @param string $columnName Column for where clause
+     * @param string $operator Criteria operator
+     * @param string $value Value for where clause
+     * @return void
      */
     private function generateWhereClause(&$query, $columnName, $operator, $value)
     {
@@ -241,10 +264,10 @@ class CryptoMasterKeyRegenerationController extends Controller
     }
 
     /**
-     * Sagatavo vērtību pēc iesniegtā operatora, ja tas nepieciešams
-     * @param string $operator Operators, kas tiks izmantots meklēšanā
-     * @param string $value Vērtība, kura tiks izmantota meklēšanā
-     * @return string Labotā vērtība, ja bija nepieciešams veikt labojumus, ja nē tad atgriež to pašu vērtību
+     * Edit value for specific operator if needed
+     * @param string $operator Operator for search
+     * @param string $value Value to search for
+     * @return string New fixed value
      */
     private function prepareValue($operator, $value)
     {
@@ -262,7 +285,7 @@ class CryptoMasterKeyRegenerationController extends Controller
      * Creates cache of records which must be recrypted
      * @param Array $cryptoFields Fields that must be recrypted
      * @param int $regenProcessId Regeneration process ID
-     * @return type
+     * @return array Cache array
      */
     private function createCryptedDataCache($cryptoFields, $regenProcessId)
     {
@@ -618,6 +641,12 @@ class CryptoMasterKeyRegenerationController extends Controller
         return $count > 0;
     }
 
+    /**
+     * Retrieve master key group by field
+     *
+     * @param int $field_id Field ID
+     * @return JSON Response data
+     */
     public function getMasterKeyGroupByField($field_id)
     {
          $field = \App\Models\System\ListField::find($field_id);
