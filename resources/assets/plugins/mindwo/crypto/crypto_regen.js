@@ -39,6 +39,10 @@ $.extend(window.DxCryptoRegenClass.prototype, {
 
         $('#dx-crypto-modal-regen-masterkey').modal('hide');
 
+        if(err.msg && (!msg || msg == undefined)){
+            msg = err.msg
+        }
+
         if (msg && msg != undefined) {
             window.DxCrypto.catchError(err, msg);
         } else {
@@ -82,22 +86,9 @@ $.extend(window.DxCryptoRegenClass.prototype, {
 
         self.masterKeyGroupId = masterKeyGroupId;
 
-        show_page_splash(1);
-
-        if (!window.DxCrypto.certificate || !window.DxCrypto.certificate.publicKey || !window.DxCrypto.certificate.privateKey) {
-            // Retrieves certificate and calls this function again
-            window.DxCrypto.getCurrentUserCertificate(0, function () {
-                self.regenMasterKey(self.masterKeyGroupId);
-            });
-            return false;
-        }
+        show_page_splash(1);        
 
         self.mode = 0;
-
-        if (!(self.masterKeyGroupId in window.DxCrypto.masterKeyGroups)) {
-            window.DxCrypto.catchError(null, Lang.get('crypto.e_missing_masterkey'));
-            return false;
-        }
 
         self.regenCancel = false;
 
@@ -109,6 +100,19 @@ $.extend(window.DxCryptoRegenClass.prototype, {
      */
     checkExistingRecrypt: function () {
         var self = window.DxCryptoRegen;
+
+        if (!window.DxCrypto.certificate || !window.DxCrypto.certificate.publicKey || !window.DxCrypto.certificate.privateKey) {
+            // Retrieves certificate and calls this function again
+            window.DxCrypto.getCurrentUserCertificate(self.masterKeyGroupId, function () {
+                self.checkExistingRecrypt();
+            });
+            return false;
+        }
+
+        if (!(self.masterKeyGroupId in window.DxCrypto.masterKeyGroups)) {
+            window.DxCrypto.catchError(null, Lang.get('crypto.e_missing_masterkey'));
+            return false;
+        }
 
         show_page_splash(1);
 
@@ -777,7 +781,9 @@ $.extend(window.DxCryptoRegenClass.prototype, {
             url: DX_CORE.site_url + 'crypto/apply_regen_cache',
             data: {
                 regen_process_id: self.regenProcessId,
-                master_keys: self.wrappedMasterKeys
+                master_keys: self.wrappedMasterKeys,
+                field_id:  self.fieldId,
+                mode:  self.mode
             },
             type: "post",
             success: function (res) {
@@ -926,31 +932,34 @@ $.extend(window.DxCryptoRegenClass.prototype, {
 
         var self = window.DxCryptoRegen;
 
+        self.form = form;
+        self.fieldId = fieldId;
+
+        self.regenCancel = false;
+
         // Sets mode if data must be encrypted or decrypted
         if (isCrypted) {
             self.mode = 1;
 
-            // Must check field size if it is to small then data wil be lost
-            if(!self.validateFieldSize()){
-                return;
-            }
+            // Must check field size if it is to small then data wil be lost. If field valid the process will begin from there
+            self.validateFieldSize();
         } else {
             self.mode = 2;
+            self.prepareCryptoToggleProcess();
         }
-
-        self.form = form;
-        self.fieldId = fieldId;
-
-        self.prepareCryptoToggleProcess();
     },
 
     validateFieldSize:function(){
+        var self = window.DxCryptoRegen;
+
         $.ajax({
             url: DX_CORE.site_url + 'crypto/check_column_size/' + self.fieldId,
             type: "get",
             success: function (res) {
                 if (!res || !res.success || res.success == 0) {
                     self.catchError(res);
+                } else {
+                    self.prepareCryptoToggleProcess();
                 }
             },
             error: self.catchError
@@ -958,17 +967,7 @@ $.extend(window.DxCryptoRegenClass.prototype, {
     },
 
     prepareCryptoToggleProcess: function () {
-        var self = window.DxCryptoRegen;
-
-        if (!window.DxCrypto.certificate || !window.DxCrypto.certificate.publicKey || !window.DxCrypto.certificate.privateKey) {
-            // Retrieves certificate and calls this function again
-            window.DxCrypto.getCurrentUserCertificate(0, function () {
-                self.prepareCryptoToggleProcess();
-            });
-            return false;
-        }
-
-        self.regenCancel = false;
+        var self = window.DxCryptoRegen;       
 
         $.ajax({
             url: DX_CORE.site_url + 'crypto/masterkey_group_by_field/' + self.fieldId,

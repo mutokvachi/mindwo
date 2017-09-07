@@ -74,6 +74,9 @@
                 window.DxCrypto.decryptFields($('.dx-crypto-field'));
             });
         },
+        /**
+         * Shows access error
+         */
         setAccessError: function () {
             var label = '<span class="label label-danger"> ' + Lang.get('crypto.e_no_access') + ' </span>';
 
