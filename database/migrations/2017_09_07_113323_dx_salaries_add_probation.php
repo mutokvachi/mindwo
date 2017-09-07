@@ -15,8 +15,9 @@ class DxSalariesAddProbation extends Migration
     public function up()
     {
         Schema::table($this->table_name, function (Blueprint $table) {
-            $table->varchar('probation_salary', 1000)->nullable()->comment = trans('db_' . $this->table_name.'.probation_salary');
+            $table->string('probation_salary', 1000)->nullable()->comment = trans('db_' . $this->table_name.'.probation_salary');
             $table->integer('probation_months')->default(0)->nullable()->comment = trans('db_' . $this->table_name.'.probation_months');
+            $table->string('probation_salary_annual', 1000)->nullable()->comment = trans('db_' . $this->table_name.'.probation_salary_annual');
         });
     }
 
@@ -30,6 +31,7 @@ class DxSalariesAddProbation extends Migration
         Schema::table($this->table_name, function (Blueprint $table) {
             $table->dropColumn(['probation_salary']);
             $table->dropColumn(['probation_months']);
+            $table->dropColumn(['probation_salary_annual']);
         });
     }
 }
