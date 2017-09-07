@@ -43,6 +43,7 @@ return [
     'e_password_incorrect' => 'Parole nav pareiza',
     'e_master_key_already_exist' => 'Neizdevās saglabāt galveno atslēgu. Kāds cits jau ir uzģenerējis galveno atslēgu.',
     'e_masterkey_group_not_exists' => 'Galvenās atslēgas grupa netika atrasta',
+    'e_encrypt_db_size' => "Nevar šifrēt lauka datus, jo datu bāzes kolonnas izmers ir pārāk mazs. Šobrīd datu bāzes kolonnas izmērs ir :current. Mainiet kolonnas izmēru uz :needed vai arī mainiet kolonnas tipu uz 'TEXT'. Minēto darbību nav iespējams veikt caur sistēmas saskarni, to var izpildīt tikai sistēmas administrators tieši mainot datu bāzi.",
     'i_save_masterkey_success' => 'Galvenā atslēga sekmīgi uzģenerēta un saglabāta',
     'i_save_cert_success' => 'Sertifikāts sekmīgi uzģenerēts un saglabāts',
     'i_gathering_data' => 'Atlasa datus...',

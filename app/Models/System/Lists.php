@@ -22,6 +22,8 @@ class Lists extends Model
 		'created_user_id',
 		'modified_user_id'
 	];
+
+
 	
 	public function group()
 	{
@@ -64,4 +66,14 @@ class Lists extends Model
 	{
 		return $this->hasMany('App\Models\Workflow\Workflow', 'list_id', 'id');
 	}
+
+	/**
+	 * Related table object
+	 *
+	 * @return \App\Models\System\Object Model of the object
+	 */
+	public function object()
+    {
+        return $this->belongsTo('\App\Models\System\Object', 'object_id');
+    }
 }

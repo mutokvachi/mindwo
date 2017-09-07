@@ -49,6 +49,46 @@ class CryptoMasterKeyRegenerationController extends Controller
         return response()->json(['success' => 1, 'process_id' => $process_id]);
     }
 
+    public function checkColumnSize($fieldId)
+    {
+        $field = \App\Models\System\ListField::find($fieldId);
+
+        if(!$field){
+            return response()->json(['success' => 0]);
+        }
+
+        // For file field we dont need to check size
+        if($field->type_id == 12){
+            return response()->json(['success' => 1]);
+        }
+
+        $table_name = $field->list->object->db_name;
+
+        $con = \DB::connection();
+        $column = $con->getDoctrineColumn($table_name, $field->db_name); // \Doctrine\DBAL\Schema\Column
+
+        if(!$column){
+            return response()->json(['success' => 0]);
+        }
+
+        // Column is text type so it has enough space                  
+        if(is_a($column->getType(), 'Doctrine\DBAL\Types\TextType')){
+            return response()->json(['success' => 1]);
+        }
+        
+        $db_size = $column->getLength(); // and many other methods - see below
+
+        $needed_size = ($field->max_lenght * 4 + 32);
+
+        if($needed_size > $db_size){
+            return response()->json(['success' => 0, 'msg' => trans('crypto.e_encrypt_db_size', ['current' => $db_size, 'needed' => $needed_size])]);
+        } else {
+            return response()->json(['success' => 1]);
+        }
+
+      // 
+    }
+
     /**
      * Prepares data to be recrypted with new master key
      * @param int $regenProcessId Regeneration process ID
@@ -120,7 +160,7 @@ class CryptoMasterKeyRegenerationController extends Controller
     private function retrieveCryptedFieldsByMasterKey($masterKeyGroupId)
     {
         $cryptoFields = \DB::table('dx_lists AS l')
-                ->selectRaw('l.id list_id, o.db_name as table_name, f.db_name as column_name, case when f.type_id = 12 then 1 else 0 end as is_file')
+                ->selectRaw('o.is_multi_registers, o.id as object_id, l.id list_id, o.db_name as table_name, f.db_name as column_name, case when f.type_id = 12 then 1 else 0 end as is_file')
                 ->leftJoin('dx_objects AS o', 'o.id', '=', 'l.object_id')
                 ->leftJoin('dx_lists_fields AS f', 'f.list_id', '=', 'l.id')
                 ->where('f.is_crypted', 1)
@@ -138,13 +178,84 @@ class CryptoMasterKeyRegenerationController extends Controller
     private function retrieveCryptedFieldsByFieldId($fieldId)
     {
         $cryptoFields = \DB::table('dx_lists_fields AS f')
-                ->selectRaw('l.id list_id, o.db_name as table_name, f.db_name as column_name, case when f.type_id = 12 then 1 else 0 end as is_file')
+                ->selectRaw('o.is_multi_registers, o.id as object_id, l.id list_id, o.db_name as table_name, f.db_name as column_name, case when f.type_id = 12 then 1 else 0 end as is_file')
                 ->leftJoin('dx_lists AS l', 'f.list_id', '=', 'l.id')
                 ->leftJoin('dx_objects AS o', 'o.id', '=', 'l.object_id')                
                 ->where('f.id', $fieldId)
                 ->get();
 
         return $cryptoFields;
+    }
+
+    private function limitMultiListRecords($cryptoField, &$query){
+        // Check if multi list option is set
+        if($cryptoField->is_multi_registers){
+            $query->where('multi_list_id', $cryptoField->list_id);      
+            return;
+        }
+
+        // Check if multiple lists exists for one object
+        $listCount = DB::table('dx_lists')->where('object_id', $cryptoField->object_id)->count();
+
+        if($listCount > 1) {
+            $this->limitMultiListRecordsByCriteria($cryptoField, $query);
+            return;
+        }
+
+        return $query;
+    }
+
+    private function limitMultiListRecordsByCriteria($cryptoField, &$query){
+        $criteriaList = DB::table('dx_lists_fields AS f')
+            ->select('f.criteria', 'f.db_name', 'o.sys_name')
+            ->leftJoin('dx_field_operations AS o', 'o.id', '=', 'f.operation_id')
+            ->where('list_id', $cryptoField->list_id)
+            ->whereNotNull('operation_id')
+            ->get();
+
+        foreach($criteriaList as $crit){
+            $operator = strtoupper(trim($crit->sys_name));
+
+            $value = $this->prepareValue($operator, $crit->criteria);
+
+            $this->generateWhereClause($query, $crit->db_name, $operator, $value);
+        }        
+    }
+
+    /**
+     * Uzģenerē meklēšanas nosacījumus
+     * @param object $query Laravel vaicājuma objekts
+     * @param object $arg Objekts, kas satur datus par pieprasījumu
+     * @param string $prefix Prefiks, ko likt priekšā meklēšanas un kārtošanas nosacījumiem. Šo norādā, ja tiek pieliktas klāt citas tabulas izmantojot JOIN
+     */
+    private function generateWhereClause(&$query, $columnName, $operator, $value)
+    {
+        if ($operator == 'IS NULL' 
+            || $operator == 'IS NOT NULL' 
+            || $operator == '< NOW()'
+            || $operator == '> NOW()') {
+            $query->whereRaw($columnName . ' ' . $operator);
+        } else {
+            $query->whereRaw($columnName . ' ' . $operator . ' ' . $value);
+        }
+    }
+
+    /**
+     * Sagatavo vērtību pēc iesniegtā operatora, ja tas nepieciešams
+     * @param string $operator Operators, kas tiks izmantots meklēšanā
+     * @param string $value Vērtība, kura tiks izmantota meklēšanā
+     * @return string Labotā vērtība, ja bija nepieciešams veikt labojumus, ja nē tad atgriež to pašu vērtību
+     */
+    private function prepareValue($operator, $value)
+    {
+        if ($operator === "LIKE") {
+            $value = '%' . $value . '%';
+        }
+        if ($operator === "IN" || $operator === "NOT IN") {
+            $value = '(' . $value . ')';
+        }
+
+        return $value;
     }
 
     /**
@@ -166,10 +277,13 @@ class CryptoMasterKeyRegenerationController extends Controller
                 $list = null;
             }
 
-            $data = \DB::table($cryptoField->table_name)
+            $query = \DB::table($cryptoField->table_name)
                     ->select('id', $cryptoField->column_name . ' as value')
-                    ->whereNotNull($cryptoField->column_name)
-                    ->get();
+                    ->whereNotNull($cryptoField->column_name);
+
+            $this->limitMultiListRecords($cryptoField, $query);  
+
+            $data = $query->get();
 
             $column_name = $this->getFileGuidColumn($cryptoField);
 
@@ -373,8 +487,10 @@ class CryptoMasterKeyRegenerationController extends Controller
 
         $process_id = $request->input('regen_process_id');
         $master_keys_wrapped = $request->input('master_keys');
+        $fieldId = $request->input('field_id');
+        $mode = $request->input('mode');
 
-        DB::transaction(function () use ($process_id, $master_keys_wrapped) {
+        DB::transaction(function () use ($process_id, $master_keys_wrapped, $fieldId, $mode) {
             $process = $this->saveRegen($process_id);
 
             // If they are not set then this is encryption or decryption process (when we change parameter if field is crypted)
@@ -388,6 +504,19 @@ class CryptoMasterKeyRegenerationController extends Controller
 
             // Removes all existing regeneration processes becuase it is forbidden to continue them after other process has been already processed
             \App\Models\Crypto\Regen::where('master_key_group_id', $process->master_key_group_id)->delete();
+
+            if($mode > 0 && $fieldId > 0){
+                $field = \App\Models\System\ListField::find($fieldId);
+
+                if(!$field){
+                    throw new \Exceptions\DXCustomException('e_cache_not_ready');
+                }
+                
+                $field->is_crypted = $mode == 1 ? 1 : 0;
+                $field->modified_user_id = \Auth::user()->id;
+                $field->modified_time = new \DateTime();
+                $field->save();
+            }
         });
 
         return response()->json(['success' => 1]);

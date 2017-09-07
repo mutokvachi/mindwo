@@ -186,6 +186,8 @@ Route::group(['prefix' => 'crypto', 'namespace' => 'Crypto'], function() {
         Route::post('/save_regen_cache', array('middleware' => 'auth', 'uses' => 'CryptoMasterKeyRegenerationController@saveRegenCache'));
         Route::post('/apply_regen_cache', array('middleware' => 'auth', 'uses' => 'CryptoMasterKeyRegenerationController@applyRegenCache'));
         Route::get('/get_user_public_keys/{master_key_group_id}', array('middleware' => 'auth', 'uses' => 'CryptoMasterKeyRegenerationController@getUserPublicKeys'));
+        Route::get('/check_column_size/{field_id}', array('middleware' => 'auth', 'uses' => 'CryptoMasterKeyRegenerationController@checkColumnSize'));
+
 });
 
 Route::group(['prefix' => 'chat'], function() {
