@@ -274,9 +274,6 @@ class CryptoMasterKeyRegenerationController extends Controller
         if ($operator === "LIKE") {
             $value = '%' . $value . '%';
         }
-        if ($operator === "IN" || $operator === "NOT IN") {
-            $value = '(' . $value . ')';
-        }
 
         return $value;
     }
