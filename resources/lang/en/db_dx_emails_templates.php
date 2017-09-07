@@ -19,4 +19,8 @@ return [
     // tabs
     'tab_main' => 'General',
     'tab_text' => 'Mail text',
+
+    // mail
+    'info_sent' => 'Information was sent to email :email. If you received this email by  mistake, please, inform your IT support.',
+    'info_sys' => 'E-mail was sent from the system :app at :time.'
 ];

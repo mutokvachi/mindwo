@@ -8,4 +8,5 @@
 return [
     
     'rel_txt' => 'Izvēlne',
+    'time' => 'Laiks',
 ];
