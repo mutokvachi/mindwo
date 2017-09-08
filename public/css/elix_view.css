@@ -1691,6 +1691,11 @@ a.header-filter:hover {
 .dx-templ-title {
 	font-weight: bold;
 }
+
+/* Modal body height */
+.modal-body {
+    max-height: calc(100vh - 246px);
+}
 table.dataTable {
     clear: both;
     margin-top: 6px !important;

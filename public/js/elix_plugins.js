@@ -24666,26 +24666,6 @@ var PageMain = function()
     };
 
     /**
-     * Uzstāda bootstrap modālo logu maksimālā augstuma nosacījumu
-     * DX_CORE.form_height_ratio parametrs definējas js/dx_core.js
-     * 
-     * @returns {undefined}
-     */
-    var initFormHeight = function() {
-        
-        $.fn.modal.defaults.maxHeight = function() {
-            var menu_h = $(window).height(); //$(".page-sidebar-menu").height();
-            
-            // Concerning console.log(), we should know that this operation takes quite a long time (in computer terms) to execute (~8-12 ms). 
-            console.log("Modal, window height: " + menu_h);
-            menu_h = menu_h - 246;
-            
-            return menu_h;// * DX_CORE.form_height_ratio;
-        };
-        
-    };
-
-    /**
      * Uzstāda globālos parametrus, lai funkcionētu SVS
      * 
      * @returns {undefined}
@@ -25141,7 +25121,7 @@ var PageMain = function()
 
         initUserAgentAttr();
         initAjaxCSRF();
-        initFormHeight();
+        
         initCoreParams();
         initNotifications();
 
