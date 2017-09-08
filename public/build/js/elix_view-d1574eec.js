@@ -17222,11 +17222,11 @@ function rel_new_form(ajax_url, list_id, item_id, call_field_id, call_field_htm_
         formData.append("call_field_id", call_field_id);
         formData.append("call_field_htm_id", call_field_htm_id);
         formData.append("call_field_type", call_field_type);
-        
+        /*
         if (item_id > 0) {
             formData.append("form_is_edit_mode", 1);
         }
-        
+        */
         $.ajax({ 
             type: 'POST',
             url: DX_CORE.site_url  + ajax_url,
