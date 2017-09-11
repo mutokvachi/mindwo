@@ -30,6 +30,7 @@ class EduSubjectsGroupsAddOrgId extends Migration
     public function down()
     {
         Schema::table($this->table_name, function (Blueprint $table) {
+            $table->dropForeign(['org_id']);
             $table->dropColumn(['org_id']);
         });
     }

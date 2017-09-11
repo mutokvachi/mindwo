@@ -19,7 +19,7 @@ namespace App\Libraries\DataView\Formatters
             $value_formated = "";
             if (strlen($data_row[$model_row["name"]]) > 0) {
                 
-                if ($model_row["width"] > 0) {
+                if ($model_row["width"] > 0 && !$model_row["is_crypted"]) {
                     $helper = new \App\Libraries\DataView\Helper();
                     $value_formated = $helper->getLongTextCell([
                                          'cell_value' => $data_row[$model_row["name"]],

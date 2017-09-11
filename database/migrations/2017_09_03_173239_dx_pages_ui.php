@@ -55,6 +55,57 @@ class DxPagesUi extends Migration
             ->update([
                 'is_required' => 1
             ]);
+
+            DB::table('dx_lists_fields')
+            ->where('list_id', '=', $list_id)
+            ->where('db_name', '=', 'html')
+            ->update([
+                'is_required' => 0
+            ]);
+
+            DB::table('dx_lists_fields')
+            ->where('list_id', '=', $list_id)
+            ->where('db_name', '=', 'title')
+            ->update([
+                'title_list' => trans('db_' . $this->table_name . '.title'),
+                'title_form' => trans('db_' . $this->table_name . '.title')
+            ]);
+
+            DB::table('dx_lists_fields')
+            ->where('list_id', '=', $list_id)
+            ->where('db_name', '=', 'is_active')
+            ->update([
+                'title_list' => trans('db_' . $this->table_name . '.is_active'),
+                'title_form' => trans('db_' . $this->table_name . '.is_active')
+            ]);
+
+            DB::table('dx_lists_fields')
+            ->where('list_id', '=', $list_id)
+            ->where('db_name', '=', 'group_id')
+            ->update([
+                'title_list' => trans('db_' . $this->table_name . '.group_id'),
+                'title_form' => trans('db_' . $this->table_name . '.group_id'),
+                'hint' => trans('db_' . $this->table_name . '.group_id_hint')
+            ]);
+
+            DB::table('dx_forms_tabs')
+            ->where('id', '=', 49)
+            ->update([
+                'title' => trans('db_' . $this->table_name . '.tab_roles')
+            ]);
+
+            DB::table('dx_forms')
+            ->where('list_id', '=', $list_id)
+            ->update([
+                'title' => trans('db_' . $this->table_name . '.item_name')
+            ]);
+
+            DB::table('dx_views')
+            ->where('list_id', '=', $list_id)
+            ->update([
+                'title' => trans('db_' . $this->table_name . '.list_name')
+            ]);
+
         });
     }
 

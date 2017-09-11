@@ -12,6 +12,13 @@ return [
     // tabs
     'tab_main' => 'Pamatdati',
     'tab_content' => 'Lapas saturs',
+    'tab_roles' => 'Lomas',
+
+    // fields
+    'title' => 'Nosaukums',
+    'is_active' => 'Ir aktīva',
+    'group_id' => 'Portāla veids',
+    'group_id_hint' => 'Tā kā satura vadības sistēma var tikt lietota vairāku portālu pārvaldībai, tad šajā laukā jānorāda portāls, kurā lapa būs pieejama.',
 
     'custom_pages' => [
         [
@@ -37,6 +44,16 @@ return [
         [
             'title' => 'Mācību grupu komplektēšana',
             'url_title' => 'calendar/complect',
+            'group_id' => 1,
+        ],
+        [
+            'title' => 'Jauna reģistra izveidošana',
+            'url_title' => 'constructor/register/create',
+            'group_id' => 1,
+        ],
+        [
+            'title' => 'Navigācijas iestatīšana',
+            'url_title' => 'constructor/menu/1',
             'group_id' => 1,
         ],
     ],
