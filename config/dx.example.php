@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 //Rename this file to dx.php for production or development environment
 return [
     
@@ -409,4 +409,64 @@ return [
         // Role which have rights to use constructor
         'access_role_id' => 1,
     ],
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Refresh rate in seconds. Chat messages will be pulled from server after specified time
+    |-------------------------------------------------------------------------- 
+    */
+    'chat_refresh_rate' => env('CHAT_REFRESH_RATE', 1),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Parameter if chat enabled
+    |-------------------------------------------------------------------------- 
+    */
+    'is_chat_enabled' => false,
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Is tasks logic enabled - will be available informative tasks button
+    |-------------------------------------------------------------------------- 
+    */
+    'is_tasks_logic' => true,
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Is news logic enabled - will be available news search on top right corner
+    |-------------------------------------------------------------------------- 
+    */
+    'is_news_logic' => true,
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Application namings and textual logo-replacers settings
+    |-------------------------------------------------------------------------- 
+    */
+    'app' => [
+        'name' => env('APP_NAME', 'MINDWO'),
+        'logo_txt' => env('APP_LOGO_TXT', ''),
+        'logo_big_txt' => env('APP_LOGO_BIG_TXT', ''),
+    ],
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Is education processes modules enabled. 
+    |
+    | Used to organize large companies employees education or provide educational services as a business.
+    | To use this option several database tables must be filled with proper values.
+    | This option can be turned on/off safely only by system provider.
+    |-------------------------------------------------------------------------- 
+    */
+    'is_edu_modules' => env('APP_EDU_MODULES_ON', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Is grid resizing off
+    |
+    | There is JavaScript function which resizes grid page after loading so no double vertical scrollbars in page.
+    | This option turns off this resizing - can be used in cases if resizing causes undesired effects on some slow browsers
+    |-------------------------------------------------------------------------- 
+    */
+    'no_grid_height_resize' => env('APP_NO_GRID_HEIGT_RESIZE', 0),
 ];

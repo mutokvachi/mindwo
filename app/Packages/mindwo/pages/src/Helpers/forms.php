@@ -7,6 +7,21 @@
 use mindwo\pages\Exceptions\PagesException;
 
 /**
+ * Returns default view row for lookup SQL preparation
+ * 
+ * @param integer $list_id Register ID
+ * @return array Row from table dx_views
+ */
+function getLookupViewRow($list_id) {
+    return  DB::table('dx_views')
+            ->where('list_id', '=', $list_id)                
+            ->orderBy('is_for_lookup', 'DESC')
+            ->orderBy('is_default', 'DESC')
+            ->orderBy('is_hidden_from_main_grid')
+            ->first();
+}
+
+/**
  * Izgūst uzmeklēšanas lauka ierakstu atlasīšanas SQL izteiksmi
  * 
  * @param integer $list_id Reģistra ID
@@ -19,12 +34,7 @@ use mindwo\pages\Exceptions\PagesException;
  */
 function getLookupSQL($list_id, $table_name, $field_item, $txt_alias) {
     
-    $view_row = DB::table('dx_views')
-                ->where('list_id', '=', $list_id)
-                ->where('is_hidden_from_main_grid','=',0)
-                ->orderBy('is_for_lookup', 'DESC')
-                ->orderBy('is_default', 'DESC')
-                ->first();
+    $view_row = getLookupViewRow($list_id);
     
     $txt_field_name = $field_item->rel_field_name;           
     $view_obj = new \App\Libraries\View($list_id, $view_row->id, Auth::user()->id);
@@ -37,6 +47,7 @@ function getLookupSQL($list_id, $table_name, $field_item, $txt_alias) {
     $sql_txt = $table_name . "." . $txt_field_name . " as " . $table_name . "_" . $txt_field_name;
     
     if (!str_contains($sql, $sql_txt)) {
+        \Log::info("Lookup SQL error: " . $sql . " NOT FOUND " . $sql_txt);
         throw new PagesException(sprintf(trans('mindwo/pages::errors.lookup_view_error'), $table_name, $txt_field_name));
     }
 

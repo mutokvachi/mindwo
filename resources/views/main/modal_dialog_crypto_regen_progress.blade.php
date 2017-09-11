@@ -1,11 +1,11 @@
-<div class="modal fade in" id="dx-crypto-modal-regen-masterkey" tabindex="-1" role="dialog" aria-labelledby="dx-crypto-modal-regen-label" aria-hidden="true">
+<div class="modal fade" id="dx-crypto-modal-regen-masterkey" tabindex="-1" role="dialog" aria-labelledby="dx-crypto-modal-regen-label" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div id='dx-crypto-modal-regen-content' class="modal-content">      
             <div class="modal-header">
                 <button type="button" class="close dx-crypto-modal-regen-btn-cancel" aria-label="{{ trans('form.btn_close') }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="dx-crypto-modal-regen-label">{{ trans('crypto.regen_masterkey_label') }}</h4>
+                <h4 class="modal-title" id="dx-crypto-modal-regen-label"></h4>
             </div>
             <div class="modal-body">
                 <div class="dx-crypto-modal-regen-progress">
@@ -20,7 +20,7 @@
                     </div>    
                 </div>
                 <div class="alert alert-success dx-crypto-modal-regen-succ" style="display: none">
-                    <strong>{{ trans('crypto.help_success_func') }}</strong> {{ trans('crypto.help_success_regen_text') }}
+                    <strong>{{ trans('crypto.help_success_func') }}</strong> <span id='dx-crypto-modal-regen-succ-label'></span>
                 </div>
             </div>
             <div class="modal-footer">

@@ -4,6 +4,8 @@ namespace mindwo\pages;
 use mindwo\pages\Blocks\BlockFactory;
 use mindwo\pages\Exceptions\PagesException;
 use Illuminate\Support\Facades\File;
+use Auth;
+use Config;
 
 class Page
 {        
@@ -24,7 +26,8 @@ class Page
     private $page_id = 0;
     private $page_html = "";
     private $script_arr = array();
-
+    private $css_arr = array();
+    
     public function __construct($page_id, $page_html)
     {                
         $this->page_id = $page_id;
@@ -68,9 +71,15 @@ class Page
 
             $this->parsed_html = str_replace($out_arr[0][$i], $block->getHtml(), $this->parsed_html);
             $this->parsed_js .= $this->validateJavaScript($block->getJS(), $code);
-            $this->parsed_css .= $block->getCSS();
-
+            
+            $this->checkCssUniq($block->getCSS());
             $this->checkIncludesUniq($block->js_includes_arr);
+            
+            if (Auth::check() && Auth::user()->id != Config::get('dx.public_user_id')) {
+                // include views includes for all authorized user pages because we need that for chat notifications
+                $this->checkIncludesUniq([elixir('js/elix_view.js'), 'plugins/tinymce/tinymce.min.js']);                
+                $this->checkCssUniq(view('pages.view_css_includes')->render());
+            }
         }
     }
 
@@ -84,13 +93,33 @@ class Page
         foreach($inc_arr as $inc)
         {
             $inc = $inc . "?v=" . File::lastModified(public_path() . "/" . $inc);
-            if (!in_array($inc,$this->script_arr))
+            
+            if (substr($inc, 0, 1) === '/') {
+                $inc = substr($inc, 1);
+            }
+            
+            if (!in_array($inc, $this->script_arr))
             {
 
                 $this->script_arr[count($this->script_arr)] = $inc;
             }
         }
     }
+    
+     /**
+     * Pārbauda iekļauto CSS unikalitāti un ievieto vēl neiekļauto CSS masīvā
+     * 
+     * @param string $css Bloka CSS
+     */
+    private function checkCssUniq($css)
+    {      
+        if (!in_array($css, $this->css_arr))
+        {
+            $this->parsed_css .= $css;
+            $this->css_arr[count($this->css_arr)] = $css;
+        }        
+    }
+
 
     /**
      * Drošības pēc pārbauda, lai JavaScript nav ievietota include - tās ir jāuzstāda bloka masīvā nevis blade skatā

@@ -53,6 +53,7 @@ return [
     'import_wrong_bool' => "Importējamajā Excel datnē Jā/Nē laukā '%s' norādīta nekorekta vērtība '%s'! Laukā pieļaujams norādīt tikai vērtības '%s' vai '%s'.",
     
     'import_wrong_date' => "Importējamajā datuma laukā '%s' norādīta nekorekta vērtība '%s'! Datumam jābūt formātā '%s' vai '%s'.",
+    'import_wrong_email' => "Importējamajā e-pasta laukā ':field' norādīta nekorekta vērtība ':val'! E-pastam jābūt formātā 'vards@domens.lv'.",
     
     'excel_row' => 'Dažas Excel rindas netika importētas, jo dublējās reģistra ieraksti. Dublējošo un neimportēto Excel rindu numuri: ',
     
@@ -114,6 +115,8 @@ return [
     
     'wrong_date_format' => "Nevar saglabāt datus! Nekorekts datuma formāts laukam '%s'! Datumam jābūt formātā %s!",
     
+    'unknown_error' => "Radās nezināma kļūda. Lūdzu pārlāde lapu un mēģini vēlreiz!",
+    
     'workflow' => [
         'not_saved' => 'Darbplūsma netika saglabta',
         'step_not_connected' => 'Darbplūsma satur soļus, kas nav sasaistīti ar darbplūsmu',
@@ -151,4 +154,48 @@ return [
     'view_must_have_id_field' => 'Skatā nav iekļauts ID lauks! Lūdzu, iekļaujiet skatā ID lauku - tas var būt arī kā neredzamais lauks.',
     
     'wrong_action_object' => 'Sistēmas konfigurācijas kļūda! Formai norādīta nekorekta izpildāmā aktivitāte, jo tā neatbilst reģistra datu objektam.',
+    
+    'form_in_editing' => "Tiek veikta datu labošana. Lūdzu, saglabājiet vai atceliet veiktās izmaiņas.",
+    
+    'btn_ok' => 'Labi',
+    'attention' => 'Uzmanību!',
+    
+    'import_wrong_multival' => "Daudzlīmeņu klasifikatorā ':list' nav atrodama Excel datnē norādītā vērtība ':val'! Lūdzu, papildiniet klasifikatoru un atkārtojiet importu.",
+    'import_several_multival' => "Daudzlīmenu klasifikatorā ':list' ir vairāki ieraksti ':val'! Lūdzu, norādiet klasifikatorā unikālas ierakstu vērtības un atkērtojiet importu.",
+    'import_lookup_several' => "Uzmeklēšanas laukam ':fld' nav iespējams viennozīmīgi identificēt vērtību, jo saistītajā reģistrā ':list' atrasti vairāki vienādi ieraksti ':term'.",
+    'import_lookup_no_field' => "Reģistrā ':list' nav definēts lauks ':fld'!",
+    
+    'not_valid_email' => "Norādītā e-pasta adrese ':email' ir nekorekta! E-pasta adresei jābūt formātā 'vards@domens.lv'.",
+    
+    'publish_validator_not_exists' => "Norādīts neeksistējošs validatora kods ':code'!",
+    
+    'publish_validator_no_group' => "Norādīts neeksistējošs grupas identifikators ':id'!",
+    
+    'no_rights_on_complect' => 'Jums nav tiesību uz komplektēšanas funkcionalitāti!',
+
+    'no_rights_on_organization' => 'Jums nav tiesību uz komplektēšanas funkcionalitāti norādītajai organizācijai!',
+
+    'no_rights_on_group' => 'Jums nav tiesību uz komplektēšanas funkcionalitāti norādītajai grupai!',
+
+    'err_db_msg_title' => 'Datu kļūda',
+
+    'err_db_msg_general' => 'Datu apstrādes kļūda! Lūdzu, sazinieties ar sistēmas IT atbalstu.',
+
+    'cant_identify_object' => "Nav iespējams viennozīmīgi identificēt objektu pēc norādītās tabulas ':table'! Atbilstošo objektu skaits ir :found.",
+    'cant_identify_register' => "Nav iespējams viennozīmīgi identificēt reģistru pēc norādītās tabulas ':table'! Atbilstošo reģistru skaits ir :found.",
+    'object_dont_have_history' => "Objektam ':table' nav iestatīta vēstures veidošana!",
+    'object_update_without_where' => "Objekta ':table' datu labošanas/dzēšanas metodei nav norādīts neviens kritērijs!",
+    'object_update_without_id' => "Objekta ':table' datu labošanas metodei kā kritērijs nav norādīts ID lauks!",
+    'object_update_without_compare' => "Nekorekti izmantota izmaiņu veikšanas vēstures auditācijas metode - nav vispirms salīdzinātas izmaiņas ar metodi compareChanges().",
+    'object_update_commit_no_prepare' => "Nekorekti izmantota izmaiņu veikšanas metode - nav sagatavotas auditējamās izmaiņās ar metodi update().",
+    'object_delete_commit_no_history' => "Nekorekti izmantota dzēšanas metode - nav sagatavotas auditējamās izmaiņas ar metodi delete()!",
+    
+    'doc_gener_in_workflow' => "Ierakstu nevar rediģēt, jo tas ir darbplūsmā vai arī ar statusu Apstiprināts!",
+
+    'doc_gener_no_template' => 'Reģistram nav piesaistīta neviena dokumentu sagatave!',
+
+    'no_rights_on_custom_page' => "Jums nav piekļuves tiesības funkcionalitātei ':page'!",
+
+    'custom_page_not_found' => "Lapa ':url' nav reģistrēta sistēmas lapu sarakstā vai arī lapa nav aktīva!",
+
 ];

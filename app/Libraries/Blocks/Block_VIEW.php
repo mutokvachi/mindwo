@@ -94,7 +94,7 @@ namespace App\Libraries\Blocks
                         'paginator_htm' => $this->grid->getPaginatorHtml(),
                         'grid_form' => $this->grid->form_url,
                         'hint' => $this->getListHint($this->grid->list_id),
-                        'is_setting_rights' => $this->getSettingRights(),
+                        'is_setting_rights' => Rights::isSettingRights(),
                         'open_item_id' => Input::get('open_item_id', 0),
                         'form_type_id' => $this->grid->form_type_id,
                         'operations' => DB::table('dx_field_operations')->orderBy('title')->get(),
@@ -170,26 +170,6 @@ namespace App\Libraries\Blocks
             }
 
             $this->fillIncludesArr();
-        }
-
-        /**
-         * Nosaka tiesības rediģēt reģistra iestatījumus
-         * 
-         * @return boolean
-         */
-        private function getSettingRights()
-        {
-            $rights = Rights::getRightsOnList(3); // 3 ir reģistra formas ID
-
-            if ($rights == null) {
-                return false;
-            }
-
-            if ($rights->is_edit_rights) {
-                return true;
-            }
-
-            return false;
         }
 
         /**

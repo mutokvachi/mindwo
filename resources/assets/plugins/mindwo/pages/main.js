@@ -5,7 +5,10 @@
  */
 var PageMain = function()
 {
+    var is_grid_resize_callback_added = 0;
 
+    var last_view_loaded_id = 0;
+    
     /**
      * Lapas objekts
      * 
@@ -36,7 +39,22 @@ var PageMain = function()
      * @type Array
      */
     var resize_functions_arr = [];
+
+    /**
+     * Resize function callbacks IDs array
+     * 
+     * @type Array
+     */
+    var callbacks_ids = [];
+
+    /**
+     * Indicates if now code is executed inside function timerResizePage()
+     */
+    var is_in_timer = false;
     
+    /**
+     * New tab object - for links opened from menu
+     */
     var tab_win = null;
 
     /**
@@ -44,6 +62,20 @@ var PageMain = function()
      * @type object
      */
     var reLoginModal = null;
+
+    /**
+     * Stores window height to be used in timer each 500 miliseconds to check if resize was done
+     * 
+     * @type integer
+     */
+    var win_h = 0;
+
+    /**
+     * Stores window width to be used in timer each 500 miliseconds to check if resize was done
+     * 
+     * @type integer
+     */
+    var win_w = 0;
     
     /**
      * Papildina datņu lejuplādes saites ar ikonām
@@ -83,15 +115,37 @@ var PageMain = function()
             }
         });
     };
-    
+
     /**
-     * Izpilda visas funkcijas no masīva, ja lapai mainās izmērs
-     * 
-     * @returns {undefined}
+     * Checks if window size was changes - if yes then executes call backs
      */
-    var resizePage = function() {
-        for (i = 0; i < resize_functions_arr.length; i++) {
-            console.log("Page resize callback function: " + resize_functions_arr[i].name);
+    var timerResizePage = function() {
+        
+        if (is_in_timer) {
+            return;
+        }
+        
+        var cur_win_h = $(window).height();
+        var cur_win_w = $(window).width();
+
+        if (win_h != cur_win_h || win_w != cur_win_w) {
+            console.log("Timer resize page start: cur h=" + cur_win_h + " old h=" + win_h + " cur w=" + cur_win_w + " old w=" + win_w);
+            
+            executeResizeCallbacks();
+            
+            win_h = cur_win_h;
+            win_w = cur_win_w;
+            console.log("Timer resize page end");
+        }
+        
+        is_in_timer = false;
+    };
+
+    /**
+     * Executes resize callbacks from array
+     */
+    var executeResizeCallbacks = function() {
+        for (i = 0; i < resize_functions_arr.length; i++) {            
             resize_functions_arr[i]();
         }
     };
@@ -144,7 +198,7 @@ var PageMain = function()
         // set content
         $('.page-container').appendTo('body > .container');
 
-        $('.page-footer').html('<div class="container">' + $('.page-footer').html() + '</div>');        
+        $('.page-footer').html('<div class="container">' + $('.page-footer').html() + '</div>');
     };
     
     /**
@@ -209,7 +263,7 @@ var PageMain = function()
             Layout.initFixedSidebar(); // reinitialize fixed sidebar
         }
         
-        resizePage();
+        executeResizeCallbacks();
     };
 
     /**
@@ -238,23 +292,6 @@ var PageMain = function()
     };
 
     /**
-     * Uzstāda bootstrap modālo logu maksimālā augstuma nosacījumu
-     * DX_CORE.form_height_ratio parametrs definējas js/dx_core.js
-     * 
-     * @returns {undefined}
-     */
-    var initFormHeight = function() {
-        
-        $.fn.modal.defaults.maxHeight = function() {
-            var menu_h = $(window).height(); //$(".page-sidebar-menu").height();
-            menu_h = menu_h - 246;
-            
-            return menu_h;// * DX_CORE.form_height_ratio;
-        };
-        
-    };
-
-    /**
      * Uzstāda globālos parametrus, lai funkcionētu SVS
      * 
      * @returns {undefined}
@@ -267,6 +304,7 @@ var PageMain = function()
         DX_CORE.progress_gif_url = DX_CORE.site_url + "assets/global/progress/loading.gif";
         DX_CORE.valid_elements = page_elem.attr("dx_valid_html_elements");
         DX_CORE.valid_styles = page_elem.attr("dx_valid_html_styles");
+        
         DX_CORE.max_upload_size = page_elem.attr("dx_max_file_size").replace("M", "");
         DX_CORE.post_max_size = page_elem.attr("dx_post_max_size").replace("M", "");
         
@@ -297,6 +335,8 @@ var PageMain = function()
         
         user_tasks_count = page_elem.attr("dx_user_tasks_count");
         current_route = page_elem.attr("dx_current_route");
+
+        DX_CORE.no_grid_height_resize = (page_elem.data('no-grid-height-resize')) ? 1 : 0;
     };
 
     /**
@@ -322,27 +362,6 @@ var PageMain = function()
             "hideMethod": "fadeOut"
         };
     };
-
-    /**
-     * Parāda popup lodziņu ar lietotāja aktuālajiem uzdevumiem, ja tādi ir
-     * 
-     * @returns {undefined}
-     */
-    /*
-    var initUserTasksPopup = function() {
-
-        if (user_tasks_count > 0 && current_route != "view" && current_route != "home" && current_route != "meeting") {
-            
-            setTimeout(function() {
-                $.gritter.add({
-                    title: Lang.get('task_form.lbl_notify_start') + ' <font color="#F1C40F">' + user_tasks_count + '</font> ' + ((user_tasks_count > 1) ? Lang.get('task_form.lbl_tasks_n') : Lang.get('task_form.lbl_tasks_1')),
-                    text: Lang.get('task_form.lbl_goto_start') + ' <a href="' + DX_CORE.site_url + 'skats_aktualie_uzdevumi" class="text-warning">' + Lang.get('task_form.lbl_goto_link_title') + '</a> ' + Lang.get('task_form.lbl_goto_end') + ' ' + ((user_tasks_count > 1) ? Lang.get('task_form.lbl_tasks_n') : Lang.get('task_form.lbl_tasks_1')) + '.',
-                    time: 7000
-                });
-            }, 3000);
-        }
-    }; 
-    */
     
     /**
      * Uzstāda palīdzības popup formās uz datu laukiem, kuriem norādīti paskaidrojumi
@@ -351,7 +370,7 @@ var PageMain = function()
      */
     var initHelpPopups = function() {
         
-        $('.dx-form-help-popup').tooltipster({
+        $('.dx-form-help-popup:not(.tooltipstered)').tooltipster({
             theme: 'tooltipster-light',
             animation: 'grow',
             maxWidth: 300
@@ -365,19 +384,12 @@ var PageMain = function()
      * @returns {undefined}
      */
     var initSpecialTooltips = function() {
-        $('[title]').filter(function(i){
-            return $(this).attr('title') != "";
+        $('[title]:not(.tooltipstered)').filter(function(i){
+            return $(this).attr('title') != "" && !$(this).hasClass('dx-dont-tooltipster');
         }).tooltipster({
             theme: 'tooltipster-light',
             animation: 'grow'
         });
-   
-        /*
-        $('[title]').tooltipster({
-            theme: 'tooltipster-light',
-            animation: 'grow'
-        });
-        */
     }
     
     /**
@@ -479,7 +491,8 @@ var PageMain = function()
     var handleSplashRemoval = function() {
         $(window).bind("load", function() {
             $('.splash').css('display', 'none');
-            $('body').css('overflow', 'auto');
+            //$('body').css('overflow', 'auto');
+			$('body').css('overflow', 'visible');
         });
     };
     
@@ -501,31 +514,27 @@ var PageMain = function()
     };
     
     /**
-     * Nodrošina lapas pārzīmēšanu, ja tiek mainīts pārlūka loga izmērs
-     * 
-     * @returns {undefined}
-     */
-    var handleWindowResize = function() {
-        $(window).resize(function() {
-            setTimeout(function() {
-                resizePageFromCookie();
-            }, 500);
-        });  
-    };
-    
-    /**
-     * Handles window resize events for horizontal menu UI
-     * 
-     * @returns {undefined}
-     */
-    var handleWindowResizeHorUI = function() {
-        $(window).resize(function() {
-            setTimeout(function() {
-                resizePage();
-            }, 500);
-        });  
-    };
-    
+    * Delay events with the same id, good for window resize events, keystroke, etc
+    * 
+    * @param {Function} func : callback function to be run when done
+    * @param {Integer} wait : integer in milliseconds
+    * @param {String} id : unique event id
+    */
+    var delayedEvent = (function () {
+        var timers = {};
+
+        return function (func, wait, id) {
+            wait = wait || 200;
+            id = id || 'anonymous';
+            if (timers[id]) {
+                clearTimeout(timers[id]);
+                console.log('Delayed timer cleared for: ' + id);
+            }
+            console.log('Delayed timer set for: ' + id);
+            timers[id] = setTimeout(func, wait);
+        };
+    })();
+        
     /**
      * Uzstāda ziņu saitēm, lai tās atver jaunā pārlūka TAB un foksuē TABu.
      * Funkcionalitāte tiek uzstādīta arī mākoņa saitēm.
@@ -648,26 +657,29 @@ var PageMain = function()
     };
     
     /**
-     * Handles AJAX response status - display errors if needed
+     * Handles AJAX errors response status
+     * 
      * @param {object} xhr AJAX response object
+     * @param {string} err AJAX response error text
      * @returns {undefined}
      */
-    var showAjaxError = function(xhr) {
+    var showAjaxError = function(xhr, err, settings) {
+        console.log("AJAX err: " + err + " URL: " + settings.url);
         
-        // 401 (session ended) is handled in the file resources/assets/plugins/mindwo/pages/re_login.js
-        if (xhr.status == 200) {
-            return;
-        }
-        
-        // session ended - relogin required
         if (xhr.status == 401) {
-            hide_page_splash(1);
-            hide_form_splash(1);
-            reLoginModal.modal("show");
+            // session ended
+            if (reLogin.auth_popup.is(":visible")) {
+                // relogin already opened
+                return false;
+            }
+            
+            // relogin required
+            reLogin.ajax_obj = settings;
+            reLogin.openForm();
             return;
         }
         
-        toastr.error(getAjaxErrorText(xhr));
+        toastr.error(getAjaxErrorText(xhr, err));
         
         hide_page_splash(1);
         hide_form_splash(1);
@@ -676,15 +688,16 @@ var PageMain = function()
     /**
      * Gets error message from AJAX error response
      * 
-     * @param {type} xhr
+     * @param {object} xhr AJAX response object
+     * @param {string} err AJAX response error text
      * @returns {string} Error message
      */
-    var getAjaxErrorText = function(xhr) {
+    var getAjaxErrorText = function(xhr, err) {
         var err_txt = "";
         var json = xhr.responseJSON;
         
         // Validation errors handling
-        if ( xhr.status === 422 ) 
+        if ( xhr.status === 422  && typeof json != "undefined") 
         {            
             var errorsHtml= '<ul>';
             $.each( json, function( key, value ) {
@@ -709,9 +722,14 @@ var PageMain = function()
         }
         
         if (!err_txt) {
-            // unknown error
-            console.log('Unknown AJAX error. XHR info: status = ' + xhr.status  + '; txt = ' + xhr.responseText);
-            err_txt = DX_CORE.trans_general_error;
+            if (err) {
+                err_txt = err;
+            }
+            else {
+                // unknown error
+                console.log('Unknown AJAX error. XHR info: status = ' + xhr.status  + '; txt = ' + xhr.responseText);
+                err_txt = DX_CORE.trans_general_error;
+            }
         }
         
         return err_txt;
@@ -729,7 +747,7 @@ var PageMain = function()
 
         initUserAgentAttr();
         initAjaxCSRF();
-        initFormHeight();
+        
         initCoreParams();
         initNotifications();
 
@@ -760,21 +778,20 @@ var PageMain = function()
         
         handleMenuSplash();
         
-        if ($("body").hasClass("dx-horizontal-menu-ui")) {            
-            handleWindowResizeHorUI();
-            resizePage();
-        }
-        else {
-            handleBtnScreen();      
-            handleWindowResize();
+        if (!$("body").hasClass("dx-horizontal-menu-ui")) { 
+            handleBtnScreen();
             initPageSize();
             setActiveMenu();
         }                
             
-        if (dx_is_slider == 1) {
+        if (typeof dx_is_slider !== "undefined" && dx_is_slider === 1) {
             reset_margin();        
             addResizeCallback(reset_margin);
         }
+
+        setInterval(function(){ 
+            timerResizePage();
+        }, 500);
     };
 
     /**
@@ -783,7 +800,16 @@ var PageMain = function()
      * @param {function} callback   Izsaucamā funkciaj
      * @returns {undefined}
      */
-    var addResizeCallback = function(callback) {
+    var addResizeCallback = function(callback, id) {
+        if (id) {
+            for(i=0; i<callbacks_ids.length; i++) {
+                if (callbacks_ids[i] == id) {
+                    // allready added
+                    return;
+                }
+            }
+            callbacks_ids.push(id);
+        }
         resize_functions_arr.push(callback);
     };
     
@@ -793,31 +819,75 @@ var PageMain = function()
     var handleMenuSplash = function() {
         
         var showSplash = function() {
-            if ($(".dx-stick-footer").is(":visible")) {
-                alert("Data form is in editing mode. Please, save data or cancel editing.")
+            var stick = $(".dx-stick-footer");
+            if (stick.is(":visible") && stick.hasClass("dx-page-in-edit-mode")) {                
+                PageMain.showConfirm(null, null, Lang.get('errors.attention'), Lang.get('errors.form_in_editing'), Lang.get('errors.btn_ok'), null, null, true);
+                return false;
+            }            
+            return true;
+        };
+        
+        window.onpopstate = function(e){
+            if(e.state && e.state.list_id && e.state.view_id){
+                last_view_loaded_id = e.state.view_id;
+                load_grid("td_data", e.state.list_id, e.state.view_id);
+                return;
+            }
+            
+            if (e.state && e.state.page_url) {
+                if (!showSplash()) {
+                    e.preventDefault();
+                    return false;
+                }
+                
+                window.location.href = e.state.page_url;
+            }
+            
+            if (last_view_loaded_id) {
+                show_page_splash(1);
+                window.location.reload();
+            }
+        };
+
+        var menu_click = function(link, e) {
+            if (!showSplash()) {
+                e.preventDefault();
                 return false;
             }
+            
+            var list_id = link.attr("data-list-id");
+            var view_id = link.attr("data-view-id");
+            
+            if (list_id && view_id && typeof load_grid !== "undefined") {
+                e.preventDefault();
+                link.closest("li[data-level=0]").removeClass("open").find("a[aria-expanded=true]").attr("aria-expanded", "false");
+                window.history.pushState({"list_id": list_id, "view_id": view_id}, "", "/skats_" + view_id);
+                
+                if(is_grid_resize_callback_added == 0) {                    
+                    PageMain.addResizeCallback(BlockViews.initHeight, 'initHeight');
+                    is_grid_resize_callback_added = 1;
+                }
+                last_view_loaded_id = view_id;
+                load_grid("td_data", list_id, view_id);
+                
+                return false;
+            }
+            
             $('.splash').css('display', 'block');
             $('body').css('overflow', 'hidden');
-            return true;
+           
         };
         
         if ($("body").hasClass("dx-horizontal-menu-ui")) {
             // horizontal menu ui
             $(".dx-main-menu a").not(".dx-main-menu a.dropdown-toggle").click(function(e) {                
-                if (!showSplash()) {
-                    e.preventDefault();
-                    return false;
-                }
+                return menu_click($(this), e);
             });
         }
         else {
             // vertical menu ui
             $("ul.page-sidebar-menu a").not("ul.page-sidebar-menu a.nav-toggle").click(function(e) {
-                if (!showSplash()) {
-                    e.preventDefault();
-                    return false;
-                }
+                return menu_click($(this), e);
             });
         }
     };
@@ -833,7 +903,7 @@ var PageMain = function()
      * @param {function} declineCallback Callback function executed after declined
      * @returns {undefined}
      */
-    var showConfirm = function(callback, callbackParameters, title, bodyText, acceptText, declineText, declineCallback){
+    var showConfirm = function(callback, callbackParameters, title, bodyText, acceptText, declineText, declineCallback, is_accept_only){
         if(!title){
             title = Lang.get('form.modal_confirm_title');
         }
@@ -863,20 +933,37 @@ var PageMain = function()
         if(declineCallback != undefined){
             decline_btn.click(declineCallback);
         }
-         
+        
+        if (is_accept_only) {
+            decline_btn.hide();
+        }
+        
         var accept_btn  = modal.find('#mindwo-modal-accept');
         accept_btn.html(acceptText);
        
         accept_btn.off('click');
-       
-        accept_btn.click(function(){
-            var res =  callback(callbackParameters);
-            
-            if(res || typeof(res) == 'undefined'){
-                modal.modal('hide');
-            }
-        });
         
+        if (callback != undefined && callback != null) {
+            accept_btn.click(function(){
+                var res =  callback(callbackParameters);
+
+                if(res || typeof(res) == 'undefined'){
+                    modal.modal('hide');
+                }
+            });
+        }
+        else {
+            accept_btn.click(function(){
+                modal.modal('hide');
+            });
+        }
+        
+        // hide opened menu item if any
+        var navMainOpen = $("#navbar li.open");
+        navMainOpen.find("a[aria-expanded=true]").attr("aria-expanded", false);
+        navMainOpen.removeClass("open");
+     
+        // shoe modal popup
         modal.modal('show');        
     };
 
@@ -887,8 +974,8 @@ var PageMain = function()
         initPageLoaded: function() {
             initPageLoaded();
         },
-        addResizeCallback: function(callback) {
-            addResizeCallback(callback);
+        addResizeCallback: function(callback, id) {
+            addResizeCallback(callback, id);
         },
         modalsDraggable: function() {
             makeModalsDraggable();
@@ -907,32 +994,45 @@ var PageMain = function()
             initAjaxCSRF();
         },
         resizePage: function() {
-            resizePage();
+            // do nothing
         },
-        errorHandler: function(xhr) {
-            showAjaxError(xhr);
+        executeResizeCallbacks: function() {
+            executeResizeCallbacks();
+        },
+        errorHandler: function(xhr, err, settings) {
+            showAjaxError(xhr, err, settings);
         },
         getAjaxErrTxt: function(xhr) {
             return getAjaxErrorText(xhr);
         },
-        showConfirm:function(callback, callbackParameters, title, bodyText, acceptText, declineText, declineCallback){
-            showConfirm(callback, callbackParameters, title, bodyText, acceptText, declineText, declineCallback);
+        showConfirm:function(callback, callbackParameters, title, bodyText, acceptText, declineText, declineCallback, is_accept_only){
+            showConfirm(callback, callbackParameters, title, bodyText, acceptText, declineText, declineCallback, is_accept_only);
         }
     };
 }();
 
+Function.prototype.getName = function(){
+  // Find zero or more non-paren chars after the function start
+  return /function ([^(]*)/.exec( this+"" )[1];
+};
 
 PageMain.init();
 
 $(document).ready(function() {
     PageMain.initPageLoaded();
     PageMain.initHelpPopups();
-    $(this).scrollTop(0,0);
+    $(this).scrollTop(0,0);    
 });
 
-$(document).ajaxComplete(function(event, xhr, settings) {      
-    PageMain.errorHandler(xhr);
+$(document).ajaxError(function(event, xhr, settings, err) {
+    PageMain.errorHandler(xhr, err, settings);
+});
+
+$(document).ajaxComplete(function(event, xhr, settings) {
     PageMain.modalsDraggable();
     PageMain.initHelpPopups();
     PageMain.initFilesIcons();
 });
+
+// To solve FireFox history back issue: https://stackoverflow.com/questions/158319/is-there-a-cross-browser-onload-event-when-clicking-the-back-button
+window.onunload = function(){};

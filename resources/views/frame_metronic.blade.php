@@ -16,7 +16,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}" />
 
         <!-- BEGIN PLUGINS STYLES -->
-        <link href="{{Request::root()}}/metronic/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+        <link href="{{Request::root()}}/{{ getIncludeVersion('metronic/global/plugins/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" type="text/css" />
         <link href="{{Request::root()}}/metronic/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />    
         <link href="{{ elixir('css/elix_plugins.css') }}" rel="stylesheet" type="text/css" />
         <!-- BEGIN PLUGINS STYLES -->
@@ -95,15 +95,10 @@
           trans_tree_cancel = "{{ trans('fields.tree_cancel') }}"
           trans_tree_choose = "{{ trans('fields.tree_choose') }}"
           trans_passw_form_title = "{{ trans('password_form.form_title') }}"
+          data-no-grid-height-resize = "{{ Config::get('dx.no_grid_height_resize', 0)}}"
           >
 
-        <!-- Simple splash screen-->    
-        <div class="splash">
-            <div class="color-line"></div>
-            <div class="splash-title">
-                <h1>{{ $portal_name }}</h1><p>{{ trans("frame.data_loading") }}</p><img src="{{Request::root()}}/assets/global/progress/loading-bars.svg" width="64" height="64" />
-            </div>
-        </div>    
+        @include('main.splash')   
 
         <!-- BEGIN HEADER -->
         <div class="page-header navbar navbar-fixed-top">
@@ -112,11 +107,11 @@
             <div class="page-header-inner container">
 
                 <div class="page-logo">
-                    <a href="/" style="text-decoration: none;">
-                         @if (!trans('index.logo_txt'))
+                    <a href="/" style="text-decoration: none;" title="{{ trans('index.logo_txt') }}">
+                        @if (Config::get('dx.app.logo_txt', '') === '')
                             <img src="{{Request::root()}}/{{ Config::get('dx.logo_small', 'assets/global/logo/logo-default.png') }}" alt="LOGO" class="logo-default" style="margin-top: 8px;"/>
                         @else
-                            <div style="font-size: 28px; color: white; text-transform: uppercase; padding-top: 14px;">{{ trans('index.logo_txt') }}</div>
+                            <div style="font-size: 28px; color: white; text-transform: uppercase; padding-top: 14px;">{{ Config::get('dx.app.logo_txt') }}</div>
                         @endif
                     </a>
                     <div class="menu-toggler sidebar-toggler" dx_attr=""></div>
@@ -129,7 +124,6 @@
                 <div class="page-top">
                     <div class="top-menu pull-left">
                         <ul class="nav navbar-nav pull-right">
-
                             <li class="dropdown" style="color: #b4bcc8; font-size: 13px; margin: 17px 0 0 15px;">
                                 {!! $special_days !!}
                             </li>
@@ -145,21 +139,22 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-default">
                                     <li>
-                                        <a href="javascript:;" title="{{ trans("frame.page_size") }}" id='btnScreen'>
+                                        <a href="javascript:;" id='btnScreen'>
                                             <i class="fa fa-arrows-alt"></i> {{ trans("frame.page_fullscreen") }} </a>
                                     </li>
                                     <li>
-                                        <a href="javascript:;" title="{{ trans("frame.password_change") }}" class="dx-user-change-passw-link">
+                                        <a href="javascript:;" class="dx-user-change-passw-link">
                                             <i class="fa fa-key"></i> {{ trans("frame.password_change") }} </a>
                                     </li>
                                     <li>
-                                        <a href="{{Request::root()}}/logout" title="{{ trans("frame.logout") }}">
+                                        <a href="{{Request::root()}}/logout">
                                             <i class="fa fa-sign-out"></i> {{ trans("frame.logout") }} </a>
                                     </li>
                                 </ul>
                             </li>
                             <!-- END USER LOGIN DROPDOWN -->
 
+                            @include('static_blocks.chat_notif')
 
                             @if ($user_tasks_count > 0)
                             <!-- BEGIN TODO DROPDOWN -->
@@ -298,6 +293,8 @@
         @include('elements.popup_info')
         @include('main.modal_dialog')
         @include('main.modal_dialog_crypto_psw')
+        @include('main.modal_dialog_crypto_regen_progress')
+        @include('forms.chat.window')
         <script>
             dx_is_slider = {{ ((isset($is_slidable_menu) && $is_slidable_menu)) ? "1" : "0" }};
         </script>

@@ -13,6 +13,7 @@ use Auth;
 use App\Libraries\FieldsImport;
 use App\Libraries\DBHistory;
 use Log;
+use App\Libraries\DB_DX;
 
 /**
  * Provides functionality for data importing from Excel files to any register
@@ -24,12 +25,6 @@ class ImportController extends Controller
      * Filed name in HTML form for file input
      */
     const FILE_FIELD_NAME = "import_file";
-
-    /**
-     * Supported field types. ID's from table dx_field_types
-     * @var type 
-     */
-    private $supported_fields = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20];
 
     /**
      * Register ID
@@ -132,6 +127,13 @@ class ImportController extends Controller
      * @var Array 
      */
     private $criteria_arr = [];
+
+    /**
+     * History making object for data updates
+     *
+     * @var \App\Libraries\DB_DX
+     */
+    private $dx_db = null;
     
     /**
      * Imports uploaded file data into database
@@ -163,7 +165,6 @@ class ImportController extends Controller
 
         //Set db table for list
         $this->list_object = \App\Libraries\DBHelper::getListObject($this->list_id);
-        $this->list_object->table_name = $this->list_object->db_name; // in order to work history logic for updates
         
         //Sets current time for audit info
         $this->time_now = date('Y-n-d H:i:s');                
@@ -301,63 +302,70 @@ class ImportController extends Controller
         
         $this->updateSaveArray();
         
-        DB::transaction(function ()
-        {
-            try {
-                
-                if (isset($this->save_arr["id"]) && $this->save_arr["id"] > 0) {
-                    $id = $this->save_arr["id"];
-                    $data_row = DB::table($this->list_object->db_name)->where('id', '=', $id)->first();
-                    if ($data_row) {
-                        // update by ID field
-                        unset($this->save_arr["id"]);
-                        
-                        $arr_data = [];
-                        foreach($this->save_arr as $key => $val) {
-                            $arr_data[":" . $key] = $val;
-                        }
-                        
-                        $history = new DBHistory($this->list_object, $this->list_fields, $arr_data, $id);
-                        $history->makeUpdateHistory();
-                        
-                        if ($history->is_update_change) {
-                            $this->addHistory();
-                            DB::table($this->list_object->db_name)->where('id', '=', $id)->update($this->save_arr);
-                            $this->update_count++;
-                        }
+        try {            
+            if ($this->save_arr["id"] > 0) {
+                $id = $this->save_arr["id"];
+                $data_row = DB::table($this->list_object->db_name)->where('id', '=', $id)->first();
+                if ($data_row) {
+                    // update by ID field
+                    unset($this->save_arr["id"]);
+                    
+                    if (!$this->dx_db) {
+                        $this->dx_db = (new DB_DX())->table($this->list_object->db_name);
                     }
                     else {
-                        $this->addHistory();
-                        // insert with provided ID
-                        DB::table($this->list_object->db_name)->insert($this->save_arr);
-                        $history = new DBHistory($this->list_object, null, null, $id);
-                        $history->makeInsertHistory();
-                        $this->import_count++;
+                        $this->dx_db->clearUpdate(); // clear previous made update data
                     }
+
+                    $this->dx_db = $this->dx_db
+                        ->where('id', '=', $id)
+                        ->update($this->save_arr);
+            
+                    DB::transaction(function (){
+                        if ($this->dx_db->commitUpdate()) {
+                            $this->update_count++;
+                        }
+                    });
                 }
                 else {
                     $this->addHistory();
-                    // insert without ID field
+
+                    // insert with provided ID
+                    DB::transaction(function () use ($id) {                        
+                        DB::table($this->list_object->db_name)->insert($this->save_arr);
+
+                        $history = new DBHistory($this->list_object, null, null, $id);
+                        $history->makeInsertHistory();
+                        $this->import_count++;
+                    });
+                }
+            }
+            else {
+                unset($this->save_arr["id"]);
+                $this->addHistory();
+                // insert without ID field
+                DB::transaction(function () {    
                     $id = DB::table($this->list_object->db_name)->insertGetId($this->save_arr);
+                    
                     $history = new DBHistory($this->list_object, null, null, $id);
                     $history->makeInsertHistory();
                     $this->import_count++;
-                }                
-            }
-            catch (\Exception $e) {
-                if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
-                    // skip record
-                    if (strlen($this->duplicate) > 0) {
-                        $this->duplicate .= ", ";
-                    }
-                    $this->duplicate .= ($this->row_nr+1);                            
+                });
+            }                
+        }
+        catch (\Exception $e) {
+            if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
+                // skip record
+                if (strlen($this->duplicate) > 0) {
+                    $this->duplicate .= ", ";
+                }
+                $this->duplicate .= ($this->row_nr+1);                            
 
-                }
-                else {
-                    throw $e;
-                }
             }
-        }); 
+            else {
+                throw $e;
+            }
+        }        
     }
     
     /**
@@ -375,18 +383,7 @@ class ImportController extends Controller
      * This is used for example for dx_doc based registers where n registers are based on 1 table and there is field list_id
      */
     private function setCriteriaArray() {
-        $this->criteria_arr = []; // reset array
-
-        // get default values from list fields definitions
-        $fields = DB::table('dx_lists_fields')
-                ->select('db_name', 'criteria')
-                ->where('list_id', '=', $this->list_id)
-                ->whereNotNull('criteria')
-                ->get();
-        
-        foreach($fields as $fld) {
-            $this->criteria_arr[$fld->db_name] = $fld->criteria;
-        }
+        $this->criteria_arr = \App\Libraries\DBHelper::getRegisterFieldsPredefined($this->list_id);
     }
     
     /**
@@ -433,7 +430,7 @@ class ImportController extends Controller
             return;
         }
 
-        $fld_save = FieldsImport\FieldImportFactory::build_field($val, $fld, $this->file_import->tmp_dir);
+        $fld_save = FieldsImport\FieldImportFactory::build_field($val, $fld, $this->file_import->tmp_dir, $this->save_arr);
 
         $this->save_arr = array_merge($this->save_arr, $fld_save->getVal());
     }
@@ -443,31 +440,7 @@ class ImportController extends Controller
      */
     private function getListFields()
     {
-        $this->list_fields = DB::table('dx_lists_fields as lf')
-                ->select(
-                        'lf.list_id',
-                        'lf.db_name', 
-                        'ft.sys_name as type_sys_name', 
-                        'lf.max_lenght', 
-                        'lf.is_required', 
-                        'lf.default_value', 
-                        'lf.title_form', 
-                        'lf.title_list',
-                        'lf.rel_list_id',
-                        'lf_rel.db_name as rel_field_name',
-                        'o_rel.db_name as rel_table_name',
-                        'o_rel.is_history_logic as rel_table_is_history_logic',
-                        'lf.is_public_file',
-                        'lf.id as field_id'
-                        )
-                ->leftJoin('dx_field_types as ft', 'lf.type_id', '=', 'ft.id')
-                ->leftJoin('dx_lists_fields as lf_rel', 'lf.rel_display_field_id', '=', 'lf_rel.id')
-                ->leftJoin('dx_lists as l_rel', 'lf.rel_list_id', '=', 'l_rel.id')
-                ->leftJoin('dx_objects as o_rel', 'l_rel.object_id', '=', 'o_rel.id')
-                ->where('lf.list_id', '=', $this->list_id)
-                ->whereIn('lf.type_id', $this->supported_fields)
-                ->whereNull('lf.formula')
-                ->get();
+        $this->list_fields = DBHistory::getListFields($this->list_id);
 
         $this->addFormatedTitles();
     }
@@ -538,10 +511,14 @@ class ImportController extends Controller
         $val = $this->toASCII($val);
         $val = trim($val);
         $val = str_replace("/", " ", $val);
+        $val = str_replace("'", " ", $val);
+        $val = str_replace("(", " ", $val);
+        $val = str_replace(")", " ", $val);
+        $val = trim($val);
         $val = str_replace("  ", " ", $val);
         $val = str_replace("  ", " ", $val);
         $val = str_replace(" ", "_", $val);
-
+        
         return $val;
     }
 

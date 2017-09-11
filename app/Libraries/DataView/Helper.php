@@ -104,6 +104,23 @@ namespace App\Libraries\DataView
             return "<a href='skype:" . e($cell_value) ."?chat' title='" . trans('fields.hint_skype') . "'><i class='fa fa-skype'></i> " . e($cell_value) . "</a>";
         }
         
+        public function getLongTextCell($arr_args) {
+            $cell_value = $arr_args['cell_value'];
+            $cell_width = $arr_args['cell_width'];
+                    
+            if (!$cell_value) {
+                return "";
+            }
+            
+            $style_w = "";
+            if ($cell_width > 0) {
+                $style_w = " style='width: " . $cell_width . "px;'";
+            }
+            
+            return "<div title='" . e($cell_value) . "'" . $style_w . " class='dx-overflow-cell'> " . e($cell_value) . "</div>";
+
+        }
+        
          /**
          * Returns HTML for WhatsApp link cell
          * @param array $arr_args Array with arguments: cell_value

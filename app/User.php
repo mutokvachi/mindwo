@@ -182,6 +182,15 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 	{
 		return $this->hasMany('\App\Models\Employee\Note', 'user_id');
 	}
+
+	/**
+	 * List of users's chats
+	 * @return App\Models\Chat\User
+	 */
+	public function chatUsers()
+	{
+		return $this->hasMany('\App\Models\Chat\User', 'user_id');
+	}
         
         /**
 	 * List of users's time off calculations
@@ -396,23 +405,5 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 		$this->lists = $lists;
 		
 		return $this->lists;
-	}
-	
-	/**
-	 * The "booting" method of the model.
-	 *
-	 * @return void
-	 */
-	protected static function boot()
-	{
-		parent::boot();
-		
-		// Add default user roles
-		User::created(function ($user)
-		{
-			$roles = \App\Models\System\Role::where('is_default', true)->get();
-			
-			$user->roles()->attach($roles);
-		});
 	}
 }

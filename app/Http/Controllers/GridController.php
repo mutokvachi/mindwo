@@ -58,7 +58,7 @@ class GridController extends Controller
                 'page_html' => $block_grid->getHTML(),
                 'page_js' => $js_inc . $block_grid->getJS(),
                 'page_css' => $block_grid->getCSS(),
-				'page_is_full_height' => true
+		'page_is_full_height' => true
             ]);
         }catch (Exceptions\DXViewAccessException $e){
             $url = $request->root() . $request->getPathInfo() . ($request->getQueryString() ? ('?' . $request->getQueryString()) : '');
@@ -121,7 +121,7 @@ class GridController extends Controller
             $block_grid->grid->grid_data_htm_id = $grid_data_id;
         }
         
-        return response()->json(['success' => 1, 'html' => $block_grid->getHTML() . $block_grid->getJS()]);
+        return response()->json(['success' => 1, 'title' => get_portal_config('PORTAL_NAME') . " :: " . $block_grid->grid->grid_title, 'html' => $block_grid->getHTML() . $block_grid->getJS()]);
     }
 
     /**

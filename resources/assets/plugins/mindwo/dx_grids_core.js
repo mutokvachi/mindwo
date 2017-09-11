@@ -109,23 +109,17 @@ function post_grid_ajax(formData, grid_data_htm_id, form_htm_id, is_scroll)
                 { 
                     $("#" + grid_data_htm_id).html(myData['html']);
                                         
+                    if (!form_htm_id) {
+                        $("body").addClass("dx-grid-in-page");
+                        document.title = myData['title'];
+                    }
+            
                     if (is_scroll == 1)
                     {
                         var d = $("#" + form_htm_id).find(".modal-body");
 
                         d.scrollTop(d.prop("scrollHeight"));
                     }
-                    
-                    setTimeout(function(){ 
-                        PageMain.resizePage();                     
-                    }, 100);
-                    
-                    // Commented out because it prevents main navigation from working properly on mobiles
-                    /*
-                    setTimeout(function(){ 
-                        $('.dropdown-toggle').dropdown();                        
-                    }, 1000);
-                    */
                 } 
                 else
                 {

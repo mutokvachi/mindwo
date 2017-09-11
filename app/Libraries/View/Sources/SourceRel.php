@@ -37,7 +37,7 @@ namespace App\Libraries\View\Sources
                 $join_type = (strlen($superv_sql) > 0) ? " JOIN " : " LEFT JOIN ";
             }
 
-            $this->sql_join = $join_type . $this->field_row->rel_table_db_name . " " . $this->source_table . " ON " . $this->source_table . ".id = " . $this->list_obj_db_name . "." . $this->field_row->db_name . $superv_sql;
+            $this->sql_join = $join_type . $this->field_row->rel_table_db_name . " " . $this->source_table . " ON " . $this->source_table . ".id = " . $this->list_obj_db_name . "." . $this->field_row->db_name . " " . $superv_sql;
 
         }
 

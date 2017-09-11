@@ -1,6 +1,6 @@
     dx_valid_html_elements="{{ get_portal_config('VALID_HTML_ELEMENTS') }}"
     dx_valid_html_styles="{{ get_portal_config('VALID_HTML_STYLES') }}"
-    dx_user_tasks_count="{{ $user_tasks_count }}"
+    dx_user_tasks_count="{{ isset($user_tasks_count) ? $user_tasks_count : 0 }}"
     dx_current_route="{{ Route::current()->getName()}}"
     dx_root_url="{{Request::root()}}/"
     dx_public_root_url="{{ get_portal_config('PORTAL_PUBLIC_URL') }}"
@@ -28,3 +28,4 @@
     trans_tree_cancel="{{ trans('fields.tree_cancel') }}"
     trans_tree_choose="{{ trans('fields.tree_choose') }}"
     trans_passw_form_title="{{ trans('password_form.form_title') }}"
+    data-user-id = "{{ (Auth::guest()) ? '0' : Auth::user()->id }}"

@@ -197,6 +197,7 @@ class FormController extends Controller
             'is_edit_rights' => $this->is_edit_rights,
             'is_delete_rights' => $this->is_delete_rights,
             'is_info_tasks_rights' => ($table_name == "dx_doc"),
+            'is_setting_rights' => Rights::isSettingRights(),
             'workflow_btn' => $this->isWorkflowInit($list_id, $item_id), // Uzstāda pazīmi, vai redzama darbplūsmu poga 
             'is_custom_approve' => ($this->workflow && $this->workflow->is_custom_approve) ? 1 : 0,
             'is_editable_wf' => $this->is_editable_wf,
@@ -676,6 +677,7 @@ class FormController extends Controller
             
             if ($status == 3) { // item in status rejected
                 $this->reject_task = Workflows\Helper::getWFRejectedInfo($list_id, $item_id);
+                \Log::info("Rejected task: " . json_encode($this->reject_task));
             }
             
             return $status;
@@ -711,11 +713,11 @@ class FormController extends Controller
                 ->where('id', '=', $field_id)
                 ->first();
         
-        if (!$table_item || !$field_item || !$main_field_item) {
+        if (!$table_item || !$field_item || (!$main_field_item && $field_id != -1)) {
             throw new Exceptions\DXCustomException("Sistēmas konfigurācijas kļūda! Uzmeklēšanas laukam nav atrodams reģistrs ar ID " . $list_id . " vai saistītais lauks ar ID " . $txt_field_id . ".");
         }
         
-        $field_item->is_right_check = $main_field_item->is_right_check; // jo tiesības uzstāda galvenā reģistra laukam bet SQLs tiek veidots no saistītā reģistra
+        $field_item->is_right_check = $main_field_item ? $main_field_item->is_right_check : false; // jo tiesības uzstāda galvenā reģistra laukam bet SQLs tiek veidots no saistītā reģistra
 
         $rows = DB::select($this->getAutocompleateSQL($table_item, $field_item, $list_id), array($field_item->rel_field_name => "%" . $term . "%"));
 

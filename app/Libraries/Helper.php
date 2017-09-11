@@ -11,6 +11,7 @@ namespace App\Libraries
     use Auth;
     use Carbon\Carbon;
     use Log;
+    use Illuminate\Support\Facades\Schema;
     
     /**
      * Palīgfunkciju klase
@@ -249,7 +250,7 @@ namespace App\Libraries
         public static function getWordGenerBtn($list_id)
         {
             $is_word_generation_btn = 0;
-            $view_row = DB::table('dx_views')->where('list_id', '=', $list_id)->where('is_for_word_generating', '=', 1)->first();
+            $view_row = DB::table('dx_doc_templates')->where('list_id', '=', $list_id)->first();
             if ($view_row) {
                 $is_word_generation_btn = 1;
             }
@@ -266,8 +267,9 @@ namespace App\Libraries
          * @return array Array with info tasks or null of nothing found
          */
         public static function getInfoTasks($list_id, $item_id, $table_name) {
-            $info_tasks = null;        
-            if ($item_id != 0 && $table_name == "dx_doc") {
+            $info_tasks = null;
+            
+            if ($item_id != 0 && Schema::hasColumn($table_name, 'created_user_id')) {
 
                 $creator_id = DB::table($table_name)->select('created_user_id')->where('id','=',$item_id)->first()->created_user_id;
 
@@ -281,7 +283,7 @@ namespace App\Libraries
                                 ->orderBy('u.display_name', 't.task_closed_time')
                                 ->distinct()
                                 ->get();
-
+                
                 $arr_uniq = [];
                 foreach($info_tasks as $task) {
                     if (array_search($task->display_name, $arr_uniq)) {

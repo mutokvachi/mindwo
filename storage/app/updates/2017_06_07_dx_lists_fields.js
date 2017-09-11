@@ -59,7 +59,7 @@ if (sel)
 	{
             var list_id = form_object.find("[name=list_id]").val();
 
-            var url = "/constructor/db_fields/" + list_id + "/" + val;
+            var url = "constructor/db_fields/" + list_id + "/" + val;
 
             toastr.clear();
             show_form_splash();

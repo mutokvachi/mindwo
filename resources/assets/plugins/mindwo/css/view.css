@@ -16,12 +16,6 @@
 	margin-bottom: 20px;
 }
 
-#td_data .dx-grid-outer-div .t_header {
-	/*
-	background-color: white !important;
-	*/
-}
-
 .modal-scrollable {
 	overflow: hidden !important;
 }
@@ -177,7 +171,7 @@ a.header-filter:hover {
 
 .dx-grid-container {
 	position: relative;
-	height: calc(100% - 49px - 22px - 20px);
+	/*height: calc(100% - 49px - 22px - 20px);*/
 	background-color: white;
 	margin-bottom: 20px;
 	overflow: hidden;
@@ -197,7 +191,7 @@ a.header-filter:hover {
 	margin: 0 !important;
 }
 
-.dx-grid-table thead {
+.dx-horizontal-menu-ui .dx-grid-table thead {
 	position: relative;
 	z-index: 10000;
 }
@@ -213,7 +207,7 @@ a.header-filter:hover {
 
 .dx-grid-table thead th div, .dx-grid-table thead td div {
 	position: relative;
-	z-index: 10000;
+	z-index: 9990;
 	top: -1px;
 	white-space: nowrap;
 	background-color: #e7ecf1;
@@ -238,7 +232,7 @@ a.header-filter:hover {
     margin-right: -15px;
 }
 
-// Dropdown field buttons
+/* Dropdown field buttons */
 .dx-rel-id-view-btn {
     border: 1px solid #c2cad8!important;
     margin-left: -2px!important;
@@ -262,4 +256,59 @@ a.header-filter:hover {
 .btn.btn-default.dx-status-potential {
 	background-color: #f7ca18 !important;
 	border: 0 none !important;
+}
+
+.dx-overflow-cell {
+    max-width: 500px;
+    overflow: hidden; 
+    white-space: nowrap; 
+    text-overflow: ellipsis;
+}
+
+/* Adjust mobile view and small desktops */
+@media only screen and (max-width: 1000px) {
+	.dx_form_btns_left button {
+		margin-top: 10px;
+	}
+}
+
+@media only screen and (max-width: 768px) {
+	.dx-paginator-butons {
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+
+	.dx-grid-left-btns button {
+		margin-top: 10px;
+	}
+
+	.dx-register-tools {
+		float: right; /* In order to display popup menu */
+	}
+
+	#dx_tasks_count_li {
+		display: none; /* ToDo: we stil need to display counters somehow in mobile too */
+	}
+
+	.dx-chat-notif-dropdown {
+		display: none;
+	}
+}
+
+/* Templates UI */
+.dx-templ-row {            
+	color: black;
+    margin: 20px;
+    padding: 10px;
+    border-left: 5px solid #c1c1c1;
+    background-color: #e4e8e7;
+}   
+
+.dx-templ-title {
+	font-weight: bold;
+}
+
+/* Modal body height */
+.modal-body {
+    max-height: calc(100vh - 246px);
 }

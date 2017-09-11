@@ -5,12 +5,12 @@
          src="{{Request::root()}}/{{ $note->createdUser->picture_guid ? 'img/' .$note->createdUser->picture_guid : 'assets/global/avatars/default_avatar_small.jpg' }}">
     <div class="message">
         <span class="arrow"> </span>
-        <a href="{{Request::root() . '/employee/profile/' . $note->createdUser->id }}" class="name"> {{ $note->createdUser->display_name }} </a>
+        <a href="{{Request::root() . config('dx.employee_profile_page_url') . $note->createdUser->id }}" class="name"> {{ $note->createdUser->display_name }} </a>
         <span class="datetime"> {{ $note->created_time->format(config('dx.txt_datetime_format')) }} </span>
         @if($note->created_time != $note->modified_time)
         <span class="dx-emp-notes-modified">
             &nbsp;({{ trans('empl_profile.notes.modified')}}&nbsp;
-            <a href="{{Request::root() . '/employee/profile/' . $note->modifiedUser->id }}" class="name">{{ $note->modifiedUser->display_name }} </a>
+            <a href="{{Request::root() . config('dx.employee_profile_page_url') . $note->modifiedUser->id }}" class="name">{{ $note->modifiedUser->display_name }} </a>
             <span class="datetime"> {{ $note->modified_time->format(config('dx.txt_datetime_format')) }}</span>)
         </span>
         @endif        

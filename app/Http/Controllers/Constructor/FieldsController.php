@@ -20,10 +20,10 @@ class FieldsController extends Controller
     public function getDBFields($list_id, $field_type_id)
     {
         $this->checkRights();
-        
-        $obj = DB::table('dx_objects as o')
+       
+        $obj = DB::table('dx_lists as l')
                ->select('o.db_name as table_name')
-               ->join('dx_lists as l', 'o.id', '=', 'l.object_id')
+               ->join('dx_objects as o', 'o.id', '=', 'l.object_id')
                ->where('l.id', '=', $list_id)
                ->first();
         

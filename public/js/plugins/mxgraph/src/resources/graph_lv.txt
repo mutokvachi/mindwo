@@ -1,11 +1,11 @@
 alreadyConnected=Elementi jau ir savienoti
-containsValidationErrors=Validācijas kļūdas
+containsValidationErrors=Satur validācijas kļūdas
 updatingDocument=Atjaunina dokumentu. Lūdzu, uzgaidiet...
-updatingSelection=Atjaunina apgabalu. Lūdzu, uzgaidiet...
+updatingSelection=Atjaunina sadaļu. Lūdzu, uzgaidiet...
 collapse-expand=Sakļaut/Izvērst
-doubleClickOrientation=Dubultklišķis, lai mainītu orientāciju
+doubleClickOrientation=Dubultklikšķis, lai mainītu novietojumu
 close=Aizvērt
 error=Kļūda
-done=Labi
+done=Pabeigts
 cancel=Atcelt
 ok=Labi

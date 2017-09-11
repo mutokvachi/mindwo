@@ -1,4 +1,4 @@
-/*
+﻿/*
  |--------------------------------------------------------------------------
  | Elixir Asset Management
  |--------------------------------------------------------------------------
@@ -33,7 +33,9 @@ gulp.task('mix_all', function() {
 
         // Prepare less styles for elix_view.css
         mix.less([
-            '/pages/crypto/crypto.less'
+            '/pages/crypto/crypto.less',
+            '/forms/chat.less',
+            '../plugins/bootstrap-timepicker/css/timepicker.less',
         ], 'public/css/elix_view_less.css');
 
         // Core styles for main page - plugins
@@ -68,6 +70,7 @@ gulp.task('mix_all', function() {
         // Styles for view page
         mix.styles([
             'datetimepicker/jquery.datetimepicker.css',
+            'bootstrap-multiselect/Content/bootstrap-multiselect.css',            
             'dropzone/dropzone.min.css',
             'dropzone/basic.min.css',
             'select2/select2-bootstrap.css',
@@ -79,8 +82,8 @@ gulp.task('mix_all', function() {
             'datatables/plugins/bootstrap/datatables.bootstrap.css',
             'datatables/datatables.min.css',
             'bootstrap-daterangepicker/daterangepicker.min.css',
+            '../less/pages/visual_workflow.less',
             '../../../public/css/elix_view_less.css',
-                    //'../less/pages/visual_workflow.less'
         ], 'public/css/elix_view.css', 'resources/assets/plugins');
 
         // horizontal menu UI styles
@@ -99,6 +102,21 @@ gulp.task('mix_all', function() {
         mix.less([
             'colors/bamboo.less'
         ], 'public/css/elix_colors_bamboo.css');
+        
+        mix.less([
+            'colors/darkred.less'
+        ], 'public/css/elix_colors_darkred.css');
+        
+        mix.less([
+            'colors/grayred.less'
+        ], 'public/css/elix_colors_grayred.css');
+
+        // Scripts for education module
+        mix.less([
+            '/pages/education/catalog.less',
+            '/pages/education/registration.less',
+            '/pages/education/course.less'
+        ], 'public/css/elix_education.css', 'resources/assets/plugins');
         
         // Styles for articles search page
         mix.styles([
@@ -120,10 +138,19 @@ gulp.task('mix_all', function() {
         ],
                 'public/js/elix_documents.js', 'resources/assets/plugins');
 
+        // Scripts for education module
+        mix.scripts([
+            'mindwo/pages/education/catalog.js',
+            'mindwo/pages/education/course.js',
+            'mindwo/pages/education/registration.js'
+        ], 'public/js/elix_education.js', 'resources/assets/plugins');
+
         // Core scripts for main blade view - will be included in all pages
         mix.scripts([
+            'fullcalendar/lib/moment.min.js',
             'jquery.min.js',
             'bootstrap/js/bootstrap.min.js',
+            'mindwo/pages/module.js',
             'js.cookie.min.js',
             'bootstrap-hover-dropdown/bootstrap-hover-dropdown.js',
             'jquery-slimscroll/jquery.slimscroll.js',
@@ -138,9 +165,8 @@ gulp.task('mix_all', function() {
             'mindwo/dx_core.js',
             'metronic/app.js',
             'jquery-ui/jquery-ui.min.js',
-            'fullcalendar/moment.min.js',
-            'fullcalendar/fullcalendar.min.js',
-            'fullcalendar/lang-all.js',
+            'fullcalendar/fullcalendar.js',
+            'fullcalendar/locale-all.js',
             'mindwo/blocks/calendar.js',
             'resources/assets/plugins/datetimepicker/jquery.datetimepicker.js',
             'mindwo/blocks/employee_count.js',
@@ -161,10 +187,11 @@ gulp.task('mix_all', function() {
         mix.scripts(['mindwo/pages/search_top.js', 'mindwo/pages/userlinks.js'], 'public/js/elix_userlinks.js', 'resources/assets/plugins');
 
         // Scripts for grids/forms functionality
-        mix.scripts([
-            'moment.min.js',
+        mix.scripts([            
             'bootstrap-daterangepicker/daterangepicker.js',
+            'bootstrap-timepicker/js/bootstrap-timepicker.js',
             'bootstrap-colorpicker/js/bootstrap-colorpicker.js',
+            'bootstrap-multiselect/Scripts/bootstrap-multiselect.js',
             'dropzone/dropzone.min.js',
             'jasny-bootstrap/js/jasny-bootstrap.js',
             'tree/jstree.min.js',
@@ -189,17 +216,22 @@ gulp.task('mix_all', function() {
             'mindwo/fields/bool.js',
             'mindwo/fields/image.js',
             'mindwo/fields/phone.js',
+            'mindwo/fields/color.js',
+            'mindwo/fields/int.js',
+            'mindwo/fields/time.js',
+            'mindwo/pages/doc_generator.js',
             'datatables/datatables.all.min.js',
             'datatables/plugins/bootstrap/datatables.bootstrap.js',
             'float-thead/dist/jquery.floatThead.js',
             'mindwo/crypto/crypto.js',
+            'mindwo/visual_ui/workflow.js',
+            'mxgraph/mxClient.min.js',
             'mindwo/crypto/crypto_regen.js',
             'mindwo/crypto/crypto_field.js',
             'mindwo/crypto/crypto_file_field.js',
             'mindwo/crypto/crypto_user_panel.js',
             'mindwo/blocks/view_editor.js',
-                    //'mindwo/visual_ui/workflow.js',
-                    //'mxgraph/src/js/mxClient.js',
+            'mindwo/forms/chat.js',
         ], 'public/js/elix_view.js', 'resources/assets/plugins');
 
         mix.less([
@@ -215,8 +247,7 @@ gulp.task('mix_all', function() {
             'elix_block_report_plugins.css'
         ], 'public/css/elix_block_report.css', 'public/css');
 
-        mix.scripts([
-            'moment.min.js',
+        mix.scripts([            
             'bootstrap-daterangepicker/daterangepicker.js',
             'mindwo/blocks/report.js',
             'flot/jquery.flot.min.js',
@@ -252,8 +283,10 @@ gulp.task('mix_all', function() {
         mix.less([
             'pages/employee/personal_docs.less',
             'pages/employee/notes.less',
-            'pages/employee/timeoff.less'
+            'pages/employee/timeoff.less',
+            'pages/sticky_footer.less'
         ], 'public/css/elix_employee_profile.css');
+        
 
         // script for birthdays searching widget
         //$this->addJSInclude('metronic/global/plugins/moment.min.js');
@@ -264,8 +297,7 @@ gulp.task('mix_all', function() {
         //$this->addJSInclude('js/pages/date_range.js');
         //$this->addJSInclude('js/blocks/emplbirth.js');
 
-        mix.scripts([
-            'moment.min.js',
+        mix.scripts([            
             'bootstrap-daterangepicker/daterangepicker.js',
             'tree/jstree.min.js',
             'mindwo/pages/search_tools.js',
@@ -276,8 +308,7 @@ gulp.task('mix_all', function() {
         // Scripts for articles search page functionality
         mix.scripts([
             'cubeportfolio/js/jquery.cubeportfolio.js',
-            'jscroll/jquery.jscroll.js',
-            'moment.min.js',
+            'jscroll/jquery.jscroll.js',            
             'bootstrap-daterangepicker/daterangepicker.js',
             'mindwo/pages/date_range.js',
             'mindwo/pages/search_tools.js',
@@ -340,23 +371,72 @@ gulp.task('mix_all', function() {
             'resources/assets/plugins/mindwo/pages/mail.js'
         ], 'public/js/elix_mail.js', './');
 	
-		// Styles for constructor wizard interface
-		mix.styles([
-			'resources/assets/plugins/mindwo/css/constructor_wizard.css'
-		], 'public/css/elix_constructor_wizard.css', './');
-		
-		// Scripts for constructor wizard interface
-		mix.scripts([
-			'resources/assets/plugins/mindwo/blocks/view_editor.js',
-			'resources/assets/plugins/mindwo/pages/constructor_grid.js',
-		    'resources/assets/plugins/mindwo/pages/constructor_wizard.js'
+        // Styles for constructor wizard interface
+        mix.styles([
+            'resources/assets/less/pages/sticky_footer.less',
+            'resources/assets/plugins/mindwo/css/constructor_wizard.css'
+        ], 'public/css/elix_constructor_wizard.css', './');
+
+        // Scripts for constructor wizard interface
+        mix.scripts([
+            'resources/assets/plugins/mindwo/blocks/view_editor.js',
+			'resources/assets/plugins/mindwo/pages/constructor_tabs.js',
+            'resources/assets/plugins/mindwo/pages/constructor_grid.js',
+            'resources/assets/plugins/mindwo/pages/constructor_wizard.js'
         ], 'public/js/elix_constructor_wizard.js', './');
+        
+        // Scripts for login page
+        mix.scripts([
+            'mindwo/pages/cache_scripts.js'
+        ], 'public/js/elix_login.js', 'resources/assets/plugins');
+        
+        // Scripts for menu builder page
+        mix.scripts([
+           'horizontal-timeline/horizontal-timeline.js'
+        ], 'public/js/elix_timeline.js', 'resources/assets/plugins');
+        
+        // Scripts for timeline widget
+        mix.scripts([
+           'mindwo/pages/menu_builder.js'
+        ], 'public/js/elix_menu_builder.js', 'resources/assets/plugins');
+        
+        // LESS Styles for menu builder file
+        mix.less([
+           'pages/sticky_footer.less'
+        ], 'public/css/elix_menu_builder.css');
+        
+        // Styles for scheduler
+        mix.styles([
+            'fullcalendar-scheduler/scheduler.css',
+            'jquery-contextMenu/jquery.contextMenu.css'
+        ], 'public/css/elix_scheduler.css', 'resources/assets/plugins');
+        
+        // Scripts for scheduler
+        mix.scripts([
+           'fullcalendar-scheduler/scheduler.js',
+           'mindwo/pages/education/dx_scheduler.js',
+           'jquery-contextMenu/jquery.contextMenu.js'
+        ], 'public/js/elix_scheduler.js', 'resources/assets/plugins');
+        
+        // Styles for complecting
+        mix.styles([
+            'fullcalendar-scheduler/scheduler.css',
+        ], 'public/css/elix_complect.css', 'resources/assets/plugins');
+        
+        // Scripts for complecting
+        mix.scripts([
+           'fullcalendar-scheduler/scheduler.js',
+           'mindwo/pages/education/dx_complect.js',
+           'mindwo/pages/education/dx_group_info.js',
+        ], 'public/js/elix_complect.js', 'resources/assets/plugins');
 		
         // Minify all scripts
         mix.version([
             'js/elix_userlinks.js',
             'js/elix_plugins.js',
             'js/elix_view.js',
+            'js/elix_education.js',
+            'css/elix_education.css',
             'js/elix_employees.js',
             'js/elix_profile.js',
             'css/elix_plugins.css',
@@ -379,8 +459,18 @@ gulp.task('mix_all', function() {
             'css/elix_mail.css',
             'js/elix_birth.js',
             'css/elix_colors_bamboo.css',
+            'css/elix_colors_darkred.css',
+            'css/elix_colors_grayred.css',
             'js/elix_constructor_wizard.js',
-			'css/elix_constructor_wizard.css'
+            'css/elix_constructor_wizard.css',
+            'js/elix_login.js',
+            'js/elix_menu_builder.js',
+            'css/elix_menu_builder.css',
+            'js/elix_timeline.js',
+            'js/elix_scheduler.js',
+            'css/elix_scheduler.css',
+            'js/elix_complect.js',
+            'css/elix_complect.css'
         ]);
     });
 });

@@ -2,6 +2,7 @@
 
 @section('main_custom_css')
   <link href="{{ elixir('css/elix_mail.css') }}" rel="stylesheet"/>
+  @include('pages.view_css_includes')
 @endsection
 
 @section('main_custom_javascripts')
@@ -17,6 +18,10 @@
     @endif
   </script>
   <script src="{{ elixir('js/elix_mail.js') }}" type='text/javascript'></script>
+  {{--
+  Must not be included due to JS conflicts
+  @include('pages.view_js_includes')
+  --}}
 @endsection
 
 @section('main_content')

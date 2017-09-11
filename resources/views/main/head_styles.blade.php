@@ -1,5 +1,5 @@
     {{-- plugin styles --}}
-    <link href="{{ asset('metronic/global/plugins/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{Request::root()}}/{{ getIncludeVersion('metronic/global/plugins/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" type="text/css"/>
     <link href="{{ asset('metronic/global/plugins/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/>
     <link href="{{ elixir('css/elix_plugins.css') }}" rel="stylesheet" type="text/css"/>
     {{-- /plugin styles --}}

@@ -55,6 +55,7 @@ return [
     
     // here and further needs to revalidate translation (2016-10-04)
     'import_wrong_date' => "In the Excel file date field '%s' provided wrong value '%s'! Dates must be in format '%s' or '%s'.",
+    'import_wrong_email' => "In the Excel file email field ':field' provided wrong value ':val'! E-mail must be in format like 'person@domain.com'.",
     
     'excel_row' => 'Some rows were not imported because of duplicate values. The skipped Excel row numbers: ',
     
@@ -114,6 +115,8 @@ return [
     
     'wrong_date_format' => "Data can't be saved! Wrong date format for the field '%s'. Date must be in format %s!",
     
+    'unknown_error' => "Something went wrong. Please reload page and try again!",
+    
     'workflow' => [
         'not_saved' => 'Workflow is not saved',
         'step_not_connected' => 'Workflow contains steps which are not connected to workflow',
@@ -153,4 +156,44 @@ return [
     'view_must_have_id_field' => 'The ID field is not included in the view as column. Please, include ID field - it can be set as hidden as well.',
     
     'wrong_action_object' => "System configuration error! It is provided wrong activity to the form, because activity is not intended for database table assigned to this form's register.",
+    
+    'form_in_editing' => "Data form is in editing mode. Please, save data or cancel editing.",
+    
+    'btn_ok' => 'OK',
+    'attention' => 'Attention!',
+    'import_wrong_multival' => "The multilevel classifier ':list' does not contain the value ':val'! Please, add value in classifier and then try again.",
+    'import_several_multival' => "The multilevel classifier ':list' have several rows ':val'! Please, make classifier values unique and then try again.",
+    'import_lookup_several' => "Can't map value for the field ':fld', because classifier ':list' have several records ':term'.",
+    'import_lookup_no_field' => "The list ':list' does not have field named ':fld'!",
+    
+    'not_valid_email' => "Provided email ':email' is not valid! Email must be in format like 'person@domain.com'.",
+    
+    'publish_validator_not_exists' => "Provided validator code ':code' is not correct!",
+    
+    'publish_validator_no_group' => "Provided wrong group ID ':id'!",
+    
+    'no_rights_on_complect' => 'You do not have rights on learning groups complecting functionality!',
+
+    'no_rights_on_organization' => 'You do not have rights on learning groups complecting functionality for provided organization!',
+
+    'no_rights_on_group' => 'You do not have rights on learning groups complecting functionality for provided group!',
+
+    'err_db_msg_title' => 'Data error',
+
+    'err_db_msg_general' => 'Data processing error! Please, contact your IT support.',
+
+    'cant_identify_object' => "Can not identify object by provided table name ':table'! Found objects count is :found.",
+    'cant_identify_register' => "Can not identify register by provided table name ':table'! Found registers count is :found.",
+    'object_dont_have_history' => "The object ':table' does not have history logic enabled!",
+    'object_update_without_where' => "The object ':table' update/delete method called without Where criteria!",
+    'object_update_without_id' => "The object ':table' update method called without ID field in the Where criteria!",
+    'object_update_without_compare' => "Wrong call of data changes audit method - it must be compared changes before by calling the method compareChanges().",
+    'object_update_commit_no_prepare' => "Wrong call of data changes save method - it must be prepared changes before by calling the method update().",
+    'object_delete_commit_no_history' => "Wrong call of data deletion method - it must be prepared changes before by calling the method delete()!",
+
+    'doc_gener_in_workflow' => "Record can't be edited, because it is beeing processed by an workflow or is with status Approoved!",
+    'doc_gener_no_template' => 'Register does not have any template attached!',
+    
+    'no_rights_on_custom_page' => "You don't have access rights on functionality ':page'!",
+    'custom_page_not_found' => "Page ':url' is not registered in the system pages register or functionality is not activated!",
 ];

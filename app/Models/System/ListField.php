@@ -14,10 +14,20 @@ class ListField extends Model
 		'type_id',
 		'title_list',
 		'title_form',
-                'rel_list_id',
-                'rel_display_field_id',
-                'default_value',
-                'operation_id',
-                'criteria'
+		'rel_list_id',
+		'rel_display_field_id',
+		'default_value',
+		'operation_id',
+		'criteria'
 	];
+
+	/**
+	 * Related list
+	 *
+	 * @return \App\System\List List model
+	 */
+	public function list()
+    {
+        return $this->belongsTo('\App\Models\System\Lists', 'list_id');
+    }
 }

@@ -576,51 +576,11 @@ class TasksController extends Controller
                         ->get();
         }
     
-        $list_table = \App\Libraries\Workflows\Helper::getListTableName($list_id);
-        
-        $arr_meta_vals = \App\Libraries\Workflows\Helper::getMetaFieldVal($list_table, $list_id, $item_id);
-        
-        $reg_nr = $arr_meta_vals[self::REPRESENT_REG_NR];
-        $info = $arr_meta_vals[self::REPRESENT_ABOUT];
-        $item_empl_id = $arr_meta_vals[self::REPRESENT_EMPL];
-        $task_type_title = DB::table('dx_tasks_types')->select('title')->where('id', '=', self::TASK_TYPE_INFO)->first()->title;
-        $list_title = DB::table('dx_lists')->select('list_title')->where('id', '=', $list_id)->first()->list_title;
-        
-        DB::transaction(function () use ($request, $users, $list_id, $item_id, $reg_nr, $info, $item_empl_id, $task_type_title, $list_title) {
+        $infoTask = new Workflows\InfoTask($list_id, $item_id, false);
+               
+        DB::transaction(function () use ($request, $users, $infoTask) {
             foreach($users as $user) {
-                $new_task_id = DB::table('dx_tasks')->insertGetId([
-                    'assigned_empl_id' => Auth::user()->id,
-                    'task_details' => $request->input('task_info'),
-                    'created_user_id' => Auth::user()->id,
-                    'created_time' => date('Y-n-d H:i:s'),
-                    'modified_user_id' => Auth::user()->id,
-                    'modified_time' => date('Y-n-d H:i:s'),
-                    'list_id' => $list_id,
-                    'item_id' => $item_id,
-                    'item_reg_nr' => $reg_nr,
-                    'item_info' => $info,
-                    'task_type_id' => self::TASK_TYPE_INFO,
-                    'task_created_time' => date('Y-n-d H:i:s'),
-                    'task_status_id' => self::TASK_STATUS_PROCESS,
-                    'task_employee_id' => $user->id,
-                    'item_empl_id' => $item_empl_id
-                ]);
-            
-                if ($user->email) {
-                    $this->sendNewTaskEmail([
-                        'email' => $user->email,
-                        'subject' => sprintf(trans('task_email.subject'), trans('index.app_name')),
-                        'task_type' => $task_type_title,
-                        'task_details' => $request->input('task_info'),
-                        'assigner' => Auth::user()->display_name,
-                        'due_date' => null,
-                        'list_title' => $list_title,
-                        'doc_id' => $item_id,
-                        'doc_about' => $info,
-                        'task_id' => $new_task_id,
-                        'date_now' => date('Y-n-d H:i:s')
-                    ]);
-                }
+                $infoTask->makeTask($user->id, $user->email, $request->input('task_info'));                
             }
         });
         
@@ -956,6 +916,12 @@ class TasksController extends Controller
             $is_delete_rights = 1; // because was able to start workflow
             
         }
+        
+        $frm = DB::table('dx_forms')
+               ->select('title')
+               ->where('list_id', '=', $list_id)
+               ->first();
+        
         return  view('elements.form_left_btns', [
                                 'is_edit_rights' => $is_edit_rights,
                                 'is_delete_rights' => $is_delete_rights,
@@ -966,7 +932,8 @@ class TasksController extends Controller
                                 'is_info_tasks_rights' => ($table_name == "dx_doc"),
                                 'is_word_generation_btn' => \App\Libraries\Helper::getWordGenerBtn($list_id),
                                 'info_tasks' => \App\Libraries\Helper::getInfoTasks($list_id, $item_id, $table_name),
-                                'list_id' => $list_id
+                                'list_id' => $list_id,
+                                'form_title' => $frm->title
                 ])->render();
     }
     
@@ -1866,7 +1833,7 @@ class TasksController extends Controller
                 case 4:
                     return ($item_val < $condition_val);
                 case 5:
-                    return (strpos(str_replace(" ", "", "," . $condition_val . ","), "," . $item_val . ",") > 0);
+                    return (strpos(str_replace(" ", "", "," . $condition_val . ","), "," . $item_val . ",") > -1);
                 case 6:
                     return isNull($item_val);
                 case 7:

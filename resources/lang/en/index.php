@@ -8,13 +8,13 @@
 
 return [
     
-    'app_name' => env('APP_NAME', 'MINDWO'),
+    'app_name' => 'MINDWO',
     
     'logo_txt' => '',
     
-    'site_title' => env('APP_NAME', 'MINDWO') . ' :: Login',
+    'site_title' => ':app :: Login',
     
-    'hello_title' => 'Welcome to the Mindwo team site!',
+    'hello_title' => 'Welcome to the :app team site!',
     
     'about_title' => 'This site is available only for authorized users.',
     
@@ -26,7 +26,7 @@ return [
     
     'login' => 'Login',
     
-    'version' => 'Version 4.0.38, &copy; 2012 - 2017',
+    'version' => 'Version 4.0.40, &copy; 2012 - 2017',
     
     'authorization_in_system' => 'Authorization in system',
     

@@ -55,4 +55,6 @@ return [
     'hint_whatsapp' => 'Open WhatsApp',
     
     'add_new_phone' => '[ADD NEW]',
+
+    'tree_config_err_no_parent' => "It is not possible to detect related record parent field name for the table ':table'! Please, contact your IT support.",
 ];

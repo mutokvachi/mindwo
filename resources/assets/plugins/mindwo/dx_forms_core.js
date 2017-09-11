@@ -219,11 +219,11 @@ function rel_new_form(ajax_url, list_id, item_id, call_field_id, call_field_htm_
         formData.append("call_field_id", call_field_id);
         formData.append("call_field_htm_id", call_field_htm_id);
         formData.append("call_field_type", call_field_type);
-        
+        /*
         if (item_id > 0) {
             formData.append("form_is_edit_mode", 1);
         }
-        
+        */
         $.ajax({ 
             type: 'POST',
             url: DX_CORE.site_url  + ajax_url,
@@ -380,6 +380,19 @@ function reload_edited_form(ajax_url, item_id, list_id, rel_field_id, rel_field_
             add_form_callbacks(old_form_htm_id, arr_callbacks);
         }
         
+        $("#list_item_view_form_" + old_form_htm_id).find(".modal-content").html(htm);
+
+        if (get_last_form_id() != ("list_item_view_form_" + old_form_htm_id)) {
+            var dom = $(htm);
+            dom.find("script").each(function() {
+                $.globalEval(this.text || this.textContent || this.innerHTML || '');
+            });
+
+            dom.filter('script').each(function(){           
+                $.globalEval(this.text || this.textContent || this.innerHTML || '');
+            });
+        }
+        
         var callback_result = true;
         if (typeof arr_callbacks != 'undefined') {
             if (typeof arr_callbacks.after_save != 'undefined') {
@@ -387,20 +400,7 @@ function reload_edited_form(ajax_url, item_id, list_id, rel_field_id, rel_field_
             }
         }
         
-        if (callback_result) {
-            $("#list_item_view_form_" + old_form_htm_id).find(".modal-content").html(htm);
-
-            if (get_last_form_id() != ("list_item_view_form_" + old_form_htm_id)) {
-                var dom = $(htm);
-                dom.find("script").each(function() {
-                    $.globalEval(this.text || this.textContent || this.innerHTML || '');
-                });
-
-                dom.filter('script').each(function(){           
-                    $.globalEval(this.text || this.textContent || this.innerHTML || '');
-                });
-            }
-
+        if (callback_result) {  
             var tool_height = $("#top_toolbar_list_item_view_form_" + old_form_htm_id).height();
 
             $("#list_item_view_form_" + old_form_htm_id).find(".modal-body").height(height_content - tool_height-21);
@@ -779,28 +779,6 @@ function delete_multiple_items(list_id, grid_htm_id, items, is_count1)
     
     // izpildam AJAX pieprasījumu
     request.doRequest();
-}
-
-/**
- * Izveido JSON formāta tekstu, kurā ietverts ierakta ID, kas tiks padots Word ģenerēšanas Controller
- * Tas nepieciešams, lai servera pusē varētu izmantot View objektus, kuriem kā viens no parametriem ir jānorāda JSON filtra nosacījumi
- * Mums arī ir nepieciešams, lai WORD tiktu ģenerēts tiesi 1 izvēlētajam ierakstam ar norādīto ID 
- * 
- * @param   integer     item_id     Ieraksta identifikators
- * @return  string                  JSON formāta teksts ar ID vērtību
- */ 
-function get_word_filter_data(item_id)
-{
-    var arr_filter = new Array();
-
-    var el = new Array();
-    
-    el.push('id');
-    el.push(item_id);
-
-    arr_filter.push(el);                    
-
-    return JSON.stringify(arr_filter);
 }
 
  /*

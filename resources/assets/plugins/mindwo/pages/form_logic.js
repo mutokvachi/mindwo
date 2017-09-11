@@ -741,11 +741,6 @@ var FormLogic = function()
             $(this).attr('data-is-init', 1);
         });
         
-        frm.find('.dx-form-btn-word[data-is-init!="1"]').click(function() {
-            generate_word(item_id, list_id, grid_htm_id, 'list_item_view_form_' + frm_uniq_id);
-            $(this).attr('data-is-init', 1);
-        });
-        
         frm.find('.dx-form-btn-print[data-is-init!="1"]').click(function() {
             downloadFormPDF(list_id, item_id);
             $(this).attr('data-is-init', 1);
@@ -755,6 +750,20 @@ var FormLogic = function()
         handleInfoTaskBtnClick(section);
         
         initCancelLogic(section, list_id, item_id);
+    };
+    
+    /**
+     * Sets event handlers on forms setings link
+     * 
+     * @param {object} section Form object
+     * @returns {undefined}
+     */
+    var handleSettingLinkClick = function(section) {
+        var frm = $("#list_item_view_form_" + section.attr("dx_form_id"));
+        
+        frm.find(".dx-cms-settings-link").click(function () {
+            view_list_item("form", 4, 10, 0, 0, "", "");
+        });
     };
     
     /**
@@ -873,6 +882,7 @@ var FormLogic = function()
             handleCancelWorkflowMenuClick($(this));
             handleItemHistoryClick($(this));
             
+            handleSettingLinkClick($(this));
             adjustDataTabs($(this));
             setFocusFirstField($(this));
             

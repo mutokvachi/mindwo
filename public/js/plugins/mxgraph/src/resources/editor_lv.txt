@@ -1,5 +1,5 @@
-askZoom=Norādiet tuvinājumu (%)
+askZoom=Ievadiet tuvinājumu (%)
 properties=Parametri
 outline=Izcelt
 tasks=Uzdevumi
-help=Palīgs
+help=Palīdzība

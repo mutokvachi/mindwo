@@ -63,8 +63,10 @@
 	  };
   </script>
   <script src="{{ elixir('js/elix_orgchart.js') }}" type='text/javascript'></script>
+  @include('pages.view_js_includes')
 @endsection
 
 @section('main_custom_css')
   <link href="{{ elixir('css/elix_orgchart.css') }}" rel="stylesheet"/>
+  @include('pages.view_css_includes')
 @endsection

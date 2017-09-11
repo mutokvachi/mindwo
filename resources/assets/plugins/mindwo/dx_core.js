@@ -35,9 +35,8 @@ var DX_CORE = {
     trans_tree_close: "Aizvērt",
     trans_tree_chosen: "Izvēlētā vērtība:",
     trans_tree_cancel: "Atcelt",
-    trans_tree_choose: "Izvēlēties"
-
-
+    trans_tree_choose: "Izvēlēties",
+    is_grid_height_resize: 1
 };
 
 function getProgressInfo() {

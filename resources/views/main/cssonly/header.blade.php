@@ -5,8 +5,8 @@
       
         @if(!trans('index.logo_txt'))
           <a href="/">
-            @if(($theme = \App\Models\UI\Theme::getCurrent()) && file_exists(public_path('assets/global/logo/mindwo-'.strtolower($theme->title).'.png')))
-              <img src="{{ asset('assets/global/logo/mindwo-'.strtolower($theme->title).'.png') }}" alt="LOGO" class="logo-default"/>
+            @if(($theme = \App\Models\UI\Theme::getCurrent()) && file_exists(public_path('assets/global/logo/logo-'.strtolower($theme->code).'.png')))
+              <img src="{{ asset('assets/global/logo/logo-'.strtolower($theme->code).'.png') }}" alt="LOGO" class="logo-default"/>
             @else
               <img src="{{ asset(config('dx.logo_small', 'assets/global/logo/medus_black.png')) }}" alt="LOGO" class="logo-default"/>
             @endif
@@ -73,6 +73,7 @@
             </li>
             <!-- END USER LOGIN DROPDOWN -->
         
+          @include('static_blocks.chat_notif')
         
           @if ($user_tasks_count > 0)
             <!-- BEGIN TODO DROPDOWN -->

@@ -416,6 +416,7 @@ namespace App\Libraries
                 $this->sql = $this->getInsertSQL($tbl, $time_now);
             }
             else {
+                $this->history->compareChanges(); //ToDo: here we need to redesing to get out SQLs from transaction
                 $this->history->makeUpdateHistory(); // obligāti izpildam vispirms, jo citādi masīvā var ierakstīt arī lietotāja laukus, kas veic darbību
                 $this->sql = $this->getUpdateSQL($tbl, $time_now);
                 

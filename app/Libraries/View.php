@@ -30,6 +30,12 @@ namespace App\Libraries {
         public $is_rights_check_off = 0;
         
         /**
+         * Indicates if it is used an custom SQL string for view definition
+         * @var boolean 
+         */
+        public $is_custom_sql = false;
+        
+        /**
          * Include hidden fields in the view model array
          * @var boolean 1 - include, 0 - dont include 
          */
@@ -714,10 +720,11 @@ namespace App\Libraries {
                     }
                     
                     $grid_sql = "SELECT * FROM (SELECT " . $sql_fields . " FROM " . $this->list_obj_db_name . $sql_join . " WHERE 1=1 " . $this->getListLevelFilter() . $report_filter->getWhereSQL() . $sql_multi . $sql_tab_where . $superv_sql . $source_rights . $this->sql_user_rights . $spec_access . ") tb WHERE 1=1 " . $sql_filter;
-                   
+                    
                 }
                 else
                 {
+                    $this->is_custom_sql = true;
                     $grid_sql = $view_row->custom_sql . $report_filter->getWhereSQL();
                     
                     $grid_sql = str_replace("[ME]", $this->user_id, $grid_sql);
