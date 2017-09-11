@@ -26,7 +26,7 @@ return [
     
     'login' => 'Login',
     
-    'version' => 'Version 4.0.39, &copy; 2012 - 2017',
+    'version' => 'Version 4.0.40, &copy; 2012 - 2017',
     
     'authorization_in_system' => 'Authorization in system',
     
