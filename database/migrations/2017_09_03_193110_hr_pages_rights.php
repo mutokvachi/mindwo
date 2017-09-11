@@ -21,7 +21,12 @@ class HrPagesRights extends HRMigration
             
             foreach(trans('db_' . $this->table_name . '.custom_pages') as $page) {
                 
-                if ($page['url_title'] != 'calendar/scheduler' && $page['url_title'] != 'calendar/complect') {
+                if ($page['url_title'] != 'calendar/scheduler' && 
+                    $page['url_title'] != 'calendar/complect' &&
+                    $page['url_title'] != 'constructor' &&
+                    $page['url_title'] != 'constructor/register/create' &&
+                    $page['url_title'] != 'constructor/menu/1') {
+                        
                     $pg = DB::table('dx_pages')->where('title','=', $page['title'])->first();
                     
                     if ($pg) {                                           
@@ -44,7 +49,12 @@ class HrPagesRights extends HRMigration
             $list_id = App\Libraries\DBHelper::getListByTable($this->table_name)->id; 
             
             foreach(trans('db_' . $this->table_name . '.custom_pages') as $page) {
-                if ($page['url_title'] != 'calendar/scheduler' && $page['url_title'] != 'calendar/complect') {
+                if ($page['url_title'] != 'calendar/scheduler' && 
+                    $page['url_title'] != 'calendar/complect' &&
+                    $page['url_title'] != 'constructor' &&
+                    $page['url_title'] != 'constructor/register/create' &&
+                    $page['url_title'] != 'constructor/menu/1') {
+
                     $pg = DB::table('dx_pages')->where('title','=', $page['title'])->first();
 
                     if ($pg) {                   
