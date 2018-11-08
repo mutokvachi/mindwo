@@ -10,7 +10,7 @@ use DB;
 use Config;
 use Hash;
 use Log;
-
+use Session;
 /**
  * User authorization controller. 
  * It can use different authentication methods - OpenLDAP, Active Directory, default systems authentication (Laravel)
@@ -99,6 +99,12 @@ class UserController extends Controller
             if (strlen($dx_redirect) > 0) {
                 return redirect()->away($dx_redirect);
             } else {
+                $user_id = Auth::user()->id;
+                $role = DB::table('dx_users_roles')->where('user_id',$user_id)->first();
+
+                Session::put('my_user_id', $user_id);
+                Session::put('my_user_role', $role->id);
+
                 return redirect()->intended('/');
             }
         } catch (\Exception $e) {
@@ -452,4 +458,42 @@ class UserController extends Controller
                 ->where('id', $user_id)
                 ->update(['last_attempt' => date("Y-m-d H:i:s"), 'auth_attempts' => $attempt]);
     }
+
+    public function conditions(){
+        $role_id = Session::get('my_user_role');
+        $terms = DB::table('dx_condition_roles')->where('role_id', $role_id)->first();
+
+        if(empty($terms))
+            dd('There are no terms&conditions text for this role!');
+
+        return view('conditions', compact('terms'));
+    }
+
+    public function conditionsStatus($status){
+        $time = time();
+        $user_id = Session::get('my_user_id');
+
+        $statuses = ['nullable','decline', 'agree'];
+        if(!array_search($status, $statuses) || !isset($user_id))
+            return redirect()->route('logout');
+        
+        DB::table('dx_conditions')->where('user_id', $user_id)->delete();
+        DB::table('dx_conditions')->insert([
+            'user_id' => $user_id,
+            'status'  => $status,
+            'time'    => $time
+        ]);
+
+        if($status == 'decline')
+            return redirect()->route('logout');
+
+        return redirect('/');
+    }
+
+    public function test(){
+        $env = Config::get('dx.TERMS_CONDITIONS');
+
+        dd('hello testpage');
+    }
+
 }

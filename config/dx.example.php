@@ -2,6 +2,9 @@
 //Rename this file to dx.php for production or development environment
 return [
     
+    //terms&conditions checker
+    'TERMS_CONDITIONS' => env('TERMS_CONDITIONS', false),
+
     /*
     |--------------------------------------------------------------------------
     | Excel eksporta datnes maksimāli pieļaujamais rindu skaits

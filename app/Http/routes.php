@@ -339,3 +339,8 @@ Route::group(['middleware' => ['auth_page'], 'prefix' => 'calendar', 'namespace'
 });
 
 Route::get('/groups_calendar/load/{date}/{direction}', 'Widgets\EventsController@loadGroupsCalendar')->name('groups_calendar_load');
+
+Route::get('/conditions', 'UserController@conditions')->middleware('auth')->name('conditions');
+Route::get('/conditions/{status}', 'UserController@conditionsStatus')->middleware('auth')->name('conditionsStatus');
+
+Route::get('/testMyPage', 'UserController@test')->middleware(['auth','conditions'])->name('test');

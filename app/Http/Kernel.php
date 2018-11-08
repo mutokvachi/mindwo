@@ -58,5 +58,6 @@ class Kernel extends HttpKernel
 		//'orgchart_access' => \App\Http\Middleware\OrgChartAccess::class,
         //'constructor_access' => \App\Http\Middleware\ConstructorAccess::class,
         'auth_page' => \App\Http\Middleware\CustomPageAccess::class,
+        'conditions' => \App\Http\Middleware\RedirectToConditions::class,
     ];
 }
