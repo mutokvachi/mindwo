@@ -151,11 +151,11 @@
         </a>
         <div class="title">Terms and Conditions</div>
         <div class="txt-block">
-            <p class="txt">{!! $terms->description !!}</p>
+            <p class="txt">{!! $terms->agreement_text !!}</p>
         </div>
         <div class="d-flex btns">
             <a href="{{ route('conditionsStatus', ['status'=>'decline']) }}" class="btn decline">Decline</a>
-            <a href="{{ route('conditionsStatus', ['status'=>'agree']) }}" class="btn accept">I Agree</a>
+            <a href="{{ route('conditionsStatus', ['status'=> $terms->role_id]) }}" class="btn accept">I Agree</a>
         </div>
     </div>
 </body>
